@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - all fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [
+        "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+      ],
+      "phone_numbers": Array [
+        "f337ffab71e9bf94c3cb7811bd7d6d7a3bee15022d27b5726b24224fc24e01a0",
+      ],
+    },
+  },
+  "event": "fQ92^RLkQyhJ8TU3nYnh",
+  "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+  "properties": Object {
+    "event_channel": "other",
+    "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+    "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+  },
+  "timestamp": "fQ92^RLkQyhJ8TU3nYnh",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - required fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [],
+      "phone_numbers": Array [],
+    },
+  },
+  "event": "fQ92^RLkQyhJ8TU3nYnh",
+  "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+  "properties": Object {
+    "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+    "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+  },
+  "timestamp": "fQ92^RLkQyhJ8TU3nYnh",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - all fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [
+        "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+      ],
+      "phone_numbers": Array [
+        "03dec1b6379a35cbe10edb6ca30cf987b00116202c3825dece1d98c7a0718a09",
+      ],
+    },
+  },
+  "event": "BkRZ5",
+  "event_id": "BkRZ5",
+  "event_set_id": "BkRZ5",
+  "partner_name": "Segment",
+  "properties": Object {
+    "contents": Array [
+      Object {
+        "content_category": "BkRZ5",
+        "content_id": "BkRZ5",
+        "content_name": "BkRZ5",
+        "content_type": "BkRZ5",
+        "price": -79287355210465.28,
+        "quantity": -79287355210465.28,
+      },
+    ],
+    "currency": "DZD",
+    "event_channel": "email",
+    "order_id": "BkRZ5",
+    "shop_id": "BkRZ5",
+    "value": -79287355210465.28,
+  },
+  "timestamp": "BkRZ5",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - required fields 1`] = `
+Object {
+  "context": Object {
+    "user": Object {
+      "emails": Array [],
+      "phone_numbers": Array [],
+    },
+  },
+  "event": "BkRZ5",
+  "event_id": "BkRZ5",
+  "event_set_id": "BkRZ5",
+  "partner_name": "Segment",
+  "properties": Object {
+    "currency": "DZD",
+    "order_id": "BkRZ5",
+    "shop_id": "BkRZ5",
+    "value": -79287355210465.28,
+  },
+}
+`;

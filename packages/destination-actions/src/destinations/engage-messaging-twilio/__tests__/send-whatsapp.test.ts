@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
+import { Logger } from '@segment/actions-core/src/destination-kit'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
@@ -9,13 +10,14 @@ const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
     twilioApiKeySID: 'f',
     twilioApiKeySecret: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'd',
+    spaceId,
     sourceId: 'e'
   }
   const getDefaultMapping = (overrides?: any) => {
@@ -316,6 +318,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('throws an error when whatsapp number cannot be formatted', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
       const actionInputData = {
         event: createMessagingTestEvent({
           timestamp,
@@ -325,12 +329,77 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
-        })
+        }),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
       }
 
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
+      )
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`))
+      )
+    })
+
+    it('throws an error when liquid template parsing fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          contentVariables: { '1': '{{profile.traits.firstName$}}', '2': '{{profile.traits.address.street}}' },
+          traits: {
+            firstName: 'Soap',
+            address: {
+              street: '360 Scope St'
+            }
+          }
+        }),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      const response = twilio.testAction('sendWhatsApp', actionInputData)
+      await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
+        )
+      )
+    })
+
+    it('throws an error when Twilio API request fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      const expectedErrorResponse = {
+        code: 21211,
+        message: "The 'To' number is not a valid phone number.",
+        more_info: 'https://www.twilio.com/docs/errors/21211',
+        status: 400
+      }
+
+      nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping(),
+        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+      }
+
+      const response = twilio.testAction('sendWhatsApp', actionInputData)
+      await expect(response).rejects.toThrowError()
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        `TE Messaging: Twilio Programmable API error - ${spaceId} - [${JSON.stringify(expectedErrorResponse)}]`
       )
     })
 

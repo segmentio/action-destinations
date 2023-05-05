@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
-import { StatsClient } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
@@ -40,7 +40,8 @@ const fetchProfileTraits = async (
   settings: Settings,
   profileId: string,
   statsClient: StatsClient | undefined,
-  tags: string[]
+  tags: string[],
+  logger?: Logger | undefined
 ): Promise<Record<string, string>> => {
   try {
     const endpoint = getProfileApiEndpoint(settings.profileApiEnvironment, settings.region as Region)
@@ -59,6 +60,7 @@ const fetchProfileTraits = async (
     const body = await response.json()
     return body.traits
   } catch (error) {
+    logger?.error(`TE Messaging: Email profile traits request failure - ${settings.spaceId} - [${error}]`)
     tags.push('reason:profile_error')
     statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
     throw new IntegrationError('Unable to get profile traits for the email message', 'Email trait fetch failure', 500)
@@ -92,16 +94,18 @@ interface UnlayerResponse {
 
 const generateEmailHtml = async (
   request: RequestFn,
-  apiKey: string,
+  settings: Settings,
   design: string,
   statsClient: StatsClient | undefined,
-  tags: string[]
+  tags: string[],
+  logger?: Logger | undefined
 ): Promise<string> => {
   try {
+    statsClient?.incr('actions-personas-messaging-sendgrid.unlayer_request', 1, tags)
     const response = await request('https://api.unlayer.com/v2/export/html', {
       method: 'POST',
       headers: {
-        authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+        authorization: `Basic ${Buffer.from(`${settings.unlayerApiKey}:`).toString('base64')}`,
         'content-type': 'application/json'
       },
       body: JSON.stringify({
@@ -113,6 +117,7 @@ const generateEmailHtml = async (
     const body = await response.json()
     return (body as UnlayerResponse).data.html
   } catch (error) {
+    logger?.error(`TE Messaging: Email export request failure - ${settings.spaceId} - [${error}]`)
     tags.push('reason:generate_email_html')
     statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
     throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
@@ -131,12 +136,15 @@ const parseTemplating = async (
   profile: Profile,
   contentType: string,
   statsClient: StatsClient | undefined,
-  tags: string[]
+  tags: string[],
+  settings: Settings,
+  logger?: Logger | undefined
 ) => {
   try {
     const parsedContent = await Liquid.parseAndRender(content, { profile })
     return parsedContent
   } catch (error) {
+    logger?.error(`TE Messaging: Email templating parse failure - ${settings.spaceId} - [${error}]`)
     tags.push('reason:parse_templating')
     statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
     throw new IntegrationError(
@@ -341,7 +349,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
@@ -349,6 +357,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
     if (!payload.send) {
+      logger?.info(`TE Messaging: Email send disabled - ${settings.spaceId}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
       return
     }
@@ -357,6 +366,9 @@ const action: ActionDefinition<Settings, Payload> = {
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
     ) {
+      logger?.info(
+        `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${settings.spaceId}`
+      )
       statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
       return
     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
@@ -380,6 +392,9 @@ const action: ActionDefinition<Settings, Payload> = {
         traits = payload?.traits ? payload?.traits : JSON.parse('{}')
       } else {
         if (!payload.userId) {
+          logger?.error(
+            `TE Messaging: Unable to process email, no userId provided and trait enrichment disabled - ${settings.spaceId}`
+          )
           tags.push('reason:missing_user_id')
           statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
           throw new IntegrationError(
@@ -388,7 +403,7 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags)
+        traits = await fetchProfileTraits(request, settings, payload.userId, statsClient, tags, logger)
       }
 
       const profile: Profile = {
@@ -403,6 +418,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (isRestrictedDomain(toEmail)) {
+        logger?.error(
+          `TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked - ${settings.spaceId}`
+        )
         tags.push('reason:restricted_domain')
         statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
         throw new IntegrationError(
@@ -425,88 +443,123 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const bcc = JSON.parse(payload.bcc ?? '[]')
-      const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', statsClient, tags)
+      const parsedSubject = await parseTemplating(
+        payload.subject,
+        profile,
+        'Subject',
+        statsClient,
+        tags,
+        settings,
+        logger
+      )
       let parsedBodyHtml
 
       if (payload.bodyUrl && settings.unlayerApiKey) {
-        const response = await request(payload.bodyUrl)
-        const body = await response.text()
+        const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
 
         const bodyHtml =
           payload.bodyType === 'html'
             ? body
-            : await generateEmailHtml(request, settings.unlayerApiKey, body, statsClient, tags)
-        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags)
+            : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
+        parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
       } else {
-        parsedBodyHtml = await parseTemplating(payload.bodyHtml ?? '', profile, 'Body HTML', statsClient, tags)
+        parsedBodyHtml = await parseTemplating(
+          payload.bodyHtml ?? '',
+          profile,
+          'Body HTML',
+          statsClient,
+          tags,
+          settings,
+          logger
+        )
       }
 
       // only include preview text in design editor templates
       if (payload.bodyType === 'design' && payload.previewText) {
-        const parsedPreviewText = await parseTemplating(payload.previewText, profile, 'Preview text', statsClient, tags)
+        const parsedPreviewText = await parseTemplating(
+          payload.previewText,
+          profile,
+          'Preview text',
+          statsClient,
+          tags,
+          settings,
+          logger
+        )
         parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
       }
 
-      const response = await request('https://api.sendgrid.com/v3/mail/send', {
-        method: 'post',
-        headers: {
-          authorization: `Bearer ${settings.sendGridApiKey}`
-        },
-        json: {
-          personalizations: [
-            {
-              to: [
-                {
-                  email: toEmail,
-                  name: name
+      try {
+        statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
+        const req: RequestOptions = {
+          method: 'post',
+          headers: {
+            authorization: `Bearer ${settings.sendGridApiKey}`
+          },
+          json: {
+            personalizations: [
+              {
+                to: [
+                  {
+                    email: toEmail,
+                    name: name
+                  }
+                ],
+                bcc: bcc.length > 0 ? bcc : undefined,
+                custom_args: {
+                  ...payload.customArgs,
+                  source_id: settings.sourceId,
+                  space_id: settings.spaceId,
+                  user_id: payload.userId ?? undefined,
+                  // This is to help disambiguate in the case it's email or email_address.
+                  __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+                  __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
                 }
-              ],
-              bcc: bcc.length > 0 ? bcc : undefined,
-              custom_args: {
-                ...payload.customArgs,
-                source_id: settings.sourceId,
-                space_id: settings.spaceId,
-                user_id: payload.userId ?? undefined,
-                // This is to help disambiguate in the case it's email or email_address.
-                __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-                __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
               }
-            }
-          ],
-          from: {
-            email: payload.fromEmail,
-            name: payload.fromName
-          },
-          reply_to: {
-            email: payload.replyToEmail,
-            name: payload.replyToName
-          },
-          subject: parsedSubject,
-          content: [
-            {
-              type: 'text/html',
-              value: parsedBodyHtml
-            }
-          ],
-          tracking_settings: {
-            subscription_tracking: {
-              enable: true,
-              substitution_tag: '[unsubscribe]'
+            ],
+            from: {
+              email: payload.fromEmail,
+              name: payload.fromName
+            },
+            reply_to: {
+              email: payload.replyToEmail,
+              name: payload.replyToName
+            },
+            subject: parsedSubject,
+            content: [
+              {
+                type: 'text/html',
+                value: parsedBodyHtml
+              }
+            ],
+            tracking_settings: {
+              subscription_tracking: {
+                enable: true,
+                substitution_tag: '[unsubscribe]'
+              }
             }
           }
         }
-      })
-      tags.push(`sendgrid_status_code:${response.status}`)
-      statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
-      if (payload?.eventOccurredTS != undefined) {
-        statsClient?.histogram(
-          'actions-personas-messaging-sendgrid.eventDeliveryTS',
-          Date.now() - new Date(payload?.eventOccurredTS).getTime(),
-          tags
-        )
+        statsClient?.set('actions-personas-messaging-sendgrid.request_body_size', JSON.stringify(req).length, tags)
+        const response = await request('https://api.sendgrid.com/v3/mail/send', req)
+        tags.push(`sendgrid_status_code:${response.status}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
+        if (payload?.eventOccurredTS != undefined) {
+          statsClient?.histogram(
+            'actions-personas-messaging-sendgrid.eventDeliveryTS',
+            Date.now() - new Date(payload?.eventOccurredTS).getTime(),
+            tags
+          )
+        }
+        return response
+      } catch (error: unknown) {
+        logger?.error(`TE Messaging: Email message request failure - ${settings.spaceId} - [${error}]`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.request-failure', 1, tags)
+        throw new IntegrationError('Unable to send email message', 'SendGrid API request failure', 500)
       }
-      return response
     } else {
+      logger?.error(
+        `TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}" - ${settings.spaceId}`
+      )
       statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
       throw new IntegrationError(
         `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
