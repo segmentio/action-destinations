@@ -38,11 +38,9 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
       return
     }
     if (!VWO.event) {
-      VWO.event =
-        VWO.event ||
-        function (...args) {
-          VWO.push(['event'].concat([].slice.call(args)))
-        }
+      VWO.event = function (...args) {
+        VWO.push(['event', ...args])
+      }
     }
     VWO.event(sanitisedEventName, formattedProperties, {
       source: 'segment.web',
