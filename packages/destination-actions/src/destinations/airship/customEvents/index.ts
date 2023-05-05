@@ -42,10 +42,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Airship',
+      description: 'If true, Segment will batch events before sending to Airship. Limit 100 events per request.',
+      default: false
     }
   },
   perform: (request, { settings, payload }) => {
     return setCustomEvent(request, settings, payload)
+  },
+  performBatch: (request, { settings, payload }) => {
+    return setBatchCustomEvent(request, settings, payload)
   }
 }
 

@@ -12,6 +12,16 @@ export function setCustomEvent(request: RequestClient, settings: Settings, paylo
 }
 
 // exported Action function
+export function setBatchCustomEvent(request: RequestClient, settings: Settings, payloads: CustomEventsPayload[]) {
+  const uri = `${settings.endpoint}/api/custom-events`
+  const airship_payload = []
+  for (let i = 0; i <= payloads.length; i++) {
+    airship_payload.push(_build_custom_event_object(payloads[i]))
+  }
+  return do_request(request, uri, airship_payload)
+}
+
+// exported Action function
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
   const uri = `${settings.endpoint}/api/channels/attributes`
   const attributes = _build_attributes_object(payload)
