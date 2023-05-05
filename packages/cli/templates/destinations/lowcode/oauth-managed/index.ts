@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 {{#json.actions}}
-import {{name}} from './{{name}}'
+import {{key}} from './{{key}}'
 {{/json.actions}}
 
 const destination: DestinationDefinition<Settings> = {
@@ -51,7 +51,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     {{#json.actions}}
-    {{name}},
+    {{key}},
     {{/json.actions}}
   }
 }

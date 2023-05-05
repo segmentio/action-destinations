@@ -98,7 +98,7 @@ export default class Init extends Command {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
       renderTemplates(templatePath, targetDirectory, answers)
       this.spinner.succeed(`Scaffold integration`)
-    } catch (err) {
+    } catch (err: any) {
       this.spinner.fail(`Scaffold integration: ${chalk.red(err.message)}`)
       this.exit()
     }
@@ -113,13 +113,21 @@ export default class Init extends Command {
         overwriteExisting
       )
       this.spinner.succeed(chalk`Created snapshot tests for {magenta ${slug}} destination`)
-    } catch (err) {
+    } catch (err: any) {
       this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
       this.exit()
     }
 
     for (const action of actions) {
       const actionsTargetDirectory = `${targetDirectory}/${action.key}`
+
+      action.fields.forEach((field: any) => {
+        const hasDirective = field.hasDefault && field.default && field.default.type === 'directive'
+        const hasDefaultValue = field.hasDefault && field.default && field.default.type !== 'directive'
+        field.hasDefaultValue = hasDefaultValue
+        field.isString = field.default?.type === 'string'
+        field.hasDirective = hasDirective
+      })
 
       try {
         renderTemplates(
@@ -138,7 +146,7 @@ export default class Init extends Command {
           overwriteExisting
         )
         this.spinner.succeed(chalk`Scaffold action {magenta ${action.name}}`)
-      } catch (err) {
+      } catch (err: any) {
         this.spinner.fail(chalk`Scaffold action {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
@@ -155,7 +163,7 @@ export default class Init extends Command {
           overwriteExisting
         )
         this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
-      } catch (err) {
+      } catch (err: any) {
         this.spinner.fail(chalk`Snapshot test creation failed {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
