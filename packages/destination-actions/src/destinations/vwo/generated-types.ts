@@ -6,7 +6,7 @@ export interface Settings {
    */
   vwoAccountId: number
   /**
-   * VWO API Key
+   * VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.
    */
   apikey?: string
 }
