@@ -4,8 +4,46 @@ import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 
+// exported Action function
 export function setCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
   const uri = `${settings.endpoint}/api/custom-events`
+  const airship_payload = _build_custom_event_object(payload)
+  return do_request(request, uri, [airship_payload])
+}
+
+// exported Action function
+export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
+  const uri = `${settings.endpoint}/api/channels/attributes`
+  const attributes = _build_attributes_object(payload)
+  const airship_payload = {
+    attributes: attributes,
+    audience: {
+      named_user_id: `${payload.user}`
+    }
+  }
+  return do_request(request, uri, airship_payload)
+}
+
+// exported Action function
+export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
+  const uri = `${settings.endpoint}/api/named_users/tags`
+  const airship_payload = _build_tags_object(payload)
+  return do_request(request, uri, airship_payload)
+}
+
+function do_request(request: RequestClient, uri: string, payload: object) {
+  return request(uri, {
+    method: 'POST',
+    json: payload
+  })
+}
+
+function _build_custom_event_object(payload: CustomEventsPayload): object {
+  /*
+  This function takes a Track payload and builds a Custom Event payload.
+  It adds the `source: 'Segment'` property and validates the occurred timestamp but doesn't
+  do much else in terms of validation. Traits line up pretty well with Custom Event properties.
+  */
   if (payload.properties) {
     payload.properties.source = 'segment'
   } else {
@@ -24,11 +62,16 @@ export function setCustomEvent(request: RequestClient, settings: Settings, paylo
       properties: payload.properties
     }
   }
-  return do_request(request, uri, [airship_payload])
+  return airship_payload
 }
 
-export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
-  const uri = `${settings.endpoint}/api/channels/attributes`
+function _build_attributes_object(payload: AttributesPayload): object {
+  /*
+  This function takes an Identify event and builds an Attributes payload. It converts 
+  `address` or `company` objects into known attributes, otherwise just passes it through.
+  Also, if the valuse of a trait is an empty string, we assume the intention is to remove the
+  attribute from the given user.
+  */
   const attributes = []
   const traits = payload.traits || {}
   for (const key in traits) {
@@ -37,7 +80,7 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
         const current_object: any = traits[key]
         for (const k in current_object) {
           const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes.push(build_attribute(new_attribute_key, current_object[k], payload.occurred))
+          attributes.push(_build_attribute(new_attribute_key, current_object[k], payload.occurred))
         }
         continue
       }
@@ -46,26 +89,41 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       if (typeof traits[key] == 'object') {
         const current_object: any = traits[key]
         if (current_object.name) {
-          attributes.push(build_attribute(key, current_object.name, payload.occurred))
+          attributes.push(_build_attribute(key, current_object.name, payload.occurred))
         }
       }
       continue
     }
 
     // if trait value is empty string, remove attribute, otherwise set it
-    attributes.push(build_attribute(key, traits[key], payload.occurred))
+    attributes.push(_build_attribute(key, traits[key], payload.occurred))
   }
-  const airship_payload = {
-    attributes: attributes,
-    audience: {
-      named_user_id: `${payload.user}`
-    }
-  }
-  return do_request(request, uri, airship_payload)
+  return attributes
 }
 
-export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
-  const uri = `${settings.endpoint}/api/named_users/tags`
+function _build_attribute(attribute_key: string, attribute_value: any, occurred: string | number) {
+  /*
+  This function builds a single attribute from a key/value.
+  */
+  const attribute: { action: string; key: string; value?: string | number | boolean; timestamp: string | boolean } = {
+    action: 'set',
+    key: attribute_key,
+    timestamp: validate_timestamp(occurred)
+  }
+  if (typeof attribute_value == 'string' && attribute_value.length === 0) {
+    attribute.action = 'remove'
+  } else {
+    attribute.action = 'set'
+    attribute.value = attribute_value
+  }
+  return attribute
+}
+
+function _build_tags_object(payload: TagsPayload): object {
+  /*
+  This function takes a Group event and builds a Tag payload. It assumes values are booleans
+  and adds tags for `true` values, removes them for `false` values. It ignores all other types.
+  */
   const tags_to_add: string[] = []
   const tags_to_remove: string[] = []
   const properties = payload.properties || {}
@@ -89,30 +147,7 @@ export function manageTags(request: RequestClient, settings: Settings, payload: 
   if (tags_to_remove.length > 0) {
     airship_payload.remove = { 'segment-integration': tags_to_remove }
   }
-
-  return do_request(request, uri, airship_payload)
-}
-
-function do_request(request: RequestClient, uri: string, payload: object) {
-  return request(uri, {
-    method: 'POST',
-    json: payload
-  })
-}
-
-function build_attribute(attribute_key: string, attribute_value: any, occurred: string | number) {
-  const attribute: { action: string; key: string; value?: string | number | boolean; timestamp: string | boolean } = {
-    action: 'set',
-    key: attribute_key,
-    timestamp: validate_timestamp(occurred)
-  }
-  if (typeof attribute_value == 'string' && attribute_value.length === 0) {
-    attribute.action = 'remove'
-  } else {
-    attribute.action = 'set'
-    attribute.value = attribute_value
-  }
-  return attribute
+  return airship_payload
 }
 
 function trait_to_attribute_map(attribute_key: string): string {
