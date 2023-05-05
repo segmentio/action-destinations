@@ -72,16 +72,16 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
     }
   },
 
-  initialize: async ({ settings }) => {
+  initialize: async ({ settings }, deps) => {
     if (settings.addSmartcode) {
-      await initScript({
+      initScript({
         vwoAccountId: settings.vwoAccountId,
         settingsTolerance: settings.settingsTolerance,
         libraryTolerance: settings.libraryTolerance,
         useExistingJquery: settings.useExistingJquery
       })
     }
-
+    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 500)
     return window.VWO
   },
 
