@@ -96,7 +96,7 @@ export default class Init extends Command {
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
-      renderTemplates(templatePath, targetDirectory, answers)
+      renderTemplates(templatePath, targetDirectory, answers, overwriteExisting)
       this.spinner.succeed(`Scaffold integration`)
     } catch (err: any) {
       this.spinner.fail(`Scaffold integration: ${chalk.red(err.message)}`)
