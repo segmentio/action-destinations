@@ -37,7 +37,7 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
         const current_object: any = traits[key]
         for (const k in current_object) {
           const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes.push(add_attribute(new_attribute_key, current_object[k], payload.occurred))
+          attributes.push(build_attribute(new_attribute_key, current_object[k], payload.occurred))
         }
         continue
       }
@@ -46,13 +46,14 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       if (typeof traits[key] == 'object') {
         const current_object: any = traits[key]
         if (current_object.name) {
-          attributes.push(add_attribute(key, current_object.name, payload.occurred))
+          attributes.push(build_attribute(key, current_object.name, payload.occurred))
         }
       }
       continue
     }
 
-    attributes.push(add_attribute(key, traits[key], payload.occurred))
+    // if trait value is empty string, remove attribute, otherwise set it
+    attributes.push(build_attribute(key, traits[key], payload.occurred))
   }
   const airship_payload = {
     attributes: attributes,
@@ -60,7 +61,6 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
       named_user_id: `${payload.user}`
     }
   }
-
   return do_request(request, uri, airship_payload)
 }
 
@@ -100,13 +100,19 @@ function do_request(request: RequestClient, uri: string, payload: object) {
   })
 }
 
-function add_attribute(attribute_key: string, attribute_value: any, occurred: string | number) {
-  return {
+function build_attribute(attribute_key: string, attribute_value: any, occurred: string | number) {
+  const attribute: { action: string; key: string; value?: string | number | boolean; timestamp: string | boolean } = {
     action: 'set',
-    key: `${attribute_key}`,
-    value: `${attribute_value}`,
+    key: attribute_key,
     timestamp: validate_timestamp(occurred)
   }
+  if (typeof attribute_value == 'string' && attribute_value.length === 0) {
+    attribute.action = 'remove'
+  } else {
+    attribute.action = 'set'
+    attribute.value = attribute_value
+  }
+  return attribute
 }
 
 function trait_to_attribute_map(attribute_key: string): string {
