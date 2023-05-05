@@ -8,9 +8,12 @@ export function initScript({
   useExistingJquery = false,
   isSpa = 1
 }) {
-  window._vwo_code =
-    window._vwo_code ||
-    (function () {
+  return new Promise((resolve, reject) => {
+    if (window._vwo_code) {
+      resolve()
+    }
+
+    window._vwo_code ||= (function () {
       var account_id = vwoAccountId,
         settings_tolerance = settingsTolerance,
         library_tolerance = libraryTolerance,
@@ -42,8 +45,12 @@ export function initScript({
             b.src = a
             b.type = 'text/javascript'
             b.innerText
-            b.onerror = function () {
+            b.onerror = function (e) {
               _vwo_code.finish()
+              reject(e)
+            }
+            b.onload = function () {
+              window.VWO ? resolve() : reject('Unable to initialize VWO')
             }
             d.getElementsByTagName('head')[0].appendChild(b)
           },
@@ -78,4 +85,5 @@ export function initScript({
       window._vwo_settings_timer = code.init()
       return code
     })()
+  })
 }
