@@ -37,12 +37,12 @@ export function formatPayload(
   accountId = 0
 ) {
   let formattedProperties: { [k: string]: unknown } = {}
-  const vwoUuid = generateUUIDFor(payload.vwoUuid, accountId)
+  const vwoUuid = apiKey.trim().length ? generateUUIDFor(payload.vwoUuid, accountId) : payload.vwoUuid
   if (isTrack) {
     formattedProperties = { ...payload.properties }
     delete formattedProperties['vwo_uuid']
   }
-  const epochTime = payload.timestamp ? new Date(payload.timestamp).valueOf() : new Date().valueOf()
+  const epochTime = new Date().valueOf()
   const time = Math.floor(epochTime)
   const sessionId = Math.floor(epochTime / 1000)
   const page = payload.page
@@ -77,7 +77,7 @@ export function formatPayload(
       }
     : {}
 
-  if (apiKey) {
+  if (apiKey.trim().length) {
     const visitorObj = {
       props: {
         vwo_fs_environment: apiKey

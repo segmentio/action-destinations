@@ -22,11 +22,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": null,
+      "time": 1683296328967,
     },
-    "msgId": "yw0zltLcbQ-NaN",
-    "sessionId": null,
-    "visId": "yw0zltLcbQ",
+    "msgId": "9CA260C8850151728733F4F1723CA265-1683296328",
+    "sessionId": 1683296328,
+    "visId": "9CA260C8850151728733F4F1723CA265",
     "visitor": Object {
       "props": Object {
         "vwo_fs_environment": "yw0zltLcbQ",
@@ -55,11 +55,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": 1682943886604,
+      "time": 1683296328915,
     },
-    "msgId": "yw0zltLcbQ-1682943886",
-    "sessionId": 1682943886,
-    "visId": "yw0zltLcbQ",
+    "msgId": "9CA260C8850151728733F4F1723CA265-1683296328",
+    "sessionId": 1683296328,
+    "visId": "9CA260C8850151728733F4F1723CA265",
     "visitor": Object {
       "props": Object {
         "vwo_fs_environment": "yw0zltLcbQ",

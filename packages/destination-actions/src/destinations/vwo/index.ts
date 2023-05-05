@@ -40,8 +40,8 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       apikey: {
-        label: 'VWO API Key',
-        description: 'VWO API Key',
+        label: 'VWO SDK Key',
+        description: 'VWO Fullstack SDK Key. It is required only if you are using VWO Fullstack suite.',
         type: 'string',
         required: false
       }

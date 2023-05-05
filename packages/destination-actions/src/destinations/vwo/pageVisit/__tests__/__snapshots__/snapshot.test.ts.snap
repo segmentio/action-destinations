@@ -21,11 +21,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": null,
+      "time": 1683296328940,
     },
-    "msgId": "Cr*5Vs3e2@*dYNybfL-NaN",
-    "sessionId": null,
-    "visId": "Cr*5Vs3e2@*dYNybfL",
+    "msgId": "D12C7C233F8E501E86D4E4A550168083-1683296328",
+    "sessionId": 1683296328,
+    "visId": "D12C7C233F8E501E86D4E4A550168083",
     "visitor": Object {
       "props": Object {
         "vwo_fs_environment": "Cr*5Vs3e2@*dYNybfL",
@@ -53,11 +53,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": 1682943886577,
+      "time": 1683296328884,
     },
-    "msgId": "Cr*5Vs3e2@*dYNybfL-1682943886",
-    "sessionId": 1682943886,
-    "visId": "Cr*5Vs3e2@*dYNybfL",
+    "msgId": "D12C7C233F8E501E86D4E4A550168083-1683296328",
+    "sessionId": 1683296328,
+    "visId": "D12C7C233F8E501E86D4E4A550168083",
     "visitor": Object {
       "props": Object {
         "vwo_fs_environment": "Cr*5Vs3e2@*dYNybfL",

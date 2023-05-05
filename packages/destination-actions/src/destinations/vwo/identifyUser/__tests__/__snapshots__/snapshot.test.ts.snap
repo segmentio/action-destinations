@@ -21,11 +21,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": null,
+      "time": 1683296328970,
     },
-    "msgId": "sl#5^du3V5b#Q5V-NaN",
-    "sessionId": null,
-    "visId": "sl#5^du3V5b#Q5V",
+    "msgId": "6F1CE6652B2D59948041CF9788B16CB0-1683296328",
+    "sessionId": 1683296328,
+    "visId": "6F1CE6652B2D59948041CF9788B16CB0",
     "visitor": Object {
       "props": Object {
         "segment.testType": "sl#5^du3V5b#Q5V",
@@ -55,11 +55,11 @@ Object {
           "source": "segment.cloud",
         },
       },
-      "time": 1682943886578,
+      "time": 1683296328905,
     },
-    "msgId": "sl#5^du3V5b#Q5V-1682943886",
-    "sessionId": 1682943886,
-    "visId": "sl#5^du3V5b#Q5V",
+    "msgId": "6F1CE6652B2D59948041CF9788B16CB0-1683296328",
+    "sessionId": 1683296328,
+    "visId": "6F1CE6652B2D59948041CF9788B16CB0",
     "visitor": Object {
       "props": Object {
         "segment.testType": "sl#5^du3V5b#Q5V",
