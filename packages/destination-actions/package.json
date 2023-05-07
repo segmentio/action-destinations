@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.156.0",
+  "version": "3.156.1-add-synchronization-support.13+0647b547",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -39,8 +39,8 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.62.1",
-    "@segment/actions-shared": "^1.44.1",
+    "@segment/actions-core": "^3.62.2-add-synchronization-support.15+0647b547",
+    "@segment/actions-shared": "^1.44.2-add-synchronization-support.15+0647b547",
     "@types/node": "^18.11.15",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
@@ -68,5 +68,5 @@
       "lcov"
     ]
   },
-  "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"
+  "gitHead": "0647b547bca97d3953eb7cd8935626160222ed9a"
 }

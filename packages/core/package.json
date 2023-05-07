@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.62.1",
+  "version": "3.62.2-add-synchronization-support.15+0647b547",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
@@ -76,5 +76,6 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  }
+  },
+  "gitHead": "0647b547bca97d3953eb7cd8935626160222ed9a"
 }
