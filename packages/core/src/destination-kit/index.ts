@@ -213,8 +213,8 @@ interface OnEventOptions {
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
-  /**If set, refreshAccessToken execution will be synchronized*/
-  lockStore?: LockStore
+  /** Handler to perform synchronization. If set, refresh access token action will be synchronized across all events*/
+  synchronizeRefreshAccessToken?: () => Promise<void>
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -223,14 +223,6 @@ interface OnEventOptions {
 export interface TransactionContext {
   transaction: Record<string, string>
   setTransaction: (key: string, value: string) => void
-}
-
-/**
- * LockStore passes handlers to achieve synchronization for token generartion.
- */
-export interface LockStore {
-  acquireLock(): Promise<void>
-  releaseLock(): Promise<void>
 }
 
 export interface StateContext {
@@ -349,7 +341,7 @@ export class Destination<Settings = JSONObject> {
   async refreshAccessToken(
     settings: Settings,
     oauthData: OAuth2ClientCredentials,
-    lockStore?: LockStore
+    synchronizeRefreshAccessToken?: () => Promise<void>
   ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
@@ -372,13 +364,10 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
-    // If lockstore is defined, synchronize refreshAccessToken. Else just execute refreshAccessToken
-    await lockStore?.acquireLock()
-    try {
-      return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
-    } finally {
-      await lockStore?.releaseLock()
-    }
+    // Acquire Lock if acquireLock option is passed. Acquire Lock is to required to perform synchronized token refresh
+    // for destinations that invalidate previoius tokens
+    await synchronizeRefreshAccessToken?.()
+    return await this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
   private partnerAction(slug: string, definition: ActionDefinition<Settings>): Destination<Settings> {
@@ -596,7 +585,11 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings, options?.lockStore)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
@@ -644,7 +637,11 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings, options?.lockStore)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
