@@ -43,6 +43,8 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Region where the S3 bucket is hosted.',
         type: 'string'
       },
+        type: 'string'
+      },
       sftp_username: {
         label: 'Username (SFTP only)',
         description: 'User credentials for establishing an SFTP connection with LiveRamp.',

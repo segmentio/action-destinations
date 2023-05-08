@@ -2,6 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processData } from './operations'
+import generateS3RequestOptions from '../../../lib/AWS/s3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered',
@@ -20,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Additional data pertaining to the user.`,
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue:only',
+      defaultObjectUI: 'object',
       default: { '@path': '$.context.traits' }
     },
     delimiter: {
