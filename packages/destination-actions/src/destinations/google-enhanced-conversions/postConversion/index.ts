@@ -269,7 +269,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const statusCode = err.response.status
         if (statusCode === 400) {
           const data = (err.response as ModifiedResponse).data as GoogleError
-          const invalidOAuth = data.error_statuses.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
+          const invalidOAuth = data?.error_statuses?.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
           if (invalidOAuth) {
             throw new IntegrationError('The OAuth token is missing or invalid.', 'INVALID_OAUTH_TOKEN', 401)
           }
