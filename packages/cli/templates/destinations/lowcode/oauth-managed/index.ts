@@ -13,18 +13,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth-managed',
     fields: {
-      username: {
-        label: 'Username',
-        description: 'Your {{json.name}} username',
-        type: 'string',
-        required: true
+      {{#json.oauth.fields}}
+      {{key}}: {
+        label: '{{label}}',
+        description: '{{description}}',
+        type: '{{type}}',
+        required: {{required}}
       },
-      password: {
-        label: 'password',
-        description: 'Your {{json.name}} password.',
-        type: 'string',
-        required: true
-      }
+      {{/json.oauth.fields}}
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
