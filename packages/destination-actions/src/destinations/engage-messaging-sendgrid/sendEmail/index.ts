@@ -419,8 +419,7 @@ const action: ActionDefinition<Settings, Payload> = {
             400
           )
         }
-        const response = await request(payload.bodyUrl)
-        const body = await response.text()
+        const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
 
         parsedBodyHtml = await parseTemplating(body, profile, 'Body', statsClient, tags, settings, logger)
       } else {
@@ -450,7 +449,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       try {
-        const response = await request('https://api.sendgrid.com/v3/mail/send', {
+        statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
+        const req: RequestOptions = {
           method: 'post',
           headers: {
             authorization: `Bearer ${settings.sendGridApiKey}`
@@ -498,7 +498,9 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             }
           }
-        })
+        }
+        statsClient?.set('actions-personas-messaging-sendgrid.request_body_size', JSON.stringify(req).length, tags)
+        const response = await request('https://api.sendgrid.com/v3/mail/send', req)
         tags.push(`sendgrid_status_code:${response.status}`)
         statsClient?.incr('actions-personas-messaging-sendgrid.response', 1, tags)
         if (payload?.eventOccurredTS != undefined) {
