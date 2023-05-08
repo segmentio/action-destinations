@@ -49,7 +49,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: {[key:string]: any}
+    readonly logDetails: {[key:string]: any} = {}
   ) {
   }
 

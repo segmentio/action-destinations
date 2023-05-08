@@ -32,7 +32,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: {[key:string]: any}
+    readonly logDetails: {[key:string]: any} = {}
   ) {
     super(request, payload, settings, statsClient, tags, logger, logDetails)
   }
