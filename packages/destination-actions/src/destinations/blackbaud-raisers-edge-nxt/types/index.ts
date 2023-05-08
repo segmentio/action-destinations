@@ -28,14 +28,26 @@ export interface FuzzyDate {
 export interface Constituent {
   address?: Address
   birthdate?: FuzzyDate
+  birthplace?: string
   email?: Email
+  ethnicity?: string
   first?: string
+  former_name?: string
   gender?: string
+  gives_anonymously?: boolean
   income?: string
+  industry?: string
   last: string
   lookup_id?: string
+  marital_status?: string
   online_presence?: OnlinePresence
   phone?: Phone
+  preferred_name?: string
+  religion?: string
+  suffix?: string
+  suffix_2?: string
+  title?: string
+  title_2?: string
   type?: string
 }
 
@@ -93,8 +105,14 @@ export interface ExistingPhone extends Phone {
 export interface Gift {
   acknowledgements?: GiftAcknowledgement[]
   amount: GiftAmount
+  batch_number?: string
+  batch_prefix?: string
+  constituency?: string
   constituent_id: string
   date: string | number
+  default_fundraiser_credits?: boolean
+  default_soft_credits?: boolean
+  gift_code?: string
   gift_splits: GiftSplit[]
   gift_status?: string
   is_anonymous?: boolean
@@ -106,6 +124,7 @@ export interface Gift {
   post_status?: string
   receipts?: GiftReceipt[]
   recurring_gift_schedule?: RecurringGiftSchedule
+  reference?: string
   subtype?: string
   type: string
 }

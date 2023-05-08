@@ -93,6 +93,9 @@ register('641d5acea88fa531b9068608', './optimizely-feature-experimentation-actio
 register('643697130067c2f408ff28ca', './rokt-audiences')
 register('643697f531f98a978f414453', './insider')
 register('643698ffee21b544f6aa756a', './insider-audiences')
+register('643fdecd5675b7a6780d0d67', './podscribe')
+register('643fdf094cfdbcf1bcccbc42', './usermaven')
+register('6447ca8bfaa773a2ba0777a0', './tiktok-offline-conversions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

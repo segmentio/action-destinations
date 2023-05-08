@@ -7,11 +7,23 @@ Object {
     "m": "2",
     "y": "2021",
   },
+  "birthplace": "H*Z39ROa",
+  "ethnicity": "H*Z39ROa",
   "first": "H*Z39ROa",
+  "former_name": "H*Z39ROa",
   "gender": "H*Z39ROa",
+  "gives_anonymously": true,
   "income": "H*Z39ROa",
+  "industry": "H*Z39ROa",
   "last": "H*Z39ROa",
   "lookup_id": "H*Z39ROa",
+  "marital_status": "H*Z39ROa",
+  "preferred_name": "H*Z39ROa",
+  "religion": "H*Z39ROa",
+  "suffix": "H*Z39ROa",
+  "suffix_2": "H*Z39ROa",
+  "title": "H*Z39ROa",
+  "title_2": "H*Z39ROa",
 }
 `;
 
