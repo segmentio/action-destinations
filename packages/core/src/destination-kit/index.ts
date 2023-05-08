@@ -213,6 +213,8 @@ interface OnEventOptions {
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  /** Handler to perform synchronization. If set, refresh access token action will be synchronized across all events*/
+  synchronizeRefreshAccessToken?: () => Promise<void>
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -336,10 +338,11 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
-  refreshAccessToken(
+  async refreshAccessToken(
     settings: Settings,
-    oauthData: OAuth2ClientCredentials
-  ): Promise<RefreshAccessTokenResult> | undefined {
+    oauthData: OAuth2ClientCredentials,
+    synchronizeRefreshAccessToken?: () => Promise<void>
+  ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
@@ -361,6 +364,9 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
+    // Acquire Lock if acquireLock option is passed. Acquire Lock is to required to perform synchronized token refresh
+    // for destinations that invalidate previoius tokens
+    await synchronizeRefreshAccessToken?.()
     return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
@@ -579,7 +585,11 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
@@ -627,7 +637,11 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
