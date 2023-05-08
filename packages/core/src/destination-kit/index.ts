@@ -365,7 +365,7 @@ export class Destination<Settings = JSONObject> {
     }
 
     // Acquire Lock if acquireLock option is passed. Acquire Lock is to required to perform synchronized token refresh
-    // for destinations that invalidate previoius tokens
+    // for destinations that invalidate previous tokens
     await synchronizeRefreshAccessToken?.()
     return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
