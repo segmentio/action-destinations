@@ -122,11 +122,12 @@ export default class Init extends Command {
       const actionsTargetDirectory = `${targetDirectory}/${action.key}`
 
       action.fields.forEach((field: any) => {
-        const hasDirective = field.hasDefault && field.default && field.default.type === 'directive'
-        const hasDefaultValue = field.hasDefault && field.default && field.default.type !== 'directive'
-        field.hasDefaultValue = hasDefaultValue
-        field.isString = field.default?.type === 'string'
-        field.hasDirective = hasDirective
+        const hasDefault = field.hasDefault && field.default
+        if (hasDefault) {
+          field.hasDefaultValue = field.default.type !== 'directive'
+          field.hasDirective = field.default.type === 'directive'
+          field.isString = field.default.type === 'string'
+        }
       })
 
       try {
