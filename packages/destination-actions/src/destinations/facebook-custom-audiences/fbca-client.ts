@@ -33,4 +33,9 @@ export default class Facebook {
         })
     }
 
+    getAllAudiences = async (accountId: string) => {
+        return this.request(`${BASE_URL}/${accountId}/customaudiences?fields=name`, {
+            method: 'GET',
+        })
+    }
 }
