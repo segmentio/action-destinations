@@ -13,15 +13,18 @@ enum SendabilityStatus {
   InvalidSubscriptionStatus = 'invalid_subscription_status'
 }
 
-interface TwilioApiError {
+interface TwilioApiError extends Error {
   response: {
     data: {
       code: number
       message: string
       more_info: string
       status: number
-    }
-  }
+    },
+    headers?: Response['headers'],
+  },
+  code?: number
+  status?: number
 }
 
 type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
@@ -44,8 +47,11 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined
-  ) {}
+    readonly logger: Logger | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly logDetails: {[key:string]: any}
+  ) {
+  }
 
   abstract getBody: (phone: string) => Promise<URLSearchParams>
 
@@ -58,6 +64,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
       return
     }
 
+    this.logger?.info("TE Messaging: getting content Body", JSON.stringify(this.logDetails))
     const body = await this.getBody(phone)
 
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
@@ -69,6 +76,8 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
       'base64'
     )
     try {
+      this.logger?.info("TE Messaging: Sending message to Twilio API", JSON.stringify(this.logDetails))
+
       const response = await this.request(
         `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
         {
@@ -89,14 +98,21 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
           this.tags
         )
       }
+
+      this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
+
+      this.logger?.info("TE Messaging: Message sent successfully", JSON.stringify(this.logDetails))
+
       return response
     } catch (error: unknown) {
       if (error instanceof Object) {
         const twilioApiError = error as TwilioApiError
+        this.logDetails['twilioApiError_response_data'] = twilioApiError.response.data
+        this.logDetails['twilio-request-id'] = twilioApiError.response.headers?.get('twilio-request-id')
+        this.logDetails['error'] = { status: twilioApiError.status, code: twilioApiError.code }
+
         this.logger?.error(
-          `TE Messaging: Twilio Programmable API error - ${this.settings.spaceId} - [${JSON.stringify(
-            twilioApiError.response.data
-          )}]`
+          `TE Messaging: Twilio Programmable API error - ${this.settings.spaceId} - [${JSON.stringify(this.logDetails)}]`
         )
         const errorCode = twilioApiError.response.data.code
         if (errorCode === 63018) {
