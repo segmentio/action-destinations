@@ -97,8 +97,8 @@ async function getCRMID(request: RequestClient, settings: Settings, payload: Pay
   if (segmentExists.length == 1) {
     segmentId = segmentExists[0].CrmDataId
   }
-  // Audience doesn't exist so we need to create one. There is not a risk to creating the audience during
-  // the batch uploads because for v1 we will be sending 1 batch of full audience syncs every 24 hours.
+  // If an audience does not exist, we will create it. In V1, we will send a single batch
+  // of full audience syncs every 24 hours to eliminate the risk of a race condition.
   else {
     const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
       method: 'POST',
