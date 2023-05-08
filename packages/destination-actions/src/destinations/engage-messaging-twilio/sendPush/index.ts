@@ -21,11 +21,68 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    title: {
-      label: 'Notification title',
-      description: 'The title to be displayed for your notification',
-      type: 'string',
-      required: false
+    customizations: {
+      label: 'Customizations',
+      description: '',
+      type: 'object',
+      properties: {
+        title: {
+          label: 'Notification title',
+          description: 'The title to be displayed for your notification',
+          type: 'string',
+          required: false
+        },
+        tapAction: {
+          label: 'Notification open action',
+          description: 'Sets the noitfication click action/category',
+          type: 'string',
+          required: false
+        },
+        deepLink: {
+          label: 'Notification title',
+          description: 'Sets the deep link',
+          type: 'string',
+          required: false
+        },
+        sound: {
+          label: 'Notification sound',
+          description: 'Sets the sound played when the notification arrives',
+          type: 'string',
+          required: false
+        },
+        priority: {
+          label: 'Notification priority',
+          description: 'Sets the priority of the message',
+          type: 'string',
+          required: false
+        },
+        badgeAmount: {
+          label: 'Badge amount',
+          description: 'The badge count which is used in combination with badge strategy to determine the final badge',
+          type: 'number',
+          required: false
+        },
+        badgeStrategy: {
+          label: 'Badge strategy',
+          description: 'Sets the badge count strategy in the notification',
+          type: 'string',
+          required: false,
+          choices: [
+            {
+              value: 'inc',
+              label: 'increment'
+            },
+            {
+              value: 'dec',
+              label: 'decrement'
+            },
+            {
+              value: 'set',
+              label: 'set'
+            }
+          ]
+        }
+      }
     },
     customArgs: {
       label: 'Custom Arguments',

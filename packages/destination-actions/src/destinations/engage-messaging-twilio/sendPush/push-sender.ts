@@ -6,6 +6,8 @@ import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { getTwilioContentTemplate } from '../utils/content'
 import { ContentTemplateResponse, RequestFn } from '../utils/types'
+import pickBy from 'lodash/pickBy'
+import identity from 'lodash/identity'
 
 const Liquid = new LiquidJs()
 
@@ -142,31 +144,48 @@ export class PushSender {
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     }
 
-    const parsedContent = await this.parseContent({
+    const parsedTemplateContent = await this.parseTemplateContent({
       ...content,
-      title: this.payload.title
+      title: this.payload.customizations?.title
     })
 
     try {
       const customData: Record<string, any> = {
         ...this.payload.customArgs,
-        space_id: this.settings.spaceId
-      }
-      const requestBody = new URLSearchParams({
-        Body: parsedContent.body
-        // Priority: undefined,
-        // Action: undefined,
-      })
-
-      if (parsedContent.title?.length) {
-        requestBody.append('Title', parsedContent.title)
+        space_id: this.settings.spaceId,
+        badgeAmount: this.payload.customizations?.badgeAmount,
+        badgeStrategy: this.payload.customizations?.badgeStrategy,
+        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined
       }
 
-      if (parsedContent.media?.length) {
-        customData['images'] = parsedContent.media
+      const apnPayloadOverrides: Record<string, any> = {
+        aps: {
+          'mutable-content': 1,
+          badge: this.payload.customizations?.badgeAmount,
+          sound: this.payload.customizations?.sound || 'default'
+        }
       }
 
-      return { requestBody, customData }
+      const fcmPayloadOverrides: Record<string, any> = {
+        mutable_content: true,
+        priority: this.payload.customizations?.priority,
+        notification: {
+          badge: this.payload.customizations?.badgeAmount,
+          sound: this.payload.customizations?.sound || 'default'
+        }
+      }
+
+      const requestBody = new URLSearchParams(
+        this.removeNullOfUndefinedKeys({
+          Body: parsedTemplateContent.body,
+          Action: this.payload.customizations?.tapAction,
+          Title: parsedTemplateContent.title,
+          FcmPayload: JSON.stringify(this.removeNullOfUndefinedKeys(fcmPayloadOverrides)),
+          ApnPayload: JSON.stringify(this.removeNullOfUndefinedKeys(apnPayloadOverrides))
+        })
+      )
+
+      return { requestBody, customData: this.removeNullOfUndefinedKeys(customData) }
     } catch (error) {
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logger?.error(`TE Messaging: Push failed to construct request body - [${error}]`)
@@ -174,7 +193,7 @@ export class PushSender {
     }
   }
 
-  private async parseContent(content: Content): Promise<Content> {
+  private async parseTemplateContent(content: Content): Promise<Content> {
     const profile = { profile: { traits: this.payload.traits } }
     try {
       return {
@@ -213,5 +232,9 @@ export class PushSender {
     }
 
     return null
+  }
+
+  private removeNullOfUndefinedKeys(obj: Record<any, any>): Record<any, any> {
+    return pickBy(obj, identity)
   }
 }
