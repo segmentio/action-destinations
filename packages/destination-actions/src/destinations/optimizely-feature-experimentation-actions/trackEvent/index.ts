@@ -1,4 +1,4 @@
-import { ActionDefinition, omit, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, omit, PayloadValidationError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProjectConfig } from '../types'
@@ -108,6 +108,13 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload }) => {
     const result = await request<ProjectConfig>(settings.dataFileUrl)
+    if (!result.data) {
+      throw new IntegrationError(
+        'This Optimizely project has been deactivated. Visit app.optimizely.com to activate it.',
+        'PROJECT_DEACTIVATED',
+        400
+      )
+    }
     const dataFile = result.data
     const eventId = getEventId(dataFile, payload.eventKey)
 
