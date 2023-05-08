@@ -16,6 +16,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Upload Mode',
         description: 'Choose delivery route for the files',
         type: 'string',
+        required: true,
         choices: [
           { value: 'S3', label: 'S3' },
           { value: 'SFTP', label: 'SFTP' }
@@ -36,6 +37,11 @@ const destination: DestinationDefinition<Settings> = {
         description: '',
         type: 'string'
       },
+      s3_aws_region: {
+        label: 'AWS Region',
+        description: '',
+        type: 'string'
+      },
       sftp_username: {
         label: 'Username (SFTP only)',
         description: '',
@@ -45,6 +51,11 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Password (SFTP only)',
         description: '',
         type: 'password'
+      },
+      sftp_folder_path: {
+        label: 'Folder Path (SFTP only)',
+        description: '',
+        type: 'string'
       }
     },
     testAuthentication: (_) => {

@@ -13,7 +13,6 @@ export interface Payload {
   }
   /**
    * Character used to separate tokens in the resulting file.
-   *       This character cannot be contained in any of your data points.
    */
   delimiter: string
   /**
