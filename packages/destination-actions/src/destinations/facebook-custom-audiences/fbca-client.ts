@@ -28,7 +28,8 @@ export default class Facebook {
       method: 'POST',
       json: {
         name: name,
-        subtype: 'CUSTOM'
+        subtype: 'CUSTOM',
+        customer_file_source: 'USER_PROVIDED_ONLY'
       },
       headers: {
         authorization: `Bearer ${this.accessToken}`
