@@ -12,6 +12,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+      settingsData.endpoint = 'https://go.airship.com'
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
@@ -45,6 +46,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+      settingsData.endpoint = 'https://go.airship.com'
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)

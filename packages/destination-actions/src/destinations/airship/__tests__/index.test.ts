@@ -14,7 +14,7 @@ describe('Airship', () => {
         settings: {
           app_key: 'valid-app-key',
           access_token: 'valid-access-token',
-          endpoint: 'https://go.urbanairship.com'
+          endpoint: 'US'
         }
       }
 
@@ -28,7 +28,7 @@ describe('Airship', () => {
       settings: {
         app_key: 'valid-app-key',
         access_token: 'invalid-access-token',
-        endpoint: 'https://go.urbanairship.com'
+        endpoint: 'US'
       }
     }
 
