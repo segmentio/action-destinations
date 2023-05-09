@@ -156,19 +156,19 @@ export class PushSender {
         Body: parsedTemplateContent.body,
         Action: this.payload.customizations?.tapAction,
         Title: parsedTemplateContent.title,
+        Sound: this.payload.customizations?.sound,
+        Priority: this.payload.customizations?.priority,
+        TimeToLive: this.payload.customizations?.ttl,
         FcmPayload: {
           mutable_content: true,
-          priority: this.payload.customizations?.priority,
           notification: {
-            badge: this.payload.customizations?.badgeAmount,
-            sound: this.payload.customizations?.sound || 'default'
+            badge: this.payload.customizations?.badgeAmount
           }
         },
         ApnPayload: {
           aps: {
             'mutable-content': 1,
-            badge: this.payload.customizations?.badgeAmount,
-            sound: this.payload.customizations?.sound || 'default'
+            badge: this.payload.customizations?.badgeAmount
           }
         }
       })

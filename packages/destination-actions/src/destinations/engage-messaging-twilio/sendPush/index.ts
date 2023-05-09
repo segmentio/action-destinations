@@ -54,7 +54,11 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Notification priority',
           description: 'Sets the priority of the message',
           type: 'string',
-          required: false
+          required: false,
+          choices: [
+            { label: 'low', value: 'low' },
+            { label: 'high', value: 'high' }
+          ]
         },
         badgeAmount: {
           label: 'Badge amount',
@@ -81,6 +85,12 @@ const action: ActionDefinition<Settings, Payload> = {
               label: 'set'
             }
           ]
+        },
+        ttl: {
+          label: 'Time to live',
+          description: 'Sets the time to live for the notification',
+          type: 'number',
+          required: false
         }
       }
     },

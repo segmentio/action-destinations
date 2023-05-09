@@ -38,6 +38,10 @@ export interface Payload {
      * Sets the badge count strategy in the notification
      */
     badgeStrategy?: string
+    /**
+     * Sets the time to live for the notification
+     */
+    ttl?: number
   }
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
