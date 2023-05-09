@@ -77,7 +77,6 @@ export class SmsMessageSender extends MessageSender<Payload> {
       )
       parsedBody = parsed.body
       parsedMedia = parsed.media
-      console.log('PARSED', JSON.stringify(parsed))
     }
 
     const body = new URLSearchParams({
