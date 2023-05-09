@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The template you sending
+   * The template to be sent
    */
   contentSid: string
   /**

@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     contentSid: {
       label: 'Content template Sid',
-      description: 'The template you sending',
+      description: 'The template to be sent',
       type: 'string',
       required: true
     },
