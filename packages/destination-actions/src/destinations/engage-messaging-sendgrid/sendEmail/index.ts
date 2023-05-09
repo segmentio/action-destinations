@@ -2,29 +2,10 @@ import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import cheerio from 'cheerio'
-import { htmlEscape } from 'escape-goat'
 import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
-
-const insertEmailPreviewText = (html: string, previewText: string): string => {
-  const $ = cheerio.load(html)
-
-  // See https://www.litmus.com/blog/the-little-known-preview-text-hack-you-may-want-to-use-in-every-email/
-  $('body').prepend(`
-    <div style='display: none; max-height: 0px; overflow: hidden;'>
-      ${htmlEscape(previewText)}
-    </div>
-
-    <div style='display: none; max-height: 0px; overflow: hidden;'>
-      ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
-    </div>
-  `)
-
-  return $.html()
-}
 
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string, region?: Region): string => {
@@ -435,18 +416,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       // only include preview text in design editor templates
-      if (payload.bodyType === 'design' && payload.previewText) {
-        const parsedPreviewText = await parseTemplating(
-          payload.previewText,
-          profile,
-          'Preview text',
-          statsClient,
-          tags,
-          settings,
-          logger
-        )
-        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
-      }
 
       try {
         statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
