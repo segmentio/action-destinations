@@ -120,3 +120,5 @@ export const dataFile = {
   ],
   revision: '55'
 }
+
+export const dataFileWithDisabledProject = undefined
