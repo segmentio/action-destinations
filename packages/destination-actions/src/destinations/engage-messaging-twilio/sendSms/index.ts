@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     media: {
       label: 'Media Urls',
       description: 'Media to attach to message',
-      type: 'text',
+      type: 'string',
       required: false,
       multiple: true
     },
@@ -136,24 +136,28 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, logger }) => {
+    console.log('AYOOOOO!!!!', JSON.stringify(payload))
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    const logDetails={
+    const logDetails = {
       userId: payload.userId,
-      subscriptionStatus: payload.externalIds?.map(eid=>({type: eid.type, subscriptionStatus: eid.subscriptionStatus})),
+      subscriptionStatus: payload.externalIds?.map((eid) => ({
+        type: eid.type,
+        subscriptionStatus: eid.subscriptionStatus
+      })),
       shouldSend: payload.send,
       contentSid: payload.contentSid,
       sourceId: settings.sourceId,
-      spaceId : settings.spaceId,
-      twilioApiKeySID : settings.twilioApiKeySID,
-      region : settings.region,
+      spaceId: settings.spaceId,
+      twilioApiKeySID: settings.twilioApiKeySID,
+      region: settings.region,
       messageId: payload.messageId
     }
-    logger?.info("TE Messaging: SMS Destination Action Performing...", JSON.stringify(logDetails))
+    logger?.info('TE Messaging: SMS Destination Action Performing...', JSON.stringify(logDetails))
 
     return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, logDetails).send()
   }
