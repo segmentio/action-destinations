@@ -266,6 +266,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Subscription group ID',
       type: 'string'
     },
+    byPassSubscription: {
+      label: 'By Pass Subscription',
+      description: 'Send email without subscription check',
+      type: 'boolean',
+      default: false
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
