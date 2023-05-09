@@ -6,8 +6,6 @@ import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { getTwilioContentTemplate } from '../utils/content'
 import { ContentTemplateResponse, RequestFn } from '../utils/types'
-import pickBy from 'lodash/pickBy'
-import identity from 'lodash/identity'
 
 const Liquid = new LiquidJs()
 
@@ -23,15 +21,9 @@ export class PushSender {
     readonly logger: Logger | undefined
   ) {}
 
-  // TODO: sendBatch = async () => {}
-
   send = async () => {
-    const recipients = this.payload.externalIds?.filter(
-      (extId) =>
-        extId.subscriptionStatus?.toLowerCase() === 'subscribed' &&
-        ['ios.push_token', 'android.push_token'].includes(extId.type?.toLowerCase() || '')
-    )
-    // do we want to emit a stat for each subscription/unsubscription/invalid subscription value?
+    const recipients = this.payload.externalIds?.filter((extId) => /subscribed/i.test(extId.subscriptionStatus || ''))
+
     // when no devices are capable of receiving a push
     if (!recipients?.length) {
       this.statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, this.tags)
@@ -43,8 +35,10 @@ export class PushSender {
       'base64'
     )
 
-    // we send a request for each individual subscribed device because the delivery webhook callback does not include the push token/external id value
-    // this is a limitation that will be handled post beta
+    /* we send a request for each individual subscribed device because the delivery
+     * webhook callback does not include the push token/external id value
+     * this is a limitation that will be handled post beta
+     */
     for (const recipient of recipients) {
       const webhookUrl = this.getWebhookUrlWithParams(recipient.type, recipient.id)
 
@@ -158,35 +152,36 @@ export class PushSender {
         media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined
       }
 
-      const apnPayloadOverrides: Record<string, any> = {
-        aps: {
-          'mutable-content': 1,
-          badge: this.payload.customizations?.badgeAmount,
-          sound: this.payload.customizations?.sound || 'default'
+      const body = this.removeEmpties({
+        Body: parsedTemplateContent.body,
+        Action: this.payload.customizations?.tapAction,
+        Title: parsedTemplateContent.title,
+        FcmPayload: {
+          mutable_content: true,
+          priority: this.payload.customizations?.priority,
+          notification: {
+            badge: this.payload.customizations?.badgeAmount,
+            sound: this.payload.customizations?.sound || 'default'
+          }
+        },
+        ApnPayload: {
+          aps: {
+            'mutable-content': 1,
+            badge: this.payload.customizations?.badgeAmount,
+            sound: this.payload.customizations?.sound || 'default'
+          }
         }
-      }
+      })
 
-      const fcmPayloadOverrides: Record<string, any> = {
-        mutable_content: true,
-        priority: this.payload.customizations?.priority,
-        notification: {
-          badge: this.payload.customizations?.badgeAmount,
-          sound: this.payload.customizations?.sound || 'default'
-        }
-      }
+      const requestBody = new URLSearchParams({
+        ...body,
+        FcmPayload: JSON.stringify(body.FcmPayload),
+        ApnPayload: JSON.stringify(body.ApnPayload)
+      })
 
-      const requestBody = new URLSearchParams(
-        this.removeNullOfUndefinedKeys({
-          Body: parsedTemplateContent.body,
-          Action: this.payload.customizations?.tapAction,
-          Title: parsedTemplateContent.title,
-          FcmPayload: JSON.stringify(this.removeNullOfUndefinedKeys(fcmPayloadOverrides)),
-          ApnPayload: JSON.stringify(this.removeNullOfUndefinedKeys(apnPayloadOverrides))
-        })
-      )
-
-      return { requestBody, customData: this.removeNullOfUndefinedKeys(customData) }
+      return { requestBody, customData: this.removeEmpties(customData) }
     } catch (error) {
+      console.log(error)
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logger?.error(`TE Messaging: Push failed to construct request body - [${error}]`)
       throw new IntegrationError('Unable to construct request body', 'Twilio Request Body Failure', 400)
@@ -234,7 +229,12 @@ export class PushSender {
     return null
   }
 
-  private removeNullOfUndefinedKeys(obj: Record<any, any>): Record<any, any> {
-    return pickBy(obj, identity)
+  // removes null, undefined, and keys with [] as the value
+  private removeEmpties(obj: Record<any, any>): Record<any, any> {
+    return JSON.parse(
+      JSON.stringify(obj, (_, value) => {
+        return value === null || value?.length === 0 ? undefined : value
+      })
+    )
   }
 }
