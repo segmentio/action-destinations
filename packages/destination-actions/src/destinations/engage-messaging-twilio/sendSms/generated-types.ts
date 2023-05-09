@@ -66,9 +66,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
-
   /**
-   * Message ID from segment event
+   * The Segment messageId
    */
   messageId?: string
 }
