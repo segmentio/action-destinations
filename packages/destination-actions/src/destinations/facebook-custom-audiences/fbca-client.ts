@@ -1,3 +1,4 @@
+import { DynamicFieldResponse } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 
@@ -12,6 +13,14 @@ const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
+interface GetAudiencesResponse {
+  data: [
+    {
+      name: string
+      id: string
+    }
+  ]
+}
 export default class Facebook {
   request: RequestClient
   accountId: string
@@ -52,12 +61,31 @@ export default class Facebook {
     })
   }
 
-  getAllAudiences = async (accountId: string) => {
-    return this.request(`${BASE_URL}/${accountId}/customaudiences?fields=name`, {
-      method: 'GET',
-      headers: {
-        authorization: `Bearer ${this.accessToken}`
+  getAllAudiences = async (): Promise<DynamicFieldResponse> => {
+    const NUM_AUDIENCES = 500
+    try {
+      const result = await this.request<GetAudiencesResponse>(
+        `${BASE_URL}/${this.accountId}/customaudiences?fields=name&limit=${NUM_AUDIENCES}`,
+        {
+          method: 'GET',
+          skipResponseCloning: true,
+          headers: {
+            authorization: `Bearer ${this.accessToken}`
+          }
+        }
+      )
+      console.log(result.data.data.length)
+      const choices = result.data.data.map((audience) => {
+        return { value: audience.id, label: audience.name }
+      })
+      return {
+        choices: choices
       }
-    })
+    } catch (err) {
+      console.log(err)
+      return {
+        choices: []
+      }
+    }
   }
 }

@@ -42,7 +42,8 @@ const action: ActionDefinition<Settings, Payload> = {
     updateId: {
       label: 'Update Audience ID',
       description: 'The ID to use when updating',
-      type: 'string'
+      type: 'string',
+      dynamic: true
     },
     updateSchema: {
       label: 'Update Audience Schema',
@@ -59,6 +60,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: 'The email to use when updating',
       type: 'string'
+    }
+  },
+  dynamicFields: {
+    updateId: async (request, data) => {
+      const fb: Facebook = new Facebook(request, data.payload.accountId, data.payload.accessToken)
+
+      return fb.getAllAudiences()
     }
   },
   perform: (request, { payload }) => {
