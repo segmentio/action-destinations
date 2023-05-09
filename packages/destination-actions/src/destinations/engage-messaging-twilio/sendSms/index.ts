@@ -30,7 +30,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: false
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',

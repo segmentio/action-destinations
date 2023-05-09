@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 {{#json.actions}}
-import {{name}} from './{{name}}'
+import {{key}} from './{{key}}'
 {{/json.actions}}
 
 const destination: DestinationDefinition<Settings> = {
@@ -13,18 +13,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth-managed',
     fields: {
-      username: {
-        label: 'Username',
-        description: 'Your {{json.name}} username',
-        type: 'string',
-        required: true
+      {{#json.oauth.fields}}
+      {{key}}: {
+        label: '{{label}}',
+        description: '{{description}}',
+        type: '{{type}}',
+        required: {{required}}
       },
-      password: {
-        label: 'password',
-        description: 'Your {{json.name}} password.',
-        type: 'string',
-        required: true
-      }
+      {{/json.oauth.fields}}
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
@@ -51,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     {{#json.actions}}
-    {{name}},
+    {{key}},
     {{/json.actions}}
   }
 }

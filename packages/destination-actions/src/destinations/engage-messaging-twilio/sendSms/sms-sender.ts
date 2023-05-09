@@ -2,11 +2,26 @@
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { MessageSender, RequestFn } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
+
+interface ContentTemplateResponse {
+  types: {
+    [type: string]: {
+      body: string
+      media?: string[]
+    }
+  }
+}
+
+type Profile = {
+  user_id: string | undefined
+  phone: string
+  traits: Payload['traits']
+}
 
 export class SmsMessageSender extends MessageSender<Payload> {
   constructor(
@@ -23,6 +38,13 @@ export class SmsMessageSender extends MessageSender<Payload> {
   getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
 
   getBody = async (phone: string) => {
+    if (!this.payload.body && !this.payload.contentSid) {
+      this.logger?.error(
+        `TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
+      )
+      throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
+    }
+
     // TODO: GROW-259 remove this when we can extend the request
     // and we no longer need to call the profiles API first
     let traits
@@ -38,13 +60,16 @@ export class SmsMessageSender extends MessageSender<Payload> {
       traits
     }
 
-    let parsedBody
+    let parsedBody: string
+    let parsedMedia: string[] | undefined = []
 
-    try {
-      parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
-    } catch (error: unknown) {
-      this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
-      throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
+    if (this.payload.contentSid) {
+      const data = await this.getContentTemplate()
+      const parsed = await this.parseContent(this.getUnparsedContent(data), profile)
+      parsedBody = parsed.body
+      parsedMedia = parsed.media
+    } else {
+      parsedBody = (await this.parseContent({ body: this.payload.body ?? '' }, profile)).body
     }
 
     const body = new URLSearchParams({
@@ -52,6 +77,10 @@ export class SmsMessageSender extends MessageSender<Payload> {
       From: this.payload.from,
       To: phone,
       ShortenUrls: 'true'
+    })
+
+    parsedMedia?.forEach((media) => {
+      body.append('MediaUrl', media)
     })
 
     return body
@@ -91,6 +120,71 @@ export class SmsMessageSender extends MessageSender<Payload> {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
       this.logger?.error(`TE Messaging: SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
+    }
+  }
+
+  private getContentTemplate = async () => {
+    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+      'base64'
+    )
+
+    try {
+      const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
+        method: 'GET',
+        headers: {
+          authorization: `Basic ${twilioToken}`
+        }
+      })
+      const data = await response.json()
+      return data as ContentTemplateResponse
+    } catch (error) {
+      this.tags.push('reason:get_content_template')
+      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+      this.logger?.error(
+        `TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId} - [${error}]`
+      )
+      throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
+    }
+  }
+
+  private getUnparsedContent = (data: ContentTemplateResponse): ContentTemplateResponse['types'][string] => {
+    if (!data.types) {
+      this.logger?.error(
+        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${
+          this.settings.spaceId
+        } - [${JSON.stringify(data)}]`
+      )
+      throw new IntegrationError(
+        'Unexpected response from Twilio Content API',
+        `SMS template does not contain a template type`,
+        500
+      )
+    }
+    const type = Object.keys(data.types)[0] // eg 'twilio/text', 'twilio/media', etc
+    if (type === 'twilio/text' || type === 'twilio/media') {
+      return { body: data.types[type].body, media: data.types[type].media }
+    } else {
+      this.logger?.error(`TE Messaging: SMS unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      throw new IntegrationError(
+        'Unsupported content type',
+        `Sending templates with '${type}' content type is not supported by SMS`,
+        400
+      )
+    }
+  }
+
+  private async parseContent(
+    content: ContentTemplateResponse['types'][string],
+    profile: Profile
+  ): Promise<ContentTemplateResponse['types'][string]> {
+    try {
+      return {
+        body: await Liquid.parseAndRender(content.body, { profile }),
+        media: await Promise.all(content.media?.map((media) => Liquid.parseAndRender(media, { profile })) || [])
+      }
+    } catch (error: unknown) {
+      this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
+      throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
     }
   }
 }
