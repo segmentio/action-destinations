@@ -11,7 +11,7 @@ type HeapEvent = {
   event: string | undefined
   idempotency_key: string
   timestamp?: string
-  properties: {
+  properties?: {
     [k: string]: unknown
   }
   custom_properties?: {
@@ -123,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event: HeapEvent = {
       event: getEventName(payload),
-      properties: {
+      custom_properties: {
         segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
         ...flattenedProperties,
         ...(isDefined(payload.name) && { name: payload.name })
@@ -140,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const trackPayload: IntegrationsTrackPayload = {
       app_id: settings.appId,
       events: [event],
-      library: 'Segment'
+      library: 'server'
     }
 
     if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {
