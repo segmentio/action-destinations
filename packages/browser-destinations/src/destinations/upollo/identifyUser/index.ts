@@ -71,13 +71,13 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
     }
 
     const result = await UpClient.identify(userInfo)
-    if (result.emailAnalysis.company.name != '' && settings.companyEnrichment) {
+    if (result?.emailAnalysis?.company?.name != '' && settings?.companyEnrichment) {
       context.updateEvent('company', {
-        name: result.emailAnalysis?.company?.name,
-        industry: result.emailAnalysis?.company?.industry,
+        name: result?.emailAnalysis?.company?.name,
+        industry: result?.emailAnalysis?.company?.industry,
         employee_count: Math.max(
-          result.emailAnalysis?.company?.companySize.employeesMax,
-          result.emailAnalysis?.company?.companySize.employeesMin
+          result.emailAnalysis?.company?.companySize?.employeesMax,
+          result.emailAnalysis?.company?.companySize?.employeesMin
         )
       })
     }
