@@ -7,8 +7,10 @@ import setAttributes from './setAttributes'
 
 import manageTags from './manageTags'
 
+import { map_endpoint } from './utilities'
+
 const destination: DestinationDefinition<Settings> = {
-  name: 'Airship',
+  name: 'Airship (Actions)',
   slug: 'actions-airship',
   mode: 'cloud',
   description: 'Activate your Airship audience from Segment',
@@ -33,17 +35,17 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Data Center',
         description: 'US or EU',
         type: 'string',
-        format: 'uri',
         choices: [
-          { label: 'US	(https://go.urbanairship.com)', value: 'https://go.urbanairship.com' },
-          { label: 'EU	(https://go.airship.eu)', value: 'https://go.airship.eu' }
+          { label: 'US', value: 'US' },
+          { label: 'EU', value: 'EU' }
         ],
-        default: 'https://go.urbanairship.com',
+        default: 'US',
         required: true
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`${settings.endpoint}/api/custom-events/`, {
+      const endpoint = map_endpoint(settings.endpoint)
+      return request(`${endpoint}/api/custom-events/`, {
         method: 'post',
         json: {
           body: {
