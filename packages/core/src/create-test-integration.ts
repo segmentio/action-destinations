@@ -8,6 +8,9 @@ import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
 import { ExecuteDynamicFieldInput } from './destination-kit/action'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {}
+
 interface InputData<Settings> {
   /**
    * The Segment event. You can use `createTestEvent` if you want
@@ -85,7 +88,7 @@ class TestDestination<T> extends Destination<T> {
       auth,
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
-      logger: logger ?? ({} as Logger),
+      logger: logger ?? ({ info: noop, error: noop } as Logger),
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext)
     })

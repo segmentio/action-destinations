@@ -69,7 +69,7 @@ export const identifyEventDataWithLookupId: Partial<SegmentEvent> = {
     birthday: '2001-01-01T01:01:01-05:00',
     email: 'john.doe@aol.com',
     emailType: 'Personal',
-    lookup_id: 'abcd1234'
+    lookupId: 'abcd1234'
   }
 }
 

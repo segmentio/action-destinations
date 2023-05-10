@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Number to send SMS to when testing
    */
@@ -16,7 +16,11 @@ export interface Payload {
   /**
    * Message to send
    */
-  body: string
+  body?: string
+  /**
+   * Content template SID for Twilio Content API
+   */
+  contentSid?: string
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
    */
@@ -62,4 +66,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

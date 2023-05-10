@@ -2,9 +2,19 @@
 
 export interface Payload {
   /**
-   * The user's unique key.
+   * The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).
+   */
+  context_kind?: string
+  /**
+   * The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.
    */
   user_key: string
+  /**
+   * A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).
+   */
+  additional_context_keys?: {
+    [k: string]: unknown
+  }
   /**
    * The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.
    */
@@ -20,7 +30,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The time when the event happened. Defaults to the current time
+   * The time when the event happened. Defaults to the current time.
    */
   timestamp?: string | number
 }

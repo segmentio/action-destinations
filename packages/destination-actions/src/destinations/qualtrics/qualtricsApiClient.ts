@@ -220,7 +220,9 @@ export default class QualtricsApiClient {
       method,
       headers: {
         'Content-type': 'application/json',
-        'X-API-TOKEN': this.apiToken
+        'X-API-TOKEN': this.apiToken,
+        'Internal-Team': 'integrations',
+        'Internal-Service': 'segment-destination'
       }
     }
   }

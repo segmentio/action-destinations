@@ -19,6 +19,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     userId: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -26,6 +27,7 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
     groupId: {
       type: 'string',
       required: true,
+      allowNull: true,
       description: 'The ID associated groupId',
       label: 'Group ID',
       default: { '@path': '$.groupId' }
@@ -36,11 +38,23 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'Traits to associate with the group',
       required: false,
       default: { '@path': '$.traits' }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (ripe, { payload }) => {
-    await ripe.setIds(payload.anonymousId, payload.userId, payload.groupId)
-    return ripe.group(payload.groupId, payload.traits)
+    return ripe.group({
+      messageId: payload.messageId,
+      anonymousId: payload.anonymousId,
+      userId: payload.userId,
+      groupId: payload.groupId,
+      traits: payload.traits
+    })
   }
 }
 

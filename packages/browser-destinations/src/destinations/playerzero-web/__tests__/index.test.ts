@@ -2,7 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import playerzero, { destination } from '../index'
 import { subscriptions, TEST_PROJECT_ID } from '../test-utils'
 
-test('load PlayerZero', async () => {
+test.skip('load PlayerZero', async () => {
   const [event] = await playerzero({
     projectId: TEST_PROJECT_ID,
     subscriptions

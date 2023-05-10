@@ -2,20 +2,28 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
+import { Logger } from '@segment/actions-core/src/destination-kit'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
+function createLoggerMock()
+{
+  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+}
+
+
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
     twilioApiKeySID: 'f',
     twilioApiKeySecret: 'b',
     profileApiEnvironment: environment,
     profileApiAccessToken: 'c',
-    spaceId: 'd',
+    spaceId,
     sourceId: 'e'
   }
   const getDefaultMapping = (overrides?: any) => {
@@ -27,7 +35,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
       ],
       ...overrides
     }
@@ -49,6 +57,22 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+        })
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is no `channelType` in the external ID payload', async () => {
+      const responses = await twilio.testAction('sendWhatsApp', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
         })
       })
 
@@ -185,7 +209,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+        mapping: getDefaultMapping({
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+        })
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -215,7 +241,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+          mapping: getDefaultMapping({
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+          })
         }
 
         const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -245,7 +273,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+          externalIds: [
+            {
+              type: 'phone',
+              id: '+1234567891',
+              subscriptionStatus: randomSubscriptionStatusPhrase,
+              channelType: 'whatsapp'
+            }
+          ]
         })
       }
 
@@ -277,7 +312,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mapping: getDefaultMapping({
           from: from,
           contentSid: defaultTemplateSid,
-          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true }]
+          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true, channelType: 'whatsapp' }]
         })
       }
 
@@ -289,6 +324,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('throws an error when whatsapp number cannot be formatted', async () => {
+      const logger = createLoggerMock()
+
       const actionInputData = {
         event: createMessagingTestEvent({
           timestamp,
@@ -297,13 +334,78 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true }]
-        })
+          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
+        }),
+        logger
       }
 
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
+      )
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`))
+      )
+    })
+
+    it('throws an error when liquid template parsing fails', async () => {
+      const logger = createLoggerMock()
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          contentVariables: { '1': '{{profile.traits.firstName$}}', '2': '{{profile.traits.address.street}}' },
+          traits: {
+            firstName: 'Soap',
+            address: {
+              street: '360 Scope St'
+            }
+          }
+        }),
+        logger
+      }
+
+      const response = twilio.testAction('sendWhatsApp', actionInputData)
+      await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
+        )
+      )
+    })
+
+    it('throws an error when Twilio API request fails', async () => {
+      const logger = createLoggerMock()
+
+      const expectedErrorResponse = {
+        code: 21211,
+        message: "The 'To' number is not a valid phone number.",
+        more_info: 'https://www.twilio.com/docs/errors/21211',
+        status: 400
+      }
+
+      nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping(),
+        logger
+      }
+
+      const response = twilio.testAction('sendWhatsApp', actionInputData)
+      await expect(response).rejects.toThrowError()
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`))
       )
     })
 
@@ -330,6 +432,43 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           contentVariables: { '1': '{{profile.traits.firstName}}', '2': '{{profile.traits.address.street}}' },
           traits: {
             firstName: 'Soap',
+            address: {
+              street: '360 Scope St'
+            }
+          }
+        })
+      }
+
+      const responses = await twilio.testAction('sendWhatsApp', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('omits null/empty content variables', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: defaultTo,
+        ContentVariables: JSON.stringify({ '2': '360 Scope St' })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          contentVariables: { '1': '{{profile.traits.firstName}}', '2': '{{profile.traits.address.street}}' },
+          traits: {
+            firstName: null,
             address: {
               street: '360 Scope St'
             }

@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's userRegisteredEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 15497948162949.12,
+        "app_version": "9yI*!GTx(Wx$F9",
+        "birthday": "9yI*!GTx(Wx$F9",
+        "carrier": "9yI*!GTx(Wx$F9",
+        "city": "9yI*!GTx(Wx$F9",
+        "country": "9yI*!GTx(Wx$F9",
+        "custom": Object {},
+        "email": "lel@wetmi.gt",
+        "gender": "9yI*!GTx(Wx$F9",
+        "idfa": "9yI*!GTx(Wx$F9",
+        "last_ip": "9yI*!GTx(Wx$F9",
+        "locale": "9yI*!GTx(Wx$F9",
+        "model": "9yI*!GTx(Wx$F9",
+        "name": "9yI*!GTx(Wx$F9",
+        "os_version": "9yI*!GTx(Wx$F9",
+        "phone": "9yI*!GTx(Wx$F9",
+        "platform": "9yI*!GTx(Wx$F9",
+        "surname": "9yI*!GTx(Wx$F9",
+        "timezone": "9yI*!GTx(Wx$F9",
+      },
+      "events": Array [
+        Object {
+          "event_name": "sign_up_confirmation",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "9yI*!GTx(Wx$F9",
+        },
+        "uuid": "9yI*!GTx(Wx$F9",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's userRegisteredEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "sign_up_confirmation",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "9yI*!GTx(Wx$F9",
+        },
+        "uuid": "9yI*!GTx(Wx$F9",
+      },
+    },
+  ],
+}
+`;

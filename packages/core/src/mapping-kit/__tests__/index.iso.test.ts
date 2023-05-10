@@ -548,6 +548,173 @@ describe('@template', () => {
   })
 })
 
+describe('@replace', () => {
+  test('replace on empty string', () => {
+    const payload = {
+      a: ''
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: 'rrrrr',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+  })
+  test('replace on case sensitive string', () => {
+    const payload = {
+      a: 'cWWl-story-ww'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'WW',
+          replacement: 'oo',
+          value: { '@path': '$.a' },
+          ignorecase: false // true by default but just showing here
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('cool-story-ww')
+  })
+  test('replace on case insensitive string', () => {
+    const payload = {
+      a: 'aab-----AaB---aab'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'AaB',
+          replacement: 'nice',
+          value: { '@path': '$.a' },
+          ignorecase: true
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nice-----nice---nice')
+  })
+  test('replace with empty string', () => {
+    const payload = {
+      a: 'nomore_underscore'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: '',
+          value: { '@path': '$.a' },
+          ignorecase: false
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nomoreunderscore')
+  })
+  test('replace with non-empty string', () => {
+    const payload = {
+      a: 'nomore_underscore'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: 'weird',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('nomoreweirdunderscore')
+  })
+  test('replace multi-char pattern with non-empty string', () => {
+    const payload = {
+      a: 'Well Hello there LOL'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'LOL',
+          replacement: 'YAY',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('Well Hello there YAY')
+  })
+  test('replace multiple occurrences', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '+',
+          replacement: '_',
+          value: { '@path': '$.a' },
+          global: true // true by default but just to demo
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('many_different_things')
+  })
+  test('replace first occurrence', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '+',
+          replacement: '_',
+          value: { '@path': '$.a' },
+          global: false // true by default but just to demo
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('many_different+things')
+  })
+  test('replace entire value', () => {
+    const payload = {
+      a: 'aaabbbcccd'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'aaabbbcccd',
+          replacement: '',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+  })
+  test('should still work without replacement key', () => {
+    const payload = {
+      a: 'many+different+things'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'many+',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('different+things')
+  })
+})
+
 describe('remove undefined values in objects', () => {
   test('simple', () => {
     expect(transform({ x: undefined }, {})).toEqual({})

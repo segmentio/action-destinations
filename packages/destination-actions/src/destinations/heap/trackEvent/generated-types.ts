@@ -6,7 +6,7 @@ export interface Payload {
    */
   message_id: string
   /**
-   * A unique identity and maintain user histories across sessions and devices under a single profile. If no identity is provided we will add the anonymous_id to the event. More on identify: https://developers.heap.io/docs/using-identify
+   * a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify
    */
   identity?: string | null
   /**
@@ -35,4 +35,10 @@ export interface Payload {
    * The name of the page or screen being viewed. This only exists for page and screen events.
    */
   name?: string
+  /**
+   * An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

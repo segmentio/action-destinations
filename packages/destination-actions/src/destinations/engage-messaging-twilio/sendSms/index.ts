@@ -13,7 +13,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true,
       default: { '@path': '$.userId' }
     },
     toNumber: {
@@ -31,7 +30,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: false
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -114,14 +119,36 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+    const tags = statsContext?.tags || []
+    if (!settings.region) {
+      settings.region = 'us-west-1'
+    }
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
+    const logDetails={
+      userId: payload.userId,
+      subscriptionStatus: payload.externalIds?.map(eid=>({type: eid.type, subscriptionStatus: eid.subscriptionStatus})),
+      shouldSend: payload.send,
+      contentSid: payload.contentSid,
+      sourceId: settings.sourceId,
+      spaceId : settings.spaceId,
+      twilioApiKeySID : settings.twilioApiKeySID,
+      region : settings.region,
+      messageId: payload.messageId
+    }
+    logger?.info("TE Messaging: SMS Destination Action Performing...", JSON.stringify(logDetails))
 
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, logDetails).send()
   }
 }
 

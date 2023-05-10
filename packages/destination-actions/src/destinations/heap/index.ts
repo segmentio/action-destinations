@@ -35,7 +35,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  // :TODO: Implement onDelete.
   presets,
   actions: {
     trackEvent,

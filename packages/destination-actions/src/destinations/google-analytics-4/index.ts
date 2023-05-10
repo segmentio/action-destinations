@@ -19,11 +19,10 @@ import addToWishlist from './addToWishlist'
 import addPaymentInfo from './addPaymentInfo'
 import refund from './refund'
 import removeFromCart from './removeFromCart'
+import { IntegrationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
-  // NOTE: We need to match the name with the creation name in DB.
-  // This is not the value used in the UI.
-  name: 'Actions Google Analytic 4',
+  name: 'Google Analytics 4 Cloud',
   slug: 'actions-google-analytics-4',
   mode: 'cloud',
   authentication: {
@@ -32,9 +31,16 @@ const destination: DestinationDefinition<Settings> = {
       measurementId: {
         label: 'Measurement ID',
         description:
-          'The measurement ID associated with a stream. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID',
+          'The Measurement ID associated with a stream. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID. **Required for web streams.**',
         type: 'string',
-        required: true
+        required: false
+      },
+      firebaseAppId: {
+        label: 'Firebase App ID',
+        description:
+          'The Firebase App ID associated with the Firebase app. Found in the Firebase console under: Project Settings > General > Your Apps > App ID. **Required for mobile app streams.**',
+        type: 'string',
+        required: false
       },
       apiSecret: {
         label: 'API Secret',
@@ -43,14 +49,16 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    }
-  },
-  extendRequest({ settings }) {
-    return {
-      searchParams: {
-        measurement_id: settings.measurementId,
-        api_secret: settings.apiSecret
+    },
+    testAuthentication(_, { settings }) {
+      if (!settings.firebaseAppId && !settings.measurementId) {
+        throw new IntegrationError(
+          'One of Firebase App ID (Mobile app Stream) or Measurement ID (Web Stream) is required',
+          'Misconfigured field',
+          400
+        )
       }
+      return {}
     }
   },
   actions: {

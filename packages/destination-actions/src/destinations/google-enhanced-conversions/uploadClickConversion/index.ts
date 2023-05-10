@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CartItem, PartialErrorResponse } from '../types'
@@ -8,7 +8,7 @@ import {
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
-  getUrlByVersion
+  getApiVersion
 } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -190,10 +190,8 @@ const action: ActionDefinition<Settings, Payload> = {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new IntegrationError(
-        'Customer ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
     settings.customerId = settings.customerId.replace(/-/g, '')
@@ -232,10 +230,12 @@ const action: ActionDefinition<Settings, Payload> = {
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
-      request_object.customVariables = formatCustomVariables(
-        payload.custom_variables,
-        customVariableIds.data[0].results
-      )
+      if (customVariableIds?.data?.length) {
+        request_object.customVariables = formatCustomVariables(
+          payload.custom_variables,
+          customVariableIds.data[0].results
+        )
+      }
     }
 
     if (payload.email_address) {
@@ -247,7 +247,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadClickConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadClickConversions`,
       {
         method: 'post',
         headers: {

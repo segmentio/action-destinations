@@ -85,6 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     let createdAt: string | number | undefined = payload.created_at
     let customAttributes = payload.custom_attributes
+    let objectTypeIDInTraits = null
     const objectId = payload.group_id
     const objectTypeId = payload.object_type_id
 
@@ -95,6 +96,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (customAttributes) {
         customAttributes = convertAttributeTimestamps(customAttributes)
+        if (customAttributes.object_type_id && objectId) {
+          objectTypeIDInTraits = customAttributes.object_type_id
+          delete customAttributes.object_type_id
+        }
       }
     }
 
@@ -112,7 +117,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (objectId) {
       body.cio_relationships = {
         action: 'add_relationships',
-        relationships: [{ identifiers: { object_type_id: objectTypeId ?? '1', object_id: objectId } }]
+        relationships: [
+          { identifiers: { object_type_id: objectTypeIDInTraits ?? objectTypeId ?? '1', object_id: objectId } }
+        ]
       }
     }
 

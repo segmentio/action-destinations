@@ -4,13 +4,14 @@ import { IntegrationError } from '@segment/actions-core'
 export const operation: InputField = {
   label: 'Operation',
   description:
-    'The Salesforce operation performed. The available operations are Create, Update or Upsert records in Salesforce.',
+    'The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.',
   type: 'string',
   required: true,
   choices: [
     { label: 'Create new record', value: 'create' },
     { label: 'Update existing record', value: 'update' },
-    { label: `Update or create a record if one doesn't exist`, value: 'upsert' }
+    { label: `Update or create a record if one doesn't exist`, value: 'upsert' },
+    { label: 'Delete existing record', value: 'delete' }
   ]
 }
 
@@ -64,11 +65,11 @@ export const recordMatcherOperator: InputField = {
 
 export const traits: InputField = {
   label: 'Record Matchers',
-  description: `The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
+  description: `The fields used to find Salesforce records for updates. **This is required if the operation is Delete, Update or Upsert.**
 
   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.  
   
-  If multiple records are found, no updates will be made. **Please use fields that result in unique records.**
+  If multiple records are found, no changes will be made. **Please use fields that result in unique records.**
   
   ---
 
@@ -97,7 +98,7 @@ interface Payload {
 }
 
 export const validateLookup = (payload: Payload) => {
-  if (payload.operation === 'update' || payload.operation === 'upsert') {
+  if (payload.operation === 'update' || payload.operation === 'upsert' || payload.operation === 'delete') {
     if (!payload.traits) {
       throw new IntegrationError(
         'Undefined lookup traits for update or upsert operation',
