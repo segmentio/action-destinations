@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.158.1-staging.4",
+  "version": "3.158.1-staging.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -39,8 +39,8 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.62.2-staging.4",
-    "@segment/actions-shared": "^1.44.2-staging.4",
+    "@segment/actions-core": "^3.62.2-staging.5",
+    "@segment/actions-shared": "^1.44.2-staging.5",
     "@types/node": "^18.11.15",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
