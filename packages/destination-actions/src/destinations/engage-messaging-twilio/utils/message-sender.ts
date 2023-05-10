@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from '../sendSms/generated-types'
+import type { Payload as SmsPayload } from '../sendSms/generated-types'
+import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 
@@ -32,18 +33,18 @@ type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 type MinimalPayload = Pick<
-  Payload,
+  SmsPayload | WhatsappPayload,
   'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'send' | 'eventOccurredTS'
 >
 
-export abstract class MessageSender<SmsPayload extends MinimalPayload> {
+export abstract class MessageSender<MessagePayload extends MinimalPayload> {
   private readonly EXTERNAL_ID_KEY = 'phone'
   private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
   private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
 
   constructor(
     readonly request: RequestFn,
-    readonly payload: SmsPayload,
+    readonly payload: MessagePayload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
@@ -53,11 +54,18 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
   ) {
   }
 
-  abstract getBody: (phone: string) => Promise<URLSearchParams>
+  abstract getBody(phone: string): Promise<URLSearchParams>
 
-  abstract getExternalId: () => NonNullable<MinimalPayload['externalIds']>[number] | undefined
+  abstract getChannelType():'sms' | 'whatsapp'
 
-  send = async () => {
+  getExternalId(){ 
+    // searching for the first externalId that matches the phone type and current channel type
+    return this.payload.externalIds?.find(({ type, channelType }) => type === 'phone' && channelType?.toLowerCase() === this.getChannelType()
+    )
+  }
+
+
+  async send(){
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
     if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {

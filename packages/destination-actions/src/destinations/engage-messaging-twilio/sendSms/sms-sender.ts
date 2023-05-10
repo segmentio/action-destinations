@@ -37,7 +37,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
     super(request, payload, settings, statsClient, tags, logger, logDetails)
   }
 
-  getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
+  getChannelType(){
+    return <const>'sms'
+  }
 
   getBody = async (phone: string) => {
     if (!this.payload.body && !this.payload.contentSid) {
