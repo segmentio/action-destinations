@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Additional data pertaining to the user.`,
       type: 'object',
       required: false,
-      defaultObjectUI: 'object',
+      defaultObjectUI: 'keyvalue:only',
       default: { '@path': '$.context.traits' }
     },
     delimiter: {
