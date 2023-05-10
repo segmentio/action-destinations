@@ -70,16 +70,20 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
 
-    const result = await UpClient.identify(userInfo)
-    if (result?.emailAnalysis?.company?.name != '' && settings?.companyEnrichment) {
-      context.updateEvent('company', {
-        name: result?.emailAnalysis?.company?.name,
-        industry: result?.emailAnalysis?.company?.industry,
-        employee_count: Math.max(
-          result.emailAnalysis?.company?.companySize?.employeesMax,
-          result.emailAnalysis?.company?.companySize?.employeesMin
-        )
-      })
+    try {
+      const result = await UpClient.assess(userInfo)
+      if (result.emailAnalysis && result?.emailAnalysis?.company?.name != '' && settings?.companyEnrichment) {
+        context.updateEvent('traits.company', {
+          name: result?.emailAnalysis?.company?.name,
+          industry: result?.emailAnalysis?.company?.industry,
+          employee_count: Math.max(
+            result.emailAnalysis?.company?.companySize?.employeesMax,
+            result.emailAnalysis?.company?.companySize?.employeesMin
+          )
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 }

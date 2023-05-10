@@ -5,7 +5,7 @@ export declare class UpolloClient {
     userinfo?: UpUser,
     eventtype?: number // eventtype is a proto enum, but we cant use those types here.
   ): Promise<void>
-  identify(
+  assess(
     userinfo?: UpUser,
     eventtype?: number
   ): Promise<{
