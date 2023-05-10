@@ -60,7 +60,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: (UpClient, { payload }) => {
+  perform: async (UpClient, { payload, context }) => {
     const userInfo = {
       userId: payload.user_id,
       userEmail: payload.email,
@@ -70,7 +70,17 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
 
-    void UpClient.track(userInfo)
+    const result = await UpClient.identify(userInfo)
+    if (result.emailAnalysis.company.name != '') {
+      context.updateEvent('company', {
+        name: result.emailAnalysis?.company?.name,
+        industry: result.emailAnalysis?.company?.industry,
+        employee_count: Math.max(
+          result.emailAnalysis?.company?.companySize.employeesMax,
+          result.emailAnalysis?.company?.companySize.employeesMin
+        )
+      })
+    }
   }
 }
 
