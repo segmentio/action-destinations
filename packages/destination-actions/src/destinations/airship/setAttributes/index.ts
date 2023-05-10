@@ -26,8 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.receivedAt'
       }
     },
-    traits: {
-      label: 'Traits',
+    attributes: {
+      label: 'Attributes',
       description: 'User Identify Traits',
       type: 'object',
       default: {
