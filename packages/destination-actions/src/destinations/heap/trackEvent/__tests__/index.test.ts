@@ -160,7 +160,7 @@ describe('Heap.trackEvent', () => {
     body.events[0].user_identifier = {
       anonymous_id: anonId
     }
-    body.events[0].properties = {
+    body.events[0].custom_properties = {
       segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
       ...getFlatObject()
     }
@@ -195,9 +195,9 @@ describe('Heap.trackEvent', () => {
       anonymous_id: anonId
     }
     body.events[0].event = 'Page viewed'
-    body.events[0].properties = {
+    body.events[0].custom_properties = {
       name: 'Home Page',
-      ...body.events[0].properties
+      ...body.events[0].custom_properties
     }
 
     nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
@@ -228,9 +228,9 @@ describe('Heap.trackEvent', () => {
       anonymous_id: anonId
     }
     body.events[0].event = 'Screen viewed'
-    body.events[0].properties = {
+    body.events[0].custom_properties = {
       name: 'Home Page',
-      ...body.events[0].properties
+      ...body.events[0].custom_properties
     }
 
     nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
