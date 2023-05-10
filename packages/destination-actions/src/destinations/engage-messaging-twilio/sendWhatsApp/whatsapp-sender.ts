@@ -17,9 +17,11 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined
+    readonly logger: Logger | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly logDetails: { [key: string]: any } = {}
   ) {
-    super(request, payload, settings, statsClient, tags, logger)
+    super(request, payload, settings, statsClient, tags, logger, logDetails)
   }
 
   getChannelType(){
