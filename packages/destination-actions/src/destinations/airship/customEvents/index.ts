@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
-import { setCustomEvent } from '../utilities'
+import { setCustomEvent, setBatchCustomEvent } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Airship Named User ID',
       description: 'The identifier assigned in Airship as the Named User',
       type: 'string',
-      required: false,
+      required: true,
       default: {
         '@path': '$.userId'
       }
@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'datetime',
       required: true,
       default: {
-        '@path': '$.receivedAt'
+        '@path': '$.timestamp'
       }
     },
     properties: {
