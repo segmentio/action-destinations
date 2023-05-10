@@ -21,6 +21,13 @@ interface GetAudiencesResponse {
     }
   ]
 }
+
+export interface CreateAudienceParams {
+  name: string
+  description: string | undefined
+  claimObjective: string | undefined
+  customerFileSource: string | undefined
+}
 export default class Facebook {
   request: RequestClient
   accountId: string
@@ -32,13 +39,14 @@ export default class Facebook {
     this.accessToken = accessToken
   }
 
-  createAudience = async (name: string) => {
+  createAudience = async (bundle: CreateAudienceParams) => {
     return this.request(`${BASE_URL}/${this.accountId}/customaudiences`, {
       method: 'POST',
       json: {
-        name: name,
+        name: bundle.name,
         subtype: 'CUSTOM',
-        customer_file_source: 'USER_PROVIDED_ONLY'
+        customer_file_source: bundle.customerFileSource,
+        enable_fetch_or_create: true
       },
       headers: {
         authorization: `Bearer ${this.accessToken}`
