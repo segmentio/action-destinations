@@ -70,32 +70,28 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
 
-    try {
-      const result = await UpClient.assess(userInfo)
-      if (result.emailAnalysis && result?.emailAnalysis?.company?.name != '' && settings?.companyEnrichment) {
-        let companyInfo = {}
-        if (
-          result?.emailAnalysis?.company?.companySize?.employeesMax &&
-          result?.emailAnalysis?.company?.companySize?.employeesMin
-        ) {
-          companyInfo = {
-            name: result?.emailAnalysis?.company?.name,
-            industry: result?.emailAnalysis?.company?.industry,
-            employee_count: Math.max(
-              result.emailAnalysis?.company?.companySize?.employeesMax,
-              result.emailAnalysis?.company?.companySize?.employeesMin
-            )
-          }
-        } else {
-          companyInfo = {
-            name: result?.emailAnalysis?.company?.name,
-            industry: result?.emailAnalysis?.company?.industry
-          }
+    const result = await UpClient.assess(userInfo)
+    if (result.emailAnalysis && result?.emailAnalysis?.company?.name != '' && settings?.companyEnrichment) {
+      let companyInfo = {}
+      if (
+        result?.emailAnalysis?.company?.companySize?.employeesMax &&
+        result?.emailAnalysis?.company?.companySize?.employeesMin
+      ) {
+        companyInfo = {
+          name: result?.emailAnalysis?.company?.name,
+          industry: result?.emailAnalysis?.company?.industry,
+          employee_count: Math.max(
+            result.emailAnalysis?.company?.companySize?.employeesMax,
+            result.emailAnalysis?.company?.companySize?.employeesMin
+          )
         }
-        context.updateEvent('traits.company', companyInfo)
+      } else {
+        companyInfo = {
+          name: result?.emailAnalysis?.company?.name,
+          industry: result?.emailAnalysis?.company?.industry
+        }
       }
-    } catch (e) {
-      console.log(e)
+      context.updateEvent('traits.company', companyInfo)
     }
   }
 }
