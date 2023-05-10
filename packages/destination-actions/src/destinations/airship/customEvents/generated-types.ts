@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The identifier assigned in Airship as the Named User
    */
-  named_user_id?: string
+  named_user_id: string
   /**
    * Event Name
    */
@@ -19,4 +19,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * If true, Segment will batch events before sending to Airship. Limit 100 events per request.
+   */
+  enable_batching?: boolean
 }

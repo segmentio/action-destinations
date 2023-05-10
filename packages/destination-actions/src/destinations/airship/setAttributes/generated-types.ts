@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * User Identify Traits
    */
-  traits?: {
+  attributes?: {
     [k: string]: unknown
   }
 }
