@@ -28,6 +28,7 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest --coverage",
+    "testmy": "jest src/destinations/engage-messaging-sendgrid/__tests__/send-email.test.ts",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
