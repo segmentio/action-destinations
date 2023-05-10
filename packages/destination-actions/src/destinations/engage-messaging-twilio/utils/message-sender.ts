@@ -45,7 +45,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly logDetails: Record<string, unknown> = {}
   )
   {
@@ -61,9 +61,10 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     )
   }
 
-  redactId(piiId: string|undefined){
-    if(!piiId) return piiId
-    return piiId.substring(0, 4)+'***'+piiId.substring(piiId.length-4)
+  redactPii(pii: string|undefined){
+    if(!pii) return pii
+    if(pii.length<=8) return "***"
+    return pii.substring(0, 3)+'***'+pii.substring(pii.length-3)
   }
 
   logInfo(...msgs:string[])
@@ -95,7 +96,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   async send(){
 
     Object.assign(this.logDetails,{
-      externalIds: this.payload.externalIds?.map(eid=>({...eid, id: this.redactId(eid.id)})),
+      externalIds: this.payload.externalIds?.map(eid=>({...eid, id: this.redactPii(eid.id)})),
       shouldSend: this.payload.send,
       contentSid: this.payload.contentSid,
       sourceId: this.settings.sourceId,
@@ -184,7 +185,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           throw errorToRethrow
         }
     }})
-
   }
 
   private getSendabilityPayload = (): SendabilityPayload => {
