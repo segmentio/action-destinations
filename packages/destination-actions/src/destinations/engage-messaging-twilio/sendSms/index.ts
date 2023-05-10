@@ -32,6 +32,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'text',
       required: false
     },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
     contentSid: {
       label: 'SMS content template SID',
       description: 'Content template SID for Twilio Content API',
@@ -140,7 +147,6 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.region = 'us-west-1'
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-
     return new SmsMessageSender(request, payload, settings, statsClient, tags, logger).send()
   }
 }

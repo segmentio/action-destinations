@@ -354,6 +354,38 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
+    it('should send MMS with media in payload', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true',
+        MediaUrl: 'http://myimg.com'
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          media: ['http://myimg.com']
+        })
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
     it('should send MMS', async () => {
       const twilioContentResponse = {
         types: {
