@@ -19,4 +19,8 @@ export interface Payload {
    * Name of the audience the user has entered.
    */
   audience_name: string
+  /**
+   * Datetime at which the event was received. Used to disambiguate the resulting file.
+   */
+  received_at: string | number
 }
