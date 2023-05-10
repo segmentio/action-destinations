@@ -6,14 +6,17 @@ import { Payload as TagsPayload } from './manageTags/generated-types'
 
 // exported Action function
 export function setCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
-  const uri = `${settings.endpoint}/api/custom-events`
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/custom-events`
   const airship_payload = _build_custom_event_object(payload)
+  console.log(airship_payload)
   return do_request(request, uri, [airship_payload])
 }
 
 // exported Action function
 export function setBatchCustomEvent(request: RequestClient, settings: Settings, payloads: CustomEventsPayload[]) {
-  const uri = `${settings.endpoint}/api/custom-events`
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/custom-events`
   const airship_payload = []
   for (let i = 0; i <= payloads.length; i++) {
     airship_payload.push(_build_custom_event_object(payloads[i]))
@@ -23,7 +26,8 @@ export function setBatchCustomEvent(request: RequestClient, settings: Settings, 
 
 // exported Action function
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
-  const uri = `${settings.endpoint}/api/channels/attributes`
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/channels/attributes`
   const attributes = _build_attributes_object(payload)
   const airship_payload = {
     attributes: attributes,
@@ -46,6 +50,14 @@ function do_request(request: RequestClient, uri: string, payload: object) {
     method: 'POST',
     json: payload
   })
+}
+
+export function map_endpoint(region: string) {
+  if (region === 'EU') {
+    return 'https://go.airship.eu'
+  } else {
+    return 'https://go.urbanairship.com'
+  }
 }
 
 function _build_custom_event_object(payload: CustomEventsPayload): object {
@@ -82,33 +94,33 @@ function _build_attributes_object(payload: AttributesPayload): object {
   Also, if the valuse of a trait is an empty string, we assume the intention is to remove the
   attribute from the given user.
   */
-  const attributes = []
-  const traits = payload.traits || {}
-  for (const key in traits) {
+  const attributes_list = []
+  const attributes = payload.attributes || {}
+  for (const key in attributes) {
     if (key == 'address') {
-      if (typeof traits[key] == 'object') {
-        const current_object: any = traits[key]
+      if (typeof attributes[key] == 'object') {
+        const current_object: any = attributes[key]
         for (const k in current_object) {
           const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes.push(_build_attribute(new_attribute_key, current_object[k], payload.occurred))
+          attributes_list.push(_build_attribute(new_attribute_key, current_object[k], payload.occurred))
         }
         continue
       }
     }
     if (key == 'company') {
-      if (typeof traits[key] == 'object') {
-        const current_object: any = traits[key]
+      if (typeof attributes[key] == 'object') {
+        const current_object: any = attributes[key]
         if (current_object.name) {
-          attributes.push(_build_attribute(key, current_object.name, payload.occurred))
+          attributes_list.push(_build_attribute(key, current_object.name, payload.occurred))
         }
       }
       continue
     }
 
     // if trait value is empty string, remove attribute, otherwise set it
-    attributes.push(_build_attribute(key, traits[key], payload.occurred))
+    attributes_list.push(_build_attribute(key, attributes[key], payload.occurred))
   }
-  return attributes
+  return attributes_list
 }
 
 function _build_attribute(attribute_key: string, attribute_value: any, occurred: string | number) {
@@ -190,4 +202,13 @@ function validate_timestamp(timestamp: string | number | Date) {
   } else {
     return payload_time_stamp.toISOString().split('.')[0]
   }
+}
+
+export const _private = {
+  _build_custom_event_object,
+  _build_attributes_object,
+  _build_attribute,
+  trait_to_attribute_map,
+  _build_tags_object,
+  validate_timestamp
 }
