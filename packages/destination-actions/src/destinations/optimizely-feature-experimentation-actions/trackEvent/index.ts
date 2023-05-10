@@ -108,12 +108,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload }) => {
     const result = await request<ProjectConfig>(settings.dataFileUrl)
-    if (!result.data) {
-      throw new IntegrationError(
-        'This Optimizely project has been deactivated. Visit app.optimizely.com to activate it.',
-        'PROJECT_DEACTIVATED',
-        400
-      )
+    if (!result.data && typeof result.content === 'string') {
+      throw new IntegrationError(result.content, 'PROJECT_DEACTIVATED', 400)
     }
     const dataFile = result.data
     const eventId = getEventId(dataFile, payload.eventKey)
