@@ -42,14 +42,14 @@ describe('Heap.trackEvent', () => {
       events: [
         {
           event: eventName,
-          properties: {
+          custom_properties: {
             segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME
           },
           idempotency_key: messageId,
           timestamp
         }
       ],
-      library: 'Segment'
+      library: 'server'
     }
   })
 

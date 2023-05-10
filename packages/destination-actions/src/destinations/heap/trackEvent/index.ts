@@ -11,10 +11,7 @@ type HeapEvent = {
   event: string | undefined
   idempotency_key: string
   timestamp?: string
-  properties?: {
-    [k: string]: unknown
-  }
-  custom_properties?: {
+  custom_properties: {
     [k: string]: unknown
   }
   user_identifier?: {
