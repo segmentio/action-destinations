@@ -5,6 +5,8 @@ import syncEngage from './syncEngage'
 
 import syncRetl from './syncRetl'
 
+import createAudience from './createAudience'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Custom Audiences (Actions)',
   slug: 'actions-facebook-custom-audiences',
@@ -13,11 +15,6 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {},
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-    },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
       const res = await request('https://www.example.com/oauth/refresh', {
@@ -40,16 +37,10 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {
     syncEngage,
-    syncRetl
+    syncRetl,
+    createAudience
   }
 }
 
