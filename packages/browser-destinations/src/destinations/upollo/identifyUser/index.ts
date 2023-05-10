@@ -60,7 +60,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (UpClient, { payload, context }) => {
+  perform: async (UpClient, { payload, context, settings }) => {
     const userInfo = {
       userId: payload.user_id,
       userEmail: payload.email,
@@ -71,7 +71,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
     }
 
     const result = await UpClient.identify(userInfo)
-    if (result.emailAnalysis.company.name != '') {
+    if (result.emailAnalysis.company.name != '' && settings.companyEnrichment) {
       context.updateEvent('company', {
         name: result.emailAnalysis?.company?.name,
         industry: result.emailAnalysis?.company?.industry,
