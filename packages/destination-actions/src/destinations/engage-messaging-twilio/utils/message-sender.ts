@@ -68,13 +68,15 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   logInfo(...msgs:string[])
   {
-    this.logger?.info("TE Messaging: " + msgs.join(' '), JSON.stringify(this.logDetails))
+    const [firstMsg, ...rest] = msgs
+    this.logger?.info("TE Messaging: "+firstMsg, ...rest, JSON.stringify(this.logDetails))
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logError(error?: any, ...msgs:string[])
   {
-    this.logger?.error("TE Messaging: "+msgs.join(' '), error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
+    const [firstMsg, ...rest] = msgs
+    this.logger?.error("TE Messaging: "+firstMsg, ...rest, error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
   }
 
   logWrap<R=void>(args:{messages:string[], fn: ()=>R}):R{
@@ -85,7 +87,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       return res
     }
     catch(error:unknown){
-      this.logError(error, "Error: ", ...args.messages)
+      this.logError(error, "Failed: ", ...args.messages)
       throw error
     }
   }
