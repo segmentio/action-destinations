@@ -28,6 +28,15 @@ export const trackEventSubscription: Subscription = {
     },
     properties: {
       '@path': '$.properties'
+    },
+    identity: {
+      '@path': '$.userId'
+    },
+    anonymousId: {
+      '@path': '$.anonymousId'
+    },
+    traits: {
+      '@path': '$.context.traits'
     }
   }
 }

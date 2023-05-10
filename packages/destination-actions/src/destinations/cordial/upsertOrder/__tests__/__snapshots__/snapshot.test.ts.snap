@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Cordial's upsertOrder destination action: all fields 1`] = `
 Object {
+  "anonymousId": "5)FqhW#w85$",
   "items": Array [
     Object {
       "category": "5)FqhW#w85$",
@@ -23,6 +24,8 @@ Object {
     "testType": "5)FqhW#w85$",
   },
   "purchaseDate": "2021-02-01T00:00:00.000Z",
+  "segmentId": "5)FqhW#w85$",
+  "segmentIdKey": "5)FqhW#w85$",
   "status": "5)FqhW#w85$",
   "totalAmount": -17352532573552.64,
   "userIdentities": Object {
@@ -42,10 +45,8 @@ Object {
   ],
   "orderID": "5)FqhW#w85$",
   "purchaseDate": "2021-02-01T00:00:00.000Z",
+  "segmentIdKey": "5)FqhW#w85$",
   "status": "5)FqhW#w85$",
   "totalAmount": -17352532573552.64,
-  "userIdentities": Object {
-    "testType": "5)FqhW#w85$",
-  },
 }
 `;

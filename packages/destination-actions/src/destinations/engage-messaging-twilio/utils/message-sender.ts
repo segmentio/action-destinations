@@ -3,7 +3,7 @@ import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../sendSms/generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -11,6 +11,20 @@ enum SendabilityStatus {
   DoNotSend = 'do_not_send',
   SendDisabled = 'send_disabled',
   InvalidSubscriptionStatus = 'invalid_subscription_status'
+}
+
+interface TwilioApiError extends Error {
+  response: {
+    data: {
+      code: number
+      message: string
+      more_info: string
+      status: number
+    },
+    headers?: Response['headers'],
+  },
+  code?: number
+  status?: number
 }
 
 type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
@@ -32,10 +46,16 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     readonly payload: SmsPayload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
-  ) {}
+    readonly tags: StatsContext['tags'],
+    readonly logger: Logger | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly logDetails: {[key:string]: any} = {}
+  ) {
+  }
 
   abstract getBody: (phone: string) => Promise<URLSearchParams>
+
+  abstract getExternalId: () => NonNullable<MinimalPayload['externalIds']>[number] | undefined
 
   send = async () => {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
@@ -44,6 +64,7 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
       return
     }
 
+    this.logger?.info("TE Messaging: getting content Body", JSON.stringify(this.logDetails))
     const body = await this.getBody(phone)
 
     const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
@@ -54,33 +75,60 @@ export abstract class MessageSender<SmsPayload extends MinimalPayload> {
     const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
       'base64'
     )
-    const response = await this.request(
-      `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
-      {
-        method: 'POST',
-        headers: {
-          authorization: `Basic ${twilioToken}`
-        },
-        body
-      }
-    )
-    this.tags?.push(`twilio_status_code:${response.status}`)
-    this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+    try {
+      this.logger?.info("TE Messaging: Sending message to Twilio API", JSON.stringify(this.logDetails))
 
-    if (this.payload.eventOccurredTS != undefined) {
-      this.statsClient?.histogram(
-        'actions-personas-messaging-twilio.eventDeliveryTS',
-        Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-        this.tags
+      const response = await this.request(
+        `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `Basic ${twilioToken}`
+          },
+          body
+        }
       )
+      this.tags.push(`twilio_status_code:${response.status}`)
+      this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+
+      if (this.payload.eventOccurredTS != undefined) {
+        this.statsClient?.histogram(
+          'actions-personas-messaging-twilio.eventDeliveryTS',
+          Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
+          this.tags
+        )
+      }
+
+      this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
+
+      this.logger?.info("TE Messaging: Message sent successfully", JSON.stringify(this.logDetails))
+
+      return response
+    } catch (error: unknown) {
+      if (error instanceof Object) {
+        const twilioApiError = error as TwilioApiError
+        this.logDetails['twilioApiError_response_data'] = twilioApiError.response.data
+        this.logDetails['twilio-request-id'] = twilioApiError.response.headers?.get('twilio-request-id')
+        this.logDetails['error'] = { status: twilioApiError.status, code: twilioApiError.code }
+
+        this.logger?.error(
+          `TE Messaging: Twilio Programmable API error - ${this.settings.spaceId} - [${JSON.stringify(this.logDetails)}]`
+        )
+        const errorCode = twilioApiError.response.data.code
+        if (errorCode === 63018) {
+          // Exceeded WhatsApp rate limit
+          this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
+        }
+      }
+      // Bubble the error to integrations
+      throw error
     }
-    return response
   }
 
   private getSendabilityPayload = (): SendabilityPayload => {
     const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
     const sendableStatuses = ['subscribed', 'true']
-    const externalId = this.payload.externalIds?.find(({ type }) => type === 'phone')
+    const externalId = this.getExternalId()
 
     let status: SendabilityStatus
 

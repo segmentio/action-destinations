@@ -3,46 +3,76 @@ import type { Settings } from '../generated-types'
 import { getEventsUrl, parseTimestamp } from '../utils'
 import type { Payload } from './generated-types'
 
+type ContextKeys = {
+  [kind: string]: string
+}
+
 type LDCustomEvent = {
   kind: 'custom'
   key: string
-  user: {
-    key: string
-  }
+  contextKeys: ContextKeys
   metricValue?: number
   data: { [k: string]: unknown }
   creationDate: number
+}
+
+const constructContextKeys = (payload: Payload): ContextKeys => {
+  const baseContextKeys = { [payload.context_kind || 'user']: payload.user_key }
+  if (!payload.additional_context_keys) {
+    return baseContextKeys
+  }
+  const coercedContextKeys: ContextKeys = {}
+  Object.entries(payload.additional_context_keys).forEach(([k, v]) => {
+    coercedContextKeys[k] = String(v)
+  })
+  return { ...coercedContextKeys, ...baseContextKeys }
 }
 
 const convertPayloadToLDEvent = (payload: Payload): LDCustomEvent => {
   return {
     kind: 'custom',
     key: payload.event_name,
-    user: {
-      key: payload.user_key
-    },
+    contextKeys: constructContextKeys(payload),
     creationDate: parseTimestamp(payload.timestamp),
     metricValue: payload.metric_value,
-    data: payload.event_properties ? payload.event_properties : {}
+    data: payload.event_properties || {}
   }
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Track custom user events for use in A/B tests and experimentation.',
+  description: 'Track custom events for use in A/B tests and experimentation.',
   defaultSubscription: 'type = "track"',
   fields: {
+    context_kind: {
+      label: 'Context Kind',
+      type: 'string',
+      required: false,
+      description:
+        "The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).",
+      default: 'user'
+    },
     user_key: {
-      label: 'User Key',
+      label: 'Context Key',
       type: 'string',
       required: true,
-      description: "The user's unique key.",
+      description: 'The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
           then: { '@path': '$.userId' },
           else: { '@path': '$.anonymousId' }
         }
+      }
+    },
+    additional_context_keys: {
+      label: 'Additional Context Keys',
+      type: 'object',
+      required: false,
+      description:
+        'A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).',
+      default: {
+        unauthenticatedUser: { '@path': '$.anonymousId' }
       }
     },
     event_name: {
@@ -77,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Event timestamp',
-      description: 'The time when the event happened. Defaults to the current time',
+      description: 'The time when the event happened. Defaults to the current time.',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'

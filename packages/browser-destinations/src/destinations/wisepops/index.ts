@@ -80,7 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
     window.wisepops.l = Date.now()
     window.wisepops('options', { autoPageview: false })
     // Can load asynchronously, no need to wait
-    void deps.loadScript(`https://loader.wisepops.com/get-loader.js?v=1&site=${settings.websiteId}`)
+    void deps.loadScript(`https://loader.wisepops.com/get-loader.js?plugin=segment&v=1&site=${settings.websiteId}`)
     return window.wisepops
   },
 

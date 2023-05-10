@@ -1,39 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for 's submitPageEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for saleswings's submitPageEvent destination action: all fields 1`] = `
 Object {
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-  ],
-  "timestamp": 1671371213652,
-  "type": "page-visit",
-  "url": "[isj*b()C",
+  "anonymousID": "anonId1234",
+  "timestamp": "2022-12-18T13:46:53.652Z",
+  "url": "BYNuExz1#lNm)rdjv",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
 }
 `;
 
-exports[`Testing snapshot for 's submitPageEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for saleswings's submitPageEvent destination action: required fields 1`] = `
 Object {
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-  ],
-  "timestamp": 1671371213632,
-  "type": "page-visit",
-  "url": "[isj*b()C",
+  "anonymousID": "anonId1234",
+  "timestamp": "2022-12-18T13:46:53.632Z",
+  "url": "BYNuExz1#lNm)rdjv",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
 }
 `;

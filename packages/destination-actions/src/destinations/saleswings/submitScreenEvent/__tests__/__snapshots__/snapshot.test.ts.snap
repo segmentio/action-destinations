@@ -1,62 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for 's submitScreenEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for saleswings's submitScreenEvent destination action: all fields 1`] = `
 Object {
+  "anonymousID": "anonId1234",
   "data": "Home",
+  "email": "itimo@zimul.ad",
   "kind": "Screen",
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-    Object {
-      "type": "email",
-      "value": "sajvoji@monarwi.pk",
-    },
-  ],
-  "timestamp": 1671371213652,
-  "type": "tracking",
-  "url": "kwF&9l73A",
+  "timestamp": "2022-12-18T13:46:53.652Z",
+  "url": "]qLj6Vft5pTqg",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
   "values": Object {
-    "anonymousId": "kwF&9l73A",
-    "data": "kwF&9l73A",
-    "email": "sajvoji@monarwi.pk",
-    "kind": "kwF&9l73A",
-    "referrerUrl": "kwF&9l73A",
+    "anonymousID": "]qLj6Vft5pTqg",
+    "data": "]qLj6Vft5pTqg",
+    "email": "itimo@zimul.ad",
+    "kind": "]qLj6Vft5pTqg",
+    "referrerUrl": "]qLj6Vft5pTqg",
     "timestamp": "2021-02-01T00:00:00.000Z",
-    "url": "kwF&9l73A",
-    "userAgent": "kwF&9l73A",
-    "userId": "kwF&9l73A",
+    "url": "]qLj6Vft5pTqg",
+    "userAgent": "]qLj6Vft5pTqg",
+    "userID": "]qLj6Vft5pTqg",
+    "values": Object {
+      "testType": "]qLj6Vft5pTqg",
+    },
   },
 }
 `;
 
-exports[`Testing snapshot for 's submitScreenEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for saleswings's submitScreenEvent destination action: required fields 1`] = `
 Object {
+  "anonymousID": "anonId1234",
   "data": "Home",
   "kind": "Screen",
-  "leadRefs": Array [
-    Object {
-      "type": "client-id",
-      "value": "user1234",
-    },
-    Object {
-      "type": "client-id",
-      "value": "anonId1234",
-    },
-  ],
-  "timestamp": 1671371213632,
-  "type": "tracking",
+  "timestamp": "2022-12-18T13:46:53.632Z",
   "url": "https://segment.com/academy/",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userID": "user1234",
   "values": Object {
-    "data": "kwF&9l73A",
-    "kind": "kwF&9l73A",
+    "data": "]qLj6Vft5pTqg",
+    "kind": "]qLj6Vft5pTqg",
   },
 }
 `;

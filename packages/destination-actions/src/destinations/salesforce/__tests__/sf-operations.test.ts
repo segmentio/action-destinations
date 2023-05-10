@@ -389,6 +389,69 @@ describe('Salesforce', () => {
         )
       })
     })
+
+    describe('delete', () => {
+      it('should delete a record given some ID', async () => {
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/abc123').reply(201, {})
+
+        await sf.deleteRecord(
+          {
+            traits: {
+              Id: 'abc123'
+            }
+          },
+          'Lead'
+        )
+      })
+
+      it('should lookup and delete a record given some traits', async () => {
+        const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'bob@bobsburgers.net'`)
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+          .get(`/?q=${query}`)
+          .reply(201, {
+            totalSize: 1,
+            records: [{ Id: 'abc123' }]
+          })
+
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/abc123').reply(201, {})
+
+        await sf.deleteRecord(
+          {
+            traits: {
+              email: 'bob@bobsburgers.net'
+            }
+          },
+          'Lead'
+        )
+      })
+
+      it('should fail when multiple records are found on lookup', async () => {
+        const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'bob@bobsburgers.net'`)
+
+        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+          totalSize: 2
+        })
+
+        await expect(
+          sf.deleteRecord(
+            {
+              traits: {
+                email: 'bob@bobsburgers.net'
+              }
+            },
+            'Lead'
+          )
+        ).rejects.toThrowError('Multiple records returned with given traits')
+      })
+
+      it('should fail when no lookup info is provided', async () => {
+        await expect(sf.deleteRecord({}, 'Lead')).rejects.toThrowError('Undefined Traits when using delete operation')
+
+        await expect(sf.deleteRecord({ traits: {} }, 'Lead')).rejects.toThrowError(
+          'Undefined Traits when using delete operation'
+        )
+      })
+    })
   })
 
   describe('Bulk Operations', () => {

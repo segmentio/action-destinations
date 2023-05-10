@@ -75,6 +75,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The external ID contact type.',
           type: 'string'
         },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
+          type: 'string'
+        },
         subscriptionStatus: {
           label: 'ID',
           description: 'The subscription status for the identity.',
@@ -90,6 +95,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
@@ -115,12 +123,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
     const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+    const tags = statsContext?.tags || []
+    if (!settings.region) {
+      settings.region = 'us-west-1'
+    }
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
 
-    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags).send()
+    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags, logger).send()
   }
 }
 
