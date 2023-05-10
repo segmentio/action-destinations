@@ -9,8 +9,8 @@ export declare class UpolloClient {
     userinfo?: UpUser,
     eventtype?: number
   ): Promise<{
-    emailAnalysis: {
-      company: { name: string; industry: string; companySize: { employeesMin: number; employeesMax: number } }
+    emailAnalysis?: {
+      company?: { name: string; industry: string; companySize: { employeesMin: number; employeesMax: number } }
     }
   }>
 }
