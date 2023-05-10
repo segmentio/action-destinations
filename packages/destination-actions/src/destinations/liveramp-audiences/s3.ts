@@ -47,7 +47,7 @@ async function uploadS3(
     throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
   }
 
-  return await request(`https://${opts.host}${opts.path}`, {
+  return await request(`https://${opts.host}/${opts.path}`, {
     headers: opts.headers as Record<string, string>,
     method,
     body: opts.body

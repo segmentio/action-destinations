@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string'
       },
       s3_aws_region: {
-        label: 'AWS Region',
+        label: 'AWS Region (S3 only)',
         description: '',
         type: 'string'
       },
