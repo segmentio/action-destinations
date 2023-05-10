@@ -136,6 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, logger }) => {
+    console.log('NEW PAYLOAD', JSON.stringify(payload))
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
