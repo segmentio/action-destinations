@@ -6,7 +6,7 @@ import { eventRequestParams, resolveRequestPayload } from '../request-params'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page',
-  description: '',
+  description: 'Send pageview events to Usermaven.',
   fields: {
     user_id: {
       type: 'string',
