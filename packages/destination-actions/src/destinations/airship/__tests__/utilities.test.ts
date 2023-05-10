@@ -16,7 +16,7 @@ const valid_custom_event_payload: CustomEventsPayload = {
 }
 
 const valid_attributes_payload: AttributesPayload = {
-  user: 'test-user-rzoj4u7gqw',
+  named_user_id: 'test-user-rzoj4u7gqw',
   occurred: '2023-05-09T00:47:43.378Z',
   attributes: {
     trait1: 1,

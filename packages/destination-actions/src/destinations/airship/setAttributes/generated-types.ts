@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The identifier assigned in Airship as the Named User
    */
-  user?: string
+  named_user_id: string
   /**
    * When the Trait was set
    */

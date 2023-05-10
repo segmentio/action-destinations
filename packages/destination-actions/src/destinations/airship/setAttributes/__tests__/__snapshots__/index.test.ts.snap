@@ -4,7 +4,7 @@ exports[`Testing snapshot for Airship's setAttributes destination action: requir
 Object {
   "attributes": Array [],
   "audience": Object {
-    "named_user_id": "undefined",
+    "named_user_id": "Tw4VW",
   },
 }
 `;

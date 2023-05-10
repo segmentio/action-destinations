@@ -32,7 +32,7 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
   const airship_payload = {
     attributes: attributes,
     audience: {
-      named_user_id: `${payload.user}`
+      named_user_id: `${payload.named_user_id}`
     }
   }
   return do_request(request, uri, airship_payload)
@@ -40,7 +40,8 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
 
 // exported Action function
 export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
-  const uri = `${settings.endpoint}/api/named_users/tags`
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/named_users/tags`
   const airship_payload = _build_tags_object(payload)
   return do_request(request, uri, airship_payload)
 }
