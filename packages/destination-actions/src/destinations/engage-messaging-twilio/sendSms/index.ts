@@ -140,21 +140,10 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.region = 'us-west-1'
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    const logDetails={
-      userId: payload.userId,
-      subscriptionStatus: payload.externalIds?.map(eid=>({type: eid.type, subscriptionStatus: eid.subscriptionStatus})),
-      shouldSend: payload.send,
-      contentSid: payload.contentSid,
-      sourceId: settings.sourceId,
-      spaceId : settings.spaceId,
-      twilioApiKeySID : settings.twilioApiKeySID,
-      region : settings.region,
-      messageId: payload.messageId
-    }
-    logger?.info("TE Messaging: SMS Destination Action Performing...", JSON.stringify(logDetails))
 
-    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, logDetails).send()
+    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger).send()
   }
 }
+
 
 export default action
