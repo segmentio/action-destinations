@@ -77,15 +77,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
   }
   
-  logInfo(...msgs:string[])
-  {
+  logInfo(...msgs:string[]) {
     const [firstMsg, ...rest] = msgs
-    this.logger?.info("TE Messaging: "+firstMsg, ...rest, JSON.stringify(this.logDetails))
+    this.logger?.info(`TE Messaging: ${firstMsg}`, ...rest, JSON.stringify(this.logDetails))
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logError(error?: any, ...msgs:string[])
-  {
+  logError(error?: any, ...msgs:string[]) {
     const [firstMsg, ...rest] = msgs
     if(typeof error === 'string' )
     {
@@ -108,7 +106,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return obj instanceof Object && 'then' in obj && typeof obj.then === 'function'
   }
 
-  logWrap<R=void>(messages:string[], fn: ()=>R):R{
+  logWrap<R=void>(messages:string[], fn: ()=>R):R {
     this.logInfo("Starting: ", ...messages)
     try{
       const res = fn()
@@ -155,7 +153,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logDetails.userId = this.payload.userId
   }
 
-  async send(){
+  async send() {
 
     this.initLogDetails()
 
