@@ -14,7 +14,7 @@ export interface Payload {
   /**
    * Email address for the contact.
    */
-  email?: string
+  email: string
   /**
    * The contact's given name.
    */
