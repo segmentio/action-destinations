@@ -211,7 +211,6 @@ const attemptEmailDelivery = async (
   }
 
   let name
-
   if (traits.first_name && traits.last_name) {
     name = `${traits.first_name} ${traits.last_name}`
   } else if (traits.firstName && traits.lastName) {
@@ -229,7 +228,6 @@ const attemptEmailDelivery = async (
   if (payload.bodyUrl && settings.unlayerApiKey) {
     // @ts-ignore lets check this
     const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
-
     const bodyHtml =
       payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
     parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
@@ -556,6 +554,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
 
+    if (emailProfile === undefined) {
+      logger?.info(
+        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${settings.spaceId}`
+      )
+      statsClient?.incr('actions-personas-messaging-sendgrid.missing_email_external_id', 1, tags)
+      return
+    }
     let byPassSubscription = false
     if (payload.byPassSubscription !== undefined && payload.byPassSubscription) {
       byPassSubscription = true
