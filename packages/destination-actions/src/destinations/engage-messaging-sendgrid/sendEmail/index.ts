@@ -167,7 +167,6 @@ const attemptEmailDelivery = async (
   byPassSubscription: boolean
 ) => {
   let traits
-  console.log(byPassSubscription)
   const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
   if (payload.traitEnrichment) {
     traits = payload?.traits ? payload?.traits : JSON.parse('{}')
@@ -262,54 +261,69 @@ const attemptEmailDelivery = async (
 
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
+    const mailContentSubscriptionHonored = {
+      personalizations: [
+        {
+          to: [
+            {
+              email: toEmail,
+              name: name
+            }
+          ],
+          bcc: bcc.length > 0 ? bcc : undefined,
+          custom_args: {
+            ...payload.customArgs,
+            source_id: settings.sourceId,
+            space_id: settings.spaceId,
+            user_id: payload.userId ?? undefined,
+            __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
+            __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
+          }
+        }
+      ],
+      from: {
+        email: payload.fromEmail,
+        name: payload.fromName
+      },
+      reply_to: {
+        email: payload.replyToEmail,
+        name: payload.replyToName
+      },
+      subject: parsedSubject,
+      content: [
+        {
+          type: 'text/html',
+          value: parsedBodyHtml
+        }
+      ],
+      tracking_settings: {
+        subscription_tracking: {
+          enable: true,
+          substitution_tag: '[unsubscribe]'
+        }
+      }
+    }
+    let mailContent
+    if (byPassSubscription) {
+      mailContent = {
+        ...mailContentSubscriptionHonored,
+        mailSettings: {
+          bypassListManagement: {
+            enable: true
+          }
+        }
+      }
+      statsClient?.incr('actions-personas-messaging-sendgrid.request.by_pass_subscription', 1, tags)
+    } else {
+      mailContent = mailContentSubscriptionHonored
+      statsClient?.incr('actions-personas-messaging-sendgrid.request.dont_pass_subscription', 1, tags)
+    }
     const req: RequestOptions = {
       method: 'post',
       headers: {
         authorization: `Bearer ${settings.sendGridApiKey}`
       },
-      json: {
-        personalizations: [
-          {
-            to: [
-              {
-                email: toEmail,
-                name: name
-              }
-            ],
-            bcc: bcc.length > 0 ? bcc : undefined,
-            custom_args: {
-              ...payload.customArgs,
-              source_id: settings.sourceId,
-              space_id: settings.spaceId,
-              user_id: payload.userId ?? undefined,
-              // This is to help disambiguate in the case it's email or email_address.
-              __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
-              __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
-            }
-          }
-        ],
-        from: {
-          email: payload.fromEmail,
-          name: payload.fromName
-        },
-        reply_to: {
-          email: payload.replyToEmail,
-          name: payload.replyToName
-        },
-        subject: parsedSubject,
-        content: [
-          {
-            type: 'text/html',
-            value: parsedBodyHtml
-          }
-        ],
-        tracking_settings: {
-          subscription_tracking: {
-            enable: true,
-            substitution_tag: '[unsubscribe]'
-          }
-        }
-      }
+      json: mailContent
     }
     statsClient?.set('actions-personas-messaging-sendgrid.request_body_size', JSON.stringify(req).length, tags)
     const response = await request('https://api.sendgrid.com/v3/mail/send', req)
