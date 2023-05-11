@@ -66,7 +66,16 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return externalId.type === 'phone' && this.getChannelType() === externalId.channelType?.toLowerCase()
   }
 
-  redactPii(pii: string|undefined){
+  redactPii(pii: string | undefined) {
+    if(!pii) {
+      return pii
+    }
+    
+    if(pii.length <= 8) {
+      return '***'
+     }
+    return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
+  }
     if(!pii) return pii
     if(pii.length<=8) return "***"
     return pii.substring(0, 3)+'***'+pii.substring(pii.length-3)
