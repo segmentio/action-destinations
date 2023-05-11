@@ -174,6 +174,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
         'base64'
       )
+
+      this.statsClient?.set(
+        'actions_personas_messaging_twilio.message_body_size',
+        body?.toString().length,
+        this.tags
+      )
+
       try {
         this.logInfo("Sending message to Twilio API")
 
@@ -188,7 +195,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           }
         )
         this.tags.push(`twilio_status_code:${response.status}`)
-        this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+        this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
 
         if (this.payload.eventOccurredTS != undefined) {
           this.statsClient?.histogram(
@@ -214,20 +221,23 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           this.logError(
             `Twilio Programmable API error - ${this.settings.spaceId}`
           )
-
+          const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
+          this.tags.push(`twilio_status_code:${statusCode}`)
+          this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+  
           if(!twilioApiError.status) //to handle error properly by Centrifuge
           {
             errorToRethrow = new IntegrationError(
               twilioApiError.message,
-              twilioApiError.response.data.message,
-              twilioApiError.response.data.status
+              twilioApiError.response?.data?.message,
+              statusCode
             )
           }
 
           const errorCode = twilioApiError.response?.data?.code
-          if (errorCode === 63018) {
+          if (errorCode === 63018 || statusCode === 429) {
             // Exceeded WhatsApp rate limit
-            this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
+            this.statsClient?.incr('actions_personas_messaging_twilio.rate_limited', 1, this.tags)
           }
         }
         // Bubble the error to integrations

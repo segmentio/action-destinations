@@ -91,7 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
         channelType: {
           label: 'type',
           description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
-          type: 'string'
+          type: 'string',
+          default: { '@path': '$.channelType' }
         },
         subscriptionStatus: {
           label: 'ID',
@@ -147,7 +148,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`, `channel:sms`)
     return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
   }
 }
