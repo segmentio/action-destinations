@@ -214,7 +214,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }})
   }
 
-  static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
+  static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static sendableStatuses = ['subscribed', 'true']
   private getSendabilityPayload(): SendabilityPayload {
 
@@ -231,19 +231,34 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       && MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toString()?.toLowerCase())
     )
 
+    const invalidStatuses = validExtIds?.filter(extId=>{
+      const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
+      if(!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
+      // if subStatus is not in any of the lists of valid statuses, then return true
+      return !(MessageSender.nonSendableStatuses.includes(subStatus) || MessageSender.sendableStatuses.includes(subStatus))
+    })
+    
+    const hasInvalidStatuses = invalidStatuses && invalidStatuses.length > 0
+    if(hasInvalidStatuses){
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.logInfo(`Invalid subscription statuses found in externalIds: ${invalidStatuses!.map(extId=>extId.subscriptionStatus).join(', ')}`)
+    }
+
     let status: SendabilityStatus = SendabilityStatus.DoNotSend
 
     const phone = this.payload.toNumber || firstSubscribedExtId?.id
 
     if (firstSubscribedExtId) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, this.tags)
+      this.statsClient?.incr('actions_personas_messaging_twilio.subscribed', 1, this.tags)
       status = phone ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone
+    } else if(hasInvalidStatuses) {
+      this.statsClient?.incr('actions_personas_messaging_twilio.invalid_subscription_status', 1, this.tags)
+      status = SendabilityStatus.InvalidSubscriptionStatus
     } else if (validExtIds && validExtIds.length > 0) {
-        this.statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, this.tags)
-        status = SendabilityStatus.DoNotSend
-    }
-    else{
-        status = SendabilityStatus.NoSenderPhone
+      this.statsClient?.incr('actions_personas_messaging_twilio.notsubscribed', 1, this.tags)
+      status = SendabilityStatus.DoNotSend
+    } else{
+      status = SendabilityStatus.NoSenderPhone
     }
 
     return { sendabilityStatus: status, phone }

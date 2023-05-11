@@ -655,37 +655,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
-      const randomSubscriptionStatusPhrase = 'some-subscription-enum'
-
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
-      })
-
-      nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
-
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase, channelType: 'sms' }]
-        })
-      }
-
-      const response = twilio.testAction('sendSms', actionInputData)
-      await expect(response).rejects.toThrowError(
-        `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
-      )
-    })
   })
 
   describe('get profile traits', () => {

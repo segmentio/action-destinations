@@ -252,44 +252,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
-      const randomSubscriptionStatusPhrase = 'some-subscription-enum'
-
-      const expectedTwilioRequest = new URLSearchParams({
-        ContentSid: defaultTemplateSid,
-        From: 'MG1111222233334444',
-        To: defaultTo
-      })
-
-      nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
-
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [
-            {
-              type: 'phone',
-              id: '+1234567891',
-              subscriptionStatus: randomSubscriptionStatusPhrase,
-              channelType: 'whatsapp'
-            }
-          ]
-        })
-      }
-
-      const response = twilio.testAction('sendWhatsApp', actionInputData)
-      await expect(response).rejects.toThrowError(
-        `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
-      )
-    })
-
     it('formats the to number correctly for whatsapp', async () => {
       const from = 'whatsapp:+19876543210'
       const expectedTwilioRequest = new URLSearchParams({
