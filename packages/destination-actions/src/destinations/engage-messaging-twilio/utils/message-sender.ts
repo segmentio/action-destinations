@@ -92,15 +92,15 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  logWrap<R=void>(args:{messages:string[], fn: ()=>R}):R{
-    this.logInfo("Starting: ", ...args.messages)
+  logWrap<R=void>(messages:string[], fn: ()=>R):R{
+    this.logInfo("Starting: ", ...messages)
     try{
-      const res = args.fn()
-      this.logInfo("Success: ", ...args.messages)
+      const res = fn()
+      this.logInfo("Success: ", ...messages)
       return res
     }
     catch(error:unknown){
-      this.logError(error, "Failed: ", ...args.messages)
+      this.logError(error, "Failed: ", ...messages)
       throw error
     }
   }
@@ -130,88 +130,86 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
     this.initLogDetails()
 
-    return this.logWrap({
-      messages: [`Destination Action ${this.getChannelType()}`],
-      fn: async ()=>{
-        // eslint-disable-next-line no-debugger
-        const { phone, sendabilityStatus } = this.getSendabilityPayload()
+    return this.logWrap([`Destination Action ${this.getChannelType()}`], async ()=>{
+      // eslint-disable-next-line no-debugger
+      const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
-        if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
-          this.logInfo(`Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`)
-          return
-        }
+      if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
+        this.logInfo(`Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`)
+        return
+      }
 
-        this.logInfo("Getting content Body")
-        const body = await this.getBody(phone)
+      this.logInfo("Getting content Body")
+      const body = await this.getBody(phone)
 
-        const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
+      const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
 
-        if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
+      if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
-        const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
-        const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-          'base64'
+      const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
+      const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+        'base64'
+      )
+      try {
+        this.logInfo("Sending message to Twilio API")
+
+        const response = await this.request(
+          `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
+          {
+            method: 'POST',
+            headers: {
+              authorization: `Basic ${twilioToken}`
+            },
+            body
+          }
         )
-        try {
-          this.logInfo("Sending message to Twilio API")
+        this.tags.push(`twilio_status_code:${response.status}`)
+        this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
 
-          const response = await this.request(
-            `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
-            {
-              method: 'POST',
-              headers: {
-                authorization: `Basic ${twilioToken}`
-              },
-              body
-            }
+        if (this.payload.eventOccurredTS != undefined) {
+          this.statsClient?.histogram(
+            'actions-personas-messaging-twilio.eventDeliveryTS',
+            Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
+            this.tags
           )
-          this.tags.push(`twilio_status_code:${response.status}`)
-          this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
-
-          if (this.payload.eventOccurredTS != undefined) {
-            this.statsClient?.histogram(
-              'actions-personas-messaging-twilio.eventDeliveryTS',
-              Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-              this.tags
-            )
-          }
-
-          this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
-
-          this.logInfo("Message sent successfully")
-
-          return response
-        } catch (errorOrig: unknown) {
-          let errorToRethrow = errorOrig
-          if (errorOrig instanceof Object) {
-            const twilioApiError = errorOrig as TwilioApiError
-            this.logDetails['twilioApiError_response_data'] = twilioApiError.response?.data
-            this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
-            this.logDetails['error'] = twilioApiError.response
-
-            this.logError(
-              `Twilio Programmable API error - ${this.settings.spaceId}`
-            )
-
-            if(!twilioApiError.status) //to handle error properly by Centrifuge
-            {
-              errorToRethrow = new IntegrationError(
-                twilioApiError.message,
-                twilioApiError.response.data.message,
-                twilioApiError.response.data.status
-              )
-            }
-
-            const errorCode = twilioApiError.response?.data?.code
-            if (errorCode === 63018) {
-              // Exceeded WhatsApp rate limit
-              this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
-            }
-          }
-          // Bubble the error to integrations
-          throw errorToRethrow
         }
-    }})
+
+        this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
+
+        this.logInfo("Message sent successfully")
+
+        return response
+      } catch (errorOrig: unknown) {
+        let errorToRethrow = errorOrig
+        if (errorOrig instanceof Object) {
+          const twilioApiError = errorOrig as TwilioApiError
+          this.logDetails['twilioApiError_response_data'] = twilioApiError.response?.data
+          this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
+          this.logDetails['error'] = twilioApiError.response
+
+          this.logError(
+            `Twilio Programmable API error - ${this.settings.spaceId}`
+          )
+
+          if(!twilioApiError.status) //to handle error properly by Centrifuge
+          {
+            errorToRethrow = new IntegrationError(
+              twilioApiError.message,
+              twilioApiError.response.data.message,
+              twilioApiError.response.data.status
+            )
+          }
+
+          const errorCode = twilioApiError.response?.data?.code
+          if (errorCode === 63018) {
+            // Exceeded WhatsApp rate limit
+            this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
+          }
+        }
+        // Bubble the error to integrations
+        throw errorToRethrow
+      }
+    })
   }
 
   static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
