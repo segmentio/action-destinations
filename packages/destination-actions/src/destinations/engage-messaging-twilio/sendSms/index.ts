@@ -155,5 +155,4 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-
 export default action
