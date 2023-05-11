@@ -88,7 +88,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
     else 
     {
-      this.logger?.error("TE Messaging: "+firstMsg, ...rest, error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
+      this.logger?.error(`TE Messaging: ${firstMsg}`, ...rest, error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
     }
   }
 
