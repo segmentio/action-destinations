@@ -699,7 +699,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should throw error if unable to request profile traits', async () => {
-      // eslint-disable-next-line no-debugger
       const logger = createLoggerMock()
 
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(500)

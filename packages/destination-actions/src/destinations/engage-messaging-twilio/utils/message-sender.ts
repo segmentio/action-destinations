@@ -155,7 +155,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.initLogDetails()
 
     return this.logWrap([`Destination Action ${this.getChannelType()}`], async ()=>{
-      // eslint-disable-next-line no-debugger
       const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
       if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
