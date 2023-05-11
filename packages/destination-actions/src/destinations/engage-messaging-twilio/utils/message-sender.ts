@@ -76,11 +76,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
      }
     return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
   }
-    if(!pii) return pii
-    if(pii.length<=8) return "***"
-    return pii.substring(0, 3)+'***'+pii.substring(pii.length-3)
-  }
-
+  
   logInfo(...msgs:string[])
   {
     const [firstMsg, ...rest] = msgs
