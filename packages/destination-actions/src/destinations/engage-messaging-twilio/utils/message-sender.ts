@@ -77,7 +77,14 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   logError(error?: any, ...msgs:string[])
   {
     const [firstMsg, ...rest] = msgs
-    this.logger?.error("TE Messaging: "+firstMsg, ...rest, error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
+    if(typeof error === 'string' )
+    {
+      this.logger?.error("TE Messaging: "+ error, ...msgs, JSON.stringify(this.logDetails))
+    }
+    else 
+    {
+      this.logger?.error("TE Messaging: "+firstMsg, ...rest, error instanceof Error? error.message: error?.toString(), JSON.stringify(this.logDetails))
+    }
   }
 
   logWrap<R=void>(args:{messages:string[], fn: ()=>R}):R{
@@ -109,9 +116,10 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if( 'messageId' in this.payload)
       this.logDetails['messageId'] = this.payload.messageId
 
-    return this.logWrap({
+    return await this.logWrap({
       messages: [`Destination Action ${this.getChannelType()}`],
-      fn:async ()=>{
+      fn: async ()=>{
+        // eslint-disable-next-line no-debugger
         const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
         if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
@@ -172,7 +180,11 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
             if(!twilioApiError.status) //to handle error properly by Centrifuge
             {
-              errorToRethrow = new IntegrationError(twilioApiError.message, twilioApiError.response.data.message, twilioApiError.response.data.status)
+              errorToRethrow = new IntegrationError(
+                twilioApiError.message,
+                twilioApiError.response.data.message,
+                twilioApiError.response.data.status
+              )
             }
 
             const errorCode = twilioApiError.response?.data?.code

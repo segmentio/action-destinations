@@ -33,7 +33,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
       ],
       ...overrides
     }
@@ -93,7 +93,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
       expect(logger.error).toHaveBeenCalledWith(
-        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${spaceId}`
+        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${spaceId}`,
+        expect.anything()
       )
     })
 
@@ -117,7 +118,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'Unable to parse templating in SMS'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS templating parse failure - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS templating parse failure - ${spaceId}`)),
+        expect.anything()
       )
     })
 
@@ -141,7 +143,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringMatching(
           new RegExp(`^TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${spaceId}`)
-        )
+        ),
+        expect.anything()
       )
     })
 
@@ -178,7 +181,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
         expect(logger.error).toHaveBeenCalledWith(
-          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`
+          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`,
+          expect.anything()
         )
       }
     )
@@ -216,7 +220,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(logger.error).toHaveBeenCalledWith(
         `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
           twilioContentResponse
-        )}]`
+        )}]`,
+        expect.anything()
       )
     })
 
@@ -284,7 +289,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`)),
+        expect.anything()
       )
     })
 
@@ -589,6 +595,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+      // eslint-disable-next-line no-debugger
+      debugger;
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
@@ -607,7 +615,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -638,7 +646,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
         }
 
         const responses = await twilio.testAction('sendSms', actionInputData)
@@ -669,7 +677,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase, channelType: 'sms' }]
         })
       }
 
@@ -686,6 +694,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should throw error if unable to request profile traits', async () => {
+      // eslint-disable-next-line no-debugger
       const logger = createLoggerMock()
 
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(500)
@@ -707,7 +716,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'Unable to get profile traits for SMS message'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`)),
+        expect.anything()
       )
     })
 

@@ -344,7 +344,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`)),
+        expect.anything()
       )
     })
 
@@ -375,7 +376,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringMatching(
           new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
-        )
+        ),
+        expect.anything()
       )
     })
 
@@ -405,7 +407,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`)),
+        expect.anything()
       )
     })
 
