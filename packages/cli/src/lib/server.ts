@@ -211,10 +211,11 @@ function setupRoutes(def: DestinationDefinition | null): void {
         const data = await destination.refreshAccessToken(settings, req.body)
         res.status(200).json({ ok: true, data })
       } catch (e) {
-        const error = e as ResponseError
+        const error = e as HTTPError
+        const message = (await error?.response?.json()) ?? error.message
         res.status(400).json({
           ok: false,
-          error: error.message
+          error: message
         })
       }
     })
