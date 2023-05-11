@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LiverampAudiences's audienceEnteredS3 destination action: all fields 1`] = `
+"audience_key,testType
+\\"8I!3YmPiv2%lv7\\",\\"8I!3YmPiv2%lv7\\""
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEnteredS3 destination action: all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "AWS4-HMAC-SHA256 Credential=8I!3YmPiv2%lv7/19700101/8I!3YmPiv2%lv7/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=966dca0aa8916b71d516772720ccfde8ba50bf25d6f3eac7eedd4440c000cf18",
+    ],
+    "content-length": Array [
+      "55",
+    ],
+    "content-type": Array [
+      "application/x-www-form-urlencoded; charset=utf-8",
+    ],
+    "host": Array [
+      "8I!3YmPiv2%lv7.s3.amazonaws.com",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-amz-content-sha256": Array [
+      "3871b95210e0ed14e0f70bea2d171b41ca02a338737fb0cf7931bc39fe05b0a3",
+    ],
+    "x-amz-date": Array [
+      "19700101T000012Z",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEnteredS3 destination action: required fields 1`] = `
+"audience_key,testType
+\\"8I!3YmPiv2%lv7\\",\\"8I!3YmPiv2%lv7\\""
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEnteredS3 destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "AWS4-HMAC-SHA256 Credential=8I!3YmPiv2%lv7/19700101/8I!3YmPiv2%lv7/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=966dca0aa8916b71d516772720ccfde8ba50bf25d6f3eac7eedd4440c000cf18",
+    ],
+    "content-length": Array [
+      "55",
+    ],
+    "content-type": Array [
+      "application/x-www-form-urlencoded; charset=utf-8",
+    ],
+    "host": Array [
+      "8I!3YmPiv2%lv7.s3.amazonaws.com",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-amz-content-sha256": Array [
+      "3871b95210e0ed14e0f70bea2d171b41ca02a338737fb0cf7931bc39fe05b0a3",
+    ],
+    "x-amz-date": Array [
+      "19700101T000012Z",
+    ],
+  },
+}
+`;

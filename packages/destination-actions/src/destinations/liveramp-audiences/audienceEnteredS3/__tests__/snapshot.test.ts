@@ -2,10 +2,9 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { enquoteIdentifier } from '../operations'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'audienceEntered'
+const actionSlug = 'audienceEnteredS3'
 const destinationSlug = 'LiverampAudiences'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -19,7 +18,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData.delimiter = ','
-    settingsData.upload_mode = 'S3'
+    eventData.audience_name = 'my-audience'
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
@@ -53,8 +52,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
     eventData.delimiter = ','
-    settingsData.upload_mode = 'S3'
-
+    eventData.audience_name = 'my-audience'
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
@@ -80,12 +78,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
-  })
 
-  it('enquotated indentifier data', async () => {
-    const identifiers = [`LCD TV,50"`, `"early-bird" special`, `5'8"`]
-    const enquotedIdentifiers = identifiers.map(enquoteIdentifier)
-
-    expect(enquotedIdentifiers).toMatchSnapshot()
+    expect(request.headers).toMatchSnapshot()
   })
 })
