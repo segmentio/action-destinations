@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
@@ -34,6 +34,8 @@ const getProfileApiEndpoint = (environment: string, region?: Region): string => 
 }
 
 type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
+
+type RequestModifiedFn = (url: string, options?: RequestOptions) => Promise<ModifiedResponse>
 
 const fetchProfileTraits = async (
   request: RequestFn,
@@ -158,7 +160,7 @@ const parseTemplating = async (
 const EXTERNAL_ID_KEY = 'email'
 
 const attemptEmailDelivery = async (
-  request: RequestFn,
+  request: RequestModifiedFn,
   settings: Settings,
   payload: Payload,
   logger: Logger | undefined,
@@ -226,7 +228,6 @@ const attemptEmailDelivery = async (
   let parsedBodyHtml
 
   if (payload.bodyUrl && settings.unlayerApiKey) {
-    // @ts-ignore lets check this
     const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
     const bodyHtml =
       payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
