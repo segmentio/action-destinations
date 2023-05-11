@@ -18,6 +18,10 @@ export interface Payload {
    */
   body?: string
   /**
+   * Media to attach to message
+   */
+  media?: string[]
+  /**
    * Content template SID for Twilio Content API
    */
   contentSid?: string
@@ -66,4 +70,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }
