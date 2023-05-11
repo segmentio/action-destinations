@@ -1,33 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { RequestFn, MessageSender } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
 
 export class WhatsAppMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined
-  ) {
-    super(request, payload, settings, statsClient, tags, logger)
+
+  getChannelType(){
+    return 'whatsapp'
   }
 
-  getExternalId = () =>
-    this.payload.externalIds?.find(
-      ({ type, channelType }) => channelType?.toLowerCase() === 'whatsapp' && type === 'phone'
-    )
-
-  getBody = async (phone: string) => {
+  async getBody(phone: string){
     let parsedPhone
 
     try {
@@ -39,7 +26,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       parsedPhone = `whatsapp:${parsedPhone}`
     } catch (error: unknown) {
       this.tags.push('type:invalid_phone_e164')
-      this.logger?.error(`TE Messaging: WhatsApp invalid phone number - ${this.settings.spaceId} - [${error}]`)
+      this.logError(`WhatsApp invalid phone number - ${this.settings.spaceId} - [${error}]`)
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       throw new IntegrationError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
@@ -49,7 +36,7 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     }
 
     if (!this.payload.contentSid) {
-      this.logger?.error(`TE Messaging: A valid WhatsApp Content SID was not provided - ${this.settings.spaceId}`)
+      this.logError(`A valid WhatsApp Content SID was not provided - ${this.settings.spaceId}`)
       throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
     }
 
@@ -90,8 +77,8 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
 
       return JSON.stringify(mapping)
     } catch (error: unknown) {
-      this.logger?.error(
-        `TE Messaging: Failed to parse WhatsApp template with content variables - ${this.settings.spaceId} - [${error}]`
+      this.logError(
+        `Failed to parse WhatsApp template with content variables - ${this.settings.spaceId} - [${error}]`
       )
       throw new IntegrationError(
         `Unable to parse templating in content variables`,

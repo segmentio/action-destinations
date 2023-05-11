@@ -252,7 +252,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
+    it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
       const randomSubscriptionStatusPhrase = 'some-subscription-enum'
 
       const expectedTwilioRequest = new URLSearchParams({
@@ -281,13 +281,21 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               channelType: 'whatsapp'
             }
           ]
-        })
+        }),
+        logger: createLoggerMock()
       }
 
-      const response = twilio.testAction('sendWhatsApp', actionInputData)
-      await expect(response).rejects.toThrowError(
-        `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
+      const responses = await twilio.testAction('sendWhatsApp', actionInputData)
+      expect(responses).toHaveLength(0)
+      expect(actionInputData.logger.info).toHaveBeenCalledWith(
+        expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+        expect.anything()
       )
+      expect(actionInputData.logger.info).toHaveBeenCalledWith(
+        expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+        expect.anything()
+      )
+  
     })
 
     it('formats the to number correctly for whatsapp', async () => {
@@ -344,7 +352,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`)),
+        expect.anything()
       )
     })
 
@@ -375,7 +384,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringMatching(
           new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
-        )
+        ),
+        expect.anything()
       )
     })
 
@@ -405,7 +415,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`))
+        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`)),
+        expect.anything()
       )
     })
 
