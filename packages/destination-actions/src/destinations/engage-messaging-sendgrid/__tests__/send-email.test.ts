@@ -777,27 +777,27 @@ describe.each([
       nock.cleanAll()
     })
 
-    // it('sends the email when subscriptionStatus is true', async () => {
-    //   const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
-    //
-    //   const isSubscribed = true
-    //   const responses = await sendgrid.testAction('sendEmail', {
-    //     event: createMessagingTestEvent({
-    //       timestamp,
-    //       event: 'Audience Entered',
-    //       userId: userData.userId,
-    //       external_ids: [
-    //         { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-    //         { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
-    //       ]
-    //     }),
-    //     settings,
-    //     mapping: getDefaultMapping()
-    //   })
-    //
-    //   expect(responses.length).toBeGreaterThan(0)
-    //   expect(sendGridRequest.isDone()).toEqual(true)
-    // })
+    it('sends the email when subscriptionStatus is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+      const isSubscribed = true
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping()
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
 
     it('Should not send email when email is not present in external id', async () => {
       // const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
