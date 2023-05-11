@@ -82,7 +82,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     }
   })
 
-  it.only('enquotated indentifier data', async () => {
+  it('enquotated indentifier data', async () => {
     const identifiers = [`LCD TV,50"`, `"early-bird" special`, `5'8"`]
     const enquotedIdentifiers = identifiers.map(enquoteIdentifier)
 

@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Identifies the user within the target audience.
+   * Identifies the user within the entered audience.
    */
   audience_key: string
   /**
-   * Additional information pertaining to the user.
+   * Additional data pertaining to the user.
    */
   identifier_data?: {
     [k: string]: unknown
