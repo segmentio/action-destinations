@@ -96,6 +96,17 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.logInfo("Starting: ", ...messages)
     try{
       const res = fn()
+      if(res instanceof Promise)
+        return (async()=>{
+          try{
+            const promisedRes = await res
+            this.logInfo("Success: ", ...messages)
+            return promisedRes
+          } catch(error:unknown){
+            this.logError(error, "Failed: ", ...messages)
+            throw error
+          }
+        })() as R
       this.logInfo("Success: ", ...messages)
       return res
     }
