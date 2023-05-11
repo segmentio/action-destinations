@@ -78,8 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
         channelType: {
           label: 'type',
           description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
-          type: 'string',
-          default: { '@path': '$.channelType' }
+          type: 'string'
         },
         subscriptionStatus: {
           label: 'ID',
