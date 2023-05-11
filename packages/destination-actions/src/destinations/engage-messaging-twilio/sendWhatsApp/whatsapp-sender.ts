@@ -1,34 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { RequestFn, MessageSender } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
 
 export class WhatsAppMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: { [key: string]: any } = {}
-  ) {
-    super(request, payload, settings, statsClient, tags, logger, logDetails)
-  }
 
   getChannelType(){
-    return <const>'whatsapp'
+    return 'whatsapp'
   }
 
-  getBody = async (phone: string) => {
+  async getBody(phone: string){
     let parsedPhone
 
     try {

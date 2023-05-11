@@ -5,6 +5,7 @@ import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { ExecuteInput } from '@segment/actions-core'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -46,6 +47,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
   )
   {
@@ -53,12 +55,15 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   abstract getBody(phone: string): Promise<URLSearchParams>
 
-  abstract getChannelType():'sms' | 'whatsapp'
+  abstract getChannelType():string
 
-  getExternalId(){ 
-    // searching for the first externalId that matches the phone type and current channel type
-    return this.payload.externalIds?.find(({ type, channelType }) => type === 'phone' && channelType?.toLowerCase() === this.getChannelType()
-    )
+  /**
+   * check if the externalId object is supported for sending a message
+   * @param externalId 
+   * @returns 
+   */
+  isValidExternalId(externalId: NonNullable<MessagePayload['externalIds']>[number]): boolean {
+    return externalId.type === 'phone' && this.getChannelType() === externalId.channelType?.toLowerCase()
   }
 
   redactPii(pii: string|undefined){
@@ -100,8 +105,11 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  async send(){
-
+  /**
+   * populate the logDetails object with the data that should be logged for every message
+   */
+  initLogDetails()//overrideable
+  {
     Object.assign(this.logDetails,{
       externalIds: this.payload.externalIds?.map(eid=>({...eid, id: this.redactPii(eid.id)})),
       shouldSend: this.payload.send,
@@ -110,19 +118,26 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       spaceId : this.settings.spaceId,
       twilioApiKeySID : this.settings.twilioApiKeySID,
       region : this.settings.region,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messageId: (this.executeInput as any)['rawData']?.messageId, // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
+      channelType: this.getChannelType(),
     })
-    if( 'userId' in this.payload)
-      this.logDetails['userId'] = this.payload.userId
-    if( 'messageId' in this.payload)
-      this.logDetails['messageId'] = this.payload.messageId
+    if('userId' in this.payload)
+      this.logDetails.userId = this.payload.userId
+  }
 
-    return await this.logWrap({
+  async send(){
+
+    this.initLogDetails()
+
+    return this.logWrap({
       messages: [`Destination Action ${this.getChannelType()}`],
       fn: async ()=>{
         // eslint-disable-next-line no-debugger
         const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
         if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
+          this.logInfo(`Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`)
           return
         }
 
@@ -199,36 +214,36 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }})
   }
 
-  private getSendabilityPayload = (): SendabilityPayload => {
-    const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
-    const sendableStatuses = ['subscribed', 'true']
-    const externalId = this.getExternalId()
-
-    let status: SendabilityStatus
+  static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
+  static sendableStatuses = ['subscribed', 'true']
+  private getSendabilityPayload(): SendabilityPayload {
 
     if (!this.payload.send) {
       this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
       return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
     }
 
-    if (!externalId?.subscriptionStatus || nonSendableStatuses.includes(externalId.subscriptionStatus)) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, this.tags)
-      status = SendabilityStatus.DoNotSend
-    } else if (sendableStatuses.includes(externalId.subscriptionStatus)) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, this.tags)
-      status = SendabilityStatus.ShouldSend
-    } else {
-      this.statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, this.tags)
-      throw new IntegrationError(
-        `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
-        'Invalid subscriptionStatus value',
-        400
-      )
-    }
+    // list of extenalIds that are supported by this Channel
+    const validExtIds = this.payload.externalIds?.filter(extId => this.isValidExternalId(extId))
+    
+    // finding first that isSubscribed
+    const firstSubscribedExtId = validExtIds?.find(extId => extId.subscriptionStatus
+      && MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toString()?.toLowerCase())
+    )
 
-    const phone = this.payload.toNumber || externalId?.id
-    if (!phone) {
-      status = SendabilityStatus.NoSenderPhone
+    let status: SendabilityStatus = SendabilityStatus.DoNotSend
+
+    const phone = this.payload.toNumber || firstSubscribedExtId?.id
+
+    if (firstSubscribedExtId) {
+      this.statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, this.tags)
+      status = phone ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone
+    } else if (validExtIds && validExtIds.length > 0) {
+        this.statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, this.tags)
+        status = SendabilityStatus.DoNotSend
+    }
+    else{
+        status = SendabilityStatus.NoSenderPhone
     }
 
     return { sendabilityStatus: status, phone }

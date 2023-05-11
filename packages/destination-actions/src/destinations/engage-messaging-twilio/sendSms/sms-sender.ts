@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { MessageSender, RequestFn } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
 
@@ -24,24 +22,8 @@ type Profile = {
 }
 
 export class SmsMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: { [key: string]: any } = {}
-  ) {
-    super(request, payload, settings, statsClient, tags, logger, logDetails)
-  }
 
-  getChannelType(){
-    return <const>'sms'
-  }
-
-  getBody = async (phone: string) => {
+  async getBody(phone: string){
     if (!this.payload.body && !this.payload.contentSid) {
       this.logError(
         `Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
@@ -93,6 +75,15 @@ export class SmsMessageSender extends MessageSender<Payload> {
     })
 
     return body
+  }
+
+  getChannelType(){
+    return 'sms'
+  }
+
+  isValidExternalId(externalId:NonNullable<Payload['externalIds']>[number]): boolean {
+    if(externalId.type!=='phone') return false
+    return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 
   private getProfileTraits = async () => {
