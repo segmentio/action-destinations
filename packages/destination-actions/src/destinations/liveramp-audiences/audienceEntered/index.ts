@@ -10,14 +10,14 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     audience_key: {
       label: 'Audience Key',
-      description: 'Identifies the user within the target audience.',
+      description: 'Identifies the user within the entered audience.',
       type: 'string',
       required: true,
       default: { '@path': '$.userId' }
     },
     identifier_data: {
       label: 'Identifier Data',
-      description: `Additional information pertaining to the user.`,
+      description: `Additional data pertaining to the user.`,
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue:only',
