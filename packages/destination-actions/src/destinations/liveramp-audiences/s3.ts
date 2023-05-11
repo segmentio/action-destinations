@@ -1,5 +1,5 @@
 import generateS3RequestOptions from '../../lib/AWS/s3'
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 function validateS3(settings: Settings) {
@@ -24,14 +24,7 @@ async function uploadS3(
   settings: Settings,
   filename: string,
   fileContent: string,
-  request: <Data = unknown>(
-    url: string,
-    options?:
-      | import('/Users/rhall/dev/src/github.com/segmentio/action-destinations/packages/core/src/request-client').RequestOptions
-      | undefined
-  ) => Promise<
-    import('/Users/rhall/dev/src/github.com/segmentio/action-destinations/packages/core/src/types').ModifiedResponse<Data>
-  >
+  request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
 ) {
   const method = 'PUT'
   const opts = await generateS3RequestOptions(
