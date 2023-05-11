@@ -92,11 +92,22 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static isPromise<T=unknown>(obj: unknown): obj is Promise<T> {
+    // `obj instanceof Promise` is not reliable since it can be a custom promise object from fetch lib
+    //https://stackoverflow.com/questions/27746304/how-to-check-if-an-object-is-a-promise
+    
+    // for whatever reason it gave me error "Property 'then' does not exist on type 'never'." so i have to use ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return obj instanceof Object && 'then' in obj && typeof obj.then === 'function'
+  }
+
   logWrap<R=void>(messages:string[], fn: ()=>R):R{
     this.logInfo("Starting: ", ...messages)
     try{
       const res = fn()
-      if(res instanceof Promise)
+      if(MessageSender.isPromise(res)){
         return (async()=>{
           try{
             const promisedRes = await res
@@ -106,7 +117,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
             this.logError(error, "Failed: ", ...messages)
             throw error
           }
-        })() as R
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        })() as any as R // cast to R otherwise ts is not happy
+      }
       this.logInfo("Success: ", ...messages)
       return res
     }
