@@ -14,6 +14,7 @@ describe('Loops.createOrUpdateContact', () => {
       })
     } catch (err) {
       expect(err.message).toContain("missing the required field 'userId'.")
+      expect(err.message).toContain("missing the required field 'email'.")
     }
   })
 
@@ -58,6 +59,7 @@ describe('Loops.createOrUpdateContact', () => {
 
   it('should work without optional fields', async () => {
     const testPayload = {
+      email: 'test@example.com',
       userId: 'some-id-1'
     }
     nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(200, {
