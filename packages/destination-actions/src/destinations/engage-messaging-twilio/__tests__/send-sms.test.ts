@@ -595,8 +595,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
-      // eslint-disable-next-line no-debugger
-      debugger;
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
@@ -657,7 +655,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
   })
 
-  it.only('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+  it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
 
     const expectedTwilioRequest = new URLSearchParams({
