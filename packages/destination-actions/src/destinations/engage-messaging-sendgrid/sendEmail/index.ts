@@ -565,7 +565,7 @@ const action: ActionDefinition<Settings, Payload> = {
         `region:${settings.region}`
       )
       statsClient?.incr('actions-personas-messaging-sendgrid.bypass_subscription', 1, tags)
-      await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
+      return await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
     } else if (
       !emailProfile?.subscriptionStatus ||
       ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
@@ -590,7 +590,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
       }
-      await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
+      return await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
     } else {
       logger?.error(
         `TE Messaging: Email subscription status invalid "${emailProfile.subscriptionStatus}" - ${settings.spaceId}`
