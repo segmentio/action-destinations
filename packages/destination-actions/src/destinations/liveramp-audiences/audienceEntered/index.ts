@@ -5,7 +5,7 @@ import { processData } from './operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered',
-  description: '',
+  description: 'Uploads audience membership data to a file for LiveRamp ingestion.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
     audience_key: {
