@@ -252,6 +252,52 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
+    it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+      const randomSubscriptionStatusPhrase = 'some-subscription-enum'
+
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: defaultTo
+      })
+
+      nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          externalIds: [
+            {
+              type: 'phone',
+              id: '+1234567891',
+              subscriptionStatus: randomSubscriptionStatusPhrase,
+              channelType: 'whatsapp'
+            }
+          ]
+        }),
+        logger: createLoggerMock()
+      }
+
+      const responses = await twilio.testAction('sendWhatsApp', actionInputData)
+      expect(responses).toHaveLength(0)
+      expect(actionInputData.logger.info).toHaveBeenCalledWith(
+        expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+        expect.anything()
+      )
+      expect(actionInputData.logger.info).toHaveBeenCalledWith(
+        expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+        expect.anything()
+      )
+  
+    })
+
     it('formats the to number correctly for whatsapp', async () => {
       const from = 'whatsapp:+19876543210'
       const expectedTwilioRequest = new URLSearchParams({
