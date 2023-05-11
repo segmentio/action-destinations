@@ -84,7 +84,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     const [firstMsg, ...rest] = msgs
     if(typeof error === 'string' )
     {
-      this.logger?.error("TE Messaging: "+ error, ...msgs, JSON.stringify(this.logDetails))
+      this.logger?.error(`TE Messaging: ${error}`, ...msgs, JSON.stringify(this.logDetails))
     }
     else 
     {
