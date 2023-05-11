@@ -72,10 +72,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     const fb: Facebook = new Facebook(request, payload.accountId, payload.accessToken)
 
-    if (payload.method === 'create') {
-      return fb.createAudience(payload.createName ?? 'test')
-    }
-
     if (payload.method === 'update') {
       return fb.updateAudience(
         payload.updateId ?? 'test',
