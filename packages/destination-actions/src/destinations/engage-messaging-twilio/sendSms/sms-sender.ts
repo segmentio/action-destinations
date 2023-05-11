@@ -82,7 +82,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
   }
 
   isValidExternalId(externalId:NonNullable<Payload['externalIds']>[number]): boolean {
-    if(externalId.type!=='phone') return false
+    if(externalId.type !== 'phone') {
+      return false
+    }
     return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 
