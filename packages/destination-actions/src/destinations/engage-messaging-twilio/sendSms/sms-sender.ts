@@ -32,7 +32,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: {[key:string]: any} = {}
+    readonly logDetails: { [key: string]: any } = {}
   ) {
     super(request, payload, settings, statsClient, tags, logger, logDetails)
   }
@@ -71,7 +71,12 @@ export class SmsMessageSender extends MessageSender<Payload> {
       parsedBody = parsed.body
       parsedMedia = parsed.media
     } else {
-      parsedBody = (await this.parseContent({ body: this.payload.body ?? '' }, profile)).body
+      const parsed = await this.parseContent(
+        { body: this.payload.body ?? '', media: this.payload.media ?? [] },
+        profile
+      )
+      parsedBody = parsed.body
+      parsedMedia = parsed.media
     }
 
     const body = new URLSearchParams({
@@ -131,7 +136,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     )
 
     try {
-      this.logger?.info("TE Messaging: Get content template from Twilio by ContentSID", JSON.stringify(this.logDetails))
+      this.logger?.info('TE Messaging: Get content template from Twilio by ContentSID', JSON.stringify(this.logDetails))
 
       const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
         method: 'GET',
@@ -145,7 +150,9 @@ export class SmsMessageSender extends MessageSender<Payload> {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logger?.error(
-        `TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId}, ${JSON.stringify(error)})}`,
+        `TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${
+          this.settings.spaceId
+        }, ${JSON.stringify(error)})}`,
         JSON.stringify(this.logDetails)
       )
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
