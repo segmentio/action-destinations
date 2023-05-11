@@ -8,10 +8,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {},
   perform: (request, data) => {
     // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+    return request('https://example.com', {
+      method: 'post',
+      json: data.payload
+    })
   }
 }
 

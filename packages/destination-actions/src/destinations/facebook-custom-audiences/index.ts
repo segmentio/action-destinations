@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {},
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://www.example.com/oauth/refresh', {
+      await request('https://www.example.com/oauth/refresh', {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -27,7 +27,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.data.access_token }
+      return { accessToken: 'example' }
     }
   },
   extendRequest({ auth }) {
