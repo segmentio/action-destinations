@@ -19,3 +19,18 @@ Object {
   "userId": "3dQ7ER]1HKW",
 }
 `;
+
+exports[`Testing snapshot for actions-loops destination: sendEvent action - all fields 1`] = `
+Object {
+  "email": "ep@tuhi.co",
+  "eventName": "aeKHha#$d",
+  "userId": "aeKHha#$d",
+}
+`;
+
+exports[`Testing snapshot for actions-loops destination: sendEvent action - required fields 1`] = `
+Object {
+  "eventName": "aeKHha#$d",
+  "userId": "aeKHha#$d",
+}
+`;
