@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LiverampAudiences's destination action: enquotated indentifier data 1`] = `
+Array [
+  "\\"LCD TV,50\\"\\"\\"",
+  "\\"\\"\\"early-bird\\"\\" special\\"",
+  "\\"5'8\\"\\"\\"",
+]
+`;
