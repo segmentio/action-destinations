@@ -145,7 +145,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logError(
-        `SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId}, ${JSON.stringify(error)})}`
+        `SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId} - ${error}, ${JSON.stringify(error)})}`
       )
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     }
