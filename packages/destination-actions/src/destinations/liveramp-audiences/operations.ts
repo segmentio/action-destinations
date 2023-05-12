@@ -1,10 +1,11 @@
 import type { Payload as S3Payload } from './audienceEnteredS3/generated-types'
+import type { Payload as SFTPPayload } from './audienceEnteredSFTP/generated-types'
 
 /*
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: S3Payload[]) {
+function generateFile(payloads: S3Payload[] | SFTPPayload[]) {
   const rows = []
   const headers = ['audience_key']
   if (payloads[0].identifier_data) {
@@ -28,7 +29,8 @@ function generateFile(payloads: S3Payload[]) {
 
   // STRATCONN-2584: verify multiple emails are handled
   const filename = `${payloads[0].audience_name}_PII_${payloads[0].received_at}.csv`
-  const fileContent = rows.join('\n')
+  const fileContent = Buffer.from(rows.join('\n'))
+
   return { filename, fileContent }
 }
 
