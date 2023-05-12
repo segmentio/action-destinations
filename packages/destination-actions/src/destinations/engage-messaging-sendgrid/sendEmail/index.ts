@@ -306,8 +306,8 @@ const attemptEmailDelivery = async (
     if (byPassSubscription) {
       mailContent = {
         ...mailContentSubscriptionHonored,
-        mailSettings: {
-          bypassListManagement: {
+        mail_settings: {
+          bypass_list_management: {
             enable: true
           }
         }
