@@ -32,6 +32,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'text',
       required: false
     },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
     contentSid: {
       label: 'SMS content template SID',
       description: 'Content template SID for Twilio Content API',
@@ -81,6 +88,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The external ID contact type.',
           type: 'string'
         },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
+          type: 'string'
+        },
         subscriptionStatus: {
           label: 'ID',
           description: 'The subscription status for the identity.',
@@ -96,6 +108,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
@@ -119,16 +134,24 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, data) => {
+    const { settings, payload, statsContext, logger } = data
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger).send()
+    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`, `channel:sms`)
+    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
   }
 }
 

@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     page: {
       description: 'Contains context information regarding a webpage',
       label: 'Page',
-      required: true,
+      required: false,
       type: 'object',
       default: {
         '@path': '$.context.page'
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     userAgent: {
       description: 'User-Agent of the user',
       label: 'User Agent',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       description: 'Timestamp on the event',
       label: 'Timestamp',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.timestamp'
@@ -74,7 +74,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const sanitisedEventName = sanitiseEventName(payload.name)
-    const { headers, structuredPayload } = formatPayload(sanitisedEventName, payload, true, true)
+    const { headers, structuredPayload } = formatPayload(
+      sanitisedEventName,
+      payload,
+      true,
+      true,
+      settings.apikey,
+      settings.vwoAccountId
+    )
     structuredPayload.d.event.props.vwoMeta['ogName'] = payload.name
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
