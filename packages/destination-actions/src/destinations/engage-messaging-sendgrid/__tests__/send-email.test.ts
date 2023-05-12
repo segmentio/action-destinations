@@ -362,7 +362,7 @@ describe.each([
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -787,7 +787,7 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
           ]
         }),
         settings,
@@ -810,7 +810,7 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
             ]
           }),
           settings,
@@ -948,7 +948,7 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
             ]
           }),
           settings: {
