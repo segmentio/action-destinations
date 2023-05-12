@@ -231,7 +231,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           {
             errorToRethrow = new IntegrationError(
               twilioApiError.response?.data?.message || twilioApiError.message,
-              (twilioApiError.response?.data?.code || statusCode)?.toString(),
+              (twilioApiError.response?.data?.code || statusCode)?.toString() || "Twilio Api Request Error",
               statusCode
             )
           }
