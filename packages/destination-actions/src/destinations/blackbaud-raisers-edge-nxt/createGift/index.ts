@@ -48,26 +48,85 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
       '@path': '$.properties.revenue'
     }
   },
+  batch_number: {
+    label: 'Batch Number',
+    description: 'The batch number of the gift up to 50 characters (including the batch prefix).',
+    type: 'string',
+    default: {
+      '@path': '$.properties.batchNumber'
+    }
+  },
+  batch_prefix: {
+    label: 'Batch Prefix',
+    description:
+      'The batch prefix of the gift. If provided, must include at least one letter. Required when Batch Number has a value, and defaults to "API" if no value is provided.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.batchPrefix'
+    }
+  },
   check_date: {
     label: 'Check Date',
     description: 'The check date in ISO-8601 format.',
-    type: 'datetime'
+    type: 'datetime',
+    default: {
+      '@path': '$.properties.checkDate'
+    }
   },
   check_number: {
     label: 'Check Number',
     description: 'The check number in string format, e.g. "12345"',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.checkNumber'
+    }
+  },
+  constituency: {
+    label: 'Constituency',
+    description:
+      'The constituency value of the gift. If no value is provided, the default constituency of the donor will be used.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.constituency'
+    }
   },
   date: {
     label: 'Gift Date',
     description: 'The gift date in ISO-8601 format.',
     type: 'datetime'
   },
+  default_fundraiser_credits: {
+    label: 'Default Fundraiser Credits',
+    description: 'Indicates whether to use default fundraiser credits.',
+    type: 'boolean',
+    default: {
+      '@path': '$.properties.defaultFundraiserCredits'
+    }
+  },
+  default_soft_credits: {
+    label: 'Default Soft Credits',
+    description: 'Indicates whether to use default soft credits.',
+    type: 'boolean',
+    default: {
+      '@path': '$.properties.defaultSoftCredits'
+    }
+  },
   fund_id: {
     label: 'Fund ID',
     description: 'The ID of the fund associated with the gift.',
     type: 'string',
-    required: true
+    required: true,
+    default: {
+      '@path': '$.properties.fundId'
+    }
+  },
+  gift_code: {
+    label: 'Gift Code',
+    description: 'The gift code. Available values are the entries in the Gift Code table.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.giftCode'
+    }
   },
   gift_status: {
     label: 'Gift Status',
@@ -80,12 +139,18 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
       { label: 'Terminated', value: 'Terminated' },
       { label: 'Completed', value: 'Completed' },
       { label: 'Cancelled', value: 'Cancelled' }
-    ]
+    ],
+    default: {
+      '@path': '$.properties.giftStatus'
+    }
   },
   is_anonymous: {
     label: 'Is Anonymous',
     description: 'Indicates whether the gift is anonymous.',
-    type: 'boolean'
+    type: 'boolean',
+    default: {
+      '@path': '$.properties.isAnonymous'
+    }
   },
   linked_gifts: {
     label: 'Linked Gifts',
@@ -113,24 +178,30 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
       { label: 'Other', value: 'Other' },
       { label: 'PayPal', value: 'PayPal' },
       { label: 'Venmo', value: 'Venmo' }
-    ]
+    ],
+    default: {
+      '@path': '$.properties.paymentMethod'
+    }
   },
   post_date: {
     label: 'Post Date',
     description: 'The date that the gift was posted to general ledger in ISO-8601 format.',
-    type: 'datetime'
+    type: 'datetime',
+    default: {
+      '@path': '$.properties.postDate'
+    }
   },
   post_status: {
     label: 'Post Status',
     description:
       'The general ledger post status of the gift. Available values are "Posted", "NotPosted", and "DoNotPost".',
     type: 'string',
-    default: 'NotPosted',
     choices: [
       { label: 'Posted', value: 'Posted' },
       { label: 'Not Posted', value: 'NotPosted' },
       { label: 'Do Not Post', value: 'DoNotPost' }
-    ]
+    ],
+    default: 'NotPosted'
   },
   receipt: {
     label: 'Receipt',
@@ -196,24 +267,36 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
       }
     }
   },
+  reference: {
+    label: 'Reference',
+    description:
+      'Notes to track special details about a gift such as the motivation behind it or a detailed description of a gift-in-kind. Limited to 255 characters.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.reference'
+    }
+  },
   subtype: {
     label: 'Subtype',
     description: 'The subtype of the gift.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.subtype'
+    }
   },
   type: {
     label: 'Type',
     description:
       'The gift type. Available values are "Donation", "Other", "GiftInKind", "RecurringGift", and "RecurringGiftPayment".',
     type: 'string',
-    default: 'Donation',
     choices: [
       { label: 'Donation', value: 'Donation' },
       { label: 'Other', value: 'Other' },
       { label: 'GiftInKind', value: 'GiftInKind' },
       { label: 'RecurringGift', value: 'RecurringGift' },
       { label: 'RecurringGiftPayment', value: 'RecurringGiftPayment' }
-    ]
+    ],
+    default: 'Donation'
   }
 })
 
