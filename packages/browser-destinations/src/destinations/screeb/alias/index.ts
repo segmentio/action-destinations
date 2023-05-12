@@ -30,7 +30,7 @@ const action: BrowserActionDefinition<Settings, Screeb, Payload> = {
   },
   perform: (Screeb, event) => {
     const payload = event.payload
-    if (!payload || typeof payload !== 'object' || !payload.userId || !payload.anonymousId) {
+    if (!payload || typeof payload !== 'object' || !(payload.userId || payload.anonymousId)) {
       console.warn(
         '[Screeb] received invalid payload (expected userId or anonymousId to be present); skipping alias',
         payload
