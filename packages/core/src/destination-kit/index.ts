@@ -213,7 +213,8 @@ interface OnEventOptions {
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
-  /** Handler to perform synchronization. If set, refresh access token action will be synchronized across all events*/
+  /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
+   * all events across multiple instances of the destination using the same account for a given source*/
   synchronizeRefreshAccessToken?: () => Promise<void>
 }
 
