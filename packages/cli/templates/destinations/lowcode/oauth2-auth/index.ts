@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       {{/json.oauth.fields}}
     },
     refreshAccessToken: async (request, { auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
+      // Please update the code here to further customize how you refresh the access_token
       const res = await request('{{{json.oauth.apiEndpoint}}}', {
         method: 'POST',
         body: new URLSearchParams({
@@ -38,6 +38,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
+    // Please update the code here to modify the request headers
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
