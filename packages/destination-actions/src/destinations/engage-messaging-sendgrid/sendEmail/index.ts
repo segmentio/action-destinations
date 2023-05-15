@@ -542,8 +542,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, logger, mapping }) => {
-    logger?.info(`Payload- ${JSON.stringify(payload)}`)
-    logger?.info(`Mappings- ${mapping}`)
+    logger?.info(`Payload is - ${JSON.stringify(payload)}`)
+    logger?.info(`Mappings are- ${mapping}`)
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
