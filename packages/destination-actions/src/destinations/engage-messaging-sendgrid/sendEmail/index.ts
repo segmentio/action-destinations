@@ -541,7 +541,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, { settings, payload, statsContext, logger, mapping }) => {
+    logger?.info(`Payload- ${JSON.stringify(payload)}`)
+    logger?.info(`Mappings- ${mapping}`)
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
@@ -562,7 +564,6 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.missing_email_external_id', 1, tags)
       return
     }
-    logger?.info(`Payload- ${JSON.stringify(payload)}`)
     let byPassSubscription = false
     if (payload.byPassSubscription !== undefined && payload.byPassSubscription) {
       byPassSubscription = true
