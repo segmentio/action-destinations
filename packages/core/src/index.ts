@@ -35,11 +35,14 @@ export type {
   BasicAuthentication,
   CustomAuthentication,
   OAuth2Authentication,
+  OAuthManagedAuthentication,
   OAuth2ClientCredentials,
   RefreshAccessTokenResult,
   RequestFn,
   DecoratedResponse,
-  MinimalInputField
+  MinimalInputField,
+  StateContext,
+  StatsContext
 } from './destination-kit'
 
 export type {
