@@ -6,7 +6,6 @@ import { manageTags } from '../utilities'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Tags',
   description: 'Associate tags with users in your audience to segmentation and automation',
-  defaultSubscription: 'type = "group"',
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
