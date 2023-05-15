@@ -27,6 +27,7 @@ const valid_attributes_payload: AttributesPayload = {
 
 const valid_tags_payload: ManageTagsPayload = {
   named_user_id: 'test-user-fo3e6qa1sq',
+  tag_group: 'segment-integration',
   tags: {
     trait1: 1,
     trait2: 'test',

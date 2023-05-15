@@ -126,6 +126,7 @@ function _build_tags_object(payload: TagsPayload): object {
   */
   const tags_to_add: string[] = []
   const tags_to_remove: string[] = []
+  const tag_group = payload.tag_group
   const properties = payload.tags || {}
   for (const [k, v] of Object.entries(properties)) {
     if (typeof v == 'boolean') {
@@ -141,11 +142,11 @@ function _build_tags_object(payload: TagsPayload): object {
     named_user_id: payload.named_user_id
   }
   if (tags_to_add.length > 0) {
-    airship_payload.add = { 'segment-integration': tags_to_add }
+    airship_payload.add = { [tag_group]: tags_to_add }
   }
 
   if (tags_to_remove.length > 0) {
-    airship_payload.remove = { 'segment-integration': tags_to_remove }
+    airship_payload.remove = { [tag_group]: tags_to_remove }
   }
   return airship_payload
 }

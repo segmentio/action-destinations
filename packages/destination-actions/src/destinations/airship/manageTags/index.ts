@@ -18,11 +18,20 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     tags: {
       label: 'Tag Name',
-      description: 'Tag to add or remove',
+      description:
+        'Tag name to add or remove. Values for each tag should be boolean only. a true value creates a tag, a false value removes a tag. Non boolean values will be ignored.',
       type: 'object',
       default: {
         '@path': '$.traits.airship_tags'
       }
+    },
+    tag_group: {
+      label: 'Tag Group',
+      description:
+        'The Tag Group to sync your tags to. Normally, this should be `segment-integration`, but set it here if it should be something else. Note: the Tag Group used must be valid and exist in Airship.',
+      type: 'string',
+      required: true,
+      default: 'segment-integration'
     }
   },
   perform: (request, { settings, payload }) => {
