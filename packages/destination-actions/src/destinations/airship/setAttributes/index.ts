@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'datetime',
       required: true,
       default: {
-        '@path': '$.receivedAt'
+        '@path': '$.timestamp'
       }
     },
     attributes: {
