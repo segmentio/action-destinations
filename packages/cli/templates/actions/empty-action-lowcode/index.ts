@@ -12,9 +12,25 @@ const action: ActionDefinition<Settings, Payload> = {
      description: '{{description}}',
      type: '{{type}}',
      required: {{required}},
+     {{#hasDefaultValue}}
+     {{#isString}}
      {{#default}}
-     default: {{{value}}}
+     default: "{{value}}",
      {{/default}}
+     {{/isString}}
+     {{/hasDefaultValue}}
+     {{#hasDefaultValue}}
+     {{^isString}}
+     {{#default}}
+     default: {{value}},
+     {{/default}}
+     {{/isString}}
+     {{/hasDefaultValue}}
+     {{#hasDirective}}
+     {{#default}}
+     default: { "{{{directiveType}}}": "{{{value}}}" },
+     {{/default}}
+     {{/hasDirective}}
    },
    {{/fields}}
   },

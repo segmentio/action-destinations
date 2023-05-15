@@ -8,6 +8,7 @@ type SegmentEventWithExternalIds = SegmentEvent & {
     isSubscribed: boolean | null
     collection: 'users'
     encoding: 'none'
+    channelType?: 'sms' | 'whatsapp'
     groups?: {
       id: string
       isSubscribed: boolean | null
