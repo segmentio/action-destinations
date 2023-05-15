@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.143.2-staging.6",
+  "version": "3.143.2-staging.7",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -53,8 +53,8 @@
     "@oclif/config": "^1",
     "@oclif/errors": "^1",
     "@oclif/plugin-help": "^3.3",
-    "@segment/action-destinations": "^3.155.1",
-    "@segment/actions-core": "^3.62.2-staging.6",
+    "@segment/action-destinations": "^3.162.1-staging.0",
+    "@segment/actions-core": "^3.63.1-staging.0",
     "@types/node": "^18.11.15",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
@@ -78,7 +78,7 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/browser-destinations": "^3.88.2-staging.6",
+    "@segment/browser-destinations": "^3.89.1-staging.0",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {
