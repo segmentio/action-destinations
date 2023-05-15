@@ -316,6 +316,60 @@ describe('destination kit', () => {
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
     })
+
+    test('should invoke synchronizeRefreshAccessToken if defined', async () => {
+      const destinationTest = new Destination(destinationOAuth2)
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      const acquireLockMock = jest.fn(() => Promise.resolve())
+
+      await expect(
+        destinationTest.refreshAccessToken(
+          testSettings,
+          { clientId: '', clientSecret: '', accessToken: '', refreshToken: '' },
+          acquireLockMock
+        )
+      ).resolves.not.toThrowError()
+      expect(acquireLockMock).toHaveBeenCalledTimes(1)
+    })
+
+    test('should succeed if synchronizeRefreshAccessToken handler is not passed in event options', async () => {
+      const destinationTest = new Destination(destinationOAuth2)
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      await expect(
+        destinationTest.refreshAccessToken(testSettings, {
+          clientId: '',
+          clientSecret: '',
+          accessToken: '',
+          refreshToken: ''
+        })
+      ).resolves.not.toThrowError()
+    })
   })
 
   describe('features', () => {
