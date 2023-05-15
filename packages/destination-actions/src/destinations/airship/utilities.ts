@@ -90,34 +90,12 @@ function _build_custom_event_object(payload: CustomEventsPayload): object {
 
 function _build_attributes_object(payload: AttributesPayload): object {
   /*
-  This function takes an Identify event and builds an Attributes payload. It converts 
-  `address` or `company` objects into known attributes, otherwise just passes it through.
-  Also, if the valuse of a trait is an empty string, we assume the intention is to remove the
+  This function takes an Identify event and builds an Attributes payload. If the value of a trait is an empty string, we assume the intention is to remove the
   attribute from the given user.
   */
   const attributes_list = []
   const attributes = payload.attributes || {}
   for (const key in attributes) {
-    if (key == 'address') {
-      if (typeof attributes[key] == 'object') {
-        const current_object: any = attributes[key]
-        for (const k in current_object) {
-          const new_attribute_key: string = trait_to_attribute_map(k)
-          attributes_list.push(_build_attribute(new_attribute_key, current_object[k], payload.occurred))
-        }
-        continue
-      }
-    }
-    if (key == 'company') {
-      if (typeof attributes[key] == 'object') {
-        const current_object: any = attributes[key]
-        if (current_object.name) {
-          attributes_list.push(_build_attribute(key, current_object.name, payload.occurred))
-        }
-      }
-      continue
-    }
-
     // if trait value is empty string, remove attribute, otherwise set it
     attributes_list.push(_build_attribute(key, attributes[key], payload.occurred))
   }
@@ -133,7 +111,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
     key: attribute_key,
     timestamp: validate_timestamp(occurred)
   }
-  if (typeof attribute_value == 'string' && attribute_value.length === 0) {
+  if (attribute_value == null || (typeof attribute_value == 'string' && attribute_value.length === 0)) {
     attribute.action = 'remove'
   } else {
     attribute.action = 'set'
@@ -173,27 +151,6 @@ function _build_tags_object(payload: TagsPayload): object {
   return airship_payload
 }
 
-function trait_to_attribute_map(attribute_key: string): string {
-  const TRAIT_TO_ATTRIBUTE_ID_MAP = new Map<string, string>([
-    ['age', 'age'],
-    ['birthday', 'birthdate'],
-    ['city', 'city'],
-    ['country', 'country'],
-    ['createdAt', 'account_creation'],
-    ['email', 'email'],
-    ['firstName', 'first_name'],
-    ['gender', 'gender'],
-    ['lastName', 'last_name'],
-    ['name', 'full_name'],
-    ['phone', 'mobile_phone'],
-    ['postalCode', 'zipcode'],
-    ['state', 'region'],
-    ['title', 'title'],
-    ['username', 'username']
-  ])
-  return TRAIT_TO_ATTRIBUTE_ID_MAP.get(attribute_key) as string
-}
-
 function validate_timestamp(timestamp: string | number | Date) {
   const payload_time_stamp: Date = new Date(timestamp)
   const three_months_ago: Date = new Date()
@@ -209,7 +166,6 @@ export const _private = {
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,
-  trait_to_attribute_map,
   _build_tags_object,
   validate_timestamp
 }
