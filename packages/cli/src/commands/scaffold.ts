@@ -126,7 +126,7 @@ export default class Init extends Command {
         if (hasDefault) {
           field.hasDefaultValue = field.default.type !== 'directive'
           field.hasDirective = field.default.type === 'directive'
-          field.isString = field.default.type === 'string'
+          field.isString = ['string', 'text', 'datetime', 'password'].includes(field.type)
         }
       })
 
