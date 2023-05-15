@@ -10,3 +10,5 @@ export interface ContentTemplateResponse {
     }
   }
 }
+
+export type ContentTemplateTypes = ContentTemplateResponse['types'][string]
