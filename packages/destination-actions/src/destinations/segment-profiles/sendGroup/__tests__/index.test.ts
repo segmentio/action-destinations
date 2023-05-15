@@ -63,7 +63,7 @@ describe('SegmentProfiles.sendGroup', () => {
         event,
         mapping: defaultGroupMapping,
         settings: {
-          segment_papi_token: 'segment-papi-token',
+          // segment_papi_token: 'segment-papi-token',
           endpoint: 'incorrect-endpoint'
         }
       })
@@ -89,7 +89,7 @@ describe('SegmentProfiles.sendGroup', () => {
       event,
       mapping: defaultGroupMapping,
       settings: {
-        segment_papi_token: 'segment-papi-token',
+        // segment_papi_token: 'segment-papi-token',
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       }
     })
