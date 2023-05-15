@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { MessageSender, RequestFn } from '../utils/message-sender'
+import { MessageSender } from '../utils/message-sender'
 
 const Liquid = new LiquidJs()
 
@@ -24,25 +22,11 @@ type Profile = {
 }
 
 export class SmsMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly logDetails: { [key: string]: any } = {}
-  ) {
-    super(request, payload, settings, statsClient, tags, logger, logDetails)
-  }
 
-  getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
-
-  getBody = async (phone: string) => {
+  async getBody(phone: string){
     if (!this.payload.body && !this.payload.contentSid) {
-      this.logger?.error(
-        `TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
+      this.logError(
+        `Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`
       )
       throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
     }
@@ -93,10 +77,21 @@ export class SmsMessageSender extends MessageSender<Payload> {
     return body
   }
 
+  getChannelType(){
+    return 'sms'
+  }
+
+  isValidExternalId(externalId:NonNullable<Payload['externalIds']>[number]): boolean {
+    if(externalId.type !== 'phone') {
+      return false
+    }
+    return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
+  }
+
   private getProfileTraits = async () => {
     if (!this.payload.userId) {
-      this.logger?.error(
-        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${this.settings.spaceId}`
+      this.logError(
+        `Unable to process SMS, no userId provided and no traits provided - ${this.settings.spaceId}`
       )
       throw new IntegrationError(
         'Unable to process sms, no userId provided and no traits provided',
@@ -125,7 +120,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      this.logger?.error(`TE Messaging: SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
+      this.logError(`SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
@@ -136,7 +131,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     )
 
     try {
-      this.logger?.info('TE Messaging: Get content template from Twilio by ContentSID', JSON.stringify(this.logDetails))
+      this.logInfo("Get content template from Twilio by ContentSID")
 
       const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
         method: 'GET',
@@ -149,11 +144,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
     } catch (error) {
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
-      this.logger?.error(
-        `TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${
-          this.settings.spaceId
-        }, ${JSON.stringify(error)})}`,
-        JSON.stringify(this.logDetails)
+      this.logError(
+        `SMS failed request to fetch content template from Twilio Content API - ${this.settings.spaceId} - ${error}, ${JSON.stringify(error)})}`
       )
       throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     }
@@ -161,8 +153,8 @@ export class SmsMessageSender extends MessageSender<Payload> {
 
   private getUnparsedContent = (data: ContentTemplateResponse): ContentTemplateResponse['types'][string] => {
     if (!data.types) {
-      this.logger?.error(
-        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${
+      this.logError(
+        `SMS template from Twilio Content API does not contain a template type - ${
           this.settings.spaceId
         } - [${JSON.stringify(data)}]`
       )
@@ -176,7 +168,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
     if (type === 'twilio/text' || type === 'twilio/media') {
       return { body: data.types[type].body, media: data.types[type].media }
     } else {
-      this.logger?.error(`TE Messaging: SMS unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      this.logError(`SMS unsupported content template type '${type}' - ${this.settings.spaceId}`)
       throw new IntegrationError(
         'Unsupported content type',
         `Sending templates with '${type}' content type is not supported by SMS`,
@@ -195,7 +187,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
         media: await Promise.all(content.media?.map((media) => Liquid.parseAndRender(media, { profile })) || [])
       }
     } catch (error: unknown) {
-      this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
+      this.logError(`SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
     }
   }
