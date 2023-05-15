@@ -7,9 +7,13 @@ import { Logger } from '@segment/actions-core/src/destination-kit'
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 
-function createLoggerMock()
-{
-  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+function createLoggerMock() {
+  return {
+    level: 'error',
+    name: 'test',
+    error: jest.fn() as Logger['error'],
+    info: jest.fn() as Logger['info']
+  } as Logger
 }
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
@@ -67,7 +71,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
-        })
+        }),
+        logger: createLoggerMock()
       })
 
       expect(responses.length).toEqual(0)
@@ -313,7 +318,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -352,7 +358,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             contentSid
           }),
           ['body']
-        )
+        ),
+        logger: createLoggerMock()
       }
 
       await twilio.testAction('sendSms', actionInputData)
@@ -382,7 +389,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           media: ['http://myimg.com']
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -433,7 +441,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             contentSid
           }),
           ['body']
-        )
+        ),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -469,7 +478,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           twilioHostname
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -503,7 +513,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           webhookUrl: 'http://localhost',
           connectionOverrides: 'rp=all&rc=5'
         },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -525,7 +536,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           webhookUrl: 'foo'
         },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } }),
+        logger: createLoggerMock()
       }
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
@@ -569,7 +581,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         },
         mapping: getDefaultMapping({
           traitEnrichment: false
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -613,7 +626,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
+        mapping: getDefaultMapping({
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -644,7 +660,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
+          mapping: getDefaultMapping({
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+          }),
+          logger: createLoggerMock()
         }
 
         const responses = await twilio.testAction('sendSms', actionInputData)
@@ -652,7 +671,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         expect(twilioRequest.isDone()).toEqual(false)
       }
     )
-
   })
 
   it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
@@ -685,11 +703,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     const responses = await twilio.testAction('sendSms', actionInputData)
     expect(responses).toHaveLength(0)
     expect(actionInputData.logger.info).toHaveBeenCalledWith(
-      expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+      expect.stringContaining('TE Messaging: Invalid subscription statuses found in externalIds'),
       expect.anything()
     )
     expect(actionInputData.logger.info).toHaveBeenCalledWith(
-      expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+      expect.stringContaining('TE Messaging: Not sending message, because sendabilityStatus'),
       expect.anything()
     )
   })
@@ -741,7 +759,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: createLoggerMock()
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).resolves.not.toThrowError()
