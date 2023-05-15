@@ -4,14 +4,19 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { getTwilioContentTemplate } from '../utils/content'
-import { ContentTemplateResponse, RequestFn } from '../utils/types'
+import { ContentTemplateTypes, RequestFn } from '../utils/types'
+import { MessagingLogger } from '../utils/messaging-logger'
+import { MessageUtils } from '../utils/message-utils'
 
 const Liquid = new LiquidJs()
 
-type Content = ContentTemplateResponse['types'][string] & { title?: string }
+type PushContent = ContentTemplateTypes & { title?: string }
 
 export class PushSender {
+  private readonly messagingLogger: MessagingLogger
+  private readonly messageUtils: MessageUtils
+  private readonly supportedTemplateTypes = ['twilio/text', 'twilio/media']
+
   constructor(
     readonly request: RequestFn,
     readonly payload: Payload,
@@ -19,10 +24,15 @@ export class PushSender {
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined
-  ) {}
+  ) {
+    this.messagingLogger = new MessagingLogger(logger)
+    this.messageUtils = new MessageUtils(this.messagingLogger, settings, statsClient, tags, request)
+  }
 
-  send = async () => {
-    const recipients = this.payload.externalIds?.filter((extId) => /subscribed/i.test(extId.subscriptionStatus || ''))
+  async send() {
+    const recipients = this.payload.externalIds?.filter(
+      (extId) => extId.subscriptionStatus?.toLowerCase() === 'subscribed'
+    )
 
     // when no devices are capable of receiving a push
     if (!recipients?.length) {
@@ -40,12 +50,16 @@ export class PushSender {
      * this is a limitation that will be handled post beta
      */
     for (const recipient of recipients) {
-      const webhookUrl = this.getWebhookUrlWithParams(recipient.type, recipient.id)
+      const webhookUrl = this.messageUtils.getWebhookUrlWithParams(
+        recipient.type,
+        recipient.id,
+        this.payload.customArgs
+      )
 
       try {
         const body = new URLSearchParams(requestBody)
 
-        if (/ios.push_token/i.test(recipient?.type || '')) {
+        if (recipient?.type?.toLowerCase() === 'ios.push_token') {
           body.append(
             'Recipients',
             JSON.stringify({
@@ -105,38 +119,15 @@ export class PushSender {
     }
   }
 
-  private getBody = async (): Promise<{
+  private async getBody(): Promise<{
     requestBody: URLSearchParams
     customData: object
-  }> => {
-    let content: ContentTemplateResponse['types'][string]
-
-    try {
-      const template = await getTwilioContentTemplate(
-        this.payload.contentSid,
-        this.settings.twilioApiKeySID,
-        this.settings.twilioApiKeySecret,
-        this.request
-      )
-
-      const type = Object.keys(template.types)[0]
-      if (type !== 'twilio/text' && type !== 'twilio/media') {
-        this.logger?.error(`TE Messaging: Push unsupported content template type '${type}' - ${this.settings.spaceId}`)
-        throw new IntegrationError(
-          `Sending templates with '${type}' content type is not supported by Push`,
-          'Unsupported content type',
-          400
-        )
-      }
-      content = template.types[type]
-    } catch (error) {
-      this.tags.push('reason:get_content_template')
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
-      this.logger?.error(
-        `TE Messaging: Push failed request to fetch content template from Twilio Content API - ${this.settings.spaceId} - [${error}]`
-      )
-      throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
-    }
+  }> {
+    const content = await this.messageUtils.getContentTemplateTypes(
+      this.payload.contentSid,
+      'PUSH',
+      this.supportedTemplateTypes
+    )
 
     const parsedTemplateContent = await this.parseTemplateContent({
       ...content,
@@ -144,7 +135,7 @@ export class PushSender {
     })
 
     try {
-      const customData: Record<string, any> = {
+      const customData: Record<string, unknown> = {
         ...this.payload.customArgs,
         space_id: this.settings.spaceId,
         badgeAmount: this.payload.customizations?.badgeAmount,
@@ -188,7 +179,7 @@ export class PushSender {
     }
   }
 
-  private async parseTemplateContent(content: Content): Promise<Content> {
+  private async parseTemplateContent(content: PushContent): Promise<PushContent> {
     const profile = { profile: { traits: this.payload.traits } }
     try {
       return {
@@ -202,35 +193,8 @@ export class PushSender {
     }
   }
 
-  private getWebhookUrlWithParams(externalIdType?: string, externalIdValue?: string): string | null {
-    const webhookUrl = this.settings.webhookUrl
-    const connectionOverrides = this.settings.connectionOverrides
-    const customArgs: Record<string, string | undefined> = {
-      ...this.payload.customArgs,
-      space_id: this.settings.spaceId,
-      __segment_internal_external_id_key__: externalIdType,
-      __segment_internal_external_id_value__: externalIdValue
-    }
-
-    if (webhookUrl && customArgs) {
-      // Webhook URL parsing has a potential of failing. I think it's better that
-      // we fail out of any invocation than silently not getting analytics
-      // data if that's what we're expecting.
-      const webhookUrlWithParams = new URL(webhookUrl)
-      for (const key of Object.keys(customArgs)) {
-        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
-      }
-
-      webhookUrlWithParams.hash = connectionOverrides || 'rp=all&rc=5'
-
-      return webhookUrlWithParams.toString()
-    }
-
-    return null
-  }
-
   // removes null, undefined, and keys with [] as the value
-  private removeEmpties(obj: Record<any, any>): Record<any, any> {
+  private removeEmpties(obj: Record<string, unknown>): Record<string, unknown> {
     return JSON.parse(
       JSON.stringify(obj, (_, value) => {
         return value === null || value?.length === 0 ? undefined : value

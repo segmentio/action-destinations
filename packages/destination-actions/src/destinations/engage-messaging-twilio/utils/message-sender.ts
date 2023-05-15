@@ -7,6 +7,7 @@ import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/des
 import { RequestFn } from './types'
 import { ExecuteInput } from '@segment/actions-core'
 import { MessagingLogger } from './messaging-logger'
+import { MessageUtils } from './message-utils'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -37,6 +38,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
   private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
   protected readonly messagingLogger: MessagingLogger
+  protected readonly messageUtils: MessageUtils
 
   constructor(
     readonly request: RequestFn,
@@ -48,6 +50,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     readonly executeInput: ExecuteInput<Settings, MessagePayload>
   ) {
     this.messagingLogger = new MessagingLogger(logger)
+    this.messageUtils = new MessageUtils(this.messagingLogger, settings, statsClient, tags, request)
   }
 
   abstract getBody(phone: string): Promise<URLSearchParams>
@@ -101,7 +104,12 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.messagingLogger.logInfo('Getting content Body')
       const body = await this.getBody(phone)
 
-      const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
+      const webhookUrlWithParams = this.messageUtils.getWebhookUrlWithParams(
+        this.EXTERNAL_ID_KEY,
+        phone,
+        this.payload.customArgs,
+        this.DEFAULT_CONNECTION_OVERRIDES
+      )
 
       if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
@@ -230,32 +238,5 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
 
     return { sendabilityStatus: status, phone }
-  }
-
-  private getWebhookUrlWithParams = (phone: string): string | null => {
-    const webhookUrl = this.settings.webhookUrl
-    const connectionOverrides = this.settings.connectionOverrides
-    const customArgs: Record<string, string | undefined> = {
-      ...this.payload.customArgs,
-      space_id: this.settings.spaceId,
-      __segment_internal_external_id_key__: this.EXTERNAL_ID_KEY,
-      __segment_internal_external_id_value__: phone
-    }
-
-    if (webhookUrl && customArgs) {
-      // Webhook URL parsing has a potential of failing. I think it's better that
-      // we fail out of any invocation than silently not getting analytics
-      // data if that's what we're expecting.
-      const webhookUrlWithParams = new URL(webhookUrl)
-      for (const key of Object.keys(customArgs)) {
-        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
-      }
-
-      webhookUrlWithParams.hash = connectionOverrides || this.DEFAULT_CONNECTION_OVERRIDES
-
-      return webhookUrlWithParams.toString()
-    }
-
-    return null
   }
 }
