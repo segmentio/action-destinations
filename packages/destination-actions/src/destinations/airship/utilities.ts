@@ -17,7 +17,7 @@ export function setBatchCustomEvent(request: RequestClient, settings: Settings, 
   const endpoint = map_endpoint(settings.endpoint)
   const uri = `${endpoint}/api/custom-events`
   const airship_payload = []
-  for (let i = 0; i <= payloads.length; i++) {
+  for (let i = 0; i < payloads.length; i++) {
     airship_payload.push(_build_custom_event_object(payloads[i]))
   }
   return do_request(request, uri, airship_payload)
