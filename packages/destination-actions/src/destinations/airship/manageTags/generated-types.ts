@@ -6,7 +6,7 @@ export interface Payload {
    */
   named_user_id?: string
   /**
-   * Tag name to add or remove. Values for each tag should be boolean only. a true value creates a tag, a false value removes a tag. Non boolean values will be ignored.
+   * Tag name to add or remove. Values for each tag should be boolean only. a true value creates a tag, a false value removes a tag. Non-boolean values will be ignored.
    */
   tags?: {
     [k: string]: unknown

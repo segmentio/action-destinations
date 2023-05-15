@@ -13,7 +13,8 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Airship (Actions)',
   slug: 'actions-airship',
   mode: 'cloud',
-  description: 'Activate your Airship audience from Segment',
+  description:
+    'Send events from Segment to Airship for message triggering, audience targeting, personalization, and analytics.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -21,14 +22,14 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Access Token',
         description: 'Create in the Airship Go dashboard in Settings->Partner Integrations->Segment',
         type: 'password',
-        default: process.env.DEFAULT_ACCESS_TOKEN,
+        // default: process.env.DEFAULT_ACCESS_TOKEN,
         required: true
       },
       app_key: {
         label: 'App Key',
         description: 'The App Key identifies the Airship Project to which API requests are made.',
         type: 'string',
-        default: process.env.DEFAULT_APP_KEY,
+        // default: process.env.DEFAULT_APP_KEY,
         required: true
       },
       endpoint: {
