@@ -9,11 +9,14 @@ const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
-function createLoggerMock()
-{
-  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+function createLoggerMock() {
+  return {
+    level: 'error',
+    name: 'test',
+    error: jest.fn() as Logger['error'],
+    info: jest.fn() as Logger['info']
+  } as Logger
 }
-
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
@@ -57,7 +60,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
-        })
+        }),
+        logger: createLoggerMock()
       })
 
       expect(responses.length).toEqual(0)
@@ -73,7 +77,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
-        })
+        }),
+        logger: createLoggerMock()
       })
 
       expect(responses.length).toEqual(0)
@@ -97,7 +102,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -130,7 +136,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           twilioHostname
         },
-        mapping: getDefaultMapping()
+        mapping: getDefaultMapping(),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -163,7 +170,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           webhookUrl: 'http://localhost',
           connectionOverrides: 'rp=all&rc=5'
         },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -185,7 +193,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           ...settings,
           webhookUrl: 'foo'
         },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
+        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } }),
+        logger: createLoggerMock()
       }
       await expect(twilio.testAction('sendWhatsApp', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
     })
@@ -211,7 +220,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         settings,
         mapping: getDefaultMapping({
           externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -243,7 +253,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           settings,
           mapping: getDefaultMapping({
             externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
-          })
+          }),
+          logger: createLoggerMock()
         }
 
         const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -288,14 +299,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses).toHaveLength(0)
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+        expect.stringContaining('TE Messaging: Invalid subscription statuses found in externalIds'),
         expect.anything()
       )
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+        expect.stringContaining('TE Messaging: Not sending message, because sendabilityStatus'),
         expect.anything()
       )
-  
     })
 
     it('formats the to number correctly for whatsapp', async () => {
@@ -321,7 +331,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           from: from,
           contentSid: defaultTemplateSid,
           externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true, channelType: 'whatsapp' }]
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -447,7 +458,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               street: '360 Scope St'
             }
           }
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -484,7 +496,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               street: '360 Scope St'
             }
           }
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
@@ -516,7 +529,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mapping: getDefaultMapping({
           contentVariables: { '1': 'Soap', '2': '360 Scope St' },
           traitEnrichment: false
-        })
+        }),
+        logger: createLoggerMock()
       }
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
