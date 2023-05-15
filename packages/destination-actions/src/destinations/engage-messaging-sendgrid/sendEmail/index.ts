@@ -562,6 +562,7 @@ const action: ActionDefinition<Settings, Payload> = {
       statsClient?.incr('actions-personas-messaging-sendgrid.missing_email_external_id', 1, tags)
       return
     }
+    logger?.info(`Payload- ${JSON.stringify(payload)}`)
     let byPassSubscription = false
     if (payload.byPassSubscription !== undefined && payload.byPassSubscription) {
       byPassSubscription = true
