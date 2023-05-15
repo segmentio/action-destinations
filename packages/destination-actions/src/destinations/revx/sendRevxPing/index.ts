@@ -193,7 +193,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         price: { '@path': '$.properties.price' },
         quantity: { '@path': '$.properties.quantity' },
-        productId: { '@path': '$.properties.productId' }
+        productId: { '@path': '$.properties.product_id' }
       }
     },
     products: {
@@ -232,7 +232,7 @@ const action: ActionDefinition<Settings, Payload> = {
               '@path': 'quantity'
             },
             productId: {
-              '@path': 'productId'
+              '@path': 'product_id'
             }
           }
         ]
