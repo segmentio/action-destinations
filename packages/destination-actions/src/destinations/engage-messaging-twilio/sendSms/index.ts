@@ -88,6 +88,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The external ID contact type.',
           type: 'string'
         },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
+          type: 'string'
+        },
         subscriptionStatus: {
           label: 'ID',
           description: 'The subscription status for the identity.',
@@ -103,6 +108,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
@@ -135,31 +143,20 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.messageId' }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
-    console.log('NEW PAYLOAD', JSON.stringify(payload))
+  perform: async (request, data) => {
+    const { settings, payload, statsContext, logger } = data
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    const logDetails = {
-      userId: payload.userId,
-      subscriptionStatus: payload.externalIds?.map((eid) => ({
-        type: eid.type,
-        subscriptionStatus: eid.subscriptionStatus
-      })),
-      shouldSend: payload.send,
-      contentSid: payload.contentSid,
-      sourceId: settings.sourceId,
-      spaceId: settings.spaceId,
-      twilioApiKeySID: settings.twilioApiKeySID,
-      region: settings.region,
-      messageId: payload.messageId
-    }
-    logger?.info('TE Messaging: SMS Destination Action Performing...', JSON.stringify(logDetails))
-
-    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, logDetails).send()
+    tags.push(
+      `space_id:${settings.spaceId}`,
+      `projectid:${settings.sourceId}`,
+      `region:${settings.region}`,
+      `channel:sms`
+    )
+    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
   }
 }
 
