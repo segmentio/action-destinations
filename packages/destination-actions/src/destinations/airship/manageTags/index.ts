@@ -16,12 +16,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    properties: {
+    tags: {
       label: 'Tag Name',
       description: 'Tag to add or remove',
       type: 'object',
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits.airship_tags'
       }
     }
   },

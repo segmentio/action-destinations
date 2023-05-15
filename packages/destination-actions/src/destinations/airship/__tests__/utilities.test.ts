@@ -27,7 +27,7 @@ const valid_attributes_payload: AttributesPayload = {
 
 const valid_tags_payload: ManageTagsPayload = {
   named_user_id: 'test-user-fo3e6qa1sq',
-  properties: {
+  tags: {
     trait1: 1,
     trait2: 'test',
     trait3: true

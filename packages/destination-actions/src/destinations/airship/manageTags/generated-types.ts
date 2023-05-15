@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Tag to add or remove
    */
-  properties?: {
+  tags?: {
     [k: string]: unknown
   }
 }

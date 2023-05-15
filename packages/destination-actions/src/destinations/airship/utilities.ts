@@ -9,7 +9,6 @@ export function setCustomEvent(request: RequestClient, settings: Settings, paylo
   const endpoint = map_endpoint(settings.endpoint)
   const uri = `${endpoint}/api/custom-events`
   const airship_payload = _build_custom_event_object(payload)
-  console.log(airship_payload)
   return do_request(request, uri, [airship_payload])
 }
 
@@ -127,7 +126,7 @@ function _build_tags_object(payload: TagsPayload): object {
   */
   const tags_to_add: string[] = []
   const tags_to_remove: string[] = []
-  const properties = payload.properties || {}
+  const properties = payload.tags || {}
   for (const [k, v] of Object.entries(properties)) {
     if (typeof v == 'boolean') {
       if (v) {
