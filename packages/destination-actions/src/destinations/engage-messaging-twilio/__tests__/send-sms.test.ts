@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
 import { Logger } from '@segment/actions-core/src/destination-kit'
@@ -7,7 +7,13 @@ import { Logger } from '@segment/actions-core/src/destination-kit'
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 
+function createLoggerMock()
+{
+  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+}
+
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const contentSid = 'g'
   const spaceId = 'd'
   const settings = {
     twilioAccountSID: 'a',
@@ -27,7 +33,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
       ],
       ...overrides
     }
@@ -68,7 +74,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should throw error with no userId and no trait enrichment', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
+      const logger = createLoggerMock()
 
       const mapping = getDefaultMapping({
         userId: undefined,
@@ -83,16 +89,17 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }),
           settings,
           mapping,
-          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+          logger
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${spaceId}`
+      expect(logger.error).toHaveBeenCalledWith(
+        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${spaceId}`,
+        expect.anything()
       )
     })
 
     it('should throw error if unable to parse liquid template', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
+      const logger = createLoggerMock()
 
       const actionInputData = {
         event: createMessagingTestEvent({
@@ -104,19 +111,162 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mapping: getDefaultMapping({
           body: 'Hello world, {{profile.user_id$}}!!'
         }),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
         'Unable to parse templating in SMS'
       )
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS templating parse failure - ${spaceId}`))
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS templating parse failure - ${spaceId}`)),
+        expect.anything()
       )
     })
 
-    it('should throw error if Twilio API request fails', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
+    it('should thow error if no body provided and no contentSid provided', async () => {
+      const logger = createLoggerMock()
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(getDefaultMapping(), ['body']),
+        logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unable to process sms, no body provided and no content sid provided'
+      )
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: Unable to process SMS, no body provided and no content sid provided - ${spaceId}`)
+        ),
+        expect.anything()
+      )
+    })
+
+    it.each(['twilio/call-to-action', 'twilio/card', 'twilio/quick-reply', 'twilio/list-picker'])(
+      'should throw error if template content type is not "twilio/text" or "twilio/media"',
+      async (contentType) => {
+        const logger = createLoggerMock()
+
+        const twilioContentResponse = {
+          types: {
+            [contentType]: {
+              body: 'Hello world, {{profile.user_id}}!'
+            }
+          }
+        }
+
+        nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
+
+        const actionInputData = {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: 'jane'
+          }),
+          settings,
+          mapping: omit(
+            getDefaultMapping({
+              contentSid
+            }),
+            ['body']
+          ),
+          logger
+        }
+
+        await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
+        expect(logger.error).toHaveBeenCalledWith(
+          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`,
+          expect.anything()
+        )
+      }
+    )
+
+    it('should throw error if template does not include a "types" key', async () => {
+      const logger = createLoggerMock()
+
+      const twilioContentResponse = {
+        langugage: 'en',
+        friendly_name: 'my_template',
+        sid: contentSid
+      }
+
+      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(200, twilioContentResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        ),
+        logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unexpected response from Twilio Content API'
+      )
+      expect(logger.error).toHaveBeenCalledWith(
+        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
+          twilioContentResponse
+        )}]`,
+        expect.anything()
+      )
+    })
+
+    it('should throw error if Twilio Content API request fails', async () => {
+      const logger = createLoggerMock()
+
+      const expectedErrorResponse = {
+        code: 20404,
+        message: 'The requested resource was not found',
+        more_info: 'https://www.twilio.com/docs/errors/20404',
+        status: 404
+      }
+
+      nock('https://content.twilio.com').get(`/v1/Content/${contentSid}`).reply(404, expectedErrorResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        ),
+        logger
+      }
+
+      await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+        'Unable to fetch content template'
+      )
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(
+          new RegExp(`^TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${spaceId}`)
+        ),
+        expect.anything()
+      )
+    })
+
+    it('should throw error if Twilio Programmable Messaging API request fails', async () => {
+      const logger = createLoggerMock()
+
       const expectedErrorResponse = {
         code: 21211,
         message: "The 'To' number is not a valid phone number.",
@@ -134,12 +284,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }),
         settings,
         mapping: getDefaultMapping(),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError()
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Twilio Programmable API error - ${spaceId} - [${JSON.stringify(expectedErrorResponse)}]`
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`)),
+        expect.anything()
       )
     })
 
@@ -170,6 +321,128 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
       expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send SMS with content sid', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: 'Hello world, {{profile.user_id}}!'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        )
+      }
+
+      await twilio.testAction('sendSms', actionInputData)
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+    })
+
+    it('should send MMS with media in payload', async () => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true',
+        MediaUrl: 'http://myimg.com'
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          media: ['http://myimg.com']
+        })
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send MMS', async () => {
+      const twilioContentResponse = {
+        types: {
+          'twilio/media': {
+            body: 'Hello world, {{profile.user_id}}!',
+            media: ['https://catpic.com/fluffy']
+          }
+        }
+      }
+
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true'
+      })
+
+      twilioContentResponse.types['twilio/media'].media.forEach((media) => {
+        expectedTwilioRequest.append('MediaUrl', media)
+      })
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const actionInputData = {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: 'jane'
+        }),
+        settings,
+        mapping: omit(
+          getDefaultMapping({
+            contentSid
+          }),
+          ['body']
+        )
+      }
+
+      const responses = await twilio.testAction('sendSms', actionInputData)
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://content.twilio.com/v1/Content/g',
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
     it('should send SMS for custom hostname', async () => {
@@ -340,7 +613,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           userId: 'jane'
         }),
         settings,
-        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+        mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
       }
 
       const responses = await twilio.testAction('sendSms', actionInputData)
@@ -371,7 +644,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             userId: 'jane'
           }),
           settings,
-          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus }] })
+          mapping: getDefaultMapping({ externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }] })
         }
 
         const responses = await twilio.testAction('sendSms', actionInputData)
@@ -380,46 +653,53 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
-      const randomSubscriptionStatusPhrase = 'some-subscription-enum'
-
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
-      })
-
-      nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
-
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
-        })
-      }
-
-      const response = twilio.testAction('sendSms', actionInputData)
-      await expect(response).rejects.toThrowError(
-        `Failed to recognize the subscriptionStatus in the payload: "${randomSubscriptionStatusPhrase}".`
-      )
-    })
   })
 
+  it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+    const randomSubscriptionStatusPhrase = 'some-subscription-enum'
+
+    const expectedTwilioRequest = new URLSearchParams({
+      Body: 'Hello world, jane!',
+      From: 'MG1111222233334444',
+      To: '+1234567891',
+      ShortenUrls: 'true'
+    })
+
+    nock('https://api.twilio.com/2010-04-01/Accounts/a')
+      .post('/Messages.json', expectedTwilioRequest.toString())
+      .reply(201, {})
+
+    const actionInputData = {
+      event: createMessagingTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        userId: 'jane'
+      }),
+      settings,
+      mapping: getDefaultMapping({
+        externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+      }),
+      logger: createLoggerMock()
+    }
+
+    const responses = await twilio.testAction('sendSms', actionInputData)
+    expect(responses).toHaveLength(0)
+    expect(actionInputData.logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+      expect.anything()
+    )
+    expect(actionInputData.logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+      expect.anything()
+    )
+  })
   describe('get profile traits', () => {
     afterEach(() => {
       nock.cleanAll()
     })
 
     it('should throw error if unable to request profile traits', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
+      const logger = createLoggerMock()
 
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(500)
 
@@ -433,14 +713,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mapping: getDefaultMapping({
           traitEnrichment: false
         }),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        logger
       }
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
         'Unable to get profile traits for SMS message'
       )
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`))
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`)),
+        expect.anything()
       )
     })
 

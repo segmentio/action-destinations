@@ -83,7 +83,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging Twilio',
   slug: 'actions-personas-messaging-twilio',
   mode: 'cloud',
-  description: 'This is an Engage specific action to send an SMS',
+  description: 'This is an Engage specific action to send an SMS and Whatsapp messages using Twilio API',
   authentication: {
     scheme: 'custom',
     fields: {
