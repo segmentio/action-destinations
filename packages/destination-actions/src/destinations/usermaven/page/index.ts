@@ -41,6 +41,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    page_name: {
+      type: 'string',
+      required: false,
+      description: 'The name of the page',
+      label: 'Page Name',
+      default: { '@path': '$.properties.name' }
+    },
     ...commonFields
   },
   perform: (request, { payload, settings }) => {

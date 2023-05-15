@@ -14,6 +14,10 @@ export interface Payload {
    */
   user_created_at?: string
   /**
+   * The name of the page
+   */
+  page_name?: string
+  /**
    * User Anonymous id
    */
   user_anonymous_id?: string | null
