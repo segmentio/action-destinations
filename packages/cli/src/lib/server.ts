@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import { once } from 'lodash'
+import { isEmpty, isNil, mapValues, omitBy, once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
@@ -10,7 +10,8 @@ import {
   Destination,
   DestinationDefinition as CloudDestinationDefinition,
   HTTPError,
-  ModifiedResponse
+  ModifiedResponse,
+  JSONObject
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
@@ -215,16 +216,22 @@ function setupRoutes(def: DestinationDefinition | null): void {
             return res.status(400).send(msg)
           }
 
+          let mapping = req.body.mapping || {}
+          const fields = action.definition.fields
+          const defaultMappings = omitBy(mapValues(fields, 'default'), isNil)
+          mapping = { ...defaultMappings, ...mapping } as JSONObject
+          if (isEmpty(mapping)) mapping = null
+
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            mapping: req.body.mapping || req.body.payload || {},
+            mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {}
           }
 
           if (Array.isArray(eventParams.data)) {
-            // If no mapping is provided default to using the first payload across all events.
-            eventParams.mapping = req.body.mapping ?? eventParams.data[0] ?? {}
+            // If no mapping or default mapping is provided, default to using the first payload across all events.
+            eventParams.mapping = mapping || eventParams.data[0] || {}
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)
