@@ -1,11 +1,10 @@
-import type { Payload as S3Payload } from './audienceEnteredS3/generated-types'
-import type { Payload as SFTPPayload } from './audienceEnteredSFTP/generated-types'
+import type {} from './audienceEntered/generated-types'
 
 /*
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: S3Payload[] | SFTPPayload[]) {
+function generateFile(payloads: Payload[]) {
   const rows = []
   const headers = ['audience_key']
   if (payloads[0].identifier_data) {

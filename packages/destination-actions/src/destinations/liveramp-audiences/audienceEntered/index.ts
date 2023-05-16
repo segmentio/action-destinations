@@ -1,8 +1,9 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { processData } from './operations'
-import generateS3RequestOptions from '../../../lib/AWS/s3'
+import { uploadS3, validateS3 } from './s3'
+import { uploadSFTP, validateSFTP } from './sftp'
+import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered',
@@ -51,6 +52,29 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { settings, payload }) => {
     return processData(request, settings, payload)
+  }
+}
+
+async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  // STRATCONN-2584: error if less than 25 elements in payload
+  switch (settings.upload_mode) {
+    case 'S3':
+      validateS3(payloads[0])
+      break
+    case 'SFTP':
+      validateSFTP(payloads[0])
+      break
+    default:
+      throw new InvalidPayloadError(`Unexpected upload mode: ${settings.upload_mode}`)
+  }
+
+  const { filename, fileContent } = generateFile(payloads)
+
+  switch (settings.upload_mode) {
+    case 'S3':
+      return await uploadS3(payloads[0], filename, fileContent, request)
+    case 'SFTP':
+      return await uploadSFTP(payloads[0], filename, fileContent)
   }
 }
 

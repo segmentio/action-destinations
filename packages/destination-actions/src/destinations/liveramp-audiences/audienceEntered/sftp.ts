@@ -1,7 +1,7 @@
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import Client from 'ssh2-sftp-client'
 import path from 'path'
-import type { Payload } from './generated-types'
+import type { Payload } from '../audienceEnteredSFTP/generated-types'
 
 const LIVERAMP_SFTP_SERVER = 'files.liveramp.com'
 const LIVERAMP_SFTP_PORT = 22

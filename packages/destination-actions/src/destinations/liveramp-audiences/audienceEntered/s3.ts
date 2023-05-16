@@ -1,6 +1,6 @@
 import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
-import type { Payload } from './generated-types'
+import type { Payload } from '../audienceEnteredS3/generated-types'
 
 function validateS3(payload: Payload) {
   if (!payload.s3_aws_access_key) {
