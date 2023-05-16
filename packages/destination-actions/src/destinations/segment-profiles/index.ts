@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       //   required: true
       // },
       endpoint: {
-        label: 'Endpoint Region',
+        label: 'Endpoint Regions',
         description: 'The region to send your data.',
         type: 'string',
         format: 'text',
