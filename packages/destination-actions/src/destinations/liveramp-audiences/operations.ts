@@ -1,4 +1,4 @@
-import type {} from './audienceEntered/generated-types'
+import type { Payload } from './audienceEntered/generated-types'
 
 /*
 Generates the LiveRamp ingestion file. Expected format:

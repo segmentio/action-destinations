@@ -1,36 +1,36 @@
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import Client from 'ssh2-sftp-client'
 import path from 'path'
-import type { Payload } from '../audienceEnteredSFTP/generated-types'
+import { Settings } from '../generated-types'
 
 const LIVERAMP_SFTP_SERVER = 'files.liveramp.com'
 const LIVERAMP_SFTP_PORT = 22
 const sftp = new Client()
 
-function validateSFTP(payload: Payload) {
-  if (!payload.sftp_username) {
+function validateSFTP(settings: Settings) {
+  if (!settings.sftp_username) {
     throw new InvalidAuthenticationError('Selected SFTP upload mode, but missing credentials (Username)')
   }
 
-  if (!payload.sftp_password) {
+  if (!settings.sftp_password) {
     throw new InvalidAuthenticationError('Selected SFTP upload mode, but missing credentials (Password)')
   }
 
-  if (!payload.sftp_folder_path) {
+  if (!settings.sftp_folder_path) {
     throw new InvalidAuthenticationError('Selected SFTP upload mode, but missing SFTP folder path.')
   }
 }
 
-async function uploadSFTP(payload: Payload, filename: string, fileContent: Buffer) {
+async function uploadSFTP(settings: Settings, filename: string, fileContent: Buffer) {
   sftp
     .connect({
       host: LIVERAMP_SFTP_SERVER,
       port: LIVERAMP_SFTP_PORT,
-      username: payload.sftp_username,
-      password: payload.sftp_password
+      username: settings.sftp_username,
+      password: settings.sftp_password
     })
     .then(() => {
-      const targetPath = path.join(payload.sftp_folder_path, filename)
+      const targetPath = path.join(settings.sftp_folder_path as string, filename)
       return sftp.put(fileContent, targetPath)
     })
     .then(() => {

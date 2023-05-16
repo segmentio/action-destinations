@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
@@ -59,22 +59,22 @@ async function processData(request: RequestClient, settings: Settings, payloads:
   // STRATCONN-2584: error if less than 25 elements in payload
   switch (settings.upload_mode) {
     case 'S3':
-      validateS3(payloads[0])
+      validateS3(settings)
       break
     case 'SFTP':
-      validateSFTP(payloads[0])
+      validateSFTP(settings)
       break
     default:
-      throw new InvalidPayloadError(`Unexpected upload mode: ${settings.upload_mode}`)
+      throw new InvalidAuthenticationError(`Unexpected upload mode: ${settings.upload_mode}`)
   }
 
   const { filename, fileContent } = generateFile(payloads)
 
   switch (settings.upload_mode) {
     case 'S3':
-      return await uploadS3(payloads[0], filename, fileContent, request)
+      return await uploadS3(settings, filename, fileContent, request)
     case 'SFTP':
-      return await uploadSFTP(payloads[0], filename, fileContent)
+      return await uploadSFTP(settings, filename, fileContent)
   }
 }
 
