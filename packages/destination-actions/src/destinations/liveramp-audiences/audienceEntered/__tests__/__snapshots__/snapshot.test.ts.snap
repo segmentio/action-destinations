@@ -8,7 +8,7 @@ exports[`Testing snapshot for LiverampAudiences's audienceEntered destination ac
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: enquotated indentifier data 1`] = `
 Array [
   "\\"LCD TV,50\\"\\"\\"",
-  "\\"\\"\\"early-bird\\" special\\"",
+  "\\"\\"\\"early-bird\\"\\" special\\"",
   "\\"5'8\\"\\"\\"",
 ]
 `;

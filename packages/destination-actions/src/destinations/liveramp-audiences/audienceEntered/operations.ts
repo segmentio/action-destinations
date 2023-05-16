@@ -53,7 +53,7 @@ async function processData(request: RequestClient, settings: Settings, payloads:
   LCD TV,50" -> "LCD TV,50"""
 */
 function enquoteIdentifier(identifier: string) {
-  return `"${identifier.replace('"', '""')}"`
+  return `"${identifier.replace(/"/g, '""')}"`
 }
 
 export { processData, enquoteIdentifier }
