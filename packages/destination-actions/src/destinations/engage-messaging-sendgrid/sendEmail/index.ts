@@ -162,6 +162,19 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sends Email to a user powered by SendGrid',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
+    newFieldBoolean: {
+      label: 'New Field Boolean',
+      description: 'New Boolean field',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    newFieldString: {
+      label: 'New Field String',
+      description: 'New String field',
+      type: 'string',
+      required: false
+    },
     send: {
       label: 'Send Message',
       description: 'Whether or not the message should actually get sent.',
@@ -349,7 +362,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, data) => {
+    const { settings, payload, statsContext, logger } = data
+    logger?.info(`NEWFIELD data`)
+    logger?.info(JSON.stringify(data))
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
