@@ -13,8 +13,8 @@ import identifyGroup from './identifyGroup'
 import alias from './alias'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Calliper',
-  slug: 'calliper',
+  name: 'Calliper Cloud (Actions)',
+  slug: 'calliper-cloud-actions',
   mode: 'cloud',
 
   authentication: {
@@ -22,13 +22,15 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       companyId: {
         label: 'Company id',
-        description: 'Your company id in Calliper.',
+        description:
+          'Your company id in Calliper. During the onboarding you can find it by selecting Segment integration. After onboarding is complete you can find it by opening "Data Sources" in the main menu, pressing "New Data Source" and pressing "Connect" on a Segment card.',
         type: 'string',
         required: true
       },
       segmentKey: {
         label: 'Segment Key',
-        description: 'Your Segment Key in Calliper.',
+        description:
+          'Your Segment Key in Calliper. Please follow the instructions to find the Company id, secret key is located in a field next to it.',
         type: 'string',
         required: true
       }

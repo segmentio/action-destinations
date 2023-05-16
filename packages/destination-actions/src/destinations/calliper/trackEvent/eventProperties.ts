@@ -24,11 +24,7 @@ export const eventProperties: Record<string, InputField> = {
     type: 'string',
     description: 'A distinct ID of an unidentified (logged out) user. Device id is used if available',
     default: {
-      '@if': {
-        exists: { '@path': '$.context.device.id' },
-        then: { '@path': '$.context.device.id' },
-        else: { '@path': '$.anonymousId' }
-      }
+      '@path': '$.anonymousId'
     }
   },
   user_id: {

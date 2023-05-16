@@ -34,7 +34,7 @@ export interface Payload {
    */
   phone?: string
   /**
-   * The time the user signed up to your system
+   * The timestamp for when the user profile was first created
    */
   created_at?: string | number
   /**

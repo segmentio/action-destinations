@@ -4,7 +4,6 @@ import type { Payload } from './generated-types'
 import { eventProperties } from './eventProperties'
 import dayjs from '../../../lib/dayjs'
 import { API_URL } from '../utils/constants'
-import { IntegrationError } from '@segment/actions-core'
 
 const formatEvent = (payload: Payload) => {
   const datetime = payload.time
@@ -40,13 +39,6 @@ const formatEvent = (payload: Payload) => {
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  if (!settings.companyId) {
-    throw new IntegrationError('Missing company id', 'Missing required field', 400)
-  }
-  if (!settings.segmentKey) {
-    throw new IntegrationError('Missing segment key', 'Missing required field', 400)
-  }
-
   const events = payload.map(formatEvent)
 
   return request(`${API_URL}/event/batch`, {

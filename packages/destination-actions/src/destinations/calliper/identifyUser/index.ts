@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError, omit } from '@segment/actions-core'
+import { omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { API_URL } from '../utils/constants'
@@ -44,7 +44,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.firstName'
+        '@if': {
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.traits.firstName' }
+        }
       }
     },
     last_name: {
@@ -53,7 +57,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.traits.lastName'
+        '@if': {
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.traits.lastName' }
+        }
       }
     },
     name: {
@@ -71,11 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.email' },
-          then: { '@path': '$.email' },
-          else: { '@path': '$.traits.email' }
-        }
+        '@path': '$.traits.email'
       }
     },
     phone: {
@@ -88,7 +92,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     created_at: {
-      description: 'The time the user signed up to your system',
+      description: 'The timestamp for when the user profile was first created',
       label: 'User Creation Time',
       type: 'datetime',
       required: false,
@@ -110,13 +114,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings }) => {
-    if (!settings.companyId) {
-      throw new IntegrationError('Missing company id', 'Missing required field', 400)
-    }
-    if (!settings.segmentKey) {
-      throw new IntegrationError('Missing segment key', 'Missing required field', 400)
-    }
-
     const datetime = payload.time
     const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
 
@@ -137,7 +134,17 @@ const action: ActionDefinition<Settings, Payload> = {
           last_name: payload.last_name,
           name,
           phone: payload.phone,
-          traits: omit(payload.traits, ['created', 'email', 'firstName', 'lastName', 'name', 'username', 'phone'])
+          traits: omit(payload.traits, [
+            'created',
+            'email',
+            'firstName',
+            'first_name',
+            'lastName',
+            'last_name',
+            'name',
+            'username',
+            'phone'
+          ])
         }
       }
     })
