@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import { API_URL } from './utils/constants'
@@ -55,6 +55,27 @@ const destination: DestinationDefinition<Settings> = {
       }
     })
   },
+
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields)
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    },
+    {
+      name: 'Identify Group',
+      subscribe: 'type = "group"',
+      partnerAction: 'identifyGroup',
+      mapping: defaultValues(identifyGroup.fields)
+    }
+  ],
 
   actions: {
     trackEvent,
