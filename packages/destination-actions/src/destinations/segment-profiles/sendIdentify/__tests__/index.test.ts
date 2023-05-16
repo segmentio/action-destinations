@@ -58,7 +58,6 @@ describe('Segment.sendIdentify', () => {
         event,
         mapping: defaultIdentifyMapping,
         settings: {
-          // segment_papi_token: 'segment-papi-token',
           endpoint: 'incorrect-endpoint'
         }
       })
@@ -84,7 +83,6 @@ describe('Segment.sendIdentify', () => {
       event,
       mapping: defaultIdentifyMapping,
       settings: {
-        // segment_papi_token: 'segment-papi-token',
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       }
     })

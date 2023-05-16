@@ -18,14 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     traits
   },
-  // dynamicFields: {
-  //   engage_space: async (request, { settings }) => {
-  //     return getEngageSpaces(request, {
-  //       endpoint: settings.endpoint,
-  //       bearerToken: settings.segment_papi_token
-  //     })
-  //   }
-  // },
   perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
