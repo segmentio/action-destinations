@@ -24,6 +24,9 @@ describe('track', () => {
     jest.mock('../../../../runtime/load-script', () => ({
       loadScript: (_src: any, _attributes: any) => {}
     }))
+    jest.mock('../../../../runtime/resolve-when', () => ({
+      resolveWhen: (_fn: any, _timeout: any) => {}
+    }))
   })
   test('it maps event parameters correctly to track function', async () => {
     const [track] = await screebDestination({

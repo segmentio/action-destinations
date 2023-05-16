@@ -21,6 +21,9 @@ describe('Screeb initialization', () => {
     jest.mock('../../../runtime/load-script', () => ({
       loadScript: (_src: any, _attributes: any) => {}
     }))
+    jest.mock('../../../runtime/resolve-when', () => ({
+      resolveWhen: (_fn: any, _timeout: any) => {}
+    }))
   })
   test('can load Screeb', async () => {
     const [event] = await screebDestination({

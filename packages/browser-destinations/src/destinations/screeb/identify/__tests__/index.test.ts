@@ -27,6 +27,9 @@ describe('identify', () => {
     jest.mock('../../../../runtime/load-script', () => ({
       loadScript: (_src: any, _attributes: any) => {}
     }))
+    jest.mock('../../../../runtime/resolve-when', () => ({
+      resolveWhen: (_fn: any, _timeout: any) => {}
+    }))
   })
   test('it maps event parameters correctly to identify function without user id but anonymous id', async () => {
     const [identify] = await screebDestination({

@@ -65,10 +65,7 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     window.$screeb.q = []
 
     await deps.loadScript('https://t.screeb.app/tag.js')
-
-    if (process.env.NODE_ENV !== 'test') {
-      await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
-    }
+    await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
 
     window.$screeb('init', settings.websiteId)
 
