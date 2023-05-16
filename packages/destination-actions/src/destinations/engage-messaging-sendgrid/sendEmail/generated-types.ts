@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * New Boolean field
+   */
+  newFieldBoolean?: boolean
+  /**
+   * New String field
+   */
+  newFieldString?: string
+  /**
    * Whether or not the message should actually get sent.
    */
   send?: boolean
@@ -73,10 +81,6 @@ export interface Payload {
    * Subscription group ID
    */
   groupId?: string
-  /**
-   * Send email without subscription check
-   */
-  byPassSubscription?: boolean
   /**
    * An array of user profile identity information.
    */
