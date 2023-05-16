@@ -2,19 +2,19 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 {{#json.actions}}
-import {{name}} from './{{name}}'
+import {{key}} from './{{key}}'
 {{/json.actions}}
 
 const destination: DestinationDefinition<Settings> = {
-  name: '{{name}}',
-  slug: '{{slug}}',
+  name: '{{json.name}}',
+  slug: '{{json.slug}}',
   mode: 'cloud',
 
   authentication: {
     scheme: 'oauth2',
     fields: {
       {{#json.oauth.fields}}
-      {{name}}: {
+      {{key}}: {
         label: '{{label}}',
         description: '{{description}}',
         type: '{{type}}',
@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       {{/json.oauth.fields}}
     },
     refreshAccessToken: async (request, { auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
+      // Please update the code here to further customize how you refresh the access_token
       const res = await request('{{{json.oauth.apiEndpoint}}}', {
         method: 'POST',
         body: new URLSearchParams({
@@ -38,6 +38,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
+    // Please update the code here to modify the request headers
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
@@ -47,7 +48,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     {{#json.actions}}
-    {{name}},
+    {{key}},
     {{/json.actions}}
   }
 }

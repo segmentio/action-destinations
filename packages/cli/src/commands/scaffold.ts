@@ -96,9 +96,9 @@ export default class Init extends Command {
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
-      renderTemplates(templatePath, targetDirectory, answers)
+      renderTemplates(templatePath, targetDirectory, answers, overwriteExisting)
       this.spinner.succeed(`Scaffold integration`)
-    } catch (err) {
+    } catch (err: any) {
       this.spinner.fail(`Scaffold integration: ${chalk.red(err.message)}`)
       this.exit()
     }
@@ -113,13 +113,22 @@ export default class Init extends Command {
         overwriteExisting
       )
       this.spinner.succeed(chalk`Created snapshot tests for {magenta ${slug}} destination`)
-    } catch (err) {
+    } catch (err: any) {
       this.spinner.fail(`Snapshot test creation failed: ${chalk.red(err.message)}`)
       this.exit()
     }
 
     for (const action of actions) {
       const actionsTargetDirectory = `${targetDirectory}/${action.key}`
+
+      action.fields.forEach((field: any) => {
+        const hasDefault = field.hasDefault && field.default
+        if (hasDefault) {
+          field.hasDefaultValue = field.default.type !== 'directive'
+          field.hasDirective = field.default.type === 'directive'
+          field.isString = ['string', 'text', 'datetime', 'password'].includes(field.type)
+        }
+      })
 
       try {
         renderTemplates(
@@ -138,7 +147,7 @@ export default class Init extends Command {
           overwriteExisting
         )
         this.spinner.succeed(chalk`Scaffold action {magenta ${action.name}}`)
-      } catch (err) {
+      } catch (err: any) {
         this.spinner.fail(chalk`Scaffold action {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }
@@ -155,7 +164,7 @@ export default class Init extends Command {
           overwriteExisting
         )
         this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
-      } catch (err) {
+      } catch (err: any) {
         this.spinner.fail(chalk`Snapshot test creation failed {magenta ${action.name}}: ${chalk.red(err.message)}`)
         this.exit()
       }

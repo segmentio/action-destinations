@@ -7,6 +7,8 @@ import track from './track'
 
 import group from './group'
 
+import page from './page'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Usermaven (Actions)',
   slug: 'actions-usermaven',
@@ -49,12 +51,19 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "group"',
       partnerAction: 'group',
       mapping: defaultValues(group.fields)
+    },
+    {
+      name: 'Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'page',
+      mapping: defaultValues(page.fields)
     }
   ],
   actions: {
     identify,
     track,
-    group
+    group,
+    page
   }
 }
 
