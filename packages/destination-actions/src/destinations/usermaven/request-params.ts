@@ -106,6 +106,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     email: payload?.user_email,
     first_name: payload?.user_first_name,
     last_name: payload?.user_last_name,
+    created_at: payload?.user_created_at,
     custom: payload?.user_custom_attributes
   }
 
@@ -116,6 +117,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   delete properties.user_first_name
   delete properties.user_last_name
   delete properties.user_custom_attributes
+  delete properties.user_created_at
 
   // Resolve company properties
   properties.company = {
