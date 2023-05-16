@@ -1,10 +1,19 @@
-import type { Payload as S3Payload } from './audienceEnteredS3/generated-types'
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { uploadS3, validateS3 } from '../s3'
 
-/*
-Generates the LiveRamp ingestion file. Expected format:
-liveramp_audience_key[1],identifier_data[0..n]
-*/
-function generateFile(payloads: S3Payload[]) {
+async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  // STRATCONN-2554: Add support for SFTP
+  if (settings.upload_mode == 'S3') {
+    validateS3(settings)
+  } else {
+    throw new PayloadValidationError(`Unrecognized upload mode: ${settings.upload_mode}`)
+  }
+  // STRATCONN-2584: error if less than 25 elements in payload
+
+  // Prepare header row. Expected format:
+  // liveramp_audience_key[1],identifier_data[0..n]
   const rows = []
   const headers = ['audience_key']
   if (payloads[0].identifier_data) {
@@ -29,7 +38,10 @@ function generateFile(payloads: S3Payload[]) {
   // STRATCONN-2584: verify multiple emails are handled
   const filename = `${payloads[0].audience_name}_PII_${payloads[0].received_at}.csv`
   const fileContent = rows.join('\n')
-  return { filename, fileContent }
+
+  if (settings.upload_mode == 'S3') {
+    return await uploadS3(settings, filename, fileContent, request)
+  }
 }
 
 /*
@@ -41,7 +53,7 @@ function generateFile(payloads: S3Payload[]) {
   LCD TV,50" -> "LCD TV,50"""
 */
 function enquoteIdentifier(identifier: string) {
-  return `"${identifier.replace(/"/g, '""')}"`
+  return `"${identifier.replace('"', '""')}"`
 }
 
-export { generateFile, enquoteIdentifier }
+export { processData, enquoteIdentifier }
