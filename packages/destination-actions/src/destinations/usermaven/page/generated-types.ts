@@ -4,29 +4,19 @@ export interface Payload {
   /**
    * The user id, to uniquely identify the user
    */
-  user_id: string
+  user_id?: string
   /**
    * The user email address
    */
-  user_email: string
+  user_email?: string
   /**
    * The timestamp when the user was created
    */
   user_created_at?: string
   /**
-   * The user first name
+   * The name of the page
    */
-  user_first_name?: string
-  /**
-   * The user last name
-   */
-  user_last_name?: string
-  /**
-   * The user custom attributes
-   */
-  user_custom_attributes?: {
-    [k: string]: unknown
-  }
+  page_name?: string
   /**
    * User Anonymous id
    */
