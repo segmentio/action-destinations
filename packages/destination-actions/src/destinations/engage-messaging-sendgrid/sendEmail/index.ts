@@ -382,7 +382,8 @@ const action: ActionDefinition<Settings, Payload> = {
       if (payload.bodyUrl) {
         let body = ''
         try {
-          ;({ content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true }))
+          const res = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+          body = res.content
         } catch (ex) {
           logger?.error(
             `TE Messaging: Error retrieving bodyUrl for space ${settings.spaceId} and source ${settings.sourceId}`
