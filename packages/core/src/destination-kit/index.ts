@@ -334,7 +334,9 @@ export class Destination<Settings = JSONObject> {
     try {
       await this.authentication.testAuthentication(requestClient, data)
     } catch (error) {
+      // @ts-ignore: unknown root cause
       const statusCode = error?.response?.status ?? ''
+      // @ts-ignore: unknown root cause
       throw new Error(`Credentials are invalid: ${statusCode} ${error.message}`)
     }
   }
@@ -500,7 +502,8 @@ export class Destination<Settings = JSONObject> {
       }
 
       const isBatch = Array.isArray(events)
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+
+      const allEvents = isBatch ? events : [events]
       const subscribedEvents = allEvents.filter((event) => validate(parsedSubscription, event))
 
       if (subscribedEvents.length === 0) {

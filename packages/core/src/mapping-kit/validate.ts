@@ -166,6 +166,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
+      // @ts-ignore: unknown root cause
       errors.push(e)
     }
   })
@@ -201,6 +202,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
+      // @ts-ignore: unknown root cause
       errors.push(error)
     }
   })
@@ -231,6 +233,7 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
           throw e
         }
 
+        // @ts-ignore: unknown root cause
         throw new ValidationError(e.message, stack)
       }
     }

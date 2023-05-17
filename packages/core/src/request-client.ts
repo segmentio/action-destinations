@@ -256,6 +256,7 @@ class RequestClient {
     }
 
     // Use our internal abort controller for fetch
+    // @ts-ignore: unknown root cause
     this.options.signal = this.abortController.signal
 
     // Construct a request object to send to the Fetch API
