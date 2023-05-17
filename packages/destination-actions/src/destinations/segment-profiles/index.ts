@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       endpoint: {
-        label: 'Endpoint Regions',
+        label: 'Endpoint Region',
         description: 'The region to send your data.',
         type: 'string',
         format: 'text',
