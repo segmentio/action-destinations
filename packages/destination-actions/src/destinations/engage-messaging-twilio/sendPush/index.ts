@@ -178,18 +178,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, data) => {
+    const { settings, payload, statsContext, logger } = data
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    if (!payload.send) {
-      statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
-      return
-    }
-    return new PushSender(request, payload, settings, statsClient, tags, logger).send()
+    return new PushSender(request, payload, settings, statsClient, tags, logger, data).send()
   }
 }
 
