@@ -362,7 +362,7 @@ describe.each([
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType: 'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -484,7 +484,61 @@ describe.each([
       expect(s3Request.isDone()).toEqual(true)
     })
 
-    it('should not send email where Unlayer body is stored in S3', async () => {
+    it('should log error when bodyUrl request fails', async () => {
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: `Hi ${userData.firstName}, welcome to Segment`
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const s3Request = nock('https://s3.com')
+        .get('/body.txt')
+        .reply(500, 'Hi {{profile.traits.firstName}}, welcome to Segment')
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
       await expect(
         sendgrid.testAction('sendEmail', {
           event: createMessagingTestEvent({
@@ -505,11 +559,13 @@ describe.each([
           mapping: getDefaultMapping({
             body: undefined,
             bodyUrl: 'https://s3.com/body.txt',
-            bodyHtml: undefined,
-            bodyType: 'design'
+            bodyHtml: undefined
           })
         })
-      ).rejects.toThrow('Unable to request bodyurl for design template, no longer supported')
+      ).rejects.toThrow('Unable to process email, failed to fetch bodyUrl')
+
+      expect(sendGridRequest.isDone()).toEqual(false)
+      expect(s3Request.isDone()).toEqual(true)
     })
 
     it('should show a default in the subject when a trait is missing', async () => {
@@ -608,7 +664,14 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+            {
+              id: userData.phone,
+              type: 'phone',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              channelType: 'sms'
+            }
           ]
         }),
         settings,
@@ -631,7 +694,14 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings,
@@ -769,7 +839,14 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings: {
