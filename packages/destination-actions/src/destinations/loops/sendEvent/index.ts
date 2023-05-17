@@ -16,9 +16,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.email' }
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
