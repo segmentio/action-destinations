@@ -27,7 +27,7 @@ function generateFile(payloads: Payload[]) {
   }
 
   // STRATCONN-2584: verify multiple emails are handled
-  const filename = `${payloads[0].audience_name}_PII_${payloads[0].received_at}.csv`
+  const filename = payloads[0].filename
   const fileContent = Buffer.from(rows.join('\n'))
 
   return { filename, fileContent }

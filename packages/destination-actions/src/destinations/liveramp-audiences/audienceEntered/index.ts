@@ -32,19 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: ','
     },
-    audience_name: {
-      label: 'Audience name',
-      description: `Name of the audience the user has entered.`,
+    filename: {
+      label: 'Filename',
+      description: `Name of the CSV file to upload for LiveRamp ingestion.`,
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.audience_key' }
-    },
-    received_at: {
-      label: 'Received At',
-      description: `Datetime at which the event was received. Used to disambiguate the resulting file.`,
-      type: 'datetime',
-      required: true,
-      default: { '@path': '$.receivedAt' }
+      default: { '@template': '{{properties.audience_key}}_PII_{{receivedAt}}.csv' }
     }
   },
   perform: async (request, { settings, payload }) => {
