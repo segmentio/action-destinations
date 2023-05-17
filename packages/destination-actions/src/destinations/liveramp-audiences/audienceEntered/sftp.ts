@@ -41,4 +41,23 @@ async function uploadSFTP(settings: Settings, filename: string, fileContent: Buf
     })
 }
 
-export { validateSFTP, uploadSFTP }
+async function testAuthenticationSFTP(settings: Settings) {
+  sftp
+    .connect({
+      host: LIVERAMP_SFTP_SERVER,
+      port: LIVERAMP_SFTP_PORT,
+      username: settings.sftp_username,
+      password: settings.sftp_password
+    })
+    .then(() => {
+      return sftp.list(settings.sftp_folder_path as string)
+    })
+    .then(() => {
+      return sftp.end()
+    })
+    .catch((err) => {
+      throw err
+    })
+}
+
+export { validateSFTP, uploadSFTP, testAuthenticationSFTP }

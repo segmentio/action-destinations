@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import audienceEntered from './audienceEntered'
+import { testAuthenticationSFTP } from './audienceEntered/sftp'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Liveramp Audiences',
@@ -54,15 +55,17 @@ const destination: DestinationDefinition<Settings> = {
       },
       sftp_folder_path: {
         label: 'Folder Path (SFTP only)',
-        description: 'Path within the SFTP server to upload the files to.',
-        type: 'string'
+        description:
+          'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
+        type: 'string',
+        format: 'uri-reference'
       }
     },
-    testAuthentication: (_) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      // TODO: Validate SFTP
+    testAuthentication: async (_, { settings }) => {
+      // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
+      if (settings.upload_mode == 'SFTP') {
+        await testAuthenticationSFTP(settings)
+      }
     }
   },
   actions: {
