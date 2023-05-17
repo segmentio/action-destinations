@@ -54,17 +54,9 @@ export interface Payload {
    */
   subject: string
   /**
-   * The message body
-   */
-  body?: string
-  /**
    * URL to the message body
    */
   bodyUrl?: string
-  /**
-   * The type of body which is used generally html | design
-   */
-  bodyType: string
   /**
    * The HTML content of the body
    */
