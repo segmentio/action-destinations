@@ -5,7 +5,7 @@ import Facebook from '../fbca-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Reverse ETL',
-  description: '',
+  description: 'Sync action for Reverse ETL.',
   fields: {
     method: {
       label: 'Method',
