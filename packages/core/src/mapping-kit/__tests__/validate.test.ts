@@ -44,8 +44,10 @@ describe('validation', () => {
         } catch (error) {
           hasError = true
           if (typeof fixture.expectError === 'string') {
+            // @ts-ignore: unknown root cause
             expect(error.message).toMatch(fixture.expectError)
           } else {
+            // @ts-ignore: unknown root cause
             for (const err of error) {
               expect(fixture.expectError).toContain(err.message)
             }

@@ -245,6 +245,7 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
+    // @ts-ignore: unknown root cause
     await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('The user aborted a request.')
     await server.close()
   })
