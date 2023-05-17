@@ -158,13 +158,13 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     )
 
     try {
-      const customData: Record<string, any> = {
+      const customData: Record<string, unknown> = this.removeEmpties({
         ...this.payload.customArgs,
         space_id: this.settings.spaceId,
         badgeAmount: this.payload.customizations?.badgeAmount,
         badgeStrategy: this.payload.customizations?.badgeStrategy,
         media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined
-      }
+      })
 
       const body = this.removeEmpties({
         Body: parsedTemplateContent.body,
@@ -193,11 +193,13 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         ApnPayload: JSON.stringify(body.ApnPayload)
       })
 
-      return { requestBody, customData: this.removeEmpties(customData) }
+      return { requestBody, customData }
     } catch (error) {
-      console.log(error)
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
-      this.logger?.error(`TE Messaging: Push failed to construct request body - [${error}]`)
+      this.logError(
+        `${this.getChannelType()} unable to construct request body - ${this.settings.spaceId}`,
+        JSON.stringify(error)
+      )
       throw new IntegrationError('Unable to construct request body', 'Twilio Request Body Failure', 400)
     }
   }
