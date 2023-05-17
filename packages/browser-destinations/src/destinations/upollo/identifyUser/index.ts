@@ -8,6 +8,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
   description: 'Identify the user',
   defaultSubscription: 'type = "identify"',
   platform: 'web',
+  lifecycleHook: 'enrichment',
   fields: {
     user_id: {
       type: 'string',
