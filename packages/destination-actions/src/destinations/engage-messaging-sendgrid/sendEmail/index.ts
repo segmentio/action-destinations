@@ -80,52 +80,6 @@ const isRestrictedDomain = (email: string): boolean => {
   const domain = matches[1]
   return restricted.includes(domain)
 }
-
-interface UnlayerResponse {
-  success: boolean
-  data: {
-    html: string
-    chunks: {
-      css: string
-      js: string
-      fonts: string[]
-      body: string
-    }
-  }
-}
-
-const generateEmailHtml = async (
-  request: RequestFn,
-  settings: Settings,
-  design: string,
-  statsClient: StatsClient | undefined,
-  tags: string[],
-  logger?: Logger | undefined
-): Promise<string> => {
-  try {
-    statsClient?.incr('actions-personas-messaging-sendgrid.unlayer_request', 1, tags)
-    const response = await request('https://api.unlayer.com/v2/export/html', {
-      method: 'POST',
-      headers: {
-        authorization: `Basic ${Buffer.from(`${settings.unlayerApiKey}:`).toString('base64')}`,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        displayMode: 'email',
-        design: JSON.parse(design)
-      })
-    })
-
-    const body = await response.json()
-    return (body as UnlayerResponse).data.html
-  } catch (error) {
-    logger?.error(`TE Messaging: Email export request failure - ${settings.spaceId} - [${error}]`)
-    tags.push('reason:generate_email_html')
-    statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
-    throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
-  }
-}
-
 interface Profile {
   user_id?: string
   anonymous_id?: string
@@ -227,11 +181,20 @@ const attemptEmailDelivery = async (
   const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', statsClient, tags, settings, logger)
   let parsedBodyHtml
 
-  if (payload.bodyUrl && settings.unlayerApiKey) {
-    const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
-    const bodyHtml =
-      payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
-    parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
+  if (payload.bodyUrl) {
+    let body
+    try {
+      const res = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      body = res.content
+    } catch (ex) {
+      logger?.error(
+        `TE Messaging: Error retrieving bodyUrl for space ${settings.spaceId} and source ${settings.sourceId}`
+      )
+      tags.push(`reason:failed_bodyurl_request`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
+      throw new IntegrationError('Unable to process email, failed to fetch bodyUrl', 'BodyUrl Request Failure', 500)
+    }
+    parsedBodyHtml = await parseTemplating(body, profile, 'Body URL', statsClient, tags, settings, logger)
   } else {
     parsedBodyHtml = await parseTemplating(
       payload.bodyHtml ?? '',
@@ -426,21 +389,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    body: {
-      label: 'Body',
-      description: 'The message body',
-      type: 'text'
-    },
     bodyUrl: {
       label: 'Body URL',
       description: 'URL to the message body',
       type: 'text'
-    },
-    bodyType: {
-      label: 'Body Type',
-      description: 'The type of body which is used generally html | design',
-      type: 'string',
-      required: true
     },
     bodyHtml: {
       label: 'Body Html',
