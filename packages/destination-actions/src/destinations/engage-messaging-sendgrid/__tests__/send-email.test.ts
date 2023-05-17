@@ -354,16 +354,13 @@ describe.each([
             journey_state_id: 'journeyStateId',
             audience_id: 'audienceId'
           },
-          previewText: 'unused',
           subject: 'Test email with metadata',
-          body: 'Welcome to segment',
-          bodyType: 'html',
           bodyHtml: 'Welcome to segment',
           send: true,
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType: 'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -474,9 +471,7 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping({
-          body: undefined,
-          bodyUrl: 'https://s3.com/body.txt',
-          bodyHtml: undefined
+          bodyUrl: 'https://s3.com/body.txt'
         })
       })
 
@@ -485,100 +480,33 @@ describe.each([
       expect(s3Request.isDone()).toEqual(true)
     })
 
-    it('should send email where Unlayer body is stored in S3', async () => {
-      const expectedSendGridRequest = {
-        personalizations: [
-          {
-            to: [
+    it('should fail request where bodyUrl request fails', async () => {
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(500, '')
+
+      await expect(
+        sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId,
+            external_ids: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                collection: 'users',
+                encoding: 'none',
+                id: userData.email,
+                isSubscribed: true,
+                type: 'email'
               }
-            ],
-            bcc: [
-              {
-                email: 'test@test.com'
-              }
-            ],
-            custom_args: {
-              source_id: 'sourceId',
-              space_id: 'spaceId',
-              user_id: userData.userId,
-              __segment_internal_external_id_key__: 'email',
-              __segment_internal_external_id_value__: userData.email
-            }
-          }
-        ],
-        from: {
-          email: 'from@example.com',
-          name: 'From Name'
-        },
-        reply_to: {
-          email: 'replyto@example.com',
-          name: 'Test user'
-        },
-        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
-        content: [
-          {
-            type: 'text/html',
-            value: `<h1>Hi ${userData.firstName}, welcome to Segment</h1>`
-          }
-        ],
-        tracking_settings: {
-          subscription_tracking: {
-            enable: true,
-            substitution_tag: '[unsubscribe]'
-          }
-        }
-      }
-
-      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
-
-      const unlayerRequest = nock('https://api.unlayer.com')
-        .post('/v2/export/html', {
-          displayMode: 'email',
-          design: {
-            unlayer: true
-          }
+            ]
+          }),
+          settings,
+          mapping: getDefaultMapping({
+            bodyUrl: 'https://s3.com/body.txt'
+          })
         })
-        .reply(200, {
-          data: {
-            html: '<h1>Hi {{profile.traits.firstName}}, welcome to Segment</h1>'
-          }
-        })
+      ).rejects.toThrow('Unable to process email, failed to fetch bodyUrl')
 
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', expectedSendGridRequest)
-        .reply(200, {})
-
-      const responses = await sendgrid.testAction('sendEmail', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId,
-          external_ids: [
-            {
-              collection: 'users',
-              encoding: 'none',
-              id: userData.email,
-              isSubscribed: true,
-              type: 'email'
-            }
-          ]
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          body: undefined,
-          bodyUrl: 'https://s3.com/body.txt',
-          bodyHtml: undefined,
-          bodyType: 'design'
-        })
-      })
-
-      expect(responses.length).toBeGreaterThan(0)
-      expect(sendGridRequest.isDone()).toEqual(true)
       expect(s3Request.isDone()).toEqual(true)
-      expect(unlayerRequest.isDone()).toEqual(true)
     })
 
     it('inserts preview text', async () => {
@@ -619,19 +547,8 @@ describe.each([
         content: [
           {
             type: 'text/html',
-            value: [
-              '<html><head></head><body>',
-              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              '      Preview text customer',
-              '    </div>',
-              '',
-              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              '      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;',
-              '    </div>',
-              '  ',
-              bodyHtml,
-              '</body></html>'
-            ].join('\n')
+            value:
+              '<html><head></head><body>\n    <div style="display: none; max-height: 0px; overflow: hidden;">\n      Preview text customer\n    </div>\n\n    <div style="display: none; max-height: 0px; overflow: hidden;">\n      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;\n    </div>\n  <p>Hi First Name, welcome to Segment</p></body></html>'
           }
         ],
         tracking_settings: {
@@ -642,21 +559,7 @@ describe.each([
         }
       }
 
-      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
-
-      const unlayerRequest = nock('https://api.unlayer.com')
-        .post('/v2/export/html', {
-          displayMode: 'email',
-          design: {
-            unlayer: true
-          }
-        })
-        .reply(200, {
-          data: {
-            html: ['<html><head></head><body>', bodyHtml, '</body></html>'].join('\n')
-          }
-        })
-
+      const s3Request = nock('https://s3.com').get('/body.txt').reply(200, bodyHtml)
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
         .reply(200, {})
@@ -679,17 +582,13 @@ describe.each([
         settings,
         mapping: getDefaultMapping({
           previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
-          body: undefined,
-          bodyUrl: 'https://s3.com/body.txt',
-          bodyHtml: undefined,
-          bodyType: 'design'
+          bodyUrl: 'https://s3.com/body.txt'
         })
       })
 
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
       expect(s3Request.isDone()).toEqual(true)
-      expect(unlayerRequest.isDone()).toEqual(true)
     })
 
     it('should show a default in the subject when a trait is missing', async () => {
@@ -788,7 +687,14 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+            {
+              id: userData.phone,
+              type: 'phone',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              channelType: 'sms'
+            }
           ]
         }),
         settings,
@@ -875,7 +781,14 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings,
@@ -1067,7 +980,14 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings: {
