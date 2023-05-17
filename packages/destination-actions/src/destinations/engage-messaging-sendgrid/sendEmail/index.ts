@@ -176,21 +176,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    body: {
-      label: 'Body',
-      description: 'The message body',
-      type: 'text'
-    },
     bodyUrl: {
       label: 'Body URL',
       description: 'URL to the message body',
       type: 'text'
-    },
-    bodyType: {
-      label: 'Body Type',
-      description: 'The type of body which is used generally html | design',
-      type: 'string',
-      required: true
     },
     bodyHtml: {
       label: 'Body Html',
@@ -391,18 +380,19 @@ const action: ActionDefinition<Settings, Payload> = {
       let parsedBodyHtml
 
       if (payload.bodyUrl) {
-        if (payload.bodyType === 'design') {
-          tags.push('reason:design_body_type_with_bodyUrl')
-          statsClient?.incr('actions-personas-messaging-sendgrid.bodyUrl_failure', 1, tags)
-          throw new IntegrationError(
-            `Unable to request bodyurl for design template, no longer supported`,
-            'Deprecated bodyUrl format',
-            400
+        let body = ''
+        try {
+          ;({ content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true }))
+        } catch (ex) {
+          logger?.error(
+            `TE Messaging: Error retrieving bodyUrl for space ${settings.spaceId} and source ${settings.sourceId}`
           )
+          tags.push(`reason:failed_bodyurl_request`)
+          statsClient?.incr('actions-personas-messaging-sendgrid.error', 1, tags)
+          throw new IntegrationError('Unable to process email, failed to fetch bodyUrl', 'BodyUrl Request Failure', 500)
         }
-        const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
 
-        parsedBodyHtml = await parseTemplating(body, profile, 'Body', statsClient, tags, settings, logger)
+        parsedBodyHtml = await parseTemplating(body, profile, 'Body Url', statsClient, tags, settings, logger)
       } else {
         parsedBodyHtml = await parseTemplating(
           payload.bodyHtml ?? '',
