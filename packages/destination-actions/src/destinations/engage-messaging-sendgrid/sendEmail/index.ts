@@ -208,7 +208,7 @@ const attemptEmailDelivery = async (
   }
 
   // only include preview text in design editor templates
-  if (payload.bodyType === 'design' && payload.previewText) {
+  if (payload.previewText) {
     const parsedPreviewText = await parseTemplating(
       payload.previewText,
       profile,
