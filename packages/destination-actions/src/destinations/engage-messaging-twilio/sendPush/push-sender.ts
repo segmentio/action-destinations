@@ -163,7 +163,8 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         space_id: this.settings.spaceId,
         badgeAmount: this.payload.customizations?.badgeAmount,
         badgeStrategy: this.payload.customizations?.badgeStrategy,
-        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined
+        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
+        deepLink: this.payload.customizations?.deepLink
       })
 
       const body = this.removeEmpties({
