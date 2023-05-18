@@ -8,6 +8,22 @@ interface BodyCustomDataBundle {
   customData: object
 }
 
+// TODO: get concrete error shapes
+// we currently do not know the exact error response for this endpoint
+// below is inferred from insomnia tests
+interface PushApiError {
+  response: {
+    code: number
+    status: number
+    message: string
+    data?: {
+      code: number
+      status: number
+      message: string
+    }
+  }
+}
+
 export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
   static externalIdTypes = ['ios.push_token', 'android.push_token']
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
@@ -23,7 +39,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
     return this.logWrap([`Destination Action ${this.getChannelType().toUpperCase()}`], async () => {
       if (!this.payload.send) {
-        this.logInfo(`Not sending message, payload.send = ${this.payload.send}`)
+        this.logInfo(`Not sending message, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
         this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
         return
       }
@@ -36,7 +52,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       )
 
       if (!recipientDevices?.length) {
-        this.logInfo(`Not sending message, no devices are subscribed`)
+        this.logInfo(`Not sending message, no devices are subscribed - ${this.settings.spaceId}`)
         return
       }
 
@@ -53,8 +69,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
        */
       const responses = []
       const failedSends = []
-      let failureIsRetryable = false
-      let lastError
+      let failureIsRetryable = true
       for (const recipientDevice of recipientDevices) {
         const webhookUrl = this.getWebhookUrlWithParams(recipientDevice.type, recipientDevice.id)
 
@@ -112,27 +127,39 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           responses.push(response)
         } catch (error: unknown) {
           /* on unexpected fail, do not block rest of phones from receiving push notification
-           * we dont want to retry the entire send again either - if some succeeded and some failed,
+           * we dont want to retry the entire send again either if some succeeded and some failed,
            * if we do, we run the risk of spamming devices that succeeded with centrifuge retries
+           * it's accepted that the user received the notification since all devices in externalIds belong to them
            */
+
+          if (error instanceof Object) {
+            const apiError = error as PushApiError
+            responses.push(apiError.response)
+
+            // we set a flag to retry only if a non-retryable status has not been encountered already
+            const errorStatus = apiError.response?.status ?? apiError.response?.data?.status
+
+            failureIsRetryable = failureIsRetryable && this.retryableStatusCodes.includes(errorStatus)
+          } else {
+            // unknown error - do not retry
+            failureIsRetryable = false
+          }
+
           failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id) })
           this.logDetails['failed-recipient-devices'] = failedSends
-          lastError = this.logTwilioError(error) as Error
-          failureIsRetryable =
-            typeof lastError === 'object' &&
-            'statusCode' in lastError &&
-            this.retryableStatusCodes.includes(lastError.statusCode as number)
+          this.logTwilioError(error)
         }
       }
 
       /*
        * if every device failed to send, lets attempt to retry if possible
-       * to effectively retry, we need multi-status responses (currently not available for this destination)
-       * this is a "best-effort"
        */
-      if (failureIsRetryable && failedSends.length === recipientDevices.length) {
+      if (failedSends.length === recipientDevices.length) {
         this.logError(`all devices failed send - ${this.settings.spaceId}`)
-        throw lastError
+        if (failureIsRetryable) {
+          throw new IntegrationError('Unexpected response from Twilio API', 'UNEXPECTED_ERROR', 500)
+        }
+        throw new IntegrationError('Unexpected response from Twilio API', 'BAD_REQUEST', 400)
       }
 
       if (this.payload.eventOccurredTS != undefined) {
