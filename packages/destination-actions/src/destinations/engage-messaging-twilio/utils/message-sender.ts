@@ -248,14 +248,22 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       // Webhook URL parsing has a potential of failing. I think it's better that
       // we fail out of any invocation than silently not getting analytics
       // data if that's what we're expecting.
-      const webhookUrlWithParams = new URL(webhookUrl)
-      for (const key of Object.keys(customArgs)) {
-        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+      // let webhookUrlWithParams: URL | null = null
+
+      try {
+        const webhookUrlWithParams = new URL(webhookUrl)
+
+        for (const key of Object.keys(customArgs)) {
+          webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+        }
+
+        webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
+        return webhookUrlWithParams.toString()
+      } catch (error: unknown) {
+        this.logDetails['webhook-custom-args'] = this.payload.customArgs
+        this.logError(`invalid webhook url - ${this.settings.spaceId}`)
+        throw new PayloadValidationError('Invalid webhook url arguments')
       }
-
-      webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
-
-      return webhookUrlWithParams.toString()
     }
 
     return null
