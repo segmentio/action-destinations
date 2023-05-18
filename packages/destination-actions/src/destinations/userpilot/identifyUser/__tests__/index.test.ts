@@ -41,7 +41,7 @@ describe('Userpilot.identifyUser', () => {
     expect(responses[0].status).toBe(202)
 
     expect(responses[0].options.body).toMatchInlineSnapshot(
-      `"{\\"user_id\\":\\"fake-user-id\\",\\"metadata\\":{\\"name\\":\\"\\",\\"email\\":\\"\\",\\"createdAt\\":\\"\\"}}"`
+      `"{\\"user_id\\":\\"fake-user-id\\",\\"metadata\\":{\\"name\\":\\"\\",\\"email\\":\\"\\",\\"created_at\\":\\"\\"}}"`
     )
 
     expect(nock.isDone()).toBe(true)

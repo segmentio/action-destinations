@@ -10,7 +10,7 @@ const baseUrl = 'https://analytex.userpilot.io/'
 describe('Userpilot', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(baseUrl).get('/v1/users').reply(200, {})
+      nock(baseUrl).get('/v1/validate').reply(200, {})
 
       // This should match your authentication.fields
       const authData = {
