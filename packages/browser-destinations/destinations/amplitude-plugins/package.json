@@ -1,7 +1,12 @@
 {
-  "name": "@segmentio/actions-amplitude-plugins",
-  "version": "1.0.0",
+  "name": "@segment/actions-amplitude-plugins",
+  "version": "0.0.0",
+  "module": "./dist",
+  "typings": "./dist",
   "dependencies": {
     "@segment/browser-destination-runtime": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
   }
 }

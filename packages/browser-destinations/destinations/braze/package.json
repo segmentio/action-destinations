@@ -1,10 +1,31 @@
 {
-  "name": "@segmentio/actions-braze-web",
-  "version": "1.0.0",
+  "name": "@segment/actions-braze-web",
+  "version": "0.0.0",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./debounce": {
+      "import": "./dist/debounce/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ],
+      "debounce": [
+        "dist/debounce/index.d.ts"
+      ]
+    }
+  },
   "dependencies": {
     "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
     "@segment/actions-core": "^3.69.0",
     "@segment/browser-destination-runtime": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
   }
 }
