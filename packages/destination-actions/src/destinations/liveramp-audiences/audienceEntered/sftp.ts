@@ -5,7 +5,6 @@ import { Settings } from '../generated-types'
 
 const LIVERAMP_SFTP_SERVER = 'files.liveramp.com'
 const LIVERAMP_SFTP_PORT = 22
-const sftp = new Client()
 
 function validateSFTP(settings: Settings) {
   if (!settings.sftp_username) {
@@ -21,43 +20,29 @@ function validateSFTP(settings: Settings) {
   }
 }
 
-async function uploadSFTP(settings: Settings, filename: string, fileContent: Buffer) {
-  sftp
-    .connect({
-      host: LIVERAMP_SFTP_SERVER,
-      port: LIVERAMP_SFTP_PORT,
-      username: settings.sftp_username,
-      password: settings.sftp_password
-    })
-    .then(() => {
-      const targetPath = path.join(settings.sftp_folder_path as string, filename)
-      return sftp.put(fileContent, targetPath)
-    })
-    .then(() => {
-      return sftp.end()
-    })
-    .catch((err) => {
-      throw err
-    })
+async function uploadSFTP(sftp: Client, settings: Settings, filename: string, fileContent: Buffer) {
+  return doSFTP(sftp, settings, async (sftp) => {
+    const targetPath = path.join(settings.sftp_folder_path as string, filename)
+    return sftp.put(fileContent, targetPath)
+  })
 }
 
-async function testAuthenticationSFTP(settings: Settings) {
-  sftp
-    .connect({
-      host: LIVERAMP_SFTP_SERVER,
-      port: LIVERAMP_SFTP_PORT,
-      username: settings.sftp_username,
-      password: settings.sftp_password
-    })
-    .then(() => {
-      return sftp.list(settings.sftp_folder_path as string)
-    })
-    .then(() => {
-      return sftp.end()
-    })
-    .catch((err) => {
-      throw err
-    })
+async function doSFTP(sftp: Client, settings: Settings, action: { (sftp: Client): Promise<unknown> }) {
+  await sftp.connect({
+    host: LIVERAMP_SFTP_SERVER,
+    port: LIVERAMP_SFTP_PORT,
+    username: settings.sftp_username,
+    password: settings.sftp_password
+  })
+
+  await action(sftp)
+  await sftp.end()
 }
 
-export { validateSFTP, uploadSFTP, testAuthenticationSFTP }
+async function testAuthenticationSFTP(sftp: Client, settings: Settings) {
+  return doSFTP(sftp, settings, async (sftp) => {
+    return sftp.list(settings.sftp_folder_path as string)
+  })
+}
+
+export { validateSFTP, uploadSFTP, testAuthenticationSFTP, Client }

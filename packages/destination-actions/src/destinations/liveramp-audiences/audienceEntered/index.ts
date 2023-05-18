@@ -2,7 +2,7 @@ import { ActionDefinition, InvalidAuthenticationError, RequestClient } from '@se
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
-import { uploadSFTP, validateSFTP } from './sftp'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -66,8 +66,10 @@ async function processData(request: RequestClient, settings: Settings, payloads:
   switch (settings.upload_mode) {
     case 'S3':
       return await uploadS3(settings, filename, fileContent, request)
-    case 'SFTP':
-      return await uploadSFTP(settings, filename, fileContent)
+    case 'SFTP': {
+      const sftpClient = new ClientSFTP()
+      return await uploadSFTP(sftpClient, settings, filename, fileContent)
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import audienceEntered from './audienceEntered'
-import { testAuthenticationSFTP } from './audienceEntered/sftp'
+import { testAuthenticationSFTP, Client as ClientSFTP } from './audienceEntered/sftp'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Liveramp Audiences',
@@ -64,7 +64,8 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (_, { settings }) => {
       // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
       if (settings.upload_mode == 'SFTP') {
-        await testAuthenticationSFTP(settings)
+        const sftpClient = new ClientSFTP()
+        await testAuthenticationSFTP(sftpClient, settings)
       }
     }
   },
