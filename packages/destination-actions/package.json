@@ -47,7 +47,8 @@
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
     "liquidjs": "^9.37.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {
     "preset": "ts-jest",
