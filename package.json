@@ -4,7 +4,8 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/browser-destinations/destinations/*"
     ]
   },
   "engines": {
