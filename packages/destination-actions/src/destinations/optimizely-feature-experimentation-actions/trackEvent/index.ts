@@ -2,7 +2,7 @@ import { ActionDefinition, omit, PayloadValidationError, IntegrationError } from
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ProjectConfig } from '../types'
-import { buildVisitorAttributes, getEventId, getEventKeys } from './functions'
+import { buildVisitorAttributes, getEventId, getEventKeys, isValidJson } from './functions'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -108,9 +108,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload }) => {
     const result = await request<ProjectConfig>(settings.dataFileUrl)
-    if (!result.data && typeof result.content === 'string') {
+    if (!isValidJson(result.content)) {
       throw new IntegrationError(result.content, 'PROJECT_DEACTIVATED', 400)
     }
+
     const dataFile = result.data
     const eventId = getEventId(dataFile, payload.eventKey)
 

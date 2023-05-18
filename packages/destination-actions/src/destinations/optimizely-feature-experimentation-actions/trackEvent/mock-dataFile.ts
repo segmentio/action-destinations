@@ -121,4 +121,5 @@ export const dataFile = {
   revision: '55'
 }
 
-export const dataFileWithDisabledProject = undefined
+export const dataFileWithDisabledProject =
+  '// This Optimizely project has been deactivated. Visit app.optimizely.com to activate it.'
