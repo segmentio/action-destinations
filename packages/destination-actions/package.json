@@ -33,6 +33,7 @@
   "devDependencies": {
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
+    "@types/ssh2-sftp-client": "^9.0.0",
     "jest": "^27.3.1",
     "nock": "^13.1.4"
   },
@@ -48,7 +49,8 @@
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
     "liquidjs": "^9.37.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {
     "preset": "ts-jest",
