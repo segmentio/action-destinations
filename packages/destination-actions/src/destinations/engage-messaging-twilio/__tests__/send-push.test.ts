@@ -173,7 +173,9 @@ describe('sendPush action', () => {
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       const eligibleExtIds = input.mapping.externalIds.filter(
-        (extId: any) => PushSender.externalIdTypes.includes(extId.type) && extId.subscriptionStatus === 'subscribed'
+        (extId: any) =>
+          PushSender.externalIdTypes.includes(extId.type) &&
+          PushSender.sendableStatuses.includes(extId.subscriptionStatus.toLowerCase())
       )
 
       for (const externalId of eligibleExtIds) {

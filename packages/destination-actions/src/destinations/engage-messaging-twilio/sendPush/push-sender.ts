@@ -25,7 +25,7 @@ interface PushApiError {
 }
 
 export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
-  static externalIdTypes = ['ios.push_token', 'android.push_token']
+  static readonly externalIdTypes = ['ios.push_token', 'android.push_token']
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
   private retryableStatusCodes = [500, 401, 429]
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
@@ -46,7 +46,8 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       // we send notifications to every eligible device (subscribed and of a push type)
       const recipientDevices = this.payload.externalIds?.filter(
         (extId) =>
-          extId.subscriptionStatus?.toLowerCase() === 'subscribed' &&
+          extId.subscriptionStatus &&
+          MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toLowerCase()) &&
           extId.type &&
           PushSender.externalIdTypes.includes(extId.type)
       )
