@@ -4,7 +4,8 @@ import type {
   BaseActionDefinition,
   ExecuteInput,
   JSONLikeObject,
-  GlobalSetting
+  GlobalSetting,
+  JSONValue
 } from '@segment/actions-core'
 
 export type ActionInput<Settings, Payload> = ExecuteInput<Settings, Payload> & {
@@ -60,4 +61,9 @@ export interface Subscription {
   enabled: boolean
   subscribe: string
   mapping: JSONLikeObject
+}
+
+export interface PluginFactory {
+  (settings: JSONValue): Plugin | Plugin[] | Promise<Plugin | Plugin[]>
+  pluginName: string
 }
