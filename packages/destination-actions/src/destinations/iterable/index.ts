@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://api.iterable.com/api/campaigns', {
+      return request('https://api.iterable.com/api/webhooks', {
         method: 'get',
         headers: { 'Api-Key': settings.apiKey }
       })

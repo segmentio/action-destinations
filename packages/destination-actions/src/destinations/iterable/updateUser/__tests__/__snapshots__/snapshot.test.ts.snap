@@ -7,7 +7,6 @@ Object {
   },
   "email": "lo@de.uz",
   "mergeNestedObjects": true,
-  "preferUserId": true,
   "userId": "^qMtTUbd*oM",
 }
 `;

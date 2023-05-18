@@ -27,7 +27,7 @@ export const USER_ID_FIELD: InputField = {
 }
 
 export const USER_DATA_FIELDS: InputField = {
-  label: 'User Data fields',
+  label: 'User Data Fields',
   description: 'Data to store on the user profile.',
   type: 'object',
   required: false,
@@ -35,7 +35,7 @@ export const USER_DATA_FIELDS: InputField = {
 }
 
 export const EVENT_DATA_FIELDS: InputField = {
-  label: 'Event Data fields',
+  label: 'Event Data Fields',
   description: 'Additional event properties.',
   type: 'object',
   required: false,
@@ -66,15 +66,6 @@ export const TEMPLATE_ID_FIELD: InputField = {
   default: { '@path': '$.properties.templateId' }
 }
 
-export const PREFER_USER_ID_FIELD: InputField = {
-  label: 'Prefer User ID',
-  description:
-    "Only respected in email-based projects. Whether or not a new user should be created if the request includes a userId that doesn't yet exist in the Iterable project.",
-  type: 'boolean',
-  required: false,
-  default: false
-}
-
 export const MERGE_NESTED_OBJECTS_FIELD: InputField = {
   label: 'Merge Nested Objects',
   description:
@@ -95,47 +86,52 @@ export const ITEMS_FIELD: InputField = {
   properties: {
     id: {
       label: 'Product Id',
+      description: 'The unique identifier of the commerce item in the cart.',
       type: 'string',
       required: true
     },
     name: {
       label: 'Product Name',
+      description: 'The name or title of the product in the cart.',
       type: 'string',
       required: true
     },
     sku: {
       label: 'Product SKU',
+      description: 'The Stock Keeping Unit (SKU) code that identifies the specific product.',
       type: 'string'
     },
     quantity: {
       label: 'Quantity',
+      description: 'The quantity of the product in the cart.',
       type: 'integer',
       required: true
     },
     price: {
       label: 'Price',
+      description: 'The unit price of the product in the cart.',
       type: 'number',
       required: true
     },
     description: {
       label: 'Product Description',
+      description: 'A brief description of the product in the cart.',
       type: 'string'
     },
     categories: {
       label: 'Product Category',
+      description: 'A category name or label associated with the product in the cart.',
       type: 'string'
     },
     url: {
       label: 'Product URL',
+      description: 'The URL to view or purchase the product in the cart.',
       type: 'string'
     },
     imageUrl: {
       label: 'Product Image URL',
+      description: 'The URL of an image representing the product in the cart.',
       type: 'string'
-    },
-    dataFields: {
-      label: 'Additional item properties',
-      type: 'object'
     }
   },
   default: {
@@ -168,11 +164,23 @@ export const ITEMS_FIELD: InputField = {
         },
         description: {
           '@path': 'description'
-        },
-        dataFields: {
-          '@path': ''
         }
       }
     ]
+  }
+}
+
+export type CommerceItem = {
+  id?: string
+  name?: string
+  sku?: string
+  quantity?: number
+  price?: number
+  description?: string
+  categories?: string[]
+  url?: string
+  imageUrl?: string
+  dataFields?: {
+    [k: string]: unknown
   }
 }

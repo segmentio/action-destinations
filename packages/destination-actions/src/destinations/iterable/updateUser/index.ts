@@ -1,13 +1,8 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  EMAIL_FIELD,
-  USER_ID_FIELD,
-  USER_DATA_FIELDS,
-  PREFER_USER_ID_FIELD,
-  MERGE_NESTED_OBJECTS_FIELD
-} from '../shared-fields'
+import { EMAIL_FIELD, USER_ID_FIELD, USER_DATA_FIELDS, MERGE_NESTED_OBJECTS_FIELD } from '../shared-fields'
+import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User',
@@ -23,9 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     dataFields: {
       ...USER_DATA_FIELDS
-    },
-    preferUserId: {
-      ...PREFER_USER_ID_FIELD
     },
     mergeNestedObjects: {
       ...MERGE_NESTED_OBJECTS_FIELD
@@ -44,7 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
       dataFields?: {
         [k: string]: unknown
       }
-      preferUserId?: boolean
       mergeNestedObjects?: boolean
     }
 
@@ -53,8 +44,10 @@ const action: ActionDefinition<Settings, Payload> = {
       delete dataFields.phone
     }
 
+    const formattedDataFields = convertDatesInObject(dataFields ?? {})
     const userUpdateRequest: UserUpdateRequest = {
-      ...payload
+      ...payload,
+      dataFields: formattedDataFields
     }
 
     return request('https://api.iterable.com/api/users/update', {

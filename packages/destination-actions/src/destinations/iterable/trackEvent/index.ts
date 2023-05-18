@@ -10,6 +10,7 @@ import {
   TEMPLATE_ID_FIELD,
   EVENT_DATA_FIELDS
 } from '../shared-fields'
+import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -67,9 +68,11 @@ const action: ActionDefinition<Settings, Payload> = {
       templateId?: number
     }
 
-    const trackEventRequest: TrackEventRequest =  {
-     ...payload,
-     createdAt: dayjs(payload.createdAt).unix()
+    const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
+    const trackEventRequest: TrackEventRequest = {
+      ...payload,
+      dataFields: formattedDataFields,
+      createdAt: dayjs(payload.createdAt).unix()
     }
 
     return request('https://api.iterable.com/api/events/track', {

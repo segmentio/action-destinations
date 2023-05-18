@@ -30,7 +30,7 @@ describe('Iterable.updateCart', () => {
     ).rejects.toThrowError(PayloadValidationError)
   })
 
-  it('updates the cart when all required fields are present', async () => {
+  it('should work with default mappings', async () => {
     const event = createTestEvent({
       type: 'track',
       userId: 'user123',
@@ -78,17 +78,14 @@ describe('Iterable.updateCart', () => {
             category: 'Games',
             sku: '45790-32',
             url: 'https://www.example.com/product/path',
-            image_url: 'https://www.example.com/product/path.jpg',
-            foo: 'bar'
+            image_url: 'https://www.example.com/product/path.jpg'
           },
           {
             product_id: '507f1f77bcf86cd799439017',
             name: 'Replacement Monopoly Tokens',
             price: 5,
             quantity: 1,
-            url: 'https://www.example.com/product/path',
-            color: 'silver',
-            size: 'small'
+            url: 'https://www.example.com/product/path'
           }
         ]
       }
@@ -120,9 +117,7 @@ describe('Iterable.updateCart', () => {
           categories: ['Games'],
           url: 'https://www.example.com/product/path',
           imageUrl: 'https://www.example.com/product/path.jpg',
-          dataFields: {
-            foo: 'bar'
-          }
+          dataFields: {}
         },
         {
           id: '507f1f77bcf86cd799439017',
@@ -130,10 +125,7 @@ describe('Iterable.updateCart', () => {
           price: 5,
           quantity: 1,
           url: 'https://www.example.com/product/path',
-          dataFields: {
-            color: 'silver',
-            size: 'small'
-          }
+          dataFields: {}
         }
       ]
     })

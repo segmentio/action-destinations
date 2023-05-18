@@ -16,10 +16,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Only respected in email-based projects. Whether or not a new user should be created if the request includes a userId that doesn't yet exist in the Iterable project.
-   */
-  preferUserId?: boolean
-  /**
    * If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.
    */
   mergeNestedObjects?: boolean

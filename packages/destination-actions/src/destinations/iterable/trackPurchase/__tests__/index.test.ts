@@ -52,8 +52,7 @@ describe('Iterable.trackPurchase', () => {
             category: 'Games',
             sku: '45790-32',
             url: 'https://www.example.com/product/path',
-            image_url: 'https://www.example.com/product/path.jpg',
-            foo: 'bar'
+            image_url: 'https://www.example.com/product/path.jpg'
           }
         ]
       }
@@ -81,9 +80,7 @@ describe('Iterable.trackPurchase', () => {
           categories: ['Games'],
           url: 'https://www.example.com/product/path',
           imageUrl: 'https://www.example.com/product/path.jpg',
-          dataFields: {
-            foo: 'bar'
-          }
+          dataFields: {}
         }
       ]
     })
