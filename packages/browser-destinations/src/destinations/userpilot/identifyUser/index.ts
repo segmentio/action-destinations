@@ -39,7 +39,14 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   },
   perform: (_, event) => {
     const userId = event.payload.userId || event.payload.anonymousId || ''
-    window.userpilot.identify(userId, event.payload.traits || {})
+    const traits = event.payload.traits || {}
+
+    if (traits?.createdAt) {
+      traits.created_at = traits.createdAt
+      delete traits.createdAt
+    }
+
+    window.userpilot.identify(userId, traits)
   }
 }
 
