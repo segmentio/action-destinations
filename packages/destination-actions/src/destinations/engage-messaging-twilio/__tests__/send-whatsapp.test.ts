@@ -9,11 +9,14 @@ const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
-function createLoggerMock()
-{
-  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+function createLoggerMock() {
+  return {
+    level: 'error',
+    name: 'test',
+    error: jest.fn() as Logger['error'],
+    info: jest.fn() as Logger['info']
+  } as Logger
 }
-
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
@@ -288,14 +291,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses).toHaveLength(0)
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+        expect.stringContaining('TE Messaging: SMS Invalid subscription statuses found in externalIds'),
         expect.anything()
       )
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+        expect.stringContaining('TE Messaging: SMS Not sending message, because sendabilityStatus'),
         expect.anything()
       )
-  
     })
 
     it('formats the to number correctly for whatsapp', async () => {

@@ -3,7 +3,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { IntegrationError, RequestOptions } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
@@ -13,9 +13,6 @@ const Liquid = new LiquidJs()
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  // private readonly EXTERNAL_ID_KEY = 'phone'
-  // private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
-  // private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
   static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]
@@ -60,10 +57,10 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       return Object.fromEntries(parsedEntries)
     } catch (error: unknown) {
       this.logDetails['error'] = error instanceof Error ? error.message : error?.toString()
-      this.logError(`${this.getChannelType()} liquid template parsing failure - ${this.settings.spaceId}`)
+      this.logError(`unable to parse templating - ${this.settings.spaceId}`)
       throw new IntegrationError(
-        `Unable to parse liquid templating in ${this.getChannelType()}`,
-        `${this.getChannelType()} liquid templating parse failure`,
+        `Unable to parse templating in ${this.getChannelType()}`,
+        `${this.getChannelType()} templating parse failure`,
         400
       )
     }
@@ -91,17 +88,25 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   logInfo(...msgs: string[]) {
     const [firstMsg, ...rest] = msgs
-    this.logger?.info(`TE Messaging: ${firstMsg}`, ...rest, JSON.stringify(this.logDetails))
+    this.logger?.info(
+      `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
+      ...rest,
+      JSON.stringify(this.logDetails)
+    )
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logError(error?: any, ...msgs: string[]) {
     const [firstMsg, ...rest] = msgs
     if (typeof error === 'string') {
-      this.logger?.error(`TE Messaging: ${error}`, ...msgs, JSON.stringify(this.logDetails))
+      this.logger?.error(
+        `TE Messaging: ${this.getChannelType().toUpperCase()} ${error}`,
+        ...msgs,
+        JSON.stringify(this.logDetails)
+      )
     } else {
       this.logger?.error(
-        `TE Messaging: ${firstMsg}`,
+        `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
         ...rest,
         error instanceof Error ? error.message : error?.toString(),
         JSON.stringify(this.logDetails)
@@ -169,7 +174,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     let template
     try {
       if (!this.payload.contentSid) {
-        throw new Error('Content SID not in payload')
+        throw new PayloadValidationError('Content SID not in payload')
       }
 
       this.logInfo('Get content template from Twilio by ContentSID')
@@ -189,7 +194,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.tags.push('reason:get_content_template')
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       this.logError(
-        `${this.getChannelType()} failed request to fetch content template from Twilio Content API - ${
+        `failed request to fetch content template from Twilio Content API - ${
           this.settings.spaceId
         } - ${error}, ${JSON.stringify(error)})}`
       )
@@ -202,13 +207,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   private extractTemplateTypes(template: ContentTemplateResponse): ContentTemplateTypes {
     if (!template.types) {
       this.logError(
-        `${this.getChannelType()} template from Twilio Content API does not contain a template type - ${
+        `template from Twilio Content API does not contain a template type - ${
           this.settings.spaceId
         } - [${JSON.stringify(template)}]`
       )
       throw new IntegrationError(
         'Unexpected response from Twilio Content API',
-        `${this.getChannelType()} template does not contain a template type`,
+        `template does not contain a template type`,
         500
       )
     }
@@ -216,7 +221,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if (this.supportedTemplateTypes.includes(type)) {
       return { body: template.types[type].body, media: template.types[type].media }
     } else {
-      this.logError(`${this.getChannelType()} unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
       throw new IntegrationError(
         'Unsupported content type',
         `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
@@ -264,7 +269,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
       this.logDetails['error'] = twilioApiError.response
 
-      this.logError(`Twilio API error - ${this.settings.spaceId}`)
+      this.logError(`Twilio Programmable API error - ${this.settings.spaceId}`)
       const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
       this.tags.push(`twilio_status_code:${statusCode}`)
       this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)

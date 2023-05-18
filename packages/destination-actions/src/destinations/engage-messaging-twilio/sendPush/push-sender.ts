@@ -9,7 +9,7 @@ interface BodyCustomDataBundle {
 }
 
 export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
-  private externalIdTypes = ['ios.push_token', 'android.push_token']
+  static externalIdTypes = ['ios.push_token', 'android.push_token']
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
   private retryableStatusCodes = [500, 401, 429]
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
@@ -21,7 +21,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   async send() {
     this.initLogDetails()
 
-    return this.logWrap([`Destination Action ${this.getChannelType()}`], async () => {
+    return this.logWrap([`Destination Action ${this.getChannelType().toUpperCase()}`], async () => {
       if (!this.payload.send) {
         this.logInfo(`Not sending message, payload.send = ${this.payload.send}`)
         this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
@@ -32,7 +32,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         (extId) =>
           extId.subscriptionStatus?.toLowerCase() === 'subscribed' &&
           extId.type &&
-          this.externalIdTypes.includes(extId.type)
+          PushSender.externalIdTypes.includes(extId.type)
       )
 
       if (!recipientDevices?.length) {
@@ -51,6 +51,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
        * webhook callback does not include the push token/external id value
        * this is a limitation that will be handled post beta
        */
+      const responses = []
       const failedSends = []
       let failureIsRetryable = false
       let lastError
@@ -108,8 +109,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
           this.tags.push(`twilio_status_code:${response.status}`)
           this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
-
-          return response
+          responses.push(response)
         } catch (error: unknown) {
           /* on unexpected fail, do not block rest of phones from receiving push notification
            * we dont want to retry the entire send again either - if some succeeded and some failed,
@@ -131,7 +131,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
        * this is a "best-effort"
        */
       if (failureIsRetryable && failedSends.length === recipientDevices.length) {
-        this.logError(`${this.getChannelType()} all devices failed send - ${this.settings.spaceId}`)
+        this.logError(`all devices failed send - ${this.settings.spaceId}`)
         throw lastError
       }
 
@@ -142,10 +142,12 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           this.tags
         )
       }
+
+      return responses
     })
   }
 
-  async getBody(_contactVector?: string): Promise<BodyCustomDataBundle> {
+  async getBody(): Promise<BodyCustomDataBundle> {
     const templateTypes = await this.getContentTemplateTypes()
     const profile = { traits: this.payload.traits }
 
@@ -174,12 +176,12 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         Sound: this.payload.customizations?.sound,
         Priority: this.payload.customizations?.priority,
         TimeToLive: this.payload.customizations?.ttl,
-        FcmPayload: {
+        FcmPayload: this.removeEmpties({
           mutable_content: true,
           notification: {
             badge: this.payload.customizations?.badgeAmount
           }
-        },
+        }),
         ApnPayload: {
           aps: {
             'mutable-content': 1,
@@ -197,10 +199,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       return { requestBody, customData }
     } catch (error) {
       this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
-      this.logError(
-        `${this.getChannelType()} unable to construct request body - ${this.settings.spaceId}`,
-        JSON.stringify(error)
-      )
+      this.logError(`unable to construct request body - ${this.settings.spaceId}`, JSON.stringify(error))
       throw new IntegrationError('Unable to construct request body', 'Twilio Request Body Failure', 400)
     }
   }
@@ -212,7 +211,10 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   private removeEmpties(obj: Record<string, unknown>): Record<string, unknown> {
     return JSON.parse(
       JSON.stringify(obj, (_, value) => {
-        return value === null || value?.length === 0 ? undefined : value
+        if (value == null || value?.length === 0 || (typeof value === 'object' && Object.keys(value).length === 0)) {
+          return undefined
+        }
+        return value
       })
     )
   }

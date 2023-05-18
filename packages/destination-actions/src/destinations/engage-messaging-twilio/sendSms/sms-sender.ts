@@ -4,9 +4,11 @@ import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessage } from '../utils/phone-message'
 
 export class SmsMessageSender extends PhoneMessage<Payload> {
+  protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
+
   async getBody(phone: string): Promise<URLSearchParams> {
     if (!this.payload.body && !this.payload.contentSid) {
-      this.logError(`Unable to process SMS, no body provided and no content sid provided - ${this.settings.spaceId}`)
+      this.logError(`unable to process, no body provided and no content sid provided - ${this.settings.spaceId}`)
       throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
     }
 
@@ -67,14 +69,10 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
     return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 
-  private getProfileTraits = async () => {
+  private async getProfileTraits() {
     if (!this.payload.userId) {
-      this.logError(`Unable to process SMS, no userId provided and no traits provided - ${this.settings.spaceId}`)
-      throw new IntegrationError(
-        'Unable to process sms, no userId provided and no traits provided',
-        'Invalid parameters',
-        400
-      )
+      this.logError(`Unable to process, no userId provided and no traits provided - ${this.settings.spaceId}`)
+      throw new PayloadValidationError('Unable to process sms, no userId provided and no traits provided')
     }
     try {
       const { region, profileApiEnvironment, spaceId, profileApiAccessToken } = this.settings
@@ -97,7 +95,7 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      this.logError(`SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
+      this.logError(`profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }
