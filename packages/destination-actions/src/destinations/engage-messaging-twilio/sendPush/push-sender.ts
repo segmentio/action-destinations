@@ -57,7 +57,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       }
 
       const { requestBody, customData } = await this.getBody()
-      const twilioHostname = this.settings.twilioHostname?.length || this.DEFAULT_HOSTNAME
+      const twilioHostname = this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
       const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
         'base64'
       )
@@ -110,7 +110,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
             body?.toString().length,
             this.tags
           )
-          console.error(`https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`)
+
           const response = await this.request(
             `https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`,
             {
@@ -131,7 +131,6 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
            * if we do, we run the risk of spamming devices that succeeded with centrifuge retries
            * it's accepted that the user received the notification since all devices in externalIds belong to them
            */
-          console.error(error)
           if (error instanceof Object) {
             const apiError = error as PushApiError
             responses.push(apiError.response)
