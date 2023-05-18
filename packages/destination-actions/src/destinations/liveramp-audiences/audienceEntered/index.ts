@@ -65,10 +65,10 @@ async function processData(request: RequestClient, settings: Settings, payloads:
 
   switch (settings.upload_mode) {
     case 'S3':
-      return await uploadS3(settings, filename, fileContent, request)
+      return uploadS3(settings, filename, fileContent, request)
     case 'SFTP': {
       const sftpClient = new ClientSFTP()
-      return await uploadSFTP(sftpClient, settings, filename, fileContent)
+      return uploadSFTP(sftpClient, settings, filename, fileContent)
     }
   }
 }
