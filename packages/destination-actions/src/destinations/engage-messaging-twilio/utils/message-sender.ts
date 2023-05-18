@@ -13,8 +13,8 @@ const Liquid = new LiquidJs()
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  static nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
-  static sendableStatuses = ['subscribed', 'true']
+  static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
+  static readonly sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]
 
   constructor(
