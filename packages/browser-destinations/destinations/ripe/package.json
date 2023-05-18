@@ -1,8 +1,13 @@
 {
-  "name": "@segmentio/actions-ripe",
-  "version": "1.0.0",
+  "name": "@segment/actions-ripe",
+  "version": "0.0.0",
+  "module": "./dist",
+  "typings": "./dist",
   "dependencies": {
     "@segment/actions-core": "^3.69.0",
     "@segment/browser-destination-runtime": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
   }
 }

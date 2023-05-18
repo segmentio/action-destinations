@@ -1,7 +1,13 @@
 {
-  "name": "@segmentio/actions-braze-cloud-plugins",
-  "version": "1.0.0",
+  "name": "@segment/actions-braze-cloud-plugins",
+  "version": "0.0.0",
+  "module": "./dist",
+  "typings": "./dist",
   "dependencies": {
+    "@segment/actions-braze-web": "^0.0.0",
     "@segment/browser-destination-runtime": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
   }
 }

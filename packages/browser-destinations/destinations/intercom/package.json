@@ -1,9 +1,14 @@
 {
-  "name": "@segmentio/actions-intercom-web",
-  "version": "1.0.0",
+  "name": "@segment/actions-intercom-web",
+  "version": "0.0.0",
+  "module": "./dist",
+  "typings": "./dist",
   "dependencies": {
     "@segment/actions-shared": "^1.50.0",
     "@segment/actions-core": "^3.69.0",
     "@segment/browser-destination-runtime": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
   }
 }
