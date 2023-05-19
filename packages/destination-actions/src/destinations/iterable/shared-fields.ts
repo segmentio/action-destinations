@@ -34,6 +34,14 @@ export const USER_DATA_FIELDS: InputField = {
   default: { '@path': '$.traits' }
 }
 
+export const USER_PHONE_NUMBER_FIELD: InputField = {
+  label: 'User Phone Number',
+  description: 'User phone number. Must be a valid phone number including country code. e.g. +14158675309',
+  type: 'string',
+  required: false,
+  default: { '@path': '$.traits.phone' }
+}
+
 export const EVENT_DATA_FIELDS: InputField = {
   label: 'Event Data Fields',
   description: 'Additional event properties.',

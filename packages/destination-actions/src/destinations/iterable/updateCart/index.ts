@@ -7,6 +7,7 @@ import {
   ITEMS_FIELD,
   EMAIL_FIELD,
   USER_DATA_FIELDS,
+  USER_PHONE_NUMBER_FIELD,
   CommerceItem
 } from '../shared-fields'
 import { transformItems, convertDatesInObject } from '../utils'
@@ -33,6 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         userId: { '@path': '$.userId' },
         dataFields: { '@path': '$.context.traits' },
+        phoneNumber: { '@path': '$.context.traits.phone' },
         mergeNestedObjects: false
       },
       properties: {
@@ -47,6 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         dataFields: {
           ...USER_DATA_FIELDS
+        },
+        phoneNumber: {
+          ...USER_PHONE_NUMBER_FIELD
         }
       }
     },
@@ -72,12 +77,24 @@ const action: ActionDefinition<Settings, Payload> = {
       items: CommerceItem[]
     }
 
+    // Delete redundant 'phone' field if it exists in user dataFields
+    if (user.dataFields?.phone) {
+      delete user.dataFields.phone
+    }
+
+    // Store the phoneNumber value before deleting from the user object
+    const phoneNumber = user.phoneNumber
+    delete user.phoneNumber
+
     const formattedDataFields = convertDatesInObject(user.dataFields ?? {})
 
     const updateCartRequest: UpdateCartRequest = {
       user: {
         ...user,
-        dataFields: formattedDataFields
+        dataFields: {
+          ...formattedDataFields,
+          phoneNumber: phoneNumber
+        }
       },
       items: transformItems(items)
     }

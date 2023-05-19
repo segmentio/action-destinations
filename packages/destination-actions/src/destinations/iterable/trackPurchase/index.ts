@@ -12,6 +12,7 @@ import {
   TEMPLATE_ID_FIELD,
   EVENT_DATA_FIELDS,
   USER_DATA_FIELDS,
+  USER_PHONE_NUMBER_FIELD,
   CommerceItem
 } from '../shared-fields'
 import { transformItems, convertDatesInObject } from '../utils'
@@ -48,6 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         userId: { '@path': '$.userId' },
         dataFields: { '@path': '$.context.traits' },
+        phoneNumber: { '@path': '$.context.traits.phone' },
         mergeNestedObjects: false
       },
       properties: {
@@ -62,6 +64,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         mergeNestedObjects: {
           ...MERGE_NESTED_OBJECTS_FIELD
+        },
+        phoneNumber: {
+          ...USER_PHONE_NUMBER_FIELD
         }
       }
     },
@@ -120,13 +125,26 @@ const action: ActionDefinition<Settings, Payload> = {
       delete dataFields.products
     }
 
+    // Delete redundant 'phone' field if it exists in user dataFields
+    if (user.dataFields?.phone) {
+      delete user.dataFields.phone
+    }
+
+    // Store the phoneNumber value before deleting from the user object
+    const phoneNumber = user.phoneNumber
+    delete user.phoneNumber
+
     const formattedDataFields = convertDatesInObject(dataFields ?? {})
+    const formattedUserDataFields = convertDatesInObject(user.dataFields ?? {})
 
     const trackPurchaseRequest: TrackPurchaseRequest = {
       ...payload,
       user: {
-        ...payload.user,
-        dataFields: convertDatesInObject(payload.user.dataFields ?? {})
+        ...user,
+        dataFields: {
+          ...formattedUserDataFields,
+          phoneNumber: phoneNumber
+        }
       },
       items: transformItems(payload.items),
       createdAt: dayjs(payload.createdAt).unix(),

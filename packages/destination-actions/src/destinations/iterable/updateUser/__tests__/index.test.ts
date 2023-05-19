@@ -6,7 +6,7 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Iterable.updateUser', () => {
   it('works with default mappings', async () => {
-    const event = createTestEvent()
+    const event = createTestEvent({ type: 'identify' })
 
     nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
 
@@ -35,7 +35,7 @@ describe('Iterable.updateUser', () => {
     ).rejects.toThrowError(PayloadValidationError)
   })
 
-  it('maps phone to phoneNumber in dataFields', async () => {
+  it('maps phoneNumber in dataFields', async () => {
     const event = createTestEvent({
       type: 'identify',
       userId: 'user1234',

@@ -16,6 +16,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * User phone number. Must be a valid phone number including country code. e.g. +14158675309
+   */
+  phoneNumber?: string
+  /**
    * If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.
    */
   mergeNestedObjects?: boolean

@@ -23,6 +23,10 @@ export interface Payload {
     dataFields?: {
       [k: string]: unknown
     }
+    /**
+     * User phone number. Must be a valid phone number including country code. e.g. +14158675309
+     */
+    phoneNumber?: string
   }
   /**
    * Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.

@@ -30,7 +30,7 @@ describe('Iterable.updateCart', () => {
     ).rejects.toThrowError(PayloadValidationError)
   })
 
-  it('should work with default mappings', async () => {
+  it('works with default mappings', async () => {
     const event = createTestEvent({
       type: 'track',
       userId: 'user123',
@@ -65,7 +65,8 @@ describe('Iterable.updateCart', () => {
       context: {
         traits: {
           email: 'test@example.com',
-          foo: 'baz'
+          foo: 'baz',
+          phone: '+14158675309'
         }
       },
       properties: {
@@ -104,7 +105,8 @@ describe('Iterable.updateCart', () => {
         userId: 'user123',
         email: 'test@example.com',
         dataFields: {
-          foo: 'baz'
+          foo: 'baz',
+          phoneNumber: '+14158675309'
         }
       },
       items: [
