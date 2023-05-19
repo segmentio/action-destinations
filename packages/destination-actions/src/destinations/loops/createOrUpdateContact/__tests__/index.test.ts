@@ -13,27 +13,43 @@ describe('Loops.createOrUpdateContact', () => {
         settings: { apiKey: LOOPS_API_KEY }
       })
     } catch (err) {
-      expect(err.message).toContain("missing the required field 'email'.")
       expect(err.message).toContain("missing the required field 'userId'.")
+      expect(err.message).toContain("missing the required field 'email'.")
     }
   })
 
   it('should work', async () => {
-    const testPayload = {
+    const testPayloadIn = {
+      createdAt: '2025-05-05T14:17:38.089Z',
+      customAttributes: {
+        favoriteColor: 'blue'
+      },
       email: 'test@example.com',
       firstName: 'Ellen',
       lastName: 'Richards',
       source: 'Segment',
+      subscribed: true,
       userGroup: 'Alum',
       userId: 'some-id-1'
     }
-    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(200, {
+    const testPayloadOut = {
+      createdAt: '2025-05-05T14:17:38.089Z',
+      favoriteColor: 'blue',
+      email: 'test@example.com',
+      firstName: 'Ellen',
+      lastName: 'Richards',
+      source: 'Segment',
+      subscribed: true,
+      userGroup: 'Alum',
+      userId: 'some-id-1'
+    }
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayloadOut).reply(200, {
       success: true,
       id: 'someId'
     })
 
     const responses = await testDestination.testAction('createOrUpdateContact', {
-      mapping: testPayload,
+      mapping: testPayloadIn,
       settings: { apiKey: LOOPS_API_KEY }
     })
 

@@ -2,10 +2,13 @@
 
 exports[`Testing snapshot for Loops's createOrUpdateContact destination action: all fields 1`] = `
 Object {
+  "createdAt": "2021-02-01T00:00:00.000Z",
   "email": "macepa@tariviz.sm",
   "firstName": "IAIhDY9yOUxjQs(FSFfe",
   "lastName": "IAIhDY9yOUxjQs(FSFfe",
   "source": "IAIhDY9yOUxjQs(FSFfe",
+  "subscribed": false,
+  "testType": "IAIhDY9yOUxjQs(FSFfe",
   "userGroup": "IAIhDY9yOUxjQs(FSFfe",
   "userId": "IAIhDY9yOUxjQs(FSFfe",
 }
