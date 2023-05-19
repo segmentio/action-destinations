@@ -12,8 +12,8 @@ import {
 import { transformItems, convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Cart',
-  description: 'Updates shoppingCartItems field on the user profile.',
+  title: 'Cart Updates',
+  description: 'Updates the shoppingCartItems field on the user profile.',
   defaultSubscription: 'type = "track" and event == "Update Cart"',
   fields: {
     user: {
