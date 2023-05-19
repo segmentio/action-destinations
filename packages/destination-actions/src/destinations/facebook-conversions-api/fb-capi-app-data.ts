@@ -8,8 +8,8 @@ export const generate_app_data = (app_data: AppData): Object | undefined => {
   }
 
   return {
-    advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled,
-    application_tracking_enabled: app_data?.application_tracking_enabled,
+    advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled ? 1 : 0,
+    application_tracking_enabled: app_data?.application_tracking_enabled ? 1 : 0,
     extinfo: [
       app_data?.version ?? '',
       app_data?.packageName ?? '',
@@ -77,7 +77,7 @@ export const app_data_field: InputField = {
       type: 'string'
     },
     osVersion: {
-      label: 'OS Version',
+      label: '*Required for app events* OS Version',
       description: `Example: 13.4.1`,
       type: 'string'
     },
