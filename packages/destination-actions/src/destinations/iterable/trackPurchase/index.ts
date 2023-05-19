@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     total: {
       label: 'Total',
-      description: 'Total order dollar amount.',
+      description: 'Total order amount.',
       type: 'number',
       required: true,
       default: { '@path': '$.properties.total' }
