@@ -2,7 +2,11 @@
 
 export interface Settings {
   /**
-   * Found on your settings page.
+   * Found on your general settings page.
    */
   api_key: string
+  /**
+   * Found on your general settings page.
+   */
+  server_token: string
 }
