@@ -95,6 +95,89 @@ export interface Payload {
     partner_name?: string
   }
   /**
+   * TODO
+   */
+  app_data_field?: {
+    /**
+     * Send app data to Facebook?
+     */
+    use_app_data?: boolean
+    /**
+     * *Required for app events*
+     *             Use this field to specify ATT permission on an iOS 14.5+ device. Set to 0 for disabled or 1 for enabled.
+     */
+    advertiser_tracking_enabled?: boolean
+    /**
+     * *Required for app events*
+     *             A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled.
+     */
+    application_tracking_enabled?: boolean
+    /**
+     * *Required for app events* Example: i2
+     */
+    version?: string
+    /**
+     * Example: com.facebook.sdk.samples.hellofacebook
+     */
+    packageName?: string
+    /**
+     * Example: 1.0
+     */
+    shortVersion?: string
+    /**
+     * Example: 1.0 long
+     */
+    longVersion?: string
+    /**
+     * Example: 13.4.1
+     */
+    osVersion?: string
+    /**
+     * Example: iPhone5,1
+     */
+    deviceName?: string
+    /**
+     * Example: En_US
+     */
+    locale?: string
+    /**
+     * Example: 'PST'
+     */
+    timezone?: string
+    /**
+     * Example: AT&T
+     */
+    carrier?: string
+    /**
+     * Example: 1080
+     */
+    width?: string
+    /**
+     * Example: 1920
+     */
+    height?: string
+    /**
+     * Example: 2.0
+     */
+    density?: string
+    /**
+     * Example: 8
+     */
+    cpuCores?: string
+    /**
+     * Example: 64
+     */
+    storageSize?: string
+    /**
+     * Example: 32
+     */
+    freeStorage?: string
+    /**
+     * Example: USA/New York
+     */
+    deviceTimezone?: string
+  }
+  /**
    * The category of the content associated with the event.
    */
   content_category?: string
