@@ -99,6 +99,10 @@ export interface Payload {
    */
   app_data_field?: {
     /**
+     * Send app data to Facebook?
+     */
+    use_app_data?: boolean
+    /**
      * *Required for app events*
      *             Use this field to specify ATT permission on an iOS 14.5+ device. Set to 0 for disabled or 1 for enabled.
      */

@@ -2,7 +2,11 @@ import { InputField } from '@segment/actions-core'
 import { Payload } from './addToCart/generated-types'
 
 type AppData = Payload['app_data_field']
-export const generate_app_data = (app_data: AppData) => {
+export const generate_app_data = (app_data: AppData): Object | undefined => {
+  if (!app_data || !app_data.use_app_data) {
+    return undefined
+  }
+
   return {
     advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled,
     application_tracking_enabled: app_data?.application_tracking_enabled,
@@ -30,6 +34,12 @@ export const app_data_field: InputField = {
   description: 'TODO',
   type: 'object',
   properties: {
+    use_app_data: {
+      label: 'Use App Data?',
+      description: 'Send app data to Facebook?',
+      type: 'boolean',
+      default: false
+    },
     advertiser_tracking_enabled: {
       label: 'Advertiser Tracking Enabled',
       description: `*Required for app events*
@@ -40,8 +50,7 @@ export const app_data_field: InputField = {
       label: 'Application Tracking Enabled',
       type: 'boolean',
       description: `*Required for app events*
-            A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled. `,
-      default: { '@path': '$.context.device.adTrackingEnabled' }
+            A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled. `
     },
     version: {
       label: 'ExtInfo Version',
@@ -55,8 +64,7 @@ export const app_data_field: InputField = {
     packageName: {
       label: 'Package Name',
       description: `Example: com.facebook.sdk.samples.hellofacebook`,
-      type: 'string',
-      default: { '@path': '$.context.app.namespace' }
+      type: 'string'
     },
     shortVersion: {
       label: 'Short Version',
@@ -66,26 +74,22 @@ export const app_data_field: InputField = {
     longVersion: {
       label: 'Long Version',
       description: `Example: 1.0 long`,
-      type: 'string',
-      default: { '@path': '$.context.app.version' }
+      type: 'string'
     },
     osVersion: {
       label: 'OS Version',
       description: `Example: 13.4.1`,
-      type: 'string',
-      default: { '@path': '$.context.device.os.version' }
+      type: 'string'
     },
     deviceName: {
       label: 'Device Model Name',
       description: `Example: iPhone5,1`,
-      type: 'string',
-      default: { '@path': '$.context.device.model' }
+      type: 'string'
     },
     locale: {
       label: 'Locale',
       description: `Example: En_US`,
-      type: 'string',
-      default: { '@path': '$.context.locale' }
+      type: 'string'
     },
     timezone: {
       label: 'Timezone Abbreviation',
@@ -95,26 +99,22 @@ export const app_data_field: InputField = {
     carrier: {
       label: 'Carrier Name',
       description: 'Example: AT&T',
-      type: 'string',
-      default: { '@path': '$.context.network.carrier' }
+      type: 'string'
     },
     width: {
       label: 'Screen Width',
       description: 'Example: 1080',
-      type: 'string',
-      default: { '@path': '$.context.screen.width' }
+      type: 'string'
     },
     height: {
       label: 'Screen Height',
       description: 'Example: 1920',
-      type: 'string',
-      default: { '@path': '$.context.screen.height' }
+      type: 'string'
     },
     density: {
       label: 'Screen Density',
       description: 'Example: 2.0',
-      type: 'string',
-      default: { '@path': '$.context.screen.density' }
+      type: 'string'
     },
     cpuCores: {
       label: 'CPU Cores',
@@ -134,8 +134,42 @@ export const app_data_field: InputField = {
     deviceTimezone: {
       label: 'Device Timezone',
       description: 'Example: USA/New York',
-      type: 'string',
-      default: { '@path': '$.context.timezone' }
+      type: 'string'
+    }
+  },
+  default: {
+    application_tracking_enabled: {
+      '@path': '$.context.device.adTrackingEnabled'
+    },
+    packageName: {
+      '@path': '$.context.app.namespace'
+    },
+    longVersion: {
+      '@path': '$.context.app.version'
+    },
+    osVersion: {
+      '@path': '$.context.os.version'
+    },
+    deviceName: {
+      '@path': '$.context.device.model'
+    },
+    locale: {
+      '@path': '$.context.locale'
+    },
+    carrier: {
+      '@path': '$.context.network.carrier'
+    },
+    width: {
+      '@path': '$.context.screen.width'
+    },
+    height: {
+      '@path': '$.context.screen.height'
+    },
+    density: {
+      '@path': '$.context.screen.density'
+    },
+    deviceTimezone: {
+      '@path': '$.context.timezone'
     }
   }
 }

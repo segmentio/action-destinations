@@ -67,6 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings, features, statsContext }) => {
+    console.log('payload', payload)
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,

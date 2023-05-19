@@ -484,7 +484,7 @@ describe('FacebookConversionsApi', () => {
       )
     })
 
-    it('should send app events correctly', async () => {
+    it('should send app events using default mappings correctly', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
@@ -496,6 +496,7 @@ describe('FacebookConversionsApi', () => {
           currency: 'USD',
           value: 12.12,
           email: 'nicholas.aguilar@segment.com',
+          product_id: 'abc12345',
           traits: {
             city: 'Gotham',
             country: 'United States',
@@ -538,7 +539,10 @@ describe('FacebookConversionsApi', () => {
         event,
         settings,
         mapping: {
-          action_source: { '@path': '$.properties.action_source' }
+          action_source: { '@path': '$.properties.action_source' },
+          app_data_field: {
+            use_app_data: true
+          }
         },
         useDefaultMappings: true
       })
@@ -546,7 +550,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot()
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"f696c0af-f775-4962-af7d-cc2f67f8e998\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"extinfo\\":\\",com.krusty.krab.ios-prod,,2.0.1,16.3.1,iPhone10,5,en-US,,AT&T,414,736,,,\\"}}]}"`
+      )
     })
   })
 })
