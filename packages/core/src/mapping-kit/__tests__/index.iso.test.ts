@@ -513,7 +513,7 @@ describe('@path', () => {
 
   test('accepts path value as an array', () => {
     const output = transform(
-      { neat: { '@path': ['integrations', 'Company.Billing', 'chicken'] } },
+      { neat: { '@path': ['$', 'integrations', 'Company.Billing', 'chicken'] } },
       {
         integrations: {
           'Company.Billing': {
@@ -614,7 +614,7 @@ describe('@template', () => {
 
   test('paths with special characters', () => {
     const output = transform(
-      { '@template': [{ '@path': ['{wow}'] }, { '@path': ['0.1'] }, { '@path': ['[yo]'] }] },
+      { '@template': [{ '@path': ['$', '{wow}'] }, { '@path': ['$', '0.1'] }, { '@path': ['$', '[yo]'] }] },
       {
         '{wow}': 'Hello, ',
         '0.1': 'World ',
