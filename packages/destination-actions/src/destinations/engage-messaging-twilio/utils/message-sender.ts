@@ -230,8 +230,8 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           if(!twilioApiError.status) //to handle error properly by Centrifuge
           {
             errorToRethrow = new IntegrationError(
-              twilioApiError.message,
-              twilioApiError.response?.data?.message,
+              twilioApiError.response?.data?.message || twilioApiError.message,
+              (twilioApiError.response?.data?.code || statusCode)?.toString() || "Twilio Api Request Error",
               statusCode
             )
           }
