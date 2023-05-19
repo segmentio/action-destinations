@@ -59,6 +59,27 @@ const destination: DestinationDefinition<Settings> = {
           'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
         type: 'string',
         format: 'uri-reference'
+      },
+      __segment_internal_engage_force_full_sync: {
+        label: 'Force Full Sync',
+        description: '',
+        type: 'boolean',
+        required: true,
+        default: true
+      },
+      __segment_internal_engage_batch_sync: {
+        label: 'Supports batch sync via ADS',
+        description: '',
+        type: 'boolean',
+        required: true,
+        default: true
+      },
+      enable_batching: {
+        type: 'boolean',
+        label: 'Batch data',
+        description: '',
+        required: true,
+        default: true
       }
     },
     testAuthentication: async (_, { settings }) => {

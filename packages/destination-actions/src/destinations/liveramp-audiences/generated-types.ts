@@ -33,4 +33,7 @@ export interface Settings {
    * Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
    */
   sftp_folder_path?: string
+  __segment_internal_engage_force_full_sync: boolean
+  __segment_internal_engage_batch_sync: boolean
+  enable_batching: boolean
 }
