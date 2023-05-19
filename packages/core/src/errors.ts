@@ -85,6 +85,21 @@ export class PayloadValidationError extends IntegrationError {
 }
 
 /**
+ * Error to indicate that an API call to the destination failed with non-retryable error.
+ * Most of the HTTP API Errors are handled automatically by the framework. It is recommended to use this error class
+ * for cases where the destination has to capture HTTPErrors and rethrow them for better error message or for handling special scenarios.
+ * Should include a user-friendly message. These errors will not be retried.
+ */
+export class APIError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.API_CALL_FAILED, 400)
+  }
+}
+
+/**
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
@@ -99,5 +114,7 @@ export enum ErrorCodes {
   // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   // OAuth refresh failed
-  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
+  // Integration API call failed
+  API_CALL_FAILED = 'API_CALL_FAILED'
 }
