@@ -183,8 +183,12 @@ registerDirective('@path', (value: JSONValue, payload: JSONObject): JSONLike => 
   switch (realType) {
     case 'string':
       return getAsStringPath(payload, value as string) as JSONLike
-    case 'array':
-      return get(payload, value as string[])
+    case 'array': {
+      // The first item in the path is considered the root.
+      // For now, this will always be '$' referring to the whole event
+      const [_, ...path] = value as string[]
+      return get(payload, path)
+    }
     case 'object': {
       const str = resolve(value, payload)
       if (typeof str !== 'string') {
