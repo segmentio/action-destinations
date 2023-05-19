@@ -5,7 +5,7 @@ import { EMAIL_FIELD, USER_ID_FIELD, USER_DATA_FIELDS, MERGE_NESTED_OBJECTS_FIEL
 import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update User',
+  title: 'Upsert User',
   description: 'Creates or updates a user',
   defaultSubscription: 'type = "identify"',
   fields: {
