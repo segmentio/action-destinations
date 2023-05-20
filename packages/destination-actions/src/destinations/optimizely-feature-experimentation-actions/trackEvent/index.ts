@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return getEventKeys(request, settings)
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, logger }) => {
     const result = await request<ProjectConfig>(settings.dataFileUrl)
     if (!isValidJson(result.content)) {
       throw new IntegrationError(result.content, 'PROJECT_DEACTIVATED', 400)
@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    return request('https://logx.optimizely.com/v1/events', {
+    const res = await request('https://logx.optimizely.com/v1/events', {
       method: 'POST',
       json: {
         account_id: dataFile.accountId,
@@ -162,6 +162,9 @@ const action: ActionDefinition<Settings, Payload> = {
         visitors: [...visitors]
       }
     })
+
+    logger?.info(`Optimizely actions track event respone: ${res}`)
+    return res
   }
 }
 
