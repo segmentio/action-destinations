@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     from: {
       label: 'From',
-      description: 'The Push Service Sid to send the push noitification from.',
+      description: 'The Push Service Sid to send the push notification from.',
       type: 'string',
       required: true
     },

@@ -6,7 +6,7 @@ export interface Payload {
    */
   contentSid?: string
   /**
-   * The Push Service Sid to send the push noitification from.
+   * The Push Service Sid to send the push notification from.
    */
   from: string
   customizations?: {

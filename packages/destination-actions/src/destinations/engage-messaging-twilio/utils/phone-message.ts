@@ -86,6 +86,15 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
     })
   }
 
+  /**
+   * check if the externalId object is supported for sending a message
+   * @param externalId
+   * @returns
+   */
+  isValidExternalId(externalId: NonNullable<Payload['externalIds']>[number]): boolean {
+    return externalId.type === 'phone' && this.getChannelType() === externalId.channelType?.toLowerCase()
+  }
+
   private getSendabilityPayload(): SendabilityPayload {
     if (!this.payload.send) {
       this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)

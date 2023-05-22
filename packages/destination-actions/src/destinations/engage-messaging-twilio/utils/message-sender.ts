@@ -62,15 +62,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  /**
-   * check if the externalId object is supported for sending a message
-   * @param externalId
-   * @returns
-   */
-  isValidExternalId(externalId: NonNullable<MessagePayload['externalIds']>[number]): boolean {
-    return externalId.type === 'phone' && this.getChannelType() === externalId.channelType?.toLowerCase()
-  }
-
   redactPii(pii: string | undefined) {
     if (!pii) {
       return pii
