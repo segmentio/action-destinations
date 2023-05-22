@@ -38,6 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}_PII_{{receivedAt}}.csv' }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch data',
+      description: '',
+      required: true,
+      default: true
     }
   },
   perform: async (request, { settings, payload }) => {

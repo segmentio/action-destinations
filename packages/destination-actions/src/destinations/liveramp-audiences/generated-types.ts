@@ -35,5 +35,4 @@ export interface Settings {
   sftp_folder_path?: string
   __segment_internal_engage_force_full_sync: boolean
   __segment_internal_engage_batch_sync: boolean
-  enable_batching: boolean
 }

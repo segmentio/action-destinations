@@ -73,13 +73,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         required: true,
         default: true
-      },
-      enable_batching: {
-        type: 'boolean',
-        label: 'Batch data',
-        description: '',
-        required: true,
-        default: true
       }
     },
     testAuthentication: async (_, { settings }) => {
