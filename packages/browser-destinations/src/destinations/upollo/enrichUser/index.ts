@@ -65,22 +65,15 @@ const enrichUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
     if (payload?.email) {
       const result = await UpClient.checkEmail(payload?.email)
       if (result && result?.company?.name != '') {
-        let companyInfo = {}
-        if (result?.company?.companySize?.employeesMax && result?.company?.companySize?.employeesMin) {
-          companyInfo = {
-            name: result?.company?.name,
-            industry: result?.company?.industry,
-            employee_count: Math.max(
-              result.company?.companySize?.employeesMax,
-              result.company?.companySize?.employeesMin
-            )
-          }
-        } else {
-          companyInfo = {
-            name: result?.company?.name,
-            industry: result?.company?.industry
-          }
-        }
+    const company = result?.emailAnalysis?.company
+    if (company && company?.name != '' && settings?.companyEnrichment) {
+      const size = company.companySize
+      const count = size && Math.max(size.employeesMin, size.employeesMax)
+      const companyInfo = {
+        name: company?.name,
+        industry: company?.industry,
+        employee_count: count
+      }
         context.updateEvent('traits.company', companyInfo)
       }
     }
