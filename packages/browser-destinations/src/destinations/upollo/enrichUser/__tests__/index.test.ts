@@ -6,7 +6,7 @@ import { Payload } from '../generated-types'
 
 it('should enrich', async () => {
   const client = {
-    assess: jest.fn().mockResolvedValue({ company: { name: 'Bar' } })
+    checkEmail: jest.fn().mockResolvedValue({ company: { name: 'Bar' } })
   } as any as UpolloClient
 
   const context = new Context({
@@ -42,7 +42,7 @@ it('should enrich', async () => {
 
 it('should not enrich when it gets no result', async () => {
   const client = {
-    assess: jest.fn().mockResolvedValue({ company: { name: '' } })
+    checkEmail: jest.fn().mockResolvedValue({ company: { name: '' } })
   } as any as UpolloClient
 
   const context = new Context({
