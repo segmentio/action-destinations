@@ -22,7 +22,7 @@ exports[`Testing snapshot for LiverampAudiences's audienceEntered destination ac
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "AWS4-HMAC-SHA256 Credential=PywYAY/19700101/PywYAY/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=3273c678e9edaf86b444eeadfd6021f8814141ee94adcb7409c7931c1f286dff",
+      "AWS4-HMAC-SHA256 Credential=PywYAY/19700101/PywYAY/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=0e2838c897a25891722f065e3c21b3592e67626b4a50f2f1ad0f78ad1a7ad524",
     ],
     "content-length": Array [
       "39",

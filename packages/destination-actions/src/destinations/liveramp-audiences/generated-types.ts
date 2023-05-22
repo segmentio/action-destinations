@@ -30,7 +30,7 @@ export interface Settings {
    */
   sftp_password?: string
   /**
-   * Path within the SFTP server to upload the files to.
+   * Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
    */
   sftp_folder_path?: string
 }
