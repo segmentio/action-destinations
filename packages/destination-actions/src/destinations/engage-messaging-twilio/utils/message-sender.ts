@@ -56,7 +56,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
       return Object.fromEntries(parsedEntries)
     } catch (error: unknown) {
-      this.logDetails['error'] = error instanceof Error ? error.message : error?.toString()
+      this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
       this.logError(`unable to parse templating - ${this.settings.spaceId}`)
       throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
     }
