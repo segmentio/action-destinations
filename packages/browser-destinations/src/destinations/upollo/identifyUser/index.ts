@@ -70,7 +70,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
 
-    return UpClient.track(userInfo)
+    void UpClient.track(userInfo)
   }
 }
 
