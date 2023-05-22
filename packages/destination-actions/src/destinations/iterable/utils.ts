@@ -5,7 +5,7 @@ import { CommerceItem } from './shared-fields'
 // Regular expression for matching ISO date strings in various formats
 // Taken from https://github.com/segmentio/isodate/blob/master/lib/index.js
 const isoDateRegExp =
-  /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/
+  /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ // eslint-disable-line no-useless-escape
 
 /**
  * Converts a given ISO date string to the format accepted by Iterable's API.
