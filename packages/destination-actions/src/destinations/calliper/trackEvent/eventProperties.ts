@@ -49,7 +49,7 @@ export const eventProperties: Record<string, InputField> = {
     description:
       'A random id that is unique to an event. ID is being used to prevent event duplication. All the events that share the same unique id besides the first one will be ignored.',
     default: {
-      '@path': '$.eventId'
+      '@path': '$.messageId'
     }
   },
   app_version: {
