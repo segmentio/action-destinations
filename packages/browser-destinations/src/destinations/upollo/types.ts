@@ -13,6 +13,10 @@ export declare class UpolloClient {
       company?: { name: string; industry: string; companySize: { employeesMin: number; employeesMax: number } }
     }
   }>
+  checkEmail(email: string): Promise<{
+    valid: boolean
+    company?: { name: string; industry: string; companySize: { employeesMin: number; employeesMax: number } }
+  }>
 }
 
 export interface UpUser {
