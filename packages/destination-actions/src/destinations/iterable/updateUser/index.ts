@@ -5,12 +5,13 @@ import {
   EMAIL_FIELD,
   USER_ID_FIELD,
   USER_DATA_FIELDS,
-  PREFER_USER_ID_FIELD,
-  MERGE_NESTED_OBJECTS_FIELD
+  MERGE_NESTED_OBJECTS_FIELD,
+  USER_PHONE_NUMBER_FIELD
 } from '../shared-fields'
+import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update User',
+  title: 'Upsert User',
   description: 'Creates or updates a user',
   defaultSubscription: 'type = "identify"',
   fields: {
@@ -24,8 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     dataFields: {
       ...USER_DATA_FIELDS
     },
-    preferUserId: {
-      ...PREFER_USER_ID_FIELD
+    phoneNumber: {
+      ...USER_PHONE_NUMBER_FIELD
     },
     mergeNestedObjects: {
       ...MERGE_NESTED_OBJECTS_FIELD
@@ -44,17 +45,20 @@ const action: ActionDefinition<Settings, Payload> = {
       dataFields?: {
         [k: string]: unknown
       }
-      preferUserId?: boolean
       mergeNestedObjects?: boolean
     }
 
-    if (dataFields?.phone) {
-      dataFields.phoneNumber = dataFields.phone
-      delete dataFields.phone
-    }
+    // Store the phoneNumber value before deleting from the top-level object
+    const phoneNumber = payload.phoneNumber
+    delete payload.phoneNumber
 
+    const formattedDataFields = convertDatesInObject(dataFields ?? {})
     const userUpdateRequest: UserUpdateRequest = {
-      ...payload
+      ...payload,
+      dataFields: {
+        ...formattedDataFields,
+        phoneNumber: phoneNumber
+      }
     }
 
     return request('https://api.iterable.com/api/users/update', {

@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://api.iterable.com/api/campaigns', {
+      return request('https://api.iterable.com/api/webhooks', {
         method: 'get',
         headers: { 'Api-Key': settings.apiKey }
       })
@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Track Calls',
-      subscribe: 'type = "track" and event != "Order Completed" and event != "Update Cart"',
+      subscribe: 'type = "track" and event != "Order Completed" and event != "Cart Updated"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
     },
@@ -54,7 +54,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Update Cart Calls',
-      subscribe: 'type = "track" and event = "Update Cart"',
+      subscribe: 'type = "track" and event = "Cart Updated"',
       partnerAction: 'updateCart',
       mapping: defaultValues(updateCart.fields)
     },
