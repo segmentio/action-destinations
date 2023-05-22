@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Content template Sid',
       description: 'The template to be sent',
       type: 'string',
-      required: true
+      required: false
     },
     from: {
       label: 'From',
@@ -31,6 +31,19 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The title to be displayed for your notification',
           type: 'string',
           required: false
+        },
+        body: {
+          label: 'Notification body',
+          description: 'The body to be displayed for your notification',
+          type: 'string',
+          required: false
+        },
+        media: {
+          label: 'Media urls',
+          description: 'Media to display to notification',
+          type: 'string',
+          required: false,
+          multiple: true
         },
         tapAction: {
           label: 'Notification open action',

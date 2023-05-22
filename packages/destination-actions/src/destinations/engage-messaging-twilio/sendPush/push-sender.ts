@@ -2,6 +2,7 @@
 import { IntegrationError } from '@segment/actions-core'
 import { MessageSender } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
+import { ContentTemplateTypes } from '../utils/types'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -175,13 +176,19 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   }
 
   async getBody(): Promise<BodyCustomDataBundle> {
-    const templateTypes = await this.getContentTemplateTypes()
+    let templateTypes: ContentTemplateTypes | undefined
+    if (this.payload.contentSid) {
+      templateTypes = await this.getContentTemplateTypes()
+    }
+
     const profile = { traits: this.payload.traits }
 
     const parsedTemplateContent = await this.parseContent(
       {
-        ...templateTypes,
-        title: this.payload.customizations?.title
+        title: this.payload.customizations?.title,
+        body: this.payload.customizations?.body,
+        media: this.payload.customizations?.media,
+        ...templateTypes
       },
       profile
     )

@@ -401,7 +401,7 @@ describe('sendPush action', () => {
   })
 
   describe('liquid template parsing', () => {
-    it('parses body, title, and media liquid variables', async () => {
+    it('parses body, title, and media liquid variables with content sid', async () => {
       const title = '{{profile.traits.first_name}}'
       const template = {
         types: {
@@ -452,6 +452,53 @@ describe('sendPush action', () => {
       const responses = await twilio.testAction(actionName, input)
       expect(responses[1].url).toEqual(notifyReqUrl)
       expect(responses[1].data).toMatchObject(externalIds[0])
+    })
+
+    it('parses body, title, and media liquid variables without content sid', async () => {
+      const title = '{{profile.traits.first_name}}'
+      const body = 'I have {{profile.traits.health_news_type}} news'
+      const media = ['http://myimg.com/&color={{profile.traits.fav_color}}']
+
+      const externalIds = [
+        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+      ]
+      const input = getActionPayload({
+        mappingOverrides: {
+          contentSid: undefined,
+          customizations: { title, body, media },
+          externalIds,
+          traits: { first_name: 'General', health_news_type: 'Aladeeen', fav_color: 'mantis_green' }
+        }
+      })
+
+      const notifyReqBody = new URLSearchParams({
+        Body: 'I have Aladeeen news',
+        Title: 'General',
+        FcmPayload: JSON.stringify({
+          mutable_content: true
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          media: ['http://myimg.com/&color=mantis_green'],
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalIds[0])
+
+      const responses = await twilio.testAction(actionName, input)
+      expect(responses[0].url).toEqual(notifyReqUrl)
+      expect(responses[0].data).toMatchObject(externalIds[0])
     })
   })
 })

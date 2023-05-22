@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The template to be sent
    */
-  contentSid: string
+  contentSid?: string
   /**
    * The Push Service Sid to send the push noitification from.
    */
@@ -14,6 +14,14 @@ export interface Payload {
      * The title to be displayed for your notification
      */
     title?: string
+    /**
+     * The body to be displayed for your notification
+     */
+    body?: string
+    /**
+     * Media to display to notification
+     */
+    media?: string[]
     /**
      * Sets the noitfication click action/category
      */
