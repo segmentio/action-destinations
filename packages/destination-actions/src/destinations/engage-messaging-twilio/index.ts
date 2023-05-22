@@ -2,7 +2,7 @@ import type { DestinationDefinition, InputField } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendSms from './sendSms'
 import sendWhatsApp from './sendWhatsApp'
-import sendPush from './sendPush'
+import sendMobilePush from './sendMobilePush'
 
 const getRange = (val: number): { value: number; label: string }[] => {
   return Array(val)
@@ -182,7 +182,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     sendSms,
     sendWhatsApp,
-    sendPush
+    sendMobilePush
   }
 }
 

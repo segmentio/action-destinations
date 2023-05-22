@@ -5,8 +5,8 @@ import type { Payload } from './generated-types'
 import { PushSender } from './push-sender'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Push Notification',
-  description: 'Send a push notification using Twilio',
+  title: 'Send Mobile Push Notification',
+  description: 'Send a push notification to a mobile device using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
     contentSid: {

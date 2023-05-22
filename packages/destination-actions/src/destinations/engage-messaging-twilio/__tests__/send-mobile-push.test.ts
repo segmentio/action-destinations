@@ -3,9 +3,9 @@ import Twilio from '..'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import { createLoggerMock } from '../utils/test-utils'
-import { Payload } from '../sendPush/generated-types'
+import { Payload } from '../sendMobilePush/generated-types'
 import { InputData } from '@segment/actions-core/src/mapping-kit'
-import { PushSender } from '../sendPush/push-sender'
+import { PushSender } from '../sendMobilePush/push-sender'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
@@ -21,7 +21,7 @@ const defaultTemplate = {
     }
   }
 }
-const actionName = 'sendPush'
+const actionName = 'sendMobilePush'
 interface GetActionPayloadProps {
   mappingOverrides?: any
   settingsOverrides?: any
@@ -94,7 +94,7 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
   })
 }
 
-describe('sendPush action', () => {
+describe('sendMobilePush action', () => {
   afterEach(() => {
     twilio.responses = []
     nock.cleanAll()
