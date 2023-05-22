@@ -490,6 +490,7 @@ describe('FacebookConversionsApi', () => {
       const event = createTestEvent({
         event: 'Product Added',
         userId: 'abc123',
+        messageId: '123',
         timestamp: '1631210000',
         properties: {
           action_source: 'email',
@@ -541,7 +542,43 @@ describe('FacebookConversionsApi', () => {
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
           app_data_field: {
-            use_app_data: true
+            use_app_data: true,
+            // The default mappings from the app_data object need to be recreated here
+            // since 'use_app_data' is set to true. Otherwise, the default mappings
+            // will not be set.
+            application_tracking_enabled: {
+              '@path': '$.context.device.adTrackingEnabled'
+            },
+            packageName: {
+              '@path': '$.context.app.namespace'
+            },
+            longVersion: {
+              '@path': '$.context.app.version'
+            },
+            osVersion: {
+              '@path': '$.context.os.version'
+            },
+            deviceName: {
+              '@path': '$.context.device.model'
+            },
+            locale: {
+              '@path': '$.context.locale'
+            },
+            carrier: {
+              '@path': '$.context.network.carrier'
+            },
+            width: {
+              '@path': '$.context.screen.width'
+            },
+            height: {
+              '@path': '$.context.screen.height'
+            },
+            density: {
+              '@path': '$.context.screen.density'
+            },
+            deviceTimezone: {
+              '@path': '$.context.timezone'
+            }
           }
         },
         useDefaultMappings: true
@@ -551,7 +588,75 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"f696c0af-f775-4962-af7d-cc2f67f8e998\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"extinfo\\":\\",com.krusty.krab.ios-prod,,2.0.1,16.3.1,iPhone10,5,en-US,,AT&T,414,736,,,\\"}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]}}]}"`
+      )
+    })
+
+    it('should not send app events by default', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: 'abc123',
+        messageId: '123',
+        timestamp: '1631210000',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com',
+          product_id: 'abc12345',
+          traits: {
+            city: 'Gotham',
+            country: 'United States',
+            last_name: 'Wayne'
+          }
+        },
+        context: {
+          app: {
+            build: '2',
+            name: 'Krusty Krab ToGo',
+            namespace: 'com.krusty.krab.ios-prod',
+            version: '2.0.1'
+          },
+          device: {
+            id: '1234-5678',
+            manufacturer: 'Apple',
+            model: 'iPhone10,5',
+            name: 'iPhone X',
+            type: 'ios'
+          },
+          locale: 'en-US',
+          timezone: 'America/Los Angeles',
+          screen: {
+            height: 736,
+            width: 414
+          },
+          network: {
+            carrier: 'AT&T',
+            cellular: true,
+            wifi: true
+          },
+          os: {
+            name: 'iOS',
+            version: '16.3.1'
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings,
+        mapping: {
+          action_source: { '@path': '$.properties.action_source' }
+        },
+        useDefaultMappings: true
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]}}]}"`
       )
     })
   })

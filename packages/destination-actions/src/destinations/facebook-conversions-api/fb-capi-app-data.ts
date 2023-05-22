@@ -1,8 +1,14 @@
 import { InputField } from '@segment/actions-core'
 import { Payload } from './addToCart/generated-types'
 
-type AppData = Payload['app_data_field']
-export const generate_app_data = (app_data: AppData): Object | undefined => {
+//exported for unit test
+export type AppData = Payload['app_data_field']
+export type GeneratedAppData = {
+  advertiser_tracking_enabled: 1 | 0
+  application_tracking_enabled: 1 | 0
+  extinfo: string[]
+}
+export const generate_app_data = (app_data: AppData): GeneratedAppData | undefined => {
   if (!app_data || !app_data.use_app_data) {
     return undefined
   }
@@ -24,8 +30,10 @@ export const generate_app_data = (app_data: AppData): Object | undefined => {
       app_data?.height ?? '',
       app_data?.density ?? '',
       app_data?.cpuCores ?? '',
-      app_data?.storageSize ?? ''
-    ].join(',')
+      app_data?.storageSize ?? '',
+      app_data?.freeStorage ?? '',
+      app_data?.deviceTimezone ?? ''
+    ]
   }
 }
 
