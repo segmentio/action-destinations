@@ -4,6 +4,7 @@ import { browserDestination } from '../../runtime/shim'
 import { UpolloClient } from './types'
 import { defaultValues } from '@segment/actions-core'
 import identifyUser from './identifyUser'
+import enrichUser from './enrichUser'
 
 declare global {
   interface Window {
@@ -24,6 +25,12 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields)
+    },
+    {
+      name: 'Enrich',
+      subscribe: 'type = "identify"',
+      partnerAction: 'enrichUser',
+      mapping: defaultValues(enrichUser.fields)
     }
   ],
 
@@ -35,13 +42,6 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
       label: 'API Key',
       type: 'string',
       required: true
-    },
-    companyEnrichment: {
-      description: 'Enable enrichment of company details on Segment identify events',
-      label: 'Enable Company Enrichment',
-      type: 'boolean',
-      required: false,
-      default: true
     }
   },
 
@@ -61,7 +61,8 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
   },
 
   actions: {
-    identifyUser
+    identifyUser,
+    enrichUser
   }
 }
 
