@@ -95,11 +95,14 @@ export interface Payload {
     partner_name?: string
   }
   /**
-   * TODO
+   * These fields support sending app events to Facebook through the Conversions API. For more information about app events support in the Conversions API, see the Facebook docs [here](https://developers.facebook.com/docs/marketing-api/conversions-api/app-events).
+   *   App events sent through the Conversions API must be associated with a dataset.
+   *   Instructions for creating a dataset can be found [here](https://www.facebook.com/business/help/750785952855662?id=490360542427371). Once a dataset is created, the dataset ID
+   *   can be substituted for the pixel ID in the destination settings.
    */
   app_data_field?: {
     /**
-     * Send app data to Facebook?
+     * Segment will not send app events to Facebook by default. Enable this once you have created a dataset in Facebook and are ready to begin sending app events.
      */
     use_app_data?: boolean
     /**

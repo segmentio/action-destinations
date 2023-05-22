@@ -100,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     return request(
-      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
+      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events?debug=all`,
       {
         method: 'POST',
         json: {
