@@ -48,11 +48,6 @@ const action: ActionDefinition<Settings, Payload> = {
       mergeNestedObjects?: boolean
     }
 
-    // Delete redundant 'phone' field if it exists in dataFields
-    if (dataFields?.phone) {
-      delete dataFields.phone
-    }
-
     // Store the phoneNumber value before deleting from the top-level object
     const phoneNumber = payload.phoneNumber
     delete payload.phoneNumber

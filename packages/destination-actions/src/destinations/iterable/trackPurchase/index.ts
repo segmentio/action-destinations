@@ -125,11 +125,6 @@ const action: ActionDefinition<Settings, Payload> = {
       delete dataFields.products
     }
 
-    // Delete redundant 'phone' field if it exists in user dataFields
-    if (user.dataFields?.phone) {
-      delete user.dataFields.phone
-    }
-
     // Store the phoneNumber value before deleting from the user object
     const phoneNumber = user.phoneNumber
     delete user.phoneNumber

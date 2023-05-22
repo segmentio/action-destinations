@@ -15,7 +15,7 @@ import { transformItems, convertDatesInObject } from '../utils'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Cart Updates',
   description: 'Updates the shoppingCartItems field on the user profile.',
-  defaultSubscription: 'type = "track" and event == "Update Cart"',
+  defaultSubscription: 'type = "track" and event == "Cart Updated"',
   fields: {
     user: {
       label: 'User Data',
@@ -75,11 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
       items: CommerceItem[]
-    }
-
-    // Delete redundant 'phone' field if it exists in user dataFields
-    if (user.dataFields?.phone) {
-      delete user.dataFields.phone
     }
 
     // Store the phoneNumber value before deleting from the user object

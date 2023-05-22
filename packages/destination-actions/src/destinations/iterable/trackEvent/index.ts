@@ -15,7 +15,7 @@ import { convertDatesInObject } from '../utils'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Track a custom event to a user profile',
-  defaultSubscription: 'type = "track" and event != "Order Completed" and event != "Update Cart"',
+  defaultSubscription: 'type = "track" and event != "Order Completed" and event != "Cart Updated"',
   fields: {
     email: {
       ...EMAIL_FIELD
