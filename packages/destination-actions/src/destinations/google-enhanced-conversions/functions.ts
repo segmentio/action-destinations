@@ -94,3 +94,5 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   statsClient?.incr(`google_api_version`, 1, tags)
   return version
 }
+
+export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)

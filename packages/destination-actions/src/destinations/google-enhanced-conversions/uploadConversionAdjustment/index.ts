@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getApiVersion } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp, getApiVersion, isHashedEmail } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse } from '../types'
@@ -236,8 +236,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address, features) })
+      request_object.userIdentifiers.push({
+        hashedEmail: isHashedEmail(payload.email_address) ? payload.email_address : hash(payload.email_address)
+      })
     }
 
     if (payload.phone_number) {

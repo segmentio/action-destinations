@@ -206,7 +206,7 @@ export interface DecoratedResponse extends ModifiedResponse {
 }
 
 interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
@@ -597,7 +597,7 @@ export class Destination<Settings = JSONObject> {
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -649,7 +649,7 @@ export class Destination<Settings = JSONObject> {
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })

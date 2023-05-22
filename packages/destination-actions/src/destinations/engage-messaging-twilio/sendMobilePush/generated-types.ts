@@ -2,17 +2,55 @@
 
 export interface Payload {
   /**
-   * The template you sending
+   * The template to be sent
    */
-  contentSid: string
+  contentSid?: string
   /**
-   * The Push Service Sid to send the push noitification from.
+   * The Push Service Sid to send the push notification from.
    */
   from: string
-  /**
-   * The title to be displayed for your notification
-   */
-  title?: string
+  customizations?: {
+    /**
+     * The title to be displayed for your notification
+     */
+    title?: string
+    /**
+     * The body to be displayed for your notification
+     */
+    body?: string
+    /**
+     * Media to display to notification
+     */
+    media?: string[]
+    /**
+     * Sets the noitfication click action/category
+     */
+    tapAction?: string
+    /**
+     * Sets the deep link
+     */
+    deepLink?: string
+    /**
+     * Sets the sound played when the notification arrives
+     */
+    sound?: string
+    /**
+     * Sets the priority of the message
+     */
+    priority?: string
+    /**
+     * The badge count which is used in combination with badge strategy to determine the final badge
+     */
+    badgeAmount?: number
+    /**
+     * Sets the badge count strategy in the notification
+     */
+    badgeStrategy?: string
+    /**
+     * Sets the time to live for the notification
+     */
+    ttl?: number
+  }
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
    */

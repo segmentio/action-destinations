@@ -38,7 +38,8 @@ describe('Iterable.trackPurchase', () => {
       userId: 'user123',
       context: {
         traits: {
-          email: 'test@example.com'
+          email: 'test@example.com',
+          phone: '+14158675309'
         }
       },
       properties: {
@@ -52,8 +53,7 @@ describe('Iterable.trackPurchase', () => {
             category: 'Games',
             sku: '45790-32',
             url: 'https://www.example.com/product/path',
-            image_url: 'https://www.example.com/product/path.jpg',
-            foo: 'bar'
+            image_url: 'https://www.example.com/product/path.jpg'
           }
         ]
       }
@@ -69,7 +69,10 @@ describe('Iterable.trackPurchase', () => {
     expect(responses[0].options.json).toMatchObject({
       user: {
         userId: 'user123',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        dataFields: {
+          phoneNumber: '+14158675309'
+        }
       },
       items: [
         {
@@ -81,9 +84,7 @@ describe('Iterable.trackPurchase', () => {
           categories: ['Games'],
           url: 'https://www.example.com/product/path',
           imageUrl: 'https://www.example.com/product/path.jpg',
-          dataFields: {
-            foo: 'bar'
-          }
+          dataFields: {}
         }
       ]
     })

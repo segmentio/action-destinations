@@ -99,6 +99,8 @@ register('643fdf094cfdbcf1bcccbc42', './usermaven')
 register('6440068936c4fb9f699b0645', './the-trade-desk-crm')
 register('6447ca8bfaa773a2ba0777a0', './tiktok-offline-conversions')
 register('645babd9362d97b777391325', './iterable')
+register('644ad6c6c4a87a3290450602', './liveramp-audiences')
+register('6464ef424ac5c5f47f5f3968', './revx')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

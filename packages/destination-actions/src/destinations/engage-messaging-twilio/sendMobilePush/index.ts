@@ -5,27 +5,107 @@ import type { Payload } from './generated-types'
 import { PushSender } from './push-sender'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Push Notification',
-  description: 'Send a push notification using Twilio',
+  title: 'Send Mobile Push Notification',
+  description: 'Send a push notification to a mobile device using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
     contentSid: {
       label: 'Content template Sid',
-      description: 'The template you sending',
+      description: 'The template to be sent',
       type: 'string',
-      required: true
+      required: false
     },
     from: {
       label: 'From',
-      description: 'The Push Service Sid to send the push noitification from.',
+      description: 'The Push Service Sid to send the push notification from.',
       type: 'string',
       required: true
     },
-    title: {
-      label: 'Notification title',
-      description: 'The title to be displayed for your notification',
-      type: 'string',
-      required: false
+    customizations: {
+      label: 'Customizations',
+      description: '',
+      type: 'object',
+      properties: {
+        title: {
+          label: 'Notification title',
+          description: 'The title to be displayed for your notification',
+          type: 'string',
+          required: false
+        },
+        body: {
+          label: 'Notification body',
+          description: 'The body to be displayed for your notification',
+          type: 'string',
+          required: false
+        },
+        media: {
+          label: 'Media urls',
+          description: 'Media to display to notification',
+          type: 'string',
+          required: false,
+          multiple: true
+        },
+        tapAction: {
+          label: 'Notification open action',
+          description: 'Sets the noitfication click action/category',
+          type: 'string',
+          required: false
+        },
+        deepLink: {
+          label: 'Notification title',
+          description: 'Sets the deep link',
+          type: 'string',
+          required: false
+        },
+        sound: {
+          label: 'Notification sound',
+          description: 'Sets the sound played when the notification arrives',
+          type: 'string',
+          required: false
+        },
+        priority: {
+          label: 'Notification priority',
+          description: 'Sets the priority of the message',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'low', value: 'low' },
+            { label: 'high', value: 'high' }
+          ]
+        },
+        badgeAmount: {
+          label: 'Badge amount',
+          description: 'The badge count which is used in combination with badge strategy to determine the final badge',
+          type: 'number',
+          required: false
+        },
+        badgeStrategy: {
+          label: 'Badge strategy',
+          description: 'Sets the badge count strategy in the notification',
+          type: 'string',
+          required: false,
+          choices: [
+            {
+              value: 'inc',
+              label: 'increment'
+            },
+            {
+              value: 'dec',
+              label: 'decrement'
+            },
+            {
+              value: 'set',
+              label: 'set'
+            }
+          ]
+        },
+        ttl: {
+          label: 'Time to live',
+          description: 'Sets the time to live for the notification',
+          type: 'number',
+          required: false
+        }
+      }
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -111,18 +191,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, logger }) => {
+  perform: async (request, data) => {
+    const { settings, payload, statsContext, logger } = data
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags || []
     if (!settings.region) {
       settings.region = 'us-west-1'
     }
     tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    if (!payload.send) {
-      statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
-      return
-    }
-    return new PushSender(request, payload, settings, statsClient, tags, logger).send()
+    return new PushSender(request, payload, settings, statsClient, tags, logger, data).send()
   }
 }
 

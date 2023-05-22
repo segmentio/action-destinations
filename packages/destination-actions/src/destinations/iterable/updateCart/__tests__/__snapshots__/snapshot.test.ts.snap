@@ -8,7 +8,7 @@ Object {
         "EhReIu7NIsg#8O6D",
       ],
       "dataFields": Object {
-        "testType": "EhReIu7NIsg#8O6D",
+        "description": "EhReIu7NIsg#8O6D",
       },
       "description": "EhReIu7NIsg#8O6D",
       "id": "EhReIu7NIsg#8O6D",
@@ -22,11 +22,11 @@ Object {
   ],
   "user": Object {
     "dataFields": Object {
+      "phoneNumber": "EhReIu7NIsg#8O6D",
       "testType": "EhReIu7NIsg#8O6D",
     },
     "email": "vaz@zuzjagmoj.bh",
     "mergeNestedObjects": false,
-    "preferUserId": false,
     "userId": "EhReIu7NIsg#8O6D",
   },
 }
