@@ -18,6 +18,10 @@ export interface Payload {
    */
   body?: string
   /**
+   * Media to attach to message
+   */
+  media?: string[]
+  /**
    * Content template SID for Twilio Content API
    */
   contentSid?: string

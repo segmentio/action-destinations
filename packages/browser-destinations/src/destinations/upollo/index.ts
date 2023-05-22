@@ -42,6 +42,13 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
       label: 'API Key',
       type: 'string',
       required: true
+    },
+    companyEnrichment: {
+      description: 'Enable enrichment of company details on Segment identify events',
+      label: 'Enable Company Enrichment',
+      type: 'boolean',
+      required: false,
+      default: true
     }
   },
 
