@@ -40,7 +40,7 @@ export const getIdentifyRequestParams = (settings: Settings, payload: IdentifyPa
       json: {
         user_id: userId || anonymousId,
         // Transform createdAt to Userpilot reserved property
-        metadata: handleSpecialParameters(traits)
+        metadata: traits
       }
     }
   }
@@ -67,15 +67,5 @@ const validateEndpoint = (url: string) => {
     return url
   } catch (e) {
     return baseURL
-  }
-}
-
-const handleSpecialParameters = (traits: { [k: string]: unknown } | undefined) => {
-  const { createdAt, ...rest } = traits ?? {
-    createdAt: undefined
-  }
-  return {
-    ...rest,
-    created_at: createdAt
   }
 }

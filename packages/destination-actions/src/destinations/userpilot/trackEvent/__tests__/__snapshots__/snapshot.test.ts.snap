@@ -13,6 +13,5 @@ Object {
 exports[`Testing snapshot for Userpilot's trackEvent destination action: required fields 1`] = `
 Object {
   "event_name": "@X4Tpj9VDVLvzA",
-  "user_id": "@X4Tpj9VDVLvzA",
 }
 `;

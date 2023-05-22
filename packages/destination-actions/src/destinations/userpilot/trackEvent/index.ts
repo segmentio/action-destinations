@@ -12,8 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userId: {
       type: 'string',
-      required: true,
-      description: "The user's id",
+      required: false,
+      description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       type: 'string',
       required: false,
-      description: 'User anonymous id',
+      description: 'Anonymous user ID.',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'

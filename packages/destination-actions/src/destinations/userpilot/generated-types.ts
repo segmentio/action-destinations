@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Your Userpilot API koy, can be found in the [Userpilot environment](https://run.userpilot.io/environment) dashboard.
+   * Your Userpilot API key can be found in the [Userpilot environment](https://run.userpilot.io/environment) dashboard.
    */
   apiKey: string
   /**
-   * Your Userpilot endpoint, can be found in the [Userpilot environment](https://run.userpilot.io/environment) dashboard.
+   * Your Userpilot API endpoint can be found in the [Userpilot environment](https://run.userpilot.io/environment) dashboard.
    */
   endpoint: string
 }

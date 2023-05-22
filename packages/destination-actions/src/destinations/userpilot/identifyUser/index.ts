@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     userId: {
       type: 'string',
       required: false,
-      description: 'User id',
+      description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       type: 'string',
       required: false,
-      description: 'User anonymous id',
+      description: 'Anonymous user ID.',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
@@ -40,6 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const { traits, anonymousId, userId } = payload
+
+    // Transform createdAt to Userpilot reserved property
+    if (traits?.createdAt !== undefined) {
+      traits.created_at = traits.createdAt
+      delete traits.createdAt
+    }
+
     const { url, options } = getIdentifyRequestParams(settings, { traits, anonymousId, userId })
 
     return request(url, options)

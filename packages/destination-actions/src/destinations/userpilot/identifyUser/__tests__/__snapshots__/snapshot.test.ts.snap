@@ -9,8 +9,4 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for Userpilot's identifyUser destination action: required fields 1`] = `
-Object {
-  "metadata": Object {},
-}
-`;
+exports[`Testing snapshot for Userpilot's identifyUser destination action: required fields 1`] = `Object {}`;
