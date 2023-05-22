@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_country,
       payload.data_processing_options_state
     )
-
+    console.log('app_data_field', payload.app_data_field)
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events?debug=all`,
       {
