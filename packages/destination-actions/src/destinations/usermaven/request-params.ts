@@ -68,15 +68,6 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     doc_encoding: 'utf-8',
     src: 'usermaven-segment',
     screen_resolution: '0',
-    device_ctx: {
-      ip: payload.ip || '',
-      user_agent: payload.user_agent || ''
-    },
-    page_ctx: {
-      page_title: payload.page_title || '',
-      url: payload.url || '',
-      referer: payload.referer || ''
-    },
     ...payload
   }
 
