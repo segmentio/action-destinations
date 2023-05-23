@@ -51,6 +51,13 @@ export const destination: BrowserDestinationDefinition<Settings, Userpilot> = {
       required: true,
       type: 'string'
     },
+    endpoint: {
+      label: 'The API endpoint the SDK would connect to',
+      description:
+        'By default, Userpilot would use a service discovery mechanism to determine the API endpoint to connect to. If you are using a proxy or a firewall, you can specify the API endpoint here.',
+      required: false,
+      type: 'string'
+    },
     shouldSegmentLoadSDK: {
       label: 'Segment Loads Userpilot JS',
       description:
