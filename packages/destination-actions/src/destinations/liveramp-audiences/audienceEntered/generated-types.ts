@@ -16,11 +16,7 @@ export interface Payload {
    */
   delimiter: string
   /**
-   * Name of the audience the user has entered.
+   * Name of the CSV file to upload for LiveRamp ingestion.
    */
-  audience_name: string
-  /**
-   * Datetime at which the event was received. Used to disambiguate the resulting file.
-   */
-  received_at: string | number
+  filename: string
 }
