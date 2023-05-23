@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings, features, statsContext }) => {
-    console.log('payload', payload)
+    console.log('FBCAPI_payload', payload)
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -98,7 +98,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_country,
       payload.data_processing_options_state
     )
-    console.log('app_data_field', payload.app_data_field)
+    console.log('FBCAPI_app_data_field', payload.app_data_field)
+    console.log('FBCAPI_AddToCart')
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events?debug=all`,
       {
