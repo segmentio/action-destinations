@@ -138,7 +138,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
   initialize: async ({ settings }, deps) => {
     const config = {
-      send_page_view: settings.pageView,
       cookie_update: settings.cookieUpdate,
       cookie_domain: settings.cookieDomain,
       cookie_prefix: settings.cookiePrefix,
