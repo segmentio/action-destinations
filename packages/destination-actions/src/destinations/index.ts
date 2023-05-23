@@ -100,6 +100,7 @@ register('6447ca8bfaa773a2ba0777a0', './tiktok-offline-conversions')
 register('645babd9362d97b777391325', './iterable')
 register('644ad6c6c4a87a3290450602', './liveramp-audiences')
 register('6464ef424ac5c5f47f5f3968', './revx')
+register('646ce31d67ac1735b1846052', './calliper')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
