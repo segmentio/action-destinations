@@ -1,14 +1,14 @@
 import addBasicAuthHeader from './middleware/before-request/add-basic-auth-header'
 import prepareHeaders from './middleware/after-response/prepare-headers'
 import prepareResponse from './middleware/after-response/prepare-response'
-import { createInstance, AllRequestOptions, RequestOptions } from './request-client'
+import createInstance, { AllRequestOptions, RequestOptions } from './request-client'
 import type { ModifiedResponse } from './types'
 
 export interface ResponseError extends Error {
   status?: number
 }
 
-const options: AllRequestOptions = {
+const baseClient = createInstance({
   timeout: 10000,
   headers: {
     'user-agent': 'Segment (Actions)'
@@ -18,9 +18,7 @@ const options: AllRequestOptions = {
     addBasicAuthHeader
   ],
   afterResponse: [prepareResponse, prepareHeaders]
-}
-
-const baseClient = createInstance(options)
+})
 
 export type RequestClient = ReturnType<typeof createRequestClient>
 

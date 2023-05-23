@@ -3,7 +3,7 @@ export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
-export { createInstance } from './request-client'
+export { default as createInstance } from './request-client'
 export { defaultValues } from './defaults'
 export {
   IntegrationError,
