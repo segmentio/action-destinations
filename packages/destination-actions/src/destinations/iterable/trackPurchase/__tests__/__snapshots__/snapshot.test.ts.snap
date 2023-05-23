@@ -14,7 +14,7 @@ Object {
         "A]e()J&WFH",
       ],
       "dataFields": Object {
-        "testType": "A]e()J&WFH",
+        "description": "A]e()J&WFH",
       },
       "description": "A]e()J&WFH",
       "id": "A]e()J&WFH",
@@ -30,11 +30,11 @@ Object {
   "total": -24949647642460.16,
   "user": Object {
     "dataFields": Object {
+      "phoneNumber": "A]e()J&WFH",
       "testType": "A]e()J&WFH",
     },
     "email": "wujapid@zogebpi.ve",
     "mergeNestedObjects": true,
-    "preferUserId": true,
     "userId": "A]e()J&WFH",
   },
 }

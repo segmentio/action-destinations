@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'identifyUser'
-const destinationSlug = 'actions-vwo-cloud'
+const actionSlug = 'sendRevxPing'
+const destinationSlug = 'Revx'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {

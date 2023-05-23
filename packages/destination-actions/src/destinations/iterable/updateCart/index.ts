@@ -1,19 +1,21 @@
-import { ActionDefinition, PayloadValidationError, omit } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   USER_ID_FIELD,
-  PREFER_USER_ID_FIELD,
   MERGE_NESTED_OBJECTS_FIELD,
   ITEMS_FIELD,
   EMAIL_FIELD,
-  USER_DATA_FIELDS
+  USER_DATA_FIELDS,
+  USER_PHONE_NUMBER_FIELD,
+  CommerceItem
 } from '../shared-fields'
+import { transformItems, convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Cart',
-  description: 'Updates shoppingCartItems field on the user profile.',
-  defaultSubscription: 'type = "track" and event == "Update Cart"',
+  title: 'Cart Updates',
+  description: 'Updates the shoppingCartItems field on the user profile.',
+  defaultSubscription: 'type = "track" and event == "Cart Updated"',
   fields: {
     user: {
       label: 'User Data',
@@ -31,7 +33,9 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         },
         userId: { '@path': '$.userId' },
-        dataFields: { '@path': '$.context.traits' }
+        dataFields: { '@path': '$.context.traits' },
+        phoneNumber: { '@path': '$.context.traits.phone' },
+        mergeNestedObjects: false
       },
       properties: {
         email: {
@@ -40,14 +44,14 @@ const action: ActionDefinition<Settings, Payload> = {
         userId: {
           ...USER_ID_FIELD
         },
-        preferUserId: {
-          ...PREFER_USER_ID_FIELD
-        },
         mergeNestedObjects: {
           ...MERGE_NESTED_OBJECTS_FIELD
         },
         dataFields: {
           ...USER_DATA_FIELDS
+        },
+        phoneNumber: {
+          ...USER_PHONE_NUMBER_FIELD
         }
       }
     },
@@ -61,60 +65,32 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
-    const reservedItemKeys = [
-      'product_id',
-      'id',
-      'sku',
-      'name',
-      'price',
-      'quantity',
-      'categories',
-      'category',
-      'url',
-      'image_url'
-    ]
-
-    /**
-     * Transforms an array of product items by removing reserved keys from dataFields and converting categories to string arrays.
-     */
-    function transformItems(items: Payload['items']): CartItem[] {
-      return items.map(({ dataFields, categories, ...rest }) => ({
-        ...rest,
-        dataFields: omit(dataFields, reservedItemKeys),
-        ...(categories && { categories: [categories] })
-      }))
-    }
-
-    type CartItem = {
-      id?: string
-      name?: string
-      sku?: string
-      quantity?: number
-      price?: number
-      description?: string
-      categories?: string[]
-      url?: string
-      imageUrl?: string
-      dataFields?: {
-        [k: string]: unknown
-      }
-    }
-
     interface UpdateCartRequest {
       user: {
         email?: string
         userId?: string
         mergeNestedObjects?: boolean
-        preferUserId?: boolean
         dataFields?: {
           [k: string]: unknown
         }
       }
-      items: CartItem[]
+      items: CommerceItem[]
     }
 
+    // Store the phoneNumber value before deleting from the user object
+    const phoneNumber = user.phoneNumber
+    delete user.phoneNumber
+
+    const formattedDataFields = convertDatesInObject(user.dataFields ?? {})
+
     const updateCartRequest: UpdateCartRequest = {
-      user,
+      user: {
+        ...user,
+        dataFields: {
+          ...formattedDataFields,
+          phoneNumber: phoneNumber
+        }
+      },
       items: transformItems(items)
     }
 

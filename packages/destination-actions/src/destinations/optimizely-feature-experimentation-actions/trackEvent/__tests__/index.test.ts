@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { dataFile } from '../mock-dataFile'
+import { dataFile, dataFileWithDisabledProject } from '../mock-dataFile'
 import { payload, botFilteringPayload } from '../mock-payload'
 
 const testDestination = createTestIntegration(Destination)
@@ -71,5 +71,27 @@ describe('OptimizelyFeatureExperimentation.trackEvent', () => {
     })
     const responses = await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
     expect(responses[2].options.json).toMatchObject(botFilteringPayload)
+  })
+  it('should throw error if project has been disabled', async () => {
+    const settings = {
+      accountId: '12345566',
+      dataFileUrl: 'https://cdn.example.com/dataFileWithDisabledProject.json'
+    }
+    nock(settings.dataFileUrl).get('').reply(200, dataFileWithDisabledProject)
+    nock('https://logx.optimizely.com/v1/events').post('').reply(400, {})
+    const event = createTestEvent({
+      event: 'Error Test Event',
+      properties: {
+        revenue: 1000
+      },
+      context: {
+        traits: {
+          test: 'test'
+        }
+      }
+    })
+    await expect(
+      testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
+    ).rejects.toThrowError(`This Optimizely project has been deactivated. Visit app.optimizely.com to activate it.`)
   })
 })

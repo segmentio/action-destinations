@@ -4,9 +4,10 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'pageVisit'
-const destinationSlug = 'actions-vwo-cloud'
+const actionSlug = 'identifyUser'
+const destinationSlug = 'Calliper'
 const seedName = `${destinationSlug}#${actionSlug}`
+global.Date.now = jest.fn(() => 1612137600000)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
