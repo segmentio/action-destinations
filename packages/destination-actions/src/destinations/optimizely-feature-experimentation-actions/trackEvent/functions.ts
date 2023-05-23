@@ -71,3 +71,12 @@ export async function getEventKeys(request: RequestClient, settings: Settings) {
     }
   }
 }
+
+export function isValidJson(dataFile: string) {
+  try {
+    JSON.parse(dataFile)
+    return true
+  } catch (err) {
+    return false
+  }
+}

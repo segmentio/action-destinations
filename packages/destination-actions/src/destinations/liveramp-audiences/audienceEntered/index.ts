@@ -1,7 +1,9 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { processData } from './operations'
+import { uploadS3, validateS3 } from './s3'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
+import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered',
@@ -30,19 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: ','
     },
-    audience_name: {
-      label: 'Audience name',
-      description: `Name of the audience the user has entered.`,
+    filename: {
+      label: 'Filename',
+      description: `Name of the CSV file to upload for LiveRamp ingestion.`,
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.audience_key' }
-    },
-    received_at: {
-      label: 'Received At',
-      description: `Datetime at which the event was received. Used to disambiguate the resulting file.`,
-      type: 'datetime',
-      required: true,
-      default: { '@path': '$.receivedAt' }
+      default: { '@template': '{{properties.audience_key}}_PII_{{receivedAt}}.csv' }
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -50,6 +45,31 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { settings, payload }) => {
     return processData(request, settings, payload)
+  }
+}
+
+async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  // STRATCONN-2584: error if less than 25 elements in payload
+  switch (settings.upload_mode) {
+    case 'S3':
+      validateS3(settings)
+      break
+    case 'SFTP':
+      validateSFTP(settings)
+      break
+    default:
+      throw new InvalidAuthenticationError(`Unexpected upload mode: ${settings.upload_mode}`)
+  }
+
+  const { filename, fileContent } = generateFile(payloads)
+
+  switch (settings.upload_mode) {
+    case 'S3':
+      return uploadS3(settings, filename, fileContent, request)
+    case 'SFTP': {
+      const sftpClient = new ClientSFTP()
+      return uploadSFTP(sftpClient, settings, filename, fileContent)
+    }
   }
 }
 
