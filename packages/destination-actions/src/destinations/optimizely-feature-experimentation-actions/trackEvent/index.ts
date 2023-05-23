@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    await request('https://logx.optimizely.com/v1/events', {
+    return await request('https://logx.optimizely.com/v1/events', {
       method: 'POST',
       json: {
         account_id: dataFile.accountId,
