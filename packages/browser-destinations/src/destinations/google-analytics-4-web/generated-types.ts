@@ -6,10 +6,6 @@ export interface Settings {
    */
   measurementID: string
   /**
-   * Set to false to prevent the default snippet from sending page views. Enabled by default.
-   */
-  pageView?: boolean
-  /**
    * Set to false to disable all advertising features. Set to true by default.
    */
   allowGoogleSignals?: boolean
