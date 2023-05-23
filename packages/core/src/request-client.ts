@@ -320,7 +320,7 @@ class RequestClient {
  * Creates a new instance of the fetch request client,
  * optionally with default configuration to apply to all requests made with the client
  */
-export default function createInstance(defaults: AllRequestOptions = {}) {
+export function createInstance(defaults: AllRequestOptions = {}) {
   const client = <R extends Response = Response>(url: string, options: RequestOptions = {}) =>
     new RequestClient(url, mergeOptions(defaults, options)).executeRequest<R>()
   client.extend = (newDefaults: AllRequestOptions) => createInstance(mergeOptions(defaults, newDefaults))
