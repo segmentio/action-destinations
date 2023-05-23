@@ -63,7 +63,6 @@ export const eventRequestParams = (
 export const resolveRequestPayload = (settings: Settings, payload: Record<string, any>): any => {
   const properties: any = {
     api_key: settings.api_key,
-    event_id: '',
     ids: {},
     doc_encoding: 'utf-8',
     src: 'usermaven-segment',
