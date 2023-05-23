@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'Batch data',
-      description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.ß',
+      description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
       required: true,
       default: true
     }
