@@ -6,7 +6,7 @@ import type { Userpilot } from '../types'
 const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Track Event',
   description:
-    'Send an event to Userpilot, you can visit [Userpilot docs](https://docs.userpilot.com/article/23-identify-users-track-custom-events) for more information.',
+    'Send an event to Userpilot. You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).',
   platform: 'web',
   fields: {
     name: {

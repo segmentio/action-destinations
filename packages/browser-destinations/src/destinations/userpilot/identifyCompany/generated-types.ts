@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Company id
+   * The ID of the company.
    */
   groupId?: string
   /**
-   * Segment traits
+   * Company traits
    */
   traits?: {
     [k: string]: unknown

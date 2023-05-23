@@ -6,13 +6,13 @@ import type { Userpilot } from '../types'
 const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Identify User',
   description:
-    'Defines a user in Userpilot, you can visit [Userpilot docs](https://docs.userpilot.com/article/23-identify-users-track-custom-events) for more information.',
+    "Create or update a user entity in Userpilot; it's mandatory to identify a user prior to invoking other methods such as track, page, or group. You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
   platform: 'web',
   fields: {
     userId: {
       type: 'string',
       required: false,
-      description: 'User id',
+      description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
     anonymousId: {
       type: 'string',
       required: false,
-      description: 'User anonymous id',
+      description: 'Anonymous user ID.',
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
@@ -30,7 +30,7 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
     traits: {
       type: 'object',
       required: false,
-      description: 'Segment traits',
+      description: 'User traits.',
       label: 'Traits',
       default: {
         '@path': '$.traits'

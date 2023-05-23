@@ -6,7 +6,7 @@ import type { Userpilot } from '../types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Page View',
-  description: 'Update the content to trigger on page view.',
+  description: 'Update the content queue designed to trigger on a specific page.',
   platform: 'web',
   fields: {
     name: {

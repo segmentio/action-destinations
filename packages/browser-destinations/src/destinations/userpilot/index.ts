@@ -21,7 +21,7 @@ declare global {
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Userpilot> = {
   name: 'Userpilot Web (Actions)',
-  slug: 'actions-userpilot',
+  slug: 'actions-userpilot-web',
   mode: 'device',
   presets: [
     {
@@ -50,21 +50,30 @@ export const destination: BrowserDestinationDefinition<Settings, Userpilot> = {
         'Your Userpilot app token, you can find it in the [Userpilot installation](https://run.userpilot.io/installation) dashboard.',
       required: true,
       type: 'string'
+    },
+    shouldSegmentLoadSDK: {
+      label: 'Segment Loads Userpilot JS',
+      description:
+        'By default, Segment will load the Userpilot JS snippet onto the page. If you are already loading the Userpilot JS onto the page then disable this setting and Segment will detect the Userpilot JS on the page',
+      required: true,
+      type: 'boolean',
+      default: true
     }
   },
-
   initialize: async ({ settings }, deps) => {
-    if (window.userpilot) {
-      return window.userpilot
+    const shouldLoadSDK = settings.shouldSegmentLoadSDK ?? true
+
+    if (shouldLoadSDK) {
+      window.userpilotSettings = {
+        token: settings.token,
+        shouldSegmentLoadSDK: shouldLoadSDK
+      }
+
+      await deps.loadScript('//js.userpilot.io/sdk/latest.js')
+      await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'userpilot'), 100)
+    } else {
+      await deps.resolveWhen(() => window.userpilot !== undefined, 100)
     }
-
-    window.userpilotSettings = {
-      token: settings.token
-    }
-
-    await deps.loadScript('//js.userpilot.io/sdk/latest.js')
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'userpilot'), 100)
-
     return window.userpilot
   },
 

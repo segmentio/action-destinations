@@ -5,13 +5,13 @@ import type { Userpilot } from '../types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Identify Company',
-  description: 'Defines an account in Userpilot',
+  description: 'Create or update a company entity in Userpilot',
   platform: 'web',
   fields: {
     groupId: {
       type: 'string',
       required: false,
-      description: 'Company id',
+      description: 'The ID of the company.',
       label: 'Company ID',
       default: {
         '@path': '$.groupId'
@@ -20,7 +20,7 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
     traits: {
       type: 'object',
       required: false,
-      description: 'Segment traits',
+      description: 'Company traits',
       label: 'Traits',
       default: {
         '@path': '$.traits'
