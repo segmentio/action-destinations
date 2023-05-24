@@ -67,7 +67,7 @@ function _build_custom_event_object(payload: CustomEventsPayload): object {
   do much else in terms of validation. Traits line up pretty well with Custom Event properties.
   */
   if (payload.properties) {
-    payload.properties.source = 'segment'
+    payload.properties.source = 'Segment'
   } else {
     payload.properties = {
       source: 'Segment'
