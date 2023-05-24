@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, RetryableError } from '@segment/actions-core'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
@@ -31,14 +31,6 @@ export async function processPayload(
       batch_data: users
     }
     res = await TikTokApiClient.batchUpdate(elements)
-
-    // At this point, if TikTok's API returns a 400 error, it's because the audience
-    // Segment just created isn't available yet for updates via this endpoint.
-    // Audiences are usually available to accept batches of data 1 - 2 minutes after
-    // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
-    if (res.status !== 200) {
-      throw new RetryableError('Error while attempting to update TikTok Audience. This batch will be retried.')
-    }
   }
 
   return res
