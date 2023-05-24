@@ -20,7 +20,13 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         type: 'string',
         label: 'API Key',
-        description: 'Found on your settings page.',
+        description: 'Found on your general settings page.',
+        required: true
+      },
+      server_token: {
+        type: 'string',
+        label: 'Server Token',
+        description: 'Found on your general settings page.',
         required: true
       }
     },
@@ -30,6 +36,10 @@ const destination: DestinationDefinition<Settings> = {
       // you can remove the `testAuthentication` function, though discouraged.
       if (!settings.api_key || settings.api_key.length === 0) {
         throw new IntegrationError('API Key is required', 'Invalid API Key', 400)
+      }
+
+      if (!settings.server_token || settings.server_token.length === 0) {
+        throw new IntegrationError('Server Token is required', 'Invalid Server Token', 400)
       }
     }
   },

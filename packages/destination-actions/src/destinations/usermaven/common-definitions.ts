@@ -161,7 +161,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       }
     }
   },
-  ip: {
+  source_ip: {
     type: 'string',
     required: false,
     description: 'The IP address of the user.',
