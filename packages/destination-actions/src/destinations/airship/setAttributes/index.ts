@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
         gender: { '@path': '$.traits.gender' },
         zipcode: { '@path': '$.traits.address.postalCode' },
         city: { '@path': '$.traits.address.city' },
-        region: { '@path': '$.traits.region' },
+        region: { '@path': '$.traits.address.region' },
         country: { '@path': '$.traits.address.country' },
         birthdate: { '@path': '$.traits.birthdate' },
         age: { '@path': '$.traits.age' },
