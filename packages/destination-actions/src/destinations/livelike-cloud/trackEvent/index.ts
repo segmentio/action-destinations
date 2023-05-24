@@ -103,9 +103,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    if (!settings.clientId || !settings.producerToken) {
-      throw new IntegrationError('Missing client ID or producer token.')
-    }
     return processData(request, settings, [payload])
   }
   // Commented batching until the segment team supports rejecting a single event in a batch
