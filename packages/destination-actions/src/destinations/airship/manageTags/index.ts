@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     tags: {
       label: 'Tag Name',
       description:
-        'Tag name to add or remove. Values for each tag should be boolean only. a true value creates a tag, a false value removes a tag. Non-boolean values will be ignored.',
+        'Tag name to add or remove. Values for each tag should be boolean only. A true value creates a tag, a false value removes a tag. Non-boolean values will be ignored.',
       type: 'object',
       default: {
         '@path': '$.traits.airship_tags'
