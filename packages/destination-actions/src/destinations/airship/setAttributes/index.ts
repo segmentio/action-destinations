@@ -163,7 +163,7 @@ const action: ActionDefinition<Settings, Payload> = {
         country: { '@path': '$.traits.country' },
         birthdate: { '@path': '$.traits.birthdate' },
         age: { '@path': '$.traits.age' },
-        mobile_phone: { '@path': '$.traits.mobile_phone' },
+        mobile_phone: { '@path': '$.traits.phone' },
         home_phone: { '@path': '$.traits.home_phone' },
         work_phone: { '@path': '$.traits.work_phone' },
         loyalty_tier: { '@path': '$.traits.loyalty_tier' },
