@@ -167,7 +167,7 @@ const action: ActionDefinition<Settings, Payload> = {
         home_phone: { '@path': '$.traits.home_phone' },
         work_phone: { '@path': '$.traits.work_phone' },
         loyalty_tier: { '@path': '$.traits.loyalty_tier' },
-        company: { '@path': '$.traits.company' },
+        company: { '@path': '$.traits.company_name' },
         username: { '@path': '$.traits.username' },
         account_creation: { '@path': '$.traits.account_creation' },
         email: { '@path': '$.traits.email' },
