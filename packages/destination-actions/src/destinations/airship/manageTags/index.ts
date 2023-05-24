@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Airship Named User ID',
       description: 'The identifier assigned in Airship as the Named User',
       type: 'string',
-      required: false,
+      required: true,
       default: {
         '@path': '$.userId'
       }
