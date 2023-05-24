@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { manageTags } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Tags',
+  title: 'Manage Tags',
   description: 'Associate tags with users in your audience for segmentation and automation',
   fields: {
     named_user_id: {
