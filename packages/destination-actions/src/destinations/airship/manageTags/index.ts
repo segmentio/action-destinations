@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     tag_group: {
       label: 'Tag Group',
       description:
-        'The Tag Group to sync your tags to. Normally, this should be `segment-integration`, but set it here if it should be something else. Note: the Tag Group used must be valid and exist in Airship.',
+        'The Tag Group to sync your tags to. This defaults to`segment-integration` but can be overridden with this field. Note: the Tag Group used must be valid and exist in Airship.',
       type: 'string',
       required: true,
       default: 'segment-integration'
