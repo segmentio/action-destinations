@@ -7,7 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Set Attributes',
   defaultSubscription: 'type = "identify"',
   description:
-    'Set user attributes in Airship with data from Segment. Some preset attributes are predefined, but all must be created in Airship before use. More information here: https://docs.airship.com/guides/messaging/user-guide/audience/segmentation/attributes/project/#adding-attributes',
+    'Set user attributes in Airship with data from Segment. Some common user attributes are predefined in the attributes field, however note that all must be created in Airship before use. More information here: https://docs.airship.com/guides/messaging/user-guide/audience/segmentation/attributes/project/#adding-attributes',
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
