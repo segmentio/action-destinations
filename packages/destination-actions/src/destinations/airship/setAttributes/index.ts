@@ -174,7 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
         altitude: { '@path': '$.traits.altitude' },
         latitude: { '@path': '$.traits.latitude' },
         longitude: { '@path': '$.traits.longitude' },
-        advertising_id: { '@path': '$.traits.advertising_id' }
+        advertising_id: { '@path': '$.context.device.advertisingId' }
       }
     }
   },
