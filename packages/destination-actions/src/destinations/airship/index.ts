@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import customEvents from './customEvents'
@@ -59,7 +59,20 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
-
+  presets: [
+    {
+      name: 'Custom Events',
+      subscribe: 'type = "track"',
+      partnerAction: 'customEvents',
+      mapping: defaultValues(customEvents.fields)
+    },
+    {
+      name: 'Set Attributes',
+      subscribe: 'type = "identify"',
+      partnerAction: 'setAttributes',
+      mapping: defaultValues(setAttributes.fields)
+    }
+  ],
   onDelete: async (request, { settings, payload }) => {
     return request(`${settings.endpoint}/api/named_users/uninstall`, {
       method: 'post',
