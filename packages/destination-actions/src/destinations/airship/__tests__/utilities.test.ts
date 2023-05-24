@@ -45,7 +45,7 @@ const airship_custom_event_payload = {
       property1: 1,
       property2: 'test',
       property3: true,
-      source: 'segment'
+      source: 'Segment'
     }
   }
 }
