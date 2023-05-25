@@ -6,8 +6,9 @@ import type { Userpilot } from '../types'
 const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Identify User',
   description:
-    "Create or update a user entity in Userpilot; it's mandatory to identify a user by calling identify() prior to invoking other methods such as track(), page(), or group(). You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
+    "Create or update a user entity in Userpilot. It's mandatory to identify a user by calling identify() prior to invoking other methods such as track(), page(), or group(). You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
   platform: 'web',
+  defaultSubscription: 'type = "identify"',
   fields: {
     userId: {
       type: 'string',
@@ -15,16 +16,20 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
       description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
-        '@path': '$.userId'
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
-    anonymousId: {
-      type: 'string',
+    createdAt: {
+      type: 'datetime',
       required: false,
-      description: 'Anonymous user ID.',
-      label: 'Anonymous ID',
+      description: 'The date the user profile was created at',
+      label: 'User Created At Date',
       default: {
-        '@path': '$.anonymousId'
+        '@path': '$.traits.createdAt'
       }
     },
     traits: {
@@ -38,15 +43,12 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
     }
   },
   perform: (_, event) => {
-    const userId = event.payload.userId || event.payload.anonymousId || ''
+    const userId = event.payload.userId || ''
     const traits = event.payload.traits || {}
 
-    if (traits?.createdAt) {
-      traits.created_at = traits.createdAt
-      delete traits.createdAt
-    }
+    traits?.createdAt && delete traits.createdAt
 
-    window.userpilot.identify(userId, traits)
+    window.userpilot.identify(userId, { ...traits, created_at: event.payload.createdAt })
   }
 }
 

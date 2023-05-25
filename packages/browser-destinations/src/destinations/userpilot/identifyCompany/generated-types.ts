@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The ID of the company.
    */
-  groupId?: string
+  groupId: string
   /**
    * Company traits
    */

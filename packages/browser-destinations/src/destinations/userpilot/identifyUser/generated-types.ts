@@ -6,9 +6,9 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Anonymous user ID.
+   * The date the user profile was created at
    */
-  anonymousId?: string
+  createdAt?: string | number
   /**
    * User traits.
    */

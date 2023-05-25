@@ -7,10 +7,11 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
   title: 'Identify Company',
   description: 'Create or update a company entity in Userpilot',
   platform: 'web',
+  defaultSubscription: 'type = "group"',
   fields: {
     groupId: {
       type: 'string',
-      required: false,
+      required: true,
       description: 'The ID of the company.',
       label: 'Company ID',
       default: {
