@@ -166,8 +166,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
         throw new PayloadValidationError('Content SID not in payload')
       }
 
-      this.logInfo('Get content template from Twilio by ContentSID')
-
       const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
         'base64'
       )
