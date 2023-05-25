@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://library.twilio.com/m/75a81eb2857bfd02/webimage-logo-segment-icon-clearspace-rgb.png" width="300"/></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://library.twilio.com/m/75a81eb2857bfd02/webimage-logo-segment-icon-clearspace-rgb.png" width="100"/></a></p>
 
 # Action Destinations
 
