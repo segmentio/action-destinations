@@ -122,11 +122,16 @@ export default class Init extends Command {
       const actionsTargetDirectory = `${targetDirectory}/${action.key}`
 
       action.fields.forEach((field: any) => {
-        const hasDefault = field.hasDefault && field.default
+        const hasDefault = field.hasDefault && field.defaultValue
         if (hasDefault) {
-          field.hasDefaultValue = field.default.type !== 'directive'
-          field.hasDirective = field.default.type === 'directive'
-          field.isString = ['string', 'text', 'datetime', 'password'].includes(field.type)
+          const defaultValue = JSON.stringify(field.defaultValue)
+          if (defaultValue.includes('@template')) {
+            field.isTemplate = true
+            field.directiveType = '@template'
+            const templateValue: string = field.defaultValue['@template']
+            field.value = templateValue.replace(/[}]/g, "]").replace(/[{]/g, "[")
+          }
+          field.defaultValue = defaultValue
         }
       })
 
@@ -166,6 +171,19 @@ export default class Init extends Command {
         this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
       } catch (err: any) {
         this.spinner.fail(chalk`Snapshot test creation failed {magenta ${action.name}}: ${chalk.red(err.message)}`)
+        this.exit()
+      }
+
+      // In order to generate templates, we had to replace curly braces with square brackets. This reverts them back to curly braces.
+      const entryFile = `${actionsTargetDirectory}/index.ts`
+      try {
+        this.spinner.start(chalk`Updating action field templates for action: ${action.name}`)
+        const actionsStr = fs.readFileSync(entryFile, 'utf8')
+        const result = actionsStr.replace(/\]/g, '}').replace(/\[/g, '{')
+        fs.writeFileSync(entryFile, result, 'utf8')
+        this.spinner.succeed()
+      } catch (err) {
+        this.spinner.fail(chalk`Failed to update your action field templates for action: ${action.name}`)
         this.exit()
       }
     }
