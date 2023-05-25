@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://brand.segment.com/site-assets/7b19c1a2/images/brand-guidelines/content/twilio/twilio-segment-logo-2x.png" width="300"></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://library.twilio.com/m/977271bee01f1d1/webimage-logo-segment-clearspace-rgb.png" width="300"/></a></p>
 
 # Action Destinations
 
