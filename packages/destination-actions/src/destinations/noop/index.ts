@@ -13,7 +13,7 @@ const presets: Subscription[] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Test',
+  name: 'Noop',
   slug: 'actions-noop',
   mode: 'cloud',
   description: 'A NOOP destination used for private internal services.',
