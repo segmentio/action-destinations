@@ -129,7 +129,7 @@ export default class Init extends Command {
             field.isTemplate = true
             field.directiveType = '@template'
             const templateValue: string = field.defaultValue['@template']
-            field.value = templateValue.replace(/[}]/g, "]").replace(/[{]/g, "[")
+            field.value = templateValue.replace(/\{\{([^{}]+)\}\}/g, '[[$1]]')
           }
           field.defaultValue = defaultValue
         }
@@ -179,7 +179,7 @@ export default class Init extends Command {
       try {
         this.spinner.start(chalk`Updating action field templates for action: ${action.name}`)
         const actionsStr = fs.readFileSync(entryFile, 'utf8')
-        const result = actionsStr.replace(/\]/g, '}').replace(/\[/g, '{')
+        const result = actionsStr.replace(/\[\[([^[\]]+)\]\]/g, '{{$1}}')
         fs.writeFileSync(entryFile, result, 'utf8')
         this.spinner.succeed()
       } catch (err) {
