@@ -97,7 +97,11 @@ export async function getAudienceID(
   if (audienceExists.length == 1) {
     audienceID = audienceExists[0].audience_id
   } else {
-    const response = await TikTokApiClient.createAudience(payload as AddUserPayload)
+    const sleep = (time: number) => new Promise((r) => setTimeout(r, time))
+    console.log('Before sleep happeing')
+    await sleep(5000)
+    console.log('After sleep')
+    const response = await TikTokApiClient.createAudience(payload)
     audienceID = response.data.data.audience_id
   }
 
