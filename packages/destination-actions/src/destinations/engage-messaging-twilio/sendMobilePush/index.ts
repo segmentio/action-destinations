@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customizations: {
       label: 'Customizations',
-      description: '',
+      description: 'Customizations for the notification',
       type: 'object',
       properties: {
         title: {

@@ -9,6 +9,9 @@ export interface Payload {
    * The Push Service Sid to send the push notification from.
    */
   from: string
+  /**
+   * Customizations for the notification
+   */
   customizations?: {
     /**
      * The title to be displayed for your notification
