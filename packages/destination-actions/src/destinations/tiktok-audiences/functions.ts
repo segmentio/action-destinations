@@ -99,7 +99,7 @@ export async function getAudienceID(
   } else {
     const sleep = (time: number) => new Promise((r) => setTimeout(r, time))
     console.log('Before sleep happeing')
-    await sleep(5000)
+    await sleep(3000)
     console.log('After sleep')
     const response = await TikTokApiClient.createAudience(payload)
     audienceID = response.data.data.audience_id
