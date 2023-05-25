@@ -8,6 +8,7 @@ export type GeneratedAppData = {
   application_tracking_enabled: 1 | 0
   extinfo: string[]
 }
+
 export const generate_app_data = (app_data: AppData): GeneratedAppData | undefined => {
   if (!app_data || !app_data.use_app_data) {
     return undefined
@@ -62,11 +63,11 @@ export const app_data_field: InputField = {
       label: 'Application Tracking Enabled',
       type: 'boolean',
       description: `*Required for app events*
-            A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled. `
+            A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled.`
     },
     version: {
       label: 'ExtInfo Version',
-      description: `*Required for app events* Example: i2`,
+      description: `*Required for app events* Example: 'i2'.`,
       type: 'string',
       choices: [
         { label: 'iOS', value: 'i2' },
@@ -75,77 +76,77 @@ export const app_data_field: InputField = {
     },
     packageName: {
       label: 'Package Name',
-      description: `Example: com.facebook.sdk.samples.hellofacebook`,
+      description: `Example: 'com.facebook.sdk.samples.hellofacebook'.`,
       type: 'string'
     },
     shortVersion: {
       label: 'Short Version',
-      description: `Example: 1.0`,
+      description: `Example: '1.0'.`,
       type: 'string'
     },
     longVersion: {
       label: 'Long Version',
-      description: `Example: 1.0 long`,
+      description: `Example: '1.0 long'.`,
       type: 'string'
     },
     osVersion: {
       label: '*Required for app events* OS Version',
-      description: `Example: 13.4.1`,
+      description: `Example: '13.4.1'.`,
       type: 'string'
     },
     deviceName: {
       label: 'Device Model Name',
-      description: `Example: iPhone5,1`,
+      description: `Example: 'iPhone5,1'.`,
       type: 'string'
     },
     locale: {
       label: 'Locale',
-      description: `Example: En_US`,
+      description: `Example: 'En_US'.`,
       type: 'string'
     },
     timezone: {
       label: 'Timezone Abbreviation',
-      description: "Example: 'PST'",
+      description: `Example: 'PST'.`,
       type: 'string'
     },
     carrier: {
       label: 'Carrier Name',
-      description: 'Example: AT&T',
+      description: `Example: 'AT&T'.`,
       type: 'string'
     },
     width: {
       label: 'Screen Width',
-      description: 'Example: 1080',
+      description: `Example: '1080'.`,
       type: 'string'
     },
     height: {
       label: 'Screen Height',
-      description: 'Example: 1920',
+      description: `Example: '1920'.`,
       type: 'string'
     },
     density: {
       label: 'Screen Density',
-      description: 'Example: 2.0',
+      description: `Example: '2.0'.`,
       type: 'string'
     },
     cpuCores: {
       label: 'CPU Cores',
-      description: 'Example: 8',
+      description: `Example: '8'.`,
       type: 'string'
     },
     storageSize: {
       label: 'Storage Size in GBs',
-      description: 'Example: 64',
+      description: `Example: '64'.`,
       type: 'string'
     },
     freeStorage: {
       label: 'Free Storage in GBs',
-      description: 'Example: 32',
+      description: `Example: '32'.`,
       type: 'string'
     },
     deviceTimezone: {
       label: 'Device Timezone',
-      description: 'Example: USA/New York',
+      description: `Example: 'USA/New York'.`,
       type: 'string'
     }
   },
