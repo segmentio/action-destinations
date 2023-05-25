@@ -3,6 +3,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { MessageSender } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
+import { PayloadValidationError } from '@segment/actions-core'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -32,29 +33,41 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
 
   getChannelType(): string {
-    return 'push'
+    return 'mobilepush'
   }
 
   async send() {
     this.initLogDetails()
 
+    this.tags.push(`channel:${this.getChannelType()}`)
+    this.statsClient?.incr('actions_personas_messaging_twilio.initialize', 1, this.tags)
+
     return this.logWrap([`Destination Action ${this.getChannelType().toUpperCase()}`], async () => {
       if (!this.payload.send) {
-        this.logInfo(`Not sending message, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-        this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
+        this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
+        this.statsClient?.incr('actions_personas_messaging_twilio.send_disabled', 1, this.tags)
         return
       }
       // we send notifications to every eligible device (subscribed and of a push type)
-      const recipientDevices = this.payload.externalIds?.filter(
-        (extId) =>
-          extId.subscriptionStatus &&
-          MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toLowerCase()) &&
-          extId.type &&
-          PushSender.externalIdTypes.includes(extId.type)
-      )
+      const allPushDevices =
+        this.payload.externalIds?.filter((extId) => extId.type && PushSender.externalIdTypes.includes(extId.type)) || []
+      const recipientDevices =
+        allPushDevices?.filter(
+          (extId) =>
+            extId.subscriptionStatus && MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toLowerCase())
+        ) || []
+
+      if (recipientDevices.length) {
+        this.statsClient?.incr('actions_personas_messaging_twilio.subscribed', 1, this.tags)
+      }
+
+      const totalUnsubscribed = allPushDevices.length - recipientDevices.length
+      if (totalUnsubscribed > 0) {
+        this.statsClient?.incr('actions_personas_messaging_twilio.notsubscribed', totalUnsubscribed, this.tags)
+      }
 
       if (!recipientDevices?.length) {
-        this.logInfo(`Not sending message, no devices are subscribed - ${this.settings.spaceId}`)
+        this.logInfo(`not sending push notification, no devices are subscribed - ${this.settings.spaceId}`)
         return
       }
 
@@ -125,7 +138,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           )
 
           this.tags.push(`twilio_status_code:${response.status}`)
-          this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+          this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
           responses.push(response)
         } catch (error: unknown) {
           /* on unexpected fail, do not block rest of phones from receiving push notification
@@ -148,7 +161,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
           failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id) })
           this.logDetails['failed-recipient-devices'] = failedSends
-          this.logTwilioError(error)
+          this.logTwilioError(error, 'Twilio Push API')
         }
       }
 
@@ -156,16 +169,23 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
        * if every device failed to send, lets attempt to retry if possible
        */
       if (failedSends.length === recipientDevices.length) {
-        this.logError(`all devices failed send - ${this.settings.spaceId}`)
+        this.logError(`failed to send to all subscribed devices - ${this.settings.spaceId}`)
         if (failureIsRetryable) {
           throw new IntegrationError('Unexpected response from Twilio Push API', 'UNEXPECTED_ERROR', 500)
         }
-        throw new IntegrationError('Unexpected response from Twilio Push API', 'BAD_REQUEST', 400)
+
+        throw new IntegrationError(
+          'Unexpected response from Twilio Push API',
+          'UNEXPECTED_ERROR',
+          responses.find((resp) => !this.retryableStatusCodes.includes(resp.status))?.status || 400
+        )
       }
 
+      this.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
+      this.tags.push(`total_failed:${failedSends.length}`)
       if (this.payload.eventOccurredTS != undefined) {
         this.statsClient?.histogram(
-          'actions-personas-messaging-twilio.eventDeliveryTS',
+          'actions_personas_messaging_twilio.eventDeliveryTS',
           Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
           this.tags
         )
@@ -232,9 +252,10 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
       return { requestBody, customData }
     } catch (error) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
-      this.logError(`unable to construct request body - ${this.settings.spaceId}`, JSON.stringify(error))
-      throw new IntegrationError('Unable to construct request body', 'Twilio Request Body Failure', 400)
+      this.tags.push('reason:invalid_payload')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1, this.tags)
+      this.logError(`unable to construct Notify API request body - ${this.settings.spaceId}`, JSON.stringify(error))
+      throw new PayloadValidationError('Unable to construct Notify API request body')
     }
   }
 

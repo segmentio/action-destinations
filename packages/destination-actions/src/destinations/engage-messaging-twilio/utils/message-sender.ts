@@ -58,6 +58,8 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     } catch (error: unknown) {
       this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
       this.logError(`unable to parse templating - ${this.settings.spaceId}`)
+      this.tags.push('reason:invalid_liquid')
+      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
       throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
     }
   }
@@ -179,7 +181,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       template = (await response.json()) as ContentTemplateResponse
     } catch (error) {
       this.tags.push('reason:get_content_template')
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1, this.tags)
       this.logError(
         `failed request to fetch content template from Twilio Content API - ${
           this.settings.spaceId
@@ -198,20 +200,25 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           this.settings.spaceId
         } - [${JSON.stringify(template)}]`
       )
+      this.tags.push('reason:invalid_template_type')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
       throw new IntegrationError(
-        'Unexpected response from Twilio Content API',
-        `template does not contain a template type`,
-        500
+        'Template from Twilio Content API does not contain any template types',
+        `NO_CONTENT_TYPES`,
+        400
       )
     }
+
     const type = Object.keys(template.types)[0] // eg 'twilio/text', 'twilio/media', etc
     if (this.supportedTemplateTypes.includes(type)) {
       return { body: template.types[type].body, media: template.types[type].media }
     } else {
       this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      this.tags.push('reason:invalid_template_type')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
       throw new IntegrationError(
-        'Unsupported content type',
         `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
+        'UNSUPPORTED_CONTENT_TYPE',
         400
       )
     }
@@ -256,7 +263,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return null
   }
 
-  logTwilioError(error: unknown): unknown {
+  logTwilioError(error: unknown, apiName = 'Twilio Programmable API'): unknown {
     let errorToRethrow = error
     if (error instanceof Object) {
       const twilioApiError = error as TwilioApiError
@@ -264,7 +271,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
       this.logDetails['error'] = twilioApiError.response
 
-      this.logError(`Twilio Programmable API error - ${this.settings.spaceId}`)
+      this.logError(`${apiName} error - ${this.settings.spaceId}`)
       const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
       this.tags.push(`twilio_status_code:${statusCode}`)
       this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
@@ -287,7 +294,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return errorToRethrow
   }
 
-  throwTwilioError(error: unknown) {
-    throw this.logTwilioError(error)
+  throwTwilioError(error: unknown, apiName = 'Twilio Programmable API') {
+    throw this.logTwilioError(error, apiName)
   }
 }

@@ -250,7 +250,7 @@ describe('sendMobilePush action', () => {
       )
       expect(responses.length).toEqual(0)
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`Not sending message, no devices are subscribed - ${spaceId}`),
+        expect.stringContaining(`not sending push notification, no devices are subscribed - ${spaceId}`),
         expect.any(String)
       )
     })
@@ -259,7 +259,7 @@ describe('sendMobilePush action', () => {
       const responses = await twilio.testAction(actionName, getActionPayload({ mappingOverrides: { send: false } }))
       expect(responses.length).toEqual(0)
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`Not sending message, payload.send = false - ${spaceId}`),
+        expect.stringContaining(`not sending push notification, payload.send = false - ${spaceId}`),
         expect.any(String)
       )
     })
@@ -277,7 +277,7 @@ describe('sendMobilePush action', () => {
         )
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: PUSH invalid webhook url - ${spaceId}`),
+        expect.stringContaining(`TE Messaging: MOBILEPUSH invalid webhook url - ${spaceId}`),
         expect.any(String)
       )
     })
@@ -311,7 +311,7 @@ describe('sendMobilePush action', () => {
 
       await expect(twilio.testAction(actionName, input)).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: PUSH all devices failed send - ${spaceId}`),
+        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
         expect.any(String)
       )
     })
@@ -336,19 +336,16 @@ describe('sendMobilePush action', () => {
 
       const externalIds = input.mapping.externalIds
       const errorResponse = {
-        code: 400,
-        statusCode: 400
+        code: 20004,
+        statusCode: 400,
+        message: 'bad stuff'
       }
-      nock(notifyReqUrl)
-        .post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString())
-        .replyWithError(errorResponse)
-      nock(notifyReqUrl)
-        .post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString())
-        .replyWithError(errorResponse)
+      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(400, errorResponse)
+      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(400, errorResponse)
 
-      await expect(twilio.testAction(actionName, input)).rejects.toHaveProperty('code', 'BAD_REQUEST')
+      await expect(twilio.testAction(actionName, input)).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: PUSH all devices failed send - ${spaceId}`),
+        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
         expect.any(String)
       )
     })
@@ -394,7 +391,7 @@ describe('sendMobilePush action', () => {
         )
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: PUSH unable to parse templating - ${spaceId}`),
+        expect.stringContaining(`TE Messaging: MOBILEPUSH unable to parse templating - ${spaceId}`),
         expect.any(String)
       )
     })

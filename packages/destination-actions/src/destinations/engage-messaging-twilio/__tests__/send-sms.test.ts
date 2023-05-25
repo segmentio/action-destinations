@@ -133,7 +133,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           omitKeys: ['body']
         })
 
-        await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError('Unsupported content type')
+        await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
+          `Sending templates with '${contentType}' content type is not supported by sms`
+        )
         expect(logger.error).toHaveBeenCalledWith(
           `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`,
           expect.anything()
@@ -158,7 +160,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       })
 
       await expect(twilio.testAction('sendSms', actionInputData)).rejects.toThrowError(
-        'Unexpected response from Twilio Content API'
+        'Template from Twilio Content API does not contain any template types'
       )
       expect(logger.error).toHaveBeenCalledWith(
         `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
