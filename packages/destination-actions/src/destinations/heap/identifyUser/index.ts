@@ -9,7 +9,7 @@ type AddUserPropertiesPayload = {
   app_id: string
   identity: string
   properties: {
-    [k: string]: string
+    [k: string]: string | number
   }
 }
 

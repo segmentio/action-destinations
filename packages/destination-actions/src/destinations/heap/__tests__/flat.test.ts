@@ -33,16 +33,16 @@ export const getFlatObject = () => ({
   lastName: 'Green',
   'car.make': 'Honda',
   'car.model': 'Civic',
-  'car.revisions.0.miles': '10150',
+  'car.revisions.0.miles': 10150,
   'car.revisions.0.code': 'REV01',
-  'car.revisions.0.changes': '0',
+  'car.revisions.0.changes': 0,
   'car.revisions.0.firstTime': 'true',
-  'car.revisions.1.miles': '20021',
+  'car.revisions.1.miles': 20021,
   'car.revisions.1.code': 'REV02',
   'car.revisions.1.firstTime': 'false',
   'car.revisions.1.changes.0.type': 'asthetic',
   'car.revisions.1.changes.0.desc': 'Left tire cap',
-  'car.revisions.1.changes.0.price': '123.45',
+  'car.revisions.1.changes.0.price': 123.45,
   'car.revisions.1.changes.1.type': 'mechanic',
   'car.revisions.1.changes.1.desc': 'Engine pressure regulator',
   'car.revisions.1.changes.1.engineer': 'null',
@@ -64,7 +64,7 @@ describe('flattenObj for ', () => {
     })
 
     it('number', () => {
-      expect(flat({ myNumber: 1 })).toEqual({ myNumber: '1' })
+      expect(flat({ myNumber: 1 })).toEqual({ myNumber: 1 })
     })
 
     it('string', () => {
@@ -80,18 +80,18 @@ describe('flattenObj for ', () => {
     it('nulls:', () => {
       expect(flat({ myNulls: [null, 1, null, 3] })).toEqual({
         'myNulls.0': 'null',
-        'myNulls.1': '1',
+        'myNulls.1': 1,
         'myNulls.2': 'null',
-        'myNulls.3': '3'
+        'myNulls.3': 3
       })
     })
 
     it('numbers:', () => {
       expect(flat({ myNumbers: [1, 2, 3, 4] })).toEqual({
-        'myNumbers.0': '1',
-        'myNumbers.1': '2',
-        'myNumbers.2': '3',
-        'myNumbers.3': '4'
+        'myNumbers.0': 1,
+        'myNumbers.1': 2,
+        'myNumbers.2': 3,
+        'myNumbers.3': 4
       })
     })
 
