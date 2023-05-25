@@ -9,10 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
     noop: {
       label: 'NOOP',
       description: 'A single NOOP field',
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      }
+      type: 'string'
     }
   },
   perform: (_, { statsContext }) => {
