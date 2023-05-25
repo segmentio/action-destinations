@@ -21,6 +21,7 @@ import {
   dataProcessingOptions
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
@@ -30,6 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
+    app_data_field: app_data_field,
     content_category: content_category,
     content_ids: content_ids,
     contents: {
@@ -123,6 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 value: payload.value,
                 search_string: payload.search_string
               },
+              app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,
               data_processing_options_state: state_code
