@@ -9,10 +9,17 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Custom Audiences (Actions)',
   slug: 'actions-facebook-custom-audiences',
   mode: 'cloud',
+  description: 'The Facebook Custom Audiences destination.',
 
   authentication: {
     scheme: 'oauth2',
-    fields: {},
+    fields: {
+      placeholder: {
+        label: 'Placeholder',
+        description: 'Placeholder',
+        type: 'string'
+      }
+    },
     refreshAccessToken: async () => {
       return { accessToken: 'TODO: Implement this' }
     }
