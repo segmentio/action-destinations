@@ -9,4 +9,6 @@ export interface Settings {
    * The platform ID of the advertiser for which to retrieve the status of the specified CRM data segment.
    */
   advertiser_id: string
+  __segment_internal_engage_force_full_sync: boolean
+  __segment_internal_engage_batch_sync: boolean
 }
