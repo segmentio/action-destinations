@@ -7,7 +7,7 @@ const presets: Subscription[] = [
   {
     name: 'Track Event',
     subscribe: 'type = "track"',
-    partnerAction: 'trackEvent',
+    partnerAction: 'noop',
     mapping: defaultValues(noop.fields)
   }
 ]
