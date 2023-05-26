@@ -1,5 +1,5 @@
-import { DestinationDefinition, PayloadValidationError } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
