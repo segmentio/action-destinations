@@ -20,70 +20,66 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   abstract getBody(phone: string): Promise<URLSearchParams>
 
-  async send() {
-    this.initLogDetails()
+  async doSend() {
+    const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
-    return this.logWrap([`Destination Action ${this.getChannelType()}`], async () => {
-      const { phone, sendabilityStatus } = this.getSendabilityPayload()
-
-      if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
-        this.logInfo(
-          `Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`
-        )
-        return
-      }
-
-      this.logInfo('Getting content Body')
-      const body = await this.getBody(phone)
-
-      const webhookUrlWithParams = this.getWebhookUrlWithParams(
-        this.EXTERNAL_ID_KEY,
-        phone,
-        this.DEFAULT_CONNECTION_OVERRIDES
+    if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
+      this.logInfo(
+        `Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`
       )
+      return
+    }
 
-      if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
+    this.logInfo('Getting content Body')
+    const body = await this.getBody(phone)
 
-      const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
-      const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-        'base64'
-      )
+    const webhookUrlWithParams = this.getWebhookUrlWithParams(
+      this.EXTERNAL_ID_KEY,
+      phone,
+      this.DEFAULT_CONNECTION_OVERRIDES
+    )
 
-      this.statsClient?.set('actions_personas_messaging_twilio.message_body_size', body?.toString().length, this.tags)
+    if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
 
-      try {
-        this.logInfo('Sending message to Twilio API')
+    const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
+    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+      'base64'
+    )
 
-        const response = await this.request(
-          `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
-          {
-            method: 'POST',
-            headers: {
-              authorization: `Basic ${twilioToken}`
-            },
-            body
-          }
-        )
-        this.tags.push(`twilio_status_code:${response.status}`)
-        this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+    this.statsClient?.set('actions_personas_messaging_twilio.message_body_size', body?.toString().length, this.tags)
 
-        if (this.payload.eventOccurredTS != undefined) {
-          this.statsClient?.histogram(
-            'actions-personas-messaging-twilio.eventDeliveryTS',
-            Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-            this.tags
-          )
+    try {
+      this.logInfo('Sending message to Twilio API')
+
+      const response = await this.request(
+        `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `Basic ${twilioToken}`
+          },
+          body
         }
+      )
+      this.tags.push(`twilio_status_code:${response.status}`)
+      this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
 
-        this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
-
-        this.logInfo('Message sent successfully')
-
-        return response
-      } catch (error: unknown) {
-        this.throwTwilioError(error)
+      if (this.payload.eventOccurredTS != undefined) {
+        this.statsClient?.histogram(
+          'actions-personas-messaging-twilio.eventDeliveryTS',
+          Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
+          this.tags
+        )
       }
-    })
+
+      this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
+
+      this.logInfo('Message sent successfully')
+
+      return response
+    } catch (error: unknown) {
+      this.throwTwilioError(error)
+    }
   }
 
   /**
