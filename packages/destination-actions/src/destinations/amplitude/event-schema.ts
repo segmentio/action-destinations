@@ -300,9 +300,6 @@ export const eventSchema: Record<string, InputField> = {
   library: {
     label: 'Library',
     type: 'string',
-    description: 'The name of the library that generated the event.',
-    default: {
-      '@path': '$.context.library.name'
-    }
+    description: 'The name of the library that generated the event.'
   }
 }
