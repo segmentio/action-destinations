@@ -251,7 +251,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Other Properties',
       description: `Any other default or custom company properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties). Important: Do not use ’${SEGMENT_UNIQUE_IDENTIFIER}’ here as it is an internal property and will result in an an error.`,
       type: 'object',
-      defaultObjectUI: 'keyvalue:only',
+      defaultObjectUI: 'keyvalue',
       allowNull: false
     }
   },

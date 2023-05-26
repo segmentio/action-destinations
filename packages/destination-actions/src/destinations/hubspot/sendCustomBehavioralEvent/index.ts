@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).',
       type: 'object',
-      defaultObjectUI: 'keyvalue:only'
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: (request, { payload }) => {
