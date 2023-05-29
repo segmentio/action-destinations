@@ -86,12 +86,12 @@ export class PayloadValidationError extends IntegrationError {
 
 /**
  * Error to indicate HTTP API call to destination field.
- * Should include a user-friendly message.
- * These errors will be retried if the status code is one of @type {RetryableStatusCodes}
+ * Should include a user-friendly message and status code.
+ * Errors will be retried based on status code.
  */
 export class APIError extends IntegrationError {
   constructor(message: string, status: number) {
-    super(message, ErrorCodes.API_CALL_FAILED, status)
+    super(message, status.toString(), status)
   }
 }
 
@@ -110,7 +110,5 @@ export enum ErrorCodes {
   // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   // OAuth refresh failed
-  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
-  // API call to the destination failed
-  API_CALL_FAILED = 'API_CALL_FAILED'
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
 }
