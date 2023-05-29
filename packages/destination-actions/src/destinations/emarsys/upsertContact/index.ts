@@ -87,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
           const body = await response.json()
           if (body.replyCode === 0) return response
           else
-            throw new APIError(`Something went wrong while upserting the contact: ${body?.replyText ?? 'UNKNOWN'}`, 400)
+            throw new APIError(`Something went wrong while upserting the contact: ${body?.replyText ?? 'UNKNOWN'}`, 500)
         } catch (err) {
           throw new APIError('Invalid JSON response', 400)
         }

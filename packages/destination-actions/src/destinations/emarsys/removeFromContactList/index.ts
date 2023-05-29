@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
             else
               throw new APIError(
                 `Something went wrong while removing from contact list: ${body?.replyText ?? 'UNKNOWN'}`,
-                400
+                500
               )
           } catch (err) {
             throw new APIError('Invalid JSON response', 400)
