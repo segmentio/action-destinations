@@ -73,6 +73,7 @@ export const destination: BrowserDestinationDefinition<Settings, Userpilot> = {
     if (shouldLoadSDK) {
       window.userpilotSettings = {
         token: settings.token,
+        endpoint: settings.endpoint,
         shouldSegmentLoadSDK: shouldLoadSDK
       }
 
