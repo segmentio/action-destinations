@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { APIError, ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -83,19 +83,23 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while triggering the event')
+            else
+              throw new APIError(
+                `Something went wrong while triggering the event: ${body?.replyText ?? 'UNKNOWN'}`,
+                400
+              )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response')
+            throw new APIError('Invalid JSON response', 400)
           }
         case 400:
-          throw new IntegrationError('The event could not be triggered')
+          throw new APIError('The event could not be triggered', 400)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
           throw new RetryableError('There seems to be an API issue.')
       }
     } else {
-      throw new IntegrationError('eventid must be >0')
+      throw new PayloadValidationError('eventid must be >0')
     }
   },
   performBatch: async (request, data) => {
