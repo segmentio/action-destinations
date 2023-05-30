@@ -1,0 +1,24 @@
+
+Segment Specs
+https://segment.com/docs/connections/spec/track/
+
+Build Documentation
+https://github.com/segmentio/action-destinations/blob/main/README.md#get-started
+
+Test Documentation
+https://github.com/segmentio/action-destinations/blob/main/docs/testing.md
+
+# see what's supported by the CLI
+./bin/run --help
+
+# scaffold a new destination
+./bin/run init
+
+# scaffold a new action within a destination
+./bin/run generate:action <ACTION_NAME> <browser|server>
+
+# generates TypeScript definitions for an integration
+./bin/run generate:types
+
+# start local development server
+./bin/run serve

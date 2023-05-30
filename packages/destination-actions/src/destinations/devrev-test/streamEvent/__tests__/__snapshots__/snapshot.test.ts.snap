@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for DevrevTest's streamEvent destination action: all fields 1`] = `
+Object {
+  "event_list": Array [
+    Object {
+      "name": "&%gRM3i^z@Db@cfktJAe",
+      "payload": Object {
+        "devOrgId": "&%gRM3i^z@Db@cfktJAe",
+        "email": "cisod@paso.tz",
+        "eventName": "&%gRM3i^z@Db@cfktJAe",
+        "occurredAt": "2021-02-01T00:00:00.000Z",
+        "properties": Object {
+          "testType": "&%gRM3i^z@Db@cfktJAe",
+        },
+        "userId": "&%gRM3i^z@Db@cfktJAe",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for DevrevTest's streamEvent destination action: required fields 1`] = `
+Object {
+  "event_list": Array [
+    Object {
+      "name": "&%gRM3i^z@Db@cfktJAe",
+      "payload": Object {
+        "devOrgId": "&%gRM3i^z@Db@cfktJAe",
+        "eventName": "&%gRM3i^z@Db@cfktJAe",
+        "occurredAt": "2021-02-01T00:00:00.000Z",
+        "userId": "&%gRM3i^z@Db@cfktJAe",
+      },
+    },
+  ],
+}
+`;
