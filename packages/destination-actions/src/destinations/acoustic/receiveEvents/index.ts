@@ -1,9 +1,9 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { preChecksAndMaint } from '../Utility/tablemaintutilities'
+import { authCreds, doPOST, eventTableListId, preChecksAndMaint } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
-import { addUpdateEvents, postUpdates } from '../Utility/eventprocessing'
+import { addUpdateEvents } from '../Utility/eventprocessing'
 import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -63,13 +63,27 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload, auth }) => {
-    const email = get(payload, 'email', 'Null')
+    const email = get(payload, 'email', '')
+    const ac = authCreds
+    const et = eventTableListId
 
-    await preChecksAndMaint(request, settings, auth as AuthTokens)
+    console.log('this is it: ', et, '\nThis is the other: ', ac)
+
+    const tableId = await preChecksAndMaint(request, settings, auth as AuthTokens)
 
     //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
-    const rows = addUpdateEvents(payload, email, settings.a_attributesMax as number) as string
-    return await postUpdates(request, settings, auth as AuthTokens, rows, 1)
+    const rows = addUpdateEvents(payload, email, settings.attributesMax as number)
+
+    const POSTUpdates = `<Envelope>
+      <Body>
+        <InsertUpdateRelationalTable>
+        <TABLE_ID>${tableId} </TABLE_ID>
+          <ROWS>${rows}</ROWS>
+        </InsertUpdateRelationalTable>
+      </Body>
+    </Envelope>`
+
+    return await doPOST(request, settings, (auth as AuthTokens) ?? ac, POSTUpdates, 'POST_Updates')
   }
 }
 

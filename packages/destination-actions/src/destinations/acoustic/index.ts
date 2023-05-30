@@ -1,8 +1,9 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
+import { getAccessToken } from './Utility/tablemaintutilities'
 
-//Apr 05, 2023 reset
+//May 30th, refactor for additional Customers
 export interface refreshTokenResult {
   access_token: string
   token_type: string
@@ -51,14 +52,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      a_pod: {
+      pod: {
         label: 'Pod',
         description: 'Pod Number of Campaign Instance',
         default: '2',
         type: 'string',
         required: true
       },
-      a_region: {
+      region: {
         label: 'Region',
         description: 'Region where Pod is hosted, either US, EU, AP, or CA',
         choices: [
@@ -71,7 +72,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      a_events_table_list_id: {
+      events_table_list_id: {
         label: 'Acoustic Segment Events Table List Id',
         description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
         default: '',
@@ -99,7 +100,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       },
-      a_attributesMax: {
+      attributesMax: {
         label: 'Properties Max',
         description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
         default: 30,
@@ -108,26 +109,27 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      const at = await request<refreshTokenResult>(
-        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: settings.a_refreshToken,
-            client_id: settings.a_clientId,
-            client_secret: settings.a_clientSecret,
-            grant_type: 'refresh_token'
-          }),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'user-agent': `Segment Action (Acoustic Destination)`,
-            Connection: 'keep-alive',
-            'Accept-Encoding': 'gzip, deflate, br',
-            Accept: '*/*'
-          }
-        }
-      )
-      return { accessToken: at.data.access_token }
+      return await getAccessToken(request, settings)
+      //   const at = await request<refreshAccessTokenResult>(
+      //     `https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/oauth/token`,
+      //     {
+      //       method: 'POST',
+      //       body: new URLSearchParams({
+      //         refresh_token: settings.a_refreshToken,
+      //         client_id: settings.a_clientId,
+      //         client_secret: settings.a_clientSecret,
+      //         grant_type: 'refresh_token'
+      //       }),
+      //       headers: {
+      //         'Content-Type': 'application/x-www-form-urlencoded',
+      //         'user-agent': `Segment Action (Acoustic Destination)`,
+      //         Connection: 'keep-alive',
+      //         'Accept-Encoding': 'gzip, deflate, br',
+      //         Accept: '*/*'
+      //       }
+      //     }
+      //   )
+      //   return { accessToken: at.data.access_token }
     }
   },
   presets,
