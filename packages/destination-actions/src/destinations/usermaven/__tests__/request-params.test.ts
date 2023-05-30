@@ -19,6 +19,6 @@ describe('requestParams', () => {
 
     expect(options.method).toBe('post')
     expect(options.headers!['Content-Type']).toBe('application/json')
-    expect(url).toBe(`${baseUrl}/api/v1/event?token=${settings.api_key}`)
+    expect(url).toBe(`${baseUrl}/api/v1/s2s/event?token=${settings.api_key}.${settings.server_token}`)
   })
 })

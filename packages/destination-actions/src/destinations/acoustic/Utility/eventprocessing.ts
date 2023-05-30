@@ -45,25 +45,6 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
   // "timestamp": "2023-02-07T02:19:23.469Z"`
   const timestamp = get(payload, 'timestamp', 'Null')
 
-  //Audience
-  if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
-    const ak = get(payload, 'context.personas.computation_key', 'Null')
-    const av = `properties.${ak}`
-    const audiStatus = get(payload, av, 'Null')
-    if (audiStatus) eventValue = 'Audience Entered'
-    if (!audiStatus) eventValue = 'Audience Exited'
-    eventName = ak
-
-    xmlRows += `  
-      <ROW>
-      <COLUMN name="EMAIL">           <![CDATA[${email}]]></COLUMN>
-      <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>  
-      <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
-      <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
-      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
-      </ROW>`
-  }
-
   let propertiesTraitsKV: { [key: string]: string } = {}
 
   if (payload.traits)
@@ -89,6 +70,25 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
       400
     )
     return
+  }
+
+  //Audience
+  if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
+    const ak = get(payload, 'context.personas.computation_key', 'Null')
+    const av = `properties.${ak}`
+    const audiStatus = get(payload, av, 'Null')
+    if (audiStatus) eventValue = 'Audience Entered'
+    if (!audiStatus) eventValue = 'Audience Exited'
+    eventName = ak
+
+    xmlRows += `  
+      <ROW>
+      <COLUMN name="EMAIL">           <![CDATA[${email}]]></COLUMN>
+      <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>  
+      <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
+      <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
+      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
+      </ROW>`
   }
 
   //Wrap Properties and Traits into XML
