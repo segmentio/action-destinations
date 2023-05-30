@@ -111,9 +111,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const requests = []
-    if (!settings.appId) {
-      throw new IntegrationError('Missing app ID')
-    }
 
     if (!payload.anonymous_id && !payload.identity) {
       throw new IntegrationError('Either Anonymous id or Identity should be specified.', 'MISSING_REQUIRED_FIELD', 400)
