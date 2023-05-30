@@ -10,7 +10,7 @@ import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Userpilot Cloud Mode (Actions)',
+  name: 'Userpilot Cloud (Actions)',
   slug: 'actions-userpilot-cloud',
   mode: 'cloud',
   presets: [
