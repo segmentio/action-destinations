@@ -7,7 +7,7 @@ import { TikTokAudiences } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Audience',
-  description: '',
+  description: 'Create Audience in TikTok',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
     custom_audience_name: { ...custom_audience_name },

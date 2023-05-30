@@ -237,24 +237,23 @@ const action: ActionDefinition<Settings, Payload> = {
     library: {
       label: 'Library',
       type: 'string',
-      description: 'The name of the library that generated the event.',
-      default: {
-        '@path': '$.context.library.name'
-      }
+      description: 'The name of the library that generated the event.'
     }
   },
 
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features }) => {
     const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, ...rest } = payload
 
     let options
     const properties = rest as AmplitudeEvent
 
+    const libraryValue = features?.['amplitude-library'] && library ? library : 'segment'
+
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library === 'analytics.js') {
+    if (library === 'analytics.js' && !properties.platform) {
       properties.platform = 'Web'
     }
 
@@ -275,7 +274,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userAgentParsing && parseUserAgentProperties(userAgent)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
-      library: 'segment'
+      library: libraryValue
     })
 
     return request(getEndpointByRegion('identify', settings.endpoint), {

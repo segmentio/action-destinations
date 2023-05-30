@@ -382,7 +382,6 @@ describe('Amplitude', () => {
               "location_lng": -76.9411617,
               "os_name": "iOS",
               "os_version": "9.1",
-              "platform": "Web",
               "session_id": 1234567890,
               "time": 1629213675449,
               "use_batch_endpoint": false,
@@ -435,7 +434,6 @@ describe('Amplitude', () => {
                 "location_lng": -76.9411617,
                 "os_name": "iOS",
                 "os_version": "9.1",
-                "platform": "Web",
                 "session_id": 1234567890,
                 "time": 1629213675449,
                 "use_batch_endpoint": false,
@@ -615,7 +613,7 @@ describe('Amplitude', () => {
             },
             {
               revenue: 1_999,
-              productId: 'Bowflex Treadmill 8',
+              productId: 'Bowflex Treadmill 8'
             },
             {
               productId: 'Bowflex Treadmill 4',
@@ -623,7 +621,7 @@ describe('Amplitude', () => {
             },
             {
               quantity: 2,
-              productId: 'Bowflex Treadmill 2',
+              productId: 'Bowflex Treadmill 2'
             }
           ]
         }
@@ -1101,7 +1099,6 @@ describe('Amplitude', () => {
                 "location_lng": -76.9411617,
                 "os_name": "iOS",
                 "os_version": "9.1",
-                "platform": "Web",
                 "session_id": 1234567890,
                 "time": 1629213675449,
                 "use_batch_endpoint": false,
@@ -1154,7 +1151,6 @@ describe('Amplitude', () => {
                 "location_lng": -76.9411617,
                 "os_name": "iOS",
                 "os_version": "9.1",
-                "platform": "Web",
                 "session_id": 1234567890,
                 "time": 1629213675449,
                 "use_batch_endpoint": false,
@@ -1601,7 +1597,6 @@ describe('Amplitude', () => {
                 "location_lng": -76.9411617,
                 "os_name": "iOS",
                 "os_version": "9.1",
-                "platform": "Web",
                 "session_id": 1234567890,
                 "time": 1629213675449,
                 "use_batch_endpoint": false,
@@ -1654,7 +1649,6 @@ describe('Amplitude', () => {
                 "location_lng": -76.9411617,
                 "os_name": "iOS",
                 "os_version": "9.1",
-                "platform": "Web",
                 "session_id": 1234567890,
                 "time": 1629213675449,
                 "use_batch_endpoint": false,
@@ -1937,7 +1931,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -2011,7 +2005,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
@@ -2198,7 +2192,7 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library\\":\\"segment\\"}",
             "options",
             "undefined",
           ],
