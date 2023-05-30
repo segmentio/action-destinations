@@ -54,6 +54,146 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should apply value from platform field if library field value is analytics.js and platform field has a value', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          library: {
+            name: 'analytics.js',
+            version: '234'
+          },
+          device: {
+            type: 'some_other_platform'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: {
+          '@path': '$.context.library.name'
+        }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'some_other_platform'
+          })
+        ])
+      })
+    })
+
+    it('should apply the value "Web" for platform field if library field value is analytics.js and platform field is not set', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          library: {
+            name: 'analytics.js',
+            version: '234'
+          },
+          device: {
+            type: null
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: {
+          '@path': '$.context.library.name'
+        }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
+    it('should pass library field value is flag "amplitude-library" is true and library field has value', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          library: {
+            name: 'analytics.js',
+            version: '234'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: {
+          '@path': '$.context.library.name'
+        }
+      }
+
+      const features = {
+        'amplitude-library': true
+      }
+
+      const responses = await testDestination.testAction('logPurchase', {
+        event,
+        features,
+        mapping,
+        useDefaultMappings: true
+      })
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'analytics.js'
+          })
+        ])
+      })
+    })
+
+    it('should pass library value of "segment" when flag "amplitude-library" is false and library field has a value', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          library: {
+            name: 'analytics.js',
+            version: '234'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library: {
+          '@path': '$.context.library.name'
+        }
+      }
+
+      const features = {
+        'amplitude-library': false
+      }
+
+      const responses = await testDestination.testAction('logPurchase', {
+        event,
+        features,
+        mapping,
+        useDefaultMappings: true
+      })
+      expect(responses[0].options.json).toMatchObject({
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            library: 'segment'
+          })
+        ])
+      })
+    })
+
     it('should change casing for device type when value is android', async () => {
       const event = createTestEvent({
         event: 'Test Event',
