@@ -24,12 +24,19 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
     readonly logger: Logger | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
   ) {}
 
   abstract getChannelType(): string
+  abstract doSend(): Promise<Response | Response[] | object[] | undefined>
+
+  async send() {
+    this.initLogDetails()
+    this.tags.push(`channel:${this.getChannelType()}`)
+    this.statsClient?.incr('actions_personas_messaging_twilio.initialize', 1, this.tags)
+    return this.logWrap([`Destination Action`], this.doSend.bind(this))
+  }
 
   /*
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
@@ -165,8 +172,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       if (!this.payload.contentSid) {
         throw new PayloadValidationError('Content SID not in payload')
       }
-
-      this.logInfo('Get content template from Twilio by ContentSID')
 
       const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
         'base64'

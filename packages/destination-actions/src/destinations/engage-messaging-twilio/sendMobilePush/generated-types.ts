@@ -10,7 +10,7 @@ export interface Payload {
    */
   from: string
   /**
-   * Customizations for notification deliverability
+   * Customizations for the notification
    */
   customizations?: {
     /**
