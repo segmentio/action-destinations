@@ -31,14 +31,14 @@ export const getValidationParams = (settings: Settings): RequestParams => {
 }
 
 export const getIdentifyRequestParams = (settings: Settings, payload: IdentifyPayload): RequestParams => {
-  const { traits, anonymousId, userId } = payload
+  const { traits, userId } = payload
 
   return {
     url: `${validateEndpoint(settings.endpoint)}v1/identify`,
     options: {
       method: 'POST',
       json: {
-        user_id: userId || anonymousId,
+        user_id: userId,
         // Transform createdAt to Userpilot reserved property
         metadata: traits
       }
@@ -47,13 +47,13 @@ export const getIdentifyRequestParams = (settings: Settings, payload: IdentifyPa
 }
 
 export const getTrackEventParams = (settings: Settings, payload: TrackPayload): RequestParams => {
-  const { userId, anonymousId, name, properties } = payload
+  const { userId, name, properties } = payload
   return {
     url: `${validateEndpoint(settings.endpoint)}v1/track`,
     options: {
       method: 'POST',
       json: {
-        user_id: userId || anonymousId,
+        user_id: userId,
         event_name: name,
         metadata: properties
       }

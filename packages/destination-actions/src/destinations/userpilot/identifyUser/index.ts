@@ -16,16 +16,20 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
-        '@path': '$.userId'
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
-    anonymousId: {
-      type: 'string',
+    createdAt: {
+      type: 'datetime',
       required: false,
-      description: 'Anonymous user ID.',
-      label: 'Anonymous ID',
+      description: 'The date the user profile was created at',
+      label: 'User Created At Date',
       default: {
-        '@path': '$.anonymousId'
+        '@path': '$.traits.createdAt'
       }
     },
     traits: {
@@ -39,15 +43,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const { traits, anonymousId, userId } = payload
+    const { traits, userId, createdAt } = payload
 
-    // Transform createdAt to Userpilot reserved property
-    if (traits?.createdAt !== undefined) {
-      traits.created_at = traits.createdAt
-      delete traits.createdAt
-    }
+    traits?.createdAt && delete traits.createdAt
 
-    const { url, options } = getIdentifyRequestParams(settings, { traits, anonymousId, userId })
+    const { url, options } = getIdentifyRequestParams(settings, {
+      traits: { ...traits, created_at: createdAt || traits?.created_at },
+      userId
+    })
 
     return request(url, options)
   }

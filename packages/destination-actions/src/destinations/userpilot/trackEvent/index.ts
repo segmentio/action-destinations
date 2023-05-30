@@ -16,16 +16,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The ID of the logged-in user.',
       label: 'User ID',
       default: {
-        '@path': '$.userId'
-      }
-    },
-    anonymousId: {
-      type: 'string',
-      required: false,
-      description: 'Anonymous user ID.',
-      label: 'Anonymous ID',
-      default: {
-        '@path': '$.anonymousId'
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
     name: {
@@ -48,8 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const { userId, anonymousId, name, properties } = payload
-    const { url, options } = getTrackEventParams(settings, { userId, anonymousId, name, properties })
+    const { userId, name, properties } = payload
+    const { url, options } = getTrackEventParams(settings, { userId, name, properties })
 
     return request(url, options)
   }
