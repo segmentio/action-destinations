@@ -48,7 +48,7 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
 
     traits?.createdAt && delete traits.createdAt
 
-    window.userpilot.identify(userId, { ...traits, created_at: event.payload.createdAt })
+    window.userpilot.identify(userId, { ...traits, created_at: event.payload.createdAt || traits?.created_at })
   }
 }
 
