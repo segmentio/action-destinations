@@ -27,14 +27,14 @@ const destination: DestinationDefinition<Settings> = {
       },
       __segment_internal_engage_force_full_sync: {
         label: 'Force Full Sync',
-        description: '',
+        description: 'Force Full Sync',
         type: 'boolean',
         required: true,
         default: true
       },
       __segment_internal_engage_batch_sync: {
         label: 'Supports batch sync via ADS',
-        description: '',
+        description: 'Supports batch sync via ADS',
         type: 'boolean',
         required: true,
         default: true
