@@ -102,6 +102,8 @@ register('645babd9362d97b777391325', './iterable')
 register('644ad6c6c4a87a3290450602', './liveramp-audiences')
 register('6464ef424ac5c5f47f5f3968', './revx')
 register('646ce31d67ac1735b1846052', './calliper')
+register('6470d73d82dfbc7129fc5975', './noop')
+register('6475c5c14f7db4914bcd512f', './airship')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

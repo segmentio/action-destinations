@@ -4,14 +4,16 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Engage',
-  description: 'Sync action for Engage.',
-  fields: {},
-  perform: (request, data) => {
-    // Make your partner api request here!
-    return request('https://example.com', {
-      method: 'post',
-      json: data.payload
-    })
+  description: 'Engage action.',
+  fields: {
+    placeholder: {
+      label: 'Placeholder',
+      description: 'Placeholder',
+      type: 'string'
+    }
+  },
+  perform: () => {
+    return undefined
   }
 }
 
