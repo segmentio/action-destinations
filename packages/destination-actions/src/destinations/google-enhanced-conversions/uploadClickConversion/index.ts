@@ -8,7 +8,8 @@ import {
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
-  getApiVersion
+  getApiVersion,
+  isHashedEmail
 } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -239,7 +240,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+      request_object.userIdentifiers.push({
+        hashedEmail: isHashedEmail(payload.email_address) ? payload.email_address : hash(payload.email_address)
+      })
     }
 
     if (payload.phone_number) {

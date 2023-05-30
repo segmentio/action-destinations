@@ -48,10 +48,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings }) => {
-    if (!settings.appId) {
-      throw new IntegrationError('Missing Heap app ID.', 'Missing required field', 400)
-    }
-
     if (!payload.user_id || !isDefined(payload.user_id)) {
       throw new IntegrationError(
         'Missing identity, cannot add user properties without identity',

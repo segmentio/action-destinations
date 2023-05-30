@@ -18,6 +18,10 @@ export interface Payload {
    */
   body?: string
   /**
+   * Media to attach to message
+   */
+  media?: string[]
+  /**
    * Content template SID for Twilio Content API
    */
   contentSid?: string
@@ -52,6 +56,10 @@ export interface Payload {
      */
     type?: string
     /**
+     * The external ID contact channel type (SMS, WHATSAPP, etc).
+     */
+    channelType?: string
+    /**
      * The subscription status for the identity.
      */
     subscriptionStatus?: string
@@ -66,4 +74,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

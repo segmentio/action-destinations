@@ -20,7 +20,7 @@ interface RequestParams {
  */
 const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestParams => {
   return {
-    url: `${apiBaseUrl}/${relativeUrl}?token=${settings.api_key}`,
+    url: `${apiBaseUrl}/${relativeUrl}?token=${settings.api_key}.${settings.server_token}`,
     options: {
       method: 'post',
       headers: {
@@ -41,7 +41,7 @@ export const eventRequestParams = (
   payload?: Record<string, unknown>,
   eventType?: string
 ): RequestParams => {
-  const defaultRequest = defaultRequestParams(settings, 'api/v1/event')
+  const defaultRequest = defaultRequestParams(settings, 'api/v1/s2s/event')
 
   return {
     ...defaultRequest,
@@ -66,6 +66,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     ids: {},
     doc_encoding: 'utf-8',
     src: 'usermaven-segment',
+    screen_resolution: '0',
     ...payload
   }
 
@@ -106,6 +107,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     email: payload?.user_email,
     first_name: payload?.user_first_name,
     last_name: payload?.user_last_name,
+    created_at: payload?.user_created_at,
     custom: payload?.user_custom_attributes
   }
 
@@ -116,13 +118,17 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   delete properties.user_first_name
   delete properties.user_last_name
   delete properties.user_custom_attributes
+  delete properties.user_created_at
 
+  // Create object if company_id is present
   // Resolve company properties
-  properties.company = {
-    id: payload?.company_id,
-    name: payload?.company_name,
-    created_at: payload?.company_created_at,
-    custom: payload?.company_custom_attributes
+  if (payload?.company_id) {
+    properties.company = {
+      id: payload?.company_id,
+      name: payload?.company_name,
+      created_at: payload?.company_created_at,
+      custom: payload?.company_custom_attributes
+    }
   }
 
   // Delete unnecessary company properties
@@ -146,9 +152,9 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   }
 
   // Resolve company_custom_attributes properties
-  if (payload?.company_custom_attributes) {
+  if (payload?.company && payload?.company_custom_attributes) {
     // omit the company_name, company_created_at, and company_id properties, as these props are already handled
-    const { name, created_at, ...customAttributes } = payload.company_custom_attributes
+    const { name, created_at, company_id, company_created_at, ...customAttributes } = payload.company_custom_attributes
     properties.company.custom = customAttributes
   }
 

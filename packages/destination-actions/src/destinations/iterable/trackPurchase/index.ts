@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError, omit } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
@@ -6,14 +6,16 @@ import {
   EMAIL_FIELD,
   USER_ID_FIELD,
   CREATED_AT_FIELD,
-  PREFER_USER_ID_FIELD,
   MERGE_NESTED_OBJECTS_FIELD,
   ITEMS_FIELD,
   CAMPAGIN_ID_FIELD,
   TEMPLATE_ID_FIELD,
   EVENT_DATA_FIELDS,
-  USER_DATA_FIELDS
+  USER_DATA_FIELDS,
+  USER_PHONE_NUMBER_FIELD,
+  CommerceItem
 } from '../shared-fields'
+import { transformItems, convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -36,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       additionalProperties: false,
+      defaultObjectUI: 'keyvalue:only',
       default: {
         email: {
           '@if': {
@@ -46,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         userId: { '@path': '$.userId' },
         dataFields: { '@path': '$.context.traits' },
-        preferUserId: false,
+        phoneNumber: { '@path': '$.context.traits.phone' },
         mergeNestedObjects: false
       },
       properties: {
@@ -59,11 +62,11 @@ const action: ActionDefinition<Settings, Payload> = {
         dataFields: {
           ...USER_DATA_FIELDS
         },
-        preferUserId: {
-          ...PREFER_USER_ID_FIELD
-        },
         mergeNestedObjects: {
           ...MERGE_NESTED_OBJECTS_FIELD
+        },
+        phoneNumber: {
+          ...USER_PHONE_NUMBER_FIELD
         }
       }
     },
@@ -75,7 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     total: {
       label: 'Total',
-      description: 'Total order dollar amount.',
+      description: 'Total order amount.',
       type: 'number',
       required: true,
       default: { '@path': '$.properties.total' }
@@ -97,57 +100,17 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
-    const reservedItemKeys = [
-      'product_id',
-      'id',
-      'sku',
-      'name',
-      'price',
-      'quantity',
-      'categories',
-      'category',
-      'url',
-      'image_url'
-    ]
-
-    /**
-     * Transforms an array of product items by removing reserved keys from dataFields and converting categories to string arrays.
-     */
-    function transformItems(items: Payload['items']): CartItem[] {
-      return items.map(({ dataFields, categories, ...rest }) => ({
-        ...rest,
-        dataFields: omit(dataFields, reservedItemKeys),
-        ...(categories && { categories: [categories] })
-      }))
-    }
-
-    type CartItem = {
-      id: string
-      name: string
-      sku?: string
-      quantity: number
-      price: number
-      description?: string
-      categories?: string[]
-      url?: string
-      imageUrl?: string
-      dataFields?: {
-        [k: string]: unknown
-      }
-    }
-
     interface TrackPurchaseRequest {
       id?: string
       user: {
         email?: string
         userId?: string
         mergeNestedObjects?: boolean
-        preferUserId?: boolean
         dataFields?: {
           [k: string]: unknown
         }
       }
-      items: CartItem[]
+      items: CommerceItem[]
       campaignId?: number
       templateId?: number
       createdAt?: number
@@ -162,10 +125,25 @@ const action: ActionDefinition<Settings, Payload> = {
       delete dataFields.products
     }
 
+    // Store the phoneNumber value before deleting from the user object
+    const phoneNumber = user.phoneNumber
+    delete user.phoneNumber
+
+    const formattedDataFields = convertDatesInObject(dataFields ?? {})
+    const formattedUserDataFields = convertDatesInObject(user.dataFields ?? {})
+
     const trackPurchaseRequest: TrackPurchaseRequest = {
       ...payload,
+      user: {
+        ...user,
+        dataFields: {
+          ...formattedUserDataFields,
+          phoneNumber: phoneNumber
+        }
+      },
       items: transformItems(payload.items),
-      createdAt: dayjs(payload.createdAt).unix()
+      createdAt: dayjs(payload.createdAt).unix(),
+      dataFields: formattedDataFields
     }
 
     return request('https://api.iterable.com/api/commerce/trackPurchase', {

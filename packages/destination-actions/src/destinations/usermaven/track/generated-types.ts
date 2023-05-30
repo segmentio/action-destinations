@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * User Anonymous id
    */
-  user_anonymous_Id?: string | null
+  user_anonymous_id?: string | null
   /**
    * The ID of the event.
    */
@@ -116,5 +116,5 @@ export interface Payload {
   /**
    * The IP address of the user.
    */
-  ip?: string
+  source_ip?: string
 }

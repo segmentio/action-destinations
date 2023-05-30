@@ -37,4 +37,29 @@ describe('Iterable.trackEvent', () => {
       })
     ).rejects.toThrowError(PayloadValidationError)
   })
+
+  it('converts a date into a standard Iterable format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      userId: 'user1234',
+      properties: {
+        myDate: '2023-05-17T22:49:53.310Z'
+      }
+    })
+
+    nock('https://api.iterable.com/api').post('/events/track').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].options.json).toMatchObject({
+      userId: 'user1234',
+      dataFields: {
+        myDate: '2023-05-17 22:49:53 +00:00'
+      }
+    })
+  })
 })
