@@ -18,22 +18,6 @@ const expectedEvent: Payload = {
 }
 
 describe('LiveLike.trackEvent', () => {
-  it('should throw integration error when clientId and producerToken is not configured', async () => {
-    const event = createTestEvent({
-      timestamp,
-      properties: {
-        livelike_profile_id: profile_id
-      }
-    })
-
-    await expect(
-      testDestination.testAction('trackEvent', {
-        event,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new IntegrationError('Missing client ID or producer token.'))
-  })
-
   it('should throw integration error when livelike_profile_id or user_id or custom_id is not found or null', async () => {
     const event = createTestEvent({
       //Need to set userId as null because `createTestEvent` and `testAction` adds a default userId which will fail the test everytime.

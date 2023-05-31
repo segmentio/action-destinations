@@ -38,6 +38,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Enter your VWO Account ID',
         type: 'number',
         required: true
+      },
+      apikey: {
+        label: 'VWO SDK Key',
+        description: 'VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (_request, { settings }) => {

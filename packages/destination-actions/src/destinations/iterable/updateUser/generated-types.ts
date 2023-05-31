@@ -16,9 +16,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Only respected in email-based projects. Whether or not a new user should be created if the request includes a userId that doesn't yet exist in the Iterable project.
+   * User phone number. Must be a valid phone number including country code. e.g. +14158675309
    */
-  preferUserId?: boolean
+  phoneNumber?: string
   /**
    * If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.
    */
