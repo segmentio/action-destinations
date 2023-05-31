@@ -6,6 +6,8 @@ import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import pageVisit from './pageVisit'
 
+import syncAudience from './syncAudience'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'VWO Cloud Mode (Actions)',
   slug: 'actions-vwo-cloud',
@@ -58,7 +60,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     trackEvent,
     identifyUser,
-    pageVisit
+    pageVisit,
+    syncAudience
   }
 }
 
