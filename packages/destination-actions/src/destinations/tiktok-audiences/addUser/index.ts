@@ -50,9 +50,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    console.log('TikTok processing payload...')
     return processPayload(request, settings, [payload], 'add')
   },
   performBatch: async (request, { settings, payload }) => {
+    console.log('TikTok processing payload batch...')
     return processPayload(request, settings, payload, 'add')
   }
 }
