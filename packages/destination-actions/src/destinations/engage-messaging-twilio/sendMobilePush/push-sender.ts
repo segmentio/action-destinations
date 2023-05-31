@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IntegrationError } from '@segment/actions-core'
+import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
 import { MessageSender } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
@@ -10,14 +10,11 @@ interface BodyCustomDataBundle {
   customData: object
 }
 
-// TODO: get concrete error shapes
+// TODO: get concrete error shapes once the push api service is finalized
 // we currently do not know the exact error response for this endpoint
 // below is inferred from insomnia tests
-interface PushApiError {
-  response: {
-    code: number
-    status: number
-    message: string
+class PushApiError extends HTTPError {
+  response: Response & {
     data?: {
       code: number
       status: number
@@ -29,7 +26,7 @@ interface PushApiError {
 export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
   static readonly externalIdTypes = ['ios.push_token', 'android.push_token']
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
-  private retryableStatusCodes = [500, 401, 429]
+  private retryableStatusCodes = [500, 429]
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
 
   getChannelType(): string {
@@ -161,7 +158,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     if (failedSends.length === recipientDevices.length) {
       this.logError(`failed to send to all subscribed devices - ${this.settings.spaceId}`)
       if (failureIsRetryable) {
-        throw new IntegrationError('Unexpected response from Twilio Push API', 'UNEXPECTED_ERROR', 500)
+        throw new RetryableError('Unexpected response from Twilio Push API')
       }
 
       throw new IntegrationError(
