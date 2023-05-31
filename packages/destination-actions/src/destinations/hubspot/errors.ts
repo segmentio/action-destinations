@@ -1,4 +1,5 @@
 import { IntegrationError, RetryableError, HTTPError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import { SEGMENT_UNIQUE_IDENTIFIER } from './properties'
 
 export class HubSpotError extends HTTPError {
@@ -23,10 +24,8 @@ export const CompanySearchThrowableError = new IntegrationError(
   400
 )
 
-export const RestrictedPropertyThrowableError = new IntegrationError(
-  `Segment uses ’${SEGMENT_UNIQUE_IDENTIFIER}’ property internally to map Segment Groups to HubSpot Companies. This property shouldn’t be defined explicitly.`,
-  'Payload Validation Failed',
-  400
+export const RestrictedPropertyThrowableError = new PayloadValidationError(
+  `Segment uses ’${SEGMENT_UNIQUE_IDENTIFIER}’ property internally to map Segment Groups to HubSpot Companies. This property shouldn’t be defined explicitly.`
 )
 
 export const MultipleCompaniesInSearchResultThrowableError = new IntegrationError(

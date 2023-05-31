@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * URL of the webpage
    */
-  url: string
+  url?: string
   /**
    * VWO UUID
    */
@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Contains context information regarding a webpage
    */
-  page: {
+  page?: {
     [k: string]: unknown
   }
   /**
@@ -22,9 +22,9 @@ export interface Payload {
   /**
    * User-Agent of the user
    */
-  userAgent: string
+  userAgent?: string
   /**
    * Timestamp on the event
    */
-  timestamp: string
+  timestamp?: string
 }

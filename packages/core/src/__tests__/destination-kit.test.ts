@@ -126,7 +126,8 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: "invalid subscription : Cannot read properties of undefined (reading 'type')" }])
+      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res[0].output).toContain('Cannot read')
     })
 
     test('should return `not subscribed` when providing an empty event', async () => {
@@ -314,6 +315,60 @@ describe('destination kit', () => {
       const res = await destinationTest.refreshAccessToken(testSettings, oauthData)
 
       expect(res).toEqual({ accessToken: 'fresh-token' })
+    })
+
+    test('should invoke synchronizeRefreshAccessToken if defined', async () => {
+      const destinationTest = new Destination(destinationOAuth2)
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      const acquireLockMock = jest.fn(() => Promise.resolve())
+
+      await expect(
+        destinationTest.refreshAccessToken(
+          testSettings,
+          { clientId: '', clientSecret: '', accessToken: '', refreshToken: '' },
+          acquireLockMock
+        )
+      ).resolves.not.toThrowError()
+      expect(acquireLockMock).toHaveBeenCalledTimes(1)
+    })
+
+    test('should succeed if synchronizeRefreshAccessToken handler is not passed in event options', async () => {
+      const destinationTest = new Destination(destinationOAuth2)
+
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+
+      await expect(
+        destinationTest.refreshAccessToken(testSettings, {
+          clientId: '',
+          clientSecret: '',
+          accessToken: '',
+          refreshToken: ''
+        })
+      ).resolves.not.toThrowError()
     })
   })
 

@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider Cloud Mode (Actions)'s updateUserProfile destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -11648517705564.16,
+        "birthday": "I[VT4ujd%6E",
+        "city": "I[VT4ujd%6E",
+        "country": "I[VT4ujd%6E",
+        "email": "hig@mirhag.ws",
+        "email_optin": true,
+        "gender": "I[VT4ujd%6E",
+        "language": "I[VT4ujd%6E",
+        "name": "I[VT4ujd%6E",
+        "phone_number": "I[VT4ujd%6E",
+        "sms_optin": true,
+        "surname": "I[VT4ujd%6E",
+        "whatsapp_optin": true,
+      },
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "I[VT4ujd%6E",
+        },
+        "email": "hig@mirhag.ws",
+        "phone_number": "I[VT4ujd%6E",
+        "uuid": "I[VT4ujd%6E",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider Cloud Mode (Actions)'s updateUserProfile destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {},
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "I[VT4ujd%6E",
+        },
+        "uuid": "I[VT4ujd%6E",
+      },
+    },
+  ],
+}
+`;

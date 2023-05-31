@@ -467,5 +467,63 @@ describe('CustomerIO', () => {
         }
       })
     })
+
+    it('should work with object_type_id from traits when given', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const groupId = 'g12345'
+      const traits: {
+        full_name: string
+        email: string
+        created_at: string
+        object_type_id?: string
+      } = {
+        full_name: 'Test User',
+        email: 'test@example.com',
+        created_at: timestamp,
+        object_type_id: '2'
+      }
+      const context = {
+        groupId: groupId
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits,
+        context
+      })
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      delete traits.object_type_id
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        ...traits,
+        email: traits.email,
+        created_at: dayjs.utc(timestamp).unix(),
+        anonymous_id: anonymousId,
+        cio_relationships: {
+          action: 'add_relationships',
+          relationships: [{ identifiers: { object_type_id: '2', object_id: groupId } }]
+        }
+      })
+    })
   })
 })

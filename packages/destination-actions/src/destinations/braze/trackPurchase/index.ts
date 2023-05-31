@@ -56,6 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       required: true,
+      additionalProperties: true,
       properties: {
         product_id: {
           label: 'Product ID',

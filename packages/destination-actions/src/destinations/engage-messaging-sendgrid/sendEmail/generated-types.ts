@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Email to send to when testing
    */
@@ -73,6 +73,10 @@ export interface Payload {
    * Subscription group ID
    */
   groupId?: string
+  /**
+   * Send email without subscription check
+   */
+  byPassSubscription?: boolean
   /**
    * An array of user profile identity information.
    */

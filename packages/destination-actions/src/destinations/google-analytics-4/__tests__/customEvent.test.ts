@@ -50,7 +50,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -106,7 +105,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           name: 'this_is_a_test'
         },
@@ -151,7 +149,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           name: 'this_is_a_test'
         },
@@ -257,7 +254,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -300,7 +296,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           lowercase: true
         },
@@ -353,7 +348,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -370,6 +364,63 @@ describe('GA4', () => {
           'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
+    })
+
+    it('should not throw an error when param value is array but key is items', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Some Event Here',
+        userId: 'abc123',
+        timestamp: '2022-06-22T22:20:58.905Z',
+        anonymousId: 'anon-2134',
+        type: 'track',
+        properties: {
+          product_id: '12345abcde',
+          name: 'Quadruple Stack Oreos, 52 ct',
+          currency: 'USD',
+          price: 12.99,
+          quantity: 1
+        }
+      })
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          params: {
+            items: ['1', 'test']
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"client_id\\":\\"abc123\\",\\"events\\":[{\\"name\\":\\"Some_Event_Here\\",\\"params\\":{\\"engagement_time_msec\\":1,\\"items\\":[\\"1\\",\\"test\\"]}}],\\"timestamp_micros\\":1655936458905000}"`
+      )
     })
 
     it('should throw an error when user_properties value is array', async () => {
@@ -397,7 +448,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -423,7 +473,8 @@ describe('GA4', () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
           app_instance_id: 'anon-2134',
-          events: [{ name: 'Some_Event_Here', params: { engagement_time_msec: 1 } }]
+          events: [{ name: 'Some_Event_Here', params: { engagement_time_msec: 1 } }],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 

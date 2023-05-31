@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PinterestConversionApi ReportConversionEvent Should send an event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "action_source": "web",
+      "app_id": undefined,
+      "app_name": "InitechGlobal",
+      "app_version": "545",
+      "custom_data": Object {
+        "content_ids": undefined,
+        "contents": undefined,
+        "currency": undefined,
+        "num_items": undefined,
+        "opt_out_type": undefined,
+        "order_id": undefined,
+        "search_string": undefined,
+        "value": undefined,
+      },
+      "device_brand": undefined,
+      "device_carrier": undefined,
+      "device_model": "iPhone7,2",
+      "device_type": "ios",
+      "event_id": "test-message-rocnz07d5e8",
+      "event_name": "checkout",
+      "event_source_url": "https://segment.com/academy/",
+      "event_time": 1678694183,
+      "language": undefined,
+      "opt_out": true,
+      "os_version": "8.1.3",
+      "partner_name": "ss-segment",
+      "user_data": Object {
+        "client_ip_address": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+        "client_user_agent": "5.5.5.5",
+        "country": Array [
+          "79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621",
+        ],
+        "ct": Array [
+          "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6",
+        ],
+        "db": Array [
+          "9e4b15bbd40f2429491316d291927f5153b4f8c28738e6ee6284009ce29d13d6",
+        ],
+        "em": Array [
+          "87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674",
+        ],
+        "external_id": Array [
+          "74a6a35e39c525dcf6fd98ba90e79eb3c4358df1ae204e9489d51e6946485b2b",
+        ],
+        "fn": Array [
+          "44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d",
+        ],
+        "ge": Array [
+          "62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a",
+        ],
+        "hashed_maids": Array [
+          "f4c2178860817a2c25d2cb3185aa25779b0ecaf17c30845926218e17a18a9f89",
+        ],
+        "ln": Array [
+          "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        ],
+        "ph": Array [
+          "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
+        ],
+        "st": Array [
+          "6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126",
+        ],
+        "zp": Array [
+          "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+        ],
+      },
+      "wifi": undefined,
+    },
+  ],
+}
+`;
+
+exports[`PinterestConversionApi ReportConversionEvent Should send an signup event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "action_source": "web",
+      "app_id": undefined,
+      "app_name": "InitechGlobal",
+      "app_version": "545",
+      "custom_data": Object {
+        "content_ids": undefined,
+        "contents": undefined,
+        "currency": undefined,
+        "num_items": undefined,
+        "opt_out_type": undefined,
+        "order_id": undefined,
+        "search_string": undefined,
+        "value": undefined,
+      },
+      "device_brand": undefined,
+      "device_carrier": undefined,
+      "device_model": "iPhone7,2",
+      "device_type": "ios",
+      "event_id": "test-message-rocnz07d5e8",
+      "event_name": "signup",
+      "event_source_url": "https://segment.com/academy/",
+      "event_time": 1678694183,
+      "language": undefined,
+      "opt_out": true,
+      "os_version": "8.1.3",
+      "partner_name": "ss-segment",
+      "user_data": Object {
+        "client_ip_address": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+        "client_user_agent": "5.5.5.5",
+        "country": Array [
+          "79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621",
+        ],
+        "ct": Array [
+          "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6",
+        ],
+        "db": Array [
+          "9e4b15bbd40f2429491316d291927f5153b4f8c28738e6ee6284009ce29d13d6",
+        ],
+        "em": Array [
+          "87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674",
+        ],
+        "external_id": Array [
+          "74a6a35e39c525dcf6fd98ba90e79eb3c4358df1ae204e9489d51e6946485b2b",
+        ],
+        "fn": Array [
+          "44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d",
+        ],
+        "ge": Array [
+          "62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a",
+        ],
+        "hashed_maids": Array [
+          "f4c2178860817a2c25d2cb3185aa25779b0ecaf17c30845926218e17a18a9f89",
+        ],
+        "ln": Array [
+          "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        ],
+        "ph": Array [
+          "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
+        ],
+        "st": Array [
+          "6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126",
+        ],
+        "zp": Array [
+          "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+        ],
+      },
+      "wifi": undefined,
+    },
+  ],
+}
+`;

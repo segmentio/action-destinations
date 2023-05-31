@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { defaultValues, IntegrationError } from '@segment/actions-core'
+import { defaultValues, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
 
   onDelete: async (request, { settings, payload }) => {
     if (!payload.userId) {
-      throw new IntegrationError('User Id is required for user deletion.')
+      throw new PayloadValidationError('User Id is required for user deletion.')
     }
     const { url, options } = deleteUserRequestParams(settings, payload.userId)
     return request(url, options)

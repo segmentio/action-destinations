@@ -1,21 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: all fields 1`] = `""`;
-
-exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: required fields 1`] = `""`;
-
-exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: required fields 2`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "bb-api-subscription-key": Array [
-      "H*Z39ROa",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
   },
+  "birthplace": "H*Z39ROa",
+  "ethnicity": "H*Z39ROa",
+  "first": "H*Z39ROa",
+  "former_name": "H*Z39ROa",
+  "gender": "H*Z39ROa",
+  "gives_anonymously": true,
+  "income": "H*Z39ROa",
+  "industry": "H*Z39ROa",
+  "last": "H*Z39ROa",
+  "lookup_id": "H*Z39ROa",
+  "marital_status": "H*Z39ROa",
+  "preferred_name": "H*Z39ROa",
+  "religion": "H*Z39ROa",
+  "suffix": "H*Z39ROa",
+  "suffix_2": "H*Z39ROa",
+  "title": "H*Z39ROa",
+  "title_2": "H*Z39ROa",
+}
+`;
+
+exports[`Testing snapshot for BlackbaudRaisersEdgeNxt's createOrUpdateIndividualConstituent destination action: required fields 1`] = `
+Object {
+  "last": "Smith",
+  "lookup_id": "H*Z39ROa",
 }
 `;
