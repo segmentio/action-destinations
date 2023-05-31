@@ -19,5 +19,8 @@ export interface Payload {
    * Name of the CSV file to upload for LiveRamp ingestion.
    */
   filename: string
+  /**
+   * Receive events in a batch payload. This is required for LiveRamp audiences ingestion.
+   */
   enable_batching: boolean
 }
