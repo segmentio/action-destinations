@@ -85,7 +85,7 @@ export class PayloadValidationError extends IntegrationError {
 }
 
 /**
- * Error to indicate HTTP API call to destination field.
+ * Error to indicate HTTP API call to destination failed.
  * Should include a user-friendly message and status code.
  * Errors will be retried based on status code.
  */
