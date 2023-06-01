@@ -309,7 +309,7 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(500, errorResponse)
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, errorResponse)
 
-      await expect(twilio.testAction(actionName, input)).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
+      await expect(twilio.testAction(actionName, input)).rejects.toHaveProperty('code', 'RETRYABLE_ERROR')
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
         expect.any(String)
