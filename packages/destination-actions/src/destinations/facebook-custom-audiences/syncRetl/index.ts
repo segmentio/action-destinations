@@ -60,6 +60,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: 'The email to use when updating',
       type: 'string'
+    },
+    phone: {
+      label: 'Phone',
+      description: 'The phone to use when updating',
+      type: 'string'
     }
   },
   dynamicFields: {
@@ -76,7 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
       return fb.updateAudience(
         payload.updateId ?? 'test',
         payload.updateSchema ?? 'CUSTOM',
-        payload.email ?? 'nick@test.com'
+        payload.email ?? 'nick@test.com',
+        payload.phone ?? '555-555-5555'
       )
     }
   }

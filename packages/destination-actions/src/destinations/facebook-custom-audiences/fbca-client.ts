@@ -2,7 +2,7 @@ import { DynamicFieldResponse } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 
-const API_VERSION = 'v16.0'
+const API_VERSION = 'v17.0'
 const BASE_URL = `https://graph.facebook.com/${API_VERSION}`
 
 const hash = (value: string | undefined): string | undefined => {
@@ -54,13 +54,16 @@ export default class Facebook {
     })
   }
 
-  updateAudience = async (audienceId: string, schema: string, email: string) => {
+  updateAudience = async (audienceId: string, schema: string, email: string, phone: string) => {
+    console.log('hashed email', hash(email))
+    console.log('hashed phone', hash(phone))
+
     return this.request(`${BASE_URL}/${audienceId}/users`, {
       method: 'POST',
       json: {
         payload: {
-          schema: schema,
-          data: [hash(email)]
+          schema: ['EMAIL', 'PHONE'],
+          data: [hash(email), hash(phone)]
         }
       },
       headers: {
