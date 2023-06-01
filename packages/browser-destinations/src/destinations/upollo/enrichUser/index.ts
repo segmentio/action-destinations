@@ -3,9 +3,9 @@ import { UpolloClient } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
-  title: 'Identify user',
-  description: 'Identify the user',
+const enrichUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
+  title: 'Enrich user',
+  description: 'Enrich the user',
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   lifecycleHook: 'enrichment',
@@ -61,43 +61,24 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (UpClient, { payload, context, settings }) => {
-    const userInfo = {
-      userId: payload.user_id,
-      userEmail: payload.email,
-      userPhone: payload.phone,
-      userName: payload.name,
-      userImage: payload.avatar_image_url,
-      customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
-    }
-
-    const result = await UpClient.assess(userInfo)
-    const company = result?.emailAnalysis?.company
-    if (company && company?.name != '' && settings?.companyEnrichment) {
-      const size = company.companySize
-      const count = size && Math.max(size.employeesMin, size.employeesMax)
-      const companyInfo = {
-        name: company?.name,
-        industry: company?.industry,
-        employee_count: count
+  perform: async (UpClient, { payload, context }) => {
+    if (payload?.email) {
+      const result = await UpClient.checkEmail(payload?.email)
+      if (result && result?.company?.name != '') {
+        const company = result?.company
+        if (company && company?.name != '') {
+          const size = company.companySize
+          const count = size && Math.max(size.employeesMin, size.employeesMax)
+          const companyInfo = {
+            name: company?.name,
+            industry: company?.industry,
+            employee_count: count
+          }
+          context.updateEvent('traits.company', companyInfo)
+        }
       }
-      context.updateEvent('traits.company', companyInfo)
     }
   }
 }
 
-export default identifyUser
-
-function toCustomValues(values: Record<string, unknown>): Record<string, string> {
-  const xs = Object.entries(values)
-    .map(([k, v]) => {
-      if (typeof v === 'string') {
-        return [k, v]
-      } else {
-        return []
-      }
-    })
-    .filter((xs) => xs.length === 2)
-
-  return Object.fromEntries(xs)
-}
+export default enrichUser

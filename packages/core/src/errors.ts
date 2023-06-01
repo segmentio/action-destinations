@@ -85,6 +85,17 @@ export class PayloadValidationError extends IntegrationError {
 }
 
 /**
+ * Error to indicate HTTP API call to destination failed.
+ * Should include a user-friendly message and status code.
+ * Errors will be retried based on status code.
+ */
+export class APIError extends IntegrationError {
+  constructor(message: string, status: number) {
+    super(message, status.toString(), status)
+  }
+}
+
+/**
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
