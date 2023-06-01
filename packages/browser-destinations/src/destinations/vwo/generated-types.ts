@@ -20,5 +20,5 @@ export interface Settings {
   /**
    * When enabled VWO SmartCode will load parallel to Segment Code, when disabled SmartCode has to be added manually. It is recommended to add SmartCode directly to the webpage code to avoid flicker.
    */
-  addSmartcode: boolean
+  addSmartcode?: boolean
 }
