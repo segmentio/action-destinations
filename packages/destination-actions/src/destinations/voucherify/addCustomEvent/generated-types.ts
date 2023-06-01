@@ -2,25 +2,37 @@
 
 export interface Payload {
   /**
-   * The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   * This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).
    */
-  source_id: string
+  customer?: {
+    source_id?: string
+    email?: string
+  }
   /**
-   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   * If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.
    */
-  email?: string
+  referral?: {
+    code?: string
+    referrer_id?: string
+  }
   /**
-   * The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
+   * If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.
    */
-  event?: string
+  loyalty?: {
+    code?: string
+  }
   /**
-   * Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.
+   * The metadata object stores all custom attributes assigned to the [custom event](https://docs.voucherify.io/reference/custom-event-object). A set of key/value pairs that you can attach to an event object. It can be useful for storing additional information about the event in a structured format. Event metadata schema is defined in the Dashboard > Project Settings > Event Schema > Edit particular event > Metadata property definition.
    */
   metadata?: {
     [k: string]: unknown
   }
   /**
-   * Type of the event. It can be track, page or screen.
+   * The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
+   */
+  event?: string
+  /**
+   * Type of the [event](https://segment.com/docs/connections/spec/). It can be Track, Page or Screen.
    */
   type: string
 }

@@ -14,13 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
       required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      default: { '@path': '$.userId' }
     },
     email: {
       label: 'Email Address',
@@ -33,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     group_id: {
       label: 'Group ID',
-      description: 'The ID used to uniquely identify a group to which customer belongs.',
+      description:
+        'The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.',
       type: 'string',
       required: true,
       default: {

@@ -9,31 +9,74 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send the Track, Page or Screen event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.',
   defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
-    source_id: {
-      label: 'Source ID',
+    customer: {
+      label: 'customer',
       description:
-        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
-      type: 'string',
-      required: true,
+        'This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).',
+      type: 'object',
+      properties: {
+        source_id: {
+          label: 'Source Id',
+          type: 'string'
+        },
+        email: {
+          label: 'Email',
+          type: 'string'
+        }
+      },
       default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+        source_id: { '@path': '$.userId' },
+        email: {
+          '@if': {
+            exists: { '@path': '$.properties.email' },
+            then: { '@path': '$.properties.email' },
+            else: { '@path': '$.context.traits' }
+          }
         }
       }
     },
-    email: {
-      label: 'Email Address',
+    referral: {
+      label: 'referral',
       description:
-        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
-      type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
-          else: { '@path': '$.context.traits' }
+        'If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.',
+      type: 'object',
+      properties: {
+        code: {
+          label: 'code',
+          type: 'string'
+        },
+        referrer_id: {
+          label: 'referrer_id',
+          type: 'string'
         }
+      },
+      default: {
+        code: { '@path': '$.properties.referral.code' },
+        referrer_id: { '@path': '$.properties.referral.referrer_id' }
+      }
+    },
+    loyalty: {
+      label: 'loyalty',
+      description:
+        'If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.',
+      type: 'object',
+      properties: {
+        code: {
+          label: 'code',
+          type: 'string'
+        }
+      },
+      default: {
+        code: { '@path': '$.properties.loyalty.code' }
+      }
+    },
+    metadata: {
+      label: 'Track Event Metadata',
+      description:
+        'The metadata object stores all custom attributes assigned to the [custom event](https://docs.voucherify.io/reference/custom-event-object). A set of key/value pairs that you can attach to an event object. It can be useful for storing additional information about the event in a structured format. Event metadata schema is defined in the Dashboard > Project Settings > Event Schema > Edit particular event > Metadata property definition.',
+      type: 'object',
+      default: {
+        '@path': '$.properties.metadata'
       }
     },
     event: {
@@ -49,18 +92,9 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    metadata: {
-      label: 'Track Event Metadata',
-      description:
-        'Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.',
-      type: 'object',
-      default: {
-        '@path': '$.properties'
-      }
-    },
     type: {
       label: 'Event Type',
-      description: 'Type of the event. It can be track, page or screen.',
+      description: 'Type of the [event](https://segment.com/docs/connections/spec/). It can be Track, Page or Screen.',
       type: 'string',
       required: true,
       default: {

@@ -10,7 +10,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * The ID used to uniquely identify a group to which customer belongs.
+   * The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.
    */
   group_id: string
   /**
