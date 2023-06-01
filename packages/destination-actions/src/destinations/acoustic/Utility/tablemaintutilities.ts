@@ -203,10 +203,10 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
   const createSET = `<Envelope>
     <Body>
       <CreateTable>
-        <TABLE_NAME>Segment Events Table</TABLE_NAME>
+        <TABLE_NAME>${settings.events_table_list_name}</TABLE_NAME>
         <COLUMNS>
           <COLUMN>
-            <NAME>Email</NAME>
+            <NAME>EmailId</NAME>
             <TYPE>EMAIL</TYPE>
             <IS_REQUIRED>true</IS_REQUIRED>
             <KEY_COLUMN>TRUE</KEY_COLUMN>
@@ -230,7 +230,7 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
             <KEY_COLUMN>FALSE</KEY_COLUMN>
         </COLUMN>
           <COLUMN>
-        <NAME>Event Timestamp</NAME>
+        <NAME>EventTimestamp</NAME>
         <TYPE>DATE_TIME</TYPE>
         <IS_REQUIRED>TRUE</IS_REQUIRED>
         <KEY_COLUMN>FALSE</KEY_COLUMN>

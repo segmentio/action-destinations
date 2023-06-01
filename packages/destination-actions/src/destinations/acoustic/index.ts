@@ -74,8 +74,15 @@ const destination: DestinationDefinition<Settings> = {
       },
       events_table_list_id: {
         label: 'Acoustic Segment Events Table List Id',
-        description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
+        description: 'The Segment Events Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
         default: '',
+        type: 'string',
+        required: false
+      },
+      events_table_list_name: {
+        label: 'Acoustic Segment Events Table Name',
+        description: 'The Segment Events Table Name in Acoustic Campaign',
+        default: 'Segment Events Table',
         type: 'string',
         required: false
       },

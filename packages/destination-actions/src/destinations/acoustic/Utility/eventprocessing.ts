@@ -95,25 +95,6 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
       </ROW>`
   }
 
-  //Audience
-  if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
-    const ak = get(payload, 'context.personas.computation_key', 'Null')
-    const av = `properties.${ak}`
-    const audiStatus = get(payload, av, 'Null')
-    if (audiStatus) eventValue = 'Audience Entered'
-    if (!audiStatus) eventValue = 'Audience Exited'
-    eventName = ak
-
-    xmlRows += `  
-      <ROW>
-      <COLUMN name="EMAIL">           <![CDATA[${email}]]></COLUMN>
-      <COLUMN name="EventSource">     <![CDATA[${eventSource}]]></COLUMN>  
-      <COLUMN name="EventName">       <![CDATA[${eventName}]]></COLUMN>
-      <COLUMN name="EventValue">      <![CDATA[${eventValue}]]></COLUMN>
-      <COLUMN name="Event Timestamp"> <![CDATA[${timestamp}]]></COLUMN>
-      </ROW>`
-  }
-
   //Wrap Properties and Traits into XML
   for (const e in propertiesTraitsKV) {
     const eventName = e
