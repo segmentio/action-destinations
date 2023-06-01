@@ -33,4 +33,8 @@ export interface Payload {
    * The email to use when updating
    */
   email?: string
+  /**
+   * The phone to use when updating
+   */
+  phone?: string
 }
