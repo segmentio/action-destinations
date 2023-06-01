@@ -10,9 +10,13 @@ export interface Settings {
    */
   region: string
   /**
-   * The Segment Events Table List Id from the Database dialog in Acoustic Campaign
+   * The Segment Events Table List Id from the Database-Relational Table dialog in Acoustic Campaign
    */
   events_table_list_id?: string
+  /**
+   * The Segment Events Table Name in Acoustic Campaign
+   */
+  events_table_list_name?: string
   /**
    * The Client Id from the App definition dialog in Acoustic Campaign
    */
