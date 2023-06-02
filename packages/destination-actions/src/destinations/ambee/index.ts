@@ -32,7 +32,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       segmentRegion: {
         label: 'Segment Region For Notifications',
-        description: '...',
+        description:
+          'Your Segment Workspace is hosted in either the US or EU Region. Select which Segment Region Ambee should send notifications to. The default is US',
         type: 'string',
         choices: [
           { label: 'US', value: 'US' },

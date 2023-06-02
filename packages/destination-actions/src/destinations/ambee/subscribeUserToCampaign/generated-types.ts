@@ -10,7 +10,7 @@ export interface Payload {
    */
   platform?: string
   /**
-   * ...
+   * Create an ID for your campaign. For every campaign you activate using Ambee’s pollen and/or air quality action, you need to create a new ID. Note: a campaign ID must not contain spaces. Example:“companyabc_ambeepollen” is valid while “companyabc ambeepollen” is not valid
    */
   campaignId?: string
   /**
@@ -26,7 +26,7 @@ export interface Payload {
    */
   pollenSubscription?: string
   /**
-   * The IP address assocated with the user, ...
+   * Ambee uses the user’s IP address when determining who to send air quality and/or pollen notifications to.
    */
   ipAddress: string
 }

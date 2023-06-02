@@ -21,7 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     campaignId: {
       label: 'Campaign ID',
-      description: '...',
+      description:
+        'Create an ID for your campaign. For every campaign you activate using Ambee’s pollen and/or air quality action, you need to create a new ID. Note: a campaign ID must not contain spaces. Example:“companyabc_ambeepollen” is valid while “companyabc ambeepollen” is not valid',
       type: 'string'
     },
     userId: {
@@ -67,7 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ipAddress: {
       label: 'User IP Address',
-      description: 'The IP address assocated with the user, ...',
+      description:
+        'Ambee uses the user’s IP address when determining who to send air quality and/or pollen notifications to.',
       type: 'string',
       default: { '@path': '$.context.ip' },
       required: true

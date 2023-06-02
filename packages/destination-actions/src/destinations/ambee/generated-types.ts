@@ -14,7 +14,7 @@ export interface Settings {
    */
   email: string
   /**
-   * ...
+   * Your Segment Workspace is hosted in either the US or EU Region. Select which Segment Region Ambee should send notifications to. The default is US
    */
   segmentRegion?: string
   /**
