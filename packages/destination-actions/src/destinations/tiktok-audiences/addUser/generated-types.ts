@@ -6,7 +6,7 @@ export interface Payload {
    */
   selected_advertiser_id: string
   /**
-   * Audience ID for the TikTok Audience you want to sync your Engage audience to. If you do not have an audience already created, Segment will create one for you.
+   * The Audience ID is used to synchronize your Engage audience with TikTok. If you haven't created a TikTok Audience yet, you can leave this field empty, and Segment will generate one for you automatically.
    */
   audience_id?: string
   /**
