@@ -44,7 +44,7 @@ export async function processPayload(
     // Segment just created isn't available yet for updates via this endpoint.
     // Audiences are usually available to accept batches of data 1 - 2 minutes after
     // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
-    if (res.status !== 200) {
+    if (res.status !== 200 && !payloads[0].audience_id) {
       throw new RetryableError('Error while attempting to update TikTok Audience. This batch will be retried.')
     }
   }
