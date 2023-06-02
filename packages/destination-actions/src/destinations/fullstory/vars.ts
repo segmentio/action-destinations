@@ -139,17 +139,50 @@ const transformPropertyName = (name: string, transformations: PropertyNameTransf
   return transform(name)
 }
 
+/** The maximum levels deep property names will be type suffixed and otherwise transformed e.g. camel cased **/
+const MAX_PROPERTY_NORMALIZATION_DEPTH = 5
+
 /**
- * Normalizes first level property names according to FullStory API custom var expectations. Type suffixes
- * will be added to first level property names when a known type suffix isn't present and the type can be
- * inferred. First level property names will also be camel cased if specified, preserving any known type
+ * Recursively transforms property names up to {@link MAX_PROPERTY_NORMALIZATION_DEPTH} levels deep.
+ *
+ * @param obj The source object with propery names to transform.
+ * @param transformPropertyName The function invoked to transform each property name.
+ * @param currentDepth The current recursion depth which is incremented each iteration (start at 1).
+ * @returns A new object with property names transformed using the given transformPropertyName function.
+ */
+const recursivelyTransformPropertyNames = (
+  obj: any,
+  transformPropertyName: (name: string, value: unknown) => string,
+  currentDepth: number
+): Record<string, unknown> => {
+  if (currentDepth > MAX_PROPERTY_NORMALIZATION_DEPTH) {
+    return obj
+  }
+
+  const normalizedObj: Record<string, unknown> = {}
+
+  Object.entries(obj).forEach(([key, value]) => {
+    const normalizedName = transformPropertyName(key, value)
+    normalizedObj[normalizedName] =
+      inferType(value) === 'obj'
+        ? recursivelyTransformPropertyNames(value, transformPropertyName, currentDepth + 1)
+        : value
+  })
+
+  return normalizedObj
+}
+
+/**
+ * Normalizes property names up to {@link MAX_PROPERTY_NORMALIZATION_DEPTH} levels deep according to FullStory API
+ * custom var expectations. Type suffixes will be added to property names when a known type suffix isn't present
+ * and the type can be inferred. Property names will also be camel cased if specified, preserving any known type
  * suffixes. Finally, any unsupported characters will be stripped from property names.
  *
- * @param obj The source object.
+ * @param obj The source object with property names to normalize.
  * @param options Extended normalization options, including whether to camel case property names.
- * @returns A new object with first level property names normalized.
+ * @returns A new object with property names normalized.
  */
-export const normalizePropertyNames = (obj?: {}, options?: { camelCase?: boolean }): Record<string, unknown> => {
+export const normalizePropertyNames = (obj?: any, options?: { camelCase?: boolean }): Record<string, unknown> => {
   if (!obj) {
     return {}
   }
@@ -165,11 +198,5 @@ export const normalizePropertyNames = (obj?: {}, options?: { camelCase?: boolean
     return typeSuffixPropertyName(transformedName, value)
   }
 
-  return Object.entries(obj).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [normalizePropertyName(key, value)]: value
-    }),
-    {}
-  )
+  return recursivelyTransformPropertyNames(obj, normalizePropertyName, 1)
 }
