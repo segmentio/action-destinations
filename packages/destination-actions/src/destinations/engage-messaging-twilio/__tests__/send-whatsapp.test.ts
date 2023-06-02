@@ -1,80 +1,68 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
-import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Twilio from '..'
-import { Logger } from '@segment/actions-core/src/destination-kit'
+import { createTestIntegration } from '@segment/actions-core'
+import { createLoggerMock, getPhoneMessageInputDataGenerator } from '../utils/test-utils'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
+const logger = createLoggerMock()
 
-function createLoggerMock()
-{
-  return { level: 'error', name: 'test', error: jest.fn() as Logger['error'], info: jest.fn() as Logger['info'] } as Logger
+const getDefaultMapping = (overrides?: any) => {
+  return {
+    userId: { '@path': '$.userId' },
+    from: 'MG1111222233334444',
+    contentSid: defaultTemplateSid,
+    send: true,
+    traitEnrichment: true,
+    externalIds: [
+      { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+      { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+    ],
+    ...overrides
+  }
 }
-
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
-  const settings = {
-    twilioAccountSID: 'a',
-    twilioApiKeySID: 'f',
-    twilioApiKeySecret: 'b',
-    profileApiEnvironment: environment,
-    profileApiAccessToken: 'c',
+  const getInputData = getPhoneMessageInputDataGenerator({
+    environment,
+    timestamp,
     spaceId,
-    sourceId: 'e'
-  }
-  const getDefaultMapping = (overrides?: any) => {
-    return {
-      userId: { '@path': '$.userId' },
-      from: 'MG1111222233334444',
-      contentSid: defaultTemplateSid,
-      send: true,
-      traitEnrichment: true,
-      externalIds: [
-        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
-      ],
-      ...overrides
-    }
-  }
+    logger,
+    getDefaultMapping
+  })
 
   afterEach(() => {
     twilio.responses = []
     nock.cleanAll()
+    jest.clearAllMocks()
   })
 
   describe('send WhatsApp', () => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
-      const responses = await twilio.testAction('sendWhatsApp', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+      const responses = await twilio.testAction(
+        'sendWhatsApp',
+        getInputData({
+          mappingOverrides: {
+            externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+          }
         })
-      })
+      )
 
       expect(responses.length).toEqual(0)
     })
 
     it('should abort when there is no `channelType` in the external ID payload', async () => {
-      const responses = await twilio.testAction('sendWhatsApp', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
+      const responses = await twilio.testAction(
+        'sendWhatsApp',
+        getInputData({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
+          }
         })
-      })
+      )
 
       expect(responses.length).toEqual(0)
     })
@@ -90,15 +78,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping()
-      }
+      const actionInputData = getInputData()
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -120,18 +100,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings: {
-          ...settings,
-          twilioHostname
-        },
-        mapping: getDefaultMapping()
-      }
+      const actionInputData = getInputData({ settingsOverrides: { twilioHostname } })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -152,19 +121,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings: {
-          ...settings,
+      const actionInputData = getInputData({
+        mappingOverrides: { customArgs: { foo: 'bar' } },
+        settingsOverrides: {
           webhookUrl: 'http://localhost',
           connectionOverrides: 'rp=all&rc=5'
-        },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
 
@@ -175,19 +138,19 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should fail on invalid webhook url', async () => {
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings: {
-          ...settings,
-          webhookUrl: 'foo'
-        },
-        mapping: getDefaultMapping({ customArgs: { foo: 'bar' } })
-      }
-      await expect(twilio.testAction('sendWhatsApp', actionInputData)).rejects.toHaveProperty('code', 'ERR_INVALID_URL')
+      const actionInputData = getInputData({
+        mappingOverrides: { customArgs: { foo: 'bar' } },
+        settingsOverrides: { webhookUrl: 'foo' }
+      })
+
+      await expect(twilio.testAction('sendWhatsApp', actionInputData)).rejects.toHaveProperty(
+        'code',
+        'PAYLOAD_VALIDATION_FAILED'
+      )
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringContaining(`TE Messaging: WHATSAPP invalid webhook url`),
+        expect.any(String)
+      )
     })
   })
   describe('subscription handling', () => {
@@ -202,17 +165,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
-        })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -234,17 +191,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           .post('/Messages.json', expectedTwilioRequest.toString())
           .reply(201, {})
 
-        const actionInputData = {
-          event: createMessagingTestEvent({
-            timestamp,
-            event: 'Audience Entered',
-            userId: 'jane'
-          }),
-          settings,
-          mapping: getDefaultMapping({
+        const actionInputData = getInputData({
+          mappingOverrides: {
             externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
-          })
-        }
+          }
+        })
 
         const responses = await twilio.testAction('sendWhatsApp', actionInputData)
         expect(responses).toHaveLength(0)
@@ -265,14 +216,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           externalIds: [
             {
               type: 'phone',
@@ -281,21 +226,19 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               channelType: 'whatsapp'
             }
           ]
-        }),
-        logger: createLoggerMock()
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses).toHaveLength(0)
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Invalid subscription statuses found in externalIds"),
+        expect.stringContaining('TE Messaging: WHATSAPP Invalid subscription statuses found in externalIds'),
         expect.anything()
       )
       expect(actionInputData.logger.info).toHaveBeenCalledWith(
-        expect.stringContaining("TE Messaging: Not sending message, because sendabilityStatus"),
+        expect.stringContaining('TE Messaging: WHATSAPP Not sending message, because sendabilityStatus'),
         expect.anything()
       )
-  
     })
 
     it('formats the to number correctly for whatsapp', async () => {
@@ -310,19 +253,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           from: from,
           contentSid: defaultTemplateSid,
           externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true, channelType: 'whatsapp' }]
-        })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -332,42 +269,25 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('throws an error when whatsapp number cannot be formatted', async () => {
-      const logger = createLoggerMock()
-
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
-        }),
-        logger
-      }
+        }
+      })
 
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WhatsApp invalid phone number - ${spaceId}`)),
+        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP invalid phone number - ${spaceId}`)),
         expect.anything()
       )
     })
 
     it('throws an error when liquid template parsing fails', async () => {
-      const logger = createLoggerMock()
-
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           contentVariables: { '1': '{{profile.traits.firstName$}}', '2': '{{profile.traits.address.street}}' },
           traits: {
             firstName: 'Soap',
@@ -375,23 +295,20 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               street: '360 Scope St'
             }
           }
-        }),
-        logger
-      }
+        }
+      })
 
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringMatching(
-          new RegExp(`^TE Messaging: Failed to parse WhatsApp template with content variables - ${spaceId}`)
+          new RegExp(`^TE Messaging: WHATSAPP Failed to parse template with content variables - ${spaceId}`)
         ),
         expect.anything()
       )
     })
 
     it('throws an error when Twilio API request fails', async () => {
-      const logger = createLoggerMock()
-
       const expectedErrorResponse = {
         code: 21211,
         message: "The 'To' number is not a valid phone number.",
@@ -401,21 +318,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping(),
-        logger
-      }
+      const actionInputData = getInputData()
 
       const response = twilio.testAction('sendWhatsApp', actionInputData)
       await expect(response).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Twilio Programmable API error - ${spaceId}`)),
+        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP Twilio Programmable API error - ${spaceId}`)),
         expect.anything()
       )
     })
@@ -432,14 +340,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           contentVariables: { '1': '{{profile.traits.firstName}}', '2': '{{profile.traits.address.street}}' },
           traits: {
             firstName: 'Soap',
@@ -447,8 +349,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               street: '360 Scope St'
             }
           }
-        })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -469,14 +371,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           contentVariables: { '1': '{{profile.traits.firstName}}', '2': '{{profile.traits.address.street}}' },
           traits: {
             firstName: null,
@@ -484,8 +380,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
               street: '360 Scope St'
             }
           }
-        })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -506,18 +402,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const actionInputData = {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: 'jane'
-        }),
-        settings,
-        mapping: getDefaultMapping({
+      const actionInputData = getInputData({
+        mappingOverrides: {
           contentVariables: { '1': 'Soap', '2': '360 Scope St' },
           traitEnrichment: false
-        })
-      }
+        }
+      })
 
       const responses = await twilio.testAction('sendWhatsApp', actionInputData)
       expect(responses.map((response) => response.url)).toStrictEqual([
