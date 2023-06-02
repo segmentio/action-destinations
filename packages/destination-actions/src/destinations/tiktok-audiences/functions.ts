@@ -3,7 +3,6 @@ import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as RemoveUserPayload } from './removeUser/generated-types'
-import { Payload as CreateAudiencePayload } from './createAudience/generated-types'
 import { Settings } from './generated-types'
 import { Audiences } from './types'
 
@@ -53,13 +52,6 @@ export async function processPayload(
   return res
 }
 
-export async function createAudience(request: RequestClient, payload: CreateAudiencePayload) {
-  const selected_advertiser_id = payload.selected_advertiser_id ?? undefined
-  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, selected_advertiser_id)
-  const audiences = await getAllAudiences(TikTokApiClient)
-  return await getAudienceID(TikTokApiClient, payload, audiences)
-}
-
 // TikTok returns a max of 100 audiences per request to their `list` endpoint.
 // A customer can have a max of 400 audiences in a single advertiser account.
 // We may have to make up to 4 requests to get all audiences.
@@ -82,7 +74,7 @@ export async function getAllAudiences(TikTokApiClient: TikTokAudiences) {
 
 export async function getAudienceID(
   TikTokApiClient: TikTokAudiences,
-  payload: CreateAudiencePayload,
+  payload: GenericPayload,
   audiences: Audiences[]
 ): Promise<string> {
   let audienceID
