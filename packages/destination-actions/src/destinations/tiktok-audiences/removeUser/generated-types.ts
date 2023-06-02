@@ -14,6 +14,10 @@ export interface Payload {
    */
   id_type?: string
   /**
+   * Audience ID for the TikTok Audience you want to sync your Engage audience to. If you do not have an audience already created, Segment will create one for you.
+   */
+  audience_id?: string
+  /**
    * The user's email address to send to TikTok.
    */
   email?: string

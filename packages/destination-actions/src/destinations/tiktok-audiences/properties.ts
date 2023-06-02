@@ -12,7 +12,7 @@ export const custom_audience_name: InputField = {
   label: 'Custom Audience Name',
   description:
     'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in TikTok.Instead, updating the audience name here will create a separate audience in TikTok with the new audience name.',
-  type: 'string',
+  type: 'hidden',
   default: {
     '@path': '$.properties.audience_key'
   }
@@ -34,9 +34,8 @@ export const id_type: InputField = {
 export const audience_id: InputField = {
   label: 'Audience ID',
   description:
-    'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
-  type: 'string',
-  required: true
+    'Audience ID for the TikTok Audience you want to sync your Engage audience to. If you do not have an audience already created, Segment will create one for you.',
+  type: 'string'
 }
 
 export const email: InputField = {

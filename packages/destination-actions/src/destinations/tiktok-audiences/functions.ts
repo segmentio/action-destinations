@@ -19,10 +19,13 @@ export async function processPayload(
 
   const selected_advertiser_id = payloads[0].selected_advertiser_id ?? undefined
   const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, selected_advertiser_id)
-
-  // Temporary to test creating audiences in sync
-  const audiences = await getAllAudiences(TikTokApiClient)
-  const audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
+  let audience_id
+  if (!payloads[0].audience_id) {
+    const audiences = await getAllAudiences(TikTokApiClient)
+    audience_id = await getAudienceID(TikTokApiClient, payloads[0], audiences)
+  } else {
+    audience_id = payloads[0].audience_id
+  }
 
   const id_schema = getIDSchema(payloads[0])
 
@@ -97,10 +100,6 @@ export async function getAudienceID(
   if (audienceExists.length == 1) {
     audienceID = audienceExists[0].audience_id
   } else {
-    const sleep = (time: number) => new Promise((r) => setTimeout(r, time))
-    console.log('Before sleep happeing')
-    await sleep(5000)
-    console.log('After sleep')
     const response = await TikTokApiClient.createAudience(payload)
     audienceID = response.data.data.audience_id
   }

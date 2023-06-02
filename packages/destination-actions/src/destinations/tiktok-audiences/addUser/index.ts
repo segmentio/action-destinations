@@ -6,7 +6,7 @@ import {
   selected_advertiser_id,
   custom_audience_name,
   id_type,
-  // audience_id,
+  audience_id,
   email,
   advertising_id,
   send_email,
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
-    // audience_id: { ...audience_id },
+    audience_id: { ...audience_id },
     custom_audience_name: { ...custom_audience_name },
     id_type: { ...id_type },
     email: { ...email },
@@ -50,9 +50,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    console.log('Processing payload...')
     return processPayload(request, settings, [payload], 'add')
   },
   performBatch: async (request, { settings, payload }) => {
+    console.log('Processing batch payload...')
     return processPayload(request, settings, payload, 'add')
   }
 }
