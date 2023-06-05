@@ -136,7 +136,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       gtag('set', { campaign_content: payload.campaign_content })
     }
-    gtag('event', 'page_view')
   }
 }
 
