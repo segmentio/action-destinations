@@ -27,13 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         source_id: { '@path': '$.userId' },
-        email: {
-          '@if': {
-            exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
-            else: { '@path': '$.context.traits' }
-          }
-        }
+        email: { '@path': '$.email' }
       }
     },
     group_id: {
