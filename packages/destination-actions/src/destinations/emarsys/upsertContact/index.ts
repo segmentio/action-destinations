@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { APIError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -86,12 +86,13 @@ const action: ActionDefinition<Settings, Payload> = {
         try {
           const body = await response.json()
           if (body.replyCode === 0) return response
-          else throw new IntegrationError('Something went wrong while upserting the contact')
+          else
+            throw new APIError(`Something went wrong while upserting the contact: ${body?.replyText ?? 'UNKNOWN'}`, 500)
         } catch (err) {
-          throw new IntegrationError('Invalid JSON response')
+          throw new APIError('Invalid JSON response', 400)
         }
       case 400:
-        throw new IntegrationError('Contact could not be upserted')
+        throw new APIError('Contact could not be upserted', 400)
       case 429:
         throw new RetryableError('Rate limit reached.')
       default:
