@@ -1,4 +1,4 @@
-import { APIError, ActionDefinition } from '@segment/actions-core'
+import { APIError, ActionDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -9,8 +9,6 @@ import {
   BufferBatchContacts,
   BufferBatchContactItem
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -65,9 +63,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const contact: ContactData = {}
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
 
     contact[data.payload.key_field] = data.payload.key_value
     Object.assign(contact, data.payload.write_field)

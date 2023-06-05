@@ -1,5 +1,4 @@
-import { IntegrationError, RetryableError, PayloadValidationError, APIError } from '@segment/actions-core'
-import type { ActionDefinition } from '@segment/actions-core'
+import { RetryableError, PayloadValidationError, APIError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -46,10 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
-
     data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.contactlistid > 0) {

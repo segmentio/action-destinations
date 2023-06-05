@@ -1,4 +1,4 @@
-import { APIError, ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { APIError, ActionDefinition, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -11,8 +11,6 @@ import {
   TriggerEventApiPayload,
   TriggerEventsApiPayload
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
@@ -59,10 +57,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
-
     data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.eventid > 0) {
