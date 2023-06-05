@@ -73,8 +73,6 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
 
   payloads.forEach((payload: GenericPayload) => {
     if (!payload.email && !payload.advertising_id) {
-      console.log('dswe')
-
       return
     }
 
