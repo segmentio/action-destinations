@@ -38,7 +38,9 @@ describe('Voucherify', () => {
         },
         type: 'group',
         properties: {
-          source_id: 'test_customer_1'
+          customer: {
+            source_id: 'test_customer_1'
+          }
         }
       })
 

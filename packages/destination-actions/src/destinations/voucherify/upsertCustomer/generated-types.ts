@@ -10,13 +10,13 @@ export interface Payload {
    */
   name?: string
   /**
-   * First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `lastName` to create the `name` field.
+   * First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.
    */
-  firstName?: string
+  first_name?: string
   /**
-   * Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `firstName` to create the `name` field.
+   * Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.
    */
-  lastName?: string
+  last_name?: string
   /**
    * An arbitrary string that you can attach to a [customer](https://docs.voucherify.io/reference/customer-object) object.
    */
@@ -39,7 +39,7 @@ export interface Payload {
   address?: {
     city?: string
     state?: string
-    postalCode?: string
+    postal_code?: string
     street?: string
     country?: string
   }

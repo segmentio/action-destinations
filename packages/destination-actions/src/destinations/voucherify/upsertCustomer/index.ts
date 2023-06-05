@@ -25,19 +25,19 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.name'
       }
     },
-    firstName: {
+    first_name: {
       label: 'First Name',
       description:
-        'First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `lastName` to create the `name` field.',
+        'First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.',
       type: 'string',
       default: {
         '@path': '$.traits.first_name'
       }
     },
-    lastName: {
+    last_name: {
       label: 'Last Name',
       description:
-        'Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `firstName` to create the `name` field.',
+        'Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.',
       type: 'string',
       default: {
         '@path': '$.traits.last_name'
@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'State',
           type: 'string'
         },
-        postalCode: {
+        postal_code: {
           label: 'Postal Code',
           type: 'string'
         },
@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         city: { '@path': '$.traits.address.city' },
         state: { '@path': '$.traits.address.state' },
-        postalCode: { '@path': '$.traits.address.postal_code' },
+        postal_code: { '@path': '$.traits.address.postal_code' },
         street: { '@path': '$.traits.address.street' },
         country: { '@path': '$.traits.address.country' }
       }

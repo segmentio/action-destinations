@@ -8,21 +8,32 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Assign a specific group and its traits to the customer.',
   defaultSubscription: 'type = "group"',
   fields: {
-    source_id: {
-      label: 'Source ID',
-      description:
-        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
-      type: 'string',
+    customer: {
+      label: 'Customer Object',
       required: true,
-      default: { '@path': '$.userId' }
-    },
-    email: {
-      label: 'Email Address',
       description:
-        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
-      type: 'string',
+        'Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).',
+      type: 'object',
+      properties: {
+        source_id: {
+          label: 'Source ID',
+          type: 'string',
+          required: true
+        },
+        email: {
+          label: 'Email',
+          type: 'string'
+        }
+      },
       default: {
-        '@path': '$.email'
+        source_id: { '@path': '$.userId' },
+        email: {
+          '@if': {
+            exists: { '@path': '$.properties.email' },
+            then: { '@path': '$.properties.email' },
+            else: { '@path': '$.context.traits' }
+          }
+        }
       }
     },
     group_id: {

@@ -2,13 +2,12 @@
 
 export interface Payload {
   /**
-   * The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+   * Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).
    */
-  source_id: string
-  /**
-   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
-   */
-  email?: string
+  customer: {
+    source_id: string
+    email?: string
+  }
   /**
    * The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.
    */
