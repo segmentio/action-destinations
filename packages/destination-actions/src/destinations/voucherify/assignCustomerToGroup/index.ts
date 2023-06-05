@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
+      description: 'Type of the [event](https://segment.com/docs/connections/spec/).',
       type: 'string',
       required: true,
       default: {

@@ -19,7 +19,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).
+   * Type of the [event](https://segment.com/docs/connections/spec/).
    */
   type: string
 }
