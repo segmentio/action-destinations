@@ -6,6 +6,10 @@ export interface Settings {
    */
   measurementID: string
   /**
+   * Set to false to prevent the default snippet from sending page views. Enabled by default. Please set to false if you are manually sending page views with the Page View Action or you may end up with duplicate pageviews.
+   */
+  pageView?: boolean
+  /**
    * Set to false to disable all advertising features. Set to true by default.
    */
   allowGoogleSignals?: boolean

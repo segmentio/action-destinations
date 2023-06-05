@@ -20,6 +20,7 @@ import viewCart from './viewCart'
 import viewItem from './viewItem'
 import viewItemList from './viewItemList'
 import viewPromotion from './viewPromotion'
+import pageView from './pageView'
 import setConfigurationFields from './setConfigurationFields'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 
@@ -51,6 +52,13 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       label: 'Measurement ID',
       type: 'string',
       required: true
+    },
+    pageView: {
+      description:
+        'Set to false to prevent the default snippet from sending page views. Enabled by default. Please set to false if you are manually sending page views with the Page View Action or you may end up with duplicate pageviews.',
+      label: 'Page Views',
+      type: 'boolean',
+      default: true
     },
     allowGoogleSignals: {
       description: 'Set to false to disable all advertising features. Set to true by default.',
@@ -187,7 +195,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     viewItemList,
     generateLead,
     customEvent,
-    setConfigurationFields
+    setConfigurationFields,
+    pageView
   }
 }
 
