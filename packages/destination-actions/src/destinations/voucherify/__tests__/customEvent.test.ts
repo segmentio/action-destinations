@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(Voucherify)
 const settings: Settings = {
   apiKey: 'voucherifyApiKey',
   secretKey: 'voucherifySecretKey',
-  customURL: 'https://us1.api.voucherify.io/segmentio'
+  customURL: 'https://us1.segmentio.voucherify.io/segmentio'
 }
 
 describe('Voucherify', () => {
@@ -81,7 +81,7 @@ describe('Voucherify', () => {
             }
           }
         })
-      ).rejects.not.toThrowError("Customer is missing the required field 'source_id'.")
+      ).rejects.not.toThrowError("Customer Object is missing the required field 'source_id'.")
     })
 
     it('should throw an error if the source_id field in customer object is not specified', async () => {
@@ -113,7 +113,7 @@ describe('Voucherify', () => {
             }
           }
         })
-      ).rejects.toThrowError("Customer is missing the required field 'source_id'.")
+      ).rejects.toThrowError("Customer Object is missing the required field 'source_id'.")
     })
 
     it('should throw an error if the customer object is not specified', async () => {

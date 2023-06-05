@@ -10,14 +10,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     customer: {
-      label: 'customer',
+      label: 'Customer Object',
       required: true,
       description:
         'This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).',
       type: 'object',
       properties: {
         source_id: {
-          label: 'Source Id',
+          label: 'Source ID',
           type: 'string',
           required: true
         },
@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     referral: {
-      label: 'referral',
+      label: 'Referral Object',
       description:
         'If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.',
       type: 'object',
@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     loyalty: {
-      label: 'loyalty',
+      label: 'Loyalty Object',
       description:
         'If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.',
       type: 'object',

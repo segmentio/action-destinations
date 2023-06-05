@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(Voucherify)
 const settings: Settings = {
   apiKey: 'voucherifyApiKey',
   secretKey: 'voucherifySecretKey',
-  customURL: 'https://us1.api.voucherify.io/segmentio'
+  customURL: 'https://us1.segmentio.voucherify.io/segmentio'
 }
 
 describe('Voucherify', () => {

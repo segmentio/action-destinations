@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
 
     traits: {
-      label: 'Group traits',
+      label: 'Group Traits',
       description:
         'Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
