@@ -11,13 +11,15 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     customer: {
       label: 'customer',
+      required: true,
       description:
         'This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).',
       type: 'object',
       properties: {
         source_id: {
           label: 'Source Id',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         email: {
           label: 'Email',

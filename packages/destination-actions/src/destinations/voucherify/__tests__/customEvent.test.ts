@@ -25,7 +25,9 @@ describe('Voucherify', () => {
         event: 'Test Track Event',
         type: 'track',
         properties: {
-          source_id: 'test_customer_1'
+          customer: {
+            source_id: 'test_customer_1'
+          }
         }
       })
 
@@ -40,8 +42,8 @@ describe('Voucherify', () => {
             type: {
               '@path': '$.type'
             },
-            source_id: {
-              '@path': '$.properties.source_id'
+            customer: {
+              '@path': '$.properties.customer'
             }
           }
         })
@@ -50,14 +52,16 @@ describe('Voucherify', () => {
       )
     })
 
-    it('should work with the default mapping', async () => {
+    it('should not throw an error if the customer object with source_id is specified', async () => {
       nock(settings.customURL).post('/event-processing').reply(200)
 
       const testEvent = createTestEvent({
         event: 'Test Track Event',
         type: 'track',
         properties: {
-          source_id: 'test_customer_1'
+          customer: {
+            source_id: 'test_customer_1'
+          }
         }
       })
 
@@ -65,12 +69,54 @@ describe('Voucherify', () => {
         testDestination.testAction('addCustomEvent', {
           event: testEvent,
           settings,
-          useDefaultMappings: true
+          mapping: {
+            event: {
+              '@path': '$.event'
+            },
+            type: {
+              '@path': '$.type'
+            },
+            customer: {
+              '@path': '$.properties.customer'
+            }
+          }
         })
-      ).rejects.not.toThrowError("The root value is missing the required field 'source_id'.")
+      ).rejects.not.toThrowError("Customer is missing the required field 'source_id'.")
     })
 
-    it('should throw an error if the source_id and email are not specified', async () => {
+    it('should throw an error if the source_id field in customer object is not specified', async () => {
+      nock(settings.customURL).post('/event-processing').reply(200)
+
+      const testEvent = createTestEvent({
+        event: 'Test Track Event',
+        type: 'track',
+        properties: {
+          customer: {
+            email: 'test_customer_1@test.com'
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('addCustomEvent', {
+          event: testEvent,
+          settings,
+          mapping: {
+            event: {
+              '@path': '$.event'
+            },
+            type: {
+              '@path': '$.type'
+            },
+            customer: {
+              '@path': '$.properties.customer'
+            }
+          }
+        })
+      ).rejects.toThrowError("Customer is missing the required field 'source_id'.")
+    })
+
+    it('should throw an error if the customer object is not specified', async () => {
       nock(settings.customURL).post('/event-processing').reply(200)
 
       const testEvent = createTestEvent({
@@ -94,7 +140,7 @@ describe('Voucherify', () => {
             }
           }
         })
-      ).rejects.toThrowError("The root value is missing the required field 'source_id'.")
+      ).rejects.toThrowError("The root value is missing the required field 'customer'.")
     })
 
     it('should throw an error if the type is not specified', async () => {
@@ -103,7 +149,9 @@ describe('Voucherify', () => {
       const testEvent = createTestEvent({
         event: 'Test Track Event',
         properties: {
-          source_id: 'test_customer_1'
+          customer: {
+            source_id: 'src_id'
+          }
         }
       })
       await expect(
@@ -114,35 +162,12 @@ describe('Voucherify', () => {
             event: {
               '@path': '$.event'
             },
-            source_id: {
-              '@path': '$.properties.source_id'
+            customer: {
+              '@path': '$.properties.customer'
             }
           }
         })
       ).rejects.toThrowError("The root value is missing the required field 'type'.")
-    })
-
-    it('should work if the email is supplied instead of the source_id', async () => {
-      nock(settings.customURL).post('/event-processing').reply(200)
-
-      const testEvent = createTestEvent({
-        event: 'Test Track Event',
-        type: 'track',
-        properties: {
-          email: 'test@voucherify.io'
-        }
-      })
-      await expect(
-        testDestination.testAction('addCustomEvent', {
-          event: testEvent,
-          settings,
-          mapping: {
-            source_id: {
-              '@path': '$.properties.email'
-            }
-          }
-        })
-      ).rejects.not.toThrowError("The root value is missing the required field 'source_id'.")
     })
   })
 })

@@ -16,9 +16,7 @@ describe('Voucherify', () => {
     it('should throw error when source_id is not specified', async () => {
       nock(settings.customURL).post('/customer-processing').reply(200)
       const testEvent = createTestEvent({
-        traits: {
-          name: 'Test'
-        },
+        name: 'Test',
         type: 'identify'
       })
 

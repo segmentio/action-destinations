@@ -4,8 +4,8 @@ export interface Payload {
   /**
    * This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).
    */
-  customer?: {
-    source_id?: string
+  customer: {
+    source_id: string
     email?: string
   }
   /**
