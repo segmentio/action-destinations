@@ -4,9 +4,9 @@ import identify from '..'
 import { UpolloClient } from '../../types'
 import { Payload } from '../generated-types'
 
-it('should identify', async () => {
+it('should enrich', async () => {
   const client = {
-    assess: jest.fn().mockResolvedValue({ emailAnalysis: { company: { name: 'Bar' } } })
+    checkEmail: jest.fn().mockResolvedValue({ company: { name: 'Bar' } })
   } as any as UpolloClient
 
   const context = new Context({
@@ -15,7 +15,7 @@ it('should identify', async () => {
   })
 
   await identify.perform(client as any as UpolloClient, {
-    settings: { apiKey: '123', companyEnrichment: true },
+    settings: { apiKey: '123' },
     analytics: jest.fn() as any as Analytics,
     context: context,
     payload: {
@@ -35,21 +35,14 @@ it('should identify', async () => {
     } as Payload
   })
 
-  expect(client.assess).toHaveBeenCalledWith({
-    userId: 'u1',
-    userEmail: 'foo@bar.com',
-    userPhone: '+611231234',
-    userName: 'Mr Foo',
-    userImage: 'http://smile',
-    customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
-  })
+  expect(client.checkEmail).toHaveBeenCalledWith('foo@bar.com')
 
   expect(context.event.traits?.company?.name).toEqual('Bar')
 })
 
 it('should not enrich when it gets no result', async () => {
   const client = {
-    assess: jest.fn().mockResolvedValue({ emailAnalysis: { company: { name: '' } } })
+    checkEmail: jest.fn().mockResolvedValue({ company: { name: '' } })
   } as any as UpolloClient
 
   const context = new Context({
@@ -58,7 +51,7 @@ it('should not enrich when it gets no result', async () => {
   })
 
   await identify.perform(client as any as UpolloClient, {
-    settings: { apiKey: '123', companyEnrichment: true },
+    settings: { apiKey: '123' },
     analytics: jest.fn() as any as Analytics,
     context: context,
     payload: {
@@ -78,14 +71,7 @@ it('should not enrich when it gets no result', async () => {
     } as Payload
   })
 
-  expect(client.assess).toHaveBeenCalledWith({
-    userId: 'u1',
-    userEmail: 'foo@bar.com',
-    userPhone: '+611231234',
-    userName: 'Mr Foo',
-    userImage: 'http://smile',
-    customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
-  })
+  expect(client.checkEmail).toHaveBeenCalledWith('foo@bar.com')
 
   expect(context.event.traits?.company).toBeUndefined()
 })
