@@ -23,8 +23,4 @@ export interface Payload {
    * The title of the page or document. If not set, defaults to the user's document.title value.
    */
   page_title?: string
-  /**
-   * The resolution of the screen. Format should be two positive integers separated by an x (i.e. 800x600). If not set, calculated from the user's window.screen value.
-   */
-  screen_resolution?: string
 }

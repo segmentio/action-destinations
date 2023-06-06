@@ -37,6 +37,12 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "page" or type = "identify"',
     partnerAction: 'setConfigurationFields',
     mapping: defaultValues(setConfigurationFields.fields)
+  },
+  {
+    name: `Page Views`,
+    subscribe: 'type = "page"',
+    partnerAction: 'pageView',
+    mapping: defaultValues(pageView.fields)
   }
 ]
 
@@ -52,13 +58,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       label: 'Measurement ID',
       type: 'string',
       required: true
-    },
-    pageView: {
-      description:
-        'Set to false to prevent the default snippet from sending page views. Enabled by default. Please set to false if you are manually sending page views with the Page View Action or you may end up with duplicate pageviews.',
-      label: 'Page Views',
-      type: 'boolean',
-      default: true
     },
     allowGoogleSignals: {
       description: 'Set to false to disable all advertising features. Set to true by default.',
@@ -141,6 +140,13 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
       label: 'Wait Time to Update Consent State',
       type: 'number'
+    },
+    pageView: {
+      description:
+        'Set to false to prevent the default snippet from sending page views. Enabled by default. Please set to false if you are manually sending page views with the Page View Action or you may end up with duplicate pageviews.',
+      label: 'Page Views',
+      type: 'boolean',
+      default: true
     }
   },
 
