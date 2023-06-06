@@ -167,7 +167,7 @@ const action: ActionDefinition<Settings, Payload> = {
       num_items_purchased: payload.properties?.num_items_purchased,
       is_new_customer: payload.properties?.is_new_customer,
       is_subscription: payload.properties?.is_subscription,
-      library: JSON.stringify(payload.library)
+      library: payload?.library ? JSON.stringify(payload.library) : undefined
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)
