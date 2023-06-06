@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The ID of the logged-in user.
    */
-  userId?: string
+  userId: string
   /**
    * The date the user profile was created at
    */
