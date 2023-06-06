@@ -13,5 +13,6 @@ Object {
 exports[`Testing snapshot for Userpilot's identifyUser destination action: required fields 1`] = `
 Object {
   "metadata": Object {},
+  "user_id": "c131yaXs",
 }
 `;
