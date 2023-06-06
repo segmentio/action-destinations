@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, RetryableError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
@@ -39,6 +39,8 @@ export async function processPayload(
     if (res.status !== 200) {
       throw new RetryableError('Error while attempting to update TikTok Audience. This batch will be retried.')
     }
+  } else {
+    throw new PayloadValidationError('At least one of Email Id or Advertising ID must be provided.')
   }
 
   return res
