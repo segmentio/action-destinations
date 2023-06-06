@@ -23,4 +23,12 @@ export interface Payload {
    * The title of the page or document. If not set, defaults to the user's document.title value.
    */
   page_title?: string
+  /**
+   * The language for the client. See [Language tags and codes](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).
+   */
+  language?: string
+  /**
+   * The client's user agent.
+   */
+  user_agent?: string
 }

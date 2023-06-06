@@ -7,8 +7,7 @@ import { updateUser } from '../ga4-functions'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Page View',
-  description:
-    'When you want to manually control how pageviews are sent. Please make sure to disable the pageview toggle setting or you may end up with duplicate pageviews',
+  description: 'Send page view when a user views a page.',
   platform: 'web',
   defaultSubscription: 'type = "page"',
   fields: {
@@ -28,20 +27,27 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description: `The title of the page or document. If not set, defaults to the user's document.title value.`,
       label: 'Page Title',
       type: 'string'
+    },
+    language: {
+      description: `The language for the client. See [Language tags and codes](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).`,
+      label: 'Language',
+      type: 'string'
+    },
+    user_agent: {
+      description: `The client's user agent.`,
+      label: 'User Agent',
+      type: 'string'
     }
   },
   perform: (gtag, { payload }) => {
     updateUser(payload.user_id, payload.user_properties, gtag)
-    if (payload.page_title) {
-      gtag('set', { page_title: payload.page_title })
-    }
-    if (payload.page_referrer) {
-      gtag('set', { page_referrer: payload.page_referrer })
-    }
-    if (payload.page_location) {
-      gtag('set', { page_location: payload.page_location })
-    }
-    gtag('event', 'page_view')
+    gtag('event', 'page_view', {
+      page_title: payload.page_title,
+      page_location: payload.page_location,
+      page_referrer: payload.page_referrer,
+      language: payload.language,
+      user_agent: payload.user_agent
+    })
   }
 }
 
