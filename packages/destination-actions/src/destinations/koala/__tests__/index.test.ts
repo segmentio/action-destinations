@@ -7,12 +7,13 @@ const testDestination = createTestIntegration(Definition)
 describe('Koala', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock('https://api2.getkoala.com/web/projects/testId/batch').post('*').reply(204, {})
 
-      // This should match your authentication.fields
-      const authData = {}
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(
+        testDestination.testAuthentication({
+          public_key: 'testId'
+        })
+      ).resolves.not.toThrowError()
     })
   })
 })

@@ -8,18 +8,17 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      public_key: {
+        label: 'Public Key',
+        description: 'Your public key',
+        type: 'string',
+        required: true
+      }
+    },
+    testAuthentication: (request, { settings }) => {
+      return request(`https://api2.getkoala.com/web/projects/${settings.public_key}/batch`, { method: 'POST' })
     }
-  },
-
-  onDelete: async () => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
   },
 
   actions: {}
