@@ -43,8 +43,7 @@ const action: BrowserActionDefinition<Settings, Userpilot, Payload> = {
     }
   },
   perform: (_, event) => {
-    const userId = event.payload.userId || ''
-    const traits = event.payload.traits || {}
+    const { userId, traits } = event.payload
 
     traits?.createdAt && delete traits.createdAt
 
