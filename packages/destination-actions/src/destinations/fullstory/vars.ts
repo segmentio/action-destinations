@@ -100,8 +100,9 @@ const typeSuffixPropertyName = (name: string, value: unknown) => {
   if (lastUnderscore === -1 || !isKnownTypeSuffix(name.substring(lastUnderscore + 1))) {
     // Either no type suffix or the name contains an underscore with an unknown suffix.
     const maybeType = inferType(value)
-    if (maybeType === null) {
-      // We can't infer the type. Don't change the property name.
+    if (maybeType === null || maybeType === 'obj') {
+      // If we can't infer the type or if the type is a single object, don't change the property name.
+      // The FullStory client API doesn't add _obj type suffixes to inferred object propery names.
       return name
     }
 

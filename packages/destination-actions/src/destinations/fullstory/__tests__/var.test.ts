@@ -70,7 +70,8 @@ describe('normalizePropertyNames', () => {
       ints_prop_reals: originalPayload.ints_prop,
       date_prop_date: originalPayload.date_prop,
       dates_prop_dates: originalPayload.dates_prop,
-      obj_prop_obj: originalPayload.obj_prop,
+      // We don't add _obj type suffixes to object properties. This matches FullStory client API behavior.
+      obj_prop: originalPayload.obj_prop,
       objs_prop_objs: originalPayload.objs_prop
     }
 
@@ -115,12 +116,12 @@ describe('normalizePropertyNames', () => {
       }
     }
     const expectedPayload = {
-      first_obj: {
-        second_obj: {
-          third_obj: {
-            fourth_obj: {
+      first: {
+        second: {
+          third: {
+            fourth: {
               fourthNested_str: 'some string',
-              fifth_obj: {
+              fifth: {
                 fifth_nested: 'some other string'
               }
             }
