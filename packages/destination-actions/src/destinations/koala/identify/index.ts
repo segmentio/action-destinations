@@ -1,18 +1,19 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { KOALA_PATH } from '..'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
   description: 'Send an Identify call to Koala.',
   defaultSubscription: 'type = "identify"',
   fields: {
-    event: {
+    email: {
       type: 'string',
-      required: true,
-      description: 'The event name',
-      label: 'Event Name',
-      default: { '@path': '$.event' }
+      label: 'Email',
+      description: 'The email to associate with the user',
+      required: false,
+      default: { '@path': '$.email' }
     },
     traits: {
       type: 'object',
@@ -27,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'The timestamp of the event',
       label: 'Sent At',
-      default: { '@path': '$.sent_at' }
+      default: { '@path': '$.timestamp' }
     },
     context: {
       type: 'object',
@@ -52,12 +53,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    const profileId = data.payload.traits?.['profile_id']
+    const profileId = data.payload.traits?.profile_id
     const traits = data.payload.traits ?? {}
-    const email = data.payload.traits?.email ?? traits.email
+    const email = data.payload.email ?? data.payload.traits?.email ?? traits.email
     const ip = data.payload.traits?.ip ?? data.payload.device_ip
 
-    return request(`https://api2.getkoala.com/web/projects/${data.settings.public_key}/batch`, {
+    if (!profileId && !email) {
+      // Skip call if no identifier is found
+      return
+    }
+
+    return request(`${KOALA_PATH}/${data.settings.public_key}/batch`, {
       method: 'post',
       json: {
         profile_id: profileId,

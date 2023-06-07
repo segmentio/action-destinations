@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The event name
+   * The email to associate with the user
    */
-  event: string
+  email?: string
   /**
    * Traits to associate with the user
    */

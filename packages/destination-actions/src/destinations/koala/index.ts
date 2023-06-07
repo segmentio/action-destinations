@@ -4,6 +4,11 @@ import type { Settings } from './generated-types'
 import track from './track'
 import identify from './identify'
 
+export const KOALA_PATH =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001/web/projects'
+    : 'https://api2.getkoala.com/web/projects'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Koala',
   slug: 'actions-koala',
@@ -20,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://api2.getkoala.com/web/projects/${settings.public_key}/batch`, { method: 'POST' })
+      return request(`${KOALA_PATH}/${settings.public_key}/batch`, { method: 'POST' })
     }
   },
 
