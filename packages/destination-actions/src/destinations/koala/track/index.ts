@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { KOALA_PATH } from '..'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { KOALA_PATH } from '..'
+import { AnalyticsEventContext, isAJSEvent } from '../lib/ajs-detection'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -77,6 +78,12 @@ const action: ActionDefinition<Settings, Payload> = {
     const traits = data.payload.traits ?? {}
     const email = data.payload.email ?? data.payload.properties?.email ?? traits.email
     const ip = data.payload.properties?.ip ?? data.payload.device_ip
+
+    // Ignore client side events, as they've already been tracked
+    // by the Koala pixel. This is to prevent duplicate events.
+    if (isAJSEvent(data.payload.context as AnalyticsEventContext)) {
+      return Promise.resolve()
+    }
 
     if (!profileId && !email) {
       // Skip call if no identifier is found
