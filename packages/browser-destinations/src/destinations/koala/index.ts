@@ -16,7 +16,7 @@ declare global {
 
 export const destination: BrowserDestinationDefinition<Settings, Koala> = {
   name: 'Koala',
-  slug: 'actions-koala-cloud',
+  slug: 'actions-koala',
   description: 'Connect Koala in Segment to send visitor events or traits to Koala.',
   mode: 'device',
   settings: {
