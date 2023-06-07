@@ -4,7 +4,7 @@ import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Offline Conversions (Actions)',
+  name: 'Tiktok Offline Conversions',
   slug: 'actions-tiktok-offline-conversions',
   mode: 'cloud',
 
