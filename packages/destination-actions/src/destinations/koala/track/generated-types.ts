@@ -22,6 +22,16 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Traits inherited from the context object
+   */
+  traits?: {
+    [k: string]: unknown
+  }
+  /**
+   * The device IP collected from the context
+   */
+  device_ip?: string
+  /**
    * The Segment messageId
    */
   message_id: string

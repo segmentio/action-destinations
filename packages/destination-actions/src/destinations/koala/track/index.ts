@@ -36,6 +36,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Context properties',
       default: { '@path': '$.context' }
     },
+    traits: {
+      type: 'object',
+      required: false,
+      description: 'Traits inherited from the context object',
+      label: 'Context properties',
+      default: { '@path': '$.context.traits' }
+    },
+    device_ip: {
+      type: 'string',
+      required: false,
+      description: 'The device IP collected from the context',
+      label: 'Context properties',
+      default: { '@path': '$.context.ip' }
+    },
     message_id: {
       type: 'string',
       required: true,
@@ -45,12 +59,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
+    const profileId = data.payload.properties?.['profile_id']
+    const traits = data.payload.traits ?? {}
+    const email = data.payload.properties?.email ?? traits.email
+    const ip = data.payload.properties?.ip ?? data.payload.device_ip
+
     return request(`https://api2.getkoala.com/web/projects/${data.settings.public_key}/batch`, {
       method: 'post',
       json: {
-        // profile_id: '',
-        // email: '',
-        // traits: {},
+        profile_id: profileId,
+        email,
+        traits,
+        ip,
         events: [
           {
             type: 'track',
