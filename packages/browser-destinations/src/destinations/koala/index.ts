@@ -16,14 +16,14 @@ declare global {
 
 export const destination: BrowserDestinationDefinition<Settings, Koala> = {
   name: 'Koala',
-  slug: 'actions-koala',
+  slug: 'actions-koala-cloud',
   description: 'Connect Koala in Segment to send visitor events or traits to Koala.',
   mode: 'device',
   settings: {
     project_slug: {
       type: 'string',
       label: 'Public API Key',
-      description: "Please enter your Public API Key found in your Koala workspace settings.",
+      description: 'Please enter your Public API Key found in your Koala workspace settings.',
       required: true
     }
   },
