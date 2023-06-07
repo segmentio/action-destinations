@@ -17,4 +17,8 @@ export interface Settings {
    * If your page already includes JQuery, you can set this to “true”. Otherwise, VWO will include JQuery onto the page for you. VWO needs JQuery on the page to function correctly.
    */
   useExistingJquery?: boolean
+  /**
+   * When enabled, Segment will load the VWO SmartCode onto the webpage. When disabled, you will have to manually add SmartCode to your webpage. The setting is enabled by default, however we recommended manually adding SmartCode to the webpage to avoid flicker issues.
+   */
+  addSmartcode?: boolean
 }
