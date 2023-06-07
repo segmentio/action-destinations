@@ -14,21 +14,15 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * Parses all properties provided via a Context Section
+   * Map simple Key-Value pairs of data to here.
    */
-  context?: {
+  key_value_pairs?: {
     [k: string]: unknown
   }
   /**
-   * Parses all properties provided via a Properties Section
+   * Map Arrays of data to here.
    */
-  properties?: {
+  array_data?: {
     [k: string]: unknown
-  }
-  /**
-   * Parses all properties provided via a Traits Section
-   */
-  traits?: {
-    [k: string]: unknown
-  }
+  }[]
 }

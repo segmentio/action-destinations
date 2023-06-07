@@ -10,13 +10,13 @@ export interface Settings {
    */
   region: string
   /**
-   * The Segment Events Table List Id from the Database-Relational Table dialog in Acoustic Campaign
+   * The Segment Table Name in Acoustic Campaign Data dialog.
    */
-  events_table_list_id?: string
+  a_table_list_name: string
   /**
-   * The Segment Events Table Name in Acoustic Campaign
+   * The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign
    */
-  events_table_list_name?: string
+  a_table_list_id: string
   /**
    * The Client Id from the App definition dialog in Acoustic Campaign
    */
@@ -30,7 +30,7 @@ export interface Settings {
    */
   a_refreshToken: string
   /**
-   * Note: Before increasing the default max number, consult the Acoustic Destination documentation.
+   * A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   attributesMax?: number
 }

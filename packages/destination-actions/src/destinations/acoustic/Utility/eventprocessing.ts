@@ -51,21 +51,33 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
 
   let propertiesTraitsKV: { [key: string]: string } = {}
 
-  if (payload.traits)
+  if (payload.key_value_pairs)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.traits as { [key: string]: string }, 0)
+      ...parseSections(payload.key_value_pairs as { [key: string]: string }, 0)
     }
-  if (payload.properties)
+
+  if (payload.array_data)
     propertiesTraitsKV = {
       ...propertiesTraitsKV,
-      ...parseSections(payload.properties as { [key: string]: string }, 0)
+      ...parseSections(payload.array_data as unknown as { [key: string]: string }, 0)
     }
-  if (payload.context)
-    propertiesTraitsKV = {
-      ...propertiesTraitsKV,
-      ...parseSections(payload.context as { [key: string]: string }, 0)
-    }
+
+  // if (payload.traits)
+  //   propertiesTraitsKV = {
+  //     ...propertiesTraitsKV,
+  //     ...parseSections(payload.traits as { [key: string]: string }, 0)
+  //   }
+  // if (payload.properties)
+  //   propertiesTraitsKV = {
+  //     ...propertiesTraitsKV,
+  //     ...parseSections(payload.properties as { [key: string]: string }, 0)
+  //   }
+  // if (payload.context)
+  //   propertiesTraitsKV = {
+  //     ...propertiesTraitsKV,
+  //     ...parseSections(payload.context as { [key: string]: string }, 0)
+  //   }
 
   if (Object.keys(propertiesTraitsKV).length > limit) {
     throw new IntegrationError(

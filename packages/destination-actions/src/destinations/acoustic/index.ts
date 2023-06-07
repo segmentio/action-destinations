@@ -72,19 +72,19 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      events_table_list_id: {
-        label: 'Acoustic Segment Events Table List Id',
-        description: 'The Segment Events Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
-        default: '',
-        type: 'string',
-        required: false
-      },
-      events_table_list_name: {
-        label: 'Acoustic Segment Events Table Name',
-        description: 'The Segment Events Table Name in Acoustic Campaign',
+      a_table_list_name: {
+        label: 'Acoustic Segment Table Name',
+        description: 'The Segment Table Name in Acoustic Campaign Data dialog.',
         default: 'Segment Events Table',
         type: 'string',
-        required: false
+        required: true
+      },
+      a_table_list_id: {
+        label: 'Acoustic Segment Table List Id',
+        description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
+        default: ' ',
+        type: 'string',
+        required: true
       },
       a_clientId: {
         label: 'Acoustic app definition ClientId',
@@ -109,7 +109,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       attributesMax: {
         label: 'Properties Max',
-        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        description:
+          'A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
         default: 30,
         type: 'number',
         required: false
@@ -117,26 +118,6 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { settings }) => {
       return await getAccessToken(request, settings)
-      //   const at = await request<refreshAccessTokenResult>(
-      //     `https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/oauth/token`,
-      //     {
-      //       method: 'POST',
-      //       body: new URLSearchParams({
-      //         refresh_token: settings.a_refreshToken,
-      //         client_id: settings.a_clientId,
-      //         client_secret: settings.a_clientSecret,
-      //         grant_type: 'refresh_token'
-      //       }),
-      //       headers: {
-      //         'Content-Type': 'application/x-www-form-urlencoded',
-      //         'user-agent': `Segment Action (Acoustic Destination)`,
-      //         Connection: 'keep-alive',
-      //         'Accept-Encoding': 'gzip, deflate, br',
-      //         Accept: '*/*'
-      //       }
-      //     }
-      //   )
-      //   return { accessToken: at.data.access_token }
     }
   },
   presets,
