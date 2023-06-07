@@ -34,8 +34,13 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
     const { eventName, properties } = event.payload
     const sanitisedEventName = sanitiseEventName(eventName)
     const formattedProperties = { ...properties }
-    if (!VWO.event) {
+    if (!VWO) {
       return
+    }
+    if (!VWO.event) {
+      VWO.event = function (...args) {
+        VWO.push(['event', ...args])
+      }
     }
     VWO.event(sanitisedEventName, formattedProperties, {
       source: 'segment.web',
