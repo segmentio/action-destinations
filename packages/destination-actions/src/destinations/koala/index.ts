@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Koala',
@@ -21,7 +22,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {}
+  actions: {
+    track
+  }
 }
 
 export default destination

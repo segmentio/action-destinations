@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Koala's track destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "context": Object {
+        "testType": "B22nAr",
+      },
+      "event": "B22nAr",
+      "message_id": "B22nAr",
+      "properties": Object {
+        "testType": "B22nAr",
+      },
+      "sent_at": "2060-01-24T01:10:21.230Z",
+      "type": "track",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Koala's track destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "B22nAr",
+      "message_id": "B22nAr",
+      "sent_at": "2060-01-24T01:10:21.230Z",
+      "type": "track",
+    },
+  ],
+}
+`;
