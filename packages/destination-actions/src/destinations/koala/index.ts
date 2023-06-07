@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`${KOALA_PATH}/${settings.public_key}/batch`, { method: 'POST' })
+      return request(`${KOALA_PATH}/${settings.public_key}/auth`, { method: 'get' })
     }
   },
 
