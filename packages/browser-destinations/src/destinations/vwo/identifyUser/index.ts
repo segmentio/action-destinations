@@ -25,9 +25,16 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
     const { attributes } = event.payload
     const formattedAttributes = formatAttributes(attributes)
 
-    if (!VWO.visitor) {
+    if (!VWO) {
       return
     }
+
+    if (!VWO.visitor) {
+      VWO.visitor = function (...args) {
+        VWO.push(['visitor', ...args])
+      }
+    }
+
     VWO.visitor(formattedAttributes, { source: 'segment.web' })
   }
 }
