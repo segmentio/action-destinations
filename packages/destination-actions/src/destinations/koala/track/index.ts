@@ -13,7 +13,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: 'The email to associate with the user',
       required: false,
-      default: { '@path': '$.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.email' }
+        }
+      }
     },
     event: {
       type: 'string',
