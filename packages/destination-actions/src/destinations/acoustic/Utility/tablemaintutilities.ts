@@ -44,6 +44,14 @@ export const authCreds = {
 //   clientSecret: string
 // }
 
+export function getAuthCreds() {
+  return authCreds
+}
+
+export function getEventTableListId() {
+  return eventTableListId
+}
+
 export async function getAccessToken(
   request: RequestClient,
   settings: Settings
@@ -54,8 +62,6 @@ export async function getAccessToken(
   authCreds.clientSecret = settings.a_clientSecret
   authCreds.refreshToken = settings.a_refreshToken
   authCreds.refreshTokenUrl = `https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/oauth/token`
-
-  console.log(`\n\nPOST Invocation for: "Get_AccessToken"`)
 
   const requestAToken = await request(authCreds.refreshTokenUrl, {
     //return await request(authCreds.refreshTokenUrl, {
@@ -97,7 +103,6 @@ export async function doPOST(
     } else auth.accessToken = authCreds.accessToken
   }
 
-  console.log(`\n\nPOST Invocation for: ${action}`)
   const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
@@ -142,10 +147,10 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
 }
 
 export async function checkRTExist(request: RequestClient, settings: Settings, auth: AuthTokens) {
-  if (settings.events_table_list_id != '') {
+  if (settings.a_table_list_id != '') {
     const checkDefinedTableId = `
     <Envelope> <Body>
-    <GetListMetaData> <LIST_ID>${settings.events_table_list_id}</LIST_ID>
+    <GetListMetaData> <LIST_ID>${settings.a_table_list_id}</LIST_ID>
     </GetListMetaData> </Body>
     </Envelope>`
 
@@ -203,7 +208,7 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
   const createSET = `<Envelope>
     <Body>
       <CreateTable>
-        <TABLE_NAME>${settings.events_table_list_name}</TABLE_NAME>
+        <TABLE_NAME>${settings.a_table_list_name}</TABLE_NAME>
         <COLUMNS>
           <COLUMN>
             <NAME>EmailId</NAME>
