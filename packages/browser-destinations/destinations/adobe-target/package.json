@@ -1,8 +1,16 @@
 {
   "name": "@segment/actions-adobe-target-web",
   "version": "0.0.0",
-  "module": "./dist",
-  "typings": "./dist",
+  "license": "MIT",
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build-es": "tsc",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
   "dependencies": {
     "@segment/browser-destination-runtime": "^0.0.0"
   },

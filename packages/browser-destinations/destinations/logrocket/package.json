@@ -1,8 +1,15 @@
 {
   "name": "@segment/actions-logrocket",
   "version": "0.0.0",
-  "module": "./dist",
-  "typings": "./dist",
+  "license": "MIT",
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "^3.69.0",
     "@segment/browser-destination-runtime": "^0.0.0",

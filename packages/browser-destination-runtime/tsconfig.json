@@ -3,8 +3,7 @@
   "compilerOptions": {
     "module": "esnext",
     "removeComments": false,
-    "baseUrl": ".",
-    "outDir": "dist"
+    "baseUrl": "."
   },
   "exclude": ["dist"]
 }
