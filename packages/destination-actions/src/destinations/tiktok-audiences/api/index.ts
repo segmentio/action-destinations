@@ -1,6 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
-import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse } from '../types'
+import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse, Audiences } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import type { Payload } from '../createAudience/generated-types'
 
@@ -126,6 +126,41 @@ export class TikTokAudiences {
           message:
             (err as AdvertiserInfoError).response.data.message ?? 'An error occurred while fetching advertisers.',
           code: (err as AdvertiserInfoError).response.data.code.toString() ?? 'FETCH_ADVERTISERS_ERROR'
+        }
+      }
+    }
+  }
+
+  fetchAudiences = async (): Promise<DynamicFieldResponse> => {
+    try {
+      let response = await this.getAudiences(1, 100)
+      let audiences: Audiences[] = response.data.list
+      const total_number_audiences = response.data.page_info.total_number
+      let recieved_audiences = response.data.page_info.page_size
+      let page_number = 2
+      while (recieved_audiences < total_number_audiences) {
+        response = await this.getAudiences(page_number, 100)
+        audiences = audiences.concat(response.data.list)
+        page_number += 1
+        recieved_audiences += response.data.page_info.page_size
+      }
+
+      const choices = audiences.map((item) => {
+        return {
+          label: item.name,
+          value: item.audience_id
+        }
+      })
+
+      return {
+        choices: choices
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        error: {
+          message: 'An error occurred while fetching audiences.',
+          code: 'FETCH_AUDIENCE_ERROR'
         }
       }
     }

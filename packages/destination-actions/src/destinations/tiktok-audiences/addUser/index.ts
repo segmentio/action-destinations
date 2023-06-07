@@ -43,6 +43,21 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       }
+    },
+    audience_id: async (request) => {
+      try {
+        const tiktok = new TikTokAudiences(request)
+
+        return tiktok.fetchAudiences()
+      } catch (err) {
+        return {
+          choices: [],
+          error: {
+            message: JSON.stringify(err),
+            code: '500'
+          }
+        }
+      }
     }
   },
   perform: async (request, { settings, payload }) => {
