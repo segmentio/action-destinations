@@ -26,7 +26,7 @@ const presets: DestinationDefinition['presets'] = [
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Koala',
-  slug: 'actions-koala',
+  slug: 'actions-koala-cloud',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
