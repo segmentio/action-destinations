@@ -64,7 +64,7 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
     },
     addSmartcode: {
       description:
-        'When enabled VWO SmartCode will load parallel to Segment Code, when disabled SmartCode has to be added manually. It is recommended to add SmartCode directly to the webpage code to avoid flicker.',
+        'When enabled, Segment will load the VWO SmartCode onto the webpage. When disabled, you will have to manually add SmartCode to your webpage. The setting is enabled by default, however we recommended manually adding SmartCode to the webpage to avoid flicker issues.',
       label: 'Add Asynchronous SmartCode',
       type: 'boolean',
       default: true
