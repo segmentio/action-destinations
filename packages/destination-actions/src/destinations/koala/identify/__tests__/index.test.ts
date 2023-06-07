@@ -9,7 +9,18 @@ describe('Koala.identify', () => {
     nock(`https://api2.getkoala.com/web/projects/testId`).post('/batch').reply(204, {})
 
     const responses = await testDestination.testAction('identify', {
-      settings: { public_key: 'testId' }
+      settings: { public_key: 'testId' },
+      mapping: {
+        device_ip: '192.168.0.1',
+        email: 'netto@getkoala.com',
+        traits: {
+          vip: true,
+          email: 'netto@getkoala.com'
+        },
+        sent_at: '2023-03-03T00:00:00.000Z',
+        message_id: 'message_id',
+        context: {}
+      }
     })
 
     expect(responses.length).toBe(1)

@@ -2,12 +2,14 @@
 
 exports[`Testing snapshot for Koala's track destination action: all fields 1`] = `
 Object {
+  "email": "givoh@iveeweju.ar",
   "events": Array [
     Object {
       "context": Object {
         "testType": "B22nAr",
       },
       "device_ip": "B22nAr",
+      "email": "givoh@iveeweju.ar",
       "event": "B22nAr",
       "message_id": "B22nAr",
       "properties": Object {

@@ -72,10 +72,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const email = data.payload.email ?? data.payload.properties?.email ?? traits.email
     const ip = data.payload.properties?.ip ?? data.payload.device_ip
 
-    if (!profileId && !email) {
-      // Skip call if no identifier is found
-      return
-    }
+    // if (!profileId && !email) {
+    //   // Skip call if no identifier is found
+    //   return
+    // }
 
     return request(`${KOALA_PATH}/${data.settings.public_key}/batch`, {
       method: 'post',
