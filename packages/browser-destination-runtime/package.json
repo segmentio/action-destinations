@@ -2,49 +2,55 @@
   "name": "@segment/browser-destination-runtime",
   "version": "0.0.0",
   "scripts": {
-    "dev": "tsc -w",
-    "build": "tsc"
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc  --module commonjs --outDir ./dist/cjs"
   },
-  "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/index.js"
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
     },
     "./load-script": {
-      "default": "./dist/load-script.js"
+      "require": "./dist/cjs/load-script.js",
+      "default": "./dist/esm/load-script.js"
     },
     "./plugin": {
-      "default": "./dist/plugin.js"
+      "require": "./dist/cjs/plugin.js",
+      "default": "./dist/esm/plugin.js"
     },
     "./resolve-when": {
-      "default": "./dist/resolve-when.js"
+      "require": "./dist/cjs/resolve-when.js",
+      "default": "./dist/esm/resolve-when.js"
     },
     "./shim": {
-      "default": "./dist/shim.js"
+      "require": "./dist/cjs/shim.js",
+      "default": "./dist/esm/shim.js"
     },
     "./types": {
-      "default": "./dist/types.js"
+      "require": "./dist/cjs/types.js",
+      "default": "./dist/esm/types.js"
     }
   },
   "typesVersions": {
     "*": {
       "*": [
-        "dist/index.d.ts"
+        "dist/esm/index.d.ts"
       ],
       "load-script": [
-        "dist/load-script.d.ts"
+        "dist/esm/load-script.d.ts"
       ],
       "plugin": [
-        "dist/plugin.d.ts"
+        "dist/esm/plugin.d.ts"
       ],
       "resolve-when": [
-        "dist/resolve-when.d.ts"
+        "dist/esm/resolve-when.d.ts"
       ],
       "shim": [
-        "dist/shim.d.ts"
+        "dist/esm/shim.d.ts"
       ],
       "types": [
-        "dist/types.d.ts"
+        "dist/esm/types.d.ts"
       ]
     }
   },

@@ -1,8 +1,15 @@
 {
   "name": "@segment/actions-braze-cloud-plugins",
   "version": "0.0.0",
-  "module": "./dist",
-  "typings": "./dist",
+  "license": "MIT",
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-braze-web": "^0.0.0",
     "@segment/browser-destination-runtime": "^0.0.0"
