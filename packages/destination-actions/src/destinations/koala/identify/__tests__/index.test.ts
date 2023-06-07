@@ -26,6 +26,23 @@ describe('Koala.identify', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(204)
 
-    // TODO: test identify mapping
+    const payload = JSON.parse(responses[0].options.body?.toString() ?? '')
+    expect(payload).toMatchObject({
+      ip: '192.168.0.1',
+      email: 'netto@getkoala.com',
+      traits: {
+        vip: true,
+        email: 'netto@getkoala.com'
+      },
+      identifies: [
+        {
+          type: 'identify',
+          sent_at: '2023-03-03T00:00:00.000Z',
+          message_id: 'message_id',
+          traits: { vip: true, email: 'netto@getkoala.com' },
+          context: {}
+        }
+      ]
+    })
   })
 })

@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
         email,
         traits,
         ip,
-        identify: [
+        identifies: [
           {
             type: 'identify',
             ...data.payload

@@ -3,7 +3,7 @@
 exports[`Testing snapshot for actions-koala destination: identify action - all fields 1`] = `
 Object {
   "email": "pi@ehegi.bj",
-  "identify": Array [
+  "identifies": Array [
     Object {
       "context": Object {
         "testType": "U9I9kNNU",
@@ -27,7 +27,7 @@ Object {
 
 exports[`Testing snapshot for actions-koala destination: identify action - required fields 1`] = `
 Object {
-  "identify": Array [
+  "identifies": Array [
     Object {
       "message_id": "U9I9kNNU",
       "sent_at": "2086-03-26T18:50:08.535Z",
