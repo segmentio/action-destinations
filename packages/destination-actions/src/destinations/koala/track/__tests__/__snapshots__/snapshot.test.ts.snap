@@ -7,15 +7,23 @@ Object {
       "context": Object {
         "testType": "B22nAr",
       },
+      "device_ip": "B22nAr",
       "event": "B22nAr",
       "message_id": "B22nAr",
       "properties": Object {
         "testType": "B22nAr",
       },
       "sent_at": "2060-01-24T01:10:21.230Z",
+      "traits": Object {
+        "testType": "B22nAr",
+      },
       "type": "track",
     },
   ],
+  "ip": "B22nAr",
+  "traits": Object {
+    "testType": "B22nAr",
+  },
 }
 `;
 
@@ -29,5 +37,6 @@ Object {
       "type": "track",
     },
   ],
+  "traits": Object {},
 }
 `;

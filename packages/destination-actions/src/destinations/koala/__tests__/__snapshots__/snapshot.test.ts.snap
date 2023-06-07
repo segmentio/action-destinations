@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-koala destination: track action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "context": Object {
+        "testType": "iwl@fN13",
+      },
+      "device_ip": "iwl@fN13",
+      "event": "iwl@fN13",
+      "message_id": "iwl@fN13",
+      "properties": Object {
+        "testType": "iwl@fN13",
+      },
+      "sent_at": "2033-03-10T11:51:04.527Z",
+      "traits": Object {
+        "testType": "iwl@fN13",
+      },
+      "type": "track",
+    },
+  ],
+  "ip": "iwl@fN13",
+  "traits": Object {
+    "testType": "iwl@fN13",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-koala destination: track action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "iwl@fN13",
+      "message_id": "iwl@fN13",
+      "sent_at": "2033-03-10T11:51:04.527Z",
+      "type": "track",
+    },
+  ],
+  "traits": Object {},
+}
+`;
