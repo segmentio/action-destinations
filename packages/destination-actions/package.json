@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.171.5-tiktok-create-audience",
+  "version": "3.171.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
