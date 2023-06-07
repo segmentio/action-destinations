@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import track from './track'
@@ -9,11 +9,25 @@ export const KOALA_PATH =
     ? 'http://localhost:3001/web/projects'
     : 'https://api2.getkoala.com/web/projects'
 
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Track Calls',
+    subscribe: 'type = "track"',
+    partnerAction: 'track',
+    mapping: defaultValues(track.fields)
+  },
+  {
+    name: 'Identify Calls',
+    subscribe: 'type = "identify"',
+    partnerAction: 'identify',
+    mapping: defaultValues(identify.fields)
+  }
+]
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Koala',
   slug: 'actions-koala',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -28,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
       return request(`${KOALA_PATH}/${settings.public_key}/auth`, { method: 'get' })
     }
   },
-
+  presets,
   actions: {
     track,
     identify
