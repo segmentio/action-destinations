@@ -75,7 +75,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     {
-      name: 'SubmitForm',
+      name: 'Submit Form',
       subscribe: 'type = "track" and event = "Form Submitted"',
       partnerAction: 'trackNonPaymentOfflineConversion',
       mapping: {
