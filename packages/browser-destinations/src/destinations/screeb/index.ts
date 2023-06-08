@@ -15,8 +15,8 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
-  name: 'Screeb',
-  slug: 'actions-screeb',
+  name: 'Screeb Web (Actions)',
+  slug: 'actions-screeb-web',
   mode: 'device',
 
   settings: {
