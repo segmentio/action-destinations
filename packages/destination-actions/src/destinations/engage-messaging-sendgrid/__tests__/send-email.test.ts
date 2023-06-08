@@ -130,6 +130,12 @@ describe.each([
             subscriptionStatus: {
               '@path': '$.isSubscribed'
             },
+            unsubscribeLink: {
+              '@path': '$.unsubscribeLink'
+            },
+            preferencesLink: {
+              '@path': '$.preferencesLink'
+            },
             groups: {
               '@path': '$.groups'
             }
@@ -363,7 +369,7 @@ describe.each([
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType: 'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -692,6 +698,90 @@ describe.each([
       expect(unlayerRequest.isDone()).toEqual(true)
     })
 
+    it('inserts unsubscribe links', async () => {
+      const bodyHtml =
+        '<p>Hi First Name, welcome to Segment</p> <a href="[ups_unsubscribe_link]">Unsubscribe</a> | <a href="[ups_preferences_link]">Manage Preferences</a>'
+      const replacedHtmlWithLink =
+        '<p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a>'
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              unsubscribeLink: 'http://global_unsubscribe_link',
+              preferencesLink: 'http://preferences_link',
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
     it('should show a default in the subject when a trait is missing', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
@@ -788,7 +878,14 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+            {
+              id: userData.phone,
+              type: 'phone',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              channelType: 'sms'
+            }
           ]
         }),
         settings,
@@ -847,6 +944,7 @@ describe.each([
 
     it('sends the email when subscriptionStatus is false but byPassSubscription is true', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const logInfoSpy = jest.fn() as Logger['info']
       const responses = await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -857,7 +955,8 @@ describe.each([
           ]
         }),
         settings,
-        mapping: getDefaultMapping({ byPassSubscription: true })
+        mapping: getDefaultMapping({ byPassSubscription: true }),
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
       })
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
@@ -875,7 +974,14 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings,
@@ -1067,7 +1173,14 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings: {

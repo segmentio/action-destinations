@@ -26,6 +26,23 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
   return $.html()
 }
 
+const insertUnsubscribeLinks = (html: string, emailProfile: any, groupId?: string): string => {
+  const globalUnsubscribeLink = emailProfile?.unsubscribeLink
+  const preferencesLink = emailProfile?.preferencesLink
+  const unsubscribeLinkTag = '[ups_unsubscribe_link]'
+  const preferencesLinkTag = '[ups_preferences_link]'
+  let updatedHtml = html
+  if (groupId && groupId != '') {
+    const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
+    const groupUnsubscribeLink = group?.groupUnsubscribeLink
+    updatedHtml = html.replace(unsubscribeLinkTag, groupUnsubscribeLink)
+  } else {
+    updatedHtml = html.replace(unsubscribeLinkTag, globalUnsubscribeLink)
+  }
+  updatedHtml = updatedHtml.replace(preferencesLinkTag, preferencesLink)
+  return updatedHtml
+}
+
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string, region?: Region): string => {
   const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
@@ -258,6 +275,8 @@ const attemptEmailDelivery = async (
     parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
   }
 
+  parsedBodyHtml = insertUnsubscribeLinks(parsedBodyHtml, emailProfile, payload.groupId)
+
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
     const mailContentSubscriptionHonored = {
@@ -475,8 +494,18 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         subscriptionStatus: {
-          label: 'ID',
+          label: 'subscriptionStatus',
           description: 'The subscription status for the identity.',
+          type: 'string'
+        },
+        unsubscribeLink: {
+          label: 'unsubscribeLink',
+          description: 'Unsubscribe link for the end user',
+          type: 'string'
+        },
+        preferencesLink: {
+          label: 'preferencesLink',
+          description: 'Preferences link for the end user',
           type: 'string'
         },
         groups: {
@@ -494,6 +523,11 @@ const action: ActionDefinition<Settings, Payload> = {
               description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
               // for some reason this still gets deserialized as a string.
               type: 'boolean'
+            },
+            groupUnsubscribeLink: {
+              label: 'groupUnsubscribeLink',
+              description: 'Group unsubscribe link for the end user',
+              type: 'string'
             }
           }
         }
@@ -510,6 +544,12 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            unsubscribeLink: {
+              '@path': '$.unsubscribeLink'
+            },
+            preferencesLink: {
+              '@path': '$.preferencesLink'
             },
             groups: {
               '@path': '$.groups'
