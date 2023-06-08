@@ -69,9 +69,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     updateId: async (request, data) => {
+      console.log('data', data)
       const fb: Facebook = new Facebook(request, data.payload.accountId, data.payload.accessToken)
 
-      return fb.getAllAudiences()
+      return fb.getAllAudiences(data.mapping)
     }
   },
   perform: (request, { payload }) => {

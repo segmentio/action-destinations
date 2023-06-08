@@ -1,4 +1,4 @@
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, JSONObject } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 
@@ -72,7 +72,7 @@ export default class Facebook {
     })
   }
 
-  getAllAudiences = async (): Promise<DynamicFieldResponse> => {
+  getAllAudiences = async (_mapping: JSONObject): Promise<DynamicFieldResponse> => {
     const NUM_AUDIENCES = 500
     try {
       const result = await this.request<GetAudiencesResponse>(
@@ -99,4 +99,13 @@ export default class Facebook {
       }
     }
   }
+
+  //   getAdAccounts = async (): Promise<DynamicFieldResponse> => {
+  //     try {
+  //         const result = await this.request(`${BASE_URL}/me/adaccounts?fields=name`, {
+  //             method: 'GET',
+  //         })
+  //         // returns all ad accounts for the user, as an array of { id, name }
+  //     }
+  //   }
 }
