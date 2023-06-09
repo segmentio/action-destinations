@@ -103,28 +103,35 @@ export async function doPOST(
     } else auth.accessToken = authCreds.accessToken
   }
 
-  const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${auth?.accessToken}`,
-      'Content-Type': 'text/xml',
-      'user-agent': `Segment Action (Acoustic Destination) ${action}`,
-      Connection: 'keep-alive',
-      'Accept-Encoding': 'gzip, deflate, br',
-      Accept: '*/*'
-    },
-    body: `${body}`
-  })
-  const res = await postResults.data
+  let resultTxt = ''
+  try {
+    const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+        'Content-Type': 'text/xml',
+        'user-agent': `Segment Action (Acoustic Destination) ${action}`,
+        Connection: 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept: '*/*'
+      },
+      body: `${body}`
+    })
+    const res = await postResults.data
 
-  //check for success, hard fails throw error, soft fails throw retryable error
-  let resultTxt = res as string
-  if (resultTxt.indexOf('<SUCCESS>FALSE</SUCCESS>') > -1 || resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
-    const rx = /<FaultString>(.*)<\/FaultString>/gm
-    const r = rx.exec(resultTxt) as RegExpExecArray
-    if (r.indexOf('max number of concurrent authenticated requests') > -1)
-      throw new RetryableError('Currently exceeding Max number of concurrent authenticated requests via API, retrying')
-    resultTxt = ''
+    //check for success, hard fails throw error, soft fails throw retryable error
+    resultTxt = res as string
+    if (resultTxt.indexOf('<SUCCESS>FALSE</SUCCESS>') > -1 || resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
+      const rx = /<FaultString>(.*)<\/FaultString>/gm
+      const r = rx.exec(resultTxt) as RegExpExecArray
+      if (r.indexOf('max number of concurrent authenticated requests') > -1)
+        throw new RetryableError(
+          'Currently exceeding Max number of concurrent authenticated requests via API, retrying'
+        )
+      resultTxt = ''
+    }
+  } catch (e) {
+    throw new IntegrationError(`Unexpected Request Exception \n${e}`)
   }
   return resultTxt
 }
