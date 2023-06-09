@@ -119,7 +119,7 @@ export async function doPOST(
 
   //check for success, hard fails throw error, soft fails throw retryable error
   let resultTxt = res as string
-  if (resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
+  if (resultTxt.indexOf('<SUCCESS>FALSE</SUCCESS>') > -1 || resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
     const rx = /<FaultString>(.*)<\/FaultString>/gm
     const r = rx.exec(resultTxt) as RegExpExecArray
     if (r.indexOf('max number of concurrent authenticated requests') > -1)

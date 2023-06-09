@@ -37,20 +37,20 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     key_value_pairs: {
-      label: 'Key value pairs',
-      description: 'Map simple Key-Value pairs of data to here.',
+      label: 'Key-Value pairs',
+      description: 'Map simple Key-Value pairs of Event data here.',
       type: 'object'
     },
     array_data: {
-      label: 'Array of things',
-      description: 'Map Arrays of data to here.',
+      label: 'Arrays',
+      description: 'Map Arrays of data into flattened data attributes here.',
       type: 'object',
       multiple: true,
       additionalProperties: true
     },
     context: {
       label: 'Context',
-      description: 'Parses all properties provided via a Context Section ',
+      description: 'Deprecated - Parses all properties provided via a Context Section ',
       type: 'object',
       default: {
         '@path': '$.context'
@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Properties',
-      description: 'Parses all properties provided via a Properties Section',
+      description: 'Deprecated - Parses all properties provided via a Properties Section',
       type: 'object',
       default: {
         '@path': '$.properties'
@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'Parses all properties provided via a Traits Section',
+      description: 'Deprecated - Parses all properties provided via a Traits Section',
       type: 'object',
       default: {
         '@path': '$.traits'
