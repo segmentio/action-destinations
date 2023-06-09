@@ -47,31 +47,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       additionalProperties: true
+    },
+    context: {
+      label: 'Context',
+      description: 'Parses all properties provided via a Context Section ',
+      type: 'object',
+      default: {
+        '@path': '$.context'
+      }
+    },
+    properties: {
+      label: 'Properties',
+      description: 'Parses all properties provided via a Properties Section',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    traits: {
+      label: 'Traits',
+      description: 'Parses all properties provided via a Traits Section',
+      type: 'object',
+      default: {
+        '@path': '$.traits'
+      }
     }
-    // context: {
-    //   label: 'Context',
-    //   description: 'Parses all properties provided via a Context Section ',
-    //   type: 'object',
-    //   default: {
-    //     '@path': '$.context'
-    //   }
-    // },
-    // properties: {
-    //   label: 'Properties',
-    //   description: 'Parses all properties provided via a Properties Section',
-    //   type: 'object',
-    //   default: {
-    //     '@path': '$.properties'
-    //   }
-    // },
-    // traits: {
-    //   label: 'Traits',
-    //   description: 'Parses all properties provided via a Traits Section',
-    //   type: 'object',
-    //   default: {
-    //     '@path': '$.traits'
-    //   }
-    // },
   },
 
   perform: async (request, { settings, payload, auth }) => {

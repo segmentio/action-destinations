@@ -25,4 +25,22 @@ export interface Payload {
   array_data?: {
     [k: string]: unknown
   }[]
+  /**
+   * Parses all properties provided via a Context Section
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
+   * Parses all properties provided via a Properties Section
+   */
+  properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * Parses all properties provided via a Traits Section
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }
