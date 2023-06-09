@@ -39,6 +39,17 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Run CLI Push",
+      "program": "${workspaceFolder}/bin/run",
+      "restart": true,
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "port": 47082,
+      "args": ["push"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Run CLI",
       "program": "${workspaceFolder}/bin/run",
       "args": [
