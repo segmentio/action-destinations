@@ -6,7 +6,7 @@ import { formatEmails, formatPhones } from '../formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Non Payment Offline Conversion',
-  description: 'Send a non payment related event to the Tiktok Offline Conversions API',
+  description: 'Send a non payment related event to the TikTok Offline Conversions API',
   fields: {
     ...commonFields
   },
