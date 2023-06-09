@@ -51,26 +51,26 @@ const action: ActionDefinition<Settings, Payload> = {
     context: {
       label: 'Context',
       description: 'Deprecated - Parses all properties provided via a Context Section ',
-      type: 'object',
-      default: {
-        '@path': '$.context'
-      }
+      type: 'object'
+      // default: {
+      //   '@path': '$.context'
+      // }
     },
     properties: {
       label: 'Properties',
       description: 'Deprecated - Parses all properties provided via a Properties Section',
-      type: 'object',
-      default: {
-        '@path': '$.properties'
-      }
+      type: 'object'
+      // // default: {
+      //   '@path': '$.properties'
+      // }
     },
     traits: {
       label: 'Traits',
       description: 'Deprecated - Parses all properties provided via a Traits Section',
-      type: 'object',
-      default: {
-        '@path': '$.traits'
-      }
+      type: 'object'
+      // default: {
+      //   '@path': '$.traits'
+      // }
     }
   },
 
