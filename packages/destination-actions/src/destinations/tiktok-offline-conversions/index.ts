@@ -4,7 +4,7 @@ import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Offline Conversions (Actions)',
+  name: 'TikTok Offline Conversions',
   slug: 'actions-tiktok-offline-conversions',
   mode: 'cloud',
 
@@ -75,7 +75,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     {
-      name: 'SubmitForm',
+      name: 'Submit Form',
       subscribe: 'type = "track" and event = "Form Submitted"',
       partnerAction: 'trackNonPaymentOfflineConversion',
       mapping: {
