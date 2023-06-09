@@ -14,31 +14,31 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * Map simple Key-Value pairs of data to here.
+   * Map simple Key-Value pairs of Event data here.
    */
   key_value_pairs?: {
     [k: string]: unknown
   }
   /**
-   * Map Arrays of data to here.
+   * Map Arrays of data into flattened data attributes here.
    */
   array_data?: {
     [k: string]: unknown
   }[]
   /**
-   * Parses all properties provided via a Context Section
+   * Deprecated - Parses all properties provided via a Context Section
    */
   context?: {
     [k: string]: unknown
   }
   /**
-   * Parses all properties provided via a Properties Section
+   * Deprecated - Parses all properties provided via a Properties Section
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * Parses all properties provided via a Traits Section
+   * Deprecated - Parses all properties provided via a Traits Section
    */
   traits?: {
     [k: string]: unknown
