@@ -12,27 +12,46 @@ const Liquid = new LiquidJs()
 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
+export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
+export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
+
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]
 
+  readonly payload: MessagePayload
+  readonly settings: Settings
+  readonly statsClient: StatsClient | undefined
+  readonly tags: StatsContext['tags']
+  readonly logger: Logger | undefined
+
   constructor(
     readonly request: RequestFn,
-    readonly payload: MessagePayload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined,
     readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
-  ) {}
+  ) {
+    this.payload = executeInput.payload
+    this.settings = executeInput.settings
+    this.statsClient = executeInput.statsContext?.statsClient
+    this.tags = executeInput.statsContext?.tags ?? []
+    if (!this.settings.region) {
+      this.settings.region = 'us-west-1'
+    }
+    this.tags.push(
+      `space_id:${this.settings.spaceId}`,
+      `projectid:${this.settings.sourceId}`,
+      `region:${this.settings.region}`,
+      `channel:${this.getChannelType()}`
+    )
+    this.logger = executeInput.logger
+  }
 
   abstract getChannelType(): string
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
   async send() {
-    this.initLogDetails()
+    this.beforeSend()
     this.tags.push(`channel:${this.getChannelType()}`)
     this.statsClient?.incr('actions_personas_messaging_twilio.initialize', 1, this.tags)
     return this.logWrap([`Destination Action`], this.doSend.bind(this))
@@ -82,7 +101,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
   }
 
+  isFeatureActive(featureName: string, getDefault?: () => boolean) {
+    if (!this.executeInput.features || !(featureName in this.executeInput.features)) return getDefault?.()
+    return this.executeInput.features[featureName]
+  }
+
   logInfo(...msgs: string[]) {
+    if (!this.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
     const [firstMsg, ...rest] = msgs
     this.logger?.info(
       `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
@@ -93,6 +118,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logError(error?: any, ...msgs: string[]) {
+    if (!this.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
     const [firstMsg, ...rest] = msgs
     if (typeof error === 'string') {
       this.logger?.error(
@@ -123,25 +149,26 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   logWrap<R = void>(messages: string[], fn: () => R): R {
     this.logInfo('Starting: ', ...messages)
+    const start = Date.now()
     try {
       const res = fn()
       if (MessageSender.isPromise(res)) {
         return (async () => {
           try {
             const promisedRes = await res
-            this.logInfo('Success: ', ...messages)
+            this.logInfo('Success: ', ...messages, `Duration: ${Date.now() - start} ms`)
             return promisedRes
           } catch (error: unknown) {
-            this.logError(error, 'Failed: ', ...messages)
+            this.logError(error, 'Failed: ', ...messages, `Duration: ${Date.now() - start} ms`)
             throw error
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         })() as any as R // cast to R otherwise ts is not happy
       }
-      this.logInfo('Success: ', ...messages)
+      this.logInfo('Success: ', ...messages, `Duration: ${Date.now() - start} ms`)
       return res
     } catch (error: unknown) {
-      this.logError(error, 'Failed: ', ...messages)
+      this.logError(error, 'Failed: ', ...messages, `Duration: ${Date.now() - start} ms`)
       throw error
     }
   }
@@ -149,7 +176,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   /**
    * populate the logDetails object with the data that should be logged for every message
    */
-  initLogDetails() {
+  beforeSend() {
     //overrideable
     Object.assign(this.logDetails, {
       externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
