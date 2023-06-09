@@ -50,7 +50,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the [event](https://segment.com/docs/connections/spec/).
+   * Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group
    */
   type: string
 }
