@@ -8,7 +8,7 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
     //if (nestDepth > 5) return parseResults
     if (nestDepth > 10)
       throw new IntegrationError(
-        'Event data exceeds nesting depth. Restate event data to avoid nesting attributes more than 5 levels deep',
+        'Event data exceeds nesting depth. Use Mapping to avoid nesting data attributes more than 3 levels deep',
         'NESTING_DEPTH_EXCEEDED',
         400
       )
@@ -50,39 +50,46 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
   const timestamp = get(payload, 'timestamp', 'Null')
 
   let propertiesTraitsKV: { [key: string]: string } = {}
+  try {
+    if (payload.key_value_pairs)
+      propertiesTraitsKV = {
+        ...propertiesTraitsKV,
+        ...parseSections(payload.key_value_pairs as { [key: string]: string }, 0)
+      }
 
-  if (payload.key_value_pairs)
-    propertiesTraitsKV = {
-      ...propertiesTraitsKV,
-      ...parseSections(payload.key_value_pairs as { [key: string]: string }, 0)
+    if (payload.array_data)
+      propertiesTraitsKV = {
+        ...propertiesTraitsKV,
+        ...parseSections(payload.array_data as unknown as { [key: string]: string }, 0)
+      }
+
+    if (payload.traits)
+      propertiesTraitsKV = {
+        ...propertiesTraitsKV,
+        ...parseSections(payload.traits as { [key: string]: string }, 0)
+      }
+    if (payload.properties)
+      propertiesTraitsKV = {
+        ...propertiesTraitsKV,
+        ...parseSections(payload.properties as { [key: string]: string }, 0)
+      }
+    if (payload.context)
+      propertiesTraitsKV = {
+        ...propertiesTraitsKV,
+        ...parseSections(payload.context as { [key: string]: string }, 0)
+      }
+
+    if (Object.keys(propertiesTraitsKV).length > limit) {
+      throw new IntegrationError(
+        'Properties Exceed Max. Use Mapping to limit the number of Attributes (Properties, Traits) present and thereby reduce the Campaign Relational Table Rows consumed.',
+        'EXCEEDS_MAX_PROPERTIES_MAX',
+        400
+      )
     }
-
-  if (payload.array_data)
-    propertiesTraitsKV = {
-      ...propertiesTraitsKV,
-      ...parseSections(payload.array_data as unknown as { [key: string]: string }, 0)
-    }
-
-  // if (payload.traits)
-  //   propertiesTraitsKV = {
-  //     ...propertiesTraitsKV,
-  //     ...parseSections(payload.traits as { [key: string]: string }, 0)
-  //   }
-  // if (payload.properties)
-  //   propertiesTraitsKV = {
-  //     ...propertiesTraitsKV,
-  //     ...parseSections(payload.properties as { [key: string]: string }, 0)
-  //   }
-  // if (payload.context)
-  //   propertiesTraitsKV = {
-  //     ...propertiesTraitsKV,
-  //     ...parseSections(payload.context as { [key: string]: string }, 0)
-  //   }
-
-  if (Object.keys(propertiesTraitsKV).length > limit) {
+  } catch (e) {
     throw new IntegrationError(
-      'Properties Exceed Max. Use Mapping to limit the number of Attributes (Properties, Traits) present and thereby reduce the Campaign Relational Table Rows consumed.',
-      'EXCEEDS_MAX_PROPERTIES_MAX',
+      'Unexpected Exception processing payload \n ${e}',
+      'UNEXPECTED_EXCEPTION_PROCESSING_PAYLOAD',
       400
     )
   }
@@ -91,10 +98,10 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
   if (get(payload, 'context.personas.computation_class', 'Null') === 'audience') {
     const ak = get(payload, 'context.personas.computation_key', 'Null')
     const av = `properties.${ak}`
-    const audiStatus = get(payload, av, 'Null')
-    if (audiStatus === 'true' || audiStatus === 'True') eventValue = 'Audience Entered'
-    if (audiStatus === 'false' || audiStatus === 'False') eventValue = 'Audience Exited'
-    if (eventValue === 'Null') eventValue = audiStatus
+    const audiStatus = get(payload, av, 'Null') as string
+    eventValue = audiStatus
+    if (audiStatus.includes('true')) eventValue = 'Audience Entered'
+    if (audiStatus.includes('false')) eventValue = 'Audience Exited'
     eventName = ak
 
     xmlRows += `  
