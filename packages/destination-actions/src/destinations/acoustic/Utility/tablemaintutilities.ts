@@ -126,12 +126,13 @@ export async function doPOST(
       const r = rx.exec(resultTxt) as RegExpExecArray
       if (r.indexOf('max number of concurrent authenticated requests') > -1)
         throw new RetryableError(
-          'Currently exceeding Max number of concurrent authenticated requests via API, retrying'
+          'Currently exceeding Max number of concurrent authenticated requests via API, retrying',
+          429
         )
       resultTxt = ''
     }
   } catch (e) {
-    throw new IntegrationError(`Unexpected Request Exception \n${e}`)
+    throw (new IntegrationError(`Unexpected Request Exception \n${e}`), 'UNEXPECTED_REQUEST_EXCEPTION', 400)
   }
   return resultTxt
 }
