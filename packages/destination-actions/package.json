@@ -73,7 +73,7 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dist/",
-      "/*notest*"
+      "/*utils.*"
     ]
   },
   "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"
