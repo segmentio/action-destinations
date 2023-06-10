@@ -1,7 +1,11 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "paths": {
+      "@segment/ajv-human-errors": ["../ajv-human-errors/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+    }
   },
   "exclude": ["dist"],
   "include": ["src", "test", "benchmarks"]

@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { Directive } from '@segment/actions-core/src/destination-kit/types'
+import { Directive } from '@segment/actions-core/destination-kit/types'
 
 export const userID: InputField = {
   label: 'Segment User ID',
