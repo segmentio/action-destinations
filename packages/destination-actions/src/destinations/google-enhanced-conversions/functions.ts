@@ -1,8 +1,8 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
 import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
-import { Features } from '@segment/actions-core/src/mapping-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 export const API_VERSION = 'v12'
 export const CANARY_API_VERSION = 'v13'
