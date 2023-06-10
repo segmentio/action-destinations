@@ -1,7 +1,7 @@
 import nock from 'nock'
 import Twilio from '..'
 import { createTestIntegration } from '@segment/actions-core'
-import { createLoggerMock, getPhoneMessageInputDataGenerator } from '../utils/test-utils'
+import { createLoggerMock, getPhoneMessageInputDataGenerator } from './test-utils.notests'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()

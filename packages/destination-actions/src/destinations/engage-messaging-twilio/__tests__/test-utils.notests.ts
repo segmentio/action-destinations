@@ -1,6 +1,7 @@
 import { Logger } from '@segment/actions-core/src/destination-kit'
 import { omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
 
 export function createLoggerMock() {
   return {
@@ -44,5 +45,6 @@ export const getPhoneMessageInputDataGenerator =
       ...settingsOverrides
     },
     mapping: omitKeys ? omit(getDefaultMapping(mappingOverrides), omitKeys) : getDefaultMapping(mappingOverrides),
-    logger
+    logger,
+    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
   })

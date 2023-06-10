@@ -2,10 +2,11 @@ import nock from 'nock'
 import Twilio from '..'
 import { createTestIntegration } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
-import { createLoggerMock } from '../utils/test-utils'
+import { createLoggerMock } from './test-utils.notests'
 import { Payload } from '../sendMobilePush/generated-types'
 import { InputData } from '@segment/actions-core/src/mapping-kit'
 import { PushSender } from '../sendMobilePush/push-sender'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
 
 const twilio = createTestIntegration(Twilio)
 const timestamp = new Date().toISOString()
@@ -62,7 +63,8 @@ const getActionPayload = ({ mappingOverrides, settingsOverrides }: GetActionPayl
     profileApiAccessToken: 'profileaccesstoken',
     ...settingsOverrides
   },
-  logger
+  logger,
+  features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
 })
 
 const defaultActionInput: any = getActionPayload()
