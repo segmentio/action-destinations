@@ -13,7 +13,7 @@ afterEach(() => {
   nock.cleanAll()
 })
 
-export function createLoggerMock() {
+function createLoggerMock() {
   return {
     level: 'error',
     name: 'test',
@@ -22,37 +22,54 @@ export function createLoggerMock() {
   } as Logger
 }
 
-interface GetPhoneMessageInputGeneratorProps {
+export const loggerMock = createLoggerMock()
+
+interface CreateTestActionArgs {
   action: string
   environment: string
   timestamp: string
   spaceId: string
-  logger: Logger
-  getDefaultMapping: () => any
+  logger?: Logger
+  getMapping: (context: CreateTestActionArgs) => any
 
-  getDefaultSettings?: () => any
+  getSettings?: (context: CreateTestActionArgs) => any
+  features?: any
 }
 
-interface GetInputDataProps {
+interface TestActionArgs {
   mappingOverrides?: any | null
-  omitKeys?: string[] | null
+  mappingOmitKeys?: string[] | null
   settingsOverrides?: any
 }
 
-export function getPhoneMessageInputDataGenerator({
+export function createTestAction({
   action,
   environment,
   timestamp,
   spaceId,
   logger,
-  getDefaultMapping,
-  getDefaultSettings
-}: GetPhoneMessageInputGeneratorProps) {
-  return ({ mappingOverrides, omitKeys, settingsOverrides }: GetInputDataProps = {}) => {
+  features,
+  getMapping,
+  getSettings
+}: CreateTestActionArgs) {
+  // eslint-disable-next-line prefer-rest-params
+  const ctx = arguments[0] as CreateTestActionArgs
+  return ({ mappingOverrides, mappingOmitKeys: mappingOmitKeys, settingsOverrides }: TestActionArgs = {}) => {
     const mapping = {
-      ...getDefaultMapping(),
+      ...getMapping(ctx),
       ...mappingOverrides
     }
+    const settings = getSettings
+      ? getSettings(ctx)
+      : {
+          spaceId,
+          sourceId: 'e',
+          twilioAccountSID: 'a',
+          twilioApiKeySID: 'f',
+          twilioApiKeySecret: 'b',
+          profileApiEnvironment: environment,
+          profileApiAccessToken: 'c'
+        }
 
     return twilio.testAction(action, {
       event: createMessagingTestEvent({
@@ -61,22 +78,12 @@ export function getPhoneMessageInputDataGenerator({
         userId: 'jane'
       }),
       settings: {
-        ...(getDefaultSettings
-          ? getDefaultSettings()
-          : {
-              spaceId,
-              sourceId: 'e',
-              twilioAccountSID: 'a',
-              twilioApiKeySID: 'f',
-              twilioApiKeySecret: 'b',
-              profileApiEnvironment: environment,
-              profileApiAccessToken: 'c'
-            }),
+        ...settings,
         ...settingsOverrides
       },
-      mapping: omitKeys ? omit(mapping, omitKeys) : mapping,
-      logger,
-      features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
+      mapping: mappingOmitKeys ? omit(mapping, mappingOmitKeys) : mapping,
+      logger: logger || loggerMock,
+      features: features || { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
     })
   }
 }

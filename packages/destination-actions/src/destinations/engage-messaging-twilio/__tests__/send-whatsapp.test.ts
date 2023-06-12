@@ -1,20 +1,18 @@
 import nock from 'nock'
-import { createLoggerMock, getPhoneMessageInputDataGenerator } from './test-utils'
+import { createTestAction, loggerMock as logger } from './test-utils'
 
 const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
-const logger = createLoggerMock()
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
-  const testAction = getPhoneMessageInputDataGenerator({
+  const testAction = createTestAction({
     environment,
     timestamp,
     spaceId,
-    logger,
     action: 'sendWhatsApp',
-    getDefaultMapping(overrides?: any) {
+    getMapping() {
       return {
         userId: { '@path': '$.userId' },
         from: 'MG1111222233334444',
@@ -24,8 +22,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         externalIds: [
           { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
           { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
-        ],
-        ...overrides
+        ]
       }
     }
   })

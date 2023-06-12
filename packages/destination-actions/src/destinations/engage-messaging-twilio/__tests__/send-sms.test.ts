@@ -1,19 +1,17 @@
 import nock from 'nock'
-import { createLoggerMock, getPhoneMessageInputDataGenerator } from './test-utils'
+import { createTestAction, loggerMock as logger } from './test-utils'
 
 const timestamp = new Date().toISOString()
-const logger = createLoggerMock()
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
   const spaceId = 'd'
-  const testAction = getPhoneMessageInputDataGenerator({
+  const testAction = createTestAction({
     action: 'sendSms',
     environment,
     timestamp,
     spaceId,
-    logger,
-    getDefaultMapping(overrides?: any) {
+    getMapping() {
       return {
         userId: { '@path': '$.userId' },
         from: 'MG1111222233334444',
@@ -23,8 +21,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         externalIds: [
           { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
           { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
-        ],
-        ...overrides
+        ]
       }
     }
   })
@@ -83,7 +80,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should thow error if no body provided and no contentSid provided', async () => {
-      await expect(testAction({ omitKeys: ['body'] })).rejects.toThrowError(
+      await expect(testAction({ mappingOmitKeys: ['body'] })).rejects.toThrowError(
         'Unable to process sms, no body provided and no content sid provided'
       )
       expect(logger.error).toHaveBeenCalledWith(
@@ -112,7 +109,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             mappingOverrides: {
               contentSid
             },
-            omitKeys: ['body']
+            mappingOmitKeys: ['body']
           })
         ).rejects.toThrowError(`Sending templates with '${contentType}' content type is not supported by sms`)
         expect(logger.error).toHaveBeenCalledWith(
@@ -136,7 +133,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mappingOverrides: {
             contentSid
           },
-          omitKeys: ['body']
+          mappingOmitKeys: ['body']
         })
       ).rejects.toThrowError('Template from Twilio Content API does not contain any template types')
       expect(logger.error).toHaveBeenCalledWith(
@@ -162,7 +159,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mappingOverrides: {
             contentSid
           },
-          omitKeys: ['body']
+          mappingOmitKeys: ['body']
         })
       ).rejects.toThrowError('Unable to fetch content template')
       expect(logger.error).toHaveBeenCalledWith(
@@ -230,7 +227,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mappingOverrides: {
           contentSid
         },
-        omitKeys: ['body']
+        mappingOmitKeys: ['body']
       })
       expect(twilioMessagingRequest.isDone()).toEqual(true)
       expect(twilioContentRequest.isDone()).toEqual(true)
@@ -293,7 +290,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mappingOverrides: {
           contentSid
         },
-        omitKeys: ['body']
+        mappingOmitKeys: ['body']
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
         'https://content.twilio.com/v1/Content/g',
