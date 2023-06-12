@@ -3,7 +3,7 @@ export type Properties = {
 }
 
 type FlattenProperties = object & {
-  [k: string]: string | number
+  [k: string]: string
 }
 
 export function flat(data: Properties, prefix = ''): FlattenProperties {
@@ -13,18 +13,18 @@ export function flat(data: Properties, prefix = ''): FlattenProperties {
       const flatten = flat(data[key] as Properties, prefix + '.' + key)
       result = { ...result, ...flatten }
     } else {
-      const flatValue = getFlatValue(data[key])
-      result[(prefix + '.' + key).replace(/^\./, '')] = flatValue
+      const stringifiedValue = stringify(data[key])
+      result[(prefix + '.' + key).replace(/^\./, '')] = stringifiedValue
     }
   }
   return result
 }
 
-function getFlatValue(value: unknown): string | number {
-  if (typeof value === 'string' || typeof value === 'number') {
+function stringify(value: unknown): string {
+  if (typeof value === 'string') {
     return value
   }
-  if (typeof value === 'boolean') {
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return value.toString()
   }
   return JSON.stringify(value)
