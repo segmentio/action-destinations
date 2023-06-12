@@ -3,7 +3,6 @@ import { createTestAction, loggerMock as logger } from './test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
 import { PushSender } from '../sendMobilePush/push-sender'
 
-const timestamp = new Date().toISOString()
 const spaceId = 'spaceid'
 const contentSid = 'HX1234'
 const pushServiceSid = 'ISXXX'
@@ -27,7 +26,6 @@ const defaultExternalId = {
 const testAction = createTestAction({
   action: 'sendMobilePush',
   environment: 'production',
-  timestamp,
   spaceId,
   getMapping: () => ({
     from: pushServiceSid,

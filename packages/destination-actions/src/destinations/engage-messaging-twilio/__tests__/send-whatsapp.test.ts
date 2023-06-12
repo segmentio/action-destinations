@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestAction, loggerMock as logger } from './test-utils'
 
-const timestamp = new Date().toISOString()
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
 
@@ -9,22 +8,19 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
   const testAction = createTestAction({
     environment,
-    timestamp,
     spaceId,
     action: 'sendWhatsApp',
-    getMapping() {
-      return {
-        userId: { '@path': '$.userId' },
-        from: 'MG1111222233334444',
-        contentSid: defaultTemplateSid,
-        send: true,
-        traitEnrichment: true,
-        externalIds: [
-          { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-          { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
-        ]
-      }
-    }
+    getMapping: () => ({
+      userId: { '@path': '$.userId' },
+      from: 'MG1111222233334444',
+      contentSid: defaultTemplateSid,
+      send: true,
+      traitEnrichment: true,
+      externalIds: [
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+      ]
+    })
   })
 
   describe('send WhatsApp', () => {

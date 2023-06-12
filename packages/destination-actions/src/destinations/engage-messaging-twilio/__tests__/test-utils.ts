@@ -27,13 +27,13 @@ export const loggerMock = createLoggerMock()
 interface CreateTestActionArgs {
   action: string
   environment: string
-  timestamp: string
+  timestamp?: string
   spaceId: string
-  logger?: Logger
   getMapping: (context: CreateTestActionArgs) => any
 
   getSettings?: (context: CreateTestActionArgs) => any
   features?: any
+  logger?: Logger
 }
 
 interface TestActionArgs {
@@ -53,14 +53,16 @@ export function createTestAction({
   getSettings
 }: CreateTestActionArgs) {
   // eslint-disable-next-line prefer-rest-params
-  const ctx = arguments[0] as CreateTestActionArgs
+  const args = arguments[0] as CreateTestActionArgs
+  timestamp = timestamp ?? new Date().toISOString()
+
   return ({ mappingOverrides, mappingOmitKeys: mappingOmitKeys, settingsOverrides }: TestActionArgs = {}) => {
     const mapping = {
-      ...getMapping(ctx),
+      ...getMapping(args),
       ...mappingOverrides
     }
     const settings = getSettings
-      ? getSettings(ctx)
+      ? getSettings(args)
       : {
           spaceId,
           sourceId: 'e',
@@ -86,8 +88,4 @@ export function createTestAction({
       features: features || { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
     })
   }
-}
-
-export function twilioTestAction(action: string, payload: any) {
-  return twilio.testAction(action, payload)
 }

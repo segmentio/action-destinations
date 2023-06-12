@@ -1,45 +1,35 @@
 import nock from 'nock'
 import { createTestAction, loggerMock as logger } from './test-utils'
 
-const timestamp = new Date().toISOString()
-
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
   const spaceId = 'd'
   const testAction = createTestAction({
     action: 'sendSms',
     environment,
-    timestamp,
     spaceId,
-    getMapping() {
-      return {
-        userId: { '@path': '$.userId' },
-        from: 'MG1111222233334444',
-        body: 'Hello world, {{profile.user_id}}!',
-        send: true,
-        traitEnrichment: true,
-        externalIds: [
-          { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-          { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
-        ]
-      }
-    }
+    getMapping: () => ({
+      userId: { '@path': '$.userId' },
+      from: 'MG1111222233334444',
+      body: 'Hello world, {{profile.user_id}}!',
+      send: true,
+      traitEnrichment: true,
+      externalIds: [
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
+      ]
+    })
   })
 
   const topLevelName = environment === 'production' ? 'com' : 'build'
   const endpoint = `https://profiles.segment.${topLevelName}`
+  beforeEach(() => {
+    nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
+      traits: {}
+    })
+  })
 
   describe('send SMS', () => {
-    beforeEach(() => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-        traits: {}
-      })
-    })
-
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
@@ -407,16 +397,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('subscription handling', () => {
-    beforeEach(() => {
-      nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(200, {
-        traits: {}
-      })
-    })
-
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
@@ -496,11 +476,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('get profile traits', () => {
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it('should throw error if unable to request profile traits', async () => {
+      nock.cleanAll() // cleaning default behavior defined in beforeEach
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`).get('/traits?limit=200').reply(500)
 
       await expect(
