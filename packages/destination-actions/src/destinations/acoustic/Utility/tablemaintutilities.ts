@@ -15,7 +15,7 @@ export interface accessResp {
   refresh_token: string
   expires_in: number
 }
-export const authCreds = {
+export let authCreds = {
   accessToken: '',
   clientId: '',
   clientSecret: '',
@@ -57,6 +57,7 @@ export async function getAccessToken(
   settings: Settings
   //  authCreds: OAuth2ClientCredentials
 ) {
+  authCreds = getAuthCreds()
   authCreds.accessToken = ''
   authCreds.clientId = settings.a_clientId
   authCreds.clientSecret = settings.a_clientSecret
@@ -124,7 +125,7 @@ export async function doPOST(
     if (resultTxt.indexOf('<SUCCESS>FALSE</SUCCESS>') > -1 || resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
       const rx = /<FaultString>(.*)<\/FaultString>/gm
       const r = rx.exec(resultTxt) as RegExpExecArray
-      if (r.indexOf('max number of concurrent authenticated requests') > -1)
+      if (r.indexOf('max number of concurrent') > -1)
         throw new RetryableError(
           'Currently exceeding Max number of concurrent authenticated requests via API, retrying',
           429
@@ -155,10 +156,10 @@ export async function preChecksAndMaint(request: RequestClient, settings: Settin
 }
 
 export async function checkRTExist(request: RequestClient, settings: Settings, auth: AuthTokens) {
-  if (settings.a_table_list_id != '') {
+  if (settings.tableListId != '') {
     const checkDefinedTableId = `
     <Envelope> <Body>
-    <GetListMetaData> <LIST_ID>${settings.a_table_list_id}</LIST_ID>
+    <GetListMetaData> <LIST_ID>${settings.tableListId}</LIST_ID>
     </GetListMetaData> </Body>
     </Envelope>`
 
@@ -216,7 +217,7 @@ export async function createSegmentEventsTable(request: RequestClient, settings:
   const createSET = `<Envelope>
     <Body>
       <CreateTable>
-        <TABLE_NAME>${settings.a_table_list_name}</TABLE_NAME>
+        <TABLE_NAME>${settings.tableName}</TABLE_NAME>
         <COLUMNS>
           <COLUMN>
             <NAME>EmailId</NAME>

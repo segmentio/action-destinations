@@ -12,11 +12,11 @@ export interface Settings {
   /**
    * The Segment Table Name in Acoustic Campaign Data dialog.
    */
-  a_table_list_name: string
+  tableName: string
   /**
    * The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign
    */
-  a_table_list_id: string
+  tableListId: string
   /**
    * The Client Id from the App definition dialog in Acoustic Campaign
    */
