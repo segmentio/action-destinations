@@ -23,8 +23,7 @@ describe('CannyFunctions.identify', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        apiKey: TEST_API_KEY,
-        customFields: ''
+        apiKey: TEST_API_KEY
       }
     })
     const [response] = responses
@@ -42,26 +41,48 @@ describe('CannyFunctions.identify', () => {
   })
 
   it('should send a request to identify endpoint with custom fields', async () => {
-    const customFields = 'age,phone'
-    const eventData = {
+    const mappedData = {
       timestamp: new Date().toISOString(),
       traits: {
         age: 30,
         email: 'john@example.com',
         name: 'John',
-        phone: '12345678',
-        title: 'Engineer'
+        phone: '12345678'
       }
+    }
+    const eventData = {
+      ...mappedData,
+      traits: { ...mappedData.traits, title: 'Engineer' }
     }
     const event = createTestEvent(eventData)
     nock(BASE_API_URL).post('/v2/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identify', {
       event,
-      useDefaultMappings: true,
+      mapping: {
+        userId: {
+          '@path': '$.userId'
+        },
+        traits: {
+          age: {
+            '@path': '$.traits.age'
+          },
+          email: {
+            '@path': '$.traits.email'
+          },
+          name: {
+            '@path': '$.traits.name'
+          },
+          phone: {
+            '@path': '$.traits.phone'
+          }
+        },
+        type: {
+          '@path': '$.type'
+        }
+      },
       settings: {
-        apiKey: TEST_API_KEY,
-        customFields
+        apiKey: TEST_API_KEY
       }
     })
     const [response] = responses
@@ -73,10 +94,10 @@ describe('CannyFunctions.identify', () => {
     expect(response.data).toEqual({})
     expect(parsedBody).toEqual({
       traits: {
-        ...eventData.traits,
+        ...mappedData.traits,
         customFields: {
-          age: eventData.traits.age,
-          phone: eventData.traits.phone
+          age: mappedData.traits.age,
+          phone: mappedData.traits.phone
         }
       },
       type: event.type,
