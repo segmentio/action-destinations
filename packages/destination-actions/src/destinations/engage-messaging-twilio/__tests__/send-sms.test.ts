@@ -1,5 +1,6 @@
 import nock from 'nock'
 import { createTestAction, loggerMock as logger } from './test-utils'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
@@ -494,6 +495,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should get profile traits successfully', async () => {
+      nock.cleanAll() // cleaning default behavior defined in beforeEach
       nock(`${endpoint}/v1/spaces/d/collections/users/profiles/user_id:jane`)
         .get('/traits?limit=200')
         .reply(200, {
@@ -503,6 +505,75 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(201, {})
 
       await expect(testAction()).resolves.not.toThrowError()
+    })
+  })
+
+  describe('logging feature flag', () => {
+    describe.each(
+      //<[logInfo:boolean, logError: boolean][]>
+      [
+        [false, false],
+        [true, false],
+        [false, true],
+        [true, true],
+        [undefined, undefined] // => features = undefined, should be equivalent to [false, false]
+      ]
+    )('logInfo: %s, logError: %s', (logInfo, logError) => {
+      it('logging properly when there is error', async () => {
+        expect(logger.error).not.toHaveBeenCalled()
+        expect(logger.info).not.toHaveBeenCalled()
+
+        const features =
+          typeof logError === 'undefined' && typeof logInfo === 'undefined'
+            ? undefined
+            : { [FLAGON_NAME_LOG_INFO]: logInfo, [FLAGON_NAME_LOG_ERROR]: logError }
+        await expect(
+          testAction({
+            mappingOverrides: { customArgs: { foo: 'bar' } },
+            settingsOverrides: {
+              webhookUrl: 'foo'
+            },
+            features
+          })
+        ).rejects.toThrowError()
+
+        if (logError) expect(logger.error).toHaveBeenCalled()
+        else expect(logger.error).not.toHaveBeenCalled()
+
+        if (logInfo) expect(logger.info).toHaveBeenCalled()
+        else expect(logger.info).not.toHaveBeenCalled()
+      })
+
+      it('logging properly when there was NO error', async () => {
+        expect(logger.error).not.toHaveBeenCalled()
+        expect(logger.info).not.toHaveBeenCalled()
+
+        const features =
+          typeof logError === 'undefined' && typeof logInfo === 'undefined'
+            ? undefined
+            : { [FLAGON_NAME_LOG_INFO]: logInfo, [FLAGON_NAME_LOG_ERROR]: logError }
+
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({ features })
+        expect(responses.length).toBeGreaterThan(0)
+        expect(twilioRequest.isDone()).toEqual(true)
+
+        expect(responses.length).toBeGreaterThan(0)
+
+        expect(logger.error).not.toHaveBeenCalled()
+        if (logInfo) expect(logger.info).toHaveBeenCalled()
+        else expect(logger.info).not.toHaveBeenCalled()
+      })
     })
   })
 })

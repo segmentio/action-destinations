@@ -40,6 +40,8 @@ interface TestActionArgs {
   mappingOverrides?: any | null
   mappingOmitKeys?: string[] | null
   settingsOverrides?: any
+  features?: any
+  logger?: Logger
 }
 
 export function createTestAction({
@@ -56,7 +58,7 @@ export function createTestAction({
   const args = arguments[0] as CreateTestActionArgs
   timestamp = timestamp ?? new Date().toISOString()
 
-  return ({ mappingOverrides, mappingOmitKeys: mappingOmitKeys, settingsOverrides }: TestActionArgs = {}) => {
+  return ({ mappingOverrides, mappingOmitKeys, settingsOverrides, ...restOverrides }: TestActionArgs = {}) => {
     const mapping = {
       ...getMapping(args),
       ...mappingOverrides
@@ -84,8 +86,11 @@ export function createTestAction({
         ...settingsOverrides
       },
       mapping: mappingOmitKeys ? omit(mapping, mappingOmitKeys) : mapping,
-      logger: logger || loggerMock,
-      features: features || { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
+      logger: 'logger' in restOverrides ? restOverrides.logger : logger || loggerMock,
+      features:
+        'features' in restOverrides
+          ? restOverrides.features
+          : features || { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
     })
   }
 }
