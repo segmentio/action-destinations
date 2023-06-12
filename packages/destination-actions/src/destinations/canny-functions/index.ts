@@ -1,5 +1,6 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { BASE_API_URL } from './constants/api'
 
 import identify from './identify'
 
@@ -18,6 +19,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+
+    testAuthentication(request) {
+      return request(`${BASE_API_URL}/validateAPIKey`, {
+        method: 'post'
+      })
     }
   },
 

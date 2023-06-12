@@ -20,8 +20,8 @@ Object {
 exports[`Testing snapshot for canny-functions destination: identify action - all fields 1`] = `
 Object {
   "traits": Object {
-    "customFields": Object {},
-    "testType": "q0223WzGvKGmd",
+    "email": "culikvat@mojanve.km",
+    "name": "q0223WzGvKGmd",
   },
   "type": "q0223WzGvKGmd",
   "userId": "q0223WzGvKGmd",
@@ -30,9 +30,7 @@ Object {
 
 exports[`Testing snapshot for canny-functions destination: identify action - required fields 1`] = `
 Object {
-  "traits": Object {
-    "customFields": Object {},
-  },
+  "traits": Object {},
   "type": "q0223WzGvKGmd",
   "userId": "q0223WzGvKGmd",
 }

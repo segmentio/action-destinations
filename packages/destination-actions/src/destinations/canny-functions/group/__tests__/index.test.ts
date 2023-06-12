@@ -23,8 +23,7 @@ describe('CannyFunctions.group', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        apiKey: TEST_API_KEY,
-        customFields: ''
+        apiKey: TEST_API_KEY
       }
     })
     const [response] = responses
