@@ -30,7 +30,6 @@ interface CreateTestActionArgs {
   timestamp?: string
   spaceId: string
   getMapping: (context: CreateTestActionArgs) => any
-
   getSettings?: (context: CreateTestActionArgs) => any
   features?: any
   logger?: Logger
