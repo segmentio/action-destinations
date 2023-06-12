@@ -36,7 +36,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   async doSend() {
     if (!this.payload.send) {
       this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-      this.statsClient?.incr('actions_personas_messaging_twilio.send_disabled', 1, this.tags)
+      this.stats('incr', 'send_disabled', 1)
       return
     }
     // we send notifications to every eligible device (subscribed and of a push type)
@@ -49,12 +49,12 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       ) || []
 
     if (recipientDevices.length) {
-      this.statsClient?.incr('actions_personas_messaging_twilio.subscribed', 1, this.tags)
+      this.stats('incr', 'subscribed', 1)
     }
 
     const totalUnsubscribed = allPushDevices.length - recipientDevices.length
     if (totalUnsubscribed > 0) {
-      this.statsClient?.incr('actions_personas_messaging_twilio.notsubscribed', totalUnsubscribed, this.tags)
+      this.stats('incr', 'notsubscribed', totalUnsubscribed)
     }
 
     if (!recipientDevices?.length) {
@@ -111,7 +111,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           body.append('DeliveryCallbackUrl', webhookUrl)
         }
 
-        this.statsClient?.set('actions_personas_messaging_twilio.message_body_size', body?.toString().length, this.tags)
+        this.stats('set', 'message_body_size', body?.toString().length)
 
         const response = await this.request(
           `https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`,
@@ -125,7 +125,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         )
 
         this.tags.push(`twilio_status_code:${response.status}`)
-        this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+        this.stats('incr', 'response', 1)
         responses.push(response)
       } catch (error: unknown) {
         /* on unexpected fail, do not block rest of phones from receiving push notification
@@ -171,11 +171,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     this.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
     this.tags.push(`total_failed:${failedSends.length}`)
     if (this.payload.eventOccurredTS != undefined) {
-      this.statsClient?.histogram(
-        'actions_personas_messaging_twilio.eventDeliveryTS',
-        Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-        this.tags
-      )
+      this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
 
     return responses
@@ -239,7 +235,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       return { requestBody, customData }
     } catch (error) {
       this.tags.push('reason:invalid_payload')
-      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1, this.tags)
+      this.stats('incr', 'error', 1)
       this.logError(`unable to construct Notify API request body - ${this.settings.spaceId}`, JSON.stringify(error))
       throw new PayloadValidationError('Unable to construct Notify API request body')
     }

@@ -52,8 +52,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   async send() {
     this.beforeSend()
-    this.tags.push(`channel:${this.getChannelType()}`)
-    this.statsClient?.incr('actions_personas_messaging_twilio.initialize', 1, this.tags)
+    this.stats('incr', 'initialize', 1)
     return this.logWrap([`Destination Action`], this.doSend.bind(this))
   }
 
@@ -85,7 +84,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
       this.logError(`unable to parse templating - ${this.settings.spaceId}`)
       this.tags.push('reason:invalid_liquid')
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+      this.stats('incr', 'error', 1)
       throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
     }
   }
@@ -134,6 +133,19 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
         JSON.stringify(this.logDetails)
       )
     }
+  }
+
+  stats<TStatsMethod extends keyof Pick<StatsClient, 'incr' | 'histogram' | 'set'>>(
+    statsMethod: TStatsMethod,
+    metric: string,
+    value: number,
+    extraTags?: string[]
+  ) {
+    if (!this.statsClient) return
+    const statsFunc = this.statsClient?.[statsMethod].bind(this.statsClient)
+    metric = `actions_personas_messaging_twilio.${metric}`
+
+    statsFunc(metric, value, [...this.tags, ...(extraTags ?? [])])
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -213,7 +225,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       template = (await response.json()) as ContentTemplateResponse
     } catch (error) {
       this.tags.push('reason:get_content_template')
-      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1, this.tags)
+      this.stats('incr', 'error', 1)
       this.logError(
         `failed request to fetch content template from Twilio Content API - ${
           this.settings.spaceId
@@ -233,7 +245,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
         } - [${JSON.stringify(template)}]`
       )
       this.tags.push('reason:invalid_template_type')
-      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
+      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         'Template from Twilio Content API does not contain any template types',
         `NO_CONTENT_TYPES`,
@@ -247,7 +259,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     } else {
       this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
       this.tags.push('reason:invalid_template_type')
-      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
+      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
         'UNSUPPORTED_CONTENT_TYPE',
@@ -310,7 +322,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logError(`${apiName} error - ${this.settings.spaceId}`)
       const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
       this.tags.push(`twilio_status_code:${statusCode}`)
-      this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+      this.stats('incr', 'response', 1)
 
       if (!twilioApiError.status) {
         //to handle error properly by Centrifuge
@@ -324,7 +336,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       const errorCode = twilioApiError.response?.data?.code
       if (errorCode === 63018 || statusCode === 429) {
         // Exceeded WhatsApp rate limit
-        this.statsClient?.incr('actions_personas_messaging_twilio.rate_limited', 1, this.tags)
+        this.stats('incr', 'rate_limited', 1)
       }
     }
     return errorToRethrow
