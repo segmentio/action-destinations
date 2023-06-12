@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import identify from './identify'
@@ -6,8 +6,8 @@ import identify from './identify'
 import group from './group'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Canny',
-  slug: 'canny',
+  name: 'Canny (Actions)',
+  slug: 'actions-canny',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -37,6 +37,22 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+
+  presets: [
+    {
+      name: 'Create or update a group profile',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(group.fields)
+    },
+    {
+      name: 'Create or update a user profile',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields)
+    }
+  ],
+
   actions: {
     identify,
     group

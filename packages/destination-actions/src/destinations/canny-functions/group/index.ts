@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group',
-  description: 'Updates or adds properties to a group. Group is created if it does not exist.',
+  description: 'Updates or adds properties to a company. Company is created if it does not exist.',
   defaultSubscription: 'type = "group"',
   fields: {
     groupId: {

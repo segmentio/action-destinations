@@ -7,7 +7,7 @@ import cloneWithDefinedProps from '../utils/cloneWithDefinedProps'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
-  description: 'Identify a user on Canny',
+  description: 'Create or update a user profile in Canny.',
   fields: {
     userId: {
       label: 'User ID',
