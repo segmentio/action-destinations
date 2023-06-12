@@ -9,6 +9,14 @@ export interface Payload {
    * Properties to set on the user profile
    */
   traits?: {
+    /**
+     * The user's name
+     */
+    name?: string
+    /**
+     * The user's email
+     */
+    email?: string
     [k: string]: unknown
   }
   /**

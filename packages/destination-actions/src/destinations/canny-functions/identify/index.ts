@@ -1,9 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { BASE_API_URL } from '../constants/api'
+import { DefaultFields } from '../constants/traits'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-import cloneWithDefinedProps from '../utils/cloneWithDefinedProps'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -22,8 +21,23 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Properties',
       type: 'object',
       description: 'Properties to set on the user profile',
+      additionalProperties: true,
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        name: {
+          label: 'Name',
+          description: "The user's name",
+          type: 'string'
+        },
+        email: {
+          label: 'Email',
+          description: "The user's email",
+          type: 'string'
+        }
+      },
       default: {
-        '@path': '$.traits'
+        name: { '@path': '$.traits.name' },
+        email: { '@path': '$.traits.email' }
       }
     },
     type: {
@@ -36,13 +50,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { payload }) => {
     const { type, userId } = payload
-    const traits = payload.traits ? { ...payload.traits } : {}
-    const customFieldTraits = settings.customFields ? settings.customFields.split(',') : []
+    const traits: Record<string, unknown> = payload.traits ? { ...payload.traits } : {}
+    const customFields: Record<string, unknown> = {}
 
-    if (customFieldTraits.length) {
-      const customFields = cloneWithDefinedProps(traits, customFieldTraits)
+    Object.entries(traits).forEach(([key, value]) => {
+      if (!DefaultFields.includes(key)) {
+        customFields[key] = value
+      }
+    })
+
+    if (Object.keys(customFields).length) {
       traits.customFields = customFields
     }
 

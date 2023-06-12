@@ -17,12 +17,6 @@ const destination: DestinationDefinition<Settings> = {
         description: 'You can find your API Key in the Segment Integration page in your admin settings.',
         type: 'string',
         required: true
-      },
-      // TODO: Figure out how to select traits from dropdown
-      customFields: {
-        label: 'Custom Fields',
-        description: 'Segment traits to be imported as custom fields on the user',
-        type: 'string'
       }
     }
   },
