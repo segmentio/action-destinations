@@ -20,7 +20,13 @@ Object {
 exports[`Testing snapshot for canny-functions destination: identify action - all fields 1`] = `
 Object {
   "traits": Object {
+    "avatar": "q0223WzGvKGmd",
+    "company": Object {
+      "testType": "q0223WzGvKGmd",
+    },
+    "createdAt": "q0223WzGvKGmd",
     "email": "culikvat@mojanve.km",
+    "id": "q0223WzGvKGmd",
     "name": "q0223WzGvKGmd",
   },
   "type": "q0223WzGvKGmd",

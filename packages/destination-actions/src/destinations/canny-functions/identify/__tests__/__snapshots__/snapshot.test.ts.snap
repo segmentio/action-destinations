@@ -3,7 +3,13 @@
 exports[`Testing snapshot for CannyFunctions's identify destination action: all fields 1`] = `
 Object {
   "traits": Object {
+    "avatar": "6dTsGB8(w5n#9G8",
+    "company": Object {
+      "testType": "6dTsGB8(w5n#9G8",
+    },
+    "createdAt": "6dTsGB8(w5n#9G8",
     "email": "maz@wigja.hn",
+    "id": "6dTsGB8(w5n#9G8",
     "name": "6dTsGB8(w5n#9G8",
   },
   "type": "6dTsGB8(w5n#9G8",

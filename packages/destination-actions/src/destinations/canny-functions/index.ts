@@ -41,13 +41,13 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Create or update a group profile',
+      name: 'Create or update a Company',
       subscribe: 'type = "group"',
       partnerAction: 'group',
       mapping: defaultValues(group.fields)
     },
     {
-      name: 'Create or update a user profile',
+      name: 'Create or update a User',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
       mapping: defaultValues(identify.fields)

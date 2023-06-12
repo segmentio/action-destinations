@@ -24,6 +24,26 @@ const action: ActionDefinition<Settings, Payload> = {
       additionalProperties: true,
       defaultObjectUI: 'keyvalue',
       properties: {
+        avatar: {
+          label: 'Avatar',
+          description: 'URL to an avatar image for the user',
+          type: 'string'
+        },
+        company: {
+          label: 'Company',
+          description: 'Company the user represents. Should contain: name (String), id (String or Number)',
+          type: 'object'
+        },
+        createdAt: {
+          label: 'Create At Date',
+          description: "Date the user's account was first created. Segment recommends using ISO-8601 date strings",
+          type: 'string'
+        },
+        id: {
+          label: 'User ID',
+          description: 'A distinct identifier of the user in your application.',
+          type: 'string'
+        },
         name: {
           label: 'Name',
           description: "The user's name",
@@ -36,6 +56,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
+        avatar: { '@path': '$.traits.avatar' },
+        company: { '@path': '$.traits.company' },
+        createdAt: { '@path': '$.traits.createdAt' },
+        id: { '@path': '$.traits.id' },
         name: { '@path': '$.traits.name' },
         email: { '@path': '$.traits.email' }
       }
