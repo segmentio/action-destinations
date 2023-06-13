@@ -123,11 +123,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     // Store custom Record Id in parent scope
     // This would be used to store custom record Id after search or create.
-    let customRecordId = null
     let upsertCustomRecordResponse: ModifiedResponse<UpsertCustomRecordResponse>
     // Check if any custom record were found based Custom Search Fields
     // If the search was skipped, searchCustomResponse would have a falsy value (null)
-    if (!searchCustomResponse || searchCustomResponse?.data?.total === 0) {
+    if (!searchCustomResponse || !searchCustomResponse.data || searchCustomResponse?.data?.total === 0) {
       // No existing custom record found with search criteria, attempt to create a new custom record
 
       // If Create New custom record flag is set to false, skip creation
@@ -135,16 +134,20 @@ const action: ActionDefinition<Settings, Payload> = {
         return
       }
       upsertCustomRecordResponse = await createCustomRecord(request, payload.objectType, payload.properties)
-      customRecordId = upsertCustomRecordResponse.data.id
     } else {
       // Throw error if more than one custom object record were found with search criteria
       if (searchCustomResponse?.data?.total > 1) {
         throw MultipleCustomRecordsInSearchResultThrowableError
       }
       // An existing Custom object record was identified, attempt to update the same record
-      customRecordId = searchCustomResponse?.data?.results?.length ? searchCustomResponse.data.results[0].id : null
-      customRecordId ? await updateCustomRecord(request, payload.objectType, customRecordId, payload.properties) : null
+      upsertCustomRecordResponse = await updateCustomRecord(
+        request,
+        payload.objectType,
+        searchCustomResponse.data.results[0].id,
+        payload.properties
+      )
     }
+    return upsertCustomRecordResponse.data
   }
 }
 
