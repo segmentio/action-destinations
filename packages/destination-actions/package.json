@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.171.0",
+  "version": "3.172.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -40,8 +40,8 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.67.0",
-    "@segment/actions-shared": "^1.49.0",
+    "@segment/actions-core": "^3.68.0",
+    "@segment/actions-shared": "^1.50.0",
     "@types/node": "^18.11.15",
     "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
