@@ -59,6 +59,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.ip'
       }
     },
+    library: {
+      label: 'Segment Library',
+      type: 'object',
+      description: 'The library sending the event.',
+      default: {
+        '@path': '$.context.library'
+      }
+    },
     userAgent: {
       label: 'User Agent',
       type: 'string',
@@ -158,7 +166,8 @@ const action: ActionDefinition<Settings, Payload> = {
       hashed_email: payload?.email,
       num_items_purchased: payload.properties?.num_items_purchased,
       is_new_customer: payload.properties?.is_new_customer,
-      is_subscription: payload.properties?.is_subscription
+      is_subscription: payload.properties?.is_subscription,
+      library: JSON.stringify(payload.library)
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)
