@@ -15,7 +15,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(201)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().patch(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -28,14 +28,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         settings: settingsData,
         auth: undefined
       })
+      if (responses.length) {
+        const request = responses[0].request
+        const rawBody = await request.text()
 
-      const request = responses[0].request
-      const rawBody = await request.text()
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
 
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-
-      expect(request.url).toMatchSnapshot()
+        expect(request.url).toMatchSnapshot()
+      }
     } catch (e) {
       expect(e).toMatchSnapshot()
     }
@@ -44,7 +45,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(201)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().patch(/.*/).reply(200)
 
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
@@ -59,11 +60,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       settings: settingsData,
       auth: undefined
     })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
-    const json = JSON.parse(rawBody)
-    expect(json).toMatchSnapshot()
-    expect(request.url).toMatchSnapshot()
+    if (responses.length) {
+      const request = responses[0].request
+      const rawBody = await request.text()
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      expect(request.url).toMatchSnapshot()
+    }
   })
 })

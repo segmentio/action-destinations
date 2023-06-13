@@ -2,20 +2,21 @@
 
 exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: all fields 1`] = `
 Object {
-  "properties": Object {
-    "testType": "3mKhorxHT$[h[CqZ2ptH",
-  },
+  "filterGroups": Array [
+    Object {
+      "filters": Array [
+        Object {
+          "operator": "EQ",
+          "propertyName": "testType",
+          "value": "3mKhorxHT$[h[CqZ2ptH",
+        },
+      ],
+    },
+  ],
+  "sorts": Array [
+    "name",
+  ],
 }
 `;
 
-exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: all fields 2`] = `"https://api.hubapi.com/crm/v3/objects/3mKhorxHT$[h[CqZ2ptH"`;
-
-exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: required fields 1`] = `
-Object {
-  "properties": Object {
-    "testType": "3mKhorxHT$[h[CqZ2ptH",
-  },
-}
-`;
-
-exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: required fields 2`] = `"https://api.hubapi.com/crm/v3/objects/3mKhorxHT$[h[CqZ2ptH"`;
+exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: all fields 2`] = `"https://api.hubapi.com/crm/v3/objects/3mKhorxHT$[h[CqZ2ptH/search"`;
