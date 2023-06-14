@@ -12,16 +12,13 @@ describe('Cordial.mergeContacts', () => {
     nock.cleanAll()
   })
   it('should work with default mappings', async () => {
-    nock(/api.cordial.io/)
-      .post('/api/segment/mergeContacts')
-      .once()
-      .reply(202, { success: 'success' })
+    nock(/api.cordial.io/).post('/api/segment/mergeContacts').once().reply(202, {success: 'success'})
 
     const event = createTestEvent({
-      anonymousId: '507f191e810c19729de860ea',
-      previousId: '39239-239239-239239-23923',
-      type: 'alias',
-      userId: '507f191e81'
+      "anonymousId": "507f191e810c19729de860ea",
+      "previousId": "39239-239239-239239-23923",
+      "type": "alias",
+      "userId": "507f191e81",
     })
 
     const mapping = {}
@@ -39,13 +36,13 @@ describe('Cordial.mergeContacts', () => {
       useDefaultMappings: true
     })
 
-    expect(responses[0].status).toBe(202)
-    expect(responses[0].data).toMatchObject({ success: 'success' })
+    expect(responses[0].status).toBe(202);
+    expect(responses[0].data).toMatchObject({success: 'success'});
     expect(responses[0].options.json).toMatchObject({
       segmentIdKey: 'segment_id',
       previousId: '39239-239239-239239-23923',
       anonymousId: '507f191e810c19729de860ea',
-      segmentId: '507f191e81'
+      segmentId: '507f191e81',
     })
   })
 })
