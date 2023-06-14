@@ -99,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         coupon: { '@path': '$.properties.coupon' }
       },
       defaultObjectUI: 'keyvalue:only'
-    }
+    },
   },
   perform: (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)
