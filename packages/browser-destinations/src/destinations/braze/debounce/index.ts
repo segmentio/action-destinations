@@ -40,7 +40,7 @@ function shouldSendToBraze(event: SegmentEvent) {
 const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload> = {
   title: 'Debounce Middleware',
   description:
-    'When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent.',
+    'When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent. Debounce functionality requires a frontend client to work. Therefore, it cannot be used with server-side libraries or with Engage.',
   platform: 'web',
   defaultSubscription: 'type = "identify" or type = "group"',
   fields: {},

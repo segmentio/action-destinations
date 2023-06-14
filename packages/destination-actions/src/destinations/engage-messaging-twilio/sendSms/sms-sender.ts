@@ -1,28 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import { MessageSender, RequestFn } from '../utils/message-sender'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { PhoneMessage } from '../utils/phone-message'
 
-const Liquid = new LiquidJs()
+export class SmsMessageSender extends PhoneMessage<Payload> {
+  protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
 
-export class SmsMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined
-  ) {
-    super(request, payload, settings, statsClient, tags, logger)
-  }
+  async getBody(phone: string): Promise<URLSearchParams> {
+    if (!this.payload.body && !this.payload.contentSid) {
+      this.logError(`unable to process, no body provided and no content sid provided - ${this.settings.spaceId}`)
+      throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
+    }
 
-  getExternalId = () => this.payload.externalIds?.find(({ type }) => type === 'phone')
-
-  getBody = async (phone: string) => {
     // TODO: GROW-259 remove this when we can extend the request
     // and we no longer need to call the profiles API first
     let traits
@@ -38,34 +27,52 @@ export class SmsMessageSender extends MessageSender<Payload> {
       traits
     }
 
-    let parsedBody
+    let parsedBody: string
+    let parsedMedia: string[] | undefined = []
 
-    try {
-      parsedBody = await Liquid.parseAndRender(this.payload.body, { profile })
-    } catch (error: unknown) {
-      this.logger?.error(`TE Messaging: SMS templating parse failure - ${this.settings.spaceId} - [${error}]`)
-      throw new IntegrationError(`Unable to parse templating in SMS`, `SMS templating parse failure`, 400)
+    if (this.payload.contentSid) {
+      const data = await this.getContentTemplateTypes()
+      const parsed = await this.parseContent(data, profile)
+      parsedBody = parsed.body
+      parsedMedia = parsed.media
+    } else {
+      const parsed = await this.parseContent(
+        { body: this.payload.body ?? '', media: this.payload.media ?? [] },
+        profile
+      )
+      parsedBody = parsed.body
+      parsedMedia = parsed.media
     }
 
     const body = new URLSearchParams({
       Body: parsedBody,
       From: this.payload.from,
-      To: phone
+      To: phone,
+      ShortenUrls: 'true'
+    })
+
+    parsedMedia?.forEach((media) => {
+      body.append('MediaUrl', media)
     })
 
     return body
   }
 
-  private getProfileTraits = async () => {
+  getChannelType() {
+    return 'sms'
+  }
+
+  isValidExternalId(externalId: NonNullable<Payload['externalIds']>[number]): boolean {
+    if (externalId.type !== 'phone') {
+      return false
+    }
+    return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
+  }
+
+  private async getProfileTraits() {
     if (!this.payload.userId) {
-      this.logger?.error(
-        `TE Messaging: Unable to process SMS, no userId provided and no traits provided - ${this.settings.spaceId}`
-      )
-      throw new IntegrationError(
-        'Unable to process sms, no userId provided and no traits provided',
-        'Invalid parameters',
-        400
-      )
+      this.logError(`Unable to process, no userId provided and no traits provided - ${this.settings.spaceId}`)
+      throw new PayloadValidationError('Unable to process sms, no userId provided and no traits provided')
     }
     try {
       const { region, profileApiEnvironment, spaceId, profileApiAccessToken } = this.settings
@@ -88,7 +95,7 @@ export class SmsMessageSender extends MessageSender<Payload> {
       return body.traits
     } catch (error: unknown) {
       this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
-      this.logger?.error(`TE Messaging: SMS profile traits request failure - ${this.settings.spaceId} - [${error}]`)
+      this.logError(`profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }
   }

@@ -1,173 +1,309 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import type { RequestOptions } from '@segment/actions-core'
+import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
-import type { Payload } from '../sendSms/generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import type { Payload as SmsPayload } from '../sendSms/generated-types'
+import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
+import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { ExecuteInput } from '@segment/actions-core'
+import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
 
-enum SendabilityStatus {
-  NoSenderPhone = 'no_sender_phone',
-  ShouldSend = 'should_send',
-  DoNotSend = 'do_not_send',
-  SendDisabled = 'send_disabled',
-  InvalidSubscriptionStatus = 'invalid_subscription_status'
-}
-
-interface TwilioApiError {
-  response: {
-    data: {
-      code: number
-      message: string
-      more_info: string
-      status: number
-    }
-  }
-}
-
-type SendabilityPayload = { sendabilityStatus: SendabilityStatus; phone: string | undefined }
+const Liquid = new LiquidJs()
 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
-type MinimalPayload = Pick<
-  Payload,
-  'from' | 'toNumber' | 'customArgs' | 'externalIds' | 'traits' | 'send' | 'eventOccurredTS'
->
-
-export abstract class MessageSender<SmsPayload extends MinimalPayload> {
-  private readonly EXTERNAL_ID_KEY = 'phone'
-  private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
-  private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
+export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
+  static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
+  static readonly sendableStatuses = ['subscribed', 'true']
+  protected readonly supportedTemplateTypes: string[]
 
   constructor(
     readonly request: RequestFn,
-    readonly payload: SmsPayload,
+    readonly payload: MessagePayload,
     readonly settings: Settings,
     readonly statsClient: StatsClient | undefined,
     readonly tags: StatsContext['tags'],
-    readonly logger: Logger | undefined
+    readonly logger: Logger | undefined,
+    readonly executeInput: ExecuteInput<Settings, MessagePayload>,
+    readonly logDetails: Record<string, unknown> = {}
   ) {}
 
-  abstract getBody: (phone: string) => Promise<URLSearchParams>
+  abstract getChannelType(): string
+  abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
-  abstract getExternalId: () => NonNullable<MinimalPayload['externalIds']>[number] | undefined
+  async send() {
+    this.initLogDetails()
+    this.tags.push(`channel:${this.getChannelType()}`)
+    this.statsClient?.incr('actions_personas_messaging_twilio.initialize', 1, this.tags)
+    return this.logWrap([`Destination Action`], this.doSend.bind(this))
+  }
 
-  send = async () => {
-    const { phone, sendabilityStatus } = this.getSendabilityPayload()
+  /*
+   * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
+   */
+  async parseContent<R extends Record<string, string | string[] | undefined>>(
+    content: R,
+    profile: Profile
+  ): Promise<R> {
+    try {
+      const parsedEntries = await Promise.all(
+        Object.entries(content).map(async ([key, val]) => {
+          if (val == null) {
+            return [key, val]
+          }
 
-    if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
-      return
+          if (Array.isArray(val)) {
+            val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
+          } else {
+            val = await Liquid.parseAndRender(val, { profile })
+          }
+          return [key, val]
+        })
+      )
+
+      return Object.fromEntries(parsedEntries)
+    } catch (error: unknown) {
+      this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
+      this.logError(`unable to parse templating - ${this.settings.spaceId}`)
+      this.tags.push('reason:invalid_liquid')
+      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+      throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
+    }
+  }
+
+  redactPii(pii: string | undefined) {
+    if (!pii) {
+      return pii
     }
 
-    const body = await this.getBody(phone)
+    if (pii.length <= 8) {
+      return '***'
+    }
+    return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
+  }
 
-    const webhookUrlWithParams = this.getWebhookUrlWithParams(phone)
-
-    if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
-
-    const twilioHostname = this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
-    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-      'base64'
+  logInfo(...msgs: string[]) {
+    const [firstMsg, ...rest] = msgs
+    this.logger?.info(
+      `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
+      ...rest,
+      JSON.stringify(this.logDetails)
     )
-    try {
-      const response = await this.request(
-        `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
-        {
-          method: 'POST',
-          headers: {
-            authorization: `Basic ${twilioToken}`
-          },
-          body
-        }
-      )
-      this.tags.push(`twilio_status_code:${response.status}`)
-      this.statsClient?.incr('actions-personas-messaging-twilio.response', 1, this.tags)
+  }
 
-      if (this.payload.eventOccurredTS != undefined) {
-        this.statsClient?.histogram(
-          'actions-personas-messaging-twilio.eventDeliveryTS',
-          Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-          this.tags
-        )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logError(error?: any, ...msgs: string[]) {
+    const [firstMsg, ...rest] = msgs
+    if (typeof error === 'string') {
+      this.logger?.error(
+        `TE Messaging: ${this.getChannelType().toUpperCase()} ${error}`,
+        ...msgs,
+        JSON.stringify(this.logDetails)
+      )
+    } else {
+      this.logger?.error(
+        `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
+        ...rest,
+        error instanceof Error ? error.message : error?.toString(),
+        JSON.stringify(this.logDetails)
+      )
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static isPromise<T = unknown>(obj: unknown): obj is Promise<T> {
+    // `obj instanceof Promise` is not reliable since it can be a custom promise object from fetch lib
+    //https://stackoverflow.com/questions/27746304/how-to-check-if-an-object-is-a-promise
+
+    // for whatever reason it gave me error "Property 'then' does not exist on type 'never'." so i have to use ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return obj instanceof Object && 'then' in obj && typeof obj.then === 'function'
+  }
+
+  logWrap<R = void>(messages: string[], fn: () => R): R {
+    this.logInfo('Starting: ', ...messages)
+    try {
+      const res = fn()
+      if (MessageSender.isPromise(res)) {
+        return (async () => {
+          try {
+            const promisedRes = await res
+            this.logInfo('Success: ', ...messages)
+            return promisedRes
+          } catch (error: unknown) {
+            this.logError(error, 'Failed: ', ...messages)
+            throw error
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        })() as any as R // cast to R otherwise ts is not happy
       }
-      return response
+      this.logInfo('Success: ', ...messages)
+      return res
     } catch (error: unknown) {
-      if (error instanceof Object) {
-        const twilioApiError = error as TwilioApiError
-        this.logger?.error(
-          `TE Messaging: Twilio Programmable API error - ${this.settings.spaceId} - [${JSON.stringify(
-            twilioApiError.response.data
-          )}]`
-        )
-        const errorCode = twilioApiError.response.data.code
-        if (errorCode === 63018) {
-          // Exceeded WhatsApp rate limit
-          this.statsClient?.incr('actions-personas-messaging-twilio.rate-limited', 1, this.tags)
-        }
-      }
-      // Bubble the error to integrations
+      this.logError(error, 'Failed: ', ...messages)
       throw error
     }
   }
 
-  private getSendabilityPayload = (): SendabilityPayload => {
-    const nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false']
-    const sendableStatuses = ['subscribed', 'true']
-    const externalId = this.getExternalId()
+  /**
+   * populate the logDetails object with the data that should be logged for every message
+   */
+  initLogDetails() {
+    //overrideable
+    Object.assign(this.logDetails, {
+      externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
+      shouldSend: this.payload.send,
+      contentSid: this.payload.contentSid,
+      sourceId: this.settings.sourceId,
+      spaceId: this.settings.spaceId,
+      twilioApiKeySID: this.settings.twilioApiKeySID,
+      region: this.settings.region,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messageId: (this.executeInput as any)['rawData']?.messageId, // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
+      channelType: this.getChannelType()
+    })
+    if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
+  }
 
-    let status: SendabilityStatus
+  async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
+    let template
+    try {
+      if (!this.payload.contentSid) {
+        throw new PayloadValidationError('Content SID not in payload')
+      }
 
-    if (!this.payload.send) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
-      return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
+      const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+        'base64'
+      )
+      const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
+        method: 'GET',
+        headers: {
+          authorization: `Basic ${twilioToken}`
+        }
+      })
+
+      template = (await response.json()) as ContentTemplateResponse
+    } catch (error) {
+      this.tags.push('reason:get_content_template')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1, this.tags)
+      this.logError(
+        `failed request to fetch content template from Twilio Content API - ${
+          this.settings.spaceId
+        } - ${error}, ${JSON.stringify(error)})}`
+      )
+      throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     }
 
-    if (!externalId?.subscriptionStatus || nonSendableStatuses.includes(externalId.subscriptionStatus)) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.notsubscribed', 1, this.tags)
-      status = SendabilityStatus.DoNotSend
-    } else if (sendableStatuses.includes(externalId.subscriptionStatus)) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.subscribed', 1, this.tags)
-      status = SendabilityStatus.ShouldSend
-    } else {
-      this.statsClient?.incr('actions-personas-messaging-twilio.twilio-error', 1, this.tags)
+    return this.extractTemplateTypes(template)
+  }
+
+  private extractTemplateTypes(template: ContentTemplateResponse): ContentTemplateTypes {
+    if (!template.types) {
+      this.logError(
+        `template from Twilio Content API does not contain a template type - ${
+          this.settings.spaceId
+        } - [${JSON.stringify(template)}]`
+      )
+      this.tags.push('reason:invalid_template_type')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
       throw new IntegrationError(
-        `Failed to recognize the subscriptionStatus in the payload: "${externalId.subscriptionStatus}".`,
-        'Invalid subscriptionStatus value',
+        'Template from Twilio Content API does not contain any template types',
+        `NO_CONTENT_TYPES`,
         400
       )
     }
 
-    const phone = this.payload.toNumber || externalId?.id
-    if (!phone) {
-      status = SendabilityStatus.NoSenderPhone
+    const type = Object.keys(template.types)[0] // eg 'twilio/text', 'twilio/media', etc
+    if (this.supportedTemplateTypes.includes(type)) {
+      return { body: template.types[type].body, media: template.types[type].media }
+    } else {
+      this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
+      this.tags.push('reason:invalid_template_type')
+      this.statsClient?.incr('actions_personas_messaging_twilio.error', 1)
+      throw new IntegrationError(
+        `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
+        'UNSUPPORTED_CONTENT_TYPE',
+        400
+      )
     }
-
-    return { sendabilityStatus: status, phone }
   }
 
-  private getWebhookUrlWithParams = (phone: string): string | null => {
+  getWebhookUrlWithParams(
+    externalIdType?: string,
+    externalIdValue?: string,
+    defaultConnectionOverrides = 'rp=all&rc=5'
+  ): string | null {
     const webhookUrl = this.settings.webhookUrl
     const connectionOverrides = this.settings.connectionOverrides
     const customArgs: Record<string, string | undefined> = {
       ...this.payload.customArgs,
       space_id: this.settings.spaceId,
-      __segment_internal_external_id_key__: this.EXTERNAL_ID_KEY,
-      __segment_internal_external_id_value__: phone
+      __segment_internal_external_id_key__: externalIdType,
+      __segment_internal_external_id_value__: externalIdValue
+    }
+
+    if ('userId' in this.payload) {
+      customArgs.user_id = this.payload.userId || ''
     }
 
     if (webhookUrl && customArgs) {
       // Webhook URL parsing has a potential of failing. I think it's better that
       // we fail out of any invocation than silently not getting analytics
       // data if that's what we're expecting.
-      const webhookUrlWithParams = new URL(webhookUrl)
-      for (const key of Object.keys(customArgs)) {
-        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+      // let webhookUrlWithParams: URL | null = null
+
+      try {
+        const webhookUrlWithParams = new URL(webhookUrl)
+
+        for (const key of Object.keys(customArgs)) {
+          webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
+        }
+
+        webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
+        return webhookUrlWithParams.toString()
+      } catch (error: unknown) {
+        this.logDetails['webhook-custom-args'] = this.payload.customArgs
+        this.logError(`invalid webhook url - ${this.settings.spaceId}`)
+        throw new PayloadValidationError('Invalid webhook url arguments')
       }
-
-      webhookUrlWithParams.hash = connectionOverrides || this.DEFAULT_CONNECTION_OVERRIDES
-
-      return webhookUrlWithParams.toString()
     }
 
     return null
+  }
+
+  logTwilioError(error: unknown, apiName = 'Twilio Programmable API'): unknown {
+    let errorToRethrow = error
+    if (error instanceof Object) {
+      const twilioApiError = error as TwilioApiError
+      this.logDetails['twilioApiError_response_data'] = twilioApiError.response?.data
+      this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
+      this.logDetails['error'] = twilioApiError.response
+
+      this.logError(`${apiName} error - ${this.settings.spaceId}`)
+      const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
+      this.tags.push(`twilio_status_code:${statusCode}`)
+      this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+
+      if (!twilioApiError.status) {
+        //to handle error properly by Centrifuge
+        errorToRethrow = new IntegrationError(
+          twilioApiError.response?.data?.message || twilioApiError.message,
+          (twilioApiError.response?.data?.code || statusCode)?.toString() || 'Twilio Api Request Error',
+          statusCode
+        )
+      }
+
+      const errorCode = twilioApiError.response?.data?.code
+      if (errorCode === 63018 || statusCode === 429) {
+        // Exceeded WhatsApp rate limit
+        this.statsClient?.incr('actions_personas_messaging_twilio.rate_limited', 1, this.tags)
+      }
+    }
+    return errorToRethrow
+  }
+
+  throwTwilioError(error: unknown, apiName = 'Twilio Programmable API') {
+    throw this.logTwilioError(error, apiName)
   }
 }

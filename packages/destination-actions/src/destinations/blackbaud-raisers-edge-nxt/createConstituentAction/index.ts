@@ -32,38 +32,53 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
       { label: 'Mailing', value: 'Mailing' },
       { label: 'Email', value: 'Email' },
       { label: 'Task/Other', value: 'Task/Other' }
-    ]
+    ],
+    default: {
+      '@path': '$.properties.category'
+    }
   },
   completed: {
     label: 'Completed',
     description: 'Indicates whether the action is complete.',
-    type: 'boolean'
+    type: 'boolean',
+    default: {
+      '@path': '$.properties.completed'
+    }
   },
   completed_date: {
     label: 'Completed Date',
     description: 'The date when the action was completed in ISO-8601 format.',
-    type: 'datetime'
+    type: 'datetime',
+    default: {
+      '@path': '$.properties.completedDate'
+    }
   },
   description: {
     label: 'Description',
     description: 'The detailed explanation that elaborates on the action summary.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.description'
+    }
   },
   direction: {
     label: 'Direction',
-    description: 'The direction of the action. Available values are "Inbound" and "Outbound". The default is Inbound.',
+    description: 'The direction of the action. Available values are "Inbound" and "Outbound".',
     type: 'string',
-    default: 'Inbound',
     choices: [
       { label: 'Inbound', value: 'Inbound' },
       { label: 'Outbound', value: 'Outbound' }
-    ]
+    ],
+    default: 'Inbound'
   },
   end_time: {
     label: 'End Time',
     description:
       'The end time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.endTime'
+    }
   },
   fundraisers: {
     label: 'Fundraisers',
@@ -74,7 +89,10 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
   location: {
     label: 'Location',
     description: 'The location of the action. Available values are the entries in the Action Locations table.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.location'
+    }
   },
   opportunity_id: {
     label: 'Opportunity ID',
@@ -88,47 +106,66 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
     choices: [
       { label: 'Successful', value: 'Successful' },
       { label: 'Unsuccessful', value: 'Unsuccessful' }
-    ]
+    ],
+    default: {
+      '@path': '$.properties.outcome'
+    }
   },
   priority: {
     label: 'Priority',
-    description: 'The priority of the action. Available values are Normal, High, and Low. The default is Normal.',
+    description: 'The priority of the action. Available values are Normal, High, and Low.',
     type: 'string',
-    default: 'Normal',
     choices: [
       { label: 'High', value: 'High' },
       { label: 'Low', value: 'Low' },
       { label: 'Normal', value: 'Normal' }
-    ]
+    ],
+    default: 'Normal'
   },
   start_time: {
     label: 'Start Time',
     description:
       'The start time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.startTime'
+    }
   },
   status: {
     label: 'Status',
     description:
       'The action status. If the system is configured to use custom action statuses, available values are the entries in the Action Status table.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.status'
+    }
   },
   summary: {
     label: 'Summary',
-    description: 'The short description of the action that appears at the top of the record. Character limit: 255.',
-    type: 'string'
+    description:
+      'The short description of the action that appears at the top of the record. Limited to 255 characters.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.summary'
+    }
   },
   type: {
     label: 'Type',
     description:
       'Additional description of the action to complement the category. Available values are the entries in the Actions table.',
-    type: 'string'
+    type: 'string',
+    default: {
+      '@path': '$.properties.type'
+    }
   },
   author: {
     label: 'Author',
     description:
-      "The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Character limit: 50.",
-    type: 'string'
+      "The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Limited to 50 characters.",
+    type: 'string',
+    default: {
+      '@path': '$.properties.author'
+    }
   }
 })
 

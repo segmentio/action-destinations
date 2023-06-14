@@ -4,14 +4,22 @@
 // import { Settings } from '../../generated-types'
 import nock from 'nock'
 import { preChecksAndMaint, createSegmentEventsTable, checkRTExist } from '../tablemaintutilities'
+import { getAuthCreds, getEventTableListId, getAccessToken, doPOST } from '../tablemaintutilities'
+
+//import { IntegrationError, OAuth2ClientCredentials, RefreshAccessTokenResult, RetryableError } from '@segment/actions-core'
+//import { RequestClient } from '@segment/actions-core'
+//import { Settings } from '../generated-types'
+//import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
 jest.mock('@segment/actions-core')
 jest.mock('@segment/actions-core')
 jest.mock('lodash/get')
+jest.mock('@segment/actions-core/src/destination-kit/parse-settings')
 jest.mock('../../generated-types')
+//jest.mock('../generated-types');
 
-const ap = nock('https://api-campaign-us-2.goacoustic.com').post('/XMLAPI').reply(200)
-ap.isDone
+const accessPoint = nock('https://api-campaign-us-2.goacoustic.com').post('/XMLAPI').reply(200)
+accessPoint.isDone
 
 describe('preChecksAndMaint', () => {
   it('should be present', () => {
@@ -82,5 +90,46 @@ describe('checkRTExist', () => {
     checkResult.isDone
 
     expect(checkRTExist).toMatchSnapshot()
+  })
+})
+
+describe('getAuthCreds', () => {
+  it('should expose a function', () => {
+    expect(getAuthCreds).toBeDefined()
+  })
+
+  it('getAuthCreds should return expected output', () => {
+    // const retValue = getAuthCreds();
+    expect(false) //.toBeTruthy();
+  })
+})
+describe('getEventTableListId', () => {
+  it('should expose a function', () => {
+    expect(getEventTableListId).toBeDefined()
+  })
+
+  it('getEventTableListId should return expected output', () => {
+    // const retValue = getEventTableListId();
+    expect(false) //.toBeTruthy();
+  })
+})
+describe('getAccessToken', () => {
+  it('should expose a function', () => {
+    expect(getAccessToken).toBeDefined()
+  })
+
+  it('getAccessToken should return expected output', async () => {
+    // const retValue = await getAccessToken(request,settings);
+    expect(false) //.toBeTruthy();
+  })
+})
+describe('doPOST', () => {
+  it('should expose a function', () => {
+    expect(doPOST).toBeDefined()
+  })
+
+  it('doPOST should return expected output', async () => {
+    // const retValue = await doPOST(request,settings,auth,body,action);
+    expect(false) //.toBeTruthy();
   })
 })

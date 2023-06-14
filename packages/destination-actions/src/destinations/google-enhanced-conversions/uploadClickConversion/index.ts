@@ -2,7 +2,15 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CartItem, PartialErrorResponse } from '../types'
-import { formatCustomVariables, hash, getCustomVariables, handleGoogleErrors, convertTimestamp } from '../functions'
+import {
+  formatCustomVariables,
+  hash,
+  getCustomVariables,
+  handleGoogleErrors,
+  convertTimestamp,
+  getApiVersion,
+  isHashedEmail
+} from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -179,7 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
+  perform: async (request, { auth, settings, payload, features, statsContext }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
@@ -222,7 +230,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       if (customVariableIds?.data?.length) {
         request_object.customVariables = formatCustomVariables(
           payload.custom_variables,
@@ -232,7 +240,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+      request_object.userIdentifiers.push({
+        hashedEmail: isHashedEmail(payload.email_address) ? payload.email_address : hash(payload.email_address)
+      })
     }
 
     if (payload.phone_number) {
@@ -240,7 +250,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/v12/customers/${settings.customerId}:uploadClickConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadClickConversions`,
       {
         method: 'post',
         headers: {

@@ -74,6 +74,10 @@ export interface Payload {
    */
   groupId?: string
   /**
+   * Send email without subscription check
+   */
+  byPassSubscription?: boolean
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
