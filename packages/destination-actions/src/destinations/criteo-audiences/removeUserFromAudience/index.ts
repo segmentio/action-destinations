@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 
+
 const getOperationFromPayload = async (
   request: RequestClient,
   advertiser_id: string,
@@ -17,7 +18,8 @@ const getOperationFromPayload = async (
   for (const event of payload) {
     let email = undefined
 
-    if (!audience_key && event.audience_key) audience_key = event.audience_key
+    if (!audience_key && event.audience_key)
+      audience_key = event.audience_key
 
     email = event.hash_emails ? hash(event.email) : event.email
     if (email) remove_user_list.push(email)
@@ -26,19 +28,24 @@ const getOperationFromPayload = async (
   const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
 
   const operation: Operation = {
-    operation_type: 'remove',
+    operation_type: "remove",
     audience_id: audience_id,
-    user_list: remove_user_list
+    user_list: remove_user_list,
   }
-  return operation
+  return operation;
 }
 
-const processPayload = async (request: RequestClient, settings: Settings, payload: Payload[]): Promise<Response> => {
+const processPayload = async (
+  request: RequestClient,
+  settings: Settings,
+  payload: Payload[]
+): Promise<Response> => {
+
   const credentials: ClientCredentials = {
     client_id: settings.client_id,
     client_secret: settings.client_secret
   }
-  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials)
+  const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
   return await patchAudience(request, operation, credentials)
 }
 
@@ -49,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     audience_key: {
       label: 'Audience key',
-      description: 'Unique name for personas audience',
+      description: "Unique name for personas audience",
       type: 'string',
       default: {
         '@path': '$.properties.audience_key'
@@ -57,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event: {
       label: 'Event name',
-      description: 'Event for audience entering or exiting',
+      description: "Event for audience entering or exiting",
       type: 'string',
       default: {
         '@path': '$.event'
@@ -74,12 +81,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     hash_emails: {
       label: 'Hash Emails',
-      description:
-        "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+      description: "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
       type: 'boolean',
       default: false,
       required: false
-    }
+    },
   },
   perform: async (request, { settings, payload }) => {
     return await processPayload(request, settings, [payload])
@@ -88,5 +94,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return await processPayload(request, settings, payload)
   }
 }
+
 
 export default action
