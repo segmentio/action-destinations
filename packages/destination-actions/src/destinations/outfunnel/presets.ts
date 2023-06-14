@@ -1,9 +1,9 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core';
+import { defaultValues } from '@segment/actions-core';
 
-import forwardTrackEvent from './forwardTrackEvent'
-import forwardIdentifyEvent from './forwardIdentifyEvent'
-import forwardGroupEvent from './forwardGroupEvent'
+import forwardTrackEvent from './forwardTrackEvent';
+import forwardIdentifyEvent from './forwardIdentifyEvent';
+import forwardGroupEvent from './forwardGroupEvent';
 
 export const presets: DestinationDefinition['presets'] = [
   {
@@ -24,4 +24,4 @@ export const presets: DestinationDefinition['presets'] = [
     partnerAction: 'forwardGroupEvent',
     mapping: defaultValues(forwardGroupEvent.fields)
   }
-]
+];
