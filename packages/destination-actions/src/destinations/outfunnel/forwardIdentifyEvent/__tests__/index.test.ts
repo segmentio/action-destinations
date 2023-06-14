@@ -11,7 +11,10 @@ describe('Outfunnel.forwardIdentifyEvent', () => {
   it('should forward identify event to outfunnel', async () => {
     const event = createTestEvent({ type: 'identify', traits: { name: 'example user', email: 'user@example.com' } })
 
-    nock(endpoint).post(`/events/segment/${userId}`).query(true).reply(200, { success: true })
+    nock(endpoint)
+      .post(`/events/segment/${userId}`)
+      .query(true)
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('forwardIdentifyEvent', {
       settings: { userId, apiToken },
