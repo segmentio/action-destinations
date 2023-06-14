@@ -26,19 +26,28 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
   return $.html()
 }
 
-const insertUnsubscribeLinks = (html: string, emailProfile: any, groupId?: string): string => {
+const insertUnsubscribeLinks = (
+  html: string,
+  emailProfile: any,
+  groupId?: string,
+  logger?: Logger | undefined
+): string => {
   const globalUnsubscribeLink = emailProfile?.unsubscribeLink
   const preferencesLink = emailProfile?.preferencesLink
   const unsubscribeLinkTag = '[ups_unsubscribe_link]'
   const preferencesLinkTag = '[ups_preferences_link]'
+  logger?.error(`TE Messaging: Email profile- ${JSON.stringify(emailProfile)}`)
   let updatedHtml = html
   if (groupId && groupId != '') {
     const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
     const groupUnsubscribeLink = group?.groupUnsubscribeLink
+    logger?.error(`TE Messaging: Email group unsubscribe link is - ${groupUnsubscribeLink}`)
     updatedHtml = html.replace(unsubscribeLinkTag, groupUnsubscribeLink)
   } else {
+    logger?.error(`TE Messaging: Email global unsubscribe link is - ${globalUnsubscribeLink}`)
     updatedHtml = html.replace(unsubscribeLinkTag, globalUnsubscribeLink)
   }
+  logger?.error(`TE Messaging: Email preferences link is - ${preferencesLink}`)
   updatedHtml = updatedHtml.replace(preferencesLinkTag, preferencesLink)
   return updatedHtml
 }
@@ -275,7 +284,7 @@ const attemptEmailDelivery = async (
     parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
   }
 
-  parsedBodyHtml = insertUnsubscribeLinks(parsedBodyHtml, emailProfile, payload.groupId)
+  parsedBodyHtml = insertUnsubscribeLinks(parsedBodyHtml, emailProfile, payload.groupId, logger)
 
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
