@@ -17,4 +17,12 @@ export interface Payload {
    * The user ID of the user to assign the work to.
    */
   assignTo: string
+  /**
+   * The priority of the work to create.
+   */
+  priority: string
+  /**
+   * The type of the work to create.
+   */
+  type: string
 }

@@ -58,7 +58,9 @@ export const createWorkParams = (
   partId: string,
   title: string,
   description: string,
-  assignTo?: string
+  assignTo?: string,
+  priority = 'p2',
+  type = 'issue'
 ): RequestParams => {
   const reqParams = postRequestParams(settings, 'works.create')
   reqParams.options.json = {
@@ -66,7 +68,8 @@ export const createWorkParams = (
     title,
     body: description,
     owned_by: [assignTo],
-    type: 'issue'
+    type,
+    priority
   }
   return reqParams
 }

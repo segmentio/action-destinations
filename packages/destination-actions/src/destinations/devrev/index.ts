@@ -19,6 +19,14 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
+    extendRequest: (request, { settings }) => {
+      return {
+        headers: {
+          Authorization: settings.apiKey,
+          'Content-Type': 'application/json'
+        }
+      }
+    },
     testAuthentication: (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
