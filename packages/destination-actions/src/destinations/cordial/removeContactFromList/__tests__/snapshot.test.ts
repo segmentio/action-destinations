@@ -27,10 +27,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     // static anonId
-    event.anonymousId = '4251ed2f-f91d-4805-8a5b-a8a575439604'
+    event.anonymousId = "4251ed2f-f91d-4805-8a5b-a8a575439604"
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' }
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -67,10 +67,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     })
 
     // static anonId
-    event.anonymousId = 'f91d0805-0a5b-48a5-b543-96045ce7049a'
+    event.anonymousId = "f91d0805-0a5b-48a5-b543-96045ce7049a"
 
     const mapping = {
-      userIdentities: { 'channels.email.address': 'contact@example.com' }
+      userIdentities: {'channels.email.address': 'contact@example.com'}
     }
 
     const responses = await testDestination.testAction(actionSlug, {
