@@ -1317,6 +1317,95 @@ describe.each([
         `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
       )
     })
+
+    it('should send email to group with group unsubscribe and preference link', async () => {
+      const bodyHtml =
+        '<p>Hi First Name, welcome to Segment</p> <a href="[ups_unsubscribe_link]">Unsubscribe</a> | <a href="[ups_preferences_link]">Manage Preferences</a>'
+      const replacedHtmlWithLink =
+        '<p>Hi First Name, welcome to Segment</p> <a href="http://group_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a>'
+
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              id: userData.email,
+              type: 'email',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              unsubscribeLink: '',
+              preferencesLink: 'http://preferences_link',
+              groups: [{ id: 'grp_1', isSubscribed: true, groupUnsubscribeLink: 'http://group_unsubscribe_link' }]
+            }
+          ]
+        }),
+        settings: {
+          ...settings
+        },
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html',
+          groupId: 'grp_1'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
   })
 
   describe('get profile traits', () => {
