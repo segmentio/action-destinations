@@ -11,7 +11,10 @@ describe('Outfunnel.forwardTrackEvent', () => {
   it('should forward track event to outfunnel', async () => {
     const event = createTestEvent({ groupId: 'abc', traits: { name: 'John Doe', email: 'user@example.com' } })
 
-    nock(endpoint).post(`/events/segment/${userId}`).query(true).reply(200, { success: true })
+    nock(endpoint)
+      .post(`/events/segment/${userId}`)
+      .query(true)
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('forwardTrackEvent', {
       settings: { userId, apiToken },

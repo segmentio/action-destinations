@@ -7,7 +7,10 @@ const testDestination = createTestIntegration(Definition)
 describe('Outfunnel', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://api-pls.outfunnel.com').get('/v1/user').query(true).reply(200, {})
+      nock('https://api-pls.outfunnel.com')
+        .get('/v1/user')
+        .query(true)
+        .reply(200, {})
 
       // This should match your authentication.fields
       const authData = {
