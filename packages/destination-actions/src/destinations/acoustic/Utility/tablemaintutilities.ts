@@ -133,7 +133,7 @@ export async function doPOST(
       resultTxt = ''
     }
   } catch (e) {
-    throw (new IntegrationError(`Unexpected Request Exception \n${e}`), 'UNEXPECTED_REQUEST_EXCEPTION', 400)
+    throw new IntegrationError(`Unexpected Request Exception \n${e}`, 'UNEXPECTED_REQUEST_EXCEPTION', 400)
   }
   return resultTxt
 }
