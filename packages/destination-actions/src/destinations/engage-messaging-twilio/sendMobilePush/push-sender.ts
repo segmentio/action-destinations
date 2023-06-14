@@ -148,7 +148,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
         failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id) })
         this.logDetails['failed-recipient-devices'] = failedSends
-        this.logTwilioError(error, 'Twilio Push API')
+        this.getRethrowableError(error, 'Twilio Push API')
       }
     }
 

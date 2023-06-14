@@ -74,7 +74,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
       return response
     } catch (error: unknown) {
-      this.throwTwilioError(error)
+      this.rethrowError(error)
     }
   }
 
