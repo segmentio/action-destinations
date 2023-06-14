@@ -106,6 +106,7 @@ register('6470d73d82dfbc7129fc5975', './noop')
 register('6475c5c14f7db4914bcd512f', './airship')
 register('647f2f7ce3b561ab931c2b77', './ambee')
 register('647f30a35eedd03afde0a1c3', './userpilot')
+register('6489bbade6fe3eb57c13bd6a', './canny-functions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
