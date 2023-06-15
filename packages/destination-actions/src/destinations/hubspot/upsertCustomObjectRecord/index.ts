@@ -131,7 +131,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // If Create New custom record flag is set to false, skip creation
       if (!payload.createNewCustomRecord) {
-        return
+        return 'No record found to update and if create new custom record flag is false, will skip creation of new record'
       }
       upsertCustomRecordResponse = await createCustomRecord(request, payload.objectType, payload.properties)
     } else {
