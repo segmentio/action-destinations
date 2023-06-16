@@ -329,8 +329,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // Create a wrapper function which calls createCompany and returns the response
-        const createCompanyWrapper = function () {
-          return hubspotApiClient.create(request, objectType, companyProperties)
+        const createCompanyWrapper = async function () {
+          return await hubspotApiClient.create(request, objectType, companyProperties)
         }
 
         companyId = await upsertCompanyWithRetry(request, createCompanyWrapper)
@@ -344,8 +344,8 @@ const action: ActionDefinition<Settings, Payload> = {
         companyId = searchCompanyResponse.data.results[0].id
 
         // Create a wrapper function which calls updateCompany and returns the response
-        const updateCompanyWrapper = function () {
-          return hubspotApiClient.update(request, objectType, companyId, companyProperties)
+        const updateCompanyWrapper = async function () {
+          return await hubspotApiClient.update(request, objectType, companyId, companyProperties)
         }
 
         await upsertCompanyWithRetry(request, updateCompanyWrapper)

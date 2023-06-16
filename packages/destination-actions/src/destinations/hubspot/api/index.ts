@@ -75,7 +75,7 @@ export class Hubspot {
     idProperty?: string
   ) {
     // Construct the URL to update record of given objectType
-    // URL to update record by ID: /crm/v3/objects/{objectType}/{companyId}
+    // URL to update record by ID: /crm/v3/objects/{objectType}/{objectId}
     // URL to update record by unique property: /crm/v3/objects/{objectType}/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
     const updateURL =
       `${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/${uniqueIdentifier}` +
