@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * If true, Segment will attempt to update an existing custom record in HubSpot and if no record is found, Segment will create a new custom record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.
+   * If true, Segment will attempt to update an existing custom object record in HubSpot and if no record is found, Segment will create a new custom object record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.
    */
-  createNewCustomRecord: boolean
+  createNewCustomRecord?: boolean
   /**
    * The unique field(s) used to search for an existing record in HubSpot to update. The fields provided here are then used to search. If a custom object is still not found, a new one is created.
    */

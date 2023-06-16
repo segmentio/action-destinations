@@ -4,9 +4,10 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { CustomSearchThrowableError, HubSpotError, MultipleCustomRecordsInSearchResultThrowableError } from '../errors'
-import { flattenObject } from '../helperFunctions'
+import { flattenObject, SearchPayload, SearchResponse, UpsertRecordResponse } from '../utils'
 import { ModifiedResponse } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
+import { Hubspot } from '../api'
 
 interface ObjectSchema {
   labels: { singular: string; plural: string }
@@ -16,50 +17,6 @@ interface ObjectSchema {
 interface GetSchemasResponse {
   results: ObjectSchema[]
 }
-interface CustomInfo {
-  id: string
-  properties: Record<string, string>
-}
-
-interface SearchCustomResponse {
-  total: number
-  results: CustomInfo[]
-}
-
-enum CustomSearchFilterOperator {
-  EQ = 'EQ',
-  NEQ = 'NEQ',
-  LT = 'LT',
-  LTE = 'LTE',
-  GT = 'GT',
-  GTE = 'GTE',
-  BETWEEN = 'BETWEEN',
-  IN = 'IN',
-  NOT_IN = 'NOT_IN',
-  HAS_PROPERTY = 'HAS_PROPERTY',
-  NOT_HAS_PROPERTY = 'NOT_HAS_PROPERTY',
-  CONTAINS_TOKEN = 'CONTAINS_TOKEN',
-  NOT_CONTAINS_TOKEN = 'NOT_CONTAINS_TOKEN'
-}
-
-interface CustomSearchFilter {
-  propertyName: string
-  operator: CustomSearchFilterOperator
-  value: unknown
-}
-
-interface customSearchFilterGroup {
-  filters: CustomSearchFilter[]
-}
-interface CustomSearchPayload {
-  filterGroups: customSearchFilterGroup[]
-  properties?: string[]
-  sorts?: string[]
-  limit?: number
-  after?: number
-}
-
-interface UpsertCustomRecordResponse extends CustomInfo {}
 
 // slug name - upsertCustomObjectRecord. We will be introducing upsert logic soon.
 // To avoid slug name changes in future, naming it as upsertCustomObjectRecord straight away.
@@ -68,11 +25,10 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Upsert records of Deals, Tickets or other Custom Objects in HubSpot.',
   fields: {
     createNewCustomRecord: {
-      label: 'Create Custom Record if Not Found',
+      label: 'Create Custom Object Record if Not Found',
       description:
-        'If true, Segment will attempt to update an existing custom record in HubSpot and if no record is found, Segment will create a new custom record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.',
+        'If true, Segment will attempt to update an existing custom object record in HubSpot and if no record is found, Segment will create a new custom object record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.',
       type: 'boolean',
-      required: true,
       default: true
     },
     customSearchFields: {
@@ -108,10 +64,23 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     // Attempt to search Custom Object record with Custom Search Fields
     // If Custom Search Fields doesn't have any defined property, skip the search and assume record was not found
-    let searchCustomResponse: ModifiedResponse<SearchCustomResponse> | null = null
+    let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
+    const hubspotApiClient: Hubspot = new Hubspot(request)
     if (typeof payload.customSearchFields === 'object' && Object.keys(payload.customSearchFields).length > 0) {
       try {
-        searchCustomResponse = await searchCustomRecord(request, payload.objectType, { ...payload.customSearchFields })
+        // Generate custom search payload
+        const responseSortBy: string[] = ['name']
+
+        const customSearchPayload: SearchPayload = {
+          filterGroups: [],
+          sorts: [...responseSortBy]
+        }
+        searchCustomResponse = await hubspotApiClient.search(
+          request,
+          payload.objectType,
+          { ...payload.customSearchFields },
+          customSearchPayload
+        )
       } catch (e) {
         // HubSpot throws a generic 400 error if an undefined property is used in search
         // Throw a more informative error instead
@@ -121,26 +90,27 @@ const action: ActionDefinition<Settings, Payload> = {
         throw e
       }
     }
-    // Store custom Record Id in parent scope
-    // This would be used to store custom record Id after search or create.
-    let upsertCustomRecordResponse: ModifiedResponse<UpsertCustomRecordResponse>
-    // Check if any custom record were found based Custom Search Fields
+    // Store Custom Object Record Id in parent scope
+    // This would be used to store custom object record Id after search or create.
+    let upsertCustomRecordResponse: ModifiedResponse<UpsertRecordResponse>
+    // Check if any custom object record were found based Custom Search Fields
     // If the search was skipped, searchCustomResponse would have a falsy value (null)
     if (!searchCustomResponse || !searchCustomResponse.data || searchCustomResponse?.data?.total === 0) {
-      // No existing custom record found with search criteria, attempt to create a new custom record
+      // No existing custom object record found with search criteria, attempt to create a new custom object record
 
-      // If Create New custom record flag is set to false, skip creation
+      // If Create New custom object record flag is set to false, skip creation
       if (!payload.createNewCustomRecord) {
-        return 'No record found to update and if create new custom record flag is false, will skip creation of new record'
+        return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
-      upsertCustomRecordResponse = await createCustomRecord(request, payload.objectType, payload.properties)
+      const properties = { ...flattenObject(payload.properties) }
+      upsertCustomRecordResponse = await hubspotApiClient.create(request, payload.objectType, properties)
     } else {
       // Throw error if more than one custom object record were found with search criteria
       if (searchCustomResponse?.data?.total > 1) {
         throw MultipleCustomRecordsInSearchResultThrowableError
       }
       // An existing Custom object record was identified, attempt to update the same record
-      upsertCustomRecordResponse = await updateCustomRecord(
+      upsertCustomRecordResponse = await hubspotApiClient.update(
         request,
         payload.objectType,
         searchCustomResponse.data.results[0].id,
@@ -181,87 +151,6 @@ async function getCustomObjects(request: RequestClient) {
       }
     }
   }
-}
-
-/**
- * Searches for a custom object record by custom search fields
- * @param {RequestClient} request RequestClient instance
- * @param {String} objectType - ObjecType Identifier
- * @param {{[key: string]: unknown}} customSearchFields A list of key-value pairs of unique properties to identify a custom record
- * @returns {Promise<ModifiedResponse<SearchCustomResponse>>} A promise that resolves to a list of custom records matching the search criteria
- */
-function searchCustomRecord(
-  request: RequestClient,
-  objectType: string,
-  customSearchFields: { [key: string]: unknown }
-) {
-  // Generate custom search payload
-  const responseSortBy: string[] = ['name']
-
-  const customSearchPayload: CustomSearchPayload = {
-    filterGroups: [],
-    sorts: [...responseSortBy]
-  }
-
-  for (const [key, value] of Object.entries(customSearchFields)) {
-    customSearchPayload.filterGroups.push({
-      filters: [
-        {
-          propertyName: key,
-          operator: CustomSearchFilterOperator.EQ,
-          value
-        }
-      ]
-    })
-  }
-
-  return request<SearchCustomResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/search`, {
-    method: 'POST',
-    json: {
-      ...customSearchPayload
-    }
-  })
-}
-
-/**
- * Creates a Custom CRM object in HubSpot
- * @param {RequestClient} request RequestClient instance
- * @param {String} objectType - ObjecType Identifier
- * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the Custom Object
- * @returns {Promise<ModifiedResponse<UpsertCustomRecordResponse>>} A promise that resolves to updated Custom object
- */
-function createCustomRecord(request: RequestClient, objectType: string, properties: { [key: string]: unknown }) {
-  return request<UpsertCustomRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}`, {
-    method: 'POST',
-    json: {
-      properties: flattenObject(properties)
-    }
-  })
-}
-
-/**
- * Updates a Custom Object CRM object in HubSPot identified by Id
- * @param {RequestClient} request RequestClient instance
- * @param {String} objectType - ObjecType Identifier
- * @param {String} customObjectId Id of custom record to update.
- * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties to update
- * @returns {Promise<ModifiedResponse<UpsertCustomRecordResponse>>} A promise that resolves to update Custom object record
- */
-function updateCustomRecord(
-  request: RequestClient,
-  objectType: string,
-  customObjectId: string,
-  properties: { [key: string]: unknown }
-) {
-  // Construct the URL to update custom object record
-  const updateCustomObjectURL = `${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/${customObjectId}`
-
-  return request<UpsertCustomRecordResponse>(updateCustomObjectURL, {
-    method: 'PATCH',
-    json: {
-      properties: properties
-    }
-  })
 }
 
 export default action

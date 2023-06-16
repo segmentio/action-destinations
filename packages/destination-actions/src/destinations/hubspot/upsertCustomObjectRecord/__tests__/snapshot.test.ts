@@ -28,15 +28,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         settings: settingsData,
         auth: undefined
       })
-      if (responses.length) {
-        const request = responses[0].request
-        const rawBody = await request.text()
+      const request = responses[0].request
+      const rawBody = await request.text()
 
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
 
-        expect(request.url).toMatchSnapshot()
-      }
+      expect(request.url).toMatchSnapshot()
     } catch (e) {
       expect(e).toMatchSnapshot()
     }
@@ -60,12 +58,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       settings: settingsData,
       auth: undefined
     })
-    if (responses.length) {
-      const request = responses[0].request
-      const rawBody = await request.text()
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      expect(request.url).toMatchSnapshot()
-    }
+    const request = responses[0].request
+    const rawBody = await request.text()
+    const json = JSON.parse(rawBody)
+    expect(json).toMatchSnapshot()
+    expect(request.url).toMatchSnapshot()
   })
 })

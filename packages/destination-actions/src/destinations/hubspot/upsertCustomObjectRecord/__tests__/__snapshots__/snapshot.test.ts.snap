@@ -20,3 +20,5 @@ Object {
 `;
 
 exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: all fields 2`] = `"https://api.hubapi.com/crm/v3/objects/3mKhorxHT$[h[CqZ2ptH/search"`;
+
+exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: required fields 1`] = `[TypeError: Cannot read property 'request' of undefined]`;
