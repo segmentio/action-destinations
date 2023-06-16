@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { APIError, ActionDefinition, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -11,8 +11,6 @@ import {
   TriggerEventApiPayload,
   TriggerEventsApiPayload
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Event',
@@ -59,10 +57,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
-
     data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.eventid > 0) {
@@ -83,19 +77,23 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while triggering the event')
+            else
+              throw new APIError(
+                `Something went wrong while triggering the event: ${body?.replyText ?? 'UNKNOWN'}`,
+                500
+              )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response')
+            throw new APIError('Invalid JSON response', 400)
           }
         case 400:
-          throw new IntegrationError('The event could not be triggered')
+          throw new APIError('The event could not be triggered', 400)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
           throw new RetryableError('There seems to be an API issue.')
       }
     } else {
-      throw new IntegrationError('eventid must be >0')
+      throw new PayloadValidationError('eventid must be >0')
     }
   },
   performBatch: async (request, data) => {

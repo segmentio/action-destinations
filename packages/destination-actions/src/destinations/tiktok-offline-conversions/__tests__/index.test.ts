@@ -10,7 +10,7 @@ const settings: Settings = {
   eventSetID: 'test-event-set-id'
 }
 
-describe('Tiktok Offline Conversions', () => {
+describe('TikTok Offline Conversions', () => {
   describe('testTrackNonPaymentOfflineConversion', () => {
     it("should send a successful 'Contact' event to 'trackNonPaymentOfflineConversion'", async () => {
       const event = createTestEvent({
