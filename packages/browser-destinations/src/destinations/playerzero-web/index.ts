@@ -23,9 +23,9 @@ export const destination: BrowserDestinationDefinition<Settings, PlayerZero> = {
   settings: {
     // Add any Segment destination settings required here
     projectToken: {
-      label: 'PlayerZero Project Token',
+      label: 'PlayerZero Project ID',
       description:
-        'The Project Token for the PlayerZero project you want to send data to. You can find this token on the [Segment (web) Connector](https://go.playerzero.app/connector/segment-web) page.',
+        'The Project ID where you want to send data. You can find this ID on the [Project Data Collection](https://go.playerzero.app/setting/data) page.',
       type: 'string',
       required: true
     }
