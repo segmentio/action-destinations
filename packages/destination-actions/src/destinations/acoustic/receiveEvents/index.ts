@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const rows = addUpdateEvents(payload, email, settings.attributesMax as number)
 
     let a_Auth = {}
-    if (!auth) a_Auth = getAuthCreds()
+    if (!auth?.accessToken) a_Auth = getAuthCreds()
 
     const POSTUpdates = `<Envelope>
       <Body>
