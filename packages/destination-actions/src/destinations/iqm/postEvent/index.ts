@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BASE_URL } from '..'
@@ -7,6 +6,7 @@ import { BASE_URL } from '..'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Event',
   description: 'Post a user event to IQM',
+  defaultSubscription: 'type = "track"',
   fields: {
     data: {
       label: 'Data',
@@ -20,9 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const { pixel_id } = settings
-    if (!pixel_id) {
-      throw new IntegrationError('PixelID is required', 'Misconfigured field', 400)
-    }
     return request(`${BASE_URL}&pixel_id=${pixel_id}`, {
       method: 'post',
       headers: { HOST: 'postback.iqm.com', 'Content-Type': 'application/json' },
