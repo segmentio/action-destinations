@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { IntegrationError, defaultValues } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import postEvent from './postEvent'
@@ -20,12 +20,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: async (_, { settings }) => {
-      if (!settings.pixel_id) {
-        throw new IntegrationError('PixelID is required', 'Misconfigured field', 400)
-      }
-      return {}
     }
   },
 
