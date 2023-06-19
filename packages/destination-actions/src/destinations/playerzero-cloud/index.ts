@@ -1,15 +1,15 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
-import forwardEvent from './forwardEvent'
+import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Forward Event',
+    name: 'Track Event',
     subscribe: 'type = "track" or type = "page" or type = "screen"',
     partnerAction: 'trackEvent',
-    mapping: defaultValues(forwardEvent.fields)
+    mapping: defaultValues(trackEvent.fields)
   },
   {
     name: 'Identify User',
@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
 
   presets,
   actions: {
-    forwardEvent,
+    trackEvent,
     identifyUser
   }
 }

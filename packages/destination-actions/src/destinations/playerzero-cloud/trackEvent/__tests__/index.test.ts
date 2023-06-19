@@ -16,11 +16,11 @@ describe('PlayerzeroCloud.trackEvent', () => {
     })
     nock('https://sdk.playerzero.app').post('/connect/segment/event').reply(200, {})
 
-    const responses = await testDestination.testAction('forwardEvent', {
+    const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: PLAYERZERO_PROJECT_TOKEN,
+        projectToken: PLAYERZERO_PROJECT_TOKEN
       }
     })
 
