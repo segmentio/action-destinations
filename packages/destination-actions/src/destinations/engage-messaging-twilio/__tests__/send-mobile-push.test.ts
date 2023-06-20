@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './test-utils'
+import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
 import { PushSender } from '../sendMobilePush/push-sender'
 

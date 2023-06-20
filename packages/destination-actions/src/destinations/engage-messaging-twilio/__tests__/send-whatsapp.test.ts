@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './test-utils'
+import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
 
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
