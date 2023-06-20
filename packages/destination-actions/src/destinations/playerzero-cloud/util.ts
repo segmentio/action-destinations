@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core/dist/cjs'
+import type { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './trackEvent/generated-types'
 
