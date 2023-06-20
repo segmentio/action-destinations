@@ -6,7 +6,7 @@ import { Payload } from '../generated-types'
 
 it('should identify', async () => {
   const client = {
-    assess: jest.fn().mockResolvedValue({ emailAnalysis: { company: { name: 'Bar' } } })
+    assess: jest.fn()
   } as any as UpolloClient
 
   const context = new Context({
@@ -15,7 +15,7 @@ it('should identify', async () => {
   })
 
   await identify.perform(client as any as UpolloClient, {
-    settings: { apiKey: '123', companyEnrichment: true },
+    settings: { apiKey: '123' },
     analytics: jest.fn() as any as Analytics,
     context: context,
     payload: {
@@ -35,7 +35,7 @@ it('should identify', async () => {
     } as Payload
   })
 
-  expect(client.assess).toHaveBeenCalledWith({
+  expect(client.track).toHaveBeenCalledWith({
     userId: 'u1',
     userEmail: 'foo@bar.com',
     userPhone: '+611231234',
@@ -43,8 +43,6 @@ it('should identify', async () => {
     userImage: 'http://smile',
     customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
   })
-
-  expect(context.event.traits?.company?.name).toEqual('Bar')
 })
 
 it('should not enrich when it gets no result', async () => {
@@ -58,7 +56,7 @@ it('should not enrich when it gets no result', async () => {
   })
 
   await identify.perform(client as any as UpolloClient, {
-    settings: { apiKey: '123', companyEnrichment: true },
+    settings: { apiKey: '123' },
     analytics: jest.fn() as any as Analytics,
     context: context,
     payload: {
@@ -78,7 +76,7 @@ it('should not enrich when it gets no result', async () => {
     } as Payload
   })
 
-  expect(client.assess).toHaveBeenCalledWith({
+  expect(client.track).toHaveBeenCalledWith({
     userId: 'u1',
     userEmail: 'foo@bar.com',
     userPhone: '+611231234',
@@ -86,6 +84,4 @@ it('should not enrich when it gets no result', async () => {
     userImage: 'http://smile',
     customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
   })
-
-  expect(context.event.traits?.company).toBeUndefined()
 })
