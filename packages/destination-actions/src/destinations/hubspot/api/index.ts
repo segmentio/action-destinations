@@ -4,9 +4,11 @@ import { SearchFilterOperator, SearchPayload, SearchResponse, UpsertRecordRespon
 
 export class Hubspot {
   request: RequestClient
+  objectType: string
 
-  constructor(request: RequestClient) {
+  constructor(request: RequestClient, objectType: string) {
     this.request = request
+    this.objectType = objectType
   }
 
   /**
@@ -16,12 +18,7 @@ export class Hubspot {
    * @param {{[key: string]: unknown}} searchFields A list of key-value pairs of unique properties to identify a object record of ObjectType
    * @returns {Promise<ModifiedResponse<SearchResponse>>} A promise that resolves to a list of object records matching the search criteria
    */
-  async search(
-    request: RequestClient,
-    objectType: string,
-    searchFields: { [key: string]: unknown },
-    searchPayload: SearchPayload
-  ) {
+  async search(searchFields: { [key: string]: unknown }, searchPayload: SearchPayload) {
     for (const [key, value] of Object.entries(searchFields)) {
       searchPayload.filterGroups.push({
         filters: [
@@ -34,7 +31,7 @@ export class Hubspot {
       })
     }
 
-    return request<SearchResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/search`, {
+    return this.request<SearchResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${this.objectType}/search`, {
       method: 'POST',
       json: {
         ...searchPayload
@@ -49,8 +46,8 @@ export class Hubspot {
    * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the object
    * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves the updated object
    */
-  async create(request: RequestClient, objectType: string, properties: { [key: string]: unknown }) {
-    return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}`, {
+  async create(properties: { [key: string]: unknown }) {
+    return this.request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${this.objectType}`, {
       method: 'POST',
       json: {
         properties: properties
@@ -67,21 +64,15 @@ export class Hubspot {
    * @param {String} [idProperty] Unique property of object record to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated record ID
    * @returns {Promise<ModifiedResponse<UpsertRecordResponse>>} A promise that resolves the updated object
    */
-  async update(
-    request: RequestClient,
-    objectType: string,
-    uniqueIdentifier: string,
-    properties: { [key: string]: unknown },
-    idProperty?: string
-  ) {
+  async update(uniqueIdentifier: string, properties: { [key: string]: unknown }, idProperty?: string) {
     // Construct the URL to update record of given objectType
     // URL to update record by ID: /crm/v3/objects/{objectType}/{objectId}
     // URL to update record by unique property: /crm/v3/objects/{objectType}/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
     const updateURL =
-      `${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/${uniqueIdentifier}` +
+      `${HUBSPOT_BASE_URL}/crm/v3/objects/${this.objectType}/${uniqueIdentifier}` +
       (idProperty ? `?idProperty=${idProperty}` : '')
 
-    return request<UpsertRecordResponse>(updateURL, {
+    return this.request<UpsertRecordResponse>(updateURL, {
       method: 'PATCH',
       json: {
         properties: properties

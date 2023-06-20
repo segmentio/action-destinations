@@ -94,4 +94,10 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - required fields 1`] = `[TypeError: Cannot read property 'request' of undefined]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - required fields 1`] = `
+Object {
+  "properties": Object {
+    "testType": "jf(2@y*W9WT2r)SLk(*",
+  },
+}
+`;

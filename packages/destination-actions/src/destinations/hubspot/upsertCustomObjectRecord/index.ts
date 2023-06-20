@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // Attempt to search Custom Object record with Custom Search Fields
     // If Custom Search Fields doesn't have any defined property, skip the search and assume record was not found
     let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
-    const hubspotApiClient: Hubspot = new Hubspot(request)
+    const hubspotApiClient: Hubspot = new Hubspot(request, payload.objectType)
     if (typeof payload.customSearchFields === 'object' && Object.keys(payload.customSearchFields).length > 0) {
       try {
         // Generate custom search payload
@@ -75,12 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
           filterGroups: [],
           sorts: [...responseSortBy]
         }
-        searchCustomResponse = await hubspotApiClient.search(
-          request,
-          payload.objectType,
-          { ...payload.customSearchFields },
-          customSearchPayload
-        )
+        searchCustomResponse = await hubspotApiClient.search({ ...payload.customSearchFields }, customSearchPayload)
       } catch (e) {
         // HubSpot throws a generic 400 error if an undefined property is used in search
         // Throw a more informative error instead
@@ -95,15 +90,19 @@ const action: ActionDefinition<Settings, Payload> = {
     let upsertCustomRecordResponse: ModifiedResponse<UpsertRecordResponse>
     // Check if any custom object record were found based Custom Search Fields
     // If the search was skipped, searchCustomResponse would have a falsy value (null)
-    if (!searchCustomResponse || !searchCustomResponse.data || searchCustomResponse?.data?.total === 0) {
+    if (!searchCustomResponse?.data || searchCustomResponse?.data?.total === 0) {
       // No existing custom object record found with search criteria, attempt to create a new custom object record
 
+      // setting the createNewCustomRecord default value to true if it's not provided.
+      payload.createNewCustomRecord = !Object.prototype.hasOwnProperty.call(payload, 'createNewCustomRecord')
+        ? true
+        : payload.createNewCustomRecord
       // If Create New custom object record flag is set to false, skip creation
       if (!payload.createNewCustomRecord) {
         return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
       const properties = { ...flattenObject(payload.properties) }
-      upsertCustomRecordResponse = await hubspotApiClient.create(request, payload.objectType, properties)
+      upsertCustomRecordResponse = await hubspotApiClient.create(properties)
     } else {
       // Throw error if more than one custom object record were found with search criteria
       if (searchCustomResponse?.data?.total > 1) {
@@ -111,8 +110,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       // An existing Custom object record was identified, attempt to update the same record
       upsertCustomRecordResponse = await hubspotApiClient.update(
-        request,
-        payload.objectType,
         searchCustomResponse.data.results[0].id,
         payload.properties
       )

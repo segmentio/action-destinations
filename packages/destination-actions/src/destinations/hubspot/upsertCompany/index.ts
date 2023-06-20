@@ -5,13 +5,13 @@ import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '.
 import {
   HubSpotError,
   MissingIdentityCallThrowableError,
-  CompanySearchThrowableError,
   RestrictedPropertyThrowableError,
   SegmentUniqueIdentifierMissingRetryableError,
   MultipleCompaniesInSearchResultThrowableError,
-  isSegmentUniqueIdentifierPropertyError
+  isSegmentUniqueIdentifierPropertyError,
+  CompanySearchThrowableError
 } from '../errors'
-import { flattenObject, SearchPayload } from '../utils'
+import { flattenObject, ResponseInfo, SearchPayload, SearchResponse, UpsertRecordResponse } from '../utils'
 import { Hubspot } from '../api'
 
 interface CompanyProperty {
@@ -27,19 +27,7 @@ interface CompanyProperty {
   formField?: boolean
 }
 
-interface CompanyInfo {
-  id: string
-  properties: Record<string, string>
-}
-
-interface SearchCompanyResponse {
-  total: number
-  results: CompanyInfo[]
-}
-
-interface UpsertCompanyResponse extends CompanyInfo {}
-
-interface CompanyContactAssociationResponse extends CompanyInfo {
+interface CompanyContactAssociationResponse extends ResponseInfo {
   associations: {
     contacts?: {
       results: Record<string, unknown>[]
@@ -47,7 +35,7 @@ interface CompanyContactAssociationResponse extends CompanyInfo {
   }
 }
 
-type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertCompanyResponse>>
+type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertRecordResponse>>
 
 /**
  * Upsert Company Action works as follows:
@@ -232,8 +220,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
       throw MissingIdentityCallThrowableError
     }
-    const hubspotApiClient: Hubspot = new Hubspot(request)
     const objectType = 'companies'
+    const hubspotApiClient: Hubspot = new Hubspot(request, objectType)
 
     // Construct company properties
     const companyProperties = {
@@ -259,8 +247,6 @@ const action: ActionDefinition<Settings, Payload> = {
     // Try to update company using SEGMENT_UNIQUE_IDENTIFIER
     try {
       const updateCompanyResponse = await hubspotApiClient.update(
-        request,
-        objectType,
         payload.groupid,
         companyProperties,
         SEGMENT_UNIQUE_IDENTIFIER
@@ -291,7 +277,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!companyId) {
       // Attempt to search company with Company Search Fields
       // If Company Search Fields doesn't have any defined property, skip the search and assume Company was not found
-      let searchCompanyResponse: ModifiedResponse<SearchCompanyResponse> | null = null
+      let searchCompanyResponse: ModifiedResponse<SearchResponse> | null = null
 
       if (typeof payload.companysearchfields === 'object' && Object.keys(payload.companysearchfields).length > 0) {
         try {
@@ -303,8 +289,6 @@ const action: ActionDefinition<Settings, Payload> = {
             sorts: [...responseSortBy]
           }
           searchCompanyResponse = await hubspotApiClient.search(
-            request,
-            objectType,
             { ...payload.companysearchfields },
             companySearchPayload
           )
@@ -320,7 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // Check if any companies were found based Company Search Fields
       // If the search was skipped, searchCompanyResponse would have a falsy value (null)
-      if (!searchCompanyResponse || searchCompanyResponse.data.total === 0) {
+      if (!searchCompanyResponse?.data || searchCompanyResponse?.data?.total === 0) {
         // No existing company found with search criteria, attempt to create a new company
 
         // If Create New Company flag is set to false, skip creation
@@ -330,7 +314,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         // Create a wrapper function which calls createCompany and returns the response
         const createCompanyWrapper = async function () {
-          return await hubspotApiClient.create(request, objectType, companyProperties)
+          return await hubspotApiClient.create(companyProperties)
         }
 
         companyId = await upsertCompanyWithRetry(request, createCompanyWrapper)
@@ -345,7 +329,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         // Create a wrapper function which calls updateCompany and returns the response
         const updateCompanyWrapper = async function () {
-          return await hubspotApiClient.update(request, objectType, companyId, companyProperties)
+          return await hubspotApiClient.update(companyId, companyProperties)
         }
 
         await upsertCompanyWithRetry(request, updateCompanyWrapper)
@@ -380,7 +364,7 @@ function createSegmentUniqueIdentifierProperty(request: RequestClient) {
     formField: false
   }
 
-  return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
+  return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
     method: 'POST',
     json: {
       ...segmentUniqueIdentifierProperty
