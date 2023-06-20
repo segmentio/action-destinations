@@ -186,6 +186,18 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     ])
   }
 
+  statsIncrement(metric: string, value?: number, extraTags?: string[]) {
+    this.stats({ method: 'incr', metric, value, extraTags })
+  }
+
+  statsHistogram(metric: string, value: number, extraTags?: string[]) {
+    this.stats({ method: 'histogram', metric, value, extraTags })
+  }
+
+  statsSet(metric: string, value: number, extraTags?: string[]) {
+    this.stats({ method: 'set', metric, value, extraTags })
+  }
+
   logWrap<R = void>(
     fn: () => R,
     args: {
