@@ -589,6 +589,14 @@ describe('@template', () => {
     expect(output).toStrictEqual('Hello, World!')
   })
 
+  test('whole object', () => {
+    const output = transform(
+      { '@template': [{ '@path': ['$'] }, { '@literal': ' and ' }, { '@path': '$.' }] },
+      { who: 'World' }
+    )
+    expect(output).toStrictEqual('{"who":"World"} and {"who":"World"}')
+  })
+
   test('multiple paths with array', () => {
     const output = transform(
       { '@template': [{ '@path': 'what' }, { '@path': 'who' }, { '@literal': '!' }] },

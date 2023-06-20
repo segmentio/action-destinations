@@ -223,7 +223,10 @@ registerDirective('@template', (value: string | JSONValue, payload) => {
           }
         }
       }
-      return vals.map((v) => resolve(v, payload)).join('')
+      return vals
+        .map((v) => resolve(v, payload))
+        .map((v) => (typeof v === 'object' || Array.isArray(v) ? JSON.stringify(v) : v))
+        .join('')
     }
   }
 })
