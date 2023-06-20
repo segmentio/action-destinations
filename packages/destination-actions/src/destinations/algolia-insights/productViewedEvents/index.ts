@@ -28,9 +28,9 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
     },
     queryID: {
       label: 'Query ID',
-      description: 'Query ID of the list on which the item was clicked.',
+      description: 'Query ID of the list on which the item was viewed.',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.query_id'
       }
