@@ -109,6 +109,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   isFeatureActive(featureName: string, getDefault?: () => boolean) {
+    if (isDestinationActionService()) return true
     if (!this.executeInput.features || !(featureName in this.executeInput.features)) return getDefault?.()
     return this.executeInput.features[featureName]
   }
@@ -452,4 +453,11 @@ type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
   metric: string
   value?: number
   extraTags?: string[]
+}
+
+export function isDestinationActionService() {
+  // https://github.com/segmentio/integrations/blob/544b9d42b17f453bb6fcb48925997f68480ca1da/.k2/destination-actions-service.yaml#L35-L38
+  return (
+    process.env.DESTINATIONS_ACTION_SERVICE === 'true' || process.env.SERVICE_NAME === 'destination-actions-service'
+  )
 }
