@@ -28,6 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     first_name: {
       label: 'First Name',
+      allowNull: true,
       description:
         'First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.',
       type: 'string',
@@ -37,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
+      allowNull: true,
       description:
         'Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.',
       type: 'string',
