@@ -12,36 +12,23 @@ const action: ActionDefinition<Settings, Payload> = {
      description: '{{description}}',
      type: '{{type}}',
      required: {{required}},
-     {{#hasDefaultValue}}
-     {{#isString}}
-     {{#default}}
-     default: "{{value}}",
-     {{/default}}
-     {{/isString}}
-     {{/hasDefaultValue}}
-     {{#hasDefaultValue}}
-     {{^isString}}
-     {{#default}}
-     default: {{value}},
-     {{/default}}
-     {{/isString}}
-     {{/hasDefaultValue}}
-     {{#hasDirective}}
-     {{#default}}
-     default: { "{{{directiveType}}}": "{{{value}}}" },
-     {{/default}}
-     {{/hasDirective}}
+     {{#hasDefault}}
+     {{#isTemplate}}
+     default: {
+      "@template": "{{value}}"
+     }
+     {{/isTemplate}}
+     {{^isTemplate}}
+     default: {{{defaultValue}}}
+     {{/isTemplate}}
+     {{/hasDefault}}
    },
    {{/fields}}
   },
   perform: (request, { payload }) => {
     return request('{{{apiEndpoint}}}', {
       method: '{{httpMethod}}',
-      json: {
-        {{ #fields }}
-        {{key}}: {{mapping}},
-        {{/fields}}
-      }
+      json: payload
     })
   }
 }
