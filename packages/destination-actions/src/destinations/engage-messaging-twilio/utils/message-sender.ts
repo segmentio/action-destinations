@@ -6,6 +6,16 @@ import { IntegrationError, PayloadValidationError, RequestOptions } from '@segme
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
+import { 
+  TrackableArgs,
+  trackable, 
+  // statsable, 
+  // loggable, 
+  // rethrowable 
+} from './decorators'
+
+export * from './decorators'
+
 
 const Liquid = new LiquidJs()
 
@@ -50,20 +60,25 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   abstract getChannelType(): string
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
+  trackable<TFunc extends (...args:any[])=>any>(args:TrackableArgs, func:TFunc){
+    return trackable(args, func, this)
+  }
+
+  @trackable({ stats:true, log: true })
+  // @loggable()
+  // @statsable({
+  //   metric: "send",
+  //   onTry: true,
+  //   onCatch: ({error})=>[{ metric: 'error', extraTags: ['reason:' + error?.toString()] }],
+  //   onFinally: true
+  // })
   async send() {
     this.beforeSend()
     //this.stats('incr', 'initialize', 1)
-    return this.logWrap(this.doSend.bind(this), {
-      operationName: 'Destination Action',
-      stats: {
-        onStart: () => [{ metric: 'destination_action_start' }],
-        onEnd: (r) => [
-          { metric: 'destination_action_end', extraTags: r.error ? ['error:true', 'reason:' + r.error] : undefined }
-        ]
-      }
-    })
+    return this.doSend()
   }
 
+  @trackable({operation:'parseContent', log: true, stats: true, onError:()=>new PayloadValidationError("Unable to parse template"), errorReason:()=>'reason:invalid_liquid'})
   /*
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
@@ -71,30 +86,22 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     content: R,
     profile: Profile
   ): Promise<R> {
-    try {
-      const parsedEntries = await Promise.all(
-        Object.entries(content).map(async ([key, val]) => {
-          if (val == null) {
-            return [key, val]
-          }
-
-          if (Array.isArray(val)) {
-            val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
-          } else {
-            val = await Liquid.parseAndRender(val, { profile })
-          }
+    const parsedEntries = await Promise.all(
+      Object.entries(content).map(async ([key, val]) => {
+        if (val == null) {
           return [key, val]
-        })
-      )
+        }
 
-      return Object.fromEntries(parsedEntries)
-    } catch (error: unknown) {
-      this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
-      this.logError(`unable to parse templating - ${this.settings.spaceId}`)
-      this.tags.push('reason:invalid_liquid')
-      this.stats('incr', 'error', 1)
-      throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
-    }
+        if (Array.isArray(val)) {
+          val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
+        } else {
+          val = await Liquid.parseAndRender(val, { profile })
+        }
+        return [key, val]
+      })
+    )
+
+    return Object.fromEntries(parsedEntries)
   }
 
   redactPii(pii: string | undefined) {
@@ -197,7 +204,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   ): R {
     const start = Date.now()
     return wrapPromisable(fn, {
-      onStart: () => {
+      onTry: () => {
         this.logInfo('Starting: ', args.operationName)
         const statsStart = args.stats?.onStart?.()
         if (statsStart)
@@ -241,9 +248,15 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
   }
 
+  @trackable({ 
+    stats:true,
+    log:true,
+    integrationError:(error)=>[
+      `failed request to fetch content template from Twilio Content API - ${error}`,
+      'Twilio Content API request failure',
+      500]
+   })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
-    let template
-    try {
       if (!this.payload.contentSid) {
         throw new PayloadValidationError('Content SID not in payload')
       }
@@ -258,32 +271,16 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
         }
       })
 
-      template = (await response.json()) as ContentTemplateResponse
-    } catch (error) {
-      this.tags.push('reason:get_content_template')
-      this.stats('incr', 'error', 1)
-      this.logError(
-        `failed request to fetch content template from Twilio Content API - ${
-          this.settings.spaceId
-        } - ${error}, ${JSON.stringify(error)})}`
-      )
-      throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
-    }
+    const template = (await response.json()) as ContentTemplateResponse
 
     return this.extractTemplateTypes(template)
   }
 
+  @trackable({errorReason:()=>'invalid_template_type'})
   private extractTemplateTypes(template: ContentTemplateResponse): ContentTemplateTypes {
     if (!template.types) {
-      this.logError(
-        `template from Twilio Content API does not contain a template type - ${
-          this.settings.spaceId
-        } - [${JSON.stringify(template)}]`
-      )
-      this.tags.push('reason:invalid_template_type')
-      this.stats('incr', 'error', 1)
       throw new IntegrationError(
-        'Template from Twilio Content API does not contain any template types',
+        `Template from Twilio Content API does not contain any template types: ${JSON.stringify(template)}`,
         `NO_CONTENT_TYPES`,
         400
       )
@@ -293,9 +290,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if (this.supportedTemplateTypes.includes(type)) {
       return { body: template.types[type].body, media: template.types[type].media }
     } else {
-      this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
-      this.tags.push('reason:invalid_template_type')
-      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
         'UNSUPPORTED_CONTENT_TYPE',
@@ -304,6 +298,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
+  @trackable({operation: 'getWebhookUrlWithParams', onError(){
+    return new PayloadValidationError(`Invalid webhook url arguments. customArgs: ${JSON.stringify(this.payload.customArgs)}`)
+  }})
   getWebhookUrlWithParams(
     externalIdType?: string,
     externalIdValue?: string,
@@ -328,20 +325,14 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       // data if that's what we're expecting.
       // let webhookUrlWithParams: URL | null = null
 
-      try {
-        const webhookUrlWithParams = new URL(webhookUrl)
+      const webhookUrlWithParams = new URL(webhookUrl)
 
-        for (const key of Object.keys(customArgs)) {
-          webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
-        }
-
-        webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
-        return webhookUrlWithParams.toString()
-      } catch (error: unknown) {
-        this.logDetails['webhook-custom-args'] = this.payload.customArgs
-        this.logError(`invalid webhook url - ${this.settings.spaceId}`)
-        throw new PayloadValidationError('Invalid webhook url arguments')
+      for (const key of Object.keys(customArgs)) {
+        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
+
+      webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
+      return webhookUrlWithParams.toString()
     }
 
     return null
@@ -386,13 +377,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 export function wrapPromisable<T>(
   fn: () => T,
   args: {
-    onStart?(): void
+    onTry?(): void
     onSuccess?(res: Awaited<T>): void
     onCatch?(error: unknown): Awaited<T>
     onFinally?(res: { result: Awaited<T> } | { error: unknown }): void
   }
 ): T {
-  args.onStart?.()
+  args.onTry?.()
   let finallyRes: { result: Awaited<T> } | { error: unknown } | undefined = undefined
 
   try {

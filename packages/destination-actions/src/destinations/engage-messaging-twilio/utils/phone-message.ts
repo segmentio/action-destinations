@@ -48,34 +48,30 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
     this.stats('set', 'message_body_size', body?.toString().length)
 
-    try {
-      this.logInfo('Sending message to Twilio API')
+    this.logInfo('Sending message to Twilio API')
 
-      const response = await this.request(
-        `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
-        {
-          method: 'POST',
-          headers: {
-            authorization: `Basic ${twilioToken}`
-          },
-          body
-        }
-      )
-      this.tags.push(`twilio_status_code:${response.status}`)
-      this.stats('incr', 'response', 1)
-
-      if (this.payload.eventOccurredTS != undefined) {
-        this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
+    const response = await this.request(
+      `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: `Basic ${twilioToken}`
+        },
+        body
       }
+    )
+    this.tags.push(`twilio_status_code:${response.status}`)
+    this.stats('incr', 'response', 1)
 
-      this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
-
-      this.logInfo('Message sent successfully')
-
-      return response
-    } catch (error: unknown) {
-      this.rethrowError(error)
+    if (this.payload.eventOccurredTS != undefined) {
+      this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
+
+    this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
+
+    this.logInfo('Message sent successfully')
+
+    return response
   }
 
   /**

@@ -4,6 +4,7 @@ import { MessageSender } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { trackable } from '../utils/decorators'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -140,15 +141,17 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           // we set a flag to retry only if a non-retryable status has not been encountered already
           const errorStatus = apiError.response?.status ?? apiError.response?.data?.status
 
-          failureIsRetryable = failureIsRetryable && this.retryableStatusCodes.includes(errorStatus)
+          failureIsRetryable &&= this.retryableStatusCodes.includes(errorStatus)
         } else {
           // unknown error - do not retry
           failureIsRetryable = false
         }
 
-        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id) })
-        this.logDetails['failed-recipient-devices'] = failedSends
-        this.getRethrowableError(error, 'Twilio Push API')
+        failedSends.push({ 
+          ...recipientDevice, 
+          id: this.redactPii(recipientDevice.id),
+          error
+        })
       }
     }
 
@@ -156,7 +159,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
      * if every device failed to send, lets attempt to retry if possible
      */
     if (failedSends.length === recipientDevices.length) {
-      this.logError(`failed to send to all subscribed devices - ${this.settings.spaceId}`)
+      this.logError(`failed to send to all subscribed devices (${failureIsRetryable?'retryable':'not retryable'})`, JSON.stringify(failedSends))
       if (failureIsRetryable) {
         throw new RetryableError('Unexpected response from Twilio Push API')
       }
@@ -177,6 +180,11 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     return responses
   }
 
+  @trackable({
+    operation:'getBody',
+    errorReason:()=> 'invalid_payload',
+    onError:()=> new PayloadValidationError('Unable to construct Notify API request body')
+  })
   async getBody(): Promise<BodyCustomDataBundle> {
     let templateTypes: ContentTemplateTypes | undefined
     if (this.payload.contentSid) {
@@ -195,50 +203,43 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       profile
     )
 
-    try {
-      const customData: Record<string, unknown> = this.removeEmpties({
-        ...this.payload.customArgs,
-        space_id: this.settings.spaceId,
-        badgeAmount: this.payload.customizations?.badgeAmount,
-        badgeStrategy: this.payload.customizations?.badgeStrategy,
-        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-        deepLink: this.payload.customizations?.deepLink
-      })
+    const customData: Record<string, unknown> = this.removeEmpties({
+      ...this.payload.customArgs,
+      space_id: this.settings.spaceId,
+      badgeAmount: this.payload.customizations?.badgeAmount,
+      badgeStrategy: this.payload.customizations?.badgeStrategy,
+      media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
+      deepLink: this.payload.customizations?.deepLink
+    })
 
-      const body = this.removeEmpties({
-        Body: parsedTemplateContent.body,
-        Action: this.payload.customizations?.tapAction,
-        Title: parsedTemplateContent.title,
-        Sound: this.payload.customizations?.sound,
-        Priority: this.payload.customizations?.priority,
-        TimeToLive: this.payload.customizations?.ttl,
-        FcmPayload: this.removeEmpties({
-          mutable_content: true,
-          notification: {
-            badge: this.payload.customizations?.badgeAmount
-          }
-        }),
-        ApnPayload: {
-          aps: {
-            'mutable-content': 1,
-            badge: this.payload.customizations?.badgeAmount
-          }
+    const body = this.removeEmpties({
+      Body: parsedTemplateContent.body,
+      Action: this.payload.customizations?.tapAction,
+      Title: parsedTemplateContent.title,
+      Sound: this.payload.customizations?.sound,
+      Priority: this.payload.customizations?.priority,
+      TimeToLive: this.payload.customizations?.ttl,
+      FcmPayload: this.removeEmpties({
+        mutable_content: true,
+        notification: {
+          badge: this.payload.customizations?.badgeAmount
         }
-      })
+      }),
+      ApnPayload: {
+        aps: {
+          'mutable-content': 1,
+          badge: this.payload.customizations?.badgeAmount
+        }
+      }
+    })
 
-      const requestBody = new URLSearchParams({
-        ...body,
-        FcmPayload: JSON.stringify(body.FcmPayload),
-        ApnPayload: JSON.stringify(body.ApnPayload)
-      })
+    const requestBody = new URLSearchParams({
+      ...body,
+      FcmPayload: JSON.stringify(body.FcmPayload),
+      ApnPayload: JSON.stringify(body.ApnPayload)
+    })
 
-      return { requestBody, customData }
-    } catch (error) {
-      this.tags.push('reason:invalid_payload')
-      this.stats('incr', 'error', 1)
-      this.logError(`unable to construct Notify API request body - ${this.settings.spaceId}`, JSON.stringify(error))
-      throw new PayloadValidationError('Unable to construct Notify API request body')
-    }
+    return { requestBody, customData }
   }
 
   /*
