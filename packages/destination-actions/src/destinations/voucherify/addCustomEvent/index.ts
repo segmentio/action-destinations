@@ -35,7 +35,6 @@ const action: ActionDefinition<Settings, Payload> = {
         email: {
           '@if': {
             exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
             else: { '@path': '$.context.traits.email' }
           }
         }
