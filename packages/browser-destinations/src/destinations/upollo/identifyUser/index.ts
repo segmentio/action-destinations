@@ -80,7 +80,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       userId: payload.user_id,
       userEmail: payload.email,
       userPhone: payload.phone,
-      userName: payload.name ? payload.name : payload.firstName + ' ' + payload.lastName,
+      userName: payload.name ? payload.name : (payload.firstName + ' ' + payload.lastName).trim(),
       userImage: payload.avatar_image_url,
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
