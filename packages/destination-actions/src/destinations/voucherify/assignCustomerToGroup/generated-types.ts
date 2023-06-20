@@ -5,7 +5,13 @@ export interface Payload {
    * Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).
    */
   customer: {
+    /**
+     * The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+     */
     source_id: string
+    /**
+     * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
+     */
     email?: string
   }
   /**
@@ -19,7 +25,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Type of the [event](https://segment.com/docs/connections/spec/).
+   * Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group.
    */
   type: string
 }

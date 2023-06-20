@@ -19,11 +19,15 @@ const action: ActionDefinition<Settings, Payload> = {
         source_id: {
           label: 'Source ID',
           type: 'string',
-          required: true
+          required: true,
+          description:
+            'The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.'
         },
         email: {
           label: 'Email',
-          type: 'string'
+          type: 'string',
+          description:
+            'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.'
         }
       },
       default: {
@@ -31,8 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
         email: {
           '@if': {
             exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
-            else: { '@path': '$.context.traits' }
+            else: { '@path': '$.context.traits.email' }
           }
         }
       }
@@ -96,7 +99,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description: 'Type of the [event](https://segment.com/docs/connections/spec/). It can be Track, Page or Screen.',
+      description:
+        'Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group',
       type: 'string',
       required: true,
       default: {

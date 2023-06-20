@@ -2,7 +2,7 @@ import { CustomError } from 'ts-custom-error'
 
 /**
  * Error due to generic misconfiguration of user settings.
- * Should include a user-friendly message, and optionally an error reason and status code.
+ * Should include a user-friendly message, an error reason and status code.
  * - 4xx errors are not automatically retried, except for 408, 423, 429
  * - 5xx are automatically retried, except for 501
  */
@@ -12,10 +12,12 @@ export class IntegrationError extends CustomError {
 
   /**
    * @param message - a human-friendly message to display to users
-   * @param code - an optional error code/reason
-   * @param status - an optional http status code (e.g. 400)
+   * @param code - error code/reason
+   * @param status - http status code (e.g. 400).
+   *    - 4xx errors are not automatically retried, except for 408, 423, 429
+   *    - 5xx are automatically retried, except for 501
    */
-  constructor(message = '', code?: string, status?: number) {
+  constructor(message: string, code: string, status: number) {
     super(message)
     this.status = status
     this.code = code
