@@ -125,7 +125,7 @@ it('should have an empty string for name if no name is provided', async () => {
     userId: 'u1',
     userEmail: 'foo@bar.com',
     userPhone: '+611231234',
-    userName: '',
+    userName: undefined,
     userImage: 'http://smile',
     customerSuppliedValues: { DOB: '1990-01-01', Plan: 'Bronze' }
   })
