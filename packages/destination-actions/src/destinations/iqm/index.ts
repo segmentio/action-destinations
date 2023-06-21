@@ -35,7 +35,6 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     postEvent
   },
-
   presets: [
     {
       name: 'Send an event to IQM',
