@@ -42,37 +42,47 @@ export class TikTokAudiences {
   }
 
   fetchAudiences = async (selected_advertiser_id: string): Promise<DynamicFieldResponse> => {
-    //Added logs to test, will remove after testing
-    console.log('selectedAdvertiserId: ', selected_advertiser_id, typeof selected_advertiser_id)
-
-    if (!selected_advertiser_id.length) {
+    if (!selected_advertiser_id || !selected_advertiser_id.length) {
       return {
         choices: [],
         error: {
-          message: 'Please select Advertiser ID first to get list of Audience IDs .',
+          message: 'Please select Advertiser ID first to get list of Audience IDs.',
           code: 'FIELD_NOT_SELECTED'
         }
       }
     }
     try {
-      const result = await this.request<GetAudienceAPIResponse>(
-        `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
-        {
-          method: 'GET',
-          searchParams: {
-            advertiser_id: selected_advertiser_id
+      const response = []
+      let page_number = 1
+      let total_page = 1
+      while (page_number <= total_page) {
+        const result = await this.request<GetAudienceAPIResponse>(
+          `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
+          {
+            method: 'GET',
+            searchParams: {
+              advertiser_id: selected_advertiser_id,
+              page: page_number,
+              page_size: '100'
+            }
+          }
+        )
+
+        if (result.data.code !== 0) {
+          throw {
+            message: result.data.message,
+            code: result.data.code
           }
         }
-      )
 
-      if (result.data.code !== 0) {
-        throw {
-          message: result.data.message,
-          code: result.data.code
-        }
+        total_page = result.data?.data?.page_info?.total_page || 1
+        page_number++
+        result.data.data.list.forEach((item) => {
+          response.push(item)
+        })
       }
 
-      const choices = result.data.data.list.map((item) => {
+      const choices = response?.map((item) => {
         return {
           label: item.name,
           value: item.audience_id
@@ -86,8 +96,8 @@ export class TikTokAudiences {
       return {
         choices: [],
         error: {
-          message: (err as AudienceInfoError).response.data.message ?? 'An error occurred while fetching audiences.',
-          code: (err as AudienceInfoError).response.data.code.toString() ?? 'FETCH_AUDIENCE_ERROR'
+          message: (err as AudienceInfoError).message ?? 'An error occurred while fetching audiences.',
+          code: (err as AudienceInfoError).code.toString() ?? 'FETCH_AUDIENCE_ERROR'
         }
       }
     }

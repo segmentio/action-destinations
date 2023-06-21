@@ -46,9 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     audience_id: async (request, { payload }) => {
       try {
-        //Added logs to test, will remove after testing
-        console.log('Payload in dynamic Body: ', payload)
-
         const tiktok = new TikTokAudiences(request)
 
         return tiktok.fetchAudiences(payload.selected_advertiser_id)

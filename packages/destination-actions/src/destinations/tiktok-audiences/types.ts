@@ -35,10 +35,6 @@ export interface Audiences {
 }
 
 export interface AudienceInfoError {
-  response: {
-    data: {
-      code: number
-      message: string
-    }
-  }
+  code: number
+  message: string
 }
