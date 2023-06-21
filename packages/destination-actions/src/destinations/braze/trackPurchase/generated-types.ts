@@ -28,6 +28,7 @@ export interface Payload {
     currency?: string
     price: number
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * Properties of the event

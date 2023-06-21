@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError, HTTPError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, HTTPError, PayloadValidationError } from '@segment/actions-core'
 import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -24,8 +24,8 @@ interface GoogleError {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Post Conversion',
-  description: 'Send a conversion event to Google Ads.',
+  title: 'Upload Enhanced Conversion (Legacy)',
+  description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -209,7 +209,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    but not for the Google Ads API. */
+    if (!settings.conversionTrackingId) {
+      throw new PayloadValidationError(
+        'Conversion ID is required for this action. Please set it in destination settings.'
+      )
+    }
+
     const conversionData = cleanData({
       oid: payload.transaction_id,
       user_agent: payload.user_agent,
@@ -232,10 +240,8 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     if (!payload.email && !Object.keys(address).length) {
-      throw new IntegrationError(
-        'Either a valid email address or at least one address property (firstName, lastName, street, city, region, postalCode, or country) is required to send a valid conversion.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Either a valid email address or at least one address property (firstName, lastName, street, city, region, postalCode, or country) is required to send a valid conversion.'
       )
     }
 
@@ -247,6 +253,9 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
+        searchParams: {
+          conversion_tracking_id: settings.conversionTrackingId
+        },
         json: {
           pii_data: { ...pii_data, address: [address] },
           ...conversionData
@@ -260,7 +269,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const statusCode = err.response.status
         if (statusCode === 400) {
           const data = (err.response as ModifiedResponse).data as GoogleError
-          const invalidOAuth = data.error_statuses.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
+          const invalidOAuth = data?.error_statuses?.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
           if (invalidOAuth) {
             throw new IntegrationError('The OAuth token is missing or invalid.', 'INVALID_OAUTH_TOKEN', 401)
           }

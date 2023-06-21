@@ -7,7 +7,7 @@ import userDelete from './userDelete'
 import {defaultValues} from "@segment/actions-core";
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Clevertap (Actions)',
+  name: 'CleverTap (Actions)',
   slug: 'actions-clevertap',
   mode: 'cloud',
   description: 'CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways:' +

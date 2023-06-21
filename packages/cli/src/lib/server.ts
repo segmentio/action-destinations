@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import { once } from 'lodash'
+import { isEmpty, isNil, mapValues, omitBy, once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
@@ -10,7 +10,8 @@ import {
   Destination,
   DestinationDefinition as CloudDestinationDefinition,
   HTTPError,
-  ModifiedResponse
+  ModifiedResponse,
+  JSONObject
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
@@ -152,7 +153,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
   router.get(
     '/manifest',
     asyncHandler(async (_, res: express.Response) => {
-      res.json(destination.definition)
+      res.json({ ...destination.definition, directoryName: process.env.DESTINATION })
     })
   )
 
@@ -203,6 +204,24 @@ function setupRoutes(def: DestinationDefinition | null): void {
     })
   )
 
+  router.post(
+    '/refreshAccessToken',
+    asyncHandler(async (req: express.Request, res: express.Response) => {
+      try {
+        const settings = {}
+        const data = await destination.refreshAccessToken(settings, req.body)
+        res.status(200).json({ ok: true, data })
+      } catch (e) {
+        const error = e as HTTPError
+        const message = (await error?.response?.json()) ?? error.message
+        res.status(400).json({
+          ok: false,
+          error: message
+        })
+      }
+    })
+  )
+
   for (const actionSlug of Object.keys(destination.actions)) {
     router.post(
       `/${actionSlug}`,
@@ -215,16 +234,22 @@ function setupRoutes(def: DestinationDefinition | null): void {
             return res.status(400).send(msg)
           }
 
+          let mapping = req.body.mapping || {}
+          const fields = action.definition.fields
+          const defaultMappings = omitBy(mapValues(fields, 'default'), isNil)
+          mapping = { ...defaultMappings, ...mapping } as JSONObject
+          if (isEmpty(mapping)) mapping = null
+
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            mapping: req.body.mapping || req.body.payload || {},
+            mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {}
           }
 
           if (Array.isArray(eventParams.data)) {
-            // If no mapping is provided default to using the first payload across all events.
-            eventParams.mapping = req.body.mapping ?? eventParams.data[0] ?? {}
+            // If no mapping or default mapping is provided, default to using the first payload across all events.
+            eventParams.mapping = mapping || eventParams.data[0] || {}
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)
@@ -258,10 +283,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)
 
+              if (result.error) {
+                throw result.error
+              }
+
               return res.status(200).json(result)
             } catch (err) {
-              const output = marshalError(err as ResponseError)
-              return res.status(200).json([output])
+              return res.status(500).json([err])
             }
           })
         )

@@ -30,6 +30,10 @@ export interface Payload {
    */
   ttclid?: string
   /**
+   * ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability
+   */
+  lead_id?: string
+  /**
    * The page URL where the conversion event took place.
    */
   url?: string

@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's checkoutEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -10132876846694.4,
+        "app_version": "Q!Q[jv1Wi&s0",
+        "birthday": "Q!Q[jv1Wi&s0",
+        "carrier": "Q!Q[jv1Wi&s0",
+        "city": "Q!Q[jv1Wi&s0",
+        "country": "Q!Q[jv1Wi&s0",
+        "custom": Object {},
+        "email": "dobaj@zuzpini.nc",
+        "gender": "Q!Q[jv1Wi&s0",
+        "idfa": "Q!Q[jv1Wi&s0",
+        "last_ip": "Q!Q[jv1Wi&s0",
+        "locale": "Q!Q[jv1Wi&s0",
+        "model": "Q!Q[jv1Wi&s0",
+        "name": "Q!Q[jv1Wi&s0",
+        "os_version": "Q!Q[jv1Wi&s0",
+        "phone": "Q!Q[jv1Wi&s0",
+        "platform": "Q!Q[jv1Wi&s0",
+        "surname": "Q!Q[jv1Wi&s0",
+        "timezone": "Q!Q[jv1Wi&s0",
+      },
+      "events": Array [
+        Object {
+          "event_name": "checkout_page_view",
+          "event_params": Object {
+            "currency": "LAK",
+            "custom": Object {},
+            "event_group_id": "Q!Q[jv1Wi&s0",
+            "name": "Q!Q[jv1Wi&s0",
+            "product_id": "Q!Q[jv1Wi&s0",
+            "product_image_url": "Q!Q[jv1Wi&s0",
+            "quantity": -1013287684669440,
+            "taxonomy": Array [
+              "Q!Q[jv1Wi&s0",
+            ],
+            "unit_price": -10132876846694.4,
+            "unit_sale_price": -10132876846694.4,
+            "url": "Q!Q[jv1Wi&s0",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "Q!Q[jv1Wi&s0",
+        },
+        "email": "dobaj@zuzpini.nc",
+        "phone_number": "Q!Q[jv1Wi&s0",
+        "uuid": "Q!Q[jv1Wi&s0",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's checkoutEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "checkout_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "Q!Q[jv1Wi&s0",
+        },
+        "uuid": "Q!Q[jv1Wi&s0",
+      },
+    },
+  ],
+}
+`;

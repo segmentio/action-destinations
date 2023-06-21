@@ -47,7 +47,7 @@ NodeList [
 ]
 `;
 
-exports[`loads different versions from CDN undefined version: 
+exports[`loads different versions from CDN 3.5: 
       NodeList [
         <script
           src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
@@ -62,6 +62,30 @@ exports[`loads different versions from CDN undefined version:
 NodeList [
   <script
     src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
+    status="loaded"
+    type="text/javascript"
+  />,
+  <script>
+    // the emptiness
+  </script>,
+]
+`;
+
+exports[`loads different versions from CDN undefined version: 
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/4.6/braze.no-module.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+     1`] = `
+NodeList [
+  <script
+    src="https://js.appboycdn.com/web-sdk/4.6/braze.no-module.min.js"
     status="loaded"
     type="text/javascript"
   />,

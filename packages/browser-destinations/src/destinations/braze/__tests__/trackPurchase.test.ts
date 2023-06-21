@@ -1,46 +1,46 @@
-import appboy from '@braze/web-sdk'
 import { Analytics, Context } from '@segment/analytics-next'
-import brazeDestination from '../index'
+import brazeDestination, { destination } from '../index'
 
-beforeEach(() => {
-  // we're not really testing that appboy loads here, so we'll just mock it out
-  jest.spyOn(appboy, 'initialize').mockImplementation(() => true)
-  jest.spyOn(appboy, 'openSession').mockImplementation(() => true)
-})
+const testSdkVersions = ['3.5', '4.1']
 
-test('reports products when present', async () => {
-  const brazeLogPurchase = jest.spyOn(appboy, 'logPurchase').mockReturnValue(true)
+testSdkVersions.forEach((sdkVersion) => {
+  test(`reports products when present (v${sdkVersion})`, async () => {
+    const initializeSpy = jest.spyOn(destination, 'initialize')
 
-  const [trackPurchase] = await brazeDestination({
-    api_key: 'b_123',
-    endpoint: 'endpoint',
-    sdkVersion: '3.3',
-    doNotLoadFontAwesome: true,
-    subscriptions: [
-      {
-        partnerAction: 'trackPurchase',
-        name: 'Log Purchase',
-        enabled: true,
-        subscribe: 'type = "track"',
-        mapping: {
-          purchaseProperties: {
-            '@path': '$.properties'
-          },
-          products: {
-            '@path': '$.properties.products'
+    const [trackPurchase] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      sdkVersion,
+      doNotLoadFontAwesome: true,
+      subscriptions: [
+        {
+          partnerAction: 'trackPurchase',
+          name: 'Log Purchase',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            purchaseProperties: {
+              '@path': '$.properties'
+            },
+            products: {
+              '@path': '$.properties.products'
+            }
           }
         }
-      }
-    ]
-  })
+      ]
+    })
 
-  await trackPurchase.load(Context.system(), {} as Analytics)
-  await trackPurchase.track?.(
-    new Context({
-      type: 'track',
-      properties: {
-        banana: 'yellow',
-        purchaseProperties: {
+    await trackPurchase.load(Context.system(), new Analytics({ writeKey: '123' }))
+
+    // Spy on the braze APIs now that braze has been loaded.
+    const { instance: braze } = await initializeSpy.mock.results[0].value
+    const brazeLogPurchase = jest.spyOn(braze, 'logPurchase').mockReturnValue(true)
+
+    await trackPurchase.track?.(
+      new Context({
+        type: 'track',
+        properties: {
+          banana: 'yellow',
           products: [
             {
               product_id: 'p_123',
@@ -54,12 +54,12 @@ test('reports products when present', async () => {
             }
           ]
         }
-      }
-    })
-  )
+      })
+    )
 
-  expect(brazeLogPurchase.mock.calls[0]).toMatchInlineSnapshot(`undefined`)
+    expect(brazeLogPurchase.mock.calls[0]).toMatchSnapshot()
 
-  // applying defaults
-  expect(brazeLogPurchase.mock.calls[1]).toMatchInlineSnapshot(`undefined`)
+    // applying defaults
+    expect(brazeLogPurchase.mock.calls[1]).toMatchSnapshot()
+  })
 })

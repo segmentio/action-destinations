@@ -63,6 +63,8 @@ Output:
   - [@template](#template)
   - [@literal](#literal)
   - [@arrayPath](#array-path)
+  - [@case](#case)
+  - [@replace](#replace)
 
 <!-- tocstop -->
 
@@ -448,13 +450,14 @@ Mappings:
 
 ### @arrayPath
 
-The @arrayPath directive resolves a value at a given path (much like @path), but allows you to specify the shape of each item in the resulting array. You can use directives for each key in the given shape, relative to the root object. 
+The @arrayPath directive resolves a value at a given path (much like @path), but allows you to specify the shape of each item in the resulting array. You can use directives for each key in the given shape, relative to the root object.
 
-Typically, the root object is expected to be an array, which will be iterated to produce the resulting array from the specified item shape. It is not required that the root object be an array. 
+Typically, the root object is expected to be an array, which will be iterated to produce the resulting array from the specified item shape. It is not required that the root object be an array.
 
 For the item shape to be respected, the root object must be either an array of plain objects OR a singular plain object. If the root object is a singular plain object, it will be arrified into an array of 1.
 
 Input:
+
 ```json
 {
   "properties": {
@@ -464,6 +467,7 @@ Input:
 ```
 
 Mapping:
+
 ```json
 {
   "@arrayPath": ["$.properties.products"]
@@ -471,6 +475,7 @@ Mapping:
 ```
 
 Result:
+
 ```json
 [
   {
@@ -483,15 +488,20 @@ Result:
 ```
 
 Mappings with item shape:
+
 ```json
 {
-  "@arrayPath": ["$.properties.products", {
-    "some_other_key": { "@path": "$.productId" }
-  }]
+  "@arrayPath": [
+    "$.properties.products",
+    {
+      "some_other_key": { "@path": "$.productId" }
+    }
+  ]
 }
 ```
 
 Result:
+
 ```json
 [
   {
@@ -501,4 +511,119 @@ Result:
     "some_other_key": 2
   }
 ]
+```
+
+### @case
+
+The @case directive changes a string value at a given path to its respective lowercase() or uppercase() representation.
+
+While this directive does expect a string value at the given path, it can handle other types and will simply resolve to whatever is found if it is not a string.
+
+Input:
+
+```json
+{
+  "properties": {
+    "message": "THIS STRING IS IN ALL CAPS"
+  }
+}
+```
+
+Mapping:
+
+```json
+{
+  "@case": {
+    "operator": "lower",
+    "value": { "@path": "$.properties.message" }
+  }
+}
+```
+
+Result:
+
+```json
+"this is a string in all caps"
+```
+
+### @replace
+
+The @replace directive replaces to the given pattern value with a replacement string. Both "pattern" and "replacement"
+fields are required but replacement can be an empty string.
+
+````json
+Input:
+
+{
+  "a": "cool-story",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": ""
+  }
+}
+=>
+"coolstory"
+
+```json
+Input:
+
+{
+  "a": "cool-story",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": "nice"
+  }
+}
+=>
+"coolnicestory"
+````
+
+```json
+Input:
+
+{
+  "a": "cWWl-story-ww",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "WW",
+    "replacement": "oo",
+    "ignorecase": false
+  }
+}
+=>
+"cool-story-ww"
+```
+
+```json
+Input:
+
+{
+  "a": "just-the-first",
+}
+
+Mappings:
+
+{
+  "@replace": {
+    "pattern": "-",
+    "replacement": "@",
+    "global": false
+  }
+}
+=>
+"just@the-first"
 ```

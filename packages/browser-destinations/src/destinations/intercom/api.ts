@@ -1,7 +1,6 @@
 type method = 'trackEvent' | 'update'
 
 type IntercomApi = {
-  booted: boolean
   richLinkProperties: string[] | undefined
   appId: string
   activator: string | undefined

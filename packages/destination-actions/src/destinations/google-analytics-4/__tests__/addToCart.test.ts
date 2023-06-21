@@ -1,10 +1,27 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import ga4 from '../index'
+import { DataStreamType } from '../ga4-types'
 
 const testDestination = createTestIntegration(ga4)
 const apiSecret = 'b287432uhkjHIUEL'
 const measurementId = 'G-TESTTOKEN'
+const firebaseAppId = '2:925731738562:android:a9c393108115c5581abc5b'
+
+const testEvent = createTestEvent({
+  event: 'Product Added',
+  userId: 'abc123',
+  timestamp: '2022-06-22T22:20:58.905Z',
+  anonymousId: 'anon-2134',
+  type: 'track',
+  properties: {
+    product_id: '12345abcde',
+    name: 'Quadruple Stack Oreos, 52 ct',
+    currency: 'USD',
+    price: 12.99,
+    quantity: 1
+  }
+})
 
 describe('GA4', () => {
   describe('Add to Cart', () => {
@@ -33,7 +50,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -85,7 +101,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -95,6 +110,9 @@ describe('GA4', () => {
           },
           value: {
             '@path': '$.properties.price'
+          },
+          timestamp_micros: {
+            '@path': '$.timestamp'
           },
           engagement_time_msec: 2,
           items: [
@@ -125,8 +143,7 @@ describe('GA4', () => {
               }
             }
           ]
-        },
-        useDefaultMappings: true
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -183,7 +200,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -323,7 +339,9 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe('One of product name or product id is required for product or impression data.')
+        expect((e as Error).message).toBe(
+          'One of product name or product id is required for product or impression data.'
+        )
       }
     })
 
@@ -359,7 +377,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -384,7 +401,88 @@ describe('GA4', () => {
       )
     })
 
-    it('should throw an error when param value is not a string or number', async () => {
+    it('should allow boolean user_properties', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          name: 'Game Board',
+          category: 'Games',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3,
+          url: 'https://www.example.com/product/path',
+          image_url: 'https://www.example.com/product/path.jpg'
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings: {
+          apiSecret,
+          measurementId
+        },
+        mapping: {
+          client_id: {
+            '@path': '$.anonymousId'
+          },
+          coupon: {
+            '@path': '$.properties.coupon'
+          },
+          value: {
+            '@path': '$.properties.price'
+          },
+          items: [
+            {
+              item_name: {
+                '@path': `$.properties.name`
+              },
+              item_id: {
+                '@path': `$.properties.product_id`
+              },
+              quantity: {
+                '@path': `$.properties.quantity`
+              },
+              coupon: {
+                '@path': `$.properties.coupon`
+              },
+              item_brand: {
+                '@path': `$.properties..brand`
+              },
+              item_category: {
+                '@path': `$.properties.category`
+              },
+              item_variant: {
+                '@path': `$.properties.variant`
+              },
+              price: {
+                '@path': `$.properties.price`
+              }
+            }
+          ],
+          user_properties: {
+            hello: true
+          },
+          params: {
+            test_key: true
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should throw an error when param value is null', async () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
         .reply(201, {})
@@ -414,7 +512,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -461,8 +558,172 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
+        expect((e as Error).message).toBe(
+          'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when param value is array', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          name: 'Game Board',
+          category: 'Games',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3,
+          url: 'https://www.example.com/product/path',
+          image_url: 'https://www.example.com/product/path.jpg'
+        }
+      })
+
+      try {
+        await testDestination.testAction('addToCart', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            coupon: {
+              '@path': '$.properties.coupon'
+            },
+            value: {
+              '@path': '$.properties.price'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.name`
+                },
+                item_id: {
+                  '@path': `$.properties.product_id`
+                },
+                quantity: {
+                  '@path': `$.properties.quantity`
+                },
+                coupon: {
+                  '@path': `$.properties.coupon`
+                },
+                item_brand: {
+                  '@path': `$.properties..brand`
+                },
+                item_category: {
+                  '@path': `$.properties.category`
+                },
+                item_variant: {
+                  '@path': `$.properties.variant`
+                },
+                price: {
+                  '@path': `$.properties.price`
+                }
+              }
+            ],
+            params: {
+              test_key: ['one', 'two']
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect((e as Error).message).toBe(
+          'Param [test_key] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
+        )
+      }
+    })
+
+    it('should throw an error when param value is object', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+        .reply(201, {})
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: '3456fff',
+        anonymousId: 'anon-567890',
+        type: 'track',
+        properties: {
+          name: 'Game Board',
+          category: 'Games',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3,
+          url: 'https://www.example.com/product/path',
+          image_url: 'https://www.example.com/product/path.jpg'
+        }
+      })
+
+      try {
+        await testDestination.testAction('addToCart', {
+          event,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.anonymousId'
+            },
+            coupon: {
+              '@path': '$.properties.coupon'
+            },
+            value: {
+              '@path': '$.properties.price'
+            },
+            items: [
+              {
+                item_name: {
+                  '@path': `$.properties.name`
+                },
+                item_id: {
+                  '@path': `$.properties.product_id`
+                },
+                quantity: {
+                  '@path': `$.properties.quantity`
+                },
+                coupon: {
+                  '@path': `$.properties.coupon`
+                },
+                item_brand: {
+                  '@path': `$.properties..brand`
+                },
+                item_category: {
+                  '@path': `$.properties.category`
+                },
+                item_variant: {
+                  '@path': `$.properties.variant`
+                },
+                price: {
+                  '@path': `$.properties.price`
+                }
+              }
+            ],
+            params: {
+              test_key: { one: 'two' }
+            }
+          },
+          useDefaultMappings: true
+        })
+        fail('the test should have thrown an error')
+      } catch (e) {
+        expect((e as Error).message).toBe(
+          'Param [test_key] has unsupported value of type [object]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -492,7 +753,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -508,10 +768,112 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
+        expect((e as Error).message).toBe(
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
+    })
+
+    it('should use mobile stream params when datastream is mobile app', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
+          app_instance_id: 'anon-2134',
+          events: [
+            {
+              name: 'add_to_cart',
+              params: {
+                currency: 'USD',
+                items: [
+                  { item_id: '12345abcde', item_name: 'Quadruple Stack Oreos, 52 ct', price: 12.99, quantity: 1 }
+                ],
+                engagement_time_msec: 1
+              }
+            }
+          ],
+          timestamp_micros: 1655936458905000
+        })
+        .reply(201, {})
+
+      await expect(
+        testDestination.testAction('addToCart', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should throw error when data stream type is mobile app and firebase_app_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('addToCart', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is mobile app and app_instance_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('addToCart', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App Instance ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is web and measurement_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('addToCart', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Measurement ID is required for web streams')
+    })
+
+    it('should throw error when data stream type is web and client_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('addToCart', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.traits.dummy'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
 })

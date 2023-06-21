@@ -2,6 +2,7 @@ const path = require('path')
 const globby = require('globby')
 const TerserPlugin = require('terser-webpack-plugin')
 const CompressionPlugin = require('compression-webpack-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 
@@ -12,11 +13,33 @@ const entries = files.reduce((acc, current) => {
   const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
   return {
     ...acc,
-    [destination]: current,
+    [destination]: current
   }
 }, {})
 
-const plugins = [new webpack.DefinePlugin({ 'process.env.ASSET_ENV': JSON.stringify(process.env.ASSET_ENV) })]
+const filemap = (file) => {
+  file.path = file.path.split('/').pop() // get the content hash (filename)
+  return file
+}
+
+const sha = require('child_process').execSync('git rev-parse --short HEAD').toString().trim()
+
+const plugins = [
+  new webpack.DefinePlugin({ 'process.env.ASSET_ENV': JSON.stringify(process.env.ASSET_ENV) }),
+  new WebpackManifestPlugin({
+    fileName: `manifest-${sha}.json`,
+    useEntryKeys: true,
+    filter: ({name}) => Object.keys(entries).includes(name),
+    map: filemap
+  }),
+  new WebpackManifestPlugin({
+    fileName: `manifest-latest.json`,
+    useEntryKeys: true,
+    filter: ({name}) => Object.keys(entries).includes(name),
+    map: filemap
+  }),
+]
+
 if (isProd) {
   plugins.push(new CompressionPlugin())
 }
@@ -40,12 +63,13 @@ const unobfuscatedOutput = {
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
   output: {
-    filename: (file) => process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`,
+    chunkFilename: '[name]/[contenthash].js',
+    filename: (file) =>
+      process.env.NODE_ENV === 'development' ? `${file.chunk.name}.js` : `${file.chunk.name}/[contenthash].js`,
     path: path.resolve(__dirname, 'dist/web'),
     publicPath: 'auto', // Needed for customers using custom CDNs with analytics.js
     library: '[name]Destination',
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
+    libraryTarget: 'window',
     libraryExport: 'default'
   },
   module: {
@@ -111,15 +135,17 @@ const obfuscatedOutput = {
   ...unobfuscatedOutput,
   devServer: {
     ...unobfuscatedOutput.devServer,
-    port: 9001,
+    port: 9001
   },
   output: {
     ...unobfuscatedOutput.output,
-     filename: (file) => {
-       const obfuscatedOutputName = Buffer.from(file.chunk.name).toString('base64').replace(/=/g, '');
-       return process.env.NODE_ENV === 'development' ? `${obfuscatedOutputName}.js` : `${obfuscatedOutputName}/[contenthash].js`
-     },
+    filename: (file) => {
+      const obfuscatedOutputName = Buffer.from(file.chunk.name).toString('base64').replace(/=/g, '')
+      return process.env.NODE_ENV === 'development'
+        ? `${obfuscatedOutputName}.js`
+        : `${obfuscatedOutputName}/[contenthash].js`
+    }
   }
- }
+}
 
 module.exports = [unobfuscatedOutput, obfuscatedOutput]

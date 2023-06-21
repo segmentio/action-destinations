@@ -104,7 +104,7 @@ export const timestamp: InputField = {
 export const email: InputField = {
   label: 'Email',
   description:
-    'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat.',
+    'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@if': {
@@ -118,7 +118,7 @@ export const email: InputField = {
 export const mobile_ad_id: InputField = {
   label: 'Mobile Ad Identifier',
   description:
-    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat.',
+    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.device.advertisingId'
@@ -144,7 +144,7 @@ export const idfv: InputField = {
 export const phone_number: InputField = {
   label: 'Phone Number',
   description:
-    'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat.',
+    'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@if': {
@@ -157,7 +157,8 @@ export const phone_number: InputField = {
 
 export const user_agent: InputField = {
   label: 'User Agent',
-  description: 'User agent from the user’s device.',
+  description:
+    'User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.userAgent'
@@ -167,7 +168,7 @@ export const user_agent: InputField = {
 export const ip_address: InputField = {
   label: 'IP Address',
   description:
-    'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat.',
+    'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
   type: 'string',
   default: {
     '@path': '$.context.ip'
@@ -232,7 +233,7 @@ export const currency: InputField = {
 export const transaction_id: InputField = {
   label: 'Transaction ID',
   description:
-    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
+    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
   type: 'string',
   default: {
     '@path': '$.properties.order_id'
@@ -276,6 +277,25 @@ export const sign_up_method: InputField = {
   type: 'string'
 }
 
+export const device_model: InputField = {
+  label: 'Device Model',
+  description: 'The user’s device model.',
+  type: 'string'
+}
+
+export const os_version: InputField = {
+  label: 'OS Version',
+  description: 'The user’s OS version.',
+  type: 'string'
+}
+
+export const click_id: InputField = {
+  label: 'Click ID',
+  description:
+    "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
+  type: 'string'
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -309,6 +329,8 @@ export const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
+const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+
 export const formatPayload = (payload: Payload): Object => {
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
@@ -331,8 +353,8 @@ export const formatPayload = (payload: Payload): Object => {
     event_conversion_type: payload?.event_conversion_type,
     event_tag: payload?.event_tag,
     timestamp: Date.parse(payload?.timestamp),
-    hashed_email: hash(payload?.email),
-    mobile_ad_id: hash(payload?.mobile_ad_id),
+    hashed_email: isHashedEmail(String(payload?.email)) ? payload?.email : hash(payload?.email),
+    hashed_mobile_ad_id: hash(payload?.mobile_ad_id),
     uuid_c1: payload?.uuid_c1,
     hashed_idfv: hash(payload?.idfv),
     hashed_phone_number: hash(payload?.phone_number),
@@ -349,6 +371,9 @@ export const formatPayload = (payload: Payload): Object => {
     client_dedup_id: payload?.client_dedup_id,
     search_string: payload?.search_string,
     page_url: payload?.page_url,
-    sign_up_method: payload?.sign_up_method
+    sign_up_method: payload?.sign_up_method,
+    device_model: payload?.device_model,
+    os_version: payload?.os_version,
+    click_id: payload?.click_id
   }
 }

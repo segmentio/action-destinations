@@ -8,7 +8,8 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -16,9 +17,10 @@ const OBJECT_NAME = 'Contact'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Contact',
-  description: 'Represents a contact, which is a person associated with an account.',
+  description: 'Create, update, or upsert contacts in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
@@ -148,6 +150,10 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing last_name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {

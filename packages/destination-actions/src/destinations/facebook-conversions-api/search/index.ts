@@ -14,9 +14,14 @@ import {
   action_source,
   content_category,
   event_id,
-  event_source_url
+  event_source_url,
+  data_processing_options,
+  data_processing_options_country,
+  data_processing_options_state,
+  dataProcessingOptions
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
@@ -26,6 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
+    app_data_field: app_data_field,
     content_category: content_category,
     content_ids: content_ids,
     contents: {
@@ -60,7 +66,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     value: value,
-    custom_data: custom_data
+    custom_data: custom_data,
+    data_processing_options: data_processing_options,
+    data_processing_options_country: data_processing_options_country,
+    data_processing_options_state: data_processing_options_state
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -88,6 +97,12 @@ const action: ActionDefinition<Settings, Payload> = {
       if (err) throw err
     }
 
+    const [data_options, country_code, state_code] = dataProcessingOptions(
+      payload.data_processing_options,
+      payload.data_processing_options_country,
+      payload.data_processing_options_state
+    )
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -109,9 +124,14 @@ const action: ActionDefinition<Settings, Payload> = {
                 content_category: payload.content_category,
                 value: payload.value,
                 search_string: payload.search_string
-              }
+              },
+              app_data: generate_app_data(payload.app_data_field),
+              data_processing_options: data_options,
+              data_processing_options_country: country_code,
+              data_processing_options_state: state_code
             }
-          ]
+          ],
+          ...(settings.testEventCode && { test_event_code: settings.testEventCode })
         }
       }
     )

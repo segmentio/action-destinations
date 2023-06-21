@@ -3,15 +3,15 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Trigger workflow in xflow',
-  description: 'This action triggers a workflow in Qualtrics xflow',
+  title: 'Start a workflow in Qualtrics',
+  description: 'This action is used to kick off a workflow in Qualtrics',
   fields: {
     workflowUrl: {
       label: 'Workflow URL',
       type: 'string',
       format: 'uri',
       description:
-        'Enter the full URL as you see in your Xflow trigger. See more details on setting up an xflow trigger and getting the URL here.',
+        'Enter the full URL as you see in your Xflow trigger. [See more details on setting up an xflow trigger and getting the URL.](https://static-assets.qualtrics.com/static/integrations-external/twilio_segment_event_webhook_setup_instructions.pdf)',
       required: true
     },
     eventPayload: {

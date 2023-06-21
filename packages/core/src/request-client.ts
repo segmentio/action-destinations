@@ -2,6 +2,8 @@ import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
 import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
+import type https from 'https'
+import { StatsContext } from './destination-kit'
 
 /**
  * The supported request options you can use with the request client
@@ -50,6 +52,10 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * If enabled, will not clone the response as part of post-request processing
    */
   skipResponseCloning?: boolean
+  /**
+   * Uses the provided https.Agent
+   */
+  agent?: https.Agent
 }
 
 /**
@@ -66,6 +72,8 @@ export interface AllRequestOptions extends RequestOptions {
    * Useful for logging, cleanup, or modifying the response object
    */
   afterResponse?: AfterResponseHook[]
+
+  statsContext?: StatsContext
 }
 
 export interface NormalizedOptions extends Omit<AllRequestOptions, 'headers'> {

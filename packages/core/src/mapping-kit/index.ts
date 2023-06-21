@@ -9,8 +9,8 @@ import { arrify } from '../arrify'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
-type Directive = (options: JSONValue, payload: JSONObject, features?: Features) => JSONLike
-type StringDirective = (value: string, payload: JSONObject, features?: Features) => JSONLike
+type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
+type StringDirective = (value: string, payload: JSONObject) => JSONLike
 
 interface Directives {
   [directive: string]: Directive | undefined
@@ -28,17 +28,17 @@ function registerDirective(name: string, fn: Directive): void {
 }
 
 function registerStringDirective(name: string, fn: StringDirective): void {
-  registerDirective(name, (value, payload, features) => {
+  registerDirective(name, (value, payload) => {
     const str = resolve(value, payload)
     if (typeof str !== 'string') {
       throw new Error(`${name}: expected string, got ${realTypeOf(str)}`)
     }
 
-    return fn(str, payload, features)
+    return fn(str, payload)
   })
 }
 
-function runDirective(obj: JSONObject, payload: JSONObject, features?: Features): JSONLike {
+function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
   const name = Object.keys(obj).find((key) => key.startsWith('@')) as string
   const directiveFn = directives[name]
   const value = obj[name]
@@ -47,7 +47,7 @@ function runDirective(obj: JSONObject, payload: JSONObject, features?: Features)
     throw new Error(`${name} is not a valid directive, got ${realTypeOf(directiveFn)}`)
   }
 
-  return directiveFn(value, payload, features)
+  return directiveFn(value, payload)
 }
 
 registerDirective('@if', (opts, payload) => {
@@ -57,17 +57,109 @@ registerDirective('@if', (opts, payload) => {
     throw new Error('@if requires an object with an "exists" key')
   }
 
-  if (opts.exists !== undefined) {
+  if (!opts.exists && !opts.blank) {
+    throw new Error('@if requires an "exists" key or a "blank" key')
+  } else if (opts.exists !== undefined) {
     const value = resolve(opts.exists, payload)
     condition = value !== undefined && value !== null
-  } else {
-    throw new Error('@if requires an "exists" key')
+  } else if (opts.blank !== undefined) {
+    const value = resolve(opts.blank, payload)
+    condition = value !== undefined && value !== null && value != ''
   }
 
   if (condition && opts.then !== undefined) {
     return resolve(opts.then, payload)
   } else if (!condition && opts.else) {
     return resolve(opts.else, payload)
+  }
+})
+
+registerDirective('@case', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@case requires an object with a "operator" key')
+  }
+
+  if (!opts.operator) {
+    throw new Error('@case requires a "operator" key')
+  }
+
+  const operator = opts.operator
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (typeof value === 'string') {
+      switch (operator) {
+        case 'lower':
+          return value.toLowerCase()
+        case 'upper':
+          return value.toUpperCase()
+        default:
+          throw new Error('operator key should have a value of "lower" or "upper"')
+      }
+    }
+    return value
+  }
+})
+
+export const MAX_PATTERN_LENGTH = 10
+export const MAX_REPLACEMENT_LENGTH = 10
+registerDirective('@replace', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@replace requires an object with a "pattern" key')
+  }
+
+  if (!opts.pattern) {
+    throw new Error('@replace requires a "pattern" key')
+  }
+
+  // Assume null/missing replacement means empty
+  if (opts.replacement == null) {
+    // Empty replacement string is ok
+    opts.replacement = ''
+  }
+
+  // case sensitive by default if this key is missing
+  if (opts.ignorecase == null) {
+    opts.ignorecase = false
+  }
+
+  // global by default if this key is missing
+  if (opts.global == null) {
+    opts.global = true
+  }
+
+  let pattern = opts.pattern
+  const replacement = opts.replacement
+  const ignorecase = opts.ignorecase
+  const isGlobal = opts.global
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (
+      typeof value === 'string' &&
+      typeof pattern === 'string' &&
+      typeof replacement === 'string' &&
+      typeof ignorecase === 'boolean' &&
+      typeof isGlobal === 'boolean'
+    ) {
+      if (pattern.length > MAX_PATTERN_LENGTH) {
+        throw new Error(`@replace requires a "pattern" less than ${MAX_PATTERN_LENGTH} characters`)
+      }
+
+      if (replacement.length > MAX_REPLACEMENT_LENGTH) {
+        throw new Error(`@replace requires a "replacement" less than ${MAX_REPLACEMENT_LENGTH} characters`)
+      }
+
+      // We don't want users providing regular expressions for the pattern (for now)
+      // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
+      pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+      let flags = ''
+      if (isGlobal) {
+        flags += 'g'
+      }
+      if (ignorecase) {
+        flags += 'i'
+      }
+      return value.replace(new RegExp(pattern, flags), replacement)
+    }
   }
 })
 
@@ -95,8 +187,8 @@ registerStringDirective('@path', (path, payload) => {
   return get(payload, path.replace('$.', ''))
 })
 
-registerStringDirective('@template', (template: string, payload, features) => {
-  return render(template, payload, features)
+registerStringDirective('@template', (template: string, payload) => {
+  return render(template, payload)
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
@@ -108,26 +200,25 @@ registerDirective('@literal', (value, payload) => {
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
  * @param payload - the input data to apply to the mapping directives
- * @param features - the object of feature flags (optional)
  * @todo support arrays or array directives?
  */
-function resolve(mapping: JSONLike, payload: JSONObject, features?: Features): JSONLike {
+function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
   if (!isObject(mapping) && !isArray(mapping)) {
     return mapping
   }
 
   if (isDirective(mapping)) {
-    return runDirective(mapping, payload, features)
+    return runDirective(mapping, payload)
   }
 
   if (Array.isArray(mapping)) {
-    return mapping.map((value) => resolve(value, payload, features))
+    return mapping.map((value) => resolve(value, payload))
   }
 
   const resolved: JSONLikeObject = {}
 
   for (const key of Object.keys(mapping)) {
-    resolved[key] = resolve(mapping[key], payload, features)
+    resolved[key] = resolve(mapping[key], payload)
   }
 
   return resolved
@@ -138,9 +229,8 @@ function resolve(mapping: JSONLike, payload: JSONObject, features?: Features): J
  * based on the directives and raw values defined in the mapping object
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
- * @param features - the object of feature flags (optional)
  */
-export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}, features?: Features): JSONObject {
+export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
     throw new Error(`data must be an object, got ${realType}`)
@@ -149,7 +239,7 @@ export function transform(mapping: JSONLikeObject, data: InputData | undefined =
   // throws if the mapping config is invalid
   validate(mapping)
 
-  const resolved = resolve(mapping, data as JSONObject, features)
+  const resolved = resolve(mapping, data as JSONObject)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore

@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Operation Type',
       description:
         "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: { '@path': '$.event' }
     },

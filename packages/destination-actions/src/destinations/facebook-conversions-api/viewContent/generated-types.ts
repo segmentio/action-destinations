@@ -85,6 +85,100 @@ export interface Payload {
      * The ID issued by Facebook when a person first logs into an instance of an app.
      */
     fbLoginID?: number
+    /**
+     * The ID issued by Facebook identity partner.
+     */
+    partner_id?: string
+    /**
+     * The name of the Facebook identity partner.
+     */
+    partner_name?: string
+  }
+  /**
+   * These fields support sending app events to Facebook through the Conversions API. For more information about app events support in the Conversions API, see the Facebook docs [here](https://developers.facebook.com/docs/marketing-api/conversions-api/app-events).
+   *   App events sent through the Conversions API must be associated with a dataset.
+   *   Instructions for creating a dataset can be found [here](https://www.facebook.com/business/help/750785952855662?id=490360542427371). Once a dataset is created, the dataset ID
+   *   can be substituted for the pixel ID in the destination settings.
+   */
+  app_data_field?: {
+    /**
+     * Segment will not send app events to Facebook by default. Enable this once you have created a dataset in Facebook and are ready to begin sending app events.
+     */
+    use_app_data?: boolean
+    /**
+     * *Required for app events*
+     *             Use this field to specify ATT permission on an iOS 14.5+ device. Set to 0 for disabled or 1 for enabled.
+     */
+    advertiser_tracking_enabled?: boolean
+    /**
+     * *Required for app events*
+     *             A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled.
+     */
+    application_tracking_enabled?: boolean
+    /**
+     * *Required for app events* Example: 'i2'.
+     */
+    version?: string
+    /**
+     * Example: 'com.facebook.sdk.samples.hellofacebook'.
+     */
+    packageName?: string
+    /**
+     * Example: '1.0'.
+     */
+    shortVersion?: string
+    /**
+     * Example: '1.0 long'.
+     */
+    longVersion?: string
+    /**
+     * Example: '13.4.1'.
+     */
+    osVersion?: string
+    /**
+     * Example: 'iPhone5,1'.
+     */
+    deviceName?: string
+    /**
+     * Example: 'En_US'.
+     */
+    locale?: string
+    /**
+     * Example: 'PST'.
+     */
+    timezone?: string
+    /**
+     * Example: 'AT&T'.
+     */
+    carrier?: string
+    /**
+     * Example: '1080'.
+     */
+    width?: string
+    /**
+     * Example: '1920'.
+     */
+    height?: string
+    /**
+     * Example: '2.0'.
+     */
+    density?: string
+    /**
+     * Example: '8'.
+     */
+    cpuCores?: string
+    /**
+     * Example: '64'.
+     */
+    storageSize?: string
+    /**
+     * Example: '32'.
+     */
+    freeStorage?: string
+    /**
+     * Example: 'USA/New York'.
+     */
+    deviceTimezone?: string
   }
   /**
    * The category of the content associated with the event.
@@ -145,4 +239,16 @@ export interface Payload {
   custom_data?: {
     [k: string]: unknown
   }
+  /**
+   * The Data Processing Options to send to Facebook. If set to true, Segment will send an array to Facebook indicating events should be processed with Limited Data Use (LDU) restrictions. More information can be found in [Facebook’s documentation](https://developers.facebook.com/docs/marketing-apis/data-processing-options).
+   */
+  data_processing_options?: boolean
+  /**
+   * A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
+   */
+  data_processing_options_country?: number
+  /**
+   * A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
+   */
+  data_processing_options_state?: number
 }

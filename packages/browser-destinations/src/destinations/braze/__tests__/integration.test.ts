@@ -25,7 +25,7 @@ test('can load braze', async () => {
     endpoint: 'sdk.iad-01.braze.com',
     subscriptions: example,
     doNotLoadFontAwesome: true,
-    sdkVersion: '3.3'
+    sdkVersion: '3.5'
   })
 
   jest.spyOn(destination.actions.trackEvent, 'perform')
@@ -100,6 +100,33 @@ describe('loads different versions from CDN', () => {
     `)
   })
 
+  test('3.5', async () => {
+    const [trackEvent] = await braze({
+      api_key: 'api_key',
+      endpoint: 'sdk.iad-01.braze.com',
+      sdkVersion: '3.5',
+      doNotLoadFontAwesome: true,
+      subscriptions: example
+    })
+
+    await trackEvent.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    // loads the service worker
+    expect(scripts).toMatchSnapshot(`
+      NodeList [
+        <script
+          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
+  })
+
   test('undefined version', async () => {
     //@ts-expect-error sdkVersion is expected but undefined
     const [trackEvent] = await braze({
@@ -116,7 +143,7 @@ describe('loads different versions from CDN', () => {
     expect(scripts).toMatchSnapshot(`
       NodeList [
         <script
-          src="https://js.appboycdn.com/web-sdk/3.5/appboy.no-amd.min.js"
+          src="https://js.appboycdn.com/web-sdk/4.6/braze.no-module.min.js"
           status="loaded"
           type="text/javascript"
         />,

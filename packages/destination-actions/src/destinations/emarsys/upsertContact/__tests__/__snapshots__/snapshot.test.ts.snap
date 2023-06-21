@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Emarsys's upsertContact destination action: all fields 1`] = `
+Object {
+  "contacts": Array [
+    Object {
+      "1": "UAl@hlNFqwIzyXq",
+      "2": "UAl@hlNFqwIzyXq",
+      "3": "UAl@hlNFqwIzyXq",
+      "UAl@hlNFqwIzyXq": "UAl@hlNFqwIzyXq",
+    },
+  ],
+  "key_id": "UAl@hlNFqwIzyXq",
+}
+`;
+
+exports[`Testing snapshot for Emarsys's upsertContact destination action: required fields 1`] = `
+Object {
+  "contacts": Array [
+    Object {
+      "UAl@hlNFqwIzyXq": "UAl@hlNFqwIzyXq",
+    },
+  ],
+  "key_id": "UAl@hlNFqwIzyXq",
+}
+`;

@@ -30,8 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Alternative User IDs',
       description:
         'Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas',
-      type: 'string',
-      multiple: true
+      type: 'string'
     },
     //Highly recommended to include
     ope_item_uri: {
@@ -117,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = settings.use_test_endpoint
       ? `https://tagger-test.opecloud.com/${settings.client_id}/v2/native/event`
-      : `https://tagger.opecloud.com/${settings.client_id}/v2/native/event`
+      : `https://${settings.client_id}.tagger.opecloud.com/${settings.client_id}/v2/native/event`
 
     return request(endpoint, {
       method: 'post',

@@ -37,7 +37,7 @@ describe('updateUserProfile', () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions: [
         {
@@ -54,7 +54,7 @@ describe('updateUserProfile', () => {
       ]
     })
 
-    await event.load(Context.system(), {} as Analytics)
+    await event.load(Context.system(), new Analytics({ writeKey: '123' }))
     await event.identify?.(
       new Context({
         type: 'identify',
@@ -66,7 +66,9 @@ describe('updateUserProfile', () => {
 
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
-        changeUser: expect.any(Function)
+        instance: expect.objectContaining({
+          changeUser: expect.any(Function)
+        })
       }),
 
       expect.objectContaining({
@@ -79,7 +81,7 @@ describe('updateUserProfile', () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: '3.3',
+      sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       subscriptions
     })
@@ -115,7 +117,9 @@ describe('updateUserProfile', () => {
 
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
-        changeUser: expect.any(Function)
+        instance: expect.objectContaining({
+          changeUser: expect.any(Function)
+        })
       }),
 
       expect.objectContaining({

@@ -30,6 +30,7 @@ import {
 } from '../lib/control-plane-client'
 import { DestinationDefinition, getManifest, hasOauthAuthentication } from '@segment/actions-cli/lib/destinations'
 import type { JSONSchema4 } from 'json-schema'
+import deprecationWarning from '../lib/warning'
 
 type BaseActionInput = Omit<DestinationMetadataActionCreateInput, 'metadataId'>
 
@@ -51,6 +52,7 @@ export default class Push extends Command {
   async run() {
     const { flags } = this.parse(Push)
     const manifest = getManifest()
+    await deprecationWarning(this.warn)
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
       type: 'multiselect',
@@ -198,10 +200,13 @@ export default class Push extends Command {
         mobile: false
       }
 
+      const { name, description } = definition
       const options = getOptions(definition, metadata.options)
       const basicOptions = getBasicOptions(options)
       const diff = diffString(
         asJson({
+          name,
+          description,
           basicOptions: filterOAuth(metadata.basicOptions),
           options: pick(metadata.options, filterOAuth(Object.keys(options))),
           platforms: metadata.platforms,
@@ -217,6 +222,8 @@ export default class Push extends Command {
           presets: sortBy(existingPresets, 'name')
         }),
         asJson({
+          name: definition.name,
+          description: definition.description,
           basicOptions: filterOAuth(basicOptions),
           options: pick(options, filterOAuth(Object.keys(options))),
           platforms,
@@ -262,6 +269,8 @@ export default class Push extends Command {
       try {
         await Promise.all([
           updateDestinationMetadata(metadata.id, {
+            ...(name !== definition.name && { name }),
+            ...(description !== definition.description && { description }),
             advancedOptions: [], // make sure this gets cleared out since we don't use advancedOptions in Actions
             basicOptions,
             options,
@@ -424,7 +433,7 @@ export function getOptions(
       default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
-      hidden: false,
+      hidden: existing['hidden'] ?? false,
       label: schema.label,
       private: isPrivateSetting,
       scope: 'event_destination',

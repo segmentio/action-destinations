@@ -1,11 +1,27 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import ga4 from '../index'
+import { DataStreamType } from '../ga4-types'
 
 const testDestination = createTestIntegration(ga4)
 const apiSecret = 'b287432uhkjHIUEL'
 const measurementId = 'G-TESTTOKEN'
+const firebaseAppId = '2:925731738562:android:a9c393108115c5581abc5b'
 
+const testEvent = createTestEvent({
+  event: 'Login',
+  userId: 'abc123',
+  timestamp: '2022-06-22T22:20:58.905Z',
+  anonymousId: 'anon-2134',
+  type: 'track',
+  properties: {
+    product_id: '12345abcde',
+    name: 'Quadruple Stack Oreos, 52 ct',
+    currency: 'USD',
+    price: 12.99,
+    quantity: 1
+  }
+})
 describe('GA4', () => {
   describe('Signed In', () => {
     it('should append user_properties correctly', async () => {
@@ -33,7 +49,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -73,7 +88,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.userId'
@@ -134,7 +148,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -147,8 +160,8 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string or number values for event parameters and item parameters. Please ensure you are not including null, array, or nested values.'
+        expect((e as Error).message).toBe(
+          'Param [test_key] has unsupported value of type [NULL]. GA4 does not accept null, array, or object values for event parameters and item parameters.'
         )
       }
     })
@@ -178,7 +191,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -194,10 +206,101 @@ describe('GA4', () => {
         })
         fail('the test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe(
-          'GA4 only accepts string, number or null values for user properties. Please ensure you are not including array or nested values.'
+        expect((e as Error).message).toBe(
+          'Param [hello] has unsupported value of type [Array]. GA4 does not accept array or object values for user properties.'
         )
       }
+    })
+
+    it('should use mobile stream params when datastream is mobile app', async () => {
+      nock('https://www.google-analytics.com/mp/collect')
+        .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
+          app_instance_id: 'anon-2134',
+          events: [{ name: 'login', params: { engagement_time_msec: 1 } }],
+          timestamp_micros: 1655936458905000
+        })
+        .reply(201, {})
+
+      await expect(
+        testDestination.testAction('login', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should throw error when data stream type is mobile app and firebase_app_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('login', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp,
+            app_instance_id: {
+              '@path': '$.anonymousId'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is mobile app and app_instance_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('login', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            firebaseAppId
+          },
+          mapping: {
+            data_stream_type: DataStreamType.MobileApp
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Firebase App Instance ID is required for mobile app streams')
+    })
+
+    it('should throw error when data stream type is web and measurement_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('login', {
+          event: testEvent,
+          settings: {
+            apiSecret
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Measurement ID is required for web streams')
+    })
+
+    it('should throw error when data stream type is web and client_id is not provided', async () => {
+      await expect(
+        testDestination.testAction('login', {
+          event: testEvent,
+          settings: {
+            apiSecret,
+            measurementId
+          },
+          mapping: {
+            client_id: {
+              '@path': '$.traits.dummy'
+            }
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
 })

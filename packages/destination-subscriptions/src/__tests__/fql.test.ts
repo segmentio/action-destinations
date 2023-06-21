@@ -5,8 +5,7 @@ const testFql = (fql: string, ast: any): void => {
   expect(generateFql(ast)).toEqual(fql)
 }
 
-const expectedTypeError = new Error("Cannot read property 'type' of undefined")
-expectedTypeError.name = 'TypeError'
+const expectedTypeError = expect.objectContaining({ name: 'TypeError' })
 
 test('should handle invalid payloads', () => {
   expect(parseFql('typo')).toEqual({
@@ -22,7 +21,7 @@ test('should handle incomplete payloads', () => {
 })
 
 test('should handle invalid operators', () => {
-  expect(parseFql('type * "32456"')).toEqual({
+  expect(parseFql('type * "32456"')).toMatchObject({
     error: expectedTypeError
   })
 })
@@ -189,6 +188,32 @@ test('name = "Home"', () => {
         type: 'name',
         operator: '=',
         value: 'Home'
+      }
+    ]
+  })
+})
+
+test('name != null', () => {
+  testFql('name != null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'name',
+        operator: 'exists'
+      }
+    ]
+  })
+})
+
+test('name = null', () => {
+  testFql('name = null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'name',
+        operator: 'not_exists'
       }
     ]
   })

@@ -13,4 +13,8 @@ export interface Settings {
    * A list of rich link property keys.
    */
   richLinkProperties?: string[]
+  /**
+   * The regional API to use for processing the data
+   */
+  apiBase?: string
 }

@@ -8,7 +8,8 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -16,9 +17,10 @@ const OBJECT_NAME = 'Opportunity'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Opportunity',
-  description: 'Represents an opportunity, which is a sale or pending deal.',
+  description: 'Create, update, or upsert opportunities in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
@@ -72,6 +74,10 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SegmentProfiles.sendGroup Should send an group event to Segment 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`SegmentProfiles.sendGroup Should send an group event to Segment 2`] = `
+Object {
+  "anonymousId": "arky4h2sh7k",
+  "groupId": "test-group-ks2i7e",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "industry": "Technology",
+    "name": "Example Corp",
+  },
+  "userId": "test-user-ufi5bgkko5",
+}
+`;

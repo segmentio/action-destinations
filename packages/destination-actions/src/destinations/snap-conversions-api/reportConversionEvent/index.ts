@@ -27,7 +27,10 @@ import {
   sign_up_method,
   formatPayload,
   CURRENCY_ISO_4217_CODES,
-  conversionType
+  conversionType,
+  device_model,
+  os_version,
+  click_id
 } from '../snap-capi-properties'
 
 const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
@@ -59,12 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
     client_dedup_id: client_dedup_id,
     search_string: search_string,
     page_url: page_url,
-    sign_up_method: sign_up_method
+    sign_up_method: sign_up_method,
+    os_version: os_version,
+    device_model: device_model,
+    click_id: click_id
   },
   perform: (request, data) => {
-    const payload: Object = formatPayload(data.payload)
-    const settings: Settings = conversionType(data.settings, data.payload.event_conversion_type)
-
     if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
       throw new IntegrationError(
         `${data.payload.currency} is not a valid currency code.`,
@@ -72,6 +75,22 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+
+    if (
+      !data.payload.email &&
+      !data.payload.phone_number &&
+      !data.payload.mobile_ad_id &&
+      (!data.payload.ip_address || !data.payload.user_agent)
+    ) {
+      throw new IntegrationError(
+        `Payload must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`,
+        'Misconfigured required field',
+        400
+      )
+    }
+
+    const payload: Object = formatPayload(data.payload)
+    const settings: Settings = conversionType(data.settings, data.payload.event_conversion_type)
 
     //Create Conversion Event Request
     return request(CONVERSION_EVENT_URL, {
