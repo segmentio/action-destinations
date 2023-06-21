@@ -2,16 +2,17 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { baseUrl, getDomain } from '../utils/constants'
-import { ResponseError } from '@segment/actions-core/src/create-request-client'
 import {
   AccountGet,
   AccountListResponse,
   RevOrgListResponse,
   RevUserGet,
   RevUserListResponse,
-  TagsResponse
-} from '../utils/types'
+  TagsResponse,
+  getDomain,
+  devrevApiPaths
+} from '../utils'
+import { APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Rev User',
@@ -47,9 +48,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    tag: async (request): Promise<DynamicFieldResponse> => {
+    tag: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const result: TagsResponse = await request(`${baseUrl}/tags.list`, {
+        const result: TagsResponse = await request(`${settings.devrevApiEndpoint}${devrevApiPaths.tagsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -65,58 +66,66 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [],
           nextPage: '',
           error: {
-            message: (err as ResponseError).message ?? 'Unknown error',
-            code: (err as ResponseError).status + '' ?? 'Unknown error'
+            message: (err as APIError).message ?? 'Unknown error',
+            code: (err as APIError).status + '' ?? 'Unknown error'
           }
         }
       }
     }
   },
-  perform: async (request, data) => {
+  perform: async (request, { settings, payload }) => {
     const user = {
-      email: data.payload.email,
-      full_name: data.payload.fullName
+      email: payload.email,
+      full_name: payload.fullName
     }
     console.log(user)
-    const domain = getDomain(data.settings, user.email)
-    const existingUsers: RevUserListResponse = await request(`${baseUrl}/internal/rev-users.list?email="${user.email}"`)
+    const domain = getDomain(settings, user.email)
+    const existingUsers: RevUserListResponse = await request(
+      `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersList}?email="${user.email}"`
+    )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
       const existingAccount: AccountListResponse = await request(
-        `${baseUrl}/internal/accounts.list?domains="${domain}"`
+        `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?domains="${domain}"`
       )
       if (existingAccount.data.accounts.length == 0) {
         // Create account
-        const createAccount: AccountGet = await request(`${baseUrl}/internal/accounts.create`, {
-          method: 'post',
-          json: {
-            display_name: domain,
-            domains: [domain],
-            tags: [
-              {
-                id: data.payload.tag
-              }
-            ]
+        const createAccount: AccountGet = await request(
+          `${settings.devrevApiEndpoint}${devrevApiPaths.accountCreate}`,
+          {
+            method: 'post',
+            json: {
+              display_name: domain,
+              domains: [domain],
+              tags: [
+                {
+                  id: payload.tag
+                }
+              ]
+            }
           }
-        })
+        )
         accountId = createAccount.data.account.id
         const accountRevorgs: RevOrgListResponse = await request(
-          `${baseUrl}/internal/rev-orgs.list?account=${accountId}`
+          `${settings.devrevApiEndpoint}${devrevApiPaths.revOrgsList}?account=${accountId}`
         )
         const filtered = accountRevorgs.data.rev_orgs.filter((revorg) => {
           revorg.external_ref_issuer == 'devrev:platform:revorg:account'
         })
         revOrgId = filtered[0].id
-        const createRevUser: RevUserGet = await request(`${baseUrl}/internal/rev-users.create`, {
-          method: 'post',
-          json: {
-            email: user.email,
-            full_name: user.full_name,
-            external_ref: user.email,
-            org_id: revOrgId
+        const createRevUser: RevUserGet = await request(
+          `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersCreate}`,
+          {
+            method: 'post',
+            json: {
+              email: user.email,
+              full_name: user.full_name,
+              external_ref: user.email,
+              org_id: revOrgId
+            }
           }
-        })
+        )
         revUserId = createRevUser.data.rev_user.id
       }
     } else if (existingUsers.data.rev_users.length == 1) {
@@ -129,14 +138,14 @@ const action: ActionDefinition<Settings, Payload> = {
       })
       revUserId = sorted[0].id
     }
-    if (data.payload.comment) {
-      await request(`${baseUrl}/timeline-entries.create`, {
+    if (payload.comment) {
+      await request(`${settings.devrevApiEndpoint}${devrevApiPaths.timelineEntriesCreate}`, {
         method: 'post',
         json: {
           object: revUserId,
           type: 'timeline_comment',
           body_type: 'text',
-          body: data.payload.comment
+          body: payload.comment
         }
       })
     }

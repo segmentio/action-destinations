@@ -6,7 +6,11 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * A list of email domains to blacklist from being used to search for/create Accounts.
+   * A comma separated list of email domains to blacklist from being used to search for/create Accounts.
    */
-  blacklistedDomains?: string & string[]
+  blacklistedDomains?: string
+  /**
+   * The DevRev API endpoint to use.  No need to change unless you have a custom endpoint
+   */
+  devrevApiEndpoint: string
 }

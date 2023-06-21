@@ -2,9 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import createWork from './createWork'
-import { baseUrl } from './utils/constants'
 
 import createRevUser from './createRevUser'
+import { devrevApiPaths } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'DevRev',
@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest: ({ settings }) => {
     return {
-      headers: { Authorization: `Bearer ${settings.apiKey}` }
+      headers: { Authorization: `${settings.apiKey}` }
     }
   },
   authentication: {
@@ -27,18 +27,25 @@ const destination: DestinationDefinition<Settings> = {
       },
       blacklistedDomains: {
         label: 'Blacklisted Domains',
-        description: 'A list of email domains to blacklist from being used to search for/create Accounts.',
+        description:
+          'A comma separated list of email domains to blacklist from being used to search for/create Accounts.',
         type: 'string',
         required: false,
-        multiple: true,
-        default: 'gmail.com'
+        default: 'gmail.com,hotmail.com,outlook.com,yahoo.com,aol.com,icloud.com,me.com,msn.com'
+      },
+      devrevApiEndpoint: {
+        label: 'DevRev API Endpoint',
+        description: 'The DevRev API endpoint to use.  No need to change unless you have a custom endpoint',
+        type: 'string',
+        required: true,
+        default: 'https://api.devrev.ai'
       }
     },
-    testAuthentication: (request) => {
+    testAuthentication: (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
       // you can remove the `testAuthentication` function, though discouraged.
-      const url = `${baseUrl}/operations/dev-users-self`
+      const url = `${settings.devrevApiEndpoint}${devrevApiPaths.authTest}`
       return request(url)
     }
   },

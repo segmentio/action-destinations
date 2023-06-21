@@ -1,40 +1,19 @@
-import type { Settings } from '../generated-types'
+export const devrevApiPaths = {
+  authTest: '/dev-users.self',
+  devUserSelf: '/dev-users.self',
 
-export const baseUrl = 'https://api.dev.devrev-eng.ai'
+  devUsersList: '/dev-users.list',
+  revUsersList: '/internal/rev-users.list',
+  revOrgsList: '/internal/rev-orgs.list',
+  partsList: '/parts.list',
+  tagsList: '/tags.list',
+  accountsList: '/internal/accounts.list',
 
-const parseJwt = (token: string) => {
-  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
+  worksCreate: '/internal/works.create',
+  accountCreate: '/internal/accounts.create',
+  revUsersCreate: '/internal/rev-users.create',
+  timelineEntriesCreate: '/timeline-entries.create'
 }
 
-export const getDevOrgId = (settings: Settings) => {
-  const { apiKey } = settings
-  const parsed = parseJwt(apiKey)
-  const orgId = parsed['http://devrev.ai/devo_don']
-  return orgId
-}
-
-export const getDevUserId = (settings: Settings) => {
-  const { apiKey } = settings
-  const parsed = parseJwt(apiKey)
-  const orgId = parsed['http://devrev.ai/devo_don']
-  const userId = `${orgId}:devu/${parsed['']}`
-  return userId
-}
-
-export const isBlacklisted = (settings: Settings, domain: string) => {
-  const blacklistedDomains = settings.blacklistedDomains
-  if (!blacklistedDomains) return false
-  return blacklistedDomains.includes(domain)
-}
-
-export const getDomain = (settings: Settings, email: string) => {
-  const domain = email.split('@')[1]
-  if (isBlacklisted(settings, domain)) return email
-  return domain
-}
-
-export const isOlderThen = (firstDate: string, secondDate: string) => {
-  const first = new Date(firstDate)
-  const second = new Date(secondDate)
-  return first < second
-}
+export const defaultApiEndpoint = 'https://api.devrev.com'
+export const testApiEndpoint = 'https://api.dev.devrev-eng.ai'

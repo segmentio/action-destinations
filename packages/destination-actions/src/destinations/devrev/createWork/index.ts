@@ -2,10 +2,9 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { RequestOptions } from '@segment/actions-core'
-import { baseUrl } from '../utils/constants'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { DevUserListResponse, PartListResponse } from '../utils/types'
-import { ResponseError } from '@segment/actions-core/src/create-request-client'
+import { DevUserListResponse, PartListResponse, devrevApiPaths } from '../utils'
+import { APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Work',
@@ -23,7 +22,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Work Title',
       description: 'The title of the work to create.',
       type: 'string',
-      required: true
+      required: true,
+      default: { '@path': '$.event' }
     },
     description: {
       label: 'Work Description',
@@ -56,9 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    partId: async (request): Promise<DynamicFieldResponse> => {
+    partId: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const result: PartListResponse = await request(`${baseUrl}/parts.list`, {
+        const result: PartListResponse = await request(`${settings.devrevApiEndpoint}${devrevApiPaths.partsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -74,20 +74,23 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [],
           nextPage: '',
           error: {
-            message: (e as ResponseError).message ?? 'Unknown error',
-            code: (e as ResponseError).status + '' ?? 'Unknown error'
+            message: (e as APIError).message ?? 'Unknown error',
+            code: (e as APIError).status + '' ?? 'Unknown error'
           }
         }
       }
     },
-    assignTo: async (request): Promise<DynamicFieldResponse> => {
+    assignTo: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const results: DevUserListResponse = await request(`${baseUrl}/v1/users`, {
-          method: 'get',
-          skipResponseCloning: true
-        })
+        const results: DevUserListResponse = await request(
+          `${settings.devrevApiEndpoint}${devrevApiPaths.devUsersList}`,
+          {
+            method: 'get',
+            skipResponseCloning: true
+          }
+        )
         const choices = results.data.dev_users.map((user) => {
-          return { value: user.id, label: `${user.full_name} <${user.email}>}` }
+          return { value: user.id, label: `${user.full_name} <${user.email}>` }
         })
         return {
           choices,
@@ -98,22 +101,22 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [],
           nextPage: '',
           error: {
-            message: (e as ResponseError).message ?? 'Unknown error',
-            code: (e as ResponseError).status + '' ?? 'Unknown error'
+            message: (e as APIError).message ?? 'Unknown error',
+            code: (e as APIError).status + '' ?? 'Unknown error'
           }
         }
       }
     }
   },
 
-  perform: (request, { payload }) => {
+  perform: (request, { settings, payload }) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
     const { partId, title, description, assignTo, type, priority } = payload
-    const url = `${baseUrl}/internal/works.create`
+    const url = `${settings.devrevApiEndpoint}${devrevApiPaths.worksCreate}`
     const options: RequestOptions = {
       method: 'POST',
       json: {

@@ -10,9 +10,9 @@ describe('DevRev', () => {
       nock('https://api.devrev.ai').get('*').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = { apiKey: 'dummy-key' }
+      const authData = { apiKey: 'dummy-key', devrevApiEndpoint: 'https://api.devrev.ai' }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrow()
     })
   })
 })
