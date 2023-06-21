@@ -10,7 +10,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Iqm',
   slug: 'actions-iqm',
   mode: 'cloud',
-
+  description: 'Send Segment events to IQM',
   authentication: {
     scheme: 'custom',
     fields: {
