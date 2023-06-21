@@ -1,10 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DynamicFieldResponse } from '@segment/actions-core'
 import { RequestOptions } from '@segment/actions-core'
-import { baseUrl } from '../shared'
-import { DynamicFieldItem } from '../../../../../core/dist/cjs/destination-kit/types'
+import { baseUrl } from '../utils/constants'
+import { DynamicFieldResponse } from '@segment/actions-core'
+import { DevUserListResponse, PartListResponse } from '../utils/types'
+import { ResponseError } from '@segment/actions-core/src/create-request-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Work',
@@ -42,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The priority of the work to create.',
       type: 'string',
       required: true,
-      format: 'regex',
+      format: 'text',
       default: 'p2'
     },
     type: {
@@ -50,32 +51,61 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The type of the work to create.',
       type: 'string',
       required: true,
-      format: 'regex',
+      format: 'text',
       default: 'issue'
     }
   },
   dynamicFields: {
-    partId: async (): Promise<DynamicFieldResponse> => {
-      const url = `${baseUrl}/v1/parts`
-      const options = {
-        method: 'GET'
-      }
-      const response = await fetch(url, options)
-      const parts = await response.json()
-      const choices: DynamicFieldItem[] = []
-
-      parts.foreach((part: any) => {
-        choices.push({
-          label: part.name,
-          value: part.id
+    partId: async (request): Promise<DynamicFieldResponse> => {
+      try {
+        const result: PartListResponse = await request(`${baseUrl}/parts.list`, {
+          method: 'get',
+          skipResponseCloning: true
         })
-      })
-      return { choices, nextPage: par }
+        const choices = result.data.parts.map((part) => {
+          return { value: part.id, label: part.name }
+        })
+        return {
+          choices,
+          nextPage: result.data.next_cursor
+        }
+      } catch (e) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (e as ResponseError).message ?? 'Unknown error',
+            code: (e as ResponseError).status + '' ?? 'Unknown error'
+          }
+        }
+      }
     },
-    assignTo: async (): Promise<DynamicFieldResponse> => {
-      return { choices: [] }
+    assignTo: async (request): Promise<DynamicFieldResponse> => {
+      try {
+        const results: DevUserListResponse = await request(`${baseUrl}/v1/users`, {
+          method: 'get',
+          skipResponseCloning: true
+        })
+        const choices = results.data.dev_users.map((user) => {
+          return { value: user.id, label: `${user.full_name} <${user.email}>}` }
+        })
+        return {
+          choices,
+          nextPage: results.data.next_cursor
+        }
+      } catch (e) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (e as ResponseError).message ?? 'Unknown error',
+            code: (e as ResponseError).status + '' ?? 'Unknown error'
+          }
+        }
+      }
     }
   },
+
   perform: (request, { payload }) => {
     // Make your partner api request here!
     // return request('https://example.com', {
@@ -83,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //   json: data.payload
     // })
     const { partId, title, description, assignTo, type, priority } = payload
-    const url = 'https://api.devrev.ai/v1/work'
+    const url = `${baseUrl}/internal/works.create`
     const options: RequestOptions = {
       method: 'POST',
       json: {
