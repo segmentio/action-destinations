@@ -82,6 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     assignTo: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
+        console.log(`Requesting ${settings.devrevApiEndpoint}${devrevApiPaths.devUsersList}`)
         const results: DevUserListResponse = await request(
           `${settings.devrevApiEndpoint}${devrevApiPaths.devUsersList}`,
           {
@@ -128,8 +129,8 @@ const action: ActionDefinition<Settings, Payload> = {
         priority
       }
     }
-    console.log(`URL: ${url} Options:`)
-    console.log(options)
+    console.log(`Requesting ${url}`)
+
     return request(url, options)
   }
 }

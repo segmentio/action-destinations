@@ -74,14 +74,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const user = {
-      email: payload.email,
-      full_name: payload.fullName
-    }
-    console.log(user)
-    const domain = getDomain(settings, user.email)
+    const domain = getDomain(settings, payload.email)
     const existingUsers: RevUserListResponse = await request(
-      `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersList}?email="${user.email}"`
+      `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersList}?email="${payload.email}"`
     )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
@@ -119,9 +114,9 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             method: 'post',
             json: {
-              email: user.email,
-              full_name: user.full_name,
-              external_ref: user.email,
+              email: payload.email,
+              full_name: payload.fullName,
+              external_ref: payload.email,
               org_id: revOrgId
             }
           }
