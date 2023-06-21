@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './test-utils'
+import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
