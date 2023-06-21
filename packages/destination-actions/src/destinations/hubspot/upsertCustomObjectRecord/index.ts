@@ -96,11 +96,9 @@ const action: ActionDefinition<Settings, Payload> = {
       // No existing custom object record found with search criteria, attempt to create a new custom object record
 
       // setting the createNewCustomRecord default value to true if it's not provided.
-      payload.createNewCustomRecord = !Object.prototype.hasOwnProperty.call(payload, 'createNewCustomRecord')
-        ? true
-        : payload.createNewCustomRecord
+      const createNewCustomRecord = payload?.createNewCustomRecord ?? true
       // If Create New custom object record flag is set to false, skip creation
-      if (!payload.createNewCustomRecord) {
+      if (!createNewCustomRecord) {
         return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
       const properties = { ...flattenObject(payload.properties) }
