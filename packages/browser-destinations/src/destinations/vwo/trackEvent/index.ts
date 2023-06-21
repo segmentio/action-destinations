@@ -30,19 +30,19 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
       }
     }
   },
-  perform: (VWO, event) => {
+  perform: (_, event) => {
     const { eventName, properties } = event.payload
     const sanitisedEventName = sanitiseEventName(eventName)
     const formattedProperties = { ...properties }
-    if (!VWO) {
+    if (!window.VWO) {
       return
     }
-    if (!VWO.event) {
-      VWO.event = function (...args) {
-        VWO.push(['event', ...args])
+    if (!window.VWO.event) {
+      window.VWO.event = function (...args) {
+        window.VWO.push(['event', ...args])
       }
     }
-    VWO.event(sanitisedEventName, formattedProperties, {
+    window.VWO.event(sanitisedEventName, formattedProperties, {
       source: 'segment.web',
       ogName: eventName
     })

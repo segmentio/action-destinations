@@ -21,21 +21,21 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
       }
     }
   },
-  perform: (VWO, event) => {
+  perform: (_, event) => {
     const { attributes } = event.payload
     const formattedAttributes = formatAttributes(attributes)
 
-    if (!VWO) {
+    if (!window.VWO) {
       return
     }
 
-    if (!VWO.visitor) {
-      VWO.visitor = function (...args) {
-        VWO.push(['visitor', ...args])
+    if (!window.VWO.visitor) {
+      window.VWO.visitor = function (...args) {
+        window.VWO.push(['visitor', ...args])
       }
     }
 
-    VWO.visitor(formattedAttributes, { source: 'segment.web' })
+    window.VWO.visitor(formattedAttributes, { source: 'segment.web' })
   }
 }
 
