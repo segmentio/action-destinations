@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The unique field(s) used to search for an existing record in HubSpot to update. The fields provided here are then used to search. If a custom object is still not found, a new one is created.
    */
-  customSearchFields?: {
+  customObjectSearchFields?: {
     [k: string]: unknown
   }
   /**

@@ -13,12 +13,17 @@ export class Hubspot {
 
   /**
    * Searches for object records by search fields
-   * @param {RequestClient} request RequestClient instance
-   * @param {String} objectType - ObjecType Identifier
    * @param {{[key: string]: unknown}} searchFields A list of key-value pairs of unique properties to identify a object record of ObjectType
+   * @param { string[]} responseProperties - An array of properties to return in response.
+   * @param { string[]} responseSortBy - To sort an response
    * @returns {Promise<ModifiedResponse<SearchResponse>>} A promise that resolves to a list of object records matching the search criteria
    */
-  async search(searchFields: { [key: string]: unknown }, searchPayload: SearchPayload) {
+  async search(searchFields: { [key: string]: unknown }, responseProperties: string[], responseSortBy: string[]) {
+    const searchPayload: SearchPayload = {
+      filterGroups: [],
+      properties: [...responseProperties],
+      sorts: [...responseSortBy]
+    }
     for (const [key, value] of Object.entries(searchFields)) {
       searchPayload.filterGroups.push({
         filters: [
@@ -41,8 +46,6 @@ export class Hubspot {
 
   /**
    * Creates a CRM object in HubSpot
-   * @param {RequestClient} request RequestClient instance
-   * @param {String} objectType - ObjecType Identifier
    * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the object
    * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves the updated object
    */
@@ -57,8 +60,6 @@ export class Hubspot {
 
   /**
    * Updates a CRM object in HubSPot identified by record ID or a unique property ID
-   * @param {RequestClient} request RequestClient instance
-   * @param {String} objectType - ObjecType Identifier
    * @param {string} uniqueIdentifier A unique identifier value of the property
    * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties to update
    * @param {String} [idProperty] Unique property of object record to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated record ID

@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { CustomSearchThrowableError, HubSpotError, MultipleCustomRecordsInSearchResultThrowableError } from '../errors'
-import { flattenObject, SearchPayload, SearchResponse, UpsertRecordResponse } from '../utils'
+import { flattenObject, SearchResponse, UpsertRecordResponse } from '../utils'
 import { ModifiedResponse } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
 import { Hubspot } from '../api'
@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: true
     },
-    customSearchFields: {
+    customObjectSearchFields: {
       label: 'Custom Object Search Fields',
       description:
         'The unique field(s) used to search for an existing record in HubSpot to update. The fields provided here are then used to search. If a custom object is still not found, a new one is created.',
@@ -66,16 +66,18 @@ const action: ActionDefinition<Settings, Payload> = {
     // If Custom Search Fields doesn't have any defined property, skip the search and assume record was not found
     let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
     const hubspotApiClient: Hubspot = new Hubspot(request, payload.objectType)
-    if (typeof payload.customSearchFields === 'object' && Object.keys(payload.customSearchFields).length > 0) {
+    if (
+      typeof payload.customObjectSearchFields === 'object' &&
+      Object.keys(payload.customObjectSearchFields).length > 0
+    ) {
       try {
         // Generate custom search payload
         const responseSortBy: string[] = ['name']
-
-        const customSearchPayload: SearchPayload = {
-          filterGroups: [],
-          sorts: [...responseSortBy]
-        }
-        searchCustomResponse = await hubspotApiClient.search({ ...payload.customSearchFields }, customSearchPayload)
+        searchCustomResponse = await hubspotApiClient.search(
+          { ...payload.customObjectSearchFields },
+          [],
+          responseSortBy
+        )
       } catch (e) {
         // HubSpot throws a generic 400 error if an undefined property is used in search
         // Throw a more informative error instead

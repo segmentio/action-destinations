@@ -88,6 +88,7 @@ Object {
       ],
     },
   ],
+  "properties": Array [],
   "sorts": Array [
     "name",
   ],

@@ -11,7 +11,7 @@ import {
   isSegmentUniqueIdentifierPropertyError,
   CompanySearchThrowableError
 } from '../errors'
-import { flattenObject, ResponseInfo, SearchPayload, SearchResponse, UpsertRecordResponse } from '../utils'
+import { flattenObject, ResponseInfo, SearchResponse, UpsertRecordResponse } from '../utils'
 import { Hubspot } from '../api'
 
 interface CompanyProperty {
@@ -220,8 +220,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
       throw MissingIdentityCallThrowableError
     }
-    const objectType = 'companies'
-    const hubspotApiClient: Hubspot = new Hubspot(request, objectType)
+    const hubspotApiClient: Hubspot = new Hubspot(request, 'companies')
 
     // Construct company properties
     const companyProperties = {
@@ -283,14 +282,11 @@ const action: ActionDefinition<Settings, Payload> = {
         try {
           const responseProperties: string[] = ['name', 'domain', 'lifecyclestage', SEGMENT_UNIQUE_IDENTIFIER]
           const responseSortBy: string[] = ['name']
-          const companySearchPayload: SearchPayload = {
-            filterGroups: [],
-            properties: [...responseProperties],
-            sorts: [...responseSortBy]
-          }
+
           searchCompanyResponse = await hubspotApiClient.search(
             { ...payload.companysearchfields },
-            companySearchPayload
+            responseProperties,
+            responseSortBy
           )
         } catch (e) {
           // HubSpot throws a generic 400 error if an undefined property is used in search

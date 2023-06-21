@@ -74,7 +74,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
       mapping: {
         objectType: objectType,
         createNewCustomRecord: true,
-        customSearchFields: {
+        customObjectSearchFields: {
           test_custom_object_type: 'new_test_custom_object_type'
         },
         properties: {
@@ -130,7 +130,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
       mapping: {
         objectType: objectType,
         createNewCustomRecord: true,
-        customSearchFields: {
+        customObjectSearchFields: {
           test_custom_object_type: 'new_test_custom_object_type'
         },
         properties: {
@@ -168,7 +168,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
       mapping: {
         objectType: objectType,
         createNewCustomRecord: false,
-        customSearchFields: {
+        customObjectSearchFields: {
           test_custom_object_type: 'new_test_custom_object_type'
         },
         properties: {
@@ -185,7 +185,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should throw an error when custom search field gives multiple records', async () => {
+  it('should throw an error when custom object search returns multiple records', async () => {
     // Mock: Search Custom Object Record with custom Search Fields
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/${objectType}/search`)
@@ -236,7 +236,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         mapping: {
           objectType: objectType,
           createNewCustomRecord: true,
-          customSearchFields: {
+          customObjectSearchFields: {
             test: 'new_test_value'
           },
           properties: {
