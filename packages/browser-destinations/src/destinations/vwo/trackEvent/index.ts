@@ -34,9 +34,9 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
     const { eventName, properties } = event.payload
     const sanitisedEventName = sanitiseEventName(eventName)
     const formattedProperties = { ...properties }
-    if (!window.VWO) {
-      return
-    }
+
+    window.VWO = window.VWO || []
+
     if (!window.VWO.event) {
       window.VWO.event = function (...args) {
         window.VWO.push(['event', ...args])

@@ -25,9 +25,7 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
     const { attributes } = event.payload
     const formattedAttributes = formatAttributes(attributes)
 
-    if (!window.VWO) {
-      return
-    }
+    window.VWO = window.VWO || []
 
     if (!window.VWO.visitor) {
       window.VWO.visitor = function (...args) {
