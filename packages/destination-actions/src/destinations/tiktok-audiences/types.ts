@@ -33,3 +33,12 @@ export interface Audiences {
   expired_time: string
   calculate_type: string
 }
+
+export interface AudienceInfoError {
+  response: {
+    data: {
+      code: number
+      message: string
+    }
+  }
+}

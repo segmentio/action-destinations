@@ -1,6 +1,6 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
-import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse } from '../types'
+import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse, AudienceInfoError } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import type { Payload } from '../createAudience/generated-types'
 
@@ -41,20 +41,56 @@ export class TikTokAudiences {
     })
   }
 
-  async getAudiences(page_number: number, page_size: number): Promise<GetAudienceAPIResponse> {
-    const response: ModifiedResponse<GetAudienceAPIResponse> = await this.request(
-      `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
-      {
-        method: 'GET',
-        searchParams: {
-          advertiser_id: this.selectedAdvertiserID ?? '',
-          page: page_number,
-          page_size: page_size
+  fetchAudiences = async (selected_advertiser_id: string): Promise<DynamicFieldResponse> => {
+    //Added logs to test, will remove after testing
+    console.log('selectedAdvertiserId: ', selected_advertiser_id, typeof selected_advertiser_id)
+
+    if (!selected_advertiser_id.length) {
+      return {
+        choices: [],
+        error: {
+          message: 'Please select Advertiser ID first to get list of Audience IDs .',
+          code: 'FIELD_NOT_SELECTED'
         }
       }
-    )
+    }
+    try {
+      const result = await this.request<GetAudienceAPIResponse>(
+        `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
+        {
+          method: 'GET',
+          searchParams: {
+            advertiser_id: selected_advertiser_id
+          }
+        }
+      )
 
-    return response.data
+      if (result.data.code !== 0) {
+        throw {
+          message: result.data.message,
+          code: result.data.code
+        }
+      }
+
+      const choices = result.data.data.list.map((item) => {
+        return {
+          label: item.name,
+          value: item.audience_id
+        }
+      })
+
+      return {
+        choices: choices
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        error: {
+          message: (err as AudienceInfoError).response.data.message ?? 'An error occurred while fetching audiences.',
+          code: (err as AudienceInfoError).response.data.code.toString() ?? 'FETCH_AUDIENCE_ERROR'
+        }
+      }
+    }
   }
 
   async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
