@@ -124,15 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const { settings, payload, statsContext, logger } = data
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags || []
-    if (!settings.region) {
-      settings.region = 'us-west-1'
-    }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`, `channel:whatsapp`)
-
-    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
+    return new WhatsAppMessageSender(request, data).send()
   }
 }
 
