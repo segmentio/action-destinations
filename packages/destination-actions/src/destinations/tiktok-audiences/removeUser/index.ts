@@ -29,10 +29,12 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: { ...enable_batching }
   },
   dynamicFields: {
-    selected_advertiser_id: async (request, { settings }) => {
+    selected_advertiser_id: async (request, { settings, payload }) => {
       try {
-        const tiktok = new TikTokAudiences(request)
+        // Added log to test payload, will remove after testing
+        console.log('Payload in dynamic field: ', payload)
 
+        const tiktok = new TikTokAudiences(request)
         return tiktok.fetchAdvertisers(settings.advertiser_ids)
       } catch (err) {
         return {
