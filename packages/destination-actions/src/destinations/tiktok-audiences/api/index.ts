@@ -3,6 +3,7 @@ import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
 import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse, AudienceInfoError } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import type { Payload } from '../createAudience/generated-types'
+import type { Audiences } from '../types'
 
 interface AdvertiserInfoItem {
   advertiser_id: string
@@ -52,7 +53,7 @@ export class TikTokAudiences {
       }
     }
     try {
-      const response = []
+      const response: Array<Audiences> = []
       let page_number = 1
       let total_page = 1
       while (page_number <= total_page) {
