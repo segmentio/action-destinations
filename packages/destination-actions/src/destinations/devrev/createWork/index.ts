@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { RequestOptions } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { DevUserListResponse, PartListResponse, devrevApiPaths } from '../utils'
+import { DevUserListResponse, PartListResponse, devrevApiPaths, devrevApiRoot } from '../utils'
 import { APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -57,9 +57,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    partId: async (request, { settings }): Promise<DynamicFieldResponse> => {
+    partId: async (request): Promise<DynamicFieldResponse> => {
       try {
-        const result: PartListResponse = await request(`${settings.devrevApiEndpoint}${devrevApiPaths.partsList}`, {
+        const result: PartListResponse = await request(`${devrevApiRoot}${devrevApiPaths.partsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -81,11 +81,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    assignTo: async (request, { settings }): Promise<DynamicFieldResponse> => {
+    assignTo: async (request): Promise<DynamicFieldResponse> => {
       try {
-        console.log(`Requesting ${settings.devrevApiEndpoint}${devrevApiPaths.devUsersList}`)
+        console.log(`Requesting ${devrevApiRoot}${devrevApiPaths.devUsersList}`)
         const results: DevUserListResponse = await request(
-          `${settings.devrevApiEndpoint}${devrevApiPaths.devUsersList}`,
+          `${devrevApiRoot}${devrevApiPaths.devUsersList}`,
           {
             method: 'get',
             skipResponseCloning: true
@@ -111,14 +111,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { settings, payload }) => {
+  perform: (request, { payload }) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
     const { partId, title, description, assignTo, type, priority } = payload
-    const url = `${settings.devrevApiEndpoint}${devrevApiPaths.worksCreate}`
+    const url = `${devrevApiRoot}${devrevApiPaths.worksCreate}`
     const options: RequestOptions = {
       method: 'POST',
       json: {

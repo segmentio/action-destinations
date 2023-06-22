@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import createWork from './createWork'
 
 import createRevUser from './createRevUser'
-import { devrevApiPaths } from './utils'
+import { devrevApiPaths, devrevApiRoot } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'DevRev',
@@ -33,19 +33,12 @@ const destination: DestinationDefinition<Settings> = {
         required: false,
         default: 'gmail.com,hotmail.com,outlook.com,yahoo.com,aol.com,icloud.com,me.com,msn.com'
       },
-      devrevApiEndpoint: {
-        label: 'DevRev API Endpoint',
-        description: 'The DevRev API endpoint to use.  No need to change unless you have a custom endpoint',
-        type: 'string',
-        required: true,
-        default: 'https://api.devrev.ai'
-      }
     },
-    testAuthentication: (request, { settings }) => {
+    testAuthentication: (request) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
       // you can remove the `testAuthentication` function, though discouraged.
-      const url = `${settings.devrevApiEndpoint}${devrevApiPaths.authTest}`
+      const url = `${devrevApiRoot}${devrevApiPaths.authTest}`
       return request(url)
     }
   },

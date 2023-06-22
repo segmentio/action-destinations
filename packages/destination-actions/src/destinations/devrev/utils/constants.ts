@@ -15,5 +15,5 @@ export const devrevApiPaths = {
   timelineEntriesCreate: '/timeline-entries.create'
 }
 
-export const defaultApiEndpoint = 'https://api.devrev.com'
-export const testApiEndpoint = 'https://api.dev.devrev-eng.ai'
+export const devrevApiRoot = 'https://api.devrev.ai'
+

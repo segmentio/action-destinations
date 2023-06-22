@@ -167,7 +167,6 @@ export const devUserSelfResponse = {
 
 export const settings = {
   apiKey: 'blank',
-  devrevApiEndpoint: 'https://api.devrev.ai',
   blacklistedDomains: '',
 }
 

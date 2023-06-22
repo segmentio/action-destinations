@@ -12,6 +12,7 @@ import {
   getDomain,
   devrevApiPaths,
   CreateAccountBody,
+  devrevApiRoot,
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -49,9 +50,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    tag: async (request, { settings }): Promise<DynamicFieldResponse> => {
+    tag: async (request): Promise<DynamicFieldResponse> => {
       try {
-        const result: TagsResponse = await request(`${settings.devrevApiEndpoint}${devrevApiPaths.tagsList}`, {
+        const result: TagsResponse = await request(`${devrevApiRoot}${devrevApiPaths.tagsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -77,16 +78,16 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const domain = getDomain(settings, payload.email)
     const existingUsers: RevUserListResponse = await request(
-      `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersList}?email="${payload.email}"`
+      `${devrevApiRoot}${devrevApiPaths.revUsersList}?email="${payload.email}"`
     )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
       let requestUrl;
       if (domain !== payload.email)
-        requestUrl = `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?domains="${domain}"`
+        requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?domains="${domain}"`
       else
-        requestUrl = `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?external_refs="${domain}"`
+        requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?external_refs="${domain}"`
       const existingAccount: AccountListResponse = await request(requestUrl)
       if (existingAccount.data.accounts.length == 0) {
         // Create account
@@ -101,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         
         const createAccount: AccountGet = await request(
-          `${settings.devrevApiEndpoint}${devrevApiPaths.accountCreate}`,
+          `${devrevApiRoot}${devrevApiPaths.accountCreate}`,
           {
             method: 'post',
             json: requestBody
@@ -113,12 +114,12 @@ const action: ActionDefinition<Settings, Payload> = {
         accountId = existingAccount.data.accounts[0].id
       }
         const accountRevorgs: RevOrgListResponse = await request(
-          `${settings.devrevApiEndpoint}${devrevApiPaths.revOrgsList}?account=${accountId}`
+          `${devrevApiRoot}${devrevApiPaths.revOrgsList}?account=${accountId}`
         )
         const filtered = accountRevorgs.data.rev_orgs.filter((revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account')
         revOrgId = filtered[0].id
         const createRevUser: RevUserGet = await request(
-          `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersCreate}`,
+          `${devrevApiRoot}${devrevApiPaths.revUsersCreate}`,
           {
             method: 'post',
             json: {
@@ -142,7 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
       revUserId = sorted[0].id
     }
     if (payload.comment) {
-      await request(`${settings.devrevApiEndpoint}${devrevApiPaths.timelineEntriesCreate}`, {
+      await request(`${devrevApiRoot}${devrevApiPaths.timelineEntriesCreate}`, {
         method: 'post',
         json: {
           object: revUserId,
