@@ -16,7 +16,7 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
       type: 'string',
       required: true,
       description:
-        'Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.'
+        'Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Pixel documentation](https://ads.tiktok.com/marketing_api/docs?id=1739585696931842) for accepted event names.'
     },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
