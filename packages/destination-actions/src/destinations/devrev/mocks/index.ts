@@ -1,50 +1,70 @@
-export const tagsResponse = {
+import { createTestEvent, SegmentEvent } from '@segment/actions-core'
+import * as types from '../utils/types'
+
+export const tagsResponse: types.TagsResponse = {
   data: {
+    next_cursor: '',
     tags: [
       {
         id: 'don:core:dvrv-us-1:devo/g0NHWj3i:tag/2',
-        display_id: 'tag-2',
-        name: 'test-tag',
-        type: 'tag'
+        name: 'test-tag'
       }
     ]
   }
 }
 
-export const accountsListResponse = {
+export const accountsListResponse: types.AccountListResponse = {
   data: {
+    next_cursor: '',
     accounts: [
       {
         id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:account/cDQcoK9u',
         created_date: '2023-06-02T09:17:21.714Z',
-        description: 'test-newer',
-        display_id: 'ACC-cDQcoK9u',
         display_name: 'test-dev',
-        environment: 'production',
-        external_refs: ['don:identity:dvrv-us-1:devo/g0NHWj3i:account/cDQcoK9u'],
         state: 'active'
       },
       {
         id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:account/jllQLGB2',
         created_date: '2023-06-02T09:17:21.681Z',
-        description: 'test-older',
-        display_id: 'ACC-jllQLGB2',
         display_name: 'Demo',
-        environment: 'production',
         domains: ['test.com'],
-        external_refs: ['test.com'],
         state: 'active'
       }
     ]
   }
 }
 
-export const revorgsListResponse = {
-  data: {}
+export const revorgsListResponse: types.RevOrgListResponse = {
+  data: {
+    rev_orgs: []
+  }
 }
 
-export const revUsersListResponse = {
-  data: {}
+export const revUsersListResponse: types.RevUserListResponse = {
+  data: {
+    rev_users: [
+      {
+        id: 'rev-user-newer',
+        created_date: '2023-03-30T23:20:42.676Z',
+        display_name: 'test-user',
+        email: 'test-user@test.com',
+        rev_org: {
+          id: 'test-org-newer',
+          display_name: 'test-org'
+        }
+      },
+      {
+        id: 'rev-user-older',
+        display_name: 'test-user',
+        email: 'test-user@test.com',
+        rev_org: {
+          id: 'test-org-older',
+          display_name: 'test-org'
+        },
+        created_date: '2023-03-16T23:20:42.676Z'
+      }
+    ]
+  }
 }
 
 export const accountsCreateResponse = {
@@ -55,28 +75,69 @@ export const revUsersCreateResponse = {
   data: {}
 }
 
-export const testPartsResponse = {
-  parts: [
-    {
-      type: 'product',
-      id: 'don:core:dvrv-us-1:devo/g0NHWj3i:product/2',
-      created_date: '2023-06-08T17:30:02.353Z',
-      display_id: 'PROD-2',
-      name: 'BaseProduct'
+export const timelineEntriesCreateResponse = {
+  data: {
+    timeline_entry: {
+      id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:revo/NZQdUYjF:comment/edvgqm7rnp6pc:comment/rjywnhkala5g2'
     }
-  ]
+  }
 }
 
-export const testDevUserListResponse = {
-  dev_users: [
-    {
-      id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:devu/1',
-      created_date: '2022-08-28T17:19:52.075Z',
-      display_id: 'DEVU-1',
-      display_name: 'testy-mctesty',
-      email: 'test-email@test.com',
-      full_name: 'Tester McTesty',
-      state: 'active'
-    }
-  ]
+export const partsResponse = {
+  data: {
+    parts: [
+      {
+        type: 'product',
+        id: 'don:core:dvrv-us-1:devo/g0NHWj3i:product/2',
+        created_date: '2023-06-08T17:30:02.353Z',
+        display_id: 'PROD-2',
+        name: 'BaseProduct'
+      }
+    ]
+  }
 }
+
+export const devUserListResponse = {
+  data: {
+    dev_users: [
+      {
+        id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:devu/1',
+        created_date: '2022-08-28T17:19:52.075Z',
+        display_id: 'DEVU-1',
+        display_name: 'testy-mctesty',
+        email: 'test-email@test.com',
+        full_name: 'Tester McTesty',
+        state: 'active'
+      }
+    ]
+  }
+}
+
+export const devUserSelfResponse = {
+  data: {
+    dev_user: {
+      id: 'don:identity:dvrv-us-1:devo/g0NHWj3i:devu/1'
+    }
+  }
+}
+
+export const settings = {
+  apiKey: 'blank',
+  devrevApiEndpoint: 'https://api.devrev.ai'
+}
+
+export const testEventPayload: Partial<SegmentEvent> = {
+  type: 'track',
+  userId: 'test-user',
+  event: 'test-event',
+  timestamp: '2023-06-21T20:29:45.548Z',
+  properties: {
+    description: 'test body',
+    email: 'test-user@test.com',
+    name: 'test name'
+  }
+}
+
+export const event = createTestEvent(testEventPayload)
+export const partId = 'don:core:dvrv-us-1:devo/g0NHWj3i:product/2'
+export const assignTo = 'don:identity:dvrv-us-1:devo/g0NHWj3i:devu/1'

@@ -1,18 +1,16 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { settings, devUserListResponse } from '../mocks'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('DevRev', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://api.devrev.ai').get('*').reply(200, {})
+      nock('https://api.devrev.ai').get('/dev-users.self').reply(200, devUserListResponse)
 
-      // This should match your authentication.fields
-      const authData = { apiKey: 'dummy-key', devrevApiEndpoint: 'https://api.devrev.ai' }
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrow()
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrow()
     })
   })
 })

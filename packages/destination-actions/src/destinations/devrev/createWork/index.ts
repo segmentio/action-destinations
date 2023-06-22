@@ -29,7 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Work Description',
       description: 'The description of the work to create.',
       type: 'text',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.description' }
     },
     assignTo: {
       label: 'Assign to',

@@ -24,14 +24,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's email address.",
       type: 'string',
       required: true,
-      default: { '@path': '$.traits.email' }
+      default: { '@path': '$.properties.email' }
     },
     fullName: {
       label: 'Full Name',
       description: "The user's full name.",
       type: 'string',
       required: false,
-      default: { '@path': '$.traits.name' }
+      default: { '@path': '$.properties.name' }
     },
     comment: {
       label: 'Comment',
