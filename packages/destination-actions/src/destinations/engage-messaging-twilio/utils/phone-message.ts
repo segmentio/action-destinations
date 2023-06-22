@@ -46,7 +46,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
       'base64'
     )
 
-    this.statsClient?.set('actions_personas_messaging_twilio.message_body_size', body?.toString().length, this.tags)
+    this.stats('set', 'message_body_size', body?.toString().length)
 
     try {
       this.logInfo('Sending message to Twilio API')
@@ -62,14 +62,10 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
         }
       )
       this.tags.push(`twilio_status_code:${response.status}`)
-      this.statsClient?.incr('actions_personas_messaging_twilio.response', 1, this.tags)
+      this.stats('incr', 'response', 1)
 
       if (this.payload.eventOccurredTS != undefined) {
-        this.statsClient?.histogram(
-          'actions-personas-messaging-twilio.eventDeliveryTS',
-          Date.now() - new Date(this.payload.eventOccurredTS).getTime(),
-          this.tags
-        )
+        this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
       }
 
       this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
@@ -78,7 +74,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
       return response
     } catch (error: unknown) {
-      this.throwTwilioError(error)
+      this.rethrowError(error)
     }
   }
 
@@ -93,7 +89,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   private getSendabilityPayload(): SendabilityPayload {
     if (!this.payload.send) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, this.tags)
+      this.stats('incr', 'send-disabled', 1)
       return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
     }
 
@@ -131,13 +127,13 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
     const phone = this.payload.toNumber || firstSubscribedExtId?.id
 
     if (firstSubscribedExtId) {
-      this.statsClient?.incr('actions_personas_messaging_twilio.subscribed', 1, this.tags)
+      this.stats('incr', 'subscribed', 1)
       status = phone ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone
     } else if (hasInvalidStatuses) {
-      this.statsClient?.incr('actions_personas_messaging_twilio.invalid_subscription_status', 1, this.tags)
+      this.stats('incr', 'invalid_subscription_status', 1)
       status = SendabilityStatus.InvalidSubscriptionStatus
     } else if (validExtIds && validExtIds.length > 0) {
-      this.statsClient?.incr('actions_personas_messaging_twilio.notsubscribed', 1, this.tags)
+      this.stats('incr', 'notsubscribed', 1)
       status = SendabilityStatus.DoNotSend
     } else {
       status = SendabilityStatus.NoSenderPhone

@@ -1,9 +1,9 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { preChecksAndMaint } from '../Utility/tablemaintutilities'
+import { doPOST, getAuthCreds } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
-import { addUpdateEvents, postUpdates } from '../Utility/eventprocessing'
+import { addUpdateEvents } from '../Utility/eventprocessing'
 import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -36,40 +36,62 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
+    key_value_pairs: {
+      label: 'Key-Value pairs',
+      description: 'Map simple Key-Value pairs of Event data here.',
+      type: 'object'
+    },
+    array_data: {
+      label: 'Arrays',
+      description: 'Map Arrays of data into flattened data attributes here.',
+      type: 'object',
+      multiple: true,
+      additionalProperties: true
+    },
     context: {
       label: 'Context',
-      description: 'Parses all properties provided via a Context Section ',
-      type: 'object',
-      default: {
-        '@path': '$.context'
-      }
+      description: 'Deprecated - Parses all properties provided via a Context Section ',
+      type: 'object'
+      // default: {
+      //   '@path': '$.context'
+      // }
     },
     properties: {
       label: 'Properties',
-      description: 'Parses all properties provided via a Properties Section',
-      type: 'object',
-      default: {
-        '@path': '$.properties'
-      }
+      description: 'Deprecated - Parses all properties provided via a Properties Section',
+      type: 'object'
+      // // default: {
+      //   '@path': '$.properties'
+      // }
     },
     traits: {
       label: 'Traits',
-      description: 'Parses all properties provided via a Traits Section',
-      type: 'object',
-      default: {
-        '@path': '$.traits'
-      }
+      description: 'Deprecated - Parses all properties provided via a Traits Section',
+      type: 'object'
+      // default: {
+      //   '@path': '$.traits'
+      // }
     }
   },
 
   perform: async (request, { settings, payload, auth }) => {
-    const email = get(payload, 'email', 'Null')
+    const email = get(payload, 'email', '')
+    //Parse Event-Payload into an Update
+    const rows = addUpdateEvents(payload, email, settings.attributesMax as number)
 
-    await preChecksAndMaint(request, settings, auth as AuthTokens)
+    let a_Auth = {}
+    if (!auth?.accessToken) a_Auth = getAuthCreds()
 
-    //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
-    const rows = addUpdateEvents(payload, email, settings.a_attributesMax as number) as string
-    return await postUpdates(request, settings, auth as AuthTokens, rows, 1)
+    const POSTUpdates = `<Envelope>
+      <Body>
+        <InsertUpdateRelationalTable>
+        <TABLE_ID>${settings.tableListId} </TABLE_ID>
+          <ROWS>${rows}</ROWS>
+        </InsertUpdateRelationalTable>
+      </Body>
+    </Envelope>`
+
+    return await doPOST(request, settings, (auth as AuthTokens) ?? (a_Auth as AuthTokens), POSTUpdates, 'POST_Updates')
   }
 }
 
