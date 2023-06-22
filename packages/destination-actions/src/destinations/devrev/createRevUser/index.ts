@@ -76,15 +76,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const domain = getDomain(settings, payload.email)
+    const email = payload.email.toLowerCase()
+    const domain = getDomain(settings, email)
     const existingUsers: RevUserListResponse = await request(
-      `${devrevApiRoot}${devrevApiPaths.revUsersList}?email="${payload.email}"`
+      `${devrevApiRoot}${devrevApiPaths.revUsersList}?email="${email}"`
     )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
       let requestUrl;
-      if (domain !== payload.email)
+      if (domain !== email)
         requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?domains="${domain}"`
       else
         requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?external_refs="${domain}"`
@@ -97,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
         if (payload.tag)
           requestBody.tags = [{id: payload.tag}]
-        if (domain != payload.email)
+        if (domain != email)
           requestBody.domains = [domain]
 
         
@@ -123,9 +124,9 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             method: 'post',
             json: {
-              email: payload.email,
+              email,
               full_name: payload.fullName,
-              external_ref: payload.email,
+              external_ref: email,
               org_id: revOrgId
             }
           }

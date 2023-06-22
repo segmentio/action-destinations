@@ -45,7 +45,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       format: 'text',
-      default: 'p2'
+      default: 'p2',
+      dynamic: true,
     },
     type: {
       label: 'Type',
@@ -53,10 +54,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       format: 'text',
-      default: 'issue'
+      default: 'issue',
+      dynamic: true,
     }
   },
   dynamicFields: {
+    type: async (): Promise<DynamicFieldResponse> => {
+      return {
+        choices: [
+          { value: 'issue', label: 'Issue -  Work created by automations' },
+          { value: 'ticket', label: 'Ticket - Customer request for assistance' },
+        ],
+        nextPage: ''
+      }
+    },
+    priority: async (): Promise<DynamicFieldResponse> => {
+      return {
+        choices: [
+          { value: 'p0', label: 'P0 - Critical' },
+          { value: 'p1', label: 'P1 - High' },
+          { value: 'p2', label: 'P2 - Medium' },
+          { value: 'p3', label: 'P3 - Low' },
+        ],
+        nextPage: ''
+      }
+    },
     partId: async (request): Promise<DynamicFieldResponse> => {
       try {
         const result: PartListResponse = await request(`${devrevApiRoot}${devrevApiPaths.partsList}`, {
