@@ -30,6 +30,19 @@ export function flat(data?: Properties, prefix = ''): FlattenProperties | undefi
   return result
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const flattenProperties = (arrayPropertyValue: any) => {
+  let arrayProperties = {}
+  for (const [key, value] of Object.entries(arrayPropertyValue)) {
+    if (typeof value == 'object' && value !== null) {
+      arrayProperties = { ...arrayProperties, ...flat({ [key]: value as Properties }) }
+    } else {
+      arrayProperties = Object.assign(arrayProperties, { [key]: value })
+    }
+  }
+  return arrayProperties
+}
+
 function stringify(value: unknown): string {
   if (typeof value === 'string') {
     return value
