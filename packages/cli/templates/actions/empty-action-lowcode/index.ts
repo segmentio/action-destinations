@@ -7,23 +7,23 @@ const action: ActionDefinition<Settings, Payload> = {
   description: '{{description}}',
   fields: {
     {{#fields}}
-   {{key}}: {
-     label: '{{label}}',
-     description: '{{description}}',
-     type: '{{type}}',
-     required: {{required}},
-     {{#hasDefault}}
-     {{#isTemplate}}
-     default: {
-      "@template": "{{value}}"
-     }
-     {{/isTemplate}}
-     {{^isTemplate}}
-     default: {{{defaultValue}}}
-     {{/isTemplate}}
-     {{/hasDefault}}
-   },
-   {{/fields}}
+    {{key}}: {
+      label: '{{label}}',
+      description: '{{description}}',
+      type: '{{type}}',
+      required: {{required}},
+      {{#hasDefault}}
+      {{#isTemplate}}
+      default: {
+        "@template": "{{value}}"
+      }
+      {{/isTemplate}}
+      {{^isTemplate}}
+      default: {{{defaultValue}}}
+      {{/isTemplate}}
+      {{/hasDefault}}
+    },
+    {{/fields}}
   },
   perform: (request, { payload }) => {
     return request('{{{apiEndpoint}}}', {
