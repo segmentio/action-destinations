@@ -222,7 +222,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         pixel_code: settings.pixelCode,
         event: payload.event,
-        event_id: payload.event_id ? `${payload.event_id}_seg` : undefined,
+        event_id: payload.event_id ? `${payload.event_id}` : undefined,
         timestamp: payload.timestamp,
         test_event_code: payload.test_event_code,
         context: {

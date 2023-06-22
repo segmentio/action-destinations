@@ -10,7 +10,8 @@ import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: 'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
+  description:
+    'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
   fields: {
     event_name: {
       label: 'Event Name',

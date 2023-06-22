@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Airship's customEvents destination action: required fields 1`] = `
+Array [
+  Object {
+    "body": Object {
+      "interaction_type": "cdp",
+      "name": "5c5xz3fwrh)z48",
+      "properties": Object {
+        "source": "Segment",
+      },
+    },
+    "occurred": false,
+    "user": Object {
+      "named_user_id": "5C5XZ3fWrH)z48",
+    },
+  },
+]
+`;

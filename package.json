@@ -8,7 +8,7 @@
     ]
   },
   "engines": {
-    "node": ">=14"
+    "node": "14 || ^18.12"
   },
   "scripts": {
     "browser": "yarn workspace @segment/browser-destinations",
@@ -83,7 +83,8 @@
   },
   "lint-staged": {
     "**/src/destinations/**/index.ts": [
-      "./bin/run generate:types"
+      "./bin/run generate:types",
+      "git add **/generated-types.ts"
     ],
     "!(templates)/**/*.ts": [
       "eslint --fix --cache",
