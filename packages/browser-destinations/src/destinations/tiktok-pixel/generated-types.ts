@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.
+   * Your TikTok Pixel ID. Please see TikTok’s [Pixel documentation](https://ads.tiktok.com/marketing_api/docs?id=1739583652957185) for information on how to find this value.
    */
   pixelCode: string
   /**
