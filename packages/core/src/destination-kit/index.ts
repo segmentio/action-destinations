@@ -61,6 +61,34 @@ export interface BaseDefinition {
   presets?: Subscription[]
 }
 
+export type AudienceResult = {
+  externalId: string
+}
+
+export type AudienceMode =
+  { type: "realtime" } |
+  { type: "synced", full_audience_sync: boolean };
+
+export type CreateAudienceInput<Settings = unknown> = {
+  settings: Settings,
+
+  audienceName: string,
+}
+
+export type GetAudienceInput<Settings = unknown> = {
+  settings: Settings,
+
+  externalId: string,
+}
+
+export interface AudienceDestinationSettings<Settings = unknown> {
+  mode: AudienceMode
+
+  createAudience(request: RequestClient, createAudienceInput: CreateAudienceInput<Settings>): Promise<AudienceResult>
+
+  getAudience(request: RequestClient, getAudienceInput: GetAudienceInput): Promise<AudienceResult>
+}
+
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
   mode: 'cloud'
 
@@ -78,6 +106,8 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  audienceSettings?: AudienceDestinationSettings<Settings>
 
   onDelete?: Deletion<Settings>
 }
