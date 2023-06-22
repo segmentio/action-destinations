@@ -7,6 +7,8 @@ import track from './track'
 
 import group from './group'
 
+import page from './page'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Usermaven (Actions)',
   slug: 'actions-usermaven',
@@ -18,7 +20,13 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         type: 'string',
         label: 'API Key',
-        description: 'Found on your settings page.',
+        description: 'Found on your general settings page.',
+        required: true
+      },
+      server_token: {
+        type: 'string',
+        label: 'Server Token',
+        description: 'Found on your general settings page.',
         required: true
       }
     },
@@ -28,6 +36,10 @@ const destination: DestinationDefinition<Settings> = {
       // you can remove the `testAuthentication` function, though discouraged.
       if (!settings.api_key || settings.api_key.length === 0) {
         throw new IntegrationError('API Key is required', 'Invalid API Key', 400)
+      }
+
+      if (!settings.server_token || settings.server_token.length === 0) {
+        throw new IntegrationError('Server Token is required', 'Invalid Server Token', 400)
       }
     }
   },
@@ -49,12 +61,19 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "group"',
       partnerAction: 'group',
       mapping: defaultValues(group.fields)
+    },
+    {
+      name: 'Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'page',
+      mapping: defaultValues(page.fields)
     }
   ],
   actions: {
     identify,
     track,
-    group
+    group,
+    page
   }
 }
 

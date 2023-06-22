@@ -23,6 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       {{/json.oauth.fields}}
     },
     testAuthentication: (request) => {
+      // Please update the code here for further customization
       return request('{{{json.oauth.apiEndpoint}}}', {
         method: '{{json.oauth.httpMethod}}'
       })

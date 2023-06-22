@@ -5,7 +5,7 @@ import Facebook from '../fbca-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Reverse ETL',
-  description: '',
+  description: 'Sync action for Reverse ETL.',
   fields: {
     method: {
       label: 'Method',
@@ -60,13 +60,19 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: 'The email to use when updating',
       type: 'string'
+    },
+    phone: {
+      label: 'Phone',
+      description: 'The phone to use when updating',
+      type: 'string'
     }
   },
   dynamicFields: {
     updateId: async (request, data) => {
+      console.log('data', data)
       const fb: Facebook = new Facebook(request, data.payload.accountId, data.payload.accessToken)
 
-      return fb.getAllAudiences()
+      return fb.getAllAudiences(data.mapping)
     }
   },
   perform: (request, { payload }) => {
@@ -76,7 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
       return fb.updateAudience(
         payload.updateId ?? 'test',
         payload.updateSchema ?? 'CUSTOM',
-        payload.email ?? 'nick@test.com'
+        payload.email ?? 'nick@test.com',
+        payload.phone ?? '555-555-5555'
       )
     }
   }

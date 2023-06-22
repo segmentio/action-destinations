@@ -115,6 +115,7 @@ describe.each([
       send: true,
       traitEnrichment: true,
       groupId: '',
+      byPassSubscription: false,
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -362,7 +363,7 @@ describe.each([
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -787,13 +788,77 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
           ]
         }),
         settings,
         mapping: getDefaultMapping()
       })
 
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Should not send email when email is not present in external id', async () => {
+      // const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const logInfoSpy = jest.fn() as Logger['info']
+      const status = true
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.phone, type: 'phone', isSubscribed: status, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping(),
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+      })
+      // expect(sendGridRequest.isDone()).toBe(false)
+      expect(logInfoSpy).toHaveBeenCalledWith(
+        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
+      )
+    })
+
+    it('Should not send email when email is not present in external id byPassSubscription is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const logInfoSpy = jest.fn() as Logger['info']
+      const status = true
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.phone, type: 'phone', isSubscribed: status, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ byPassSubscription: true }),
+        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+      })
+      expect(sendGridRequest.isDone()).toBe(false)
+      expect(logInfoSpy).toHaveBeenCalledWith(
+        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
+      )
+    })
+
+    it('sends the email when subscriptionStatus is false but byPassSubscription is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.phone, type: 'email', isSubscribed: true, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ byPassSubscription: true })
+      })
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
@@ -810,7 +875,7 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
             ]
           }),
           settings,
@@ -851,6 +916,60 @@ describe.each([
 
         expect(sendGridRequest.isDone()).toEqual(false)
         expect(logInfoSpy).toHaveBeenCalledWith(
+          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
+        )
+      }
+    )
+
+    it.each([null, false])(
+      'Send the email when subscriptionStatus = "%s" but byPassSubscription is true',
+      async (isSubscribed: boolean | null) => {
+        const logInfoSpy = jest.fn() as Logger['info']
+        const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+        await sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId,
+            external_ids: [
+              { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+            ]
+          }),
+          settings,
+          mapping: getDefaultMapping({ byPassSubscription: true }),
+          logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+        })
+        expect(sendGridRequest.isDone()).toBe(true)
+        expect(logInfoSpy).not.toHaveBeenCalledWith(
+          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
+        )
+      }
+    )
+
+    it.each(['unsubscribed', 'did not subscribed'])(
+      'does NOT send the email when subscriptionStatus = "%s" but byPassSubscription is true',
+      async (subscriptionStatus: string) => {
+        const logInfoSpy = jest.fn() as Logger['info']
+        const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+        await sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId
+          }),
+          settings,
+          mapping: getDefaultMapping({
+            externalIds: [{ type: 'email', id: userData.email, subscriptionStatus }],
+            byPassSubscription: true
+          }),
+          logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+        })
+
+        expect(sendGridRequest.isDone()).toEqual(true)
+        expect(logInfoSpy).not.toHaveBeenCalledWith(
           `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
         )
       }
@@ -948,7 +1067,7 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
             ]
           }),
           settings: {
@@ -961,6 +1080,38 @@ describe.each([
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toBe(false)
+      }
+    )
+
+    it.each([null, false])(
+      'send the email to group when group\'s subscriptionStatus = "%s" but byPassSubscription is true',
+      async (isSubscribed: boolean | null) => {
+        const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+        await sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId,
+            external_ids: [
+              {
+                id: userData.email,
+                type: 'email',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                groups: [{ id: 'grp_1', isSubscribed }]
+              },
+              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+            ]
+          }),
+          settings: {
+            ...settings
+          },
+          mapping: getDefaultMapping({ groupId: 'grp_1', byPassSubscription: true })
+        })
+
+        expect(sendGridRequest.isDone()).toBe(true)
       }
     )
 
@@ -997,6 +1148,38 @@ describe.each([
       expect(sendGridRequest.isDone()).toBe(false)
     })
 
+    it('send email to group when groupId is not in groups but byPassSubscription is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email',
+              groups: [
+                {
+                  id: 'grp_1',
+                  isSubscribed: true
+                }
+              ]
+            }
+          ]
+        }),
+        settings: {
+          ...settings
+        },
+        mapping: getDefaultMapping({ groupId: 'grp_2', byPassSubscription: true })
+      })
+      expect(sendGridRequest.isDone()).toBe(true)
+    })
+
     it('does NOT send email to group when external ids are not present', async () => {
       const logInfoSpy = jest.fn() as Logger['info']
 
@@ -1018,7 +1201,7 @@ describe.each([
 
       expect(sendGridRequest.isDone()).toBe(false)
       expect(logInfoSpy).toHaveBeenCalledWith(
-        `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
+        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
       )
     })
   })

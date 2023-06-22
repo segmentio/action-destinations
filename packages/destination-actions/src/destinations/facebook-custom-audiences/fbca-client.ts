@@ -1,8 +1,8 @@
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, JSONObject } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 
-const API_VERSION = 'v16.0'
+const API_VERSION = 'v17.0'
 const BASE_URL = `https://graph.facebook.com/${API_VERSION}`
 
 const hash = (value: string | undefined): string | undefined => {
@@ -54,13 +54,16 @@ export default class Facebook {
     })
   }
 
-  updateAudience = async (audienceId: string, schema: string, email: string) => {
+  updateAudience = async (audienceId: string, schema: string, email: string, phone: string) => {
+    console.log('hashed email', hash(email))
+    console.log('hashed phone', hash(phone))
+
     return this.request(`${BASE_URL}/${audienceId}/users`, {
       method: 'POST',
       json: {
         payload: {
-          schema: schema,
-          data: [hash(email)]
+          schema: ['EMAIL', 'PHONE'],
+          data: [hash(email), hash(phone)]
         }
       },
       headers: {
@@ -69,7 +72,7 @@ export default class Facebook {
     })
   }
 
-  getAllAudiences = async (): Promise<DynamicFieldResponse> => {
+  getAllAudiences = async (_mapping: JSONObject): Promise<DynamicFieldResponse> => {
     const NUM_AUDIENCES = 500
     try {
       const result = await this.request<GetAudiencesResponse>(
@@ -96,4 +99,13 @@ export default class Facebook {
       }
     }
   }
+
+  //   getAdAccounts = async (): Promise<DynamicFieldResponse> => {
+  //     try {
+  //         const result = await this.request(`${BASE_URL}/me/adaccounts?fields=name`, {
+  //             method: 'GET',
+  //         })
+  //         // returns all ad accounts for the user, as an array of { id, name }
+  //     }
+  //   }
 }

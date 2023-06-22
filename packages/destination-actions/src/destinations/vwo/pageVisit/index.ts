@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
     url: {
       description: 'URL of the webpage',
       label: 'Page URL',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.context.page.url'
@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     page: {
       description: 'Contains context information regarding a webpage',
       label: 'Page',
-      required: true,
+      required: false,
       type: 'object',
       default: {
         '@path': '$.context.page'
@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     userAgent: {
       description: 'User-Agent of the user',
       label: 'User Agent',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       description: 'Timestamp on the event',
       label: 'Timestamp',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.timestamp'
@@ -65,7 +65,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   perform: (request, { settings, payload }) => {
     const eventName = 'vwo_pageView'
-    const { headers, structuredPayload } = formatPayload(eventName, payload, false)
+    const { headers, structuredPayload } = formatPayload(
+      eventName,
+      payload,
+      false,
+      false,
+      settings.apikey,
+      settings.vwoAccountId
+    )
     structuredPayload.d.event.props['url'] = payload.url
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${eventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {

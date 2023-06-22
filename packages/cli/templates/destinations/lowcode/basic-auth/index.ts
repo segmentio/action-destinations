@@ -27,6 +27,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
+      // Please update the code here for further customization
       return request('{{{json.oauth.apiEndpoint}}}', {
         method: '{{json.oauth.httpMethod}}'
       })
@@ -34,6 +35,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest({ settings }) {
+    // Please update the code here to modify the request headers
     return {
       username: settings.username,
       password: settings.password
