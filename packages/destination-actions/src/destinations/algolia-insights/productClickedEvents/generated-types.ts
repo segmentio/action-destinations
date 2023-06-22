@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Query ID of the list on which the item was clicked.
    */
-  queryID: string
+  queryID?: string
   /**
    * Position of the click in the list of Algolia search results.
    */
