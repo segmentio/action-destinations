@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         const tiktok = new TikTokAudiences(request)
 
-        return tiktok.fetchAudiences(payload.selected_advertiser_id)
+        return await tiktok.fetchAudiences(payload.selected_advertiser_id)
       } catch (err) {
         return {
           choices: [],
