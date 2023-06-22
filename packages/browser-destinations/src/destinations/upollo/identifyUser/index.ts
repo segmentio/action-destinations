@@ -28,6 +28,20 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
         '@path': '$.traits.name'
       }
     },
+    firstName: {
+      label: 'First Name',
+      description: "The user's given name.",
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.firstName' }
+    },
+    lastName: {
+      label: 'Last Name',
+      description: "The user's surname.",
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.lastName' }
+    },
     email: {
       description: "The user's email address.",
       label: 'Email Address',
@@ -61,28 +75,21 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (UpClient, { payload, context, settings }) => {
+  perform: async (UpClient, { payload }) => {
     const userInfo = {
       userId: payload.user_id,
       userEmail: payload.email,
       userPhone: payload.phone,
-      userName: payload.name,
+      userName: payload.name
+        ? payload.name
+        : payload.firstName || payload.lastName
+        ? (payload.firstName + ' ' + payload.lastName).trim()
+        : undefined,
       userImage: payload.avatar_image_url,
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }
 
-    const result = await UpClient.assess(userInfo)
-    const company = result?.emailAnalysis?.company
-    if (company && company?.name != '' && settings?.companyEnrichment) {
-      const size = company.companySize
-      const count = size && Math.max(size.employeesMin, size.employeesMax)
-      const companyInfo = {
-        name: company?.name,
-        industry: company?.industry,
-        employee_count: count
-      }
-      context.updateEvent('traits.company', companyInfo)
-    }
+    void UpClient.track(userInfo)
   }
 }
 
