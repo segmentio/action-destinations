@@ -100,8 +100,10 @@ const action: ActionDefinition<Settings, Payload> = {
       // If Create New custom object record flag is set to false, skip creation
       if (!createNewCustomRecord) {
         return (
+          JSON.stringify(payload.customObjectSearchFields) +
+          ':' +
           JSON.stringify(searchCustomResponse) +
-          ' Testing :- There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
+          ' Test :- There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
         )
       }
       const properties = { ...flattenObject(payload.properties) }
