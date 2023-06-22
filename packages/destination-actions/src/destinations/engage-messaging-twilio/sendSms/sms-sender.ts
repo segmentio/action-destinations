@@ -90,11 +90,11 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
         }
       )
       this.tags.push(`profile_status_code:${response.status}`)
-      this.statsClient?.incr('actions-personas-messaging-twilio.profile_invoked', 1, this.tags)
+      this.stats('incr', 'profile_invoked', 1)
       const body = await response.json()
       return body.traits
     } catch (error: unknown) {
-      this.statsClient?.incr('actions-personas-messaging-twilio.profile_error', 1, this.tags)
+      this.stats('incr', 'profile_error', 1)
       this.logError(`profile traits request failure - ${this.settings.spaceId} - [${error}]`)
       throw new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
     }

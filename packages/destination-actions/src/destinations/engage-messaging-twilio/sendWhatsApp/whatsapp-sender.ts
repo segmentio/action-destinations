@@ -26,7 +26,7 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
     } catch (error: unknown) {
       this.tags.push('type:invalid_phone_e164')
       this.logError(`invalid phone number - ${this.settings.spaceId} - [${error}]`)
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
         `INVALID_PHONE`,
