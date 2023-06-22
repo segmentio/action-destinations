@@ -10,7 +10,8 @@ import {
   RevUserListResponse,
   TagsResponse,
   getDomain,
-  devrevApiPaths
+  devrevApiPaths,
+  CreateAccountBody,
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -35,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     comment: {
       label: 'Comment',
-      description: 'A comment to post to the RevUser.',
+      description: 'A comment to post to the RevUser.  If blank, no comment will be posted on the RevUser.  This will be posted both if the RevUser is created and if the RevUser is not created',
       type: 'string',
       required: false
     },
@@ -81,33 +82,40 @@ const action: ActionDefinition<Settings, Payload> = {
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
-      const existingAccount: AccountListResponse = await request(
-        `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?domains="${domain}"`
-      )
+      let requestUrl;
+      if (domain !== payload.email)
+        requestUrl = `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?domains="${domain}"`
+      else
+        requestUrl = `${settings.devrevApiEndpoint}${devrevApiPaths.accountsList}?external_refs="${domain}"`
+      const existingAccount: AccountListResponse = await request(requestUrl)
       if (existingAccount.data.accounts.length == 0) {
         // Create account
+        const requestBody: CreateAccountBody = {
+          display_name: domain,
+          external_refs: [domain]
+        }
+        if (payload.tag)
+          requestBody.tags = [{id: payload.tag}]
+        if (domain != payload.email)
+          requestBody.domains = [domain]
+
+        
         const createAccount: AccountGet = await request(
           `${settings.devrevApiEndpoint}${devrevApiPaths.accountCreate}`,
           {
             method: 'post',
-            json: {
-              display_name: domain,
-              domains: [domain],
-              tags: [
-                {
-                  id: payload.tag
-                }
-              ]
-            }
+            json: requestBody
           }
         )
         accountId = createAccount.data.account.id
+      } else {
+        // Use existing account
+        accountId = existingAccount.data.accounts[0].id
+      }
         const accountRevorgs: RevOrgListResponse = await request(
           `${settings.devrevApiEndpoint}${devrevApiPaths.revOrgsList}?account=${accountId}`
         )
-        const filtered = accountRevorgs.data.rev_orgs.filter((revorg) => {
-          revorg.external_ref_issuer == 'devrev:platform:revorg:account'
-        })
+        const filtered = accountRevorgs.data.rev_orgs.filter((revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account')
         revOrgId = filtered[0].id
         const createRevUser: RevUserGet = await request(
           `${settings.devrevApiEndpoint}${devrevApiPaths.revUsersCreate}`,
@@ -122,7 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         )
         revUserId = createRevUser.data.rev_user.id
-      }
+      
     } else if (existingUsers.data.rev_users.length == 1) {
       // One existing revuser
       revUserId = existingUsers.data.rev_users[0].id
@@ -144,6 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     }
+    return
   }
 }
 

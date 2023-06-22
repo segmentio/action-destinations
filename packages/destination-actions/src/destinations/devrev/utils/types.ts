@@ -101,3 +101,20 @@ export interface AccountGet {
     account: Account
   }
 }
+
+export interface Comment {
+  id: string,
+  body: string,
+}
+export interface TimelineResponse {
+  data: {
+    timeline_entry: Comment
+  }
+}
+
+export interface CreateAccountBody {
+  display_name: string
+  domains?: string[]
+  tags?: {id: string}[]
+  external_refs: string[]
+}
