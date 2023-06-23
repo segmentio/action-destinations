@@ -33,5 +33,10 @@ export interface Settings {
    * A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   attributesMax?: number
-  lastUpdate?: string
+  /**
+   *
+   * Last-Modified: 06.23.2023 12.42.42
+   *
+   */
+  version?: string
 }

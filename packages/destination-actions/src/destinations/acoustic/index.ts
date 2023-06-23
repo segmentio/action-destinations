@@ -3,6 +3,9 @@ import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 import { getAccessToken } from './Utility/tablemaintutilities'
 
+const mod = `
+Last-Modified: 06.23.2023 12.42.42
+`
 //May 30th, refactor for additional Customers
 export interface refreshTokenResult {
   access_token: string
@@ -115,10 +118,10 @@ const destination: DestinationDefinition<Settings> = {
         type: 'number',
         required: false
       },
-      lastUpdate: {
-        label: `Last Update`,
-        description: '',
-        default: `${new Date()}`,
+      version: {
+        label: `Version:`,
+        description: `${mod}`,
+        default: 'Version 3.1',
         type: 'string',
         required: false
       }
