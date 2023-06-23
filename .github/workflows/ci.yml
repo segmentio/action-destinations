@@ -57,7 +57,7 @@ jobs:
         run: yarn validate
 
       - name: Test
-        run: yarn test -- -- --max-workers 4
+        run: yarn test -- -- --runInBand
 
       - name: destination-subscriptions size
         run: |
