@@ -29,8 +29,11 @@ jobs:
       - name: Bootstrap
         run: yarn bootstrap --no-ci
 
+      - name: Calculate CPU Cores
+        run: echo "CPU_CORES=$(node -e 'console.log(Math.min(Math.round(require("os").cpus().length), 16))')" >> $GITHUB_ENV
+
       - name: Test
-        run: yarn test
+        run: yarn test -- -- --max-workers ${{ env.CPU_CORES }}
 
       - name: Build
         run: yarn build
