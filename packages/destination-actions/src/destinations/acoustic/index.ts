@@ -54,14 +54,14 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       pod: {
         label: 'Pod',
-        description: 'Pod Number of Campaign Instance',
+        description: 'Pod Number for API Endpoint',
         default: '2',
         type: 'string',
         required: true
       },
       region: {
         label: 'Region',
-        description: 'Region where Pod is hosted, either US, EU, AP, or CA',
+        description: 'Region for API Endpoint, either US, EU, AP, or CA',
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
@@ -74,27 +74,27 @@ const destination: DestinationDefinition<Settings> = {
       },
       tableName: {
         label: 'Acoustic Segment Table Name',
-        description: 'The Segment Table Name in Acoustic Campaign Data dialog.',
-        default: 'Segment Events Table',
+        description: `The Segment Table Name in Acoustic Campaign Data dialog.`,
+        default: 'Segment Events Table Name',
         type: 'string',
         required: true
       },
       tableListId: {
         label: 'Acoustic Segment Table List Id',
         description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
-        default: ' ',
+        default: '',
         type: 'string',
         required: true
       },
       a_clientId: {
-        label: 'Acoustic app definition ClientId',
+        label: 'Acoustic App Definition ClientId',
         description: 'The Client Id from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'string',
         required: true
       },
       a_clientSecret: {
-        label: 'Acoustic App definition ClientSecret',
+        label: 'Acoustic App Definition ClientSecret',
         description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'password',
@@ -111,8 +111,15 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Properties Max',
         description:
           'A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 30,
+        default: 15,
         type: 'number',
+        required: false
+      },
+      lastUpdate: {
+        label: `Last Update`,
+        description: '',
+        default: `${new Date()}`,
+        type: 'string',
         required: false
       }
     },
