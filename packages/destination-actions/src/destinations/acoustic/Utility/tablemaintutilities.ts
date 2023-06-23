@@ -3,7 +3,6 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
-// export let eventTableListId = ''
 export interface accessResp {
   access_token: string
   token_type: string
@@ -85,7 +84,6 @@ export async function doPOST(
   let resultTxt = ''
   let res = ''
 
-  // try {
   const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
     method: 'POST',
     headers: {
@@ -99,9 +97,6 @@ export async function doPOST(
     body: `${body}`
   })
   res = (await postResults.data) as string
-  // } catch (e) {
-  //   throw new IntegrationError(`Unexpected Request Exception \n${e}`, 'UNEXPECTED_REQUEST_EXCEPTION', 400)
-  // }
 
   //check for success, hard fails throw error, soft fails throw retryable error
   resultTxt = res
