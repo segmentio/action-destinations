@@ -65,20 +65,18 @@ export type AudienceResult = {
   externalId: string
 }
 
-export type AudienceMode =
-  { type: "realtime" } |
-  { type: "synced", full_audience_sync: boolean };
+export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
 
 export type CreateAudienceInput<Settings = unknown> = {
-  settings: Settings,
+  settings: Settings
 
-  audienceName: string,
+  audienceName: string
 }
 
 export type GetAudienceInput<Settings = unknown> = {
-  settings: Settings,
+  settings: Settings
 
-  externalId: string,
+  externalId: string
 }
 
 export interface AudienceDestinationSettings<Settings = unknown> {
@@ -86,7 +84,7 @@ export interface AudienceDestinationSettings<Settings = unknown> {
 
   createAudience(request: RequestClient, createAudienceInput: CreateAudienceInput<Settings>): Promise<AudienceResult>
 
-  getAudience(request: RequestClient, getAudienceInput: GetAudienceInput): Promise<AudienceResult>
+  getAudience(request: RequestClient, getAudienceInput: GetAudienceInput<Settings>): Promise<AudienceResult>
 }
 
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
@@ -342,6 +340,26 @@ export class Destination<Settings = JSONObject> {
         throw error
       }
     }
+  }
+
+  async createAudience(createAudienceInput: CreateAudienceInput<Settings>) {
+    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.createAudience(requestClient, createAudienceInput)
+  }
+
+  async getAudience(getAudienceInput: GetAudienceInput<Settings>) {
+    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.getAudience(requestClient, getAudienceInput)
   }
 
   async testAuthentication(settings: Settings): Promise<void> {
