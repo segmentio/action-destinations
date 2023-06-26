@@ -99,12 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const createNewCustomRecord = payload?.createNewCustomRecord ?? true
       // If Create New custom object record flag is set to false, skip creation
       if (!createNewCustomRecord) {
-        return (
-          JSON.stringify(payload) +
-          ':' +
-          JSON.stringify(searchCustomResponse) +
-          ' Test :- There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
-        )
+        return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
       const properties = { ...flattenObject(payload.properties) }
       upsertCustomRecordResponse = await hubspotApiClient.create(properties)

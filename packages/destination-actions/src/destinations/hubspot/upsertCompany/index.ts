@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
 import {
   HubSpotError,
-  MissingIdentityCallThrowableError,
+  // MissingIdentityCallThrowableError,
   RestrictedPropertyThrowableError,
   SegmentUniqueIdentifierMissingRetryableError,
   MultipleCompaniesInSearchResultThrowableError,
@@ -218,7 +218,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // If associateContact field is set to true, check if transactionContext is defined and contact_id is present in TransactionContext
     if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
-      throw MissingIdentityCallThrowableError
+      return JSON.stringify(payload) + ':' + JSON.stringify(transactionContext)
+      // throw MissingIdentityCallThrowableError
     }
     const hubspotApiClient: Hubspot = new Hubspot(request, 'companies')
 
