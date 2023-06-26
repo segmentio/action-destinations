@@ -9,7 +9,7 @@ import { Profile } from './types'
 const Liquid = new LiquidJs()
 
 type ApiLookupConfig = {
-  id: string | undefined
+  id?: string | undefined
   name: string
   url: string
   method: string
