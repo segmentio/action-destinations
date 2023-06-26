@@ -1,10 +1,12 @@
-import { ActionDefinition, IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, RequestClient, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
 import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
+import { apiLookupActionFields, performApiLookups } from '../utils/api-lookups'
+import { Profile } from '../utils/types'
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
@@ -33,12 +35,8 @@ const getProfileApiEndpoint = (environment: string, region?: Region): string => 
   return `https://${domainName}.${topLevelName}`
 }
 
-type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
-
-type RequestModifiedFn = (url: string, options?: RequestOptions) => Promise<ModifiedResponse>
-
 const fetchProfileTraits = async (
-  request: RequestFn,
+  request: RequestClient,
   settings: Settings,
   profileId: string,
   statsClient: StatsClient | undefined,
@@ -95,7 +93,7 @@ interface UnlayerResponse {
 }
 
 const generateEmailHtml = async (
-  request: RequestFn,
+  request: RequestClient,
   settings: Settings,
   design: string,
   statsClient: StatsClient | undefined,
@@ -126,16 +124,12 @@ const generateEmailHtml = async (
   }
 }
 
-interface Profile {
-  user_id?: string
-  anonymous_id?: string
-  email?: string
-  traits: Record<string, string>
-}
-
 const parseTemplating = async (
   content: string,
-  profile: Profile,
+  liquidData: {
+    profile: Profile
+    lookups?: Record<string, unknown>
+  },
   contentType: string,
   statsClient: StatsClient | undefined,
   tags: string[],
@@ -143,7 +137,7 @@ const parseTemplating = async (
   logger?: Logger | undefined
 ) => {
   try {
-    const parsedContent = await Liquid.parseAndRender(content, { profile })
+    const parsedContent = await Liquid.parseAndRender(content, liquidData)
     return parsedContent
   } catch (error) {
     logger?.error(`TE Messaging: Email templating parse failure - ${settings.spaceId} - [${error}]`)
@@ -160,7 +154,7 @@ const parseTemplating = async (
 const EXTERNAL_ID_KEY = 'email'
 
 const attemptEmailDelivery = async (
-  request: RequestModifiedFn,
+  request: RequestClient,
   settings: Settings,
   payload: Payload,
   logger: Logger | undefined,
@@ -168,6 +162,7 @@ const attemptEmailDelivery = async (
   tags: string[],
   byPassSubscription: boolean
 ) => {
+  console.log('start')
   let traits
   const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
   if (payload.traitEnrichment) {
@@ -224,18 +219,45 @@ const attemptEmailDelivery = async (
   }
 
   const bcc = JSON.parse(payload.bcc ?? '[]')
-  const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', statsClient, tags, settings, logger)
+  const parsedSubject = await parseTemplating(
+    payload.subject,
+    { profile },
+    'Subject',
+    statsClient,
+    tags,
+    settings,
+    logger
+  )
+
+  const apiLookupData = await performApiLookups(
+    request,
+    payload.apiLookups,
+    profile,
+    statsClient,
+    tags,
+    settings,
+    logger
+  )
+
   let parsedBodyHtml
 
   if (payload.bodyUrl && settings.unlayerApiKey) {
     const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
     const bodyHtml =
       payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
-    parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
+    parsedBodyHtml = await parseTemplating(
+      bodyHtml,
+      { profile, lookups: apiLookupData },
+      'Body',
+      statsClient,
+      tags,
+      settings,
+      logger
+    )
   } else {
     parsedBodyHtml = await parseTemplating(
       payload.bodyHtml ?? '',
-      profile,
+      { profile, lookups: apiLookupData },
       'Body HTML',
       statsClient,
       tags,
@@ -248,7 +270,7 @@ const attemptEmailDelivery = async (
   if (payload.bodyType === 'design' && payload.previewText) {
     const parsedPreviewText = await parseTemplating(
       payload.previewText,
-      profile,
+      { profile },
       'Preview text',
       statsClient,
       tags,
@@ -458,6 +480,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    apiLookups: {
+      label: 'API Lookups',
+      description: 'Any API lookup configs that are needed to send the template',
+      type: 'object',
+      multiple: true,
+      properties: apiLookupActionFields
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -542,6 +571,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, logger }) => {
+    console.log('perform')
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
@@ -554,6 +584,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
+    console.log({ emailProfile })
 
     if (emailProfile === undefined) {
       logger?.info(
