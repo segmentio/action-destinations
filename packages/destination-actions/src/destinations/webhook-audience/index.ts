@@ -9,7 +9,7 @@ const externalIdKey = 'externalId'
 const audienceNameKey = 'audienceName'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Webhook',
+  name: 'Webhook Audiences',
   slug: 'actions-webhook-audience',
   mode: 'cloud',
   authentication: {
