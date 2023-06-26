@@ -1,4 +1,4 @@
-import type { AudienceResult, DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import send from '../webhook/send'
@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    async getAudience(request, getAudienceInput): Promise<AudienceResult> {
+    async getAudience(request, getAudienceInput) {
       const getAudienceUrl = getAudienceInput.settings.getAudienceUrl
       if (!getAudienceUrl) {
         throw new IntegrationError('Missing get audience url value', 'MISSING_REQUIRED_FIELD', 400)
@@ -60,7 +60,7 @@ const destination: DestinationDefinition<Settings> = {
         externalId: jsonOutput[externalIdKey]
       }
     },
-    async createAudience(request, createAudienceInput): Promise<AudienceResult> {
+    async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       if (audienceName?.length == 0) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)

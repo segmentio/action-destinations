@@ -1,4 +1,4 @@
-export { Destination, AudienceDestinationSettings, AudienceResult, AudienceMode, CreateAudienceInput, fieldsToJsonSchema } from './destination-kit'
+export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export { createTestEvent } from './create-test-event'

@@ -89,6 +89,12 @@ export interface AudienceDestinationSettingsWithCreateGet<Settings = unknown> ex
   getAudience(request: RequestClient, getAudienceInput: GetAudienceInput<Settings>): Promise<AudienceResult>
 }
 
+const instanceOfAudienceDestinationSettingsWithCreateGet = (
+  object: any
+): object is AudienceDestinationSettingsWithCreateGet => {
+  return 'createAudience' in object && 'getAudience' in object
+}
+
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
   mode: 'cloud'
 
@@ -345,6 +351,9 @@ export class Destination<Settings = JSONObject> {
   }
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to createAudience')
+    }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
@@ -355,6 +364,9 @@ export class Destination<Settings = JSONObject> {
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to getAudience')
+    }
     const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
     const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
