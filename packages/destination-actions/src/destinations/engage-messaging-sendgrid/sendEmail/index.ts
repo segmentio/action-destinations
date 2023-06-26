@@ -29,6 +29,9 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
 const insertUnsubscribeLinks = (
   html: string,
   emailProfile: any,
+  spaceId: string,
+  statsClient: StatsClient | undefined,
+  tags: string[],
   groupId?: string,
   logger?: Logger | undefined
 ): string => {
@@ -36,20 +39,27 @@ const insertUnsubscribeLinks = (
   const preferencesLink = emailProfile?.preferencesLink
   const unsubscribeLinkTag = '[ups_unsubscribe_link]'
   const preferencesLinkTag = '[ups_preferences_link]'
-  logger?.error(`TE Messaging: Email profile- ${JSON.stringify(emailProfile)}`)
   let updatedHtml = html
   if (groupId && groupId != '') {
     const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
     const groupUnsubscribeLink = group?.groupUnsubscribeLink
-    logger?.error(`TE Messaging: Email group unsubscribe link is - ${groupUnsubscribeLink}`)
-    updatedHtml = html.replace(unsubscribeLinkTag, groupUnsubscribeLink)
+    updatedHtml = html.replace(unsubscribeLinkTag, function () {
+      logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  group - ${groupId} spaceId - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
+      return groupUnsubscribeLink
+    })
   } else {
-    logger?.error(`TE Messaging: Email global unsubscribe link is - ${globalUnsubscribeLink}`)
-    updatedHtml = html.replace(unsubscribeLinkTag, globalUnsubscribeLink)
+    updatedHtml = html.replace(unsubscribeLinkTag, function () {
+      logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
+      return globalUnsubscribeLink
+    })
   }
-  logger?.error(`TE Messaging: Email preferences link is - ${preferencesLink}`)
-  updatedHtml = updatedHtml.replace(preferencesLinkTag, preferencesLink)
-  return updatedHtml
+  return updatedHtml.replace(preferencesLinkTag, function () {
+    logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
+    statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
+    return preferencesLink
+  })
 }
 
 // These profile calls will be removed when Profile sync can fetch external_id
@@ -284,7 +294,15 @@ const attemptEmailDelivery = async (
     parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
   }
 
-  parsedBodyHtml = insertUnsubscribeLinks(parsedBodyHtml, emailProfile, payload.groupId, logger)
+  parsedBodyHtml = insertUnsubscribeLinks(
+    parsedBodyHtml,
+    emailProfile,
+    settings.spaceId,
+    statsClient,
+    tags,
+    payload.groupId,
+    logger
+  )
 
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
