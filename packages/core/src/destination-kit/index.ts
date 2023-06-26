@@ -79,9 +79,11 @@ export type GetAudienceInput<Settings = unknown> = {
   externalId: string
 }
 
-export interface AudienceDestinationSettings<Settings = unknown> {
+export interface AudienceDestinationSettings {
   mode: AudienceMode
+}
 
+export interface AudienceDestinationSettingsWithCreateGet<Settings = unknown> extends AudienceDestinationSettings {
   createAudience(request: RequestClient, createAudienceInput: CreateAudienceInput<Settings>): Promise<AudienceResult>
 
   getAudience(request: RequestClient, getAudienceInput: GetAudienceInput<Settings>): Promise<AudienceResult>
@@ -105,7 +107,7 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
 
-  audienceSettings?: AudienceDestinationSettings<Settings>
+  audienceSettings?: AudienceDestinationSettings | AudienceDestinationSettingsWithCreateGet<Settings>
 
   onDelete?: Deletion<Settings>
 }
