@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Rev User',
   defaultSubscription: 'type = "identify"',
   description:
-    'Creates a RevUser, unless one already exists with the same email address. Optionally posts a comment to the RevUser and applies a tag.',
+    'Creates a RevUser, unless one already exists with the same email address. Posts the comment to the RevUser object if it is created or if it already exists.',
   fields: {
     email: {
       label: 'Email',
