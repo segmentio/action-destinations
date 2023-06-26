@@ -13,11 +13,13 @@ import {
   devrevApiPaths,
   CreateAccountBody,
   devrevApiRoot,
+  getName
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Rev User',
+  defaultSubscription: 'type = "identify"',
   description:
     'Creates a RevUser, unless one already exists with the same email address. Optionally posts a comment to the RevUser and applies a tag.',
   fields: {
@@ -26,18 +28,57 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's email address.",
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
     fullName: {
       label: 'Full Name',
       description: "The user's full name.",
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.name' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.name' },
+          then: { '@path': '$.traits.name' },
+          else: { '@path': '$.properties.name' }
+        }
+      }
+    },
+    firstName: {
+      label: 'First Name',
+      description: "The user's first name.",
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.firstName' },
+          then: { '@path': '$.traits.firstName' },
+          else: { '@path': '$.properties.firstName' }
+        }
+      }
+    },
+    lastName: {
+      label: 'Last Name',
+      description: "The user's last name.",
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.lastName' },
+          then: { '@path': '$.traits.lastName' },
+          else: { '@path': '$.properties.lastName' }
+        }
+      }
     },
     comment: {
       label: 'Comment',
-      description: 'A comment to post to the RevUser.  If blank, no comment will be posted on the RevUser.  This will be posted both if the RevUser is created and if the RevUser is not created',
+      description:
+        'A comment to post to the RevUser.  If blank, no comment will be posted on the RevUser.  This will be posted both if the RevUser is created and if the RevUser is not created',
       type: 'string',
       required: false
     },
@@ -78,17 +119,16 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const email = payload.email.toLowerCase()
     const domain = getDomain(settings, email)
+    const name = getName(payload)
     const existingUsers: RevUserListResponse = await request(
       `${devrevApiRoot}${devrevApiPaths.revUsersList}?email="${email}"`
     )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
-      let requestUrl;
-      if (domain !== email)
-        requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?domains="${domain}"`
-      else
-        requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?external_refs="${domain}"`
+      let requestUrl
+      if (domain !== email) requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?domains="${domain}"`
+      else requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?external_refs="${domain}"`
       const existingAccount: AccountListResponse = await request(requestUrl)
       if (existingAccount.data.accounts.length == 0) {
         // Create account
@@ -96,43 +136,35 @@ const action: ActionDefinition<Settings, Payload> = {
           display_name: domain,
           external_refs: [domain]
         }
-        if (payload.tag)
-          requestBody.tags = [{id: payload.tag}]
-        if (domain != email)
-          requestBody.domains = [domain]
+        if (payload.tag) requestBody.tags = [{ id: payload.tag }]
+        if (domain != email) requestBody.domains = [domain]
 
-        
-        const createAccount: AccountGet = await request(
-          `${devrevApiRoot}${devrevApiPaths.accountCreate}`,
-          {
-            method: 'post',
-            json: requestBody
-          }
-        )
+        const createAccount: AccountGet = await request(`${devrevApiRoot}${devrevApiPaths.accountCreate}`, {
+          method: 'post',
+          json: requestBody
+        })
         accountId = createAccount.data.account.id
       } else {
         // Use existing account
         accountId = existingAccount.data.accounts[0].id
       }
-        const accountRevorgs: RevOrgListResponse = await request(
-          `${devrevApiRoot}${devrevApiPaths.revOrgsList}?account=${accountId}`
-        )
-        const filtered = accountRevorgs.data.rev_orgs.filter((revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account')
-        revOrgId = filtered[0].id
-        const createRevUser: RevUserGet = await request(
-          `${devrevApiRoot}${devrevApiPaths.revUsersCreate}`,
-          {
-            method: 'post',
-            json: {
-              email,
-              full_name: payload.fullName,
-              external_ref: email,
-              org_id: revOrgId
-            }
-          }
-        )
-        revUserId = createRevUser.data.rev_user.id
-      
+      const accountRevorgs: RevOrgListResponse = await request(
+        `${devrevApiRoot}${devrevApiPaths.revOrgsList}?account=${accountId}`
+      )
+      const filtered = accountRevorgs.data.rev_orgs.filter(
+        (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
+      )
+      revOrgId = filtered[0].id
+      const createRevUser: RevUserGet = await request(`${devrevApiRoot}${devrevApiPaths.revUsersCreate}`, {
+        method: 'post',
+        json: {
+          email,
+          full_name: name,
+          external_ref: email,
+          org_id: revOrgId
+        }
+      })
+      revUserId = createRevUser.data.rev_user.id
     } else if (existingUsers.data.rev_users.length == 1) {
       // One existing revuser
       revUserId = existingUsers.data.rev_users[0].id

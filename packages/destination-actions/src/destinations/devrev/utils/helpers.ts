@@ -36,3 +36,18 @@ export const isOlderThen = (firstDate: string, secondDate: string) => {
   const second = new Date(secondDate)
   return first < second
 }
+
+interface getNameInterface {
+  firstName?: string
+  lastName?: string
+  fullName?: string
+}
+
+export const getName = (payload: getNameInterface) => {
+  const { firstName, lastName, fullName } = payload
+  if (fullName) return fullName
+  if (firstName && lastName) return `${firstName} ${lastName}`
+  if (firstName) return firstName
+  if (lastName) return lastName
+  return ''
+}

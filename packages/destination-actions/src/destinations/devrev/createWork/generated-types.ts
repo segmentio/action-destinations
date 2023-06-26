@@ -14,6 +14,10 @@ export interface Payload {
    */
   description: string
   /**
+   * User email address, will be added to the description
+   */
+  email?: string
+  /**
    * The user ID of the user to assign the work to.
    */
   assignTo: string
