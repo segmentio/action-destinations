@@ -10,7 +10,7 @@ const audienceNameKey = 'audienceName'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook Audiences',
-  slug: 'actions-webhook-audience',
+  slug: 'actions-webhook-audiences',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
