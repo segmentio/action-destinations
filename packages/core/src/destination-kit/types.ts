@@ -76,7 +76,6 @@ export interface GlobalSetting {
   default?: string | number | boolean
   properties?: InputField['properties']
   format?: InputField['format']
-  audienceOnly?: boolean
 }
 
 /** The supported field type names */
