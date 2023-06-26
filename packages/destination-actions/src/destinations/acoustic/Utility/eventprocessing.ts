@@ -119,10 +119,10 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
   let ak = ''
   let av = ''
 
-  const getValue = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[1]
-  const getKey = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[0]
+  const getValue = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[1] as string
+  const getKey = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[0] as string
 
-  if ((getValue(propertiesTraitsKV, 'computation_class') as string).toLowerCase() === 'audience') {
+  if (getValue(propertiesTraitsKV, 'computation_class')?.toLowerCase() === 'audience') {
     ak = getValue(propertiesTraitsKV, 'computation_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
 
