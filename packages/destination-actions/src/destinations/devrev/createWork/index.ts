@@ -9,7 +9,7 @@ import { APIError } from '@segment/actions-core'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Work',
   description: 'Creates a new work item',
-  defaultSubscription: 'type = "track", event = "Work Requested"',
+  defaultSubscription: 'type = "track" and event = "Work Requested"',
   fields: {
     partId: {
       label: 'Part ID',
