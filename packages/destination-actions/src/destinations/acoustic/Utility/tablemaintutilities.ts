@@ -1,14 +1,8 @@
-import {
-  IntegrationError,
-  OAuth2ClientCredentials,
-  RefreshAccessTokenResult,
-  RetryableError
-} from '@segment/actions-core'
+import { OAuth2ClientCredentials, RefreshAccessTokenResult, RetryableError } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
 
-// export let eventTableListId = ''
 export interface accessResp {
   access_token: string
   token_type: string
@@ -87,50 +81,37 @@ export async function doPOST(
   body: string,
   action: string
 ) {
-  //When in local dev mode
-  if (!auth.accessToken) {
-    if (!authCreds.accessToken) {
-      const ratr: RefreshAccessTokenResult = await getAccessToken(request, settings)
-      auth = {
-        accessToken: ratr.accessToken,
-        refreshToken: ratr.refreshToken,
-        refreshTokenURL: `https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`
-      } as AuthTokens
-    } else auth.accessToken = authCreds.accessToken
-  }
-
   let resultTxt = ''
   let res = ''
 
-  try {
-    const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${auth?.accessToken}`,
-        'Content-Type': 'text/xml',
-        'user-agent': `Segment Action (Acoustic Destination) ${action}`,
-        Connection: 'keep-alive',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*'
-      },
-      body: `${body}`
-    })
-    res = (await postResults.data) as string
-  } catch (e) {
-    throw new IntegrationError(`Unexpected Request Exception \n${e}`, 'UNEXPECTED_REQUEST_EXCEPTION', 400)
-  }
+  const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${auth?.accessToken}`,
+      'Content-Type': 'text/xml',
+      'user-agent': `Segment Action (Acoustic Destination) ${action}`,
+      Connection: 'keep-alive',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Accept: '*/*'
+    },
+    body: `${body}`
+  })
+  res = (await postResults.data) as string
 
   //check for success, hard fails throw error, soft fails throw retryable error
   resultTxt = res
-  if (resultTxt.indexOf('<SUCCESS>FALSE</SUCCESS>') > -1 || resultTxt.indexOf('<SUCCESS>false</SUCCESS>') > -1) {
+
+  if (resultTxt.toLowerCase().indexOf('<success>false</success>') > -1) {
     const rx = /<FaultString>(.*)<\/FaultString>/gm
     const r = rx.exec(resultTxt) as RegExpExecArray
-    if (r[1].indexOf('max number of concurrent') > -1)
+
+    const faultMsg = r[1].toLowerCase()
+
+    if (faultMsg.indexOf('max number of concurrent') > -1)
       throw new RetryableError(
-        'Currently exceeding Max number of concurrent authenticated requests via API, retrying',
+        'Currently exceeding Max number of concurrent API authenticated requests, retrying...',
         429
       )
-    resultTxt = ''
   }
 
   return resultTxt
