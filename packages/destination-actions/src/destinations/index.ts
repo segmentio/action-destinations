@@ -110,6 +110,7 @@ register('6489bbade6fe3eb57c13bd6a', './canny-functions')
 register('6489c893dd5357493f365a96', './koala')
 register('6492cbb7df74e63cfa2f3e36', './iqm')
 register('6492cbd495feedacdcf431a4', './playerzero-cloud')
+register('649adeaa719bd3f55fe81bef', './devrev')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
