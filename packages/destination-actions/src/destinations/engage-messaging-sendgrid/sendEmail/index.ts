@@ -5,7 +5,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
 import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
-import { apiLookupActionFields, performApiLookups } from '../utils/api-lookups'
+import { apiLookupActionFields, apiLookupLiquidKey, performApiLookups } from '../utils/api-lookups'
 import { Profile } from '../utils/types'
 const Liquid = new LiquidJs()
 
@@ -162,7 +162,6 @@ const attemptEmailDelivery = async (
   tags: string[],
   byPassSubscription: boolean
 ) => {
-  console.log('start')
   let traits
   const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
   if (payload.traitEnrichment) {
@@ -247,7 +246,7 @@ const attemptEmailDelivery = async (
       payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
     parsedBodyHtml = await parseTemplating(
       bodyHtml,
-      { profile, lookups: apiLookupData },
+      { profile, [apiLookupLiquidKey]: apiLookupData },
       'Body',
       statsClient,
       tags,
@@ -257,7 +256,7 @@ const attemptEmailDelivery = async (
   } else {
     parsedBodyHtml = await parseTemplating(
       payload.bodyHtml ?? '',
-      { profile, lookups: apiLookupData },
+      { profile, [apiLookupLiquidKey]: apiLookupData },
       'Body HTML',
       statsClient,
       tags,
@@ -571,7 +570,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, logger }) => {
-    console.log('perform')
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags ?? []
     if (!settings.region) {
@@ -584,7 +582,6 @@ const action: ActionDefinition<Settings, Payload> = {
       return
     }
     const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
-    console.log({ emailProfile })
 
     if (emailProfile === undefined) {
       logger?.info(

@@ -363,7 +363,7 @@ describe.each([
           traitEnrichment: true,
           externalIds: [
             { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType:'sms' }
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType: 'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -788,7 +788,14 @@ describe.each([
           userId: userData.userId,
           external_ids: [
             { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+            {
+              id: userData.phone,
+              type: 'phone',
+              isSubscribed: true,
+              collection: 'users',
+              encoding: 'none',
+              channelType: 'sms'
+            }
           ]
         }),
         settings,
@@ -875,7 +882,14 @@ describe.each([
             userId: userData.userId,
             external_ids: [
               { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings,
@@ -1067,7 +1081,14 @@ describe.each([
                 encoding: 'none',
                 groups: [{ id: 'grp_1', isSubscribed }]
               },
-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none', channelType: 'sms' }
+              {
+                id: userData.phone,
+                type: 'phone',
+                isSubscribed: true,
+                collection: 'users',
+                encoding: 'none',
+                channelType: 'sms'
+              }
             ]
           }),
           settings: {
@@ -1235,6 +1256,216 @@ describe.each([
       expect(logErrorSpy).toHaveBeenCalledWith(
         expect.stringMatching(new RegExp(`^TE Messaging: Email profile traits request failure - ${spaceId}`))
       )
+    })
+  })
+
+  describe('api lookups', () => {
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('liquid renders url with profile traits before requesting', async () => {
+      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+
+      const apiLookupRequest = nock(`https://fakeweather.com`)
+        .get(`/api/${userData.lastName}`)
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: {
+            id: '1',
+            name: 'weather',
+            url: 'https://fakeweather.com/api/{{profile.traits.lastName}}',
+            method: 'get',
+            cacheTtl: 0,
+            responseType: 'json'
+          }
+        })
+      })
+
+      expect(apiLookupRequest.isDone()).toBe(true)
+    })
+
+    it('liquid renders body with profile traits before requesting', async () => {
+      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+
+      const apiLookupRequest = nock(`https://fakeweather.com`)
+        .post(`/api`, `lastName is ${userData.lastName}`)
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: {
+            id: '1',
+            name: 'weather',
+            url: 'https://fakeweather.com/api',
+            body: 'lastName is {{profile.traits.lastName}}',
+            method: 'post',
+            cacheTtl: 0,
+            responseType: 'json'
+          }
+        })
+      })
+
+      expect(apiLookupRequest.isDone()).toBe(true)
+    })
+
+    it('are called and responses are passed to email body liquid renderer before sending', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', {
+          ...sendgridRequestBody,
+          content: [
+            {
+              type: 'text/html',
+              value: `Current temperature: 70, Current bitcoin price: 20000`
+            }
+          ]
+        })
+        .reply(200, {})
+
+      nock(`https://fakeweather.com`)
+        .matchHeader('someKey', 'someValue')
+        .get('/api')
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      nock(`https://fakebitcoinprice.com`)
+        .get('/api')
+        .reply(200, {
+          current: {
+            price: 20000
+          }
+        })
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: [
+            {
+              id: '1',
+              name: 'weather',
+              url: 'https://fakeweather.com/api',
+              method: 'get',
+              cacheTtl: 0,
+              responseType: 'json',
+              headers: { someKey: 'someValue' }
+            },
+            {
+              id: '1',
+              name: 'btcPrice',
+              url: 'https://fakebitcoinprice.com/api',
+              method: 'get',
+              cacheTtl: 0,
+              responseType: 'json'
+            }
+          ],
+          bodyHtml:
+            'Current temperature: {{lookups.weather.current.temperature}}, Current bitcoin price: {{lookups.btcPrice.current.price}}'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toBe(true)
+    })
+
+    it('should throw error if at least one api lookup fails', async () => {
+      const logErrorSpy = jest.fn() as Logger['error']
+
+      nock(`https://fakeweather.com`).get('/api').reply(429)
+
+      await expect(
+        sendgrid.testAction('sendEmail', {
+          event: createMessagingTestEvent({
+            timestamp,
+            event: 'Audience Entered',
+            userId: userData.userId,
+            external_ids: [
+              {
+                collection: 'users',
+                encoding: 'none',
+                id: userData.email,
+                isSubscribed: true,
+                type: 'email'
+              }
+            ]
+          }),
+          settings,
+          mapping: getDefaultMapping({
+            apiLookups: {
+              id: '1',
+              name: 'weather',
+              url: 'https://fakeweather.com/api',
+              method: 'get',
+              cacheTtl: 0,
+              responseType: 'json'
+            }
+          }),
+          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        })
+      ).rejects.toThrowError('Too Many Requests')
+
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+      expect(sendGridRequest.isDone()).toEqual(false)
+      expect(logErrorSpy).toHaveBeenCalledWith(
+        `TE Messaging: Email api lookup failure - api lookup id: 1 - ${spaceId} - [HTTPError: Too Many Requests]`
+      )
+      // await expect(response).rejects.toThrowError('Unable to send email message')
     })
   })
 })

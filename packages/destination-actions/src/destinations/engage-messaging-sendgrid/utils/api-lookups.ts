@@ -52,14 +52,22 @@ export const performApiLookup = async (
     throw new IntegrationError('Unable to parse email api lookup body', 'api lookup body parse failure', 400)
   }
 
-  const res = await request(renderedUrl, {
-    headers: (headers as Record<string, string>) ?? undefined,
-    timeout: 10000,
-    method: method as RequestOptions['method'],
-    body: renderedBody
-  })
-  const data = await res.json()
-  return data
+  try {
+    const res = await request(renderedUrl, {
+      headers: (headers as Record<string, string>) ?? undefined,
+      timeout: 10000,
+      method: method as RequestOptions['method'],
+      body: renderedBody
+    })
+    const data = await res.json()
+    return data
+  } catch (error) {
+    logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
+    tags.push('reason:apilookup_failure')
+    statsClient?.incr('actions-personas-messaging-sendgrid-error', 1, tags)
+    // Rethrow error to preserve default http retry logic
+    throw error
+  }
 }
 
 /**
@@ -142,3 +150,5 @@ export const apiLookupActionFields: Record<string, InputField> = {
     required: true
   }
 }
+
+export const apiLookupLiquidKey = 'lookups'
