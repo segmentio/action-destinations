@@ -1465,7 +1465,6 @@ describe.each([
       expect(logErrorSpy).toHaveBeenCalledWith(
         `TE Messaging: Email api lookup failure - api lookup id: 1 - ${spaceId} - [HTTPError: Too Many Requests]`
       )
-      // await expect(response).rejects.toThrowError('Unable to send email message')
     })
   })
 })
