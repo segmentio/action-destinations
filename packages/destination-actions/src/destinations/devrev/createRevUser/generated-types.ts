@@ -18,7 +18,7 @@ export interface Payload {
    */
   lastName?: string
   /**
-   * A comment to post to the RevUser.  If blank, no comment will be posted on the RevUser.  This will be posted both if the RevUser is created and if the RevUser is not created
+   * A comment to post to the RevUser. If empty, no comment will be posted on the RevUser, otherwise the comment will be posted to the RevUser. The comment will be posted even if the RevUser already exists on the RevDev platform
    */
   comment?: string
   /**
