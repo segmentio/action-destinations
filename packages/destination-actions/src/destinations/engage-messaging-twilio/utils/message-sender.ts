@@ -331,10 +331,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       __segment_internal_external_id_value__: externalIdValue
     }
 
-    if ('userId' in this.payload) {
-      customArgs.user_id = this.payload.userId || ''
-    }
-
     if (webhookUrl && customArgs) {
       // Webhook URL parsing has a potential of failing. I think it's better that
       // we fail out of any invocation than silently not getting analytics
