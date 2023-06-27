@@ -1,4 +1,4 @@
-import { flattenObject } from '../helperFunctions'
+import { flattenObject } from '../utils'
 
 describe('HubSpot Cloud Mode (Actions) - Helper Functions', () => {
   describe('flattenObject', () => {
