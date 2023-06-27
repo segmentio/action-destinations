@@ -57,10 +57,10 @@ export const performApiLookup = async (
       headers: (headers as Record<string, string>) ?? undefined,
       timeout: 10000,
       method: method as RequestOptions['method'],
-      body: renderedBody
+      body: renderedBody,
+      skipResponseCloning: true
     })
-    const data = await res.json()
-    return data
+    return res.data
   } catch (error) {
     logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
     tags.push('reason:apilookup_failure')
