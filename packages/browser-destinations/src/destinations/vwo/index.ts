@@ -80,7 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
         useExistingJquery: settings.useExistingJquery
       })
     }
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 500)
+    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
   },
 

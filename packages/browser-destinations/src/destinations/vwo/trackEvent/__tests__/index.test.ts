@@ -1,6 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from 'src/lib/browser-destinations'
-import type { VWO } from '../../types'
 import vwoDestination, { destination } from '../../index'
 
 const subscriptions: Subscription[] = [
@@ -25,7 +24,6 @@ describe('VWO.trackEvent', () => {
     vwoAccountId: 654331
   }
 
-  let mockVWO: VWO
   let trackEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -37,11 +35,12 @@ describe('VWO.trackEvent', () => {
     trackEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockVWO = {
+      window.VWO = {
+        push: jest.fn(),
         event: jest.fn(),
         visitor: jest.fn()
       }
-      return Promise.resolve(mockVWO)
+      return Promise.resolve(window.VWO)
     })
     await trackEvent.load(Context.system(), {} as Analytics)
   })
@@ -53,7 +52,7 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith(
+    expect(window.VWO.event).toHaveBeenCalledWith(
       'segment.ctaClick',
       {},
       {
@@ -73,7 +72,7 @@ describe('VWO.trackEvent', () => {
     })
     await trackEvent.track?.(context)
 
-    expect(mockVWO.event).toHaveBeenCalledWith(
+    expect(window.VWO.event).toHaveBeenCalledWith(
       'segment.buyButtonClick',
       {
         amount: 1000

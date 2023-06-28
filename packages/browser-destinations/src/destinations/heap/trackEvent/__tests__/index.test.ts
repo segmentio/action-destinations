@@ -18,7 +18,9 @@ describe('#trackEvent', () => {
     mockHeapJsHttpRequest()
     window.heap = createMockedHeapJsSdk()
 
-    event = (await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [trackEventSubscription] }))[0]
+    event = (
+      await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [trackEventSubscription], browserArrayLimit: 5 })
+    )[0]
 
     await event.load(Context.system(), {} as Analytics)
     heapTrackSpy = jest.spyOn(window.heap, 'track')
@@ -36,17 +38,115 @@ describe('#trackEvent', () => {
         type: 'track',
         name: 'hello!',
         properties: {
-          banana: '📞'
+          banana: '📞',
+          apple: [
+            {
+              carrot: 12,
+              broccoli: [
+                {
+                  onion: 'crisp',
+                  tomato: 'fruit'
+                }
+              ]
+            },
+            {
+              carrot: 21,
+              broccoli: [
+                {
+                  tomato: 'vegetable'
+                },
+                {
+                  tomato: 'fruit'
+                },
+                [
+                  {
+                    pickle: 'vinegar'
+                  },
+                  {
+                    pie: 3.1415
+                  }
+                ]
+              ]
+            }
+          ],
+          emptyArray: [],
+          float: 1.2345,
+          booleanTrue: true,
+          booleanFalse: false,
+          nullValue: null,
+          undefinedValue: undefined
         }
       })
     )
-
-    expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
-      banana: '📞',
+    expect(heapTrackSpy).toHaveBeenCalledTimes(3)
+    expect(heapTrackSpy).toHaveBeenNthCalledWith(1, 'hello! apple item', {
+      carrot: 12,
+      'broccoli.0.onion': 'crisp',
+      'broccoli.0.tomato': 'fruit',
       segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+    })
+    expect(heapTrackSpy).toHaveBeenNthCalledWith(2, 'hello! apple item', {
+      carrot: 21,
+      'broccoli.0.tomato': 'vegetable',
+      'broccoli.1.tomato': 'fruit',
+      'broccoli.2.0.pickle': 'vinegar',
+      'broccoli.2.1.pie': '3.1415',
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+    })
+    expect(heapTrackSpy).toHaveBeenNthCalledWith(3, 'hello!', {
+      banana: '📞',
+      float: 1.2345,
+      booleanTrue: true,
+      booleanFalse: false,
+      nullValue: null,
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME,
+      'apple.0.broccoli.0.onion': 'crisp',
+      'apple.0.broccoli.0.tomato': 'fruit',
+      'apple.0.carrot': '12',
+      'apple.1.broccoli.0.tomato': 'vegetable',
+      'apple.1.broccoli.1.tomato': 'fruit',
+      'apple.1.broccoli.2.0.pickle': 'vinegar',
+      'apple.1.broccoli.2.1.pie': '3.1415',
+      'apple.1.carrot': '21'
     })
     expect(addUserPropertiesSpy).toHaveBeenCalledTimes(0)
     expect(identifySpy).toHaveBeenCalledTimes(0)
+  })
+
+  it('limits number of properties in array', async () => {
+    await event.track?.(
+      new Context({
+        type: 'track',
+        name: 'hello!',
+        properties: {
+          testArray1: [{ val: 1 }, { val: 2 }, { val: 3 }],
+          testArray2: [{ val: 4 }, { val: 5 }, { val: 'N/A' }]
+        }
+      })
+    )
+    expect(heapTrackSpy).toHaveBeenCalledTimes(6)
+
+    for (let i = 1; i <= 3; i++) {
+      expect(heapTrackSpy).toHaveBeenNthCalledWith(i, 'hello! testArray1 item', {
+        val: i,
+        segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+      })
+    }
+    for (let i = 4; i <= 5; i++) {
+      expect(heapTrackSpy).toHaveBeenNthCalledWith(i, 'hello! testArray2 item', {
+        val: i,
+        segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+      })
+    }
+    expect(heapTrackSpy).toHaveBeenNthCalledWith(6, 'hello!', {
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME,
+      'testArray1.0.val': '1',
+      'testArray1.1.val': '2',
+      'testArray1.2.val': '3',
+      'testArray2.0.val': '4',
+      'testArray2.1.val': '5',
+      'testArray2.2.val': 'N/A'
+    })
   })
 
   it('should send segment_library property if no other properties were provided', async () => {
