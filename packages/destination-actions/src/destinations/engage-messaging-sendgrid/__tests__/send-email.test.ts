@@ -700,7 +700,7 @@ describe.each([
 
     it('inserts unsubscribe links', async () => {
       const bodyHtml =
-        '<p>Hi First Name, welcome to Segment</p> <a href="[ups_unsubscribe_link]">Unsubscribe</a> | <a href="[ups_preferences_link]">Manage Preferences</a>'
+        '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a>'
       const expectedSendGridRequest = {
@@ -1320,7 +1320,7 @@ describe.each([
 
     it('should send email to group with group unsubscribe and preference link', async () => {
       const bodyHtml =
-        '<p>Hi First Name, welcome to Segment</p> <a href="[ups_unsubscribe_link]">Unsubscribe</a> | <a href="[ups_preferences_link]">Manage Preferences</a>'
+        '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<p>Hi First Name, welcome to Segment</p> <a href="http://group_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a>'
 
