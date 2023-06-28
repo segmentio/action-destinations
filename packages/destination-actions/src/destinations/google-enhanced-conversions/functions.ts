@@ -3,6 +3,7 @@ import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from '.
 import { ModifiedResponse, RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/src/destination-kit'
 import { Features } from '@segment/actions-core/src/mapping-kit'
+import { fullFormats } from 'ajv-formats/dist/formats'
 
 export const API_VERSION = 'v12'
 export const CANARY_API_VERSION = 'v13'
@@ -101,11 +102,7 @@ export const commonHashedEmailValidation = (email: string): string => {
   }
 
   // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
-  if (
-    !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i.test(
-      email
-    )
-  ) {
+  if (!(fullFormats.email as RegExp).test(email)) {
     throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
   }
 
