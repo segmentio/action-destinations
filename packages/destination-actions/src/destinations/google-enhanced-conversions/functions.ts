@@ -100,7 +100,12 @@ export const commonHashedEmailValidation = (email: string): string => {
     return email
   }
 
-  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+  // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
+  if (
+    !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i.test(
+      email
+    )
+  ) {
     throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
   }
 
