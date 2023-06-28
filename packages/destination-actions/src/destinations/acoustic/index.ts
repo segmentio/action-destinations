@@ -4,7 +4,7 @@ import receiveEvents from './receiveEvents'
 import { getAccessToken } from './Utility/tablemaintutilities'
 
 const mod = `
-Last-Modified: 06.23.2023 12.42.42
+Last-Modified: 06.28.2023 16.13.14
 `
 //May 30th, refactor for additional Customers
 export interface refreshTokenResult {
@@ -121,7 +121,7 @@ const destination: DestinationDefinition<Settings> = {
       version: {
         label: `Version:`,
         description: `${mod}`,
-        default: 'Version 3.1',
+        default: `Version 3.1   (nodeJS: ${process.version})`,
         type: 'string',
         required: false
       }
