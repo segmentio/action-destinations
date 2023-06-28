@@ -45,6 +45,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
       required: true,
       default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 100000
     }
   },
   perform: async (request, { settings, payload }) => {

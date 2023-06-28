@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { doPOST, preChecksAndMaint, getAuthCreds } from '../Utility/tablemaintutilities'
+import { doPOST, getAuthCreds } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
 import { addUpdateEvents } from '../Utility/eventprocessing'
 import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
@@ -36,6 +36,11 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
+    // audience: {
+    //   label: 'Audience identification attributes (Optional)',
+    //   description: 'Map Audience identification attributes here. For Identify Events, mapping must provide at least "computation_class" and "computation_key" attributes, for Track events, mapping must provide "audience_key"',
+    //   type: 'object'
+    // },
     key_value_pairs: {
       label: 'Key-Value pairs',
       description: 'Map simple Key-Value pairs of Event data here.',
@@ -50,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     context: {
       label: 'Context',
-      description: 'Deprecated - Parses all properties provided via a Context Section ',
+      description: 'All properties provided via a Context Section ',
       type: 'object'
       // default: {
       //   '@path': '$.context'
@@ -58,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Properties',
-      description: 'Deprecated - Parses all properties provided via a Properties Section',
+      description: 'All properties provided via a Properties Section',
       type: 'object'
       // // default: {
       //   '@path': '$.properties'
@@ -66,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'Deprecated - Parses all properties provided via a Traits Section',
+      description: 'All properties provided via a Traits Section',
       type: 'object'
       // default: {
       //   '@path': '$.traits'
@@ -76,19 +81,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload, auth }) => {
     const email = get(payload, 'email', '')
-
-    const tableId = await preChecksAndMaint(request, settings, auth as AuthTokens)
-
-    //Ok, prechecks and Maint are all accomplished, let's see what needs to be processed,
+    //Parse Event-Payload into an Update
     const rows = addUpdateEvents(payload, email, settings.attributesMax as number)
 
     let a_Auth = {}
-    if (!auth) a_Auth = getAuthCreds()
+    if (!auth?.accessToken) a_Auth = getAuthCreds()
 
     const POSTUpdates = `<Envelope>
       <Body>
         <InsertUpdateRelationalTable>
-        <TABLE_ID>${tableId} </TABLE_ID>
+        <TABLE_ID>${settings.tableListId} </TABLE_ID>
           <ROWS>${rows}</ROWS>
         </InsertUpdateRelationalTable>
       </Body>

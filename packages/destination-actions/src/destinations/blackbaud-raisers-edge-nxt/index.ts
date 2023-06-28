@@ -31,6 +31,7 @@ const destination: DestinationDefinition<Settings> = {
         body: new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: auth.refreshToken,
+          preserve_refresh_token: 'true',
           client_id: auth.clientId,
           client_secret: auth.clientSecret
         })
