@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
@@ -11,6 +11,14 @@ interface CustomBehavioralEvent {
   utk?: string
   email?: string
   objectId?: string
+}
+interface accountDetails {
+  portalId: number
+  timeZone: string
+  accountType: string
+  currency: string
+  utcOffset: string
+  utcOffsetMilliseconds: number
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -67,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
@@ -76,6 +84,14 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
+
+    const accountDetails = await request<accountDetails>(`${HUBSPOT_BASE_URL}/integrations/v1/me`)
+    const hubId = accountDetails?.data?.portalId
+
+    if (hubId && !payload.eventName.startsWith(`pe${hubId}_`)) {
+      throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
+    }
+
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event
