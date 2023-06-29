@@ -43,22 +43,22 @@ const insertUnsubscribeLinks = (
   if (groupId && groupId != '') {
     const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
     const groupUnsubscribeLink = group?.groupUnsubscribeLink
-    updatedHtml = html.replace(`<a href="${unsubscribeLinkTag}">`, function () {
+    updatedHtml = html.replace(unsubscribeLinkTag, function () {
       logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  group - ${groupId} spaceId - ${spaceId}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
-      return `<a href="${groupUnsubscribeLink}">`
+      return groupUnsubscribeLink
     })
   } else {
-    updatedHtml = html.replace(`<a href="${unsubscribeLinkTag}">`, function () {
+    updatedHtml = html.replace(unsubscribeLinkTag, function () {
       logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
       statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
-      return `<a href="${globalUnsubscribeLink}">`
+      return globalUnsubscribeLink
     })
   }
-  return updatedHtml.replace(`<a href="${preferencesLinkTag}">`, function () {
+  return updatedHtml.replace(preferencesLinkTag, function () {
     logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
-    return `<a href="${preferencesLink}">`
+    return preferencesLink
   })
 }
 
