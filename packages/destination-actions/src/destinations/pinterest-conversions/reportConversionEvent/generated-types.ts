@@ -97,7 +97,7 @@ export interface Payload {
     /**
      * Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items
      */
-    value?: number
+    value?: string
     /**
      * Product IDs as an array of strings
      */

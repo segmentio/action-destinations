@@ -170,5 +170,23 @@ describe('PinterestConversionApi', () => {
       expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
       expect(responses[0].options.json).toMatchSnapshot()
     })
+
+    it('Should throw an error when custom data value is number', async () => {
+      await expect(
+        testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            event_name: 'checkout',
+            custom_data: {
+              value: 20,
+              order_id: '12321',
+              currency: 'INR'
+            }
+          }
+        })
+      ).rejects.toThrowError()
+    })
   })
 })
