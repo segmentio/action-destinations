@@ -7,15 +7,15 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*
 
 jobs:
   build-and-publish:
     env:
       HUSKY: 0
-    if: startsWith(github.event.head_commit.message, 'Publish') == true
-    runs-on: ubuntu-20.04
 
-    timeout-minutes: 15
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -56,3 +56,28 @@ jobs:
       - name: Publish
         run: |
           yarn lerna publish from-git --yes --allowBranch=main
+
+      # Aqui viene el OB
+      # Clone monoservice
+      # NPM Upgrade
+      # Git add -A
+      # GH PR
+
+      - name: Clone Monoservice
+        uses: actions/checkout@v3
+        with:
+          path: monoservice
+          repository: 'git@github.com:segmentio/integrations.git'
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Upgrade
+        run: |
+          yarn upgrade --latest @segment/actions-core @segment/action-destinations
+
+      - name: Commit
+        run: |
+          git add -A && git commit -m "Upgrade Actions (Test)"
+        
+      - name: Pull Request
+        run: |
+          gh pr create -d -t "Upgrade Actions" --body "Test" 
