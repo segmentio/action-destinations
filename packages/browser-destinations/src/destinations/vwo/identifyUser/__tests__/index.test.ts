@@ -1,6 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from 'src/lib/browser-destinations'
-import type { VWO } from '../../types'
 import vwoDestination, { destination } from '../../index'
 
 const subscriptions: Subscription[] = [
@@ -22,7 +21,6 @@ describe('VWO.identifyUser', () => {
     vwoAccountId: 654331
   }
 
-  let mockVWO: VWO
   let identifyUser: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -34,11 +32,12 @@ describe('VWO.identifyUser', () => {
     identifyUser = identifyUserPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockVWO = {
+      window.VWO = {
+        push: jest.fn(),
         event: jest.fn(),
         visitor: jest.fn()
       }
-      return Promise.resolve(mockVWO)
+      return Promise.resolve(window.VWO)
     })
     await identifyUser.load(Context.system(), {} as Analytics)
   })
@@ -52,7 +51,7 @@ describe('VWO.identifyUser', () => {
     })
     await identifyUser.identify?.(context)
 
-    expect(mockVWO.visitor).toHaveBeenCalledWith(
+    expect(window.VWO.visitor).toHaveBeenCalledWith(
       {
         'segment.textAttribute': 'Hello'
       },

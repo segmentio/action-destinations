@@ -5,47 +5,14 @@ import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '.
 import {
   HubSpotError,
   MissingIdentityCallThrowableError,
-  CompanySearchThrowableError,
   RestrictedPropertyThrowableError,
   SegmentUniqueIdentifierMissingRetryableError,
   MultipleCompaniesInSearchResultThrowableError,
-  isSegmentUniqueIdentifierPropertyError
+  isSegmentUniqueIdentifierPropertyError,
+  CompanySearchThrowableError
 } from '../errors'
-import { flattenObject } from '../helperFunctions'
-
-enum CompanySearchFilterOperator {
-  EQ = 'EQ',
-  NEQ = 'NEQ',
-  LT = 'LT',
-  LTE = 'LTE',
-  GT = 'GT',
-  GTE = 'GTE',
-  BETWEEN = 'BETWEEN',
-  IN = 'IN',
-  NOT_IN = 'NOT_IN',
-  HAS_PROPERTY = 'HAS_PROPERTY',
-  NOT_HAS_PROPERTY = 'NOT_HAS_PROPERTY',
-  CONTAINS_TOKEN = 'CONTAINS_TOKEN',
-  NOT_CONTAINS_TOKEN = 'NOT_CONTAINS_TOKEN'
-}
-
-interface CompanySearchFilter {
-  propertyName: string
-  operator: CompanySearchFilterOperator
-  value: unknown
-}
-
-interface companySearchFilterGroup {
-  filters: CompanySearchFilter[]
-}
-
-interface CompanySearchPayload {
-  filterGroups: companySearchFilterGroup[]
-  properties?: string[]
-  sorts?: string[]
-  limit?: number
-  after?: number
-}
+import { flattenObject, ResponseInfo, SearchResponse, UpsertRecordResponse } from '../utils'
+import { Hubspot } from '../api'
 
 interface CompanyProperty {
   name: string
@@ -60,19 +27,7 @@ interface CompanyProperty {
   formField?: boolean
 }
 
-interface CompanyInfo {
-  id: string
-  properties: Record<string, string>
-}
-
-interface SearchCompanyResponse {
-  total: number
-  results: CompanyInfo[]
-}
-
-interface UpsertCompanyResponse extends CompanyInfo {}
-
-interface CompanyContactAssociationResponse extends CompanyInfo {
+interface CompanyContactAssociationResponse extends ResponseInfo {
   associations: {
     contacts?: {
       results: Record<string, unknown>[]
@@ -80,7 +35,7 @@ interface CompanyContactAssociationResponse extends CompanyInfo {
   }
 }
 
-type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertCompanyResponse>>
+type UpsertCompanyFunction = () => Promise<ModifiedResponse<UpsertRecordResponse>>
 
 /**
  * Upsert Company Action works as follows:
@@ -265,6 +220,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
       throw MissingIdentityCallThrowableError
     }
+    const hubspotApiClient: Hubspot = new Hubspot(request, 'companies')
 
     // Construct company properties
     const companyProperties = {
@@ -289,8 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Try to update company using SEGMENT_UNIQUE_IDENTIFIER
     try {
-      const updateCompanyResponse = await updateCompany(
-        request,
+      const updateCompanyResponse = await hubspotApiClient.update(
         payload.groupid,
         companyProperties,
         SEGMENT_UNIQUE_IDENTIFIER
@@ -321,10 +276,18 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!companyId) {
       // Attempt to search company with Company Search Fields
       // If Company Search Fields doesn't have any defined property, skip the search and assume Company was not found
-      let searchCompanyResponse: ModifiedResponse<SearchCompanyResponse> | null = null
+      let searchCompanyResponse: ModifiedResponse<SearchResponse> | null = null
+
       if (typeof payload.companysearchfields === 'object' && Object.keys(payload.companysearchfields).length > 0) {
         try {
-          searchCompanyResponse = await searchCompany(request, { ...payload.companysearchfields })
+          const responseProperties: string[] = ['name', 'domain', 'lifecyclestage', SEGMENT_UNIQUE_IDENTIFIER]
+          const responseSortBy: string[] = ['name']
+
+          searchCompanyResponse = await hubspotApiClient.search(
+            { ...payload.companysearchfields },
+            responseProperties,
+            responseSortBy
+          )
         } catch (e) {
           // HubSpot throws a generic 400 error if an undefined property is used in search
           // Throw a more informative error instead
@@ -337,7 +300,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // Check if any companies were found based Company Search Fields
       // If the search was skipped, searchCompanyResponse would have a falsy value (null)
-      if (!searchCompanyResponse || searchCompanyResponse.data.total === 0) {
+      if (!searchCompanyResponse?.data || searchCompanyResponse?.data?.total === 0) {
         // No existing company found with search criteria, attempt to create a new company
 
         // If Create New Company flag is set to false, skip creation
@@ -346,8 +309,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // Create a wrapper function which calls createCompany and returns the response
-        const createCompanyWrapper = function () {
-          return createCompany(request, companyProperties)
+        const createCompanyWrapper = async function () {
+          return await hubspotApiClient.create(companyProperties)
         }
 
         companyId = await upsertCompanyWithRetry(request, createCompanyWrapper)
@@ -361,8 +324,8 @@ const action: ActionDefinition<Settings, Payload> = {
         companyId = searchCompanyResponse.data.results[0].id
 
         // Create a wrapper function which calls updateCompany and returns the response
-        const updateCompanyWrapper = function () {
-          return updateCompany(request, companyId, companyProperties)
+        const updateCompanyWrapper = async function () {
+          return await hubspotApiClient.update(companyId, companyProperties)
         }
 
         await upsertCompanyWithRetry(request, updateCompanyWrapper)
@@ -374,87 +337,6 @@ const action: ActionDefinition<Settings, Payload> = {
       await associateCompanyToContact(request, companyId, transactionContext.transaction.contact_id, ASSOCIATION_TYPE)
     }
   }
-}
-
-/**
- * Searches for a company by Company Search Fields
- * @param {RequestClient} request RequestClient instance
- * @param {{[key: string]: unknown}} companySearchFields A list of key-value pairs of unique properties to identify a company
- * @param {String} [idProperty] Unique property of company to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated Company ID
- * @returns {Promise<ModifiedResponse<SearchCompanyResponse>>} A promise that resolves to a list of companies matching the search criteria
- */
-function searchCompany(request: RequestClient, companySearchFields: { [key: string]: unknown }) {
-  // Generate company search payload
-  const responseProperties: string[] = ['name', 'domain', 'lifecyclestage', SEGMENT_UNIQUE_IDENTIFIER]
-  const responseSortBy: string[] = ['name']
-
-  const companySearchPayload: CompanySearchPayload = {
-    filterGroups: [],
-    properties: [...responseProperties],
-    sorts: [...responseSortBy]
-  }
-
-  for (const [key, value] of Object.entries(companySearchFields)) {
-    companySearchPayload.filterGroups.push({
-      filters: [
-        {
-          propertyName: key,
-          operator: CompanySearchFilterOperator.EQ,
-          value
-        }
-      ]
-    })
-  }
-
-  return request<SearchCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/companies/search`, {
-    method: 'POST',
-    json: {
-      ...companySearchPayload
-    }
-  })
-}
-
-/**
- * Creates a Company CRM object in HubSpot
- * @param {RequestClient} request RequestClient instance
- * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the Company
- * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves to updated company object
- */
-function createCompany(request: RequestClient, properties: { [key: string]: unknown }) {
-  return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/companies`, {
-    method: 'POST',
-    json: {
-      properties: properties
-    }
-  })
-}
-
-/**
- * Updates a Company CRM object in HubSPot identified by company's ID or a unique property ID
- * @param {RequestClient} request RequestClient instance
- * @param {string} uniqueIdentifier A unique identifier value of the property
- * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties to update
- * @param {String} [idProperty] Unique property of company to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated Company ID
- * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves to updated company object
- */
-function updateCompany(
-  request: RequestClient,
-  uniqueIdentifier: string,
-  properties: { [key: string]: unknown },
-  idProperty?: string
-) {
-  // Construct the URL to update company
-  // URL to update company by ID: /crm/v3/objects/companies/{companyId}
-  // URL to update company by unique property: /crm/v3/objects/companies/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
-  const updateCompanyURL =
-    `${HUBSPOT_BASE_URL}/crm/v3/objects/companies/${uniqueIdentifier}` + (idProperty ? `?idProperty=${idProperty}` : '')
-
-  return request<UpsertCompanyResponse>(updateCompanyURL, {
-    method: 'PATCH',
-    json: {
-      properties: properties
-    }
-  })
 }
 
 /**
@@ -478,7 +360,7 @@ function createSegmentUniqueIdentifierProperty(request: RequestClient) {
     formField: false
   }
 
-  return request<UpsertCompanyResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
+  return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
     method: 'POST',
     json: {
       ...segmentUniqueIdentifierProperty

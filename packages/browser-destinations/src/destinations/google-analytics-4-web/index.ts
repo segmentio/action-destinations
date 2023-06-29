@@ -52,12 +52,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       type: 'string',
       required: true
     },
-    pageView: {
-      description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
-      label: 'Page Views',
-      type: 'boolean',
-      default: true
-    },
     allowGoogleSignals: {
       description: 'Set to false to disable all advertising features. Set to true by default.',
       label: 'Allow Google Signals',
@@ -144,7 +138,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
   initialize: async ({ settings }, deps) => {
     const config = {
-      send_page_view: settings.pageView,
+      send_page_view: false,
       cookie_update: settings.cookieUpdate,
       cookie_domain: settings.cookieDomain,
       cookie_prefix: settings.cookiePrefix,

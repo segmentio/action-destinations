@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HeapApi } from '../types'
 import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../constants'
-import { isDefined, flat } from '../utils'
+import { isDefined, flat, flattenProperties } from '../utils'
 
 const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
   title: 'Track Event',
@@ -56,8 +56,7 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
     }
   },
   perform: (heap, event) => {
-    const eventProperties = Object.assign({}, event.payload.properties)
-    eventProperties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+    // Add user properties
     if (event.payload.anonymousId || isDefined(event.payload?.traits)) {
       const traits = flat(event.payload?.traits)
       heap.addUserProperties({
@@ -65,11 +64,60 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
         ...(isDefined(traits) && traits)
       })
     }
+
+    // Identify user
     if (event.payload?.identity && isDefined(event.payload?.identity)) {
       heap.identify(event.payload.identity)
     }
-    heap.track(event.payload.name, eventProperties)
+
+    // Track Events
+    let eventProperties = Object.assign({}, event.payload.properties)
+    const eventName = event.payload.name
+    const browserArrayLimit = event.settings.browserArrayLimit || 0
+    const browserArrayLimitSet = !!browserArrayLimit
+    let arrayEventsCount = 0
+
+    for (const [key, value] of Object.entries(eventProperties)) {
+      if (browserArrayLimitSet && arrayEventsCount >= browserArrayLimit) {
+        break
+      }
+
+      if (!Array.isArray(value)) {
+        continue
+      }
+
+      delete eventProperties[key]
+      eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
+
+      const arrayLength = value.length
+      let arrayPropertyValues
+      // truncate in case there are multiple array properties
+      if (browserArrayLimitSet && arrayLength + arrayEventsCount > browserArrayLimit) {
+        arrayPropertyValues = value.splice(0, browserArrayLimit - arrayEventsCount)
+      } else {
+        arrayPropertyValues = value
+      }
+
+      arrayEventsCount += arrayLength
+
+      arrayPropertyValues.forEach((arrayPropertyValue) => {
+        const arrayProperties = flattenProperties(arrayPropertyValue)
+        heapTrack(heap, `${eventName} ${key} item`, arrayProperties)
+      })
+    }
+    heapTrack(heap, eventName, eventProperties)
   }
+}
+
+const heapTrack = (
+  heap: HeapApi,
+  eventName: string,
+  properties: {
+    [k: string]: unknown
+  }
+) => {
+  properties.segment_library = HEAP_SEGMENT_BROWSER_LIBRARY_NAME
+  heap.track(eventName, properties)
 }
 
 export default action

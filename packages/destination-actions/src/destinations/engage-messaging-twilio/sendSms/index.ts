@@ -144,14 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const { settings, payload, statsContext, logger } = data
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags || []
-    if (!settings.region) {
-      settings.region = 'us-west-1'
-    }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`, `channel:sms`)
-    return new SmsMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
+    return new SmsMessageSender(request, data).send()
   }
 }
 

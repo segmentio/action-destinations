@@ -107,4 +107,27 @@ describe('TiktokAudiences.addUser', () => {
       })
     ).rejects.toThrow('At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.')
   })
+  it('should fail if email and/or advertising_id is not in the payload', async () => {
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(400)
+
+    delete event?.context?.device
+    delete event?.context?.traits
+
+    await expect(
+      testDestination.testAction('addUser', {
+        event,
+        settings: {
+          advertiser_ids: ['123']
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          selected_advertiser_id: '123',
+          audience_id: 'personas_test_audience',
+          send_email: true,
+          send_advertising_id: true
+        }
+      })
+    ).rejects.toThrowError('At least one of Email Id or Advertising ID must be provided.')
+  })
 })

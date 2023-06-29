@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom Object with custom Search Field, if record matches 1`] = `
+Object {
+  "filterGroups": Array [
+    Object {
+      "filters": Array [
+        Object {
+          "operator": "EQ",
+          "propertyName": "test_custom_object_type",
+          "value": "new_test_custom_object_type",
+        },
+      ],
+    },
+  ],
+  "properties": Array [],
+  "sorts": Array [
+    "name",
+  ],
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom Object with custom Search Field, if record matches 2`] = `
+Object {
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;

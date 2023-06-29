@@ -45,7 +45,9 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       event,
       settings: {
         advertiser_id: 'advertiser_id',
-        auth_token: 'test_token'
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
       },
       useDefaultMappings: true,
       mapping: {
@@ -92,7 +94,9 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       event,
       settings: {
         advertiser_id: 'advertiser_id',
-        auth_token: 'test_token'
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
       },
       useDefaultMappings: true,
       mapping: {
@@ -130,7 +134,9 @@ describe('TheTradeDeskCrm.syncAudience', () => {
         event,
         settings: {
           advertiser_id: 'advertiser_id',
-          auth_token: 'test_token'
+          auth_token: 'test_token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
         },
         useDefaultMappings: true,
         mapping: {

@@ -38,7 +38,6 @@ Object {
           "product_id": "U[ABpE$k",
         },
       ],
-      "queryID": "U[ABpE$k",
       "userToken": "U[ABpE$k",
     },
   ],
@@ -83,7 +82,6 @@ Object {
       "positions": Array [
         -1912532923056128,
       ],
-      "queryID": "LLjxSD^^GnH",
       "userToken": "LLjxSD^^GnH",
     },
   ],
@@ -120,7 +118,6 @@ Object {
       "objectIDs": Array [
         "BLFCPcmz",
       ],
-      "queryID": "BLFCPcmz",
       "userToken": "BLFCPcmz",
     },
   ],

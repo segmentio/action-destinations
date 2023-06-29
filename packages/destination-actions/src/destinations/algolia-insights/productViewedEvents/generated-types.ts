@@ -10,9 +10,9 @@ export interface Payload {
    */
   index: string
   /**
-   * Query ID of the list on which the item was clicked.
+   * Query ID of the list on which the item was viewed.
    */
-  queryID: string
+  queryID?: string
   /**
    * The ID associated with the user.
    */

@@ -14,6 +14,8 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { get_api_version } from '../utils'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 'Send a page view event when a user lands on a page',
@@ -22,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
+    app_data_field: app_data_field,
     event_id: event_id,
     event_source_url: event_source_url,
     custom_data: custom_data,
@@ -61,6 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
               event_source_url: payload.event_source_url,
               event_id: payload.event_id,
               user_data: hash_user_data({ user_data: payload.user_data }),
+              app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,
               data_processing_options_state: state_code

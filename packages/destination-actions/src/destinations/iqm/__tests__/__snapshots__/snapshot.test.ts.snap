@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-iqm destination: postEvent action - all fields 1`] = `
+Object {
+  "data": Object {
+    "testType": "&V4U(!rZ6u7Zsevzgp",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-iqm destination: postEvent action - required fields 1`] = `Object {}`;
