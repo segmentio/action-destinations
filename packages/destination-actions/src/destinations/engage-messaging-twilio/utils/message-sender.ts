@@ -193,43 +193,46 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.stats({ method: 'set', metric, value, extraTags })
   }
 
-  trackWrap<R = void>(fn: () => R, operation: string, _args?: TrackableArgs, _funcArgs?: unknown[]): R {
-    type ErrorWithTrackableContext = Error & {
-      trackableContext?: {
-        operation: string
-        tags?: string[]
-        originalError?: unknown
-      }
-    }
+  private trackContextStack: TrackableContext[] = []
+  getCurrentTrackableContext(): TrackableContext | undefined {
+    return this.trackContextStack[this.trackContextStack.length - 1]
+  }
 
+  trackWrap<R = void>(fn: () => R, operation: string, _args?: TrackableArgs, _funcArgs?: unknown[]): R {
+    type ErrorWithTrackableContext = Error & { trackableContext?: TrackableContext & { originalError?: unknown } }
+    const tctx: TrackableContext = { operation, tags: [] }
     const start = Date.now()
     return wrapPromisable(fn, {
       onTry: () => {
+        this.trackContextStack.push(tctx)
         this.logInfo(`${operation} Starting...`)
         this.stats({ method: 'incr', metric: operation + '.try' })
       },
       onPrepareError: (err) => {
         const originalError = err
         let trackableError = err as ErrorWithTrackableContext
-        let trackableContext = trackableError.trackableContext
-        if (trackableContext) return trackableError //if already has trackable context then return the error as is
+        let errorContext = trackableError.trackableContext
+        if (errorContext) return trackableError //if already has trackable context then return the error as is
 
-        trackableContext = { operation, originalError }
+        errorContext = tctx
+        errorContext.originalError = originalError
         if (_args?.onError) {
           const errRes = _args.onError.apply(this, [err])
-          trackableContext.tags = errRes.tags
+          errorContext.tags = errRes.tags
           trackableError = trackableError || err
         }
-        trackableError.trackableContext = trackableContext
+        trackableError.trackableContext = errorContext
         return trackableError
       },
       onFinally: (fin) => {
+        if (this.trackContextStack.includes(tctx))
+          this.trackContextStack.splice(this.trackContextStack.indexOf(tctx), 1) // this.trackContextStack.pop() - could also work but less safe when we have nested trackable operations running in parallel
         const duration = Date.now() - start
-        const tags = []
+        const finallyTags = []
+        finallyTags.push(`success:${'error' in fin ? 'false' : 'true'}`)
         if ('result' in fin) {
           this.logInfo(`${operation} Success. Duration: ${duration} ms`)
-          this.stats({ method: 'incr', metric: operation + '.success' })
-          tags.push('success')
+          // this.stats({ method: 'incr', metric: operation + '.success' })
         } else {
           const error = fin.error as ErrorWithTrackableContext
           const { trackableContext } = error
@@ -240,12 +243,12 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           }
 
           const errorCode = error instanceof IntegrationError ? error.code : error?.constructor?.name || 'unknown'
-          tags.push(`error_operation: ${trackableContext?.operation || operation}`, `error:${errorCode}`)
-          if (trackableContext?.tags) tags.push(...trackableContext.tags)
-          this.stats({ method: 'incr', metric: operation + '.error', extraTags: tags })
+          finallyTags.push(`error_operation: ${trackableContext?.operation || operation}`, `error:${errorCode}`)
+          if (trackableContext?.tags) finallyTags.push(...trackableContext.tags)
+          // this.stats({ method: 'incr', metric: operation + '.catch', extraTags: finallyTags })
         }
-        this.stats({ method: 'incr', metric: operation + '.finally', extraTags: tags })
-        this.stats({ method: 'histogram', metric: operation + '.duration', value: duration, extraTags: tags })
+        this.stats({ method: 'incr', metric: operation + '.finally', extraTags: finallyTags })
+        this.stats({ method: 'histogram', metric: operation + '.duration', value: duration, extraTags: finallyTags })
       }
     })
   }
@@ -377,4 +380,11 @@ export function isDestinationActionService() {
   return (
     process.env.DESTINATIONS_ACTION_SERVICE === 'true' || process.env.SERVICE_NAME === 'destination-actions-service'
   )
+}
+
+export type TrackableContext = {
+  operation: string
+  tags?: string[]
+  originalError?: unknown
+  [key: string]: unknown
 }
