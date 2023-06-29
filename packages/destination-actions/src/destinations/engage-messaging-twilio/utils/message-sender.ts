@@ -132,6 +132,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logger?.error(
         `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
         ...rest,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         error instanceof Error ? error.message : error?.toString(),
         JSON.stringify(this.logDetails)
       )
@@ -349,7 +350,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       // data if that's what we're expecting.
       // let webhookUrlWithParams: URL | null = null
 
-      trackableLogOnError(() => [JSON.stringify(customArgs)])
+      // trackableLogOnError(() => [JSON.stringify(customArgs)])
       const webhookUrlWithParams = new URL(webhookUrl)
 
       for (const key of Object.keys(customArgs)) {

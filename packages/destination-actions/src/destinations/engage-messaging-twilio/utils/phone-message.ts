@@ -112,8 +112,8 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
     const hasInvalidStatuses = invalidStatuses && invalidStatuses.length > 0
     if (hasInvalidStatuses) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.logInfo(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         `Invalid subscription statuses found in externalIds: ${invalidStatuses!
           .map((extId) => extId.subscriptionStatus)
           .join(', ')}`
