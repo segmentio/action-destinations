@@ -54,7 +54,7 @@ const multiProductContents = {
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = {
   name: 'TikTok Pixel',
-  slug: 'tiktok-pixel',
+  slug: 'tiktok-pixel-actions',
   mode: 'device',
   presets: [
     {
