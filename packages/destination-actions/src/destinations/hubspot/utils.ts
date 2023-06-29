@@ -34,3 +34,49 @@ export function flattenObject(obj: JSONObject) {
 
   return flattened
 }
+
+export enum SearchFilterOperator {
+  EQ = 'EQ',
+  NEQ = 'NEQ',
+  LT = 'LT',
+  LTE = 'LTE',
+  GT = 'GT',
+  GTE = 'GTE',
+  BETWEEN = 'BETWEEN',
+  IN = 'IN',
+  NOT_IN = 'NOT_IN',
+  HAS_PROPERTY = 'HAS_PROPERTY',
+  NOT_HAS_PROPERTY = 'NOT_HAS_PROPERTY',
+  CONTAINS_TOKEN = 'CONTAINS_TOKEN',
+  NOT_CONTAINS_TOKEN = 'NOT_CONTAINS_TOKEN'
+}
+
+export interface SearchFilter {
+  propertyName: string
+  operator: SearchFilterOperator
+  value: unknown
+}
+
+export interface SearchFilterGroup {
+  filters: SearchFilter[]
+}
+
+export interface SearchPayload {
+  filterGroups: SearchFilterGroup[]
+  properties?: string[]
+  sorts?: string[]
+  limit?: number
+  after?: number
+}
+
+export interface ResponseInfo {
+  id: string
+  properties: Record<string, string>
+}
+
+export interface SearchResponse {
+  total: number
+  results: ResponseInfo[]
+}
+
+export interface UpsertRecordResponse extends ResponseInfo {}
