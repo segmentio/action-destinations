@@ -21,8 +21,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const tags = statsContext?.tags ?? []
     const { traits = {}, ...apiLookupConfig } = payload
     const profile: Profile = { traits: traits as Record<string, string> }
-    // The http response/error is automatically returned to the client when using `request`
-    await performApiLookup(request, apiLookupConfig, profile, statsClient, tags, settings, logger)
+    const data = await performApiLookup(request, apiLookupConfig, profile, statsClient, tags, settings, logger)
+    return {
+      data
+    }
   }
 }
 
