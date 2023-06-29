@@ -218,25 +218,10 @@ const attemptEmailDelivery = async (
   }
 
   const bcc = JSON.parse(payload.bcc ?? '[]')
-  const parsedSubject = await parseTemplating(
-    payload.subject,
-    { profile },
-    'Subject',
-    statsClient,
-    tags,
-    settings,
-    logger
-  )
-
-  const apiLookupData = await performApiLookups(
-    request,
-    payload.apiLookups,
-    profile,
-    statsClient,
-    tags,
-    settings,
-    logger
-  )
+  const [parsedSubject, apiLookupData] = await Promise.all([
+    parseTemplating(payload.subject, { profile }, 'Subject', statsClient, tags, settings, logger),
+    performApiLookups(request, payload.apiLookups, profile, statsClient, tags, settings, logger)
+  ])
 
   let parsedBodyHtml
 
