@@ -41,7 +41,8 @@ const testAction = createTestAction({
       priority: null,
       badgeAmount: null,
       badgeStrategy: null,
-      ttl: null
+      ttl: null,
+      tapActionButtons: null
     }
   })
 })
@@ -68,6 +69,8 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
           }),
     CustomData: JSON.stringify({
       space_id: spaceId,
+      badgeAmount: 1,
+      badgeStrategy: 'inc',
       __segment_internal_external_id_key__: extId.type,
       __segment_internal_external_id_value__: extId.id
     })
@@ -370,6 +373,8 @@ describe('sendMobilePush action', () => {
         }),
         CustomData: JSON.stringify({
           space_id: spaceId,
+          badgeAmount: 1,
+          badgeStrategy: 'inc',
           media: ['http://myimg.com/&color=mantis_green'],
           __segment_internal_external_id_key__: 'ios.push_token',
           __segment_internal_external_id_value__: 'ios-token-1'
@@ -415,6 +420,8 @@ describe('sendMobilePush action', () => {
         }),
         CustomData: JSON.stringify({
           space_id: spaceId,
+          badgeAmount: 1,
+          badgeStrategy: 'inc',
           media: ['http://myimg.com/&color=mantis_green'],
           __segment_internal_external_id_key__: 'ios.push_token',
           __segment_internal_external_id_value__: 'ios-token-1'
