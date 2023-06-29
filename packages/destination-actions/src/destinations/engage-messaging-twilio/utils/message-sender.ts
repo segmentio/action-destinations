@@ -234,8 +234,8 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
           const error = fin.error as ErrorWithTrackableContext
           const { trackableContext } = error
           this.logError(error, `${operation} Failed. Duration: ${duration} ms`)
-          const isErrorHappenedHere = trackableContext?.operation == operation //indicates if the error happened during this operation (not underlying trackable operation)
-          if (isErrorHappenedHere && trackableContext.originalError && trackableContext.originalError != error) {
+          const isErrorInCurrentOperation = trackableContext?.operation == operation //indicates if the error happened during this operation (not underlying trackable operation)
+          if (isErrorInCurrentOperation && trackableContext?.originalError && trackableContext.originalError != error) {
             this.logError(trackableContext.originalError, `${operation} Underlying error`)
           }
 
