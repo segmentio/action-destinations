@@ -5,7 +5,9 @@ import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
-import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
+import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
+import { TrackableArgs, trackable } from './trackable'
+import { wrapPromisable } from './wrapPromisable'
 
 const Liquid = new LiquidJs()
 
@@ -27,7 +29,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   readonly logger: Logger | undefined
 
   constructor(
-    readonly request: RequestFn,
+    readonly request: RequestFn, //TODO: implement request method with trackable capabilities
     readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
   ) {
@@ -50,51 +52,43 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   abstract getChannelType(): string
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
+  @trackable({ log: true, stats: true })
   async send() {
     this.beforeSend()
-    //this.stats('incr', 'initialize', 1)
-    return this.logWrap(this.doSend.bind(this), {
-      operationName: 'Destination Action',
-      stats: {
-        onStart: () => [{ metric: 'destination_action_start' }],
-        onEnd: (r) => [
-          { metric: 'destination_action_end', extraTags: r.error ? ['error:true', 'reason:' + r.error] : undefined }
-        ]
-      }
-    })
+    return this.doSend()
   }
 
   /*
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
+  @trackable({
+    log: true,
+    stats: true,
+    onError: () => ({
+      error: new PayloadValidationError('Unable to parse templating'),
+      tags: ['reason:invalid_liquid']
+    })
+  })
   async parseContent<R extends Record<string, string | string[] | undefined>>(
     content: R,
     profile: Profile
   ): Promise<R> {
-    try {
-      const parsedEntries = await Promise.all(
-        Object.entries(content).map(async ([key, val]) => {
-          if (val == null) {
-            return [key, val]
-          }
-
-          if (Array.isArray(val)) {
-            val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
-          } else {
-            val = await Liquid.parseAndRender(val, { profile })
-          }
+    const parsedEntries = await Promise.all(
+      Object.entries(content).map(async ([key, val]) => {
+        if (val == null) {
           return [key, val]
-        })
-      )
+        }
 
-      return Object.fromEntries(parsedEntries)
-    } catch (error: unknown) {
-      this.logDetails['error'] = error instanceof Error ? error.message : (error as object)?.toString()
-      this.logError(`unable to parse templating - ${this.settings.spaceId}`)
-      this.tags.push('reason:invalid_liquid')
-      this.stats('incr', 'error', 1)
-      throw new PayloadValidationError(`Unable to parse templating in ${this.getChannelType()}`)
-    }
+        if (Array.isArray(val)) {
+          val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
+        } else {
+          val = await Liquid.parseAndRender(val, { profile })
+        }
+        return [key, val]
+      })
+    )
+
+    return Object.fromEntries(parsedEntries)
   }
 
   redactPii(pii: string | undefined) {
@@ -198,38 +192,59 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.stats({ method: 'set', metric, value, extraTags })
   }
 
-  logWrap<R = void>(
-    fn: () => R,
-    args: {
-      operationName: string
-      stats?: {
-        onStart?: () => StatsArgs[] | undefined
-        onEnd?: (args: { result?: Awaited<R>; error?: unknown; duration: number }) => StatsArgs[] | undefined
+  trackWrap<R = void>(fn: () => R, operation: string, _args?: TrackableArgs, _funcArgs?: unknown[]): R {
+    type ErrorWithTrackableContext = Error & {
+      trackableContext?: {
+        operation: string
+        tags?: string[]
+        originalError?: unknown
       }
     }
-  ): R {
+
     const start = Date.now()
     return wrapPromisable(fn, {
-      onStart: () => {
-        this.logInfo('Starting: ', args.operationName)
-        const statsStart = args.stats?.onStart?.()
-        if (statsStart)
-          for (const statsArgs of statsStart) {
-            this.stats(statsArgs)
-          }
+      onTry: () => {
+        this.logInfo(`${operation} Starting...`)
+        this.stats({ method: 'incr', metric: operation + '.try' })
+      },
+      onPrepareError: (err) => {
+        const originalError = err
+        let trackableError = err as ErrorWithTrackableContext
+        let trackableContext = trackableError.trackableContext
+        if (trackableContext) return trackableError //if already has trackable context then return the error as is
+
+        trackableContext = { operation, originalError }
+        if (_args?.onError) {
+          const errRes = _args.onError.apply(this, [err])
+          trackableContext.tags = errRes.tags
+          trackableError = trackableError || err
+        }
+        trackableError.trackableContext = trackableContext
+        return trackableError
       },
       onFinally: (fin) => {
         const duration = Date.now() - start
+        const tags = []
         if ('result' in fin) {
-          this.logInfo('Success: ', args.operationName, `Duration: ${duration} ms`)
+          this.logInfo(`${operation} Success. Duration: ${duration} ms`)
+          this.stats({ method: 'incr', metric: operation + '.success' })
+          tags.push('success')
         } else {
-          this.logError(fin.error, 'Failed: ', args.operationName, `Duration: ${duration} ms`)
-        }
-        const statsEnd = args.stats?.onEnd?.({ ...fin, duration })
-        if (statsEnd)
-          for (const statsArgs of statsEnd) {
-            this.stats(statsArgs)
+          const error = fin.error as ErrorWithTrackableContext
+          const { trackableContext } = error
+          this.logError(error, `${operation} Failed. Duration: ${duration} ms`)
+          const isErrorHappenedHere = trackableContext?.operation == operation //indicates if the error happened during this operation (not underlying trackable operation)
+          if (isErrorHappenedHere && trackableContext.originalError && trackableContext.originalError != error) {
+            this.logError(trackableContext.originalError, `${operation} Underlying error`)
           }
+
+          const errorCode = error instanceof IntegrationError ? error.code : error?.constructor?.name || 'unknown'
+          tags.push(`error_operation: ${trackableContext?.operation || operation}`, `error:${errorCode}`)
+          if (trackableContext?.tags) tags.push(...trackableContext.tags)
+          this.stats({ method: 'incr', metric: operation + '.error', extraTags: tags })
+        }
+        this.stats({ method: 'incr', metric: operation + '.finally', extraTags: tags })
+        this.stats({ method: 'histogram', metric: operation + '.duration', value: duration, extraTags: tags })
       }
     })
   }
@@ -254,47 +269,42 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
   }
 
+  @trackable({
+    onError: (e) => ({
+      error:
+        e instanceof IntegrationError
+          ? e
+          : new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
+      //tags: ['reason:get_content_template']
+    })
+  })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
-    let template
-    try {
-      if (!this.payload.contentSid) {
-        throw new PayloadValidationError('Content SID not in payload')
-      }
-
-      const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-        'base64'
-      )
-      const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
-        method: 'GET',
-        headers: {
-          authorization: `Basic ${twilioToken}`
-        }
-      })
-
-      template = (await response.json()) as ContentTemplateResponse
-    } catch (error) {
-      this.tags.push('reason:get_content_template')
-      this.stats('incr', 'error', 1)
-      this.logError(
-        `failed request to fetch content template from Twilio Content API - ${
-          this.settings.spaceId
-        } - ${error}, ${JSON.stringify(error)})}`
-      )
-      throw new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
+    if (!this.payload.contentSid) {
+      throw new PayloadValidationError('Content SID not in payload')
     }
+
+    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
+      'base64'
+    )
+    const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
+      method: 'GET',
+      headers: {
+        authorization: `Basic ${twilioToken}`
+      }
+    })
+
+    const template = (await response.json()) as ContentTemplateResponse
 
     return this.extractTemplateTypes(template)
   }
 
+  @trackable({
+    onError: () => ({
+      tags: ['reason:invalid_template_type']
+    })
+  })
   private extractTemplateTypes(template: ContentTemplateResponse): ContentTemplateTypes {
     if (!template.types) {
-      this.logError(
-        `template from Twilio Content API does not contain a template type - ${
-          this.settings.spaceId
-        } - [${JSON.stringify(template)}]`
-      )
-      this.tags.push('reason:invalid_template_type')
-      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         'Template from Twilio Content API does not contain any template types',
         `NO_CONTENT_TYPES`,
@@ -306,9 +316,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if (this.supportedTemplateTypes.includes(type)) {
       return { body: template.types[type].body, media: template.types[type].media }
     } else {
-      this.logError(`unsupported content template type '${type}' - ${this.settings.spaceId}`)
-      this.tags.push('reason:invalid_template_type')
-      this.stats('incr', 'error', 1)
       throw new IntegrationError(
         `Sending templates with '${type}' content type is not supported by ${this.getChannelType()}`,
         'UNSUPPORTED_CONTENT_TYPE',
@@ -317,6 +324,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
+  @trackable({ onError: () => ({ error: new PayloadValidationError('Invalid webhook url arguments') }) })
   getWebhookUrlWithParams(
     externalIdType?: string,
     externalIdValue?: string,
@@ -341,123 +349,19 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       // data if that's what we're expecting.
       // let webhookUrlWithParams: URL | null = null
 
-      try {
-        const webhookUrlWithParams = new URL(webhookUrl)
+      trackableLogOnError(() => [JSON.stringify(customArgs)])
+      const webhookUrlWithParams = new URL(webhookUrl)
 
-        for (const key of Object.keys(customArgs)) {
-          webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
-        }
-
-        webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
-        return webhookUrlWithParams.toString()
-      } catch (error: unknown) {
-        this.logDetails['webhook-custom-args'] = this.payload.customArgs
-        this.logError(`invalid webhook url - ${this.settings.spaceId}`)
-        throw new PayloadValidationError('Invalid webhook url arguments')
+      for (const key of Object.keys(customArgs)) {
+        webhookUrlWithParams.searchParams.append(key, String(customArgs[key]))
       }
+
+      webhookUrlWithParams.hash = connectionOverrides || defaultConnectionOverrides
+      return webhookUrlWithParams.toString()
     }
 
     return null
   }
-
-  getRethrowableError(error: unknown, apiName = 'Twilio Programmable API'): unknown {
-    let errorToRethrow = error
-    if (error instanceof Object) {
-      const twilioApiError = error as TwilioApiError
-      this.logDetails['twilioApiError_response_data'] = twilioApiError.response?.data
-      this.logDetails['twilio-request-id'] = twilioApiError.response?.headers?.get('twilio-request-id')
-      this.logDetails['error'] = twilioApiError.response
-
-      this.logError(`${apiName} error - ${this.settings.spaceId}`)
-      const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
-      this.tags.push(`twilio_status_code:${statusCode}`)
-      this.stats('incr', 'response', 1)
-
-      if (!twilioApiError.status) {
-        //to handle error properly by Centrifuge
-        errorToRethrow = new IntegrationError(
-          twilioApiError.response?.data?.message || twilioApiError.message,
-          (twilioApiError.response?.data?.code || statusCode)?.toString() || 'Twilio Api Request Error',
-          statusCode
-        )
-      }
-
-      const errorCode = twilioApiError.response?.data?.code
-      if (errorCode === 63018 || statusCode === 429) {
-        // Exceeded WhatsApp rate limit
-        this.stats('incr', 'rate_limited', 1)
-      }
-    }
-    return errorToRethrow
-  }
-
-  rethrowError(error: unknown, apiName = 'Twilio Programmable API') {
-    throw this.getRethrowableError(error, apiName)
-  }
-}
-
-export function wrapPromisable<T>(
-  fn: () => T,
-  args: {
-    onStart?(): void
-    onSuccess?(res: Awaited<T>): void
-    onCatch?(error: unknown): Awaited<T>
-    onFinally?(res: { result: Awaited<T> } | { error: unknown }): void
-  }
-): T {
-  args.onStart?.()
-  let finallyRes: { result: Awaited<T> } | { error: unknown } | undefined = undefined
-
-  try {
-    const res = fn()
-    if (isPromise<Awaited<T>>(res))
-      return (async () => {
-        try {
-          const unpromiseRes = await res
-          finallyRes = { result: unpromiseRes }
-          args.onSuccess?.(unpromiseRes)
-          return unpromiseRes
-        } catch (error) {
-          finallyRes = { error }
-          if (!args.onCatch) throw error
-          return args.onCatch(error)
-        } finally {
-          args.onFinally?.(finallyRes!)
-        }
-      })() as any as T // eslint-disable-line @typescript-eslint/no-explicit-any -- to make the type checker happy
-
-    finallyRes = { result: res as Awaited<T> }
-    args.onSuccess?.(res as Awaited<T>)
-    return res
-  } catch (error) {
-    finallyRes = { error }
-    if (!args.onCatch) throw error
-    return args.onCatch(error)
-  } finally {
-    if (finallyRes)
-      // don't run it if it's a promise
-      args.onFinally?.(finallyRes)
-  }
-}
-
-// Copied from Typescript libs v4.5. Once we upgrade to v4.5, we can remove this
-type Awaited<T> = T extends null | undefined
-  ? T // special case for `null | undefined` when not in `--strictNullChecks` mode
-  : T extends object & { then(onfulfilled: infer F, ...args: infer _): any } // `await` only unwraps object types with a callable `then`. Non-object types are not unwrapped
-  ? F extends (value: infer V, ...args: infer _) => any // if the argument to `then` is callable, extracts the first argument
-    ? Awaited<V> // recursively unwrap the value
-    : never // the argument to `then` was not callable
-  : T // non-object or non-thenable
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isPromise<T = unknown>(obj: unknown): obj is Promise<T> {
-  // `obj instanceof Promise` is not reliable since it can be a custom promise object from fetch lib
-  //https://stackoverflow.com/questions/27746304/how-to-check-if-an-object-is-a-promise
-
-  // for whatever reason it gave me error "Property 'then' does not exist on type 'never'." so i have to use ts-ignore
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return obj instanceof Object && 'then' in obj && typeof obj.then === 'function'
 }
 
 type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
