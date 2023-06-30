@@ -51,7 +51,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
       expect(logger.error).toHaveBeenCalledWith(
-        `TE Messaging: SMS Unable to process, no userId provided and no traits provided - ${spaceId}`,
+        expect.stringContaining('TE Messaging: SMS getProfileTraits Failed'),
+        expect.stringContaining('Unable to process sms, no userId provided and no traits provided'),
         expect.anything()
       )
     })
@@ -63,9 +64,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             body: 'Hello world, {{profile.user_id$}}!!'
           }
         })
-      ).rejects.toThrowError('Unable to parse templating in sms')
+      ).rejects.toThrowError('Unable to parse templating')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS unable to parse templating - ${spaceId}`)),
+        expect.stringContaining('TE Messaging: SMS parseContent Failed'),
+        expect.stringContaining('Unable to parse templating'),
         expect.anything()
       )
     })
@@ -75,9 +77,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         'Unable to process sms, no body provided and no content sid provided'
       )
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: SMS unable to process, no body provided and no content sid provided - ${spaceId}`)
-        ),
+        expect.stringContaining('TE Messaging: SMS getBody Failed'),
+        expect.stringContaining('Unable to process sms, no body provided and no content sid provided'),
         expect.anything()
       )
     })
@@ -104,7 +105,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           })
         ).rejects.toThrowError(`Sending templates with '${contentType}' content type is not supported by sms`)
         expect(logger.error).toHaveBeenCalledWith(
-          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`,
+          expect.stringContaining('TE Messaging: SMS extractTemplateTypes Failed'),
+          expect.stringContaining(`Sending templates with '${contentType}' content type is not supported by sms`),
           expect.anything()
         )
       }
@@ -128,9 +130,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Template from Twilio Content API does not contain any template types')
       expect(logger.error).toHaveBeenCalledWith(
-        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
-          twilioContentResponse
-        )}]`,
+        expect.stringContaining('TE Messaging: SMS extractTemplateTypes Failed'),
+        expect.stringContaining('Template from Twilio Content API does not contain any template types'),
         expect.anything()
       )
     })
@@ -154,9 +155,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Unable to fetch content template')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${spaceId}`)
-        ),
+        expect.stringContaining('TE Messaging: SMS getContentTemplateTypes Failed'),
+        expect.stringContaining('Unable to fetch content template'),
         expect.anything()
       )
     })
@@ -173,7 +173,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       await expect(testAction()).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS Twilio Programmable API error - ${spaceId}`)),
+        expect.stringContaining('TE Messaging: SMS doSend Failed'),
+        expect.stringContaining('Bad Request'),
         expect.anything()
       )
     })
@@ -349,8 +350,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: SMS invalid webhook url`),
-        expect.any(String)
+        expect.stringContaining('TE Messaging: SMS getWebhookUrlWithParams Failed'),
+        expect.stringContaining('Invalid webhook url arguments'),
+        expect.anything()
       )
     })
 
@@ -489,7 +491,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toThrowError('Unable to get profile traits for SMS message')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`)),
+        expect.stringContaining('TE Messaging: SMS getProfileTraits Failed'),
+        expect.stringContaining('Unable to get profile traits for SMS message'),
         expect.anything()
       )
     })
