@@ -4,7 +4,7 @@ exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination ac
 Object {
   "email": "mur@lumbafat.ad",
   "eventName": "9B#[dv&Iy",
-  "objectId": "9B#[dv&Iy",
+  "objectId": -34888567373168.64,
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "properties": Object {
     "testType": "9B#[dv&Iy",

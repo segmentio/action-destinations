@@ -21,7 +21,7 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
       properties: {
         email: 'vep@beri.dz',
         utk: 'abverazffa===1314122f',
-        userId: '802',
+        userId: 802,
         city: 'city'
       }
     })

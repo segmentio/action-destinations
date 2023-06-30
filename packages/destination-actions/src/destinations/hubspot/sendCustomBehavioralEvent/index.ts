@@ -10,7 +10,7 @@ interface CustomBehavioralEvent {
   properties?: { [key: string]: unknown }
   utk?: string
   email?: string
-  objectId?: string
+  objectId?: number
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Object ID',
       description:
         'The ID of the object associated with this event. This can be the HubSpot contact ID, company ID, or ID of any other object. This is required if no email or user token is provided.',
-      type: 'string'
+      type: 'number'
     },
     properties: {
       label: 'Event Properties',

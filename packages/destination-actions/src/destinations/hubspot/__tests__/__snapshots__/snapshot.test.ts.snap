@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehav
 Object {
   "email": "geoli@sekuki.mg",
   "eventName": "NTxWtuPi(z!bOHmgT^*3",
-  "objectId": "NTxWtuPi(z!bOHmgT^*3",
+  "objectId": 80274305979514.88,
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "properties": Object {
     "testType": "NTxWtuPi(z!bOHmgT^*3",
