@@ -219,7 +219,8 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
         if (_args?.onError) {
           const errRes = _args.onError.apply(this, [err])
           errorContext.tags = errRes.tags
-          trackableError = trackableError || err
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          trackableError = (errRes.error as any) || err
         }
         trackableError.trackableContext = errorContext
         return trackableError
