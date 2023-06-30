@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import type { Payload } from './audienceEntered/generated-types'
 
 /*
@@ -7,8 +8,16 @@ liveramp_audience_key[1],identifier_data[0..n]
 function generateFile(payloads: Payload[]) {
   const rows = []
   const headers = ['audience_key']
+
+  // Prepare header row
   if (payloads[0].identifier_data) {
     for (const identifier of Object.getOwnPropertyNames(payloads[0].identifier_data)) {
+      headers.push(identifier)
+    }
+  }
+
+  if (payloads[0].unhashed_identifier_data) {
+    for (const identifier of Object.getOwnPropertyNames(payloads[0].unhashed_identifier_data)) {
       headers.push(identifier)
     }
   }
@@ -23,10 +32,16 @@ function generateFile(payloads: Payload[]) {
         row.push(payload.identifier_data[identifier] as string)
       }
     }
+
+    if (payload.unhashed_identifier_data) {
+      for (const identifier of Object.getOwnPropertyNames(payload.unhashed_identifier_data)) {
+        row.push(hash(payload.unhashed_identifier_data[identifier] as string))
+      }
+    }
     rows.push(row.map(enquoteIdentifier).join(payload.delimiter))
   }
 
-  // STRATCONN-2584: verify multiple emails are handled
+  // TODO: verify multiple emails are handled
   const filename = payloads[0].filename
   const fileContent = Buffer.from(rows.join('\n'))
 
@@ -43,6 +58,12 @@ function generateFile(payloads: Payload[]) {
 */
 function enquoteIdentifier(identifier: string) {
   return `"${identifier.replace(/"/g, '""')}"`
+}
+
+const hash = (value: string): string => {
+  const hash = createHash('sha256')
+  hash.update(value)
+  return hash.digest('hex')
 }
 
 export { generateFile, enquoteIdentifier }
