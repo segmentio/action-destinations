@@ -56,8 +56,6 @@ const insertUnsubscribeLinks = (
     })
   }
   $(preferencesLinkRef).each(function () {
-    logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
-    statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
     if (!preferencesLink) {
       // Remove the Manage Preferences link placeholder and the pipe (' | ') symbol
       $(this.parent?.children).each(function () {
@@ -70,6 +68,8 @@ const insertUnsubscribeLinks = (
       statsClient?.incr('actions-personas-messaging-sendgrid.removed_preferences_link', 1, tags)
     } else {
       $(this).attr('href', preferencesLink)
+      logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
     }
   })
 
