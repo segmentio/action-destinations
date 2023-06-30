@@ -12,14 +12,6 @@ interface CustomBehavioralEvent {
   email?: string
   objectId?: string
 }
-interface accountDetails {
-  portalId: number
-  timeZone: string
-  accountType: string
-  currency: string
-  utcOffset: string
-  utcOffsetMilliseconds: number
-}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Behavioral Event',
@@ -75,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, settings }) => {
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
@@ -85,10 +77,9 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: flattenObject(payload.properties)
     }
 
-    const accountDetails = await request<accountDetails>(`${HUBSPOT_BASE_URL}/integrations/v1/me`)
-    const hubId = accountDetails?.data?.portalId
+    const hubId = settings?.portalId
 
-    if (hubId && !payload.eventName.startsWith(`pe${hubId}_`)) {
+    if (hubId && !payload?.eventName.startsWith(`pe${hubId}_`)) {
       throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
     }
 

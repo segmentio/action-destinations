@@ -4,6 +4,9 @@ import Destination from '../../index'
 import { HUBSPOT_BASE_URL } from '../../properties'
 
 let testDestination = createTestIntegration(Destination)
+const settings = {
+  portalId: '22596207'
+}
 
 beforeEach((done) => {
   // Re-Initialize the destination before each test
@@ -164,5 +167,44 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
         custom_property_3: '1;two;true;{"four":4}'
       }
     })
+  })
+
+  test('should fail when event name is not start with pe{hubId}_', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'test_event',
+      properties: {
+        email: 'vep@beri.dz',
+        utk: 'abverazffa===1314122f',
+        userId: '802',
+        city: 'city'
+      }
+    })
+
+    const mapping = {
+      eventName: {
+        '@path': '$.event'
+      },
+      utk: {
+        '@path': '$.properties.utk'
+      },
+      objectId: {
+        '@path': '$.properties.userId'
+      },
+      properties: {
+        hs_city: {
+          '@path': '$.properties.city'
+        }
+      }
+    }
+
+    return expect(
+      testDestination.testAction('sendCustomBehavioralEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: mapping
+      })
+    ).rejects.toThrowError(`EventName should begin with pe${settings.portalId}_`)
   })
 })
