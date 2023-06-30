@@ -61,6 +61,40 @@ export interface BaseDefinition {
   presets?: Subscription[]
 }
 
+export type AudienceResult = {
+  externalId: string
+}
+
+export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+
+export type CreateAudienceInput<Settings = unknown> = {
+  settings: Settings
+
+  audienceName: string
+}
+
+export type GetAudienceInput<Settings = unknown> = {
+  settings: Settings
+
+  externalId: string
+}
+
+export interface AudienceDestinationSettings {
+  mode: AudienceMode
+}
+
+export interface AudienceDestinationSettingsWithCreateGet<Settings = unknown> extends AudienceDestinationSettings {
+  createAudience(request: RequestClient, createAudienceInput: CreateAudienceInput<Settings>): Promise<AudienceResult>
+
+  getAudience(request: RequestClient, getAudienceInput: GetAudienceInput<Settings>): Promise<AudienceResult>
+}
+
+const instanceOfAudienceDestinationSettingsWithCreateGet = (
+  object: any
+): object is AudienceDestinationSettingsWithCreateGet => {
+  return 'createAudience' in object && 'getAudience' in object
+}
+
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
   mode: 'cloud'
 
@@ -78,6 +112,8 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  audienceSettings?: AudienceDestinationSettings | AudienceDestinationSettingsWithCreateGet<Settings>
 
   onDelete?: Deletion<Settings>
 }
@@ -312,6 +348,32 @@ export class Destination<Settings = JSONObject> {
         throw error
       }
     }
+  }
+
+  async createAudience(createAudienceInput: CreateAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to createAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.createAudience(requestClient, createAudienceInput)
+  }
+
+  async getAudience(getAudienceInput: GetAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to getAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.getAudience(requestClient, getAudienceInput)
   }
 
   async testAuthentication(settings: Settings): Promise<void> {
