@@ -40,7 +40,7 @@ const insertUnsubscribeLinks = (
   const unsubscribeLinkRef = 'a[href*="[upa_unsubscribe_link]"]'
   const preferencesLinkRef = 'a[href*="[upa_preferences_link]"]'
   const $ = cheerio.load(html)
-  if (groupId && groupId != '') {
+  if (groupId) {
     const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
     const groupUnsubscribeLink = group?.groupUnsubscribeLink
     $(unsubscribeLinkRef).each(function () {
@@ -58,7 +58,7 @@ const insertUnsubscribeLinks = (
   $(preferencesLinkRef).each(function () {
     logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
     statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
-    if (!preferencesLink || preferencesLink == '') {
+    if (!preferencesLink) {
       // Remove the Manage Preferences link placeholder and the pipe (' | ') symbol
       $(this.parent?.children).each(function () {
         if ($(this).text() == ' | ') {
