@@ -239,7 +239,8 @@ describe('sendMobilePush action', () => {
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH invalid webhook url - ${spaceId}`),
+        expect.stringContaining('TE Messaging: MOBILEPUSH getWebhookUrlWithParams Failed'),
+        expect.stringContaining('Invalid webhook url arguments'),
         expect.any(String)
       )
     })
@@ -268,8 +269,9 @@ describe('sendMobilePush action', () => {
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'RETRYABLE_ERROR')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
-        expect.any(String)
+        expect.stringContaining('TE Messaging: MOBILEPUSH send Failed'),
+        expect.stringContaining('Failed to send to all subscribed devices'),
+        expect.anything()
       )
     })
 
@@ -296,8 +298,9 @@ describe('sendMobilePush action', () => {
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
-        expect.any(String)
+        expect.stringContaining('TE Messaging: MOBILEPUSH send Failed'),
+        expect.stringContaining('Failed to send to all subscribed devices. First error:'),
+        expect.anything()
       )
     })
 
@@ -332,7 +335,8 @@ describe('sendMobilePush action', () => {
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH unable to parse templating - ${spaceId}`),
+        expect.stringContaining('TE Messaging: MOBILEPUSH parseContent Failed'),
+        expect.stringContaining('Unable to parse templating'),
         expect.any(String)
       )
     })

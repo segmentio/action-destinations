@@ -132,9 +132,11 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
          * if we do, we run the risk of spamming devices that succeeded with centrifuge retries
          * it's accepted that the user received the notification since all devices in externalIds belong to them
          */
+        let errorResponse = undefined
         if (error instanceof Object) {
           const apiError = error as PushApiError
-          responses.push(apiError.response)
+          errorResponse = apiError.response
+          responses.push(errorResponse)
 
           // we set a flag to retry only if a non-retryable status has not been encountered already
           const errorStatus = apiError.response?.status ?? apiError.response?.data?.status
@@ -145,20 +147,22 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           failureIsRetryable = false
         }
 
-        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id), error })
+        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id), error, response: errorResponse })
       }
     }
 
     /*
      * if every device failed to send, lets attempt to retry if possible
      */
-    if (failedSends.length === recipientDevices.length) {
+    if (failedSends.length && failedSends.length === recipientDevices.length) {
       if (failureIsRetryable) {
-        throw new RetryableError('Failed to send to all subscribed devices')
+        throw new RetryableError(
+          'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0])
+        )
       }
 
       throw new IntegrationError(
-        'Unexpected response from Twilio Push API',
+        'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0]),
         'UNEXPECTED_ERROR',
         responses.find((resp) => !this.retryableStatusCodes.includes(resp.status))?.status || 400
       )
