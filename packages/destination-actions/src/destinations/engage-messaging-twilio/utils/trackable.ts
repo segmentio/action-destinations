@@ -15,19 +15,20 @@ type GenericMethodDecorator<This = unknown, TFunc extends (...args: any[]) => an
 ) => TypedPropertyDescriptor<TFunc> | void
 
 export function trackable(_trackableArgs?: TrackableArgs): GenericMethodDecorator<MessageSender<any>> {
-  return function (_target, _propertyKey, descriptor) {
+  return function (_targetProto, _propertyKey, descriptor) {
     const originalMethod = descriptor.value
     if (!originalMethod) throw new Error('trackable decorator can only be applied to methods')
     descriptor.value = function (...args: any[]) {
-      return _target.trackWrap(
+      const targetInstance = this as MessageSender<any>
+      return _targetProto.trackWrap.apply(targetInstance, [
         () => {
-          const result = originalMethod.apply(_target, args)
+          const result = originalMethod.apply(targetInstance, args)
           return result
         },
         _trackableArgs?.operation || _propertyKey,
         _trackableArgs,
         args
-      )
+      ])
     }
   }
 }
