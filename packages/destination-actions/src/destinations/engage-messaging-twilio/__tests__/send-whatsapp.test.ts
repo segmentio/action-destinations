@@ -116,8 +116,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: WHATSAPP invalid webhook url`),
-        expect.any(String)
+        expect.stringContaining('TE Messaging: WHATSAPP getWebhookUrlWithParams Failed'),
+        expect.stringContaining('Invalid webhook url arguments'),
+        expect.anything()
       )
     })
   })
@@ -234,11 +235,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
         }
       })
-      await expect(response).rejects.toThrowError(
-        'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
-      )
+      await expect(response).rejects.toThrowError('Phone number must be able to be formatted to e164 for whatsapp')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP invalid phone number - ${spaceId}`)),
+        expect.stringContaining('TE Messaging: WHATSAPP getBody Failed'),
+        expect.stringContaining('Phone number must be able to be formatted to e164 for whatsapp'),
         expect.anything()
       )
     })
@@ -257,9 +257,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       })
       await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: WHATSAPP Failed to parse template with content variables - ${spaceId}`)
-        ),
+        expect.stringContaining('TE Messaging: WHATSAPP getVariables Failed.'),
+        expect.stringContaining('Unable to parse templating in content variables'),
         expect.anything()
       )
     })
@@ -277,7 +276,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const response = testAction()
       await expect(response).rejects.toThrowError()
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP Twilio Programmable API error - ${spaceId}`)),
+        expect.stringContaining('TE Messaging: WHATSAPP send Failed'),
+        expect.stringContaining('Bad Request'),
         expect.anything()
       )
     })
