@@ -6,18 +6,19 @@ import { IntegrationError, PayloadValidationError, RequestOptions } from '@segme
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { TrackableArgs, trackable } from './trackable'
-import { wrapPromisable } from './wrapPromisable'
+import { StatsArgs, Tracker, createTrackableDecorator } from './Tracker'
 
 const Liquid = new LiquidJs()
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
-type StatsMethod = keyof Pick<StatsClient, 'incr' | 'histogram' | 'set'>
 
 export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+export const trackable = createTrackableDecorator<MessageSender<any>>((sender) => sender.tracker)
+
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
+  tracker: MessageTracker = new MessageTracker(this)
+
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]
@@ -139,20 +140,10 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  stats<TStatsMethod extends StatsMethod>(args: StatsArgs<TStatsMethod>): void
-  stats<TStatsMethod extends StatsMethod>(
-    statsMethod: TStatsMethod,
-    metric: string,
-    value: number,
-    extraTags?: string[]
-  ): void
-  stats(...args: unknown[]): void {
+  stats(statsArgs: StatsArgs): void {
     if (!this.statsClient) return
-    const statsArgs = args[0] as StatsArgs
-    const [statsMethod, metric, value, extraTags] =
-      statsArgs instanceof Object
-        ? [statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.extraTags]
-        : (args as [statsMethod: StatsMethod, metric: string, value?: number, extraTags?: string[]])
+    const { method: statsMethod, metric, value, extraTags } = statsArgs
+    //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.extraTags]
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
@@ -181,7 +172,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     ])
   }
 
-  statsIncrement(metric: string, value?: number, extraTags?: string[]) {
+  statsIncr(metric: string, value?: number, extraTags?: string[]) {
     this.stats({ method: 'incr', metric, value, extraTags })
   }
 
@@ -191,67 +182,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   statsSet(metric: string, value: number, extraTags?: string[]) {
     this.stats({ method: 'set', metric, value, extraTags })
-  }
-
-  private trackContextStack: TrackableContext[] = []
-  getCurrentTrackableContext(): TrackableContext | undefined {
-    return this.trackContextStack[this.trackContextStack.length - 1]
-  }
-
-  trackWrap<R = void>(fn: () => R, operation: string, _args?: TrackableArgs, _funcArgs?: unknown[]): R {
-    type ErrorWithTrackableContext = Error & { trackableContext?: TrackableContext & { originalError?: unknown } }
-    const tctx: TrackableContext = { operation, tags: [] }
-    const start = Date.now()
-    return wrapPromisable(fn, {
-      onTry: () => {
-        this.trackContextStack.push(tctx)
-        this.logInfo(`${operation} Starting...`)
-        this.stats({ method: 'incr', metric: operation + '.try' })
-      },
-      onPrepareError: (err) => {
-        const originalError = err
-        let trackableError = err as ErrorWithTrackableContext
-        let errorContext = trackableError.trackableContext
-        if (errorContext) return trackableError //if already has trackable context then return the error as is
-
-        errorContext = tctx
-        errorContext.originalError = originalError
-        if (_args?.onError) {
-          const errRes = _args.onError.apply(this, [err])
-          errorContext.tags = errRes.tags
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          trackableError = (errRes.error as any) || err
-        }
-        trackableError.trackableContext = errorContext
-        return trackableError
-      },
-      onFinally: (fin) => {
-        if (this.trackContextStack.includes(tctx))
-          this.trackContextStack.splice(this.trackContextStack.indexOf(tctx), 1) // this.trackContextStack.pop() - could also work but less safe when we have nested trackable operations running in parallel
-        const duration = Date.now() - start
-        const finallyTags = []
-        finallyTags.push(`success:${'error' in fin ? 'false' : 'true'}`)
-        if ('result' in fin) {
-          this.logInfo(`${operation} Success. Duration: ${duration} ms`)
-          // this.stats({ method: 'incr', metric: operation + '.success' })
-        } else {
-          const error = fin.error as ErrorWithTrackableContext
-          const { trackableContext } = error
-          this.logError(error, `${operation} Failed. Duration: ${duration} ms`)
-          const isErrorInCurrentOperation = trackableContext?.operation == operation //indicates if the error happened during this operation (not underlying trackable operation)
-          if (isErrorInCurrentOperation && trackableContext?.originalError && trackableContext.originalError != error) {
-            this.logError(trackableContext.originalError, `${operation} Underlying error`)
-          }
-
-          const errorCode = error instanceof IntegrationError ? error.code : error?.constructor?.name || 'unknown'
-          finallyTags.push(`error_operation: ${trackableContext?.operation || operation}`, `error:${errorCode}`)
-          if (trackableContext?.tags) finallyTags.push(...trackableContext.tags)
-          // this.stats({ method: 'incr', metric: operation + '.catch', extraTags: finallyTags })
-        }
-        this.stats({ method: 'incr', metric: operation + '.finally', extraTags: finallyTags })
-        this.stats({ method: 'histogram', metric: operation + '.duration', value: duration, extraTags: finallyTags })
-      }
-    })
   }
 
   /**
@@ -369,12 +299,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 }
 
-type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
-  method?: TStatsMethod
-  metric: string
-  value?: number
-  extraTags?: string[]
-}
+export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export function isDestinationActionService() {
   // https://github.com/segmentio/integrations/blob/544b9d42b17f453bb6fcb48925997f68480ca1da/.k2/destination-actions-service.yaml#L35-L38
@@ -383,9 +308,18 @@ export function isDestinationActionService() {
   )
 }
 
-export type TrackableContext = {
-  operation: string
-  tags?: string[]
-  originalError?: unknown
-  [key: string]: unknown
+class MessageTracker extends Tracker {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(readonly messageSender: MessageSender<any>) {
+    super()
+  }
+  logInfo(...msgs: string[]): void {
+    this.messageSender.logInfo(...msgs)
+  }
+  logError(error: unknown, ...msgs: string[]): void {
+    this.messageSender.logError(error, ...msgs)
+  }
+  stats(args: StatsArgs): void {
+    this.messageSender.stats(args)
+  }
 }

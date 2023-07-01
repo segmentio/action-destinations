@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { MessageSender } from './message-sender'
+import { trackable, MessageSender } from './message-sender'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { trackable } from './trackable'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -48,7 +47,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
       'base64'
     )
 
-    this.stats('set', 'message_body_size', body?.toString().length)
+    this.statsSet('message_body_size', body?.toString().length)
 
     this.logInfo('Sending message to Twilio API')
 
@@ -63,10 +62,10 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
       }
     )
     this.tags.push(`twilio_status_code:${response.status}`)
-    this.stats('incr', 'response', 1)
+    this.statsIncr('response', 1)
 
     if (this.payload.eventOccurredTS != undefined) {
-      this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
+      this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
 
     this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
@@ -87,7 +86,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   private getSendabilityPayload(): SendabilityPayload {
     if (!this.payload.send) {
-      this.stats('incr', 'send-disabled', 1)
+      this.statsIncr('send-disabled', 1)
       return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
     }
 
@@ -125,13 +124,13 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
     const phone = this.payload.toNumber || firstSubscribedExtId?.id
 
     if (firstSubscribedExtId) {
-      this.stats('incr', 'subscribed', 1)
+      this.statsIncr('subscribed', 1)
       status = phone ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone
     } else if (hasInvalidStatuses) {
-      this.stats('incr', 'invalid_subscription_status', 1)
+      this.statsIncr('invalid_subscription_status', 1)
       status = SendabilityStatus.InvalidSubscriptionStatus
     } else if (validExtIds && validExtIds.length > 0) {
-      this.stats('incr', 'notsubscribed', 1)
+      this.statsIncr('notsubscribed', 1)
       status = SendabilityStatus.DoNotSend
     } else {
       status = SendabilityStatus.NoSenderPhone

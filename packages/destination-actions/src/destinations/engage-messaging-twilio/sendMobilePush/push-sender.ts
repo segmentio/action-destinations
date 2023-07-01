@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender } from '../utils/message-sender'
+import { MessageSender, trackable } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { trackable } from '../utils/trackable'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -37,7 +36,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   async doSend() {
     if (!this.payload.send) {
       this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-      this.stats('incr', 'send_disabled', 1)
+      this.statsIncr('send_disabled', 1)
       return
     }
     // we send notifications to every eligible device (subscribed and of a push type)
@@ -50,12 +49,12 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       ) || []
 
     if (recipientDevices.length) {
-      this.stats('incr', 'subscribed', 1)
+      this.statsIncr('subscribed', 1)
     }
 
     const totalUnsubscribed = allPushDevices.length - recipientDevices.length
     if (totalUnsubscribed > 0) {
-      this.stats('incr', 'notsubscribed', totalUnsubscribed)
+      this.statsIncr('notsubscribed', totalUnsubscribed)
     }
 
     if (!recipientDevices?.length) {
@@ -112,7 +111,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           body.append('DeliveryCallbackUrl', webhookUrl)
         }
 
-        this.stats('set', 'message_body_size', body?.toString().length)
+        this.statsSet('message_body_size', body?.toString().length)
 
         const response = await this.request(
           `https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`,
@@ -171,7 +170,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     this.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
     this.tags.push(`total_failed:${failedSends.length}`)
     if (this.payload.eventOccurredTS != undefined) {
-      this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
+      this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
 
     return responses
