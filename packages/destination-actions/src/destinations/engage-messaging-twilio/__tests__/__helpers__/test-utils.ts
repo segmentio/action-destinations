@@ -93,3 +93,17 @@ export function createTestAction({
     })
   }
 }
+
+export function expectLogged(logMethod: Function, ...msgs: string[]) {
+  expect(logMethod).toHaveBeenCalledWith(
+    expect.stringMatching(new RegExp(`TE Messaging: (.+)${msgs.join('(.+)')}`)),
+    expect.anything()
+  )
+}
+
+export function expectErrorLogged(...msgs: string[]) {
+  expectLogged(loggerMock.error, ...msgs)
+}
+export function expectInfoLogged(...msgs: string[]) {
+  expectLogged(loggerMock.info, ...msgs)
+}

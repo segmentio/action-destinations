@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
+import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
@@ -50,11 +50,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }
         })
       ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS getProfileTraits Failed'),
-        expect.stringContaining('Unable to process sms, no userId provided and no traits provided'),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to process sms, no userId provided and no traits provided')
     })
 
     it('should throw error if unable to parse liquid template', async () => {
@@ -65,22 +61,14 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }
         })
       ).rejects.toThrowError('Unable to parse templating')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS parseContent Failed'),
-        expect.stringContaining('Unable to parse templating'),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to parse templating')
     })
 
     it('should thow error if no body provided and no contentSid provided', async () => {
       await expect(testAction({ mappingOmitKeys: ['body'] })).rejects.toThrowError(
         'Unable to process sms, no body provided and no content sid provided'
       )
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS getBody Failed'),
-        expect.stringContaining('Unable to process sms, no body provided and no content sid provided'),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to process sms, no body provided and no content sid provided')
     })
 
     it.each(['twilio/call-to-action', 'twilio/card', 'twilio/quick-reply', 'twilio/list-picker'])(
@@ -104,11 +92,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             mappingOmitKeys: ['body']
           })
         ).rejects.toThrowError(`Sending templates with '${contentType}' content type is not supported by sms`)
-        expect(logger.error).toHaveBeenCalledWith(
-          expect.stringContaining('TE Messaging: SMS extractTemplateTypes Failed'),
-          expect.stringContaining(`Sending templates with '${contentType}' content type is not supported by sms`),
-          expect.anything()
-        )
+        expectErrorLogged(`Sending templates with '${contentType}' content type is not supported by sms`)
       }
     )
 
@@ -129,11 +113,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mappingOmitKeys: ['body']
         })
       ).rejects.toThrowError('Template from Twilio Content API does not contain any template types')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS extractTemplateTypes Failed'),
-        expect.stringContaining('Template from Twilio Content API does not contain any template types'),
-        expect.anything()
-      )
+      expectErrorLogged('Template from Twilio Content API does not contain any template types')
     })
 
     it('should throw error if Twilio Content API request fails', async () => {
@@ -154,11 +134,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mappingOmitKeys: ['body']
         })
       ).rejects.toThrowError('Unable to fetch content template')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS getContentTemplateTypes Failed'),
-        expect.stringContaining('Unable to fetch content template'),
-        expect.anything()
-      )
+      expectErrorLogged('getContentTemplateTypes failed', 'Unable to fetch content template')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -172,11 +148,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
 
       await expect(testAction()).rejects.toThrowError()
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS doSend Failed'),
-        expect.stringContaining('Bad Request'),
-        expect.anything()
-      )
+      expectErrorLogged('Bad Request')
     })
 
     it('should send SMS', async () => {
@@ -349,11 +321,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS getWebhookUrlWithParams Failed'),
-        expect.stringContaining('Invalid webhook url arguments'),
-        expect.anything()
-      )
+      expectErrorLogged('Invalid webhook url arguments')
     })
 
     it.each([
@@ -448,7 +416,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     )
   })
 
-  it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+  it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
 
     const expectedTwilioRequest = new URLSearchParams({
@@ -468,14 +436,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     })
     expect(responses).toHaveLength(0)
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('TE Messaging: SMS Invalid subscription statuses found in externalIds'),
-      expect.anything()
-    )
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('TE Messaging: SMS Not sending message, because sendabilityStatus'),
-      expect.anything()
-    )
+    expectInfoLogged('Invalid subscription statuses found in externalIds')
+    expectInfoLogged('Not sending message, because sendabilityStatus')
   })
 
   describe('get profile traits', () => {
@@ -490,11 +452,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }
         })
       ).rejects.toThrowError('Unable to get profile traits for SMS message')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: SMS getProfileTraits Failed'),
-        expect.stringContaining('Unable to get profile traits for SMS message'),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to get profile traits for SMS message')
     })
 
     it('should get profile traits successfully', async () => {

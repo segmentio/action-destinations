@@ -126,19 +126,16 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logError(error?: any, ...msgs: string[]) {
     if (!this.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
+    const msgPrefix = `TE Messaging: ${this.getChannelType().toUpperCase()}`
     const [firstMsg, ...rest] = msgs
     if (typeof error === 'string') {
-      this.logger?.error(
-        `TE Messaging: ${this.getChannelType().toUpperCase()} ${error}`,
-        ...msgs,
-        JSON.stringify(this.logDetails)
-      )
+      this.logger?.error(`${msgPrefix} ${error}`, ...msgs, JSON.stringify(this.logDetails))
     } else {
       this.logger?.error(
-        `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
+        `${msgPrefix}} ${firstMsg}`,
         ...rest,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        error instanceof Error ? error.message : error?.toString(),
+        ...(error ? [error instanceof Error ? error.message : error?.toString()] : []),
         JSON.stringify(this.logDetails)
       )
     }
@@ -320,8 +317,8 @@ class MessageOperationTracker extends OperationTracker {
   logInfo(msg: string, metadata?: object): void {
     this.messageSender.logInfo(msg, ...(metadata ? [JSON.stringify(metadata)] : []))
   }
-  logError(msg: string, metadata?: object): void {
-    this.messageSender.logError(metadata, msg)
+  logError(msg: string, _metadata?: object): void {
+    this.messageSender.logError(undefined, msg)
   }
   stats(args: StatsArgs): void {
     this.messageSender.stats(args)

@@ -62,7 +62,7 @@ export abstract class OperationTracker {
       tags: [],
       logs: [],
       onFinally: [],
-      traceId: this.currentOperation?.traceId || generateQuickGuid(),
+      //traceId: this.currentOperation?.traceId || generateQuickGuid(),
       parent: this.currentOperation
     }
     return wrapPromisable(fn, {
@@ -104,6 +104,7 @@ export abstract class OperationTracker {
       trackableError.tags = [...(trackableError.tags || []), ...(errPrep.tags || [])]
     }
     trackableError.trackableContext = ctx
+    ctx.error = trackableError
   }
   protected onOperationFinally(ctx: OperationContext) {
     const start = ctx.startTime as number
@@ -147,11 +148,7 @@ export abstract class OperationTracker {
    * @param ctx current operation context
    */
   protected onOperationFinallyHookError(finallyHandlerError: unknown, ctx: OperationContext) {
-    this.logError(
-      `Operation ${ctx.operation} onFinally handler error (traceId ${ctx.traceId}): ${this.getErrorMessage(
-        finallyHandlerError
-      )}`
-    )
+    this.logError(`Operation ${ctx.operation} onFinally handler error: ${this.getErrorMessage(finallyHandlerError)}`)
   }
 
   /**
@@ -187,9 +184,7 @@ export abstract class OperationTracker {
     const fullOperationName = getOperationsStack(ctx)
       .map((op) => op.operation)
       .join(' > ')
-    res.push(
-      `${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after: ${ctx.duration} ms (traceId: ${ctx.traceId})`
-    )
+    res.push(`${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${ctx.duration} ms`)
 
     if (hasError) {
       const error = ctx.error as TrackableError
@@ -227,9 +222,9 @@ export type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
   extraTags?: string[]
 }
 
-function generateQuickGuid(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-}
+// function generateQuickGuid(): string {
+//   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+// }
 
 type GenericMethodDecorator<This = unknown, TFunc extends (...args: any[]) => any = (...args: any) => any> = (
   target: This,
@@ -245,10 +240,10 @@ export type OperationContext = {
    * Operation name - used for metric naming and log messages. Can only use alphanumberics,dots or underscores
    */
   operation: string
-  /**
-   * TraceId - unique identifier of the operation shared accross parent/child operations
-   */
-  traceId: string
+  // /**
+  //  * TraceId - unique identifier of the operation shared accross parent/child operations
+  //  */
+  // traceId: string
   /**
    * arguments provided in the decorator
    */
