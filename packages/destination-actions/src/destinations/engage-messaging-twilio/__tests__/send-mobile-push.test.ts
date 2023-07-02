@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
+import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
 import { PushSender } from '../sendMobilePush/push-sender'
 
@@ -214,19 +214,13 @@ describe('sendMobilePush action', () => {
         }
       })
       expect(responses.length).toEqual(0)
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`not sending push notification, no devices are subscribed - ${spaceId}`),
-        expect.any(String)
-      )
+      expectInfoLogged(`not sending push notification, no devices are subscribed`)
     })
 
     it('should abort when send is disabled', async () => {
       const responses = await testAction({ mappingOverrides: { send: false } })
       expect(responses.length).toEqual(0)
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`not sending push notification, payload.send = false - ${spaceId}`),
-        expect.any(String)
-      )
+      expectInfoLogged(`not sending push notification, payload.send = false`)
     })
 
     it('should fail on invalid webhook url', async () => {
@@ -238,11 +232,7 @@ describe('sendMobilePush action', () => {
           settingsOverrides: { webhookUrl: 'foo' }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: MOBILEPUSH getWebhookUrlWithParams Failed'),
-        expect.stringContaining('Invalid webhook url arguments'),
-        expect.any(String)
-      )
+      expectErrorLogged('Invalid webhook url arguments')
     })
 
     it('throws retryable error when all sends fail for retryable reasons', async () => {
@@ -268,11 +258,7 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, errorResponse)
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'RETRYABLE_ERROR')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: MOBILEPUSH send Failed'),
-        expect.stringContaining('Failed to send to all subscribed devices'),
-        expect.anything()
-      )
+      expectErrorLogged('Failed to send to all subscribed devices')
     })
 
     it('throws non-retryable error when all sends fail for non-retryable reasons', async () => {
@@ -297,11 +283,7 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(400, errorResponse)
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: MOBILEPUSH send Failed'),
-        expect.stringContaining('Failed to send to all subscribed devices. First error:'),
-        expect.anything()
-      )
+      expectErrorLogged('Failed to send to all subscribed devices. First error:')
     })
 
     it('does not throw retryable error when at least one send succeeds', async () => {
@@ -334,11 +316,7 @@ describe('sendMobilePush action', () => {
           mappingOverrides: { customizations: { title: 'hi {{profile.traits.first_name$=}}' } }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: MOBILEPUSH parseContent Failed'),
-        expect.stringContaining('Unable to parse templating'),
-        expect.any(String)
-      )
+      expectErrorLogged('Unable to parse templating')
     })
   })
 
