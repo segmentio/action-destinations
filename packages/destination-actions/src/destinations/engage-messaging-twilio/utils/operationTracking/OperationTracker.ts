@@ -123,6 +123,21 @@ export abstract class OperationTracker {
   }
 
   /**
+   * Get stack of operation contexts from root to current
+   * @param ctx current operation context
+   * @returns array of operation contexts
+   */
+  getOperationsStack(ctx?: OperationContext): OperationContext[] {
+    const res: OperationContext[] = []
+    let oper: OperationContext | undefined = ctx || this.currentOperation
+    while (oper) {
+      res.unshift(oper)
+      oper = oper.parent
+    }
+    return res
+  }
+
+  /**
    * Runs method as trackable operation
    * @param runArgs all the configuration of the method execution and tracking
    * @returns the result of the method execution
@@ -287,17 +302,27 @@ export abstract class OperationTracker {
    */
   protected extractLogMessages(ctx: OperationContext): string[] {
     const res: string[] = []
-    const hasError = !!ctx.error
-    const fullOperationName = getOperationsStack(ctx)
-      .map((op) => op.operation)
-      .join(' > ')
-    res.push(`${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${ctx.duration} ms`)
-
-    if (hasError) {
+    res.push(this.getOperationCompletedMessage(ctx))
+    if (ctx.error) {
       const error = ctx.error as TrackableError
       res.push(...(this.extractLogMessagesFromError(error, ctx) || []))
     }
     return res
+  }
+
+  /**
+   * Gets the first part of the operation's completion log message.
+   * Should describe the name/path of operation, duration and whether it succeeded or failed.
+   * It should not contain the details of failure, as it's covered by extractLogMessagesFromError
+   * @param ctx operation context
+   * @returns
+   */
+  protected getOperationCompletedMessage(ctx: OperationContext): string {
+    const hasError = !!ctx.error
+    const fullOperationName = this.getOperationsStack(ctx)
+      .map((op) => op.operation)
+      .join(' > ')
+    return `${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${ctx.duration} ms`
   }
 
   /**
@@ -403,21 +428,6 @@ export type OperationContext = {
   methodArgs: unknown[]
 
   [key: string]: any
-}
-
-/**
- * Get stack of operation contexts from root to current
- * @param ctx current operation context
- * @returns array of operation contexts
- */
-function getOperationsStack(ctx: OperationContext): OperationContext[] {
-  const res: OperationContext[] = []
-  let oper: OperationContext | undefined = ctx
-  while (oper) {
-    res.unshift(oper)
-    oper = oper.parent
-  }
-  return res
 }
 
 /**
