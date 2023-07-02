@@ -12,7 +12,7 @@ import {
   OperationContext,
   OperationTracker,
   createTrackableDecorator
-} from './OperationTracker'
+} from './operationTracking'
 
 const Liquid = new LiquidJs()
 
@@ -332,4 +332,8 @@ class MessageOperationTracker extends OperationTracker {
     }
     return res
   }
+  // getErrorMessage(error: unknown, ctx: OperationContext) {
+  //   const res = super.getErrorMessage(error, ctx)
+  //   if(error instanceof Error)
+  // }
 }
