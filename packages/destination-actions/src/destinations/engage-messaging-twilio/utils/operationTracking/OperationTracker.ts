@@ -1,23 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { wrapPromisable } from './wrapPromisable'
 
+/**
+ * Configuration used by trackable decorator defining how the method execution should be tracked
+ */
 export interface TrackArgs {
+  /**
+   * Name of the operation to be tracked. By default the method name is used.
+   * The name is used in log messages and stats metric - so it should be only using alphanumeric, underscores and dots
+   */
   operation?: string
-  log?: boolean
-  stats?: boolean
-  onError?: (error: unknown, ctx: OperationContext) => { error?: unknown; tags?: string[] }
+  /**
+   * should the method execution be logged at current ctx.state (try/catch/finally)?
+   * By default - true
+   */
+  shouldLog?: (ctx: OperationContext) => boolean | void
+  /**
+   * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
+   * By default - true
+   */
+  shouldStats?: (ctx: OperationContext) => boolean | void
+  /**
+   * Callback for preparing Error object to be logged/rethrown.
+   * It is only called by the child operation that actually threw the error
+   * @param error original error thrown by the method
+   * @param ctx operation context
+   * @returns (optionally) error substitute to be rethrown/logged and (optionally) tags to be added to the error
+   */
+  onError?: (
+    error: unknown,
+    ctx: OperationContext
+  ) => {
+    error?: unknown
+    tags?: string[]
+  }
 }
 
 /**
- * Creates decorator for tracking method execution
- * @param getTracker obtain the tracker instance from the instance of the class, where the decorated method is defined
+ * Creates decorator factory for tracking method execution
+ * @param getTracker obtain the tracker instance from the instance of the class where the decorated method is defined or some global tracker
  * @returns decorator factory, which can be used to track method execution
+ * @example
+ * ```ts
+ *    const trackable = createTrackableDecoratorFactory<MyClass>((instance) => instance.tracker)
+ *    class MyClass {
+ *       tracker = new MyOperationTracker()
+ *       // remove _ prefix in the line below. It is used to escape @ in the jsdoc
+ *       _@trackable({ operation: 'myMethod' })
+ *       myMethod(p1, p2) {
+ *          //... method body
+ *          return result
+ *       }
+ *    }
+ * ```
  */
-export function createTrackableDecorator<TClass>(getTracker: (instance: TClass) => OperationTracker) {
-  return function trackableDecorator(trackArgs?: TrackArgs): GenericMethodDecorator<TClass> {
+export function createTrackableDecoratorFactory<TClass>(
+  getTracker: (instance: TClass) => OperationTracker
+): (trackArgs?: TrackArgs) => GenericMethodDecorator<TClass> {
+  return (trackArgs) => {
     return function (_classProto, methodName, descriptor) {
       const originalMethod = descriptor.value
-      if (!(originalMethod instanceof Function)) throw new Error('trackable decorator can only be applied to methods')
+      if (!(originalMethod instanceof Function))
+        throw new Error('Trackable decorator can only be applied to class methods')
       descriptor.value = function (...methodArgs: any[]) {
         const targetInstance = this as TClass
         const tracker = getTracker(targetInstance)
@@ -86,6 +130,7 @@ export abstract class OperationTracker {
   runMethodAsTrackableOperation<TMethod extends (...methodArgs: any[]) => any>(runArgs: TrackedRunArgs<TMethod>) {
     const ctx: OperationContext = {
       operation: runArgs.trackArgs?.operation || runArgs.methodName,
+      state: 'try',
       trackArgs: runArgs.trackArgs,
       methodArgs: runArgs.methodArgs,
       tags: [],
@@ -98,11 +143,13 @@ export abstract class OperationTracker {
     return wrapPromisable(() => runArgs.method.apply(runArgs.methodThis, runArgs.methodArgs), {
       onTry: () => this.onOperationTry(ctx),
       onPrepareError: (err) => {
+        ctx.state = 'catch'
         ctx.error = err
         this.onOperationPrepareError(ctx)
         return ctx.error
       },
       onFinally: (fin) => {
+        ctx.state = 'finally'
         if ('error' in fin) {
           ctx.error = fin.error
         } else ctx.result = fin.result
@@ -117,8 +164,10 @@ export abstract class OperationTracker {
    */
   protected onOperationTry(ctx: OperationContext): void {
     this._currentOperation = ctx
-    if (ctx.trackArgs?.log !== false) this.logInfo(`${ctx.operation} Starting...`)
-    if (ctx.trackArgs?.stats !== false) this.stats({ method: 'incr', metric: ctx.operation + '.try' })
+    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
+    if (shouldLog !== false) this.logInfo(`${ctx.operation} Starting...`)
+    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
+    if (shouldStats !== false) this.stats({ method: 'incr', metric: ctx.operation + '.try' })
     ctx.startTime = Date.now()
   }
 
@@ -167,13 +216,15 @@ export abstract class OperationTracker {
       }
     }
 
-    if (ctx.trackArgs?.log !== false) {
+    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
+    if (shouldLog !== false) {
       const fullLogMessage = (ctx.logs?.filter((t) => t) || []).join('. ')
       if (ctx.error) this.logError(fullLogMessage, ctx.error)
       else this.logInfo(fullLogMessage)
     }
 
-    if (ctx.trackArgs?.stats !== false) {
+    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
+    if (shouldStats !== false) {
       const finallyTags = ctx.tags?.filter((t) => t) || []
 
       this.stats({ method: 'incr', metric: ctx.operation + '.finally', extraTags: finallyTags })
@@ -310,12 +361,16 @@ export type OperationContext = {
    * Operation name - used for metric naming and log messages. Can only use alphanumberics,dots or underscores
    */
   operation: string
+  /**
+   * Operation's current state (try/catch/finally)
+   */
+  state: 'try' | 'catch' | 'finally'
   // /**
   //  * TraceId - unique identifier of the operation shared accross parent/child operations
   //  */
   // traceId: string
   /**
-   * arguments provided in the decorator
+   * track configuration provided in the trackable decorator factory
    */
   trackArgs?: TrackArgs
   /**
@@ -369,9 +424,18 @@ function getOperationsStack(ctx: OperationContext): OperationContext[] {
  * Error object that contains trackable data
  */
 export interface TrackableError extends Error {
-  //, Partial<IntegrationError>
+  /**
+   * Underlying error that this error wraps
+   */
   underlyingError?: unknown
+  /**
+   * Operation context during which the error happened
+   */
   trackableContext?: OperationContext
+  /**
+   * Tags to add to the operation completion metrics
+   */
   tags?: string[]
+
   [key: string]: any
 }

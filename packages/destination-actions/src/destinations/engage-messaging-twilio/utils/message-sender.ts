@@ -11,7 +11,7 @@ import {
   TrackableError,
   OperationContext,
   OperationTracker,
-  createTrackableDecorator
+  createTrackableDecoratorFactory
 } from './operationTracking'
 
 const Liquid = new LiquidJs()
@@ -20,7 +20,7 @@ export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-export const trackable = createTrackableDecorator<MessageSender<any>>((msgSender) => msgSender.operationTracker)
+export const trackable = createTrackableDecoratorFactory<MessageSender<any>>((msgSender) => msgSender.operationTracker)
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
   operationTracker: MessageOperationTracker = new MessageOperationTracker(this)
