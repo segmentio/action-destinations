@@ -6,7 +6,13 @@ import { IntegrationError, PayloadValidationError, RequestOptions } from '@segme
 import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { StatsArgs, Tracker, createTrackableDecorator } from './Tracker'
+import {
+  StatsArgs,
+  TrackableError,
+  OperationContext,
+  OperationTracker,
+  createTrackableDecorator
+} from './OperationTracker'
 
 const Liquid = new LiquidJs()
 
@@ -14,10 +20,10 @@ export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-export const trackable = createTrackableDecorator<MessageSender<any>>((sender) => sender.tracker)
+export const trackable = createTrackableDecorator<MessageSender<any>>((msgSender) => msgSender.operationTracker)
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  tracker: MessageTracker = new MessageTracker(this)
+  operationTracker: MessageOperationTracker = new MessageOperationTracker(this)
 
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
@@ -53,7 +59,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   abstract getChannelType(): string
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
-  @trackable({ log: true, stats: true })
+  @trackable()
   async send() {
     this.beforeSend()
     return this.doSend()
@@ -63,8 +69,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
   @trackable({
-    log: true,
-    stats: true,
     onError: () => ({
       error: new PayloadValidationError('Unable to parse templating'),
       tags: ['reason:invalid_liquid']
@@ -308,18 +312,27 @@ export function isDestinationActionService() {
   )
 }
 
-class MessageTracker extends Tracker {
+class MessageOperationTracker extends OperationTracker {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(readonly messageSender: MessageSender<any>) {
     super()
   }
-  logInfo(...msgs: string[]): void {
-    this.messageSender.logInfo(...msgs)
+  logInfo(msg: string, metadata?: object): void {
+    this.messageSender.logInfo(msg, ...(metadata ? [JSON.stringify(metadata)] : []))
   }
-  logError(error: unknown, ...msgs: string[]): void {
-    this.messageSender.logError(error, ...msgs)
+  logError(msg: string, metadata?: object): void {
+    this.messageSender.logError(metadata, msg)
   }
   stats(args: StatsArgs): void {
     this.messageSender.stats(args)
+  }
+
+  extractTagsFromError(error: TrackableError, ctx: OperationContext) {
+    const res = super.extractTagsFromError(error, ctx)
+    if (error instanceof IntegrationError) {
+      if (error.code) res.push(`error_code:${error.code}`)
+      if (error.status) res.push(`error_status:${error.status}`)
+    }
+    return res
   }
 }
