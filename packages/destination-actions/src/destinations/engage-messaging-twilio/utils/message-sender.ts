@@ -12,7 +12,7 @@ import {
   OperationContext,
   OperationTracker,
   createTrackableDecoratorFactory
-} from './operationTracking'
+} from '../operationTracking'
 
 const Liquid = new LiquidJs()
 
