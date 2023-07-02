@@ -141,6 +141,19 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
+  /**
+   * Add a message to the log of current trackable operation, only if error happens during current operation. You can add some arguments here
+   * @param getLogMessage
+   */
+  logOnError(logMessage: string | (() => string)) {
+    this.operationTracker.currentOperation?.onFinally.push((ctx) => {
+      if (ctx.error) {
+        const msg = typeof logMessage === 'function' ? logMessage() : logMessage
+        ctx.logs.push(msg)
+      }
+    })
+  }
+
   stats(statsArgs: StatsArgs): void {
     if (!this.statsClient) return
     const { method: statsMethod, metric, value, extraTags } = statsArgs
@@ -285,7 +298,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       // data if that's what we're expecting.
       // let webhookUrlWithParams: URL | null = null
 
-      // trackableLogOnError(() => [JSON.stringify(customArgs)])
+      this.logOnError(() => JSON.stringify(customArgs))
       const webhookUrlWithParams = new URL(webhookUrl)
 
       for (const key of Object.keys(customArgs)) {

@@ -396,11 +396,11 @@ export type OperationContext = {
   /**
    * extra finally handlers of the operation that can be appended by the underlying function so it can add extra tags/log messages. E.g. add parameter of the function to the log in case of operation failure
    */
-  onFinally?: ((ctx: OperationContext) => void)[]
+  onFinally: ((ctx: OperationContext) => void)[]
   /**
    * underlying function args (can be used for logging purposes)
    */
-  methodArgs?: unknown[]
+  methodArgs: unknown[]
 
   [key: string]: any
 }
