@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//import { IntegrationError } from '@segment/actions-core'
 import { wrapPromisable } from './wrapPromisable'
 
 export interface TrackArgs {
