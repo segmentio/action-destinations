@@ -2,29 +2,33 @@
 
 exports[`Testing snapshot for actions-app-fit destination: track action - all fields 1`] = `
 Object {
-  "anonymousId": "m]^ldlwPRQruDQ&OXR1",
-  "deviceId": "m]^ldlwPRQruDQ&OXR1",
-  "deviceType": "m]^ldlwPRQruDQ&OXR1",
-  "eventId": "m]^ldlwPRQruDQ&OXR1",
   "eventSource": "segment",
-  "name": "m]^ldlwPRQruDQ&OXR1",
   "occurredAt": "2021-02-01T00:00:00.000Z",
-  "osName": "m]^ldlwPRQruDQ&OXR1",
-  "properties": Object {
-    "testType": "m]^ldlwPRQruDQ&OXR1",
+  "payload": Object {
+    "anonymousId": "m]^ldlwPRQruDQ&OXR1",
+    "deviceId": "m]^ldlwPRQruDQ&OXR1",
+    "deviceType": "m]^ldlwPRQruDQ&OXR1",
+    "eventId": "m]^ldlwPRQruDQ&OXR1",
+    "name": "m]^ldlwPRQruDQ&OXR1",
+    "osName": "m]^ldlwPRQruDQ&OXR1",
+    "properties": Object {
+      "testType": "m]^ldlwPRQruDQ&OXR1",
+    },
+    "userId": "m]^ldlwPRQruDQ&OXR1",
   },
-  "userId": "m]^ldlwPRQruDQ&OXR1",
 }
 `;
 
 exports[`Testing snapshot for actions-app-fit destination: track action - required fields 1`] = `
 Object {
-  "deviceId": "m]^ldlwPRQruDQ&OXR1",
-  "deviceType": "m]^ldlwPRQruDQ&OXR1",
-  "eventId": "m]^ldlwPRQruDQ&OXR1",
   "eventSource": "segment",
-  "name": "m]^ldlwPRQruDQ&OXR1",
   "occurredAt": "2021-02-01T00:00:00.000Z",
-  "osName": "m]^ldlwPRQruDQ&OXR1",
+  "payload": Object {
+    "deviceId": "m]^ldlwPRQruDQ&OXR1",
+    "deviceType": "m]^ldlwPRQruDQ&OXR1",
+    "eventId": "m]^ldlwPRQruDQ&OXR1",
+    "name": "m]^ldlwPRQruDQ&OXR1",
+    "osName": "m]^ldlwPRQruDQ&OXR1",
+  },
 }
 `;
