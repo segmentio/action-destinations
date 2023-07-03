@@ -165,4 +165,52 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
       }
     })
   })
+
+  test('should fail when email, utk and objectId is not provided', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'pe22596207_test_event_http',
+      properties: {
+        city: 'city'
+      }
+    })
+
+    const expectedPayload = {
+      eventName: event.event,
+      occurredAt: event.timestamp as string,
+      utk: event.properties?.utk,
+      email: event.properties?.email,
+      objectId: event.properties?.userId,
+      properties: {
+        hs_city: event.properties?.city
+      }
+    }
+
+    const mapping = {
+      eventName: {
+        '@path': '$.event'
+      },
+      utk: {
+        '@path': '$.properties.utk'
+      },
+      objectId: {
+        '@path': '$.properties.userId'
+      },
+      properties: {
+        hs_city: {
+          '@path': '$.properties.city'
+        }
+      }
+    }
+
+    nock(HUBSPOT_BASE_URL).post('/events/v3/send', expectedPayload).reply(400, {})
+
+    return expect(
+      testDestination.testAction('sendCustomBehavioralEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: mapping
+      })
+    ).rejects.toThrowError('One of the following parameters: email, user token, or objectId is required')
+  })
 })
