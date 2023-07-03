@@ -179,11 +179,16 @@ export abstract class OperationTracker {
    */
   protected onOperationTry(ctx: OperationContext): void {
     this._currentOperation = ctx
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
-    if (shouldLog !== false) this.logInfo(`${ctx.operation} Starting...`)
-    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
-    if (shouldStats !== false) this.stats({ method: 'incr', metric: ctx.operation + '.try' })
     ctx.startTime = Date.now()
+    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
+    if (shouldLog !== false) {
+      const fullLogMessage = this.extractLogMessages(ctx)?.join('. ')
+      this.logInfo(fullLogMessage)
+    }
+    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
+    if (shouldStats !== false) {
+      this.stats({ method: 'incr', metric: ctx.operation + '.try' })
+    }
   }
 
   /**
@@ -287,7 +292,7 @@ export abstract class OperationTracker {
   protected extractTagsFromError(error: TrackableError, ctx: OperationContext): string[] {
     const res: string[] = []
     const errorContext = error.trackableContext
-    res.push(`error_operation: ${errorContext?.operation || ctx.operation}`)
+    res.push(`error_operation:${errorContext?.operation || ctx.operation}`)
     res.push(`error_class:${error?.constructor?.name || typeof error}`)
     // for all upstream operations add error tags
     if (error.tags /* && error.trackableContext == ctx */) res.push(...error.tags)
@@ -296,18 +301,39 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Extracts all log messages for the operation's completion log message (in finally section)
+   * Extracts all log messages for the operation log message on operation states (try|finally only)
    * @param ctx operation context
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
   protected extractLogMessages(ctx: OperationContext): string[] {
     const res: string[] = []
-    res.push(this.getOperationCompletedMessage(ctx))
-    if (ctx.error) {
-      const error = ctx.error as TrackableError
-      res.push(...(this.extractLogMessagesFromError(error, ctx) || []))
+    switch (ctx.state) {
+      case 'try':
+        res.push(this.getOperationTryMessage(ctx))
+        break
+      case 'finally':
+        res.push(this.getOperationCompletedMessage(ctx))
+        if (ctx.error) {
+          const error = ctx.error as TrackableError
+          res.push(...(this.getOperationErrorDetails(error, ctx) || []))
+        }
+        break
+      default:
+        break
     }
     return res
+  }
+
+  /**
+   * Gets the log message of the operation attempt
+   * @param ctx operation
+   * @returns
+   */
+  protected getOperationTryMessage(ctx: OperationContext): string {
+    const fullOperationName = this.getOperationsStack(ctx)
+      .map((op) => op.operation)
+      .join(' > ')
+    return `${fullOperationName} starting...`
   }
 
   /**
@@ -332,7 +358,7 @@ export abstract class OperationTracker {
    * @param ctx current operation context (may be different from the error.trackableContext)
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
-  protected extractLogMessagesFromError(error: TrackableError, ctx: OperationContext): string[] {
+  protected getOperationErrorDetails(error: TrackableError, ctx: OperationContext): string[] {
     const errorContext = error.trackableContext
     const logMessages: string[] = []
     logMessages.push(this.getErrorMessage(error, ctx))
