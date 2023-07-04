@@ -352,7 +352,7 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Called by extractLogMessages to extract log messages from the error.
+   * Called by extractLogMessages to extract log messages from the error as well as its Underlying Error
    * The error may have happened on the child operation (in this case error.trackableContext != ctx)
    * @param error error to get log messages from
    * @param ctx current operation context (may be different from the error.trackableContext)
