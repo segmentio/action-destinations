@@ -26,7 +26,7 @@ export interface Payload {
      */
     media?: string[]
     /**
-     * Sets the noitfication click action/category
+     * Sets the notification click action/category
      */
     tapAction?: string
     /**
@@ -53,6 +53,27 @@ export interface Payload {
      * Sets the time to live for the notification
      */
     ttl?: number
+    /**
+     * Sets the buttons to show when interacting with a notification
+     */
+    tapActionButtons?: {
+      /**
+       * Button id
+       */
+      id: string
+      /**
+       * Button text
+       */
+      text: string
+      /**
+       * The action to perform when this button is tapped
+       */
+      onTap: string
+      /**
+       * Deep link or URL to navigate to when this button is tapped
+       */
+      link?: string
+    }[]
   }
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
