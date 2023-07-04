@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Devrev's streamEvent destination action: all fields 1`] = `
+Object {
+  "events_list": Array [
+    Object {
+      "event_time": "2021-02-01T00:00:00.000Z",
+      "name": "sZcTM%n(kDC3tsz4iK5h",
+      "payload": Object {
+        "anonymousId": "sZcTM%n(kDC3tsz4iK5h",
+        "context": Object {
+          "testType": "sZcTM%n(kDC3tsz4iK5h",
+        },
+        "email": "opemal@ner.kr",
+        "eventName": "sZcTM%n(kDC3tsz4iK5h",
+        "messageId": "sZcTM%n(kDC3tsz4iK5h",
+        "properties": Object {
+          "testType": "sZcTM%n(kDC3tsz4iK5h",
+        },
+        "timestamp": "2021-02-01T00:00:00.000Z",
+        "userId": "sZcTM%n(kDC3tsz4iK5h",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Devrev's streamEvent destination action: required fields 1`] = `
+Object {
+  "events_list": Array [
+    Object {
+      "event_time": "2021-02-01T00:00:00.000Z",
+      "name": "sZcTM%n(kDC3tsz4iK5h",
+      "payload": Object {
+        "eventName": "sZcTM%n(kDC3tsz4iK5h",
+        "timestamp": "2021-02-01T00:00:00.000Z",
+        "userId": "sZcTM%n(kDC3tsz4iK5h",
+      },
+    },
+  ],
+}
+`;
