@@ -195,14 +195,18 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       profile
     )
 
+    const badgeAmount = this.payload.customizations?.badgeAmount ?? 1
+    const badgeStrategy = this.payload.customizations?.badgeStrategy ?? 'inc'
+
     try {
       const customData: Record<string, unknown> = this.removeEmpties({
         ...this.payload.customArgs,
         space_id: this.settings.spaceId,
-        badgeAmount: this.payload.customizations?.badgeAmount,
-        badgeStrategy: this.payload.customizations?.badgeStrategy,
+        badgeAmount,
+        badgeStrategy,
         media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-        deepLink: this.payload.customizations?.deepLink
+        deepLink: this.payload.customizations?.deepLink,
+        tapActionButtons: this.payload.customizations?.tapActionButtons
       })
 
       const body = this.removeEmpties({
@@ -215,13 +219,13 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         FcmPayload: this.removeEmpties({
           mutable_content: true,
           notification: {
-            badge: this.payload.customizations?.badgeAmount
+            badge: badgeAmount
           }
         }),
         ApnPayload: {
           aps: {
             'mutable-content': 1,
-            badge: this.payload.customizations?.badgeAmount
+            badge: badgeAmount
           }
         }
       })

@@ -23,4 +23,8 @@ export interface Payload {
    * Receive events in a batch payload. This is required for LiveRamp audiences ingestion.
    */
   enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

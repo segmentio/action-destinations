@@ -319,7 +319,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         To: '+1234567891',
         ShortenUrls: 'true',
         StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891&user_id=jane#rp=all&rc=5'
+          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
