@@ -13,7 +13,6 @@ export const devrevApiPaths = {
   accountCreate: '/internal/accounts.create',
   revUsersCreate: '/internal/rev-users.create',
   timelineEntriesCreate: '/timeline-entries.create',
-
   trackEventsPublish: '/internal/track-events.publish'
 }
 

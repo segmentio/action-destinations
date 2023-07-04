@@ -83,17 +83,12 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     const { eventName, timestamp } = payload
 
-    // if no timestamp was received in the event, use the current time
-    if (!timestamp) {
-      payload.timestamp = new Date().toISOString()
-    }
-
     // Track API payload
     const reqBody: TrackEventsPublishBody = {
       events_list: [
         {
           name: eventName,
-          event_time: payload.timestamp.toString(),
+          event_time: timestamp.toString(),
           payload: {
             // add mapped data to payload
             ...payload
