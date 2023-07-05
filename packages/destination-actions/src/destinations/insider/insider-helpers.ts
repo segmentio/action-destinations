@@ -65,7 +65,8 @@ export function userProfilePayload(data: UserPayload) {
           email_optin: data.emailOptin,
           sms_optin: data.smsOptin,
           whatsapp_optin: data.whatsappOptin,
-          language: data.language?.replace('-', '_')
+          language: data.language?.replace('-', '_'),
+          custom: data.custom
         }
       }
     ]

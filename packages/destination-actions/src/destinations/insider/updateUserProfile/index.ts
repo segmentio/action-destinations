@@ -138,6 +138,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Language',
       description: "The user's preferred language.",
       type: 'string'
+    },
+    custom: {
+      label: 'Other Properties',
+      description: "The user's additional information.",
+      type: 'object'
     }
   },
   perform: (request, data) => {
