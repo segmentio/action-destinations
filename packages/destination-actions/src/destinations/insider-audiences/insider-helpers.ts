@@ -161,6 +161,10 @@ const getIdentifiers = function (data: Payload) {
 const getAttributes = function (data: Payload) {
   const computationKey = data.custom_audience_name
   const attributes = {
+    gdpr_optin: data.gdprOptin,
+    sms_optin: data.smsOptin,
+    email_optin: data.emailOptin,
+    whatsapp_optin: data.whatsappOptin,
     custom: {
       segment_audience_name: [computationKey]
     }
@@ -174,6 +178,10 @@ const getTraitAttributes = function (data: Payload) {
   const attributes: any = { custom: {} }
 
   attributes.custom[computationKey] = data.traits_or_props[data.custom_audience_name]
+  attributes.gdpr_optin = data.gdprOptin
+  attributes.sms_optin = data.smsOptin
+  attributes.email_optin = data.emailOptin
+  attributes.whatsapp_optin = data.whatsappOptin
 
   return attributes
 }
