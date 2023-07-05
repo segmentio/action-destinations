@@ -15,7 +15,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
   })
 
-  it.only('required fields', async () => {
+  it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData.delimiter = ','
