@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { isAsyncFunction } from 'util/types'
 import { OperationTracker, TrackArgs, createTrackableDecoratorFactory } from './OperationTracker'
 
 class TestTracker extends OperationTracker {
@@ -11,7 +10,11 @@ class TestTracker extends OperationTracker {
 
 const testTrackable = createTrackableDecoratorFactory<any>((t) => t.tracker)
 
-function createTestClass(trackArgs: TrackArgs | undefined, testMethodImpl: (...args: any[]) => any) {
+function createTestClass(
+  trackArgs: TrackArgs | undefined,
+  testMethodImpl: (...args: any[]) => any,
+  asyncMethods: boolean
+) {
   class MyTestTargetBase {
     tracker: OperationTracker = new TestTracker()
 
@@ -19,12 +22,18 @@ function createTestClass(trackArgs: TrackArgs | undefined, testMethodImpl: (...a
 
     @testTrackable(trackArgs)
     testMethod(...args: any[]): any {
-      return this.testMethodImpl(...args)
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const instance = this
+      if (asyncMethods)
+        return (async () => {
+          await new Promise((res) => setTimeout(res, 100))
+          return await testMethodImpl.apply(instance, args)
+        })()
+      return testMethodImpl.apply(instance, args)
     }
   }
 
-  const isAsync = isAsyncFunction(testMethodImpl)
-  if (isAsync) {
+  if (asyncMethods) {
     class MyTestTargetAsync extends MyTestTargetBase {
       @testTrackable(trackArgs)
       async parentMethod(...args: any[]) {
@@ -65,11 +74,74 @@ function createTestClass(trackArgs: TrackArgs | undefined, testMethodImpl: (...a
   }
 }
 
+class MyCustomError extends Error {
+  constructor(msg: string) {
+    super(msg)
+  }
+}
+
 beforeEach(() => {
   jest.clearAllMocks()
 })
 
-describe('operation tracker: log', () => {
+describe('pass through', () => {
+  describe.each([
+    ['async target method', true],
+    ['sync target method', false]
+  ])('%s', (_name, isAsync) => {
+    describe.each([
+      ['target method thows error', true],
+      ['target completes successfully', false]
+    ])('%s', (_name, throwError) => {
+      test.each(<(TrackArgs | undefined)[]>[
+        undefined,
+        {},
+        { operation: 'test_method' },
+        {
+          onError: (_e) => ({
+            error: undefined,
+            tags: undefined
+          })
+        },
+        {
+          shouldLog: () => true,
+          shouldStats: () => true
+        },
+        {
+          shouldLog: () => false,
+          shouldStats: () => false
+        }
+      ])(`${throwError ? 'error' : 'result'} passed through. trackArgs: %s`, async (trackArgs) => {
+        const testMethod = function (this: any) {
+          if (throwError) throw new MyCustomError('my custom error')
+          expect(this).toEqual(instance)
+          return {
+            instance: this,
+            result: 'success'
+          }
+        }
+        const TestClass = createTestClass(trackArgs, testMethod, isAsync)
+        const instance = new TestClass()
+        if (throwError) {
+          await expect(async () => await instance.testMethod()).rejects.toThrow('my custom error')
+          await expect(async () => await instance.parentMethod()).rejects.toThrow('my custom error')
+        } else {
+          const resTestMethod = await instance.testMethod()
+          expect(resTestMethod.instance).toBe(instance)
+          expect(resTestMethod.result).toBe('success')
+
+          const resParentMethod = await instance.parentMethod()
+          expect(resParentMethod).toMatchObject({
+            iAm: 'parent',
+            child: { iAm: 'child', testMethod: { instance, result: 'success' } }
+          })
+        }
+      })
+    })
+  })
+})
+
+describe('log', () => {
   describe.each([
     ['async target method', true],
     ['sync target method', false]
@@ -80,7 +152,7 @@ describe('operation tracker: log', () => {
       methodToRun?: 'testMethod' | 'parentMethod' | 'childMethod'
       methodArgs?: TParams
     }) {
-      const MyTestClass = createTestClass(args.trackArgs, args.testMethodImpl)
+      const MyTestClass = createTestClass(args.trackArgs, args.testMethodImpl, isAsync)
       const classInstance = new MyTestClass()
       const testMethodMock = classInstance.testMethodImpl
       try {
@@ -92,23 +164,8 @@ describe('operation tracker: log', () => {
       }
     }
 
-    class MyCustomError extends Error {
-      constructor(msg: string) {
-        super(msg)
-      }
-    }
-
-    function asyncable<T extends (this: any, ...args: any[]) => any>(method: T) {
-      return isAsync
-        ? async function (this: any, ...args: any[]) {
-            await new Promise((res) => setTimeout(res, 100))
-            return method.apply(this, args)
-          }
-        : method
-    }
-
     test('when method succeeds', async () => {
-      const testResult = await runTestMethod({ testMethodImpl: asyncable(() => 'success') })
+      const testResult = await runTestMethod({ testMethodImpl: () => 'success' })
 
       expect(testResult.testMethodResult).toBe('success')
       expectLogInfo(
@@ -121,9 +178,9 @@ describe('operation tracker: log', () => {
 
     test('on method failing', async () => {
       const testResult = await runTestMethod({
-        testMethodImpl: asyncable(() => {
+        testMethodImpl: () => {
           throw new MyCustomError('My custom error')
-        })
+        }
       })
 
       expect(testResult.testMethodError instanceof MyCustomError).toBe(true)
@@ -138,7 +195,7 @@ describe('operation tracker: log', () => {
     test('shouldLog false', async () => {
       const testResult = await runTestMethod({
         trackArgs: { shouldLog: () => false },
-        testMethodImpl: asyncable(() => 'success')
+        testMethodImpl: () => 'success'
       })
 
       expect(testResult.testMethodResult).toBe('success')
@@ -149,7 +206,7 @@ describe('operation tracker: log', () => {
     test('shouldLog finally only', async () => {
       const testResult = await runTestMethod({
         trackArgs: { shouldLog: (t) => t.state == 'finally' },
-        testMethodImpl: asyncable(() => 'success')
+        testMethodImpl: () => 'success'
       })
 
       expect(testResult.testMethodResult).toBe('success')
@@ -159,14 +216,14 @@ describe('operation tracker: log', () => {
     test('onFinally hook to add extra data on error', async () => {
       const myCustomError = new MyCustomError('My custom error')
       const someExtraErrorMessage = 'some extra info about error'
-      const methodImpl = asyncable(function (this: { tracker: OperationTracker }, throwError: boolean) {
+      const methodImpl = function (this: { tracker: OperationTracker }, throwError: boolean) {
         this.tracker.currentOperation?.onFinally.push((op) => {
           expect(!!op.error).toBe(throwError)
           op.logs.push(someExtraErrorMessage)
         })
         if (throwError) throw myCustomError
         else return 'success'
-      })
+      }
       const testResultSuccess = await runTestMethod({ testMethodImpl: methodImpl, methodArgs: [false] })
       expect(testResultSuccess.testMethodResult).toBe('success')
       expectLogInfo(
@@ -189,9 +246,9 @@ describe('operation tracker: log', () => {
     test('onError for error wrapping', async () => {
       const testResult = await runTestMethod({
         trackArgs: { onError: () => ({ error: new MyCustomError('Wrapper error') }) },
-        testMethodImpl: asyncable(() => {
+        testMethodImpl: () => {
           throw new MyCustomError('Child error')
-        })
+        }
       })
       expectLogError(testResult.classInstance.tracker.logError, ['Wrapper error', 'Child error'])
       expect(testResult.testMethodError!.message).toBe('Wrapper error')
@@ -200,7 +257,7 @@ describe('operation tracker: log', () => {
 
     test('child operations success: parentMethod > childMethod > testMethod', async () => {
       const testRes = await runTestMethod({
-        testMethodImpl: asyncable(() => 'test method'),
+        testMethodImpl: () => 'test method',
         methodToRun: 'parentMethod'
       })
 
@@ -223,9 +280,9 @@ describe('operation tracker: log', () => {
     test('child operations failed: parentMethod > childMethod > testMethod', async () => {
       const myCustomError = new MyCustomError('My custom error')
       const testRes = await runTestMethod({
-        testMethodImpl: asyncable(() => {
+        testMethodImpl: () => {
           throw myCustomError
-        }),
+        },
         methodToRun: 'parentMethod'
       })
 
@@ -247,18 +304,30 @@ describe('operation tracker: log', () => {
   })
 })
 
-describe('operation tracker: stats', () => {
+describe('stats', () => {
   describe.each([
     ['async target method', true],
     ['sync target method', false]
   ])('%s', (_testName, _isAsync) => {
-    test.todo('success try and finally')
-    test.todo('failed try and finally')
-    test.todo('async success try and finally')
-    test.todo('async failed try and finally')
-    test.todo('success histogram')
-    test.todo('failed histogram')
-    test.todo('failed try and finally')
+    describe.each([
+      ['target method thows error', true],
+      ['sync target completes successfully', false]
+    ])('%s', (_testName, _throwError) => {
+      //const myCustomError = new MyCustomError('My custom error')
+      //const testMethod = jest.fn(throwError ? () => { throw new MyCustomError('My custom error') } : () => 'success')
+
+      // test('try and finally', async () => {
+      //   const TestClass = createTestClass({}, testMethod, _isAsync)
+      //   const testInstance = new TestClass()
+      //   await testInstance.testMethod()
+      // })
+      test.todo('failed try and finally')
+      test.todo('async success try and finally')
+      test.todo('async failed try and finally')
+      test.todo('success histogram')
+      test.todo('failed histogram')
+      test.todo('failed try and finally')
+    })
   })
 })
 
