@@ -94,6 +94,30 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
+    emailOptin: {
+      label: 'Email Optin',
+      type: 'boolean',
+      default: undefined,
+      description: 'Email optin.'
+    },
+    smsOptin: {
+      label: 'SMS Optin',
+      type: 'boolean',
+      default: undefined,
+      description: 'SMS optin.'
+    },
+    whatsappOptin: {
+      label: 'Whatsapp Optin',
+      type: 'boolean',
+      default: undefined,
+      description: 'Whatsapp optin.'
+    },
+    gdprOptin: {
+      label: 'GDPR Optin',
+      type: 'boolean',
+      default: undefined,
+      description: 'GDPR optin.'
+    },
     event_name: {
       label: 'Event Name',
       description: 'Name of event',

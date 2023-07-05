@@ -36,6 +36,22 @@ export interface Payload {
    */
   event_type: string
   /**
+   * Email optin.
+   */
+  emailOptin?: boolean
+  /**
+   * SMS optin.
+   */
+  smsOptin?: boolean
+  /**
+   * Whatsapp optin.
+   */
+  whatsappOptin?: boolean
+  /**
+   * GDPR optin.
+   */
+  gdprOptin?: boolean
+  /**
    * Name of event
    */
   event_name?: string
