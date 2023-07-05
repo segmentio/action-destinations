@@ -221,7 +221,8 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
       properties: {
         utk: 'abverazffa===1314122f',
         city: 'city'
-      }
+      },
+      timestamp: '2023-07-04T10:25:44.778Z'
     })
 
     const expectedPayload = {
