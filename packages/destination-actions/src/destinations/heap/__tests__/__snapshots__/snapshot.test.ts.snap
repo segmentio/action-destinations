@@ -4,7 +4,10 @@ exports[`Testing snapshot for actions-heap destination: identifyUser action - al
 Object {
   "app_id": "G&st^jdtW&@22!QU^",
   "identity": "G&st^jdtW&@22!QU^",
-  "user_id": 4792922918011540,
+  "properties": Object {
+    "anonymous_id": "G&st^jdtW&@22!QU^",
+    "testType": "G&st^jdtW&@22!QU^",
+  },
 }
 `;
 
@@ -12,49 +15,29 @@ exports[`Testing snapshot for actions-heap destination: identifyUser action - re
 Object {
   "app_id": "G&st^jdtW&@22!QU^",
   "identity": "G&st^jdtW&@22!QU^",
-  "user_id": 4792922918011540,
+  "properties": Object {
+    "anonymous_id": "G&st^jdtW&@22!QU^",
+  },
 }
 `;
 
 exports[`Testing snapshot for actions-heap destination: trackEvent action - all fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-  "events": Array [
-    Object {
-      "custom_properties": Object {
-        "testType": "kFJwrNh$DP38FB",
-      },
-      "event": "track",
-      "idempotency_key": "kFJwrNh$DP38FB",
-      "properties": Object {
-        "segment_library": "cloud-mode-destination",
-      },
-      "timestamp": "2021-02-01T00:00:00.000Z",
-      "user_identifier": Object {
-        "identity": "kFJwrNh$DP38FB",
-      },
-    },
-  ],
-  "library": "Segment",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "anonymous_id": "kFJwrNh$DP38FB",
+    "testType": "kFJwrNh$DP38FB",
+  },
 }
 `;
 
 exports[`Testing snapshot for actions-heap destination: trackEvent action - required fields 1`] = `
 Object {
   "app_id": "kFJwrNh$DP38FB",
-  "events": Array [
-    Object {
-      "custom_properties": Object {},
-      "event": "track",
-      "idempotency_key": "kFJwrNh$DP38FB",
-      "properties": Object {
-        "segment_library": "cloud-mode-destination",
-      },
-      "user_identifier": Object {
-        "identity": "kFJwrNh$DP38FB",
-      },
-    },
-  ],
-  "library": "Segment",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "anonymous_id": "kFJwrNh$DP38FB",
+  },
 }
 `;

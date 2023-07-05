@@ -30,7 +30,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       label: 'Query ID',
       description: 'Query ID of the list on which the item was clicked.',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.query_id'
       }
@@ -39,7 +39,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       label: 'Position',
       description: 'Position of the click in the list of Algolia search results.',
       type: 'integer',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.position'
       }
@@ -73,7 +73,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       eventType: 'click',
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
-      positions: [data.payload.position],
+      positions: data.payload.position ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }

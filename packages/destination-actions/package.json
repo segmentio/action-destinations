@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.133.0",
+  "version": "3.178.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^18.12"
+    "node": "14 || ^18.12"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -33,21 +33,24 @@
   "devDependencies": {
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
+    "@types/ssh2-sftp-client": "^9.0.0",
     "jest": "^27.3.1",
     "nock": "^13.1.4"
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.52.0",
-    "@segment/actions-shared": "^1.34.0",
+    "@segment/actions-core": "^3.68.0",
+    "@segment/actions-shared": "^1.50.0",
     "@types/node": "^18.11.15",
+    "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
     "liquidjs": "^9.37.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {
     "preset": "ts-jest",
@@ -66,6 +69,12 @@
     ],
     "coverageReporters": [
       "lcov"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "__tests__/__helpers__/"
     ]
-  }
+  },
+  "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"
 }

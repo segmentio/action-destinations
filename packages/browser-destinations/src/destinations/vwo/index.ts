@@ -61,16 +61,25 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
       label: 'Use Existing JQuery',
       type: 'boolean',
       default: false
+    },
+    addSmartcode: {
+      description:
+        'When enabled, Segment will load the VWO SmartCode onto the webpage. When disabled, you will have to manually add SmartCode to your webpage. The setting is enabled by default, however we recommended manually adding SmartCode to the webpage to avoid flicker issues.',
+      label: 'Add Asynchronous SmartCode',
+      type: 'boolean',
+      default: true
     }
   },
 
   initialize: async ({ settings }, deps) => {
-    initScript({
-      vwoAccountId: settings.vwoAccountId,
-      settingsTolerance: settings.settingsTolerance,
-      libraryTolerance: settings.libraryTolerance,
-      useExistingJquery: settings.useExistingJquery
-    })
+    if (settings.addSmartcode != false) {
+      initScript({
+        vwoAccountId: settings.vwoAccountId,
+        settingsTolerance: settings.settingsTolerance,
+        libraryTolerance: settings.libraryTolerance,
+        useExistingJquery: settings.useExistingJquery
+      })
+    }
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
   },

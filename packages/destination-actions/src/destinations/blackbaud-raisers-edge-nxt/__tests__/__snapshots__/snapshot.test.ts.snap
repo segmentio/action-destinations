@@ -1,21 +1,100 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - all fields 1`] = `""`;
-
-exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - required fields 1`] = `""`;
-
-exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - required fields 2`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "bb-api-subscription-key": Array [
-      "hUXnkT]ixm7mm*HX",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createConstituentAction action - all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
   },
+  "birthplace": "x3tNm3W0",
+  "ethnicity": "x3tNm3W0",
+  "first": "x3tNm3W0",
+  "former_name": "x3tNm3W0",
+  "gender": "x3tNm3W0",
+  "gives_anonymously": true,
+  "income": "x3tNm3W0",
+  "industry": "x3tNm3W0",
+  "last": "x3tNm3W0",
+  "lookup_id": "x3tNm3W0",
+  "marital_status": "x3tNm3W0",
+  "preferred_name": "x3tNm3W0",
+  "religion": "x3tNm3W0",
+  "suffix": "x3tNm3W0",
+  "suffix_2": "x3tNm3W0",
+  "title": "x3tNm3W0",
+  "title_2": "x3tNm3W0",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createConstituentAction action - required fields 1`] = `
+Object {
+  "lookup_id": "x3tNm3W0",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createGift action - all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "birthplace": "D0dEn",
+  "ethnicity": "D0dEn",
+  "first": "D0dEn",
+  "former_name": "D0dEn",
+  "gender": "D0dEn",
+  "gives_anonymously": true,
+  "income": "D0dEn",
+  "industry": "D0dEn",
+  "last": "D0dEn",
+  "lookup_id": "D0dEn",
+  "marital_status": "D0dEn",
+  "preferred_name": "D0dEn",
+  "religion": "D0dEn",
+  "suffix": "D0dEn",
+  "suffix_2": "D0dEn",
+  "title": "D0dEn",
+  "title_2": "D0dEn",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createGift action - required fields 1`] = `
+Object {
+  "lookup_id": "D0dEn",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - all fields 1`] = `
+Object {
+  "birthdate": Object {
+    "d": "1",
+    "m": "2",
+    "y": "2021",
+  },
+  "birthplace": "hUXnkT]ixm7mm*HX",
+  "ethnicity": "hUXnkT]ixm7mm*HX",
+  "first": "hUXnkT]ixm7mm*HX",
+  "former_name": "hUXnkT]ixm7mm*HX",
+  "gender": "hUXnkT]ixm7mm*HX",
+  "income": "hUXnkT]ixm7mm*HX",
+  "industry": "hUXnkT]ixm7mm*HX",
+  "last": "hUXnkT]ixm7mm*HX",
+  "lookup_id": "hUXnkT]ixm7mm*HX",
+  "marital_status": "hUXnkT]ixm7mm*HX",
+  "preferred_name": "hUXnkT]ixm7mm*HX",
+  "religion": "hUXnkT]ixm7mm*HX",
+  "suffix": "hUXnkT]ixm7mm*HX",
+  "suffix_2": "hUXnkT]ixm7mm*HX",
+  "title": "hUXnkT]ixm7mm*HX",
+  "title_2": "hUXnkT]ixm7mm*HX",
+}
+`;
+
+exports[`Testing snapshot for actions-blackbaud-raisers-edge-nxt destination: createOrUpdateIndividualConstituent action - required fields 1`] = `
+Object {
+  "last": "Smith",
+  "lookup_id": "hUXnkT]ixm7mm*HX",
 }
 `;

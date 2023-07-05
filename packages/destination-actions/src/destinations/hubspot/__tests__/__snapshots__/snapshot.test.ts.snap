@@ -77,9 +77,21 @@ Object {
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - all fields 1`] = `
 Object {
-  "properties": Object {
-    "testType": "jf(2@y*W9WT2r)SLk(*",
-  },
+  "filterGroups": Array [
+    Object {
+      "filters": Array [
+        Object {
+          "operator": "EQ",
+          "propertyName": "testType",
+          "value": "jf(2@y*W9WT2r)SLk(*",
+        },
+      ],
+    },
+  ],
+  "properties": Array [],
+  "sorts": Array [
+    "name",
+  ],
 }
 `;
 

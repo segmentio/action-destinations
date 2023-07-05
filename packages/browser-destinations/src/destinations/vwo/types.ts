@@ -5,4 +5,5 @@ export type VWO = {
     vwoMeta: { [k: string]: unknown } | undefined
   ) => void
   visitor: (attributes: { [k: string]: unknown }, vwoMeta: { [k: string]: unknown } | undefined) => void
+  push: (args: (string | { [k: string]: unknown } | undefined)[]) => void
 }

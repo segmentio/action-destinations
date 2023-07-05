@@ -2,6 +2,7 @@ import AggregateError from 'aggregate-error'
 import { CustomError } from 'ts-custom-error'
 import { isDirective } from './is-directive'
 import { isObject, realTypeOf, Dictionary } from '../real-type-of'
+import { MAX_PATTERN_LENGTH, MAX_REPLACEMENT_LENGTH } from './index'
 
 class ValidationError extends CustomError {
   constructor(message: string, stack: string[] = []) {
@@ -105,10 +106,40 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
   }
 }
 
+type validator = (v: unknown, stack: string[]) => void
+function chain(...validators: validator[]) {
+  return (v: unknown, stack: string[] = []) => {
+    validators.forEach((validate) => {
+      validate(v, stack)
+    })
+  }
+}
+
+function validateStringLength(min: number, max: number) {
+  return (v: unknown, stack: string[] = []) => {
+    if (typeof v == 'string' && v.length < min) {
+      throw new ValidationError(`should be a string of length ${min} or greater`, stack)
+    }
+
+    if (typeof v == 'string' && v.length > max) {
+      throw new ValidationError(`should be a string of length ${max} or less`, stack)
+    }
+    return
+  }
+}
+
 function validateString(v: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(v)
   if (type !== 'string') {
     throw new ValidationError(`should be a string but it is ${indefiniteArticle(type)} ${type}`, stack)
+  }
+  return
+}
+
+function validateBoolean(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  if (type !== 'boolean') {
+    throw new ValidationError(`should be a boolean but it is ${indefiniteArticle(type)} ${type}`, stack)
   }
   return
 }
@@ -224,6 +255,20 @@ directive('@case', (v, stack) => {
     {
       operator: { optional: validateString },
       value: { optional: validateDirectiveOrString }
+    },
+    stack
+  )
+})
+
+directive('@replace', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      pattern: { required: chain(validateString, validateStringLength(1, MAX_PATTERN_LENGTH)) },
+      replacement: { optional: chain(validateString, validateStringLength(0, MAX_REPLACEMENT_LENGTH)) },
+      value: { required: validateDirectiveOrString },
+      ignorecase: { optional: validateBoolean },
+      global: { optional: validateBoolean }
     },
     stack
   )

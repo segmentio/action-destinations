@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * User ID in Segment
    */
-  userId: string
+  userId?: string
   /**
    * Email to send to when testing
    */
@@ -74,6 +74,10 @@ export interface Payload {
    */
   groupId?: string
   /**
+   * Send email without subscription check
+   */
+  byPassSubscription?: boolean
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -90,6 +94,14 @@ export interface Payload {
      */
     subscriptionStatus?: string
     /**
+     * Unsubscribe link for the end user
+     */
+    unsubscribeLink?: string
+    /**
+     * Preferences link for the end user
+     */
+    preferencesLink?: string
+    /**
      * Subscription groups and their statuses for this id.
      */
     groups?: {
@@ -98,6 +110,10 @@ export interface Payload {
        * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
        */
       isSubscribed?: boolean
+      /**
+       * Group unsubscribe link for the end user
+       */
+      groupUnsubscribeLink?: string
     }[]
   }[]
   /**

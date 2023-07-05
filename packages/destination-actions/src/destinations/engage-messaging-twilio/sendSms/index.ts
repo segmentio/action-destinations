@@ -13,7 +13,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID in Segment',
       type: 'string',
-      required: true,
       default: { '@path': '$.userId' }
     },
     toNumber: {
@@ -31,7 +30,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: false
+    },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -76,6 +88,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The external ID contact type.',
           type: 'string'
         },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
+          type: 'string'
+        },
         subscriptionStatus: {
           label: 'ID',
           description: 'The subscription status for the identity.',
@@ -91,6 +108,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
@@ -114,14 +134,17 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+  perform: async (request, data) => {
+    return new SmsMessageSender(request, data).send()
   }
 }
 

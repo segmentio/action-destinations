@@ -10,7 +10,7 @@ import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
 import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { IntegrationError, InvalidAuthenticationError } from '../errors'
+import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -61,6 +61,40 @@ export interface BaseDefinition {
   presets?: Subscription[]
 }
 
+export type AudienceResult = {
+  externalId: string
+}
+
+export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+
+export type CreateAudienceInput<Settings = unknown> = {
+  settings: Settings
+
+  audienceName: string
+}
+
+export type GetAudienceInput<Settings = unknown> = {
+  settings: Settings
+
+  externalId: string
+}
+
+export interface AudienceDestinationSettings {
+  mode: AudienceMode
+}
+
+export interface AudienceDestinationSettingsWithCreateGet<Settings = unknown> extends AudienceDestinationSettings {
+  createAudience(request: RequestClient, createAudienceInput: CreateAudienceInput<Settings>): Promise<AudienceResult>
+
+  getAudience(request: RequestClient, getAudienceInput: GetAudienceInput<Settings>): Promise<AudienceResult>
+}
+
+const instanceOfAudienceDestinationSettingsWithCreateGet = (
+  object: any
+): object is AudienceDestinationSettingsWithCreateGet => {
+  return 'createAudience' in object && 'getAudience' in object
+}
+
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
   mode: 'cloud'
 
@@ -78,6 +112,8 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  audienceSettings?: AudienceDestinationSettings | AudienceDestinationSettingsWithCreateGet<Settings>
 
   onDelete?: Deletion<Settings>
 }
@@ -206,13 +242,16 @@ export interface DecoratedResponse extends ModifiedResponse {
 }
 
 interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
+   * all events across multiple instances of the destination using the same account for a given source*/
+  synchronizeRefreshAccessToken?: () => Promise<void>
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -311,6 +350,32 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
+  async createAudience(createAudienceInput: CreateAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to createAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.createAudience(requestClient, createAudienceInput)
+  }
+
+  async getAudience(getAudienceInput: GetAudienceInput<Settings>) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(this.definition.audienceSettings)) {
+      throw new Error('Unexpected call to getAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return this.definition.audienceSettings?.getAudience(requestClient, getAudienceInput)
+  }
+
   async testAuthentication(settings: Settings): Promise<void> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     const auth = getAuthData(settings as unknown as JSONObject)
@@ -336,10 +401,11 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
-  refreshAccessToken(
+  async refreshAccessToken(
     settings: Settings,
-    oauthData: OAuth2ClientCredentials
-  ): Promise<RefreshAccessTokenResult> | undefined {
+    oauthData: OAuth2ClientCredentials,
+    synchronizeRefreshAccessToken?: () => Promise<void>
+  ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
@@ -361,6 +427,9 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
+    // Invoke synchronizeRefreshAccessToken handler if synchronizeRefreshAccessToken option is passed.
+    // This will ensure that there is only one active refresh happening at a time.
+    await synchronizeRefreshAccessToken?.()
     return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
@@ -579,14 +648,18 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token')
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -627,14 +700,18 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token')
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
