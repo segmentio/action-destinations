@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: all fields 1`] = `
-"audience_key,testType
-\\"PywYAY\\",\\"PywYAY\\""
+"audience_key,testType,testType
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\""
 `;
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: enquotated indentifier data 1`] = `
