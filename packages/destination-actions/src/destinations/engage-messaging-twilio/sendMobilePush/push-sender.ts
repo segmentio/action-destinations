@@ -200,26 +200,37 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       profile
     )
 
-    const customData: Record<string, unknown> = this.removeEmpties({
-      ...this.payload.customArgs,
-      space_id: this.settings.spaceId,
-      badgeAmount: this.payload.customizations?.badgeAmount,
-      badgeStrategy: this.payload.customizations?.badgeStrategy,
-      media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-      deepLink: this.payload.customizations?.deepLink
-    })
+    const badgeAmount = this.payload.customizations?.badgeAmount ?? 1
+    const badgeStrategy = this.payload.customizations?.badgeStrategy ?? 'inc'
 
-    const body = this.removeEmpties({
-      Body: parsedTemplateContent.body,
-      Action: this.payload.customizations?.tapAction,
-      Title: parsedTemplateContent.title,
-      Sound: this.payload.customizations?.sound,
-      Priority: this.payload.customizations?.priority,
-      TimeToLive: this.payload.customizations?.ttl,
-      FcmPayload: this.removeEmpties({
-        mutable_content: true,
-        notification: {
-          badge: this.payload.customizations?.badgeAmount
+      const customData: Record<string, unknown> = this.removeEmpties({
+        ...this.payload.customArgs,
+        space_id: this.settings.spaceId,
+        badgeAmount,
+        badgeStrategy,
+        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
+        deepLink: this.payload.customizations?.deepLink,
+        tapActionButtons: this.payload.customizations?.tapActionButtons
+      })
+
+      const body = this.removeEmpties({
+        Body: parsedTemplateContent.body,
+        Action: this.payload.customizations?.tapAction,
+        Title: parsedTemplateContent.title,
+        Sound: this.payload.customizations?.sound,
+        Priority: this.payload.customizations?.priority,
+        TimeToLive: this.payload.customizations?.ttl,
+        FcmPayload: this.removeEmpties({
+          mutable_content: true,
+          notification: {
+            badge: badgeAmount
+          }
+        }),
+        ApnPayload: {
+          aps: {
+            'mutable-content': 1,
+            badge: badgeAmount
+          }
         }
       }),
       ApnPayload: {

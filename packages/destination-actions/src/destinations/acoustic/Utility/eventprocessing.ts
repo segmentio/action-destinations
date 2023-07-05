@@ -119,16 +119,29 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
   let ak = ''
   let av = ''
 
-  const getValue = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[1]
+  const getValue = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[1] as string
+  const getKey = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[0] as string
 
-  if (getValue(propertiesTraitsKV, 'computation_class')) {
+  if (getValue(propertiesTraitsKV, 'computation_class')?.toLowerCase() === 'audience') {
     ak = getValue(propertiesTraitsKV, 'computation_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
+
+    //Audience determined, clean out parsed attributes, reduce redundant attributes
+    let x = getKey(propertiesTraitsKV, 'computation_class')
+    delete propertiesTraitsKV[`${x}`]
+    x = getKey(propertiesTraitsKV, 'computation_key')
+    delete propertiesTraitsKV[`${x}`]
+    delete propertiesTraitsKV[`${ak}`]
   }
 
   if (getValue(propertiesTraitsKV, 'audience_key')) {
     ak = getValue(propertiesTraitsKV, 'audience_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
+
+    //Audience determined, clean out parsed attributes, reduce redundant attributes
+    const x = getKey(propertiesTraitsKV, 'audience_key')
+    delete propertiesTraitsKV[`${x}`]
+    delete propertiesTraitsKV[`${ak}`]
   }
 
   if (av !== '') {
@@ -138,6 +151,7 @@ export function addUpdateEvents(payload: Payload, email: string, limit: number) 
     audiStatus = audiStatus.toString().toLowerCase()
     if (audiStatus === 'true') eventValue = 'Audience Entered'
     if (audiStatus === 'false') eventValue = 'Audience Exited'
+
     eventName = ak
 
     xmlRows += `  
