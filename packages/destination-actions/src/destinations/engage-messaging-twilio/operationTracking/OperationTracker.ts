@@ -187,7 +187,7 @@ export abstract class OperationTracker {
     }
     const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
     if (shouldStats !== false) {
-      this.stats({ method: 'incr', metric: ctx.operation + '.try' })
+      this.stats({ method: 'incr', metric: ctx.operation + '.try', value: 1 })
     }
   }
 
@@ -247,7 +247,7 @@ export abstract class OperationTracker {
     if (shouldStats !== false) {
       const finallyTags = ctx.tags?.filter((t) => t) || []
 
-      this.stats({ method: 'incr', metric: ctx.operation + '.finally', extraTags: finallyTags })
+      this.stats({ method: 'incr', metric: ctx.operation + '.finally', value: 1, extraTags: finallyTags })
       this.stats({
         method: 'histogram',
         metric: ctx.operation + '.duration',

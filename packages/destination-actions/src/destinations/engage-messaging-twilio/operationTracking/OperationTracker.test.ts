@@ -308,25 +308,55 @@ describe('stats', () => {
   describe.each([
     ['async target method', true],
     ['sync target method', false]
-  ])('%s', (_testName, _isAsync) => {
+  ])('%s', (_testName, isAsync) => {
     describe.each([
       ['target method thows error', true],
-      ['sync target completes successfully', false]
+      ['target completes successfully', false]
     ])('%s', (_testName, _throwError) => {
-      //const myCustomError = new MyCustomError('My custom error')
-      //const testMethod = jest.fn(throwError ? () => { throw new MyCustomError('My custom error') } : () => 'success')
+      const testMethod = jest.fn(function () {
+        if (_throwError) throw new MyCustomError('My custom error')
+        return 'success'
+      })
 
-      // test('try and finally', async () => {
-      //   const TestClass = createTestClass({}, testMethod, _isAsync)
-      //   const testInstance = new TestClass()
-      //   await testInstance.testMethod()
-      // })
-      test.todo('failed try and finally')
-      test.todo('async success try and finally')
-      test.todo('async failed try and finally')
-      test.todo('success histogram')
-      test.todo('failed histogram')
-      test.todo('failed try and finally')
+      test('try and finally. trackargs undefined', async () => {
+        const TestClass = createTestClass(undefined, testMethod, isAsync)
+        const testInstance = new TestClass()
+        try {
+          await testInstance.testMethod()
+        } catch (e) {
+          // eslint-disable-next-line no-empty
+        }
+        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(3)
+        expect(testInstance.tracker.stats).toHaveBeenCalledWith({ metric: 'testMethod.try', method: 'incr', value: 1 })
+        const extraTags = [
+          _throwError ? 'success:false' : 'success:true',
+          ...(_throwError ? ['error_operation:testMethod', 'error_class:MyCustomError'] : [])
+        ]
+        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+          metric: 'testMethod.finally',
+          method: 'incr',
+          value: 1,
+          extraTags
+        })
+        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+          metric: 'testMethod.duration',
+          method: 'histogram',
+          value: expect.any(Number),
+          extraTags
+        })
+      })
+
+      test('try and finally. shouldStats:only on try', async () => {
+        const TestClass = createTestClass({ shouldStats: (op) => op.state == 'try' }, testMethod, isAsync)
+        const testInstance = new TestClass()
+        try {
+          await testInstance.testMethod()
+        } catch (e) {
+          // eslint-disable-next-line no-empty
+        }
+        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(1)
+        expect(testInstance.tracker.stats).toHaveBeenCalledWith({ metric: 'testMethod.try', method: 'incr', value: 1 })
+      })
     })
   })
 })
