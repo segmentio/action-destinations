@@ -110,6 +110,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.address.country'
       }
     },
+    gdprOptin: {
+      label: 'GDPR Optin',
+      type: 'boolean',
+      default: undefined,
+      description: 'GDPR optin.'
+    },
     emailOptin: {
       label: 'Email Optin',
       type: 'boolean',
