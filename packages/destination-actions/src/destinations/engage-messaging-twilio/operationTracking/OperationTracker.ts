@@ -36,6 +36,8 @@ export interface TrackArgs {
       }
     | void
     | undefined
+
+  [key: string]: any
 }
 
 /**

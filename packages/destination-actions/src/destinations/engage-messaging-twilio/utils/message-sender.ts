@@ -36,7 +36,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   readonly logger: Logger | undefined
 
   constructor(
-    readonly request: RequestFn, //TODO: implement request method with trackable capabilities
+    readonly requestRaw: RequestFn, //TODO: implement request method with trackable capabilities
     readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
   ) {
@@ -54,6 +54,11 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       `channel:${this.getChannelType()}`
     )
     this.logger = executeInput.logger
+  }
+
+  @trackable()
+  async request(url: string, options: RequestOptions): Promise<Response> {
+    return this.requestRaw(url, options)
   }
 
   abstract getChannelType(): string
