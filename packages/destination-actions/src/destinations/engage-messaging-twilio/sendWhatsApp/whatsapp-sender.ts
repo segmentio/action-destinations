@@ -15,14 +15,17 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
   }
 
   @trackable({
-    onError: () => ({
-      tags: ['reason:invalid_phone_e164'],
-      error: new IntegrationError(
-        'Phone number must be able to be formatted to e164 for whatsapp',
-        `INVALID_PHONE`,
-        400
-      )
-    })
+    onError: (e) =>
+      e instanceof IntegrationError
+        ? undefined
+        : {
+            tags: ['reason:invalid_phone_e164'],
+            error: new IntegrationError(
+              'Phone number must be able to be formatted to e164 for whatsapp',
+              `INVALID_PHONE`,
+              400
+            )
+          }
   })
   async getBody(phone: string) {
     let parsedPhone

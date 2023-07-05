@@ -22,18 +22,20 @@ export interface TrackArgs {
   shouldStats?: (ctx: OperationContext) => boolean | void
   /**
    * Callback for preparing Error object to be logged/rethrown.
-   * It is only called by the child operation that actually threw the error
-   * @param error original error thrown by the method
+   * @param error error thrown by the tracked method
    * @param ctx operation context
    * @returns (optionally) error substitute to be rethrown/logged and (optionally) tags to be added to the error
    */
   onError?: (
     error: unknown,
     ctx: OperationContext
-  ) => {
-    error?: unknown
-    tags?: string[]
-  }
+  ) =>
+    | {
+        error?: unknown
+        tags?: string[]
+      }
+    | void
+    | undefined
 }
 
 /**
@@ -200,19 +202,21 @@ export abstract class OperationTracker {
     const origError = ctx.error
     const trArgs = ctx.trackArgs
     let trackableError = origError as TrackableError
-    if (trackableError.trackableContext) return //if already has trackable context then return the error as is
 
     // try to get error wrapper from onError callback
     const errPrep = trArgs?.onError?.apply(this, [ctx.error, ctx])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (errPrep?.error) {
+    if (errPrep?.error && errPrep?.error != ctx.error) {
       trackableError = errPrep.error as TrackableError
       trackableError.underlyingError = origError
+      trackableError.trackableContext = ctx
+      //trackableError.tags = [...(origError.tags || [])] // if we want to inherit tags from original error
     }
     if (errPrep?.tags) {
-      trackableError.tags = [...(trackableError.tags || []), ...(errPrep.tags || [])]
+      trackableError.tags = [...(trackableError.tags || []), ...errPrep.tags]
     }
-    Object.defineProperty(trackableError, 'trackableContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
+    if (!trackableError.trackableContext)
+      Object.defineProperty(trackableError, 'trackableContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
     ctx.error = trackableError
   }
 
