@@ -31,9 +31,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@if': {
-          exists: { '@path': '$.properties.userId' },
-          then: { '@path': '$.properties.userId' },
-          else: { '@path': '$.userId' }
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
         }
       }
     },

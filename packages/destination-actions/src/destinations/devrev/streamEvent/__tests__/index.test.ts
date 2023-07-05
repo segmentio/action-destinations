@@ -19,9 +19,9 @@ describe('Devrev.streamEvent', () => {
       messageId: testMessageId,
       anonymousId: testAnonymousId,
       context: testContext,
+      userId: testUserId,
       properties: {
-        ...testEventPayload.properties,
-        userId: testUserId
+        ...testEventPayload.properties
       }
     })
 
@@ -47,10 +47,7 @@ describe('Devrev.streamEvent', () => {
             messageId: testMessageId,
             anonymousId: testAnonymousId,
             context: testContext,
-            properties: {
-              ...testEventPayload.properties,
-              userId: testUserId
-            }
+            properties: testEventPayload.properties
           }
         }
       ]
