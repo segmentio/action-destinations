@@ -1,6 +1,8 @@
 import { DestinationDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import updateContactProfileFields from './updateContactProfileFields'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Listrak',
   slug: 'actions-listrak',
@@ -36,21 +38,19 @@ const destination: DestinationDefinition<Settings> = {
         }
       })
 
-      try{
-        const json = await res.json();
-        if(!json.access_token)
-        {
+      try {
+        const json = await res.json()
+        if (!json.access_token) {
           throw new RetryableError(`Error while getting an access token`)
         }
-      }
-      catch
-      {
+      } catch {
         throw new RetryableError(`Error while getting an access token`)
-      }   
-       
+      }
     }
   },
-  actions: {}
+  actions: {
+    updateContactProfileFields
+  }
 }
 
 export default destination
