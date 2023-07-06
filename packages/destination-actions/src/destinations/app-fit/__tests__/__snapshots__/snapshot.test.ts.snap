@@ -24,11 +24,8 @@ Object {
   "eventSource": "segment",
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "payload": Object {
-    "deviceId": "m]^ldlwPRQruDQ&OXR1",
-    "deviceType": "m]^ldlwPRQruDQ&OXR1",
     "eventId": "m]^ldlwPRQruDQ&OXR1",
     "name": "m]^ldlwPRQruDQ&OXR1",
-    "osName": "m]^ldlwPRQruDQ&OXR1",
   },
 }
 `;

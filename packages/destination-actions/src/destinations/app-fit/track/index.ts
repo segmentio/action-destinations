@@ -53,7 +53,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device ID',
       description: 'The device ID of the user',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.device.id'
       }
@@ -62,7 +61,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device Type',
       description: 'The device type',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.device.type'
       }
@@ -71,7 +69,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'OS Name',
       description: 'The name of the operating system',
       type: 'string',
-      required: true,
       default: {
         '@path': '$.context.os.name'
       }

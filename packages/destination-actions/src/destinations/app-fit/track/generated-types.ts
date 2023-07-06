@@ -26,15 +26,15 @@ export interface Payload {
   /**
    * The device ID of the user
    */
-  deviceId: string
+  deviceId?: string
   /**
    * The device type
    */
-  deviceType: string
+  deviceType?: string
   /**
    * The name of the operating system
    */
-  osName: string
+  osName?: string
   /**
    * The event ID
    */
