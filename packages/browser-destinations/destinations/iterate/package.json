@@ -1,6 +1,6 @@
 {
   "name": "@segment/actions-iterate",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.69.0",
-    "@segment/browser-destination-runtime": "^0.0.0"
+    "@segment/actions-core": "^3.69.1",
+    "@segment/browser-destination-runtime": "^1.0.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
