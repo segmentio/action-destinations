@@ -36,10 +36,6 @@ const destination: DestinationDefinition<Settings> = {
         }
       })
 
-      if (res.status !== 200) {
-        throw new RetryableError(`Error while getting an access token`)
-      }  
-
       try{
         const json = await res.json();        
         if(!json.access_token)

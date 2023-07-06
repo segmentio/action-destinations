@@ -27,21 +27,28 @@ describe('Listrak', () => {
   const testCases: any[] = [ 
       {
         name: 'empty response body',
-        body: undefined
+        body: undefined,
+        status_code: 200
       },
       {
         name: 'no token returned',
         body: {
           access_token: ""
-        }
+        },
+        status_code: 200
       },
+      {
+        name: 'non 200 status code',
+        body: { message: "Unexpected error" },
+        status_code: 500
+      }
     ];
   testCases.forEach((element: any) => {
     it(`Should throw exception if ${element.name}`, async () => {
       nock('https://api.listrak.com')
         .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
         .matchHeader("Content-Type", "application/x-www-form-urlencoded")
-        .reply(200, element.body);
+        .reply(element.status_code, element.body);
 
         
       await expect(testDestination.testAuthentication({
