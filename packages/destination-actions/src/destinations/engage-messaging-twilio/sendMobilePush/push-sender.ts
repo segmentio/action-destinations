@@ -26,7 +26,7 @@ class PushApiError extends HTTPError {
 export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
   static readonly externalIdTypes = ['ios.push_token', 'android.push_token']
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
-  private retryableStatusCodes = [500, 429]
+  private retryableStatusCodes = [408, 423, 429, 500, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 598, 599]
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
 
   getChannelType(): string {
