@@ -7,20 +7,21 @@ const testDestination = createTestIntegration(Definition)
 describe('Listrak', () => {
   describe('testAuthentication', () => {
     it('should pass client id and secret to auth endpoint and verify access token received', async () => {
-
-      const scope = nock('https://api.listrak.com')
-        .post('/oauth2/token', 'client_id=client_id&client_secret=client_secret&grant_type=client_credentials'})
+      nock('https://api.listrak.com')
+        .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+        .matchHeader("Content-Type", "application/x-www-form-urlencoded")
         .reply(200, {
-          "access_token": "token",
+          "access_token": "token1",
           "token_type": "Bearer",
           "expires_in": 900
         });
 
-      await expect(testDestination.testAuthentication({
-        client_id: "client_id",
-        client_secret: "client_secret"
-      })).resolves.not.toThrowError();
-      
+      var accessToken = await testDestination.testAuthentication({
+        client_id: "clientId1",
+        client_secret: "clientSecret1"
+      });
+
+      expect(accessToken).toBe("token1");
     })
   })
 })

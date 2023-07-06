@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 const destination: DestinationDefinition<Settings> = {
@@ -22,8 +22,25 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request) => {
-      
+    testAuthentication: async (request, { settings }) => {
+      const res = await request(`https://api.listrak.com/oauth2/token`, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        }),
+        headers: {
+          Accept: 'text/plain',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      const body = await res.json()
+      || !body.access_token
+   
+      if (res.status !== 200) {
+        throw new RetryableError(`Error while getting an access token`)
+      }
     }
   },
   actions: {}
