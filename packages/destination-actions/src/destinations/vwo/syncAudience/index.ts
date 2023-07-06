@@ -19,7 +19,6 @@ const action: ActionDefinition<Settings, Payload> = {
     userId: {
       description: 'An unique identifier for the user',
       label: 'User ID',
-      required: true,
       type: 'string',
       default: {
         '@path': '$.userId'
@@ -28,7 +27,6 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId: {
       description: 'Anonymous ID for users',
       label: 'Anonymous ID',
-      required: true,
       type: 'string',
       default: {
         '@path': '$.anonymousId'
@@ -70,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=vwo_integration&a=${settings.vwoAccountId}`
+
     return request(endpoint, {
       method: 'POST',
       json: vwoPayload

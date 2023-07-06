@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * An unique identifier for the user
    */
-  userId: string
+  userId?: string
   /**
    * Anonymous ID for users
    */
-  anonymousId: string
+  anonymousId?: string
   /**
    * Segment's audience ID
    */
