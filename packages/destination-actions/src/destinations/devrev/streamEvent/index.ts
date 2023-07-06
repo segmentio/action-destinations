@@ -28,14 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'User ID, ideally mappable to external ref of a Rev User.',
       type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      required: false,
+      default: { '@path': '$.userId' }
     },
     email: {
       label: 'Email Address',

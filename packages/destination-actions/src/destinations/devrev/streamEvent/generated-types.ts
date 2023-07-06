@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * User ID, ideally mappable to external ref of a Rev User.
    */
-  userId: string
+  userId?: string
   /**
    * The email of the contact associated with this event.
    */
