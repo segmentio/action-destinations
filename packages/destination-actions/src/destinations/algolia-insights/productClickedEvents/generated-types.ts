@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Position of the click in the list of Algolia search results.
    */
-  position: number
+  position?: number
   /**
    * The ID associated with the user.
    */

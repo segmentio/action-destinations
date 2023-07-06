@@ -19,7 +19,7 @@ export type AlgoliaProductViewedEvent = EventCommon & {
 
 export type AlgoliaProductClickedEvent = EventCommon & {
   eventType: 'click'
-  positions: number[]
+  positions?: number[]
 }
 
 export type AlgoliaConversionEvent = EventCommon & {
