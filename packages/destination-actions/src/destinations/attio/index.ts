@@ -1,5 +1,6 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import identifyUser from './identifyUser'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attio',
@@ -21,9 +22,18 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {},
+  actions: {
+    identifyUser
+  },
 
-  presets: []
+  presets: [
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields)
+    }
+  ]
 }
 
 export default destination

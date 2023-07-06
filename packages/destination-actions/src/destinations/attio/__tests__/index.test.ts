@@ -7,13 +7,13 @@ const testDestination = createTestIntegration(Definition)
 
 describe('Attio', () => {
   describe(testDestination.testAuthentication, () => {
-    it('should be true if API responds with HTTP 200', async () => {
+    it('should not throw if API responds with HTTP 200', async () => {
       nock('https://api.attio.com').get('/v1/token').reply(200, {})
 
       await expect(testDestination.testAuthentication({})).resolves.not.toThrowError()
     })
 
-    it('should be true if API responds with HTTP 200', async () => {
+    it('should throw if API responds with HTTP 401', async () => {
       nock('https://api.attio.com').get('/v1/token').reply(401, {})
 
       await expect(testDestination.testAuthentication({})).rejects.toThrowError()
