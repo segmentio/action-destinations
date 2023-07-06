@@ -1,18 +1,41 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Listrak', () => {
   describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+    it('should pass client id and secret to auth endpoint and verify access token received', async () => {
 
-      // This should match your authentication.fields
-      const authData = {}
+      const scope = nock('https://api.listrak.com')
+        .post('/oauth2/token', 'client_id=client_id&client_secret=client_secret&grant_type=client_credentials'})
+        .reply(200, {
+          "access_token": "token",
+          "token_type": "Bearer",
+          "expires_in": 900
+        });
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication({
+        client_id: "client_id",
+        client_secret: "client_secret"
+      })).resolves.not.toThrowError();
+      
     })
   })
 })
+
+/*
+const profile = {
+  name: 'John',
+  age: 25
+};
+
+const scope = nock('https://mydomainname.local')
+  .post('/api/send-profile', profile)
+  .reply(200, {status:200});
+
+request.post('https://mydomainname.local/api/send-profile', {json: {name: 'John', age: 25}}).on('response', function(request) {
+  console.log(request.statusCode); // 200
+});
+*/

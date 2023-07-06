@@ -8,20 +8,24 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
+    fields: {
+      client_id: {
+        label: 'API Client ID',
+        description: 'Your Listrak API client ID',
+        type: 'string',
+        required: true
+      },
+      client_secret: {
+        label: 'API Client Secret',
+        description: 'Your Lisrak API client secret',
+        type: 'string',
+        required: true
+      }
+    },
     testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+      
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {}
 }
 
