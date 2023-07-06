@@ -35,12 +35,23 @@ const destination: DestinationDefinition<Settings> = {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       })
-      const body = await res.json()
-      || !body.access_token
-   
+
       if (res.status !== 200) {
         throw new RetryableError(`Error while getting an access token`)
+      }  
+
+      try{
+        const json = await res.json();        
+        if(!json.access_token)
+        {
+          throw new RetryableError(`Error while getting an access token`)
+        }
       }
+      catch
+      {
+        throw new RetryableError(`Error while getting an access token`)
+      }   
+       
     }
   },
   actions: {}

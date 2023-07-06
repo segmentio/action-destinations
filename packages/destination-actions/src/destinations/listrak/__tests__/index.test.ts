@@ -11,19 +11,46 @@ describe('Listrak', () => {
         .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
         .matchHeader("Content-Type", "application/x-www-form-urlencoded")
         .reply(200, {
-          "access_token": "token1",
+          "access_token": "token",
           "token_type": "Bearer",
           "expires_in": 900
         });
 
-      var accessToken = await testDestination.testAuthentication({
+        
+      await expect(testDestination.testAuthentication({
         client_id: "clientId1",
         client_secret: "clientSecret1"
-      });
-
-      expect(accessToken).toBe("token1");
+      })).resolves.not.toThrowError();
     })
   })
+
+  const testCases: any[] = [ 
+      {
+        name: 'empty response body',
+        body: undefined
+      },
+      {
+        name: 'no token returned',
+        body: {
+          access_token: ""
+        }
+      },
+    ];
+  testCases.forEach((element: any) => {
+    it(`Should throw exception if ${element.name}`, async () => {
+      nock('https://api.listrak.com')
+        .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+        .matchHeader("Content-Type", "application/x-www-form-urlencoded")
+        .reply(200, element.body);
+
+        
+      await expect(testDestination.testAuthentication({
+        client_id: "clientId1",
+        client_secret: "clientSecret1"
+      })).rejects.toThrowError();
+    })  
+  });
+
 })
 
 /*
