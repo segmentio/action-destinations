@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId: string
   /**
+   * Anonymous ID for users
+   */
+  anonymousId: string
+  /**
    * Segment's audience ID
    */
   audienceId: string

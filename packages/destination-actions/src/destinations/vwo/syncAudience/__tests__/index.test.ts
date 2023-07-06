@@ -31,7 +31,7 @@ describe('VWO.syncAudience', () => {
           name: 'vwo_integration',
           props: {
             action: 'audience_entered',
-            audience: 'test_audience',
+            audienceName: 'test_audience',
             audienceId: 'test_audience',
             identifier: 'test_user',
             accountId: 654331,
@@ -67,7 +67,7 @@ describe('VWO.syncAudience', () => {
           name: 'vwo_integration',
           props: {
             action: 'audience_exited',
-            audience: 'test_audience',
+            audienceName: 'test_audience',
             audienceId: 'test_audience',
             identifier: 'test_user',
             accountId: 654331,

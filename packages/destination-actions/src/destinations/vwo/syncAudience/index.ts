@@ -25,6 +25,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    anonymousId: {
+      description: 'Anonymous ID for users',
+      label: 'Anonymous ID',
+      required: true,
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     audienceId: {
       description: "Segment's audience ID",
       label: 'Audience ID',
@@ -51,9 +60,9 @@ const action: ActionDefinition<Settings, Payload> = {
           time,
           props: {
             action,
-            audience: payload.audienceId,
+            audienceName: payload.audienceId,
             audienceId: payload.audienceId,
-            identifier: payload.userId,
+            identifier: payload.userId || payload.anonymousId,
             accountId: settings.vwoAccountId,
             integration: 'segment'
           }
