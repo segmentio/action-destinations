@@ -7,8 +7,8 @@ const testDestination = createTestIntegration(Definition)
 describe('Listrak', () => {
   describe('testAuthentication', () => {
     it('should pass client id and secret to auth endpoint and verify access token received', async () => {
-      nock('https://api.listrak.com')
-        .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+      nock('https://auth.listrak.com')
+        .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
         .matchHeader("Content-Type", "application/x-www-form-urlencoded")
         .reply(200, {
           "access_token": "token",
@@ -45,8 +45,8 @@ describe('Listrak', () => {
     ];
   testCases.forEach((element: any) => {
     it(`Should throw exception if ${element.name}`, async () => {
-      nock('https://api.listrak.com')
-        .post('/oauth2/token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+      nock('https://auth.listrak.com')
+        .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
         .matchHeader("Content-Type", "application/x-www-form-urlencoded")
         .reply(element.status_code, element.body);
 

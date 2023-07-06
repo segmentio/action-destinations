@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const res = await request(`https://api.listrak.com/oauth2/token`, {
+      const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
         method: 'POST',
         body: new URLSearchParams({
           client_id: settings.client_id,
@@ -37,7 +37,7 @@ const destination: DestinationDefinition<Settings> = {
       })
 
       try{
-        const json = await res.json();        
+        const json = await res.json();
         if(!json.access_token)
         {
           throw new RetryableError(`Error while getting an access token`)
