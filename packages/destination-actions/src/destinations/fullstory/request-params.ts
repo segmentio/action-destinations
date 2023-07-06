@@ -26,7 +26,8 @@ const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestP
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${settings.apiKey}`
+        Authorization: `Basic ${settings.apiKey}`,
+        'Integration-Source': segmentIntegrationSource
       }
     }
   }
@@ -41,7 +42,7 @@ export const listOperationsRequestParams = (settings: Settings): RequestParams =
   defaultRequestParams(settings, `operations/v1?limit=1`)
 
 /**
- * Returns {@link RequestParams} for the custom events HTTP API endpoint.
+ * Returns {@link RequestParams} for the V1 custom events HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  * @param requestValues Values to send with the request.
@@ -96,7 +97,7 @@ export const customEventRequestParams = (
 }
 
 /**
- * Returns {@link RequestParams} for the set user properties HTTP API endpoint.
+ * Returns {@link RequestParams} for the V1 set user properties HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  * @param userId The id of the user to update.
@@ -136,6 +137,26 @@ export const deleteUserRequestParams = (settings: Settings, userId: string): Req
     options: {
       ...defaultParams.options,
       method: 'delete'
+    }
+  }
+}
+
+/**
+ * Returns {@link RequestParams} for the V2 Create User HTTP API endpoint.
+ *
+ * @param settings Settings configured for the cloud mode destination.
+ * @param requestBody The request body containing user properties to set.
+ */
+
+export const createUserRequestParams = (settings: Settings, requestBody: Object): RequestParams => {
+  const defaultParams = defaultRequestParams(settings, `v2beta/users?${integrationSourceQueryParam}`)
+
+  return {
+    ...defaultParams,
+    options: {
+      ...defaultParams.options,
+      method: 'post',
+      json: requestBody
     }
   }
 }

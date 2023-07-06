@@ -2,7 +2,8 @@ import {
   listOperationsRequestParams,
   customEventRequestParams,
   setUserPropertiesRequestParams,
-  deleteUserRequestParams
+  deleteUserRequestParams,
+  createUserRequestParams
 } from '../request-params'
 import {
   anonymousId,
@@ -12,6 +13,7 @@ import {
   urlEncodedUserId,
   baseUrl,
   settings,
+  integrationSource,
   integrationSourceQueryParam
 } from './fullstory.test'
 
@@ -22,6 +24,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('get')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/operations/v1?limit=1`)
     })
   })
@@ -44,6 +47,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
@@ -66,6 +70,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
@@ -86,6 +91,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customevent?${integrationSourceQueryParam}`)
       expect(options.json).toEqual({
         event: {
@@ -109,6 +115,7 @@ describe('requestParams', () => {
       expect(options.method).toBe('post')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}/customvars?${integrationSourceQueryParam}`)
       expect(options.json).toEqual(requestBody)
     })
@@ -120,7 +127,28 @@ describe('requestParams', () => {
       expect(options.method).toBe('delete')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
       expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}`)
+    })
+  })
+
+  describe('createUserV2', () => {
+    it('returns expected request params', () => {
+      const requestBody = {
+        userId,
+        anonymousId,
+        traits: {
+          displayName,
+          email
+        }
+      }
+      const { url, options } = createUserRequestParams(settings, requestBody)
+      expect(options.method).toBe('post')
+      expect(options.headers!['Content-Type']).toBe('application/json')
+      expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
+      expect(options.headers!['Integration-Source']).toBe(integrationSource)
+      expect(url).toBe(`${baseUrl}/v2beta/users?${integrationSourceQueryParam}`)
+      expect(options.json).toEqual(requestBody)
     })
   })
 })

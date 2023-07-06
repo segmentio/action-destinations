@@ -10,7 +10,8 @@ export const email = 'fake+email@example.com'
 export const displayName = 'fake-display-name'
 export const baseUrl = 'https://api.fullstory.com'
 export const settings = { apiKey }
-export const integrationSourceQueryParam = `integration=segment`
+export const integrationSource = 'segment'
+export const integrationSourceQueryParam = `integration=${integrationSource}`
 
 const testDestination = createTestIntegration(Definition)
 
@@ -164,6 +165,47 @@ describe('FullStory', () => {
         await expect(testDestination.onDelete!({ type: 'delete', userId: falsyUserId }, settings)).rejects.toThrowError(
           new PayloadValidationError('User Id is required for user deletion.')
         )
+      })
+    })
+  })
+
+  describe('identifyUserV2', () => {
+    it('makes expected request with default mappings', async () => {
+      nock(baseUrl).post(`/v2beta/users?${integrationSourceQueryParam}`).reply(200)
+      const event = createTestEvent({
+        type: 'identify',
+        userId,
+        anonymousId,
+        traits: {
+          email,
+          name: displayName,
+          'originally-hyphenated': 'some string',
+          'originally spaced': true,
+          'originally.dotted': 1.23,
+          typeSuffixed_bool: true
+        }
+      })
+
+      const [response] = await testDestination.testAction('identifyUserV2', {
+        settings,
+        event,
+        useDefaultMappings: true
+      })
+
+      expect(response.status).toBe(200)
+      expect(JSON.parse(response.options.body as string)).toEqual({
+        uid: userId,
+        email,
+        display_name: displayName,
+        properties: {
+          email,
+          name: displayName,
+          segmentAnonymousId: anonymousId,
+          originallyhyphenated: 'some string',
+          originallyspaced: true,
+          originallydotted: 1.23,
+          typeSuffixed_bool: true
+        }
       })
     })
   })
