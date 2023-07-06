@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
           grant_type: 'client_credentials'
         }),
         headers: {
-          Accept: 'text/plain',
+          Accept: 'text/plain', // TODO: remove this header
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       })
