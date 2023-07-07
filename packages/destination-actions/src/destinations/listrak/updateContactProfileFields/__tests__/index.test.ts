@@ -4,14 +4,14 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Listrak.updateContactProfileFields', () => {
-  afterEach(() => {
-    if (!nock.isDone()) {
-      throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
-    }
-    nock.cleanAll()
-  })
+const verifyNocks = () => {
+  if (!nock.isDone()) {
+    throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
+  }
+  nock.cleanAll()
+}
 
+describe('Listrak.updateContactProfileFields', () => {
   it('No Auth Token updates contact profile fields', async () => {
     nock('https://auth.listrak.com')
       .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
@@ -60,5 +60,7 @@ describe('Listrak.updateContactProfileFields', () => {
         mapping: event.properties
       })
     ).resolves.not.toThrowError()
+
+    verifyNocks()
   })
 })
