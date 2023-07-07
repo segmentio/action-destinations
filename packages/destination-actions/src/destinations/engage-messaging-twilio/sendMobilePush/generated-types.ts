@@ -66,7 +66,7 @@ export interface Payload {
        */
       text: string
       /**
-       * The action to perform when this button is tapped
+       * The action to perform when this button is tapped. open_app, open_url, deep_link, dismiss, or a custom string
        */
       onTap: string
       /**

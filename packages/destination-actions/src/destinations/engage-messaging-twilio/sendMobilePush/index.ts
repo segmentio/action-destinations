@@ -51,9 +51,9 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         },
-        deepLink: {
+        link: {
           label: 'Notification title',
-          description: 'Sets the deep link',
+          description: 'Deep link or URL to navigate to when this button is tapped',
           type: 'string',
           required: false
         },
@@ -128,27 +128,10 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             onTap: {
               label: 'Tap action',
-              description: 'The action to perform when this button is tapped',
+              description:
+                'The action to perform when this button is tapped. open_app, open_url, deep_link, dismiss, or a custom string ',
               type: 'string',
-              required: true,
-              choices: [
-                {
-                  label: 'Open App',
-                  value: 'open_app'
-                },
-                {
-                  label: 'Open URL',
-                  value: 'open_url'
-                },
-                {
-                  label: 'Deep Link',
-                  value: 'deep_link'
-                },
-                {
-                  label: 'Dismiss',
-                  value: 'dismiss'
-                }
-              ]
+              required: true
             },
             link: {
               label: 'Link',
