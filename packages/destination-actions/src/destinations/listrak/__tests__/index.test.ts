@@ -5,7 +5,7 @@ import Definition from '../index'
 const testDestination = createTestIntegration(Definition)
 
 describe('testAuthentication', () => {
-  it('should pass client id and secret to auth endpoint and verify access token received', async () => {
+  it('Should pass client id and secret to auth endpoint and verify access token received', async () => {
     nock('https://auth.listrak.com')
       .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
       .matchHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -21,38 +21,38 @@ describe('testAuthentication', () => {
       client_secret: "clientSecret1"
     })).resolves.not.toThrowError();
   })
-})
 
-const testCases: any[] = [ 
-    {
-      name: 'empty response body',
-      body: undefined,
-      status_code: 200
-    },
-    {
-      name: 'no token returned',
-      body: {
-        access_token: ""
+  const testCases: any[] = [ 
+      {
+        name: 'empty response body',
+        body: undefined,
+        status_code: 200
       },
-      status_code: 200
-    },
-    {
-      name: 'non 200 status code',
-      body: { message: "Unexpected error" },
-      status_code: 500
-    }
-  ];
-testCases.forEach((element: any) => {
-  it(`Should throw exception if ${element.name}`, async () => {
-    nock('https://auth.listrak.com')
-      .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
-      .matchHeader("Content-Type", "application/x-www-form-urlencoded")
-      .reply(element.status_code, element.body);
+      {
+        name: 'no token returned',
+        body: {
+          access_token: ""
+        },
+        status_code: 200
+      },
+      {
+        name: 'non 200 status code',
+        body: { message: "Unexpected error" },
+        status_code: 500
+      }
+    ];
+  testCases.forEach((element: any) => {
+    it(`Should throw exception if ${element.name}`, async () => {
+      nock('https://auth.listrak.com')
+        .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+        .matchHeader("Content-Type", "application/x-www-form-urlencoded")
+        .reply(element.status_code, element.body);
 
-      
-    await expect(testDestination.testAuthentication({
-      client_id: "clientId1",
-      client_secret: "clientSecret1"
-    })).rejects.toThrowError();
-  })  
-});
+        
+      await expect(testDestination.testAuthentication({
+        client_id: "clientId1",
+        client_secret: "clientSecret1"
+      })).rejects.toThrowError();
+    })  
+  });
+})

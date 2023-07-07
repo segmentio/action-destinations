@@ -10,7 +10,7 @@ const verifyNocks = () => {
   }
 }
 
-describe('Listrak.updateContactProfileFields', () => {
+describe('updateContactProfileFields', () => {
   beforeEach(() => {
     nock.cleanAll()
   })
