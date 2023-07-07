@@ -29,18 +29,27 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       required: true,
+      defaultObjectUI: 'keyvalue:only',
+      default: {
+        segmentationFieldId: '0', 
+        value: '0'
+      },
       properties: {
-        segmentationFieldId: {
-          label: 'Segmentation Field ID',
-          description: 'Identifier of the profile field.',
-          type: 'number',
-          required: true
+        segmentationFieldId: { 
+          label: 'Segmentation Field ID', 
+          description: 'Identifier of the profile field.', 
+          type: 'number', 
+          required: true, 
+          default: 0, 
+          placeholder: '0' 
         },
-        value: {
-          label: 'Value',
+        value: { 
+          label: 'Value', 
           description: 'Value of the profile field.',
-          type: 'string',
-          required: true
+          type: 'string', 
+          required: true, 
+          default: '0', 
+          placeholder: '0'
         }
       }
     }
