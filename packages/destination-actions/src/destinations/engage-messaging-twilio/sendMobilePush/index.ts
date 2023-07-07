@@ -47,13 +47,14 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         tapAction: {
           label: 'Notification open action',
-          description: 'Sets the notification click action/category',
+          description:
+            'Sets the notification click action/category: open_app, open_url, deep_link, dismiss, or a custom string',
           type: 'string',
           required: false
         },
         link: {
-          label: 'Notification title',
-          description: 'Deep link or URL to navigate to when this button is tapped',
+          label: 'Notification Link',
+          description: 'Deep link or URL to navigate to when the notification is tapped',
           type: 'string',
           required: false
         },
@@ -129,7 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
             onTap: {
               label: 'Tap action',
               description:
-                'The action to perform when this button is tapped. open_app, open_url, deep_link, dismiss, or a custom string ',
+                'The action to perform when this button is tapped: open_app, open_url, deep_link, dismiss, or a custom string',
               type: 'string',
               required: true
             },
