@@ -28,13 +28,13 @@ describe('Listrak.updateContactProfileFields', () => {
           emailAddress: 'test.email@test.com',
           segmentationFieldValues: [
             {
-              segmentationFieldId: null,
-              value: null
+              segmentationFieldId: 456,
+              value: 'on'
             }
           ]
         }
       ])
-      .matchHeader('Content-Type', 'application/json')
+      .matchHeader('content-type', 'application/json')
       .matchHeader('Authorization', `Bearer token`)
       .reply(201, {
         status: 201,
@@ -47,8 +47,10 @@ describe('Listrak.updateContactProfileFields', () => {
     }
 
     const event = createTestEvent({
-      traits: {
-        email: 'test.email@test.com'
+      context: {
+        traits: {
+          email: 'test.email@test.com'
+        }
       }
     })
 
@@ -57,7 +59,15 @@ describe('Listrak.updateContactProfileFields', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: event.properties
+        mapping: {
+          listId: 123,
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
       })
     ).resolves.not.toThrowError()
 

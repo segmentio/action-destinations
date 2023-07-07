@@ -58,16 +58,18 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     const json = await res.json()
-    const accessToken = json.access_token;
+    const accessToken = json.access_token
 
     await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
       method: 'POST',
-      json: [{
-        emailAddress: data.payload.emailAddress,
-        segmentationFieldValues: data.payload.segmentationFieldValues
-      }],
+      json: [
+        {
+          emailAddress: data.payload.emailAddress,
+          segmentationFieldValues: data.payload.segmentationFieldValues
+        }
+      ],
       headers: {
-        'Authentication': `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
   }
