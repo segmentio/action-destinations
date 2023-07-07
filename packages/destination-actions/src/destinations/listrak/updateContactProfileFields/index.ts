@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: [
         {
           emailAddress: data.payload.emailAddress,
-          segmentationFieldValues: mapSegmentationFieldValues(filterInvalidProfileFields(data))
+          segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
         }
       ],
       headers: {
@@ -54,15 +54,11 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 export default action
 
-function mapSegmentationFieldValues(profileFields: any[]) {
-  return profileFields.map((x) => {
+function createValidSegmentationFields(profileFieldValues:  {[k: string]: unknown}) {
+  return Object.keys(profileFieldValues).filter((x) => parseInt(x)).map(x => {
     return {
       segmentationFieldId: parseInt(x),
-      value: profileFields[x]
+      value: profileFieldValues[x]
     }
   })
-}
-
-function filterInvalidProfileFields(profileFields: ExecuteInput<Settings, Payload>) {
-  return Object.keys(profileFields.payload.profileFieldValues).filter((x) => parseInt(x))
 }

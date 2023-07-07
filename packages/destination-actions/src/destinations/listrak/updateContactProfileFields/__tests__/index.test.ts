@@ -8,10 +8,13 @@ const verifyNocks = () => {
   if (!nock.isDone()) {
     throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`)
   }
-  nock.cleanAll()
 }
 
 describe('Listrak.updateContactProfileFields', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+  })
+  
   it('No Auth Token updates contact profile fields', async () => {
     nock('https://auth.listrak.com')
       .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
@@ -35,7 +38,7 @@ describe('Listrak.updateContactProfileFields', () => {
         }
       ])
       .matchHeader('content-type', 'application/json')
-      .matchHeader('Authorization', `Bearer token`)
+      .matchHeader('authorization', `Bearer token`)
       .reply(201, {
         status: 201,
         resourceId: ''
@@ -62,7 +65,7 @@ describe('Listrak.updateContactProfileFields', () => {
         mapping: {
           listId: 123,
           profileFieldValues: {
-            456: 'on'
+            '456': 'on'
           }
         }
       })
