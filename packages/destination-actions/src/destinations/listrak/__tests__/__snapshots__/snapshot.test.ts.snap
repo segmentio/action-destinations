@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - all fields 1`] = `"client_id=QJBkM%5EJG&client_secret=QJBkM%5EJG&grant_type=client_credentials"`;
+
+exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - required fields 1`] = `"client_id=QJBkM%5EJG&client_secret=QJBkM%5EJG&grant_type=client_credentials"`;
+
+exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "accept": Array [
+      "text/plain",
+    ],
+    "content-type": Array [
+      "application/x-www-form-urlencoded",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

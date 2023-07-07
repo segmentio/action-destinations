@@ -14,7 +14,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200, {
+      access_token: 'token'
+    })
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
@@ -47,7 +49,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200, {
+      access_token: 'token'
+    })
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
