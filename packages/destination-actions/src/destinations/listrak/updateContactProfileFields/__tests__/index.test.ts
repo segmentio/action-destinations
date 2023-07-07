@@ -70,4 +70,82 @@ describe('Listrak.updateContactProfileFields', () => {
 
     verifyNocks()
   })
+
+  const testCases: any[] = [
+    {
+      name: 'undefined',
+      userInputProfileFieldId: undefined
+    },
+    {
+      name: 'null',
+      userInputProfileFieldId: null
+    },
+    {
+      name: 'non int string',
+      userInputProfileFieldId: 'test'
+    },
+    {
+      name: '0 string',
+      userInputProfileFieldId: '0'
+    },
+    {
+      name: 'empty string',
+      userInputProfileFieldId: ''
+    }
+  ]
+  testCases.forEach((testData: any) => {
+    it(`${testData.name} for Segmentation Field ID, data gets filtered before API call`, async () => {
+      nock('https://auth.listrak.com')
+        .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+        .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
+        .reply(200, {
+          access_token: 'token',
+          token_type: 'Bearer',
+          expires_in: 900
+        })
+
+      nock('https://api.listrak.com/email/v1')
+        .post('/List/123/Contact/SegmentationField', [
+          {
+            emailAddress: 'test.email@test.com',
+            segmentationFieldValues: []
+          }
+        ])
+        .matchHeader('content-type', 'application/json')
+        .matchHeader('Authorization', `Bearer token`)
+        .reply(201, {
+          status: 201,
+          resourceId: ''
+        })
+
+      const settings = {
+        client_id: 'clientId1',
+        client_secret: 'clientSecret1'
+      }
+
+      const event = createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email@test.com'
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('updateContactProfileFields', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: {
+            listId: 123,
+            profileFieldValues: {
+              [testData.userInputProfileFieldId]: 'on'
+            }
+          }
+        })
+      ).resolves.not.toThrowError()
+
+      verifyNocks()
+    })
+  })
 })

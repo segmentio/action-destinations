@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, ExecuteInput } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getAuthToken } from '../listrak'
@@ -25,7 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     profileFieldValues: {
       label: 'Profile Field Values',
-      description: 'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.',
+      description:
+        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only',
@@ -42,12 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: [
         {
           emailAddress: data.payload.emailAddress,
-          segmentationFieldValues: Object.keys(data.payload.profileFieldValues).filter(x => parseInt(x)).map(x => {
-            return {
-              segmentationFieldId: parseInt(x),
-              value: data.payload.profileFieldValues[x]
-            }
-          })
+          segmentationFieldValues: mapSegmentationFieldValues(filterInvalidProfileFields(data))
         }
       ],
       headers: {
@@ -56,5 +52,17 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   }
 }
-
 export default action
+
+function mapSegmentationFieldValues(profileFields: any[]) {
+  return profileFields.map((x) => {
+    return {
+      segmentationFieldId: parseInt(x),
+      value: profileFields[x]
+    }
+  })
+}
+
+function filterInvalidProfileFields(profileFields: ExecuteInput<Settings, Payload>) {
+  return Object.keys(profileFields.payload.profileFieldValues).filter((x) => parseInt(x))
+}
