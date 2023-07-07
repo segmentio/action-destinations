@@ -10,16 +10,9 @@ export interface Payload {
    */
   emailAddress: string
   /**
-   * Profile field values associated with the contact.
+   * Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.
    */
-  segmentationFieldValues: {
-    /**
-     * Identifier of the profile field.
-     */
-    segmentationFieldId: number
-    /**
-     * Value of the profile field.
-     */
-    value: string
-  }[]
+  profileFieldValues: {
+    [k: string]: unknown
+  }
 }

@@ -61,12 +61,9 @@ describe('Listrak.updateContactProfileFields', () => {
         useDefaultMappings: true,
         mapping: {
           listId: 123,
-          segmentationFieldValues: [
-            {
-              segmentationFieldId: 456,
-              value: 'on'
-            }
-          ]
+          profileFieldValues: {
+            456: 'on'
+          }
         }
       })
     ).resolves.not.toThrowError()

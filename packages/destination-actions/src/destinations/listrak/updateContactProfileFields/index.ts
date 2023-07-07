@@ -23,34 +23,14 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       required: true
     },
-    segmentationFieldValues: {
-      label: 'Segmentation Field Values',
-      description: 'Profile field values associated with the contact.',
+    profileFieldValues: {
+      label: 'Profile Field Values',
+      description: 'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.',
       type: 'object',
-      multiple: true,
       required: true,
       defaultObjectUI: 'keyvalue:only',
       default: {
-        segmentationFieldId: '0', 
-        value: '0'
-      },
-      properties: {
-        segmentationFieldId: { 
-          label: 'Segmentation Field ID', 
-          description: 'Identifier of the profile field.', 
-          type: 'number', 
-          required: true, 
-          default: 0, 
-          placeholder: '0' 
-        },
-        value: { 
-          label: 'Value', 
-          description: 'Value of the profile field.',
-          type: 'string', 
-          required: true, 
-          default: '0', 
-          placeholder: '0'
-        }
+        123: 'on'
       }
     }
   },
@@ -62,7 +42,12 @@ const action: ActionDefinition<Settings, Payload> = {
       json: [
         {
           emailAddress: data.payload.emailAddress,
-          segmentationFieldValues: data.payload.segmentationFieldValues
+          segmentationFieldValues: Object.keys(data.payload.profileFieldValues).filter(x => parseInt(x)).map(x => {
+            return {
+              segmentationFieldId: parseInt(x),
+              value: data.payload.profileFieldValues[x]
+            }
+          })
         }
       ],
       headers: {
