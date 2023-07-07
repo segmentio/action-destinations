@@ -97,7 +97,10 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
     if (payload.send_email === true) {
       let email_id = {}
       if (payload.email) {
-        payload.email = payload.email.replace(/\+.*@/, '@').replace(/\./g, '').toLowerCase()
+        payload.email = payload.email
+          .replace(/\+.*@/, '@')
+          .replace(/\.(?=.*@)/g, '')
+          .toLowerCase()
         email_id = {
           id: createHash('sha256').update(payload.email).digest('hex'),
           audience_ids: [payload.audience_id]
