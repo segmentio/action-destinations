@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { getAuthToken } from '../listrak'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Contact Profile Fields',
@@ -45,20 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
-      method: 'POST',
-      body: new URLSearchParams({
-        client_id: data.settings.client_id,
-        client_secret: data.settings.client_secret,
-        grant_type: 'client_credentials'
-      }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
-
-    const json = await res.json()
-    const accessToken = json.access_token
+    const accessToken = await getAuthToken(request, data.settings)
 
     await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
       method: 'POST',

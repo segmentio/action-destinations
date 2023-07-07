@@ -1,7 +1,7 @@
 import { RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const testAuthentication: Promise<string> = async (request: RequestClient, settings: Settings) => {
+export const getAuthToken = async (request: RequestClient, settings: Settings): Promise<string> => {
   const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
     method: 'POST',
     body: new URLSearchParams({
