@@ -1,6 +1,5 @@
 import { DestinationDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import updateContactProfileFields from './updateContactProfileFields'
 
 const destination: DestinationDefinition<Settings> = {
