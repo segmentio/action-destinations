@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 100000
+      default: 150000
     }
   },
   perform: async (request, { settings, payload }) => {
