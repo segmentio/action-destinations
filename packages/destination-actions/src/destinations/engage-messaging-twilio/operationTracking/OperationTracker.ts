@@ -11,13 +11,13 @@ export interface TrackArgs {
    */
   operation?: string
   /**
-   * should the method execution be logged at current ctx.state (try/catch/finally)?
-   * By default - true
+   * should the method execution be logged at current ctx.state (try/finally)?
+   * False by default and true for Finally state
    */
   shouldLog?: (ctx: OperationContext) => boolean | void
   /**
    * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
-   * By default - true
+   * False by default and true for Finally state
    */
   shouldStats?: (ctx: OperationContext) => boolean | void
   /**
@@ -178,18 +178,38 @@ export abstract class OperationTracker {
   }
 
   /**
+   * Defines if stats should happen for operation state by default when it's not explicitly specified in TrackArgs.
+   * By default implementation it only returns true if operation is in `finally` state
+   * @param ctx operation context
+   * @returns
+   */
+  protected shouldStatsDefault(ctx: OperationContext): boolean {
+    return ctx.state == 'finally'
+  }
+
+  /**
+   * Defines if logging should happen for operation state by default when it's not explicitly specified in TrackArgs.
+   * By default implementation it returns true (log on each state of the operation)
+   * @param _ctx operation context
+   * @returns
+   */
+  protected shouldLogDefault(_ctx: OperationContext): boolean {
+    return true
+  }
+
+  /**
    * Invoked before running the tracked method
    * @param ctx operation context
    */
   protected onOperationTry(ctx: OperationContext): void {
     this._currentOperation = ctx
     ctx.startTime = Date.now()
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
+    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
       const fullLogMessage = this.extractLogMessages(ctx)?.join('. ')
       this.logInfo(fullLogMessage)
     }
-    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
+    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : this.shouldStatsDefault(ctx)
     if (shouldStats !== false) {
       this.stats({ method: 'incr', metric: ctx.operation + '.try', value: 1 })
     }
@@ -242,14 +262,14 @@ export abstract class OperationTracker {
       }
     }
 
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : true
+    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
       const fullLogMessage = (ctx.logs?.filter((t) => t) || []).join('. ')
       if (ctx.error) this.logError(fullLogMessage, ctx.error)
       else this.logInfo(fullLogMessage)
     }
 
-    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : true
+    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : this.shouldStatsDefault(ctx)
     if (shouldStats !== false) {
       const finallyTags = ctx.tags?.filter((t) => t) || []
 
@@ -280,7 +300,7 @@ export abstract class OperationTracker {
    */
   protected extractTags(ctx: OperationContext): string[] {
     const res: string[] = []
-    res.push(`success:${ctx.error ? 'false' : 'true'}`)
+    res.push(`error:${ctx.error ? 'true' : 'false'}`)
     if (ctx.error) {
       const error = ctx.error as TrackableError
       res.push(...(this.extractTagsFromError(error, ctx) || []))

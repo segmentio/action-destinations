@@ -326,10 +326,10 @@ describe('stats', () => {
         } catch (e) {
           // eslint-disable-next-line no-empty
         }
-        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(3)
-        expect(testInstance.tracker.stats).toHaveBeenCalledWith({ metric: 'testMethod.try', method: 'incr', value: 1 })
+        // by default we only produce stats on finally state, and two metrics - finally and
+        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(2)
         const extraTags = [
-          _throwError ? 'success:false' : 'success:true',
+          _throwError ? 'error:true' : 'error:false',
           ...(_throwError ? ['error_operation:testMethod', 'error_class:MyCustomError'] : [])
         ]
         expect(testInstance.tracker.stats).toHaveBeenCalledWith({
