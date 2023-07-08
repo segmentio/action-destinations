@@ -2,6 +2,13 @@ interface WrapContext {
   [key: string]: unknown
 }
 
+/**
+ * Wraps parameterless function execution in try/catch/finally allowing to define callback to be called in all those sections and return the result of the original function execution.
+ * The value of this wrapper is the support of both types of original methods - sync and async
+ * @param fn original function to wrap (parameterless)
+ * @param args configuration of wrapped execution including all the callbacks
+ * @returns result of execution of original function
+ */
 export function wrapPromisable<T>(
   fn: () => T,
   args: {
@@ -21,10 +28,10 @@ export function wrapPromisable<T>(
     if (isPromise<Awaited<T>>(res))
       return (async () => {
         try {
-          const unpromiseRes = await res
-          finallyRes = { result: unpromiseRes }
-          args.onSuccess?.(unpromiseRes, ctx)
-          return unpromiseRes
+          const resolvedResult = await res
+          finallyRes = { result: resolvedResult }
+          args.onSuccess?.(resolvedResult, ctx)
+          return resolvedResult
         } catch (error) {
           // eslint-disable-next-line no-ex-assign
           if (args.onPrepareError) error = args.onPrepareError(error, ctx) || error
@@ -32,6 +39,7 @@ export function wrapPromisable<T>(
           if (!args.onCatch) throw error
           return args.onCatch(error, ctx)
         } finally {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           args.onFinally?.(finallyRes!, ctx)
         }
       })() as any as T // eslint-disable-line @typescript-eslint/no-explicit-any -- to make the type checker happy
