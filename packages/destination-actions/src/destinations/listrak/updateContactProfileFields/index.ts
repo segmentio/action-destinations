@@ -1,7 +1,15 @@
-import type { ActionDefinition, ExecuteInput } from '@segment/actions-core'
+import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getAuthToken } from '../listrak'
+
+interface List {
+  listId: number,
+  listName: string
+}
+interface ListsResponse {
+  data: List[]
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Contact Profile Fields',
@@ -10,7 +18,8 @@ const action: ActionDefinition<Settings, Payload> = {
     listId: {
       label: 'List ID',
       description: 'Identifier used to locate the list.',
-      type: 'number',
+      type: 'string',
+      dynamic: true,
       required: true
     },
     emailAddress: {
@@ -32,6 +41,36 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only',
       default: {
         123: 'on'
+      }
+    }
+  },
+  dynamicFields: {
+    listId: async (request, data): Promise<DynamicFieldResponse> => {
+      try {
+        const accessToken = await getAuthToken(request, data.settings)
+
+        const response: ListsResponse = await request('https://api.listrak.com/email/v1/List', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+
+        const choices = response.data.map((list) => {
+          return { value: list.listId.toString(), label: list.listName }
+        })
+        return {
+          choices
+        }
+      } catch (err) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (err as APIError).message ?? 'Unknown error',
+            code: (err as APIError).status + '' ?? 'Unknown error'
+          }
+        }
       }
     }
   },

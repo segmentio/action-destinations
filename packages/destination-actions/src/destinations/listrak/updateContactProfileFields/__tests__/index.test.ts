@@ -151,4 +151,43 @@ describe('updateContactProfileFields', () => {
       verifyNocks()
     })
   })
+
+  it('List ID dynamic field retrieves lists', async () => {
+    nock('https://auth.listrak.com')
+      .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
+      .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
+      .reply(200, {
+        access_token: 'token',
+        token_type: 'Bearer',
+        expires_in: 900
+      })
+
+    nock('https://api.listrak.com/email/v1')
+      .get('/List')
+      .matchHeader('authorization', `Bearer token`)
+      .reply(201, {
+        data: [{
+          listId: 123,
+          listName: 'listName123'
+        },
+        {
+          listId: 456,
+          listName: 'listName456'
+        }]
+      })
+
+    const settings = {
+      client_id: 'clientId1',
+      client_secret: 'clientSecret1'
+    }
+
+    await expect(
+      testDestination.testDynamicField('updateContactProfileFields', 'listId', {
+        settings,
+        payload: {}
+      })
+    ).resolves.not.toThrowError()
+
+    verifyNocks()
+  })
 })
