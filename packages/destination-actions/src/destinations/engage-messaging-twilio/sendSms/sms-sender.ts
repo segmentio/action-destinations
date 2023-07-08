@@ -2,12 +2,12 @@
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessage } from '../utils/phone-message'
-import { trackable } from '../utils/message-sender'
+import { track } from '../utils/message-sender'
 
 export class SmsMessageSender extends PhoneMessage<Payload> {
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
 
-  @trackable()
+  @track()
   async getBody(phone: string): Promise<URLSearchParams> {
     if (!this.payload.body && !this.payload.contentSid) {
       throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
@@ -70,7 +70,7 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
     return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 
-  @trackable({
+  @track({
     onError: (e) => ({
       error:
         e instanceof IntegrationError

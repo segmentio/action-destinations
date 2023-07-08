@@ -2,7 +2,7 @@
 import { wrapPromisable } from './wrapPromisable'
 
 /**
- * Configuration used by trackable decorator defining how the method execution should be tracked
+ * Configuration used by track decorator defining how the method execution should be tracked
  */
 export interface TrackArgs {
   /**
@@ -46,11 +46,11 @@ export interface TrackArgs {
  * @returns decorator factory, which can be used to track method execution
  * @example
  * ```ts
- *    const trackable = createTrackableDecoratorFactory<MyClass>((instance) => instance.tracker)
+ *    const track = createTrackDecoratorFactory<MyClass>((instance) => instance.tracker)
  *    class MyClass {
  *       tracker = new MyOperationTracker()
  *       // remove _ prefix in the line below. It is used to escape @ in the jsdoc
- *       _@trackable({ operation: 'myMethod' })
+ *       _@track({ operation: 'myMethod' })
  *       myMethod(p1, p2) {
  *          //... method body
  *          return result
@@ -58,18 +58,17 @@ export interface TrackArgs {
  *    }
  * ```
  */
-export function createTrackableDecoratorFactory<TClass>(
+export function createTrackDecoratorFactory<TClass>(
   getTracker: (instance: TClass) => OperationTracker
 ): (trackArgs?: TrackArgs) => GenericMethodDecorator<TClass> {
   return (trackArgs) => {
     return function (_classProto, methodName, descriptor) {
       const originalMethod = descriptor.value
-      if (!(originalMethod instanceof Function))
-        throw new Error('Trackable decorator can only be applied to class methods')
+      if (!(originalMethod instanceof Function)) throw new Error('Track decorator can only be applied to class methods')
       descriptor.value = function (...methodArgs: any[]) {
         const targetInstance = this as TClass
         const tracker = getTracker(targetInstance)
-        return tracker.runMethodAsTrackableOperation({
+        return tracker.runMethodAsTrackedOperation({
           method: originalMethod,
           methodName,
           methodArgs,
@@ -142,11 +141,11 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Runs method as trackable operation
+   * Runs method as tracked operation
    * @param runArgs all the configuration of the method execution and tracking
    * @returns the result of the method execution
    */
-  runMethodAsTrackableOperation<TMethod extends (...methodArgs: any[]) => any>(runArgs: TrackedRunArgs<TMethod>) {
+  runMethodAsTrackedOperation<TMethod extends (...methodArgs: any[]) => any>(runArgs: TrackedRunArgs<TMethod>) {
     const ctx: OperationContext = {
       operation: runArgs.trackArgs?.operation || runArgs.methodName,
       state: 'try',
@@ -223,23 +222,23 @@ export abstract class OperationTracker {
   protected onOperationPrepareError(ctx: OperationContext): void {
     const origError = ctx.error
     const trArgs = ctx.trackArgs
-    let trackableError = origError as TrackableError
+    let trackedError = origError as TrackedError
 
     // try to get error wrapper from onError callback
     const errPrep = trArgs?.onError?.apply(this, [ctx.error, ctx])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (errPrep?.error && errPrep?.error != ctx.error) {
-      trackableError = errPrep.error as TrackableError
-      trackableError.underlyingError = origError
-      trackableError.trackableContext = ctx
-      //trackableError.tags = [...(origError.tags || [])] // if we want to inherit tags from original error
+      trackedError = errPrep.error as TrackedError
+      trackedError.underlyingError = origError
+      trackedError.trackedContext = ctx
+      //trackedError.tags = [...(origError.tags || [])] // if we want to inherit tags from original error
     }
     if (errPrep?.tags) {
-      trackableError.tags = [...(trackableError.tags || []), ...errPrep.tags]
+      trackedError.tags = [...(trackedError.tags || []), ...errPrep.tags]
     }
-    if (!trackableError.trackableContext)
-      Object.defineProperty(trackableError, 'trackableContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
-    ctx.error = trackableError
+    if (!trackedError.trackedContext)
+      Object.defineProperty(trackedError, 'trackedContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
+    ctx.error = trackedError
   }
 
   /**
@@ -302,7 +301,7 @@ export abstract class OperationTracker {
     const res: string[] = []
     res.push(`error:${ctx.error ? 'true' : 'false'}`)
     if (ctx.error) {
-      const error = ctx.error as TrackableError
+      const error = ctx.error as TrackedError
       res.push(...(this.extractTagsFromError(error, ctx) || []))
     }
 
@@ -310,18 +309,18 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Called by extractTags to extract tags from the error. The error may have happened on the child operation (in this case error.trackableContext != ctx)
+   * Called by extractTags to extract tags from the error. The error may have happened on the child operation (in this case error.trackedContext != ctx)
    * @param error error to extract tags from
-   * @param ctx operation context (may be different from the error.trackableContext)
+   * @param ctx operation context (may be different from the error.trackedContext)
    * @returns
    */
-  protected extractTagsFromError(error: TrackableError, ctx: OperationContext): string[] {
+  protected extractTagsFromError(error: TrackedError, ctx: OperationContext): string[] {
     const res: string[] = []
-    const errorContext = error.trackableContext
+    const errorContext = error.trackedContext
     res.push(`error_operation:${errorContext?.operation || ctx.operation}`)
     res.push(`error_class:${error?.constructor?.name || typeof error}`)
     // for all upstream operations add error tags
-    if (error.tags /* && error.trackableContext == ctx */) res.push(...error.tags)
+    if (error.tags /* && error.trackedContext == ctx */) res.push(...error.tags)
 
     return res
   }
@@ -340,7 +339,7 @@ export abstract class OperationTracker {
       case 'finally':
         res.push(this.getOperationCompletedMessage(ctx))
         if (ctx.error) {
-          const error = ctx.error as TrackableError
+          const error = ctx.error as TrackedError
           res.push(...(this.getOperationErrorDetails(error, ctx) || []))
         }
         break
@@ -379,13 +378,13 @@ export abstract class OperationTracker {
 
   /**
    * Called by extractLogMessages to extract log messages from the error as well as its Underlying Error
-   * The error may have happened on the child operation (in this case error.trackableContext != ctx)
+   * The error may have happened on the child operation (in this case error.trackedContext != ctx)
    * @param error error to get log messages from
-   * @param ctx current operation context (may be different from the error.trackableContext)
+   * @param ctx current operation context (may be different from the error.trackedContext)
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
-  protected getOperationErrorDetails(error: TrackableError, ctx: OperationContext): string[] {
-    const errorContext = error.trackableContext
+  protected getOperationErrorDetails(error: TrackedError, ctx: OperationContext): string[] {
+    const errorContext = error.trackedContext
     const logMessages: string[] = []
     logMessages.push(this.getErrorMessage(error, ctx))
     if (errorContext == ctx && error.underlyingError) {
@@ -402,7 +401,7 @@ export abstract class OperationTracker {
    */
   protected getErrorMessage(error: unknown, _ctx?: OperationContext): string {
     if (error instanceof Error) {
-      const trError = error as TrackableError
+      const trError = error as TrackedError
       const errorClass = trError?.constructor?.name
       return `${errorClass || '[undefined]'}: ${trError.message}`
     }
@@ -431,7 +430,7 @@ type GenericMethodDecorator<This = unknown, TFunc extends (...args: any[]) => an
 ) => TypedPropertyDescriptor<TFunc> | void
 
 /**
- * Trackable Operation Context - contains all the information about the operation
+ * Tracked Operation Context - contains all the information about the operation
  */
 export type OperationContext = {
   /**
@@ -447,7 +446,7 @@ export type OperationContext = {
   //  */
   // traceId: string
   /**
-   * track configuration provided in the trackable decorator factory
+   * track configuration provided in the tracked decorator factory
    */
   trackArgs?: TrackArgs
   /**
@@ -483,9 +482,9 @@ export type OperationContext = {
 }
 
 /**
- * Error object that contains trackable data
+ * Error object that contains tracked data
  */
-export interface TrackableError extends Error {
+export interface TrackedError extends Error {
   /**
    * Underlying error that this error wraps
    */
@@ -493,7 +492,7 @@ export interface TrackableError extends Error {
   /**
    * Operation context during which the error happened
    */
-  trackableContext?: OperationContext
+  trackedContext?: OperationContext
   /**
    * Tags to add to the operation completion metrics
    */

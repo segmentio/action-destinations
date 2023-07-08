@@ -8,10 +8,10 @@ import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
 import {
   StatsArgs,
-  TrackableError,
+  TrackedError,
   OperationContext,
   OperationTracker,
-  createTrackableDecoratorFactory
+  createTrackDecoratorFactory
 } from '../operationTracking'
 
 const Liquid = new LiquidJs()
@@ -20,10 +20,16 @@ export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-export const trackable = createTrackableDecoratorFactory<MessageSender<any>>((msgSender) => msgSender.operationTracker)
+export const track = createTrackDecoratorFactory<{ operationTracker: OperationTracker }>(
+  (trackerContain) => trackerContain.operationTracker
+)
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
   operationTracker: MessageOperationTracker = new MessageOperationTracker(this)
+
+  get currentOperation(): OperationContext | undefined {
+    return this.operationTracker.currentOperation
+  }
 
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
@@ -36,7 +42,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   readonly logger: Logger | undefined
 
   constructor(
-    readonly requestRaw: RequestFn, //TODO: implement request method with trackable capabilities
+    readonly requestRaw: RequestFn,
     readonly executeInput: ExecuteInput<Settings, MessagePayload>,
     readonly logDetails: Record<string, unknown> = {}
   ) {
@@ -56,7 +62,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.logger = executeInput.logger
   }
 
-  @trackable()
+  @track()
   async request(url: string, options: RequestOptions): Promise<Response> {
     return this.requestRaw(url, options)
   }
@@ -64,7 +70,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   abstract getChannelType(): string
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
-  @trackable()
+  @track()
   async send() {
     this.beforeSend()
     return this.doSend()
@@ -73,7 +79,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   /*
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
-  @trackable({
+  @track({
     onError: () => ({
       error: new PayloadValidationError('Unable to parse templating'),
       tags: ['reason:invalid_liquid']
@@ -147,13 +153,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   /**
-   * Add a message to the log of current trackable operation, only if error happens during current operation. You can add some arguments here
+   * Add a message to the log of current tracked operation, only if error happens during current operation. You can add some arguments here
    * @param getLogMessage
    */
-  logOnError(logMessage: string | (() => string)) {
+  logOnError(logMessage: string | ((ctx: OperationContext) => string)) {
     this.operationTracker.currentOperation?.onFinally.push((ctx) => {
       if (ctx.error) {
-        const msg = typeof logMessage === 'function' ? logMessage() : logMessage
+        const msg = typeof logMessage === 'function' ? logMessage(ctx) : logMessage
         ctx.logs.push(msg)
       }
     })
@@ -223,13 +229,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
   }
 
-  @trackable({
-    onError: (e) => ({
-      error:
-        e instanceof IntegrationError
-          ? e
-          : new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
-      //tags: ['reason:get_content_template']
+  @track({
+    onError: (_e) => ({
+      error: new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     })
   })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
@@ -252,7 +254,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return this.extractTemplateTypes(template)
   }
 
-  @trackable({
+  @track({
     onError: () => ({
       tags: ['reason:invalid_template_type']
     })
@@ -278,7 +280,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  @trackable({ onError: () => ({ error: new PayloadValidationError('Invalid webhook url arguments') }) })
+  @track({ onError: () => ({ error: new PayloadValidationError('Invalid webhook url arguments') }) })
   getWebhookUrlWithParams(
     externalIdType?: string,
     externalIdValue?: string,
@@ -338,7 +340,7 @@ class MessageOperationTracker extends OperationTracker {
     this.messageSender.stats(args)
   }
 
-  extractTagsFromError(error: TrackableError, ctx: OperationContext) {
+  extractTagsFromError(error: TrackedError, ctx: OperationContext) {
     const res = super.extractTagsFromError(error, ctx)
     if (error instanceof IntegrationError) {
       if (error.code) res.push(`error_code:${error.code}`)
@@ -346,6 +348,13 @@ class MessageOperationTracker extends OperationTracker {
     }
     return res
   }
+
+  protected onOperationPrepareError(ctx: OperationContext): void {
+    //if error is already integration error
+    if (ctx.error instanceof IntegrationError) return
+    super.onOperationPrepareError(ctx)
+  }
+
   // getErrorMessage(error: unknown, ctx: OperationContext) {
   //   const res = super.getErrorMessage(error, ctx)
   //   if(error instanceof Error)

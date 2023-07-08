@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { OperationTracker, TrackArgs, createTrackableDecoratorFactory } from './OperationTracker'
+import { OperationTracker, TrackArgs, createTrackDecoratorFactory } from './OperationTracker'
 
 class TestTracker extends OperationTracker {
   logInfo = jest.fn()
@@ -8,7 +8,7 @@ class TestTracker extends OperationTracker {
   stats = jest.fn()
 }
 
-const testTrackable = createTrackableDecoratorFactory<any>((t) => t.tracker)
+const testTrack = createTrackDecoratorFactory<any>((t) => t.tracker)
 
 function createTestClass(
   trackArgs: TrackArgs | undefined,
@@ -20,7 +20,7 @@ function createTestClass(
 
     testMethodImpl = jest.fn(testMethodImpl)
 
-    @testTrackable(trackArgs)
+    @testTrack(trackArgs)
     testMethod(...args: any[]): any {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const instance = this
@@ -35,7 +35,7 @@ function createTestClass(
 
   if (asyncMethods) {
     class MyTestTargetAsync extends MyTestTargetBase {
-      @testTrackable(trackArgs)
+      @testTrack(trackArgs)
       async parentMethod(...args: any[]) {
         return {
           iAm: 'parent',
@@ -43,7 +43,7 @@ function createTestClass(
         }
       }
 
-      @testTrackable(trackArgs)
+      @testTrack(trackArgs)
       async childMethod(...args: any[]) {
         return {
           iAm: 'child',
@@ -54,7 +54,7 @@ function createTestClass(
     return MyTestTargetAsync
   } else {
     class MyTestTargetSync extends MyTestTargetBase {
-      @testTrackable(trackArgs)
+      @testTrack(trackArgs)
       parentMethod(...args: any[]) {
         return {
           iAm: 'parent',
@@ -62,7 +62,7 @@ function createTestClass(
         }
       }
 
-      @testTrackable(trackArgs)
+      @testTrack(trackArgs)
       childMethod(...args: any[]) {
         return {
           iAm: 'child',

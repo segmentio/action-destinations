@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { trackable, MessageSender } from './message-sender'
+import { MessageSender } from './message-sender'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
+import { TrackedError } from '../operationTracking'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
   ShouldSend = 'should_send',
-  DoNotSend = 'do_not_send',
+  NotSubscribed = 'not_subscribed',
   SendDisabled = 'send_disabled',
   InvalidSubscriptionStatus = 'invalid_subscription_status'
 }
@@ -20,18 +21,21 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   abstract getBody(phone: string): Promise<URLSearchParams>
 
-  @trackable({})
   async doSend() {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
     if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
-      this.logInfo(
+      this.currentOperation?.tags.push('not_sent_reason:' + sendabilityStatus)
+      this.currentOperation?.logs.push(
         `Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`
       )
       return
     }
+    this.currentOperation?.onFinally.push((op) => {
+      const error = op.error as TrackedError
+      if (error) op.tags.push('not_sent_reason:error_operation_' + error.trackedContext?.operation)
+    })
 
-    this.logInfo('Getting content Body')
     const body = await this.getBody(phone)
 
     const webhookUrlWithParams = this.getWebhookUrlWithParams(
@@ -86,7 +90,6 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   private getSendabilityPayload(): SendabilityPayload {
     if (!this.payload.send) {
-      this.statsIncr('send-disabled', 1)
       return { sendabilityStatus: SendabilityStatus.SendDisabled, phone: undefined }
     }
 
@@ -119,19 +122,16 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
       )
     }
 
-    let status: SendabilityStatus = SendabilityStatus.DoNotSend
+    let status: SendabilityStatus = SendabilityStatus.NotSubscribed
 
     const phone = this.payload.toNumber || firstSubscribedExtId?.id
 
     if (firstSubscribedExtId) {
-      this.statsIncr('subscribed', 1)
       status = phone ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone
     } else if (hasInvalidStatuses) {
-      this.statsIncr('invalid_subscription_status', 1)
       status = SendabilityStatus.InvalidSubscriptionStatus
     } else if (validExtIds && validExtIds.length > 0) {
-      this.statsIncr('notsubscribed', 1)
-      status = SendabilityStatus.DoNotSend
+      status = SendabilityStatus.NotSubscribed
     } else {
       status = SendabilityStatus.NoSenderPhone
     }

@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { PhoneMessage } from '../utils/phone-message'
-import { trackable } from '../utils/message-sender'
+import { track } from '../utils/message-sender'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
@@ -14,7 +14,7 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
     return 'whatsapp'
   }
 
-  @trackable({
+  @track({
     onError: (e) =>
       e instanceof IntegrationError
         ? undefined
@@ -53,7 +53,7 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
     return new URLSearchParams(params)
   }
 
-  @trackable({
+  @track({
     onError: () => ({
       error: new IntegrationError(
         `Unable to parse templating in content variables`,
