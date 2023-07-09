@@ -7,8 +7,13 @@ interface List {
   listId: number,
   listName: string
 }
-interface ListsResponse {
+
+interface ListData {
   data: List[]
+}
+
+interface ListsResponse {
+  data: ListData
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -53,12 +58,16 @@ const action: ActionDefinition<Settings, Payload> = {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${accessToken}`
-          }
+          },
+          skipResponseCloning: true
         })
 
-        const choices = response.data.map((list) => {
+        const choices = response.data.data.sort(function (a, b) {
+          return a.listName.toLowerCase().localeCompare(b.listName.toLowerCase());
+        }).map((list) => {
           return { value: list.listId.toString(), label: list.listName }
         })
+        
         return {
           choices
         }

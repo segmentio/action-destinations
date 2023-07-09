@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DynamicFieldResponse, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -168,11 +168,15 @@ describe('updateContactProfileFields', () => {
       .reply(201, {
         data: [{
           listId: 123,
-          listName: 'listName123'
+          listName: 'List Name C'
         },
         {
           listId: 456,
-          listName: 'listName456'
+          listName: 'List Name b'
+        },
+        {
+          listId: 789,
+          listName: 'List Name a'
         }]
       })
 
@@ -181,12 +185,25 @@ describe('updateContactProfileFields', () => {
       client_secret: 'clientSecret1'
     }
 
-    await expect(
-      testDestination.testDynamicField('updateContactProfileFields', 'listId', {
-        settings,
-        payload: {}
-      })
-    ).resolves.not.toThrowError()
+    const response = await testDestination.testDynamicField('updateContactProfileFields', 'listId', {
+      settings,
+      payload: {}
+    }) as DynamicFieldResponse
+
+    expect(response.choices).toStrictEqual([{
+      value: '789',
+      label: 'List Name a'
+    }, {
+      value: '456',
+      label: 'List Name b'
+    }, {
+      value: '123',
+      label: 'List Name C'
+    }])
+
+    expect(response.nextPage).toBeUndefined()
+    
+    expect(response.error).toBeUndefined()
 
     verifyNocks()
   })
