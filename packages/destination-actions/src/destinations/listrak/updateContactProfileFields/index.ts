@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     listId: {
       label: 'List ID',
       description: 'Identifier used to locate the list.',
-      type: 'string',
+      type: 'integer',
       dynamic: true,
       required: true
     },
