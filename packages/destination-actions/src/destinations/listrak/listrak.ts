@@ -60,11 +60,11 @@ export async function makeGetRequest<T>(request: RequestClient, settings: Settin
 }
 
 async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestBody: RequestBody) {
-  if (!accessToken) {
-    await fetchNewAccessToken(request, settings)
-  }
-
   try {
+    if (!accessToken) {
+      await fetchNewAccessToken(request, settings)
+    }
+
     return (await request(url, addAuthorizationHeader(requestBody))) as T
   } catch (err) {
     if (isResponseUnauthorized(err as HTTPError)) {
