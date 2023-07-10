@@ -87,39 +87,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const accessToken = await getAuthToken(request, data.settings)
-
-    try {
-      await makeHttpRequest(
-        request,
-        `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
-        [
-          {
-            emailAddress: data.payload.emailAddress,
-            segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
-          }
-        ],
-        accessToken
-      )
-    } catch (err) {
-      const httpError = err as HTTPError
-      if (httpError.response.status && httpError.response.status === 401) {
-        clearToken()
-        const accessToken = await getAuthToken(request, data.settings)
-        await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
-          method: 'POST',
-          json: [
-            {
-              emailAddress: data.payload.emailAddress,
-              segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
-            }
-          ],
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        })
-      }
-    }
+    await makeHttpRequest(
+      request,
+      data.settings,
+      `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
+      
+      [
+        {
+          emailAddress: data.payload.emailAddress,
+          segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
+        }
+      ]
+    )
   }
 }
 export default action

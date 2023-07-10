@@ -1,4 +1,4 @@
-import { RequestClient, RetryableError } from '@segment/actions-core'
+import { HTTPError, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 let accessToken = ''
@@ -41,12 +41,31 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
   }
 }
 
-export const makeHttpRequest = async (request: RequestClient, url: string, jsonBody: any, accessToken1: string) => {
-  await request(url, {
+export const makeHttpRequest = async (request: RequestClient, settings: Settings, url: string, jsonBody: any) => {
+  if(!accessToken) {
+    await getAuthToken(request, settings)
+  }
+  
+  const makeRequest = async () => request(url, {
     method: 'POST',
     json: jsonBody,
     headers: {
-      Authorization: `Bearer ${accessToken1}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
+
+  try {
+    await makeRequest()
+  } catch(err) {
+    if (isResponseUnauthorized(err)) {
+      clearToken()
+      await getAuthToken(request, settings)
+      await makeRequest()
+    }
+  }
 }
+function isResponseUnauthorized(error: any) {
+  const httpError = error as HTTPError
+  return httpError.response && httpError.response.status && httpError.response.status === 401
+}
+
