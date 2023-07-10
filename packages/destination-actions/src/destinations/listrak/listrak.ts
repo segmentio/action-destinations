@@ -4,17 +4,16 @@ import type { Settings } from './generated-types'
 let accessToken = ''
 
 export const clearToken = () => {
-  accessToken = '';
+  accessToken = ''
 }
 
 export const setToken = (value: string) => {
-  accessToken = value;
+  accessToken = value
 }
 
 export const getAuthToken = async (request: RequestClient, settings: Settings): Promise<string> => {
-
-  if(accessToken) {
-    return accessToken;
+  if (accessToken) {
+    return accessToken
   }
 
   const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
@@ -40,4 +39,14 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
   } catch {
     throw new RetryableError(`Error while getting an access token`)
   }
+}
+
+export const makeHttpRequest = async (request: RequestClient, url: string, jsonBody: any, accessToken1: string) => {
+  await request(url, {
+    method: 'POST',
+    json: jsonBody,
+    headers: {
+      Authorization: `Bearer ${accessToken1}`
+    }
+  })
 }

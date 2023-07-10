@@ -1,7 +1,7 @@
 import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { clearToken, getAuthToken } from '../listrak'
+import { makeHttpRequest, clearToken, getAuthToken } from '../listrak'
 import { HTTPError } from '@segment/actions-core'
 
 interface List {
@@ -90,18 +90,17 @@ const action: ActionDefinition<Settings, Payload> = {
     const accessToken = await getAuthToken(request, data.settings)
 
     try {
-      await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
-        method: 'POST',
-        json: [
+      makeHttpRequest(
+        request,
+        `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
+        [
           {
             emailAddress: data.payload.emailAddress,
             segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
           }
         ],
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+        accessToken
+      )
     } catch (err) {
       const httpError = err as HTTPError
       if (httpError.response.status && httpError.response.status === 401) {
