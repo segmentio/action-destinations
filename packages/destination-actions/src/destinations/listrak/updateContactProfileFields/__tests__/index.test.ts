@@ -156,25 +156,26 @@ describe('updateContactProfileFields', () => {
   it('List ID dynamic field tries to retreive and throws error', async () => {
     withGetAccessToken()
 
-    withGetLists()
+    nock('https://api.listrak.com/email/v1').get('/List').matchHeader('authorization', `Bearer token`).reply(500)
 
     const settings = {
       client_id: 'clientId1',
       client_secret: 'clientSecret1'
     }
 
-    nock('https://api.listrak.com/email/v1')
-      .get('/List')
-      .matchHeader('authorization', `Bearer token`)
-      .reply(500, {
-        choices: [],
-        nextPage: '',
-        error: {
-          message: 'Unknown error',
-          code: 'Unknown error'
-        }
-    })
+    const response = (await testDestination.testDynamicField('updateContactProfileFields', 'listId', {
+      settings,
+      payload: {}
+    })) as DynamicFieldResponse
 
+    expect(response).toStrictEqual({
+      choices: [],
+      nextPage: '',
+      error: {
+        code: '500',
+        message: 'Internal Server Error'
+      }
+    })
 
     verifyNocks()
   })
