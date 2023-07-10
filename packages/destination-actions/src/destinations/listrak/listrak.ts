@@ -47,46 +47,40 @@ export async function makePostRequest(
   url: string,
   jsonBody: any
 ): Promise<void> {
-  const requestCall = async () =>
-    await request(url, {
+  await MakeRequest(request, settings, url, () => {
+    return {
       method: 'POST',
       json: jsonBody,
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
-    })
-  return await MakeRequest(request, settings, url, requestCall, {})
+    }
+  })
 }
 
 export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
-  const requestCall = async () =>
-    await request(url, {
+  return await MakeRequest<T>(request, settings, url, () => {
+    return {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
-    })
-  return await MakeRequest<T>(request, settings, url, requestCall, {})
+    }
+  })
 }
 
-async function MakeRequest<T>(
-  request: RequestClient,
-  settings: Settings,
-  url: string,
-  requestCall: any,
-  jsonBody: any
-) {
+async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, getRequestBody: any) {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
 
   try {
-    return await requestCall(request, url, jsonBody)
+    return (await request(url, getRequestBody())) as T
   } catch (err) {
     if (isResponseUnauthorized(err)) {
       clearToken()
       await getAuthToken(request, settings)
-      return (await requestCall(request, url)) as T
+      return (await request(url, getRequestBody())) as T
     }
     throw err
   }
