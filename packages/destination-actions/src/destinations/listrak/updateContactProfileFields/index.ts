@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const accessToken = await getAuthToken(request, data.settings)
 
     try {
-      makeHttpRequest(
+      await makeHttpRequest(
         request,
         `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
         [
