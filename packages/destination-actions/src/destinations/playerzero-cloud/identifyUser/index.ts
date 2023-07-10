@@ -7,11 +7,11 @@ const action: ActionDefinition<Settings> = {
   description: 'Forward identify, group, and alias events from Segment to PlayerZero.',
   fields: {},
   perform: (request, data) => {
-    return send(request, data.settings, [data.payload], 'identity')
+    return send(request, data.settings, [data.payload], "identity")
   },
   performBatch: async (request, data) => {
-    return send(request, data.settings, data.payload, 'identity')
-  }
+    return send(request, data.settings, data.payload, "identity")
+  },
 }
 
 export default action

@@ -20,7 +20,7 @@ describe('PlayerzeroCloud.identifyUser', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: PLAYERZERO_PROJECT_TOKEN
+        projectToken: PLAYERZERO_PROJECT_TOKEN,
       }
     })
 
