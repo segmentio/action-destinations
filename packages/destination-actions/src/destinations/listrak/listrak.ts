@@ -40,23 +40,44 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
     throw new RetryableError(`Error while getting an access token`)
   }
 }
+type HttpMethod =
+  | 'get'
+  | 'post'
+  | 'put'
+  | 'delete'
+  | 'patch'
+  | 'head'
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'PATCH'
+  | 'HEAD'
+  | undefined
 
-export const makeHttpRequest = async (request: RequestClient, settings: Settings, url: string, jsonBody: any) => {
-  if(!accessToken) {
+export const makeHttpRequest = async (
+  request: RequestClient,
+  settings: Settings,
+  url: string,
+  jsonBody: any,
+  method: HttpMethod
+) => {
+  if (!accessToken) {
     await getAuthToken(request, settings)
   }
-  
-  const makeRequest = async () => request(url, {
-    method: 'POST',
-    json: jsonBody,
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
+
+  const makeRequest = async () =>
+    request(url, {
+      method: method,
+      json: jsonBody,
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
 
   try {
     await makeRequest()
-  } catch(err) {
+  } catch (err) {
     if (isResponseUnauthorized(err)) {
       clearToken()
       await getAuthToken(request, settings)
@@ -68,4 +89,3 @@ function isResponseUnauthorized(error: any) {
   const httpError = error as HTTPError
   return httpError.response && httpError.response.status && httpError.response.status === 401
 }
-
