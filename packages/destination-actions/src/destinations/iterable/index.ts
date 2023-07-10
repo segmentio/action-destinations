@@ -17,7 +17,8 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         type: 'string',
         label: 'API Key',
-        description: 'Iterable API key',
+        description:
+          "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
       }
     },

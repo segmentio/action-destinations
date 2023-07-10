@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: all fields 1`] = `
-"audience_key,testType
-\\"PywYAY\\",\\"PywYAY\\""
+"audience_key,testType,testType
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\""
 `;
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: enquotated indentifier data 1`] = `
@@ -14,18 +14,18 @@ Array [
 `;
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: required fields 1`] = `
-"audience_key,testType
-\\"PywYAY\\",\\"PywYAY\\""
+"audience_key,testType,testType
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\""
 `;
 
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: required fields 2`] = `
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "AWS4-HMAC-SHA256 Credential=PywYAY/19700101/PywYAY/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=0e2838c897a25891722f065e3c21b3592e67626b4a50f2f1ad0f78ad1a7ad524",
+      "AWS4-HMAC-SHA256 Credential=PywYAY/19700101/PywYAY/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=e2fe7f56f215ba3c674806db5629bdfffdd3ab2d2b03450c20a219aa713ed8d4",
     ],
     "content-length": Array [
-      "39",
+      "115",
     ],
     "content-type": Array [
       "application/x-www-form-urlencoded; charset=utf-8",
@@ -37,7 +37,7 @@ Headers {
       "Segment (Actions)",
     ],
     "x-amz-content-sha256": Array [
-      "c52b8202716894946461f92ea7d3ae902483d4c0339c06e616618d84bce9d642",
+      "7a49d5af27bc7082b91a53af6cdf36cb91586b219e408b0873a7f4740c7545b8",
     ],
     "x-amz-date": Array [
       "19700101T000012Z",

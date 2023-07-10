@@ -1,8 +1,8 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject } from '../helperFunctions'
+import { flattenObject } from '../utils'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -76,6 +76,11 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
+
+    if (!payload.utk && !payload.email && !payload.objectId) {
+      throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
+    }
+
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event

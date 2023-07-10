@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import syncAudience from './syncAudience'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'The Trade Desk Crm',
+  name: 'The Trade Desk CRM',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
 
@@ -24,6 +24,20 @@ const destination: DestinationDefinition<Settings> = {
           'The platform ID of the advertiser for which to retrieve the status of the specified CRM data segment.',
         type: 'string',
         required: true
+      },
+      __segment_internal_engage_force_full_sync: {
+        label: 'Force Full Sync',
+        description: 'Force Full Sync',
+        type: 'boolean',
+        required: true,
+        default: true
+      },
+      __segment_internal_engage_batch_sync: {
+        label: 'Supports batch sync via ADS',
+        description: 'Supports batch sync via ADS',
+        type: 'boolean',
+        required: true,
+        default: true
       }
     }
   },

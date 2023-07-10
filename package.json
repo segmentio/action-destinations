@@ -83,9 +83,10 @@
   },
   "lint-staged": {
     "**/src/destinations/**/index.ts": [
-      "./bin/run generate:types"
+      "./bin/run generate:types",
+      "git add **/generated-types.ts"
     ],
-    "!(templates)/**/*.ts": [
+    "!(**/templates/**)/*.ts": [
       "eslint --fix --cache",
       "prettier --write"
     ],

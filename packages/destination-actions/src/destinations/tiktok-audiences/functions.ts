@@ -1,9 +1,11 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as RemoveUserPayload } from './removeUser/generated-types'
+import { Payload as CreateAudiencePayload } from './createAudience/generated-types'
 import { Settings } from './generated-types'
+import { CreateAudienceAPIResponse } from './types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
 
@@ -31,9 +33,19 @@ export async function processPayload(
       batch_data: users
     }
     res = await TikTokApiClient.batchUpdate(elements)
+  } else {
+    throw new PayloadValidationError('At least one of Email Id or Advertising ID must be provided.')
   }
 
   return res
+}
+
+export async function createAudience(
+  request: RequestClient,
+  payload: CreateAudiencePayload
+): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
+  const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, payload.selected_advertiser_id)
+  return TikTokApiClient.createAudience(payload)
 }
 
 export function validate(payloads: GenericPayload[]): void {

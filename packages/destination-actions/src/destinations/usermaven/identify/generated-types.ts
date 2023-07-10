@@ -120,5 +120,5 @@ export interface Payload {
   /**
    * The IP address of the user.
    */
-  ip?: string
+  source_ip?: string
 }

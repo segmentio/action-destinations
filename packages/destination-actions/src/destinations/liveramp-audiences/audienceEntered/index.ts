@@ -19,11 +19,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     identifier_data: {
       label: 'Identifier Data',
-      description: `Additional data pertaining to the user.`,
+      description: `Additional data pertaining to the user to be written to the file.`,
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue:only',
-      default: { '@path': '$.context.traits' }
+      defaultObjectUI: 'keyvalue:only'
+    },
+    unhashed_identifier_data: {
+      label: 'Hashable Identifier Data',
+      description: `Additional data pertaining to the user to be hashed before written to the file`,
+      type: 'object',
+      required: false,
+      defaultObjectUI: 'keyvalue:only'
     },
     delimiter: {
       label: 'Delimeter',
@@ -38,6 +44,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}_PII_{{receivedAt}}.csv' }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch data',
+      description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
+      required: true,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 100000
     }
   },
   perform: async (request, { settings, payload }) => {

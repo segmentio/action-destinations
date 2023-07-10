@@ -23,6 +23,7 @@ describe('VWO Web (Actions)', () => {
   test('Loads VWO SmartCode with AccountID', async () => {
     const [vwo] = await vwoDestination({
       vwoAccountId: 654331,
+      addSmartcode: true,
       subscriptions
     })
 

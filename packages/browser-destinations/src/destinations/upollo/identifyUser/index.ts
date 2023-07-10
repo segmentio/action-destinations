@@ -8,6 +8,7 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
   description: 'Identify the user',
   defaultSubscription: 'type = "identify"',
   platform: 'web',
+  lifecycleHook: 'enrichment',
   fields: {
     user_id: {
       type: 'string',
@@ -26,6 +27,20 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       default: {
         '@path': '$.traits.name'
       }
+    },
+    firstName: {
+      label: 'First Name',
+      description: "The user's given name.",
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.firstName' }
+    },
+    lastName: {
+      label: 'Last Name',
+      description: "The user's surname.",
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.lastName' }
     },
     email: {
       description: "The user's email address.",
@@ -60,12 +75,16 @@ const identifyUser: BrowserActionDefinition<Settings, UpolloClient, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: (UpClient, { payload }) => {
+  perform: async (UpClient, { payload }) => {
     const userInfo = {
       userId: payload.user_id,
       userEmail: payload.email,
       userPhone: payload.phone,
-      userName: payload.name,
+      userName: payload.name
+        ? payload.name
+        : payload.firstName || payload.lastName
+        ? (payload.firstName + ' ' + payload.lastName).trim()
+        : undefined,
       userImage: payload.avatar_image_url,
       customerSuppliedValues: payload.custom_traits ? toCustomValues(payload.custom_traits) : undefined
     }

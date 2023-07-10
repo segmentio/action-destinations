@@ -38,6 +38,18 @@ export const SegmentUniqueIdentifierMissingRetryableError = new RetryableError(
   `The ’${SEGMENT_UNIQUE_IDENTIFIER}’ property doesn't exist in HubSpot. Segment will attempt to create the property and retry the action.`
 )
 
+export const CustomSearchThrowableError = new IntegrationError(
+  'HubSpot returned 400 error while performing a custom object record search. Please check if Custom Object Record Search Fields’ contains valid properties defined in HubSpot.',
+  'Custom Search Failed',
+  400
+)
+
+export const MultipleCustomRecordsInSearchResultThrowableError = new IntegrationError(
+  `The search criteria defined by Custom Object Record Search Fields returned more than one records. The update request will be rejected.`,
+  'Search Criteria Not Unique',
+  400
+)
+
 export function isSegmentUniqueIdentifierPropertyError(
   error: HubSpotError,
   segmentUniqueIdentifierProperty: string
