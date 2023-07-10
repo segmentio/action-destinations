@@ -333,7 +333,7 @@ describe('stats', () => {
           ...(_throwError ? ['error_operation:testMethod', 'error_class:MyCustomError'] : [])
         ]
         expect(testInstance.tracker.stats).toHaveBeenCalledWith({
-          metric: 'testMethod.finally',
+          metric: 'testMethod',
           method: 'incr',
           value: 1,
           extraTags
@@ -347,7 +347,7 @@ describe('stats', () => {
       })
 
       test('try and finally. shouldStats:only on try', async () => {
-        const TestClass = createTestClass({ shouldStats: (op) => op.state == 'try' }, testMethod, isAsync)
+        const TestClass = createTestClass({ shouldStats: (st) => st.event == 'try' }, testMethod, isAsync)
         const testInstance = new TestClass()
         try {
           await testInstance.testMethod()
@@ -355,7 +355,12 @@ describe('stats', () => {
           // eslint-disable-next-line no-empty
         }
         expect(testInstance.tracker.stats).toHaveBeenCalledTimes(1)
-        expect(testInstance.tracker.stats).toHaveBeenCalledWith({ metric: 'testMethod.try', method: 'incr', value: 1 })
+        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+          metric: 'testMethod.try',
+          method: 'incr',
+          value: 1,
+          extraTags: []
+        })
       })
     })
   })

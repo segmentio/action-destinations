@@ -19,7 +19,7 @@ export interface TrackArgs {
    * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
    * False by default and true for Finally state
    */
-  shouldStats?: (ctx: OperationContext) => boolean | void
+  shouldStats?: (args: OperationStatsEventArgs) => boolean | void
   /**
    * Callback for preparing Error object to be logged/rethrown.
    * @param error error thrown by the tracked method
@@ -177,16 +177,6 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Defines if stats should happen for operation state by default when it's not explicitly specified in TrackArgs.
-   * By default implementation it only returns true if operation is in `finally` state
-   * @param ctx operation context
-   * @returns
-   */
-  protected shouldStatsDefault(ctx: OperationContext): boolean {
-    return ctx.state == 'finally'
-  }
-
-  /**
    * Defines if logging should happen for operation state by default when it's not explicitly specified in TrackArgs.
    * By default implementation it returns true (log on each state of the operation)
    * @param _ctx operation context
@@ -203,14 +193,39 @@ export abstract class OperationTracker {
   protected onOperationTry(ctx: OperationContext): void {
     this._currentOperation = ctx
     ctx.startTime = Date.now()
+    this.onOperationTryLog(ctx)
+    this.onOperationTryStats(ctx)
+  }
+
+  protected onOperationTryStats(ctx: OperationContext) {
+    this.statsOperationEvent({
+      context: ctx,
+      event: 'try',
+      shouldStats: false,
+      stats: {
+        metric: `${ctx.operation}.try`,
+        method: 'incr',
+        value: 1,
+        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
+      }
+    })
+  }
+
+  protected statsOperationEvent(args: OperationStatsEventArgs) {
+    if (args.context.trackArgs?.shouldStats) {
+      const shouldStats = args.context.trackArgs.shouldStats(args)
+      if (shouldStats !== undefined) args.shouldStats = shouldStats
+    }
+    if (args.shouldStats && args.stats) {
+      this.stats(args.stats)
+    }
+  }
+
+  private onOperationTryLog(ctx: OperationContext) {
     const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
       const fullLogMessage = this.extractLogMessages(ctx)?.join('. ')
       this.logInfo(fullLogMessage)
-    }
-    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : this.shouldStatsDefault(ctx)
-    if (shouldStats !== false) {
-      this.stats({ method: 'incr', metric: ctx.operation + '.try', value: 1 })
     }
   }
 
@@ -239,6 +254,18 @@ export abstract class OperationTracker {
     if (!trackedError.trackedContext)
       Object.defineProperty(trackedError, 'trackedContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
     ctx.error = trackedError
+
+    this.statsOperationEvent({
+      context: ctx,
+      event: 'catch',
+      shouldStats: false,
+      stats: {
+        metric: `${ctx.operation}.catch`,
+        method: 'incr',
+        value: 1,
+        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
+      }
+    })
   }
 
   /**
@@ -268,18 +295,20 @@ export abstract class OperationTracker {
       else this.logInfo(fullLogMessage)
     }
 
-    const shouldStats = ctx.trackArgs?.shouldStats ? ctx.trackArgs?.shouldStats(ctx) : this.shouldStatsDefault(ctx)
-    if (shouldStats !== false) {
-      const finallyTags = ctx.tags?.filter((t) => t) || []
+    const finallyTags = ctx.tags?.filter((t) => t) || []
+    this.statsOperationEvent({
+      context: ctx,
+      event: 'finally',
+      shouldStats: true,
+      stats: { metric: `${ctx.operation}`, method: 'incr', extraTags: finallyTags, value: 1 }
+    })
+    this.statsOperationEvent({
+      context: ctx,
+      event: 'duration',
+      shouldStats: true,
+      stats: { metric: `${ctx.operation}.duration`, method: 'histogram', extraTags: finallyTags, value: ctx.duration }
+    })
 
-      this.stats({ method: 'incr', metric: ctx.operation + '.finally', value: 1, extraTags: finallyTags })
-      this.stats({
-        method: 'histogram',
-        metric: ctx.operation + '.duration',
-        value: ctx.duration as number,
-        extraTags: finallyTags
-      })
-    }
     this._currentOperation = ctx.parent
   }
 
@@ -499,4 +528,16 @@ export interface TrackedError extends Error {
   tags?: string[]
 
   [key: string]: any
+}
+
+export type OperationStatsEvent = OperationContext['state'] | 'duration'
+
+/**
+ * configuration of the operation event to stats
+ */
+export interface OperationStatsEventArgs {
+  event: OperationStatsEvent
+  context: OperationContext
+  stats: StatsArgs
+  shouldStats: boolean
 }

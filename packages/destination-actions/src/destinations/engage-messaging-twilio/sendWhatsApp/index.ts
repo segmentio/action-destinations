@@ -124,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    return new WhatsAppMessageSender(request, data).send()
+    return new WhatsAppMessageSender(request, data).perform()
   }
 }
 

@@ -144,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    return new SmsMessageSender(request, data).send()
+    return new SmsMessageSender(request, data).perform()
   }
 }
 

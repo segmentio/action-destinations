@@ -71,7 +71,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   abstract doSend(): Promise<Response | Response[] | object[] | undefined>
 
   @track()
-  async send() {
+  async perform() {
     this.beforeSend()
     return this.doSend()
   }
