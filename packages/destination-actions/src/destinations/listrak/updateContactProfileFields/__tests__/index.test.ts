@@ -208,35 +208,25 @@ describe('updateContactProfileFields', () => {
     verifyNocks()
   })
 
-  it('Auth token does not exist, retrieves one', async () => {
-
-    
-
-    nock('https://auth.listrak.com')
-      .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
-      .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
-      .reply(200, {
-        access_token: 'token',
-        token_type: 'Bearer',
-        expires_in: 900
-      })
+  it('Auth token does, does not retrieve one', async () => {
 
     nock('https://api.listrak.com/email/v1')
-      .get('/List')
+      .post('/List/123/Contact/SegmentationField', [
+        {
+          emailAddress: 'test.email@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ])
+      .matchHeader('content-type', 'application/json')
       .matchHeader('authorization', `Bearer token`)
       .reply(201, {
-        data: [{
-          listId: 123,
-          listName: 'List Name C'
-        },
-        {
-          listId: 456,
-          listName: 'List Name b'
-        },
-        {
-          listId: 789,
-          listName: 'List Name a'
-        }]
+        status: 201,
+        resourceId: ''
       })
 
     const settings = {
@@ -244,25 +234,27 @@ describe('updateContactProfileFields', () => {
       client_secret: 'clientSecret1'
     }
 
-    const response = await testDestination.testDynamicField('updateContactProfileFields', 'listId', {
-      settings,
-      payload: {}
-    }) as DynamicFieldResponse
+    const event = createTestEvent({
+      context: {
+        traits: {
+          email: 'test.email@test.com'
+        }
+      }
+    })
 
-    expect(response.choices).toStrictEqual([{
-      value: '789',
-      label: 'List Name a'
-    }, {
-      value: '456',
-      label: 'List Name b'
-    }, {
-      value: '123',
-      label: 'List Name C'
-    }])
-
-    expect(response.nextPage).toBeUndefined()
-    
-    expect(response.error).toBeUndefined()
+    await expect(
+      testDestination.testAction('updateContactProfileFields', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          listId: 123,
+          profileFieldValues: {
+            '456': 'on'
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
 
     verifyNocks()
   })
