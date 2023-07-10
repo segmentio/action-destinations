@@ -11,11 +11,7 @@ export function setToken(value: string) {
   accessToken = value
 }
 
-export async function getAuthToken(request: RequestClient, settings: Settings): Promise<string> {
-  if (accessToken) {
-    return accessToken
-  }
-
+export async function fetchNewAccessToken(request: RequestClient, settings: Settings): Promise<void> {
   const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
     method: 'POST',
     body: new URLSearchParams({
@@ -35,7 +31,6 @@ export async function getAuthToken(request: RequestClient, settings: Settings): 
       throw new RetryableError(`Error while getting an access token`)
     }
     setToken(json.access_token)
-    return json.access_token
   } catch {
     throw new RetryableError(`Error while getting an access token`)
   }
@@ -66,22 +61,21 @@ export async function makeGetRequest<T>(request: RequestClient, settings: Settin
 
 async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestBody: RequestBody) {
   if (!accessToken) {
-    await getAuthToken(request, settings)
+    await fetchNewAccessToken(request, settings)
   }
 
   try {
-    return (await request(url, addAuthorization(requestBody))) as T
+    return (await request(url, addAuthorizationHeader(requestBody))) as T
   } catch (err) {
     if (isResponseUnauthorized(err as HTTPError)) {
-      clearToken()
-      await getAuthToken(request, settings)
-      return (await request(url, addAuthorization(requestBody))) as T
+      await fetchNewAccessToken(request, settings)
+      return (await request(url, addAuthorizationHeader(requestBody))) as T
     }
     throw err
   }
 }
 
-function addAuthorization(requestBody: object) {
+function addAuthorizationHeader(requestBody: object) {
   return Object.assign(requestBody, {
     headers: {
       Authorization: `Bearer ${accessToken}`

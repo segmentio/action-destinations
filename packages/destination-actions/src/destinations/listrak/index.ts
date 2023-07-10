@@ -1,7 +1,7 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateContactProfileFields from './updateContactProfileFields'
-import { getAuthToken } from './listrak'
+import { fetchNewAccessToken } from './listrak'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Listrak',
@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      await getAuthToken(request, settings)
+      await fetchNewAccessToken(request, settings)
     }
   },
   actions: {
