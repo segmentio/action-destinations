@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-screeb",
+  "name": "@segment/analytics-browser-actions-screeb",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

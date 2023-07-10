@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-segment-utilities-web",
+  "name": "@segment/analytics-browser-actions-utils",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

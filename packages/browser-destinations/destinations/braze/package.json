@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-braze-web",
+  "name": "@segment/analytics-browser-actions-braze",
   "version": "0.0.0",
   "license": "MIT",
   "exports": {

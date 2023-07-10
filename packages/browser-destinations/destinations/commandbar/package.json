@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-commandbar",
+  "name": "@segment/analytics-browser-actions-commandbar",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

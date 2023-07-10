@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-upollo",
+  "name": "@segment/analytics-browser-actions-upollo",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

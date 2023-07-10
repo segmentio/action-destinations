@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-braze-cloud-plugins",
+  "name": "@segment/analytics-browser-actions-braze-cloud-plugins",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",
@@ -11,7 +11,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-braze-web": "^0.0.0",
+    "@segment/analytics-browser-actions-braze": "^0.0.0",
     "@segment/browser-destination-runtime": "^0.0.0"
   },
   "peerDependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-ripe",
+  "name": "@segment/analytics-browser-actions-ripe",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

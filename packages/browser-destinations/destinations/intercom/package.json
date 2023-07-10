@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-intercom-web",
+  "name": "@segment/analytics-browser-actions-intercom",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

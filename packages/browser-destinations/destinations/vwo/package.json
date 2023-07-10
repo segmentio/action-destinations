@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-vwo-web",
+  "name": "@segment/analytics-browser-actions-vwo",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

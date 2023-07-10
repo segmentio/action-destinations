@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-wisepops",
+  "name": "@segment/analytics-browser-actions-wiseops",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

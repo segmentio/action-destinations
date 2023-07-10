@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-google-analytics-4-web",
+  "name": "@segment/analytics-browser-actions-google-analytics-4",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

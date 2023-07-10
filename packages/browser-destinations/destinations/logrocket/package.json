@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-logrocket",
+  "name": "@segment/analytics-browser-actions-logrocket",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",

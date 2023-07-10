@@ -1,5 +1,5 @@
 {
-  "name": "@segment/actions-iterate",
+  "name": "@segment/analytics-browser-actions-iterate",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/cjs",
