@@ -1,7 +1,7 @@
-import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { makePostRequest, makeGetRequest, getAuthToken } from '../listrak'
+import { makePostRequest, makeGetRequest } from '../listrak'
 import { HTTPError } from '@segment/actions-core'
 
 interface List {
@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
           nextPage: '',
           error: {
             message: (err as HTTPError).message ?? 'Unknown error',
-            code: (err as HTTPError).response.status + '' ?? 'Unknown error'
+            code: (err as HTTPError).response?.status + '' ?? 'Unknown error'
           }
         }
       }

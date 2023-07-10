@@ -41,59 +41,54 @@ export async function getAuthToken(request: RequestClient, settings: Settings): 
   }
 }
 
-export async function makePostRequest(request: RequestClient, settings: Settings, url: string, jsonBody: any): Promise<void> {
-  if (!accessToken) {
-    await getAuthToken(request, settings)
-  }
-
-  const makeRequest = async () =>
-    request(url, {
+export async function makePostRequest(
+  request: RequestClient,
+  settings: Settings,
+  url: string,
+  jsonBody: any
+): Promise<void> {
+  const requestCall = async () =>
+    await request(url, {
       method: 'POST',
       json: jsonBody,
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     })
-
-  try {
-    await makeRequest()
-  } catch (err) {
-    if (isResponseUnauthorized(err)) {
-      clearToken()
-      await getAuthToken(request, settings)
-      await makeRequest()
-    }
-  }
+  return await MakeRequest(request, settings, url, requestCall, {})
 }
 
-async function makeGetRequestHelper<T>(request: RequestClient, url: string): Promise<ModifiedResponse<T>> {
-  return await request(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
+export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
+  const requestCall = async () =>
+    await request(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+  return await MakeRequest<T>(request, settings, url, requestCall, {})
 }
-    
 
-export async function makeGetRequest<T>(
+async function MakeRequest<T>(
   request: RequestClient,
   settings: Settings,
-  url: string
-): Promise<T> {
+  url: string,
+  requestCall: any,
+  jsonBody: any
+) {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
-  
+
   try {
-    return await makeGetRequestHelper<T>(request, url) as T
+    return await requestCall(request, url, jsonBody)
   } catch (err) {
     if (isResponseUnauthorized(err)) {
       clearToken()
       await getAuthToken(request, settings)
-      return await makeGetRequestHelper<T>(request, url) as T
+      return (await requestCall(request, url)) as T
     }
-    throw err;
+    throw err
   }
 }
 
