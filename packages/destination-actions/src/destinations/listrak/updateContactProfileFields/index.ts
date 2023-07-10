@@ -1,10 +1,11 @@
 import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getAuthToken } from '../listrak'
+import { clearToken, getAuthToken } from '../listrak'
+import { HTTPError } from '@segment/actions-core'
 
 interface List {
-  listId: number,
+  listId: number
   listName: string
 }
 
@@ -62,12 +63,14 @@ const action: ActionDefinition<Settings, Payload> = {
           skipResponseCloning: true
         })
 
-        const choices = response.data.data.sort(function (a, b) {
-          return a.listName.toLowerCase().localeCompare(b.listName.toLowerCase());
-        }).map((list) => {
-          return { value: list.listId.toString(), label: list.listName }
-        })
-        
+        const choices = response.data.data
+          .sort(function (a, b) {
+            return a.listName.toLowerCase().localeCompare(b.listName.toLowerCase())
+          })
+          .map((list) => {
+            return { value: list.listId.toString(), label: list.listName }
+          })
+
         return {
           choices
         }
@@ -86,27 +89,49 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, data) => {
     const accessToken = await getAuthToken(request, data.settings)
 
-    await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
-      method: 'POST',
-      json: [
-        {
-          emailAddress: data.payload.emailAddress,
-          segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
+    try {
+      await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
+        method: 'POST',
+        json: [
+          {
+            emailAddress: data.payload.emailAddress,
+            segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
+          }
+        ],
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
-      ],
-      headers: {
-        Authorization: `Bearer ${accessToken}`
+      })
+    } catch (err) {
+      const httpError = err as HTTPError
+      if (httpError.response.status && httpError.response.status === 401) {
+        clearToken()
+        const accessToken = await getAuthToken(request, data.settings)
+        await request(`https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`, {
+          method: 'POST',
+          json: [
+            {
+              emailAddress: data.payload.emailAddress,
+              segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
+            }
+          ],
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
       }
-    })
+    }
   }
 }
 export default action
 
-function createValidSegmentationFields(profileFieldValues:  {[k: string]: unknown}) {
-  return Object.keys(profileFieldValues).filter((x) => parseInt(x)).map(x => {
-    return {
-      segmentationFieldId: parseInt(x),
-      value: profileFieldValues[x]
-    }
-  })
+function createValidSegmentationFields(profileFieldValues: { [k: string]: unknown }) {
+  return Object.keys(profileFieldValues)
+    .filter((x) => parseInt(x))
+    .map((x) => {
+      return {
+        segmentationFieldId: parseInt(x),
+        value: profileFieldValues[x]
+      }
+    })
 }
