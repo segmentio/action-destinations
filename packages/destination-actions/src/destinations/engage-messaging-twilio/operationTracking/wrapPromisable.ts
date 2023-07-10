@@ -22,41 +22,47 @@ export function wrapPromisable<T>(
   const ctx: WrapContext = {}
   args.onTry?.(ctx)
   let finallyRes: { result: Awaited<T> } | { error: unknown } | undefined = undefined
-
-  try {
-    const res = fn()
-    if (isPromise<Awaited<T>>(res))
-      return (async () => {
-        try {
-          const resolvedResult = await res
-          finallyRes = { result: resolvedResult }
-          args.onSuccess?.(resolvedResult, ctx)
-          return resolvedResult
-        } catch (error) {
-          // eslint-disable-next-line no-ex-assign
-          if (args.onPrepareError) error = args.onPrepareError(error, ctx) || error
-          finallyRes = { error }
-          if (!args.onCatch) throw error
-          return args.onCatch(error, ctx)
-        } finally {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          args.onFinally?.(finallyRes!, ctx)
-        }
-      })() as any as T // eslint-disable-line @typescript-eslint/no-explicit-any -- to make the type checker happy
-
-    finallyRes = { result: res as Awaited<T> }
-    args.onSuccess?.(res as Awaited<T>, ctx)
-    return res
-  } catch (error) {
+  let immediateResultIsPromise = false
+  function onSuccess(resolvedResult: Awaited<T>) {
+    finallyRes = { result: resolvedResult }
+    args.onSuccess?.(resolvedResult, ctx)
+    return resolvedResult
+  }
+  function onError(error: unknown) {
     // eslint-disable-next-line no-ex-assign
     if (args.onPrepareError) error = args.onPrepareError(error, ctx) || error
     finallyRes = { error }
     if (!args.onCatch) throw error
     return args.onCatch(error, ctx)
+  }
+
+  function onFinally() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    args.onFinally?.(finallyRes!, ctx)
+  }
+
+  try {
+    const res = fn()
+
+    // eslint-disable-next-line no-cond-assign -- otherwise typeguard res is Promise won't work and we'll have to cast on await res
+    if ((immediateResultIsPromise = isPromise<Awaited<T>>(res)))
+      return (async () => {
+        try {
+          return onSuccess(await res)
+        } catch (error) {
+          return onError(error)
+        } finally {
+          onFinally()
+        }
+      })() as any as T // eslint-disable-line @typescript-eslint/no-explicit-any -- to make the type checker happy
+
+    return onSuccess(res as Awaited<T>)
+  } catch (error) {
+    return onError(error)
   } finally {
-    if (finallyRes)
+    if (!immediateResultIsPromise)
       // don't run it if it's a promise
-      args.onFinally?.(finallyRes, ctx)
+      onFinally()
   }
 }
 // Copied from Typescript libs v4.5. Once we upgrade to v4.5, we can remove this

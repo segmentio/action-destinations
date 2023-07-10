@@ -231,10 +231,12 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
+    if ('deliveryAttempt' in (this.executeInput as any)['rawData'])
+      this.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
   }
 
   @track({
-    onError: (_e) => ({
+    onError: () => ({
       error: new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
     })
   })

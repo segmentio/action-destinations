@@ -24,7 +24,7 @@ export interface TrackArgs {
     ctx: OperationContext
   ) =>
     | {
-        error?: unknown
+        error?: TrackedError
         tags?: string[]
       }
     | void
@@ -144,7 +144,6 @@ export abstract class OperationTracker {
       trackArgs: runArgs.trackArgs,
       methodArgs: runArgs.methodArgs,
       onFinally: [],
-      //traceId: this.currentOperation?.traceId || generateQuickGuid(),
       parent: this.currentOperation
     } as any
 
@@ -195,7 +194,7 @@ export abstract class OperationTracker {
     const errPrep = trArgs?.onError?.apply(this, [ctx.error, ctx])
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (errPrep?.error && errPrep?.error != ctx.error) {
-      trackedError = errPrep.error as TrackedError
+      trackedError = errPrep.error
       trackedError.underlyingError = origError
       trackedError.trackedContext = ctx
       //trackedError.tags = [...(origError.tags || [])] // if we want to inherit tags from original error
@@ -236,10 +235,6 @@ export abstract class OperationTracker {
    */
   onOperationFinallyHookError?(finallyHandlerError: unknown, ctx: OperationContext): void
 }
-
-// function generateQuickGuid(): string {
-//   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-// }
 
 type GenericMethodDecorator<This = unknown, TFunc extends (...args: any[]) => any = (...args: any) => any> = (
   target: This,

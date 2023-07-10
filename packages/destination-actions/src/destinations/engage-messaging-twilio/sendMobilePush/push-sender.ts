@@ -153,7 +153,8 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     /*
      * if every device failed to send, lets attempt to retry if possible
      */
-    if (failedSends.length && failedSends.length === recipientDevices.length) {
+    if (failedSends.length === recipientDevices.length) {
+      //This statement wont be reached if recipientDevices.length = 0
       if (failureIsRetryable) {
         throw new RetryableError(
           'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0])
