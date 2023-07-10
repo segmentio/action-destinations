@@ -52,9 +52,12 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     listId: async (request, data): Promise<DynamicFieldResponse> => {
       try {
-        const accessToken = await getAuthToken(request, data.settings)
-
-        const response: ListsResponse = await makeGetRequest(request, data.settings, 'https://api.listrak.com/email/v1/List' )
+        let t: ListsResponse = await request('')
+        const response: ListsResponse = await makeGetRequest(
+          request,
+          data.settings,
+          'https://api.listrak.com/email/v1/List'
+        )
 
         const choices = response.data.data
           .sort(function (a, b) {
@@ -84,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
       request,
       data.settings,
       `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
-      
+
       [
         {
           emailAddress: data.payload.emailAddress,
