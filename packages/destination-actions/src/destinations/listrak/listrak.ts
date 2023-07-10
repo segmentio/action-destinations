@@ -1,7 +1,7 @@
 import { RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-let accessToken: string = ''
+let accessToken = ''
 
 export const clearToken = () => {
   accessToken = '';
