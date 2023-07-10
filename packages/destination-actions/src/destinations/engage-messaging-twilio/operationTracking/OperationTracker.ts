@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { OperationContext } from './OperationContext'
+import { OperationTrackHooks } from './OperationTrackHooks'
+import { TrackedError } from './TrackedError'
 import { wrapPromisable } from './wrapPromisable'
 
 /**
@@ -10,16 +13,6 @@ export interface TrackArgs {
    * The name is used in log messages and stats metric - so it should be only using alphanumeric, underscores and dots
    */
   operation?: string
-  /**
-   * should the method execution be logged at current ctx.state (try/finally)?
-   * False by default and true for Finally state
-   */
-  shouldLog?: (ctx: OperationContext) => boolean | void
-  /**
-   * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
-   * False by default and true for Finally state
-   */
-  shouldStats?: (args: OperationStatsEventArgs) => boolean | void
   /**
    * Callback for preparing Error object to be logged/rethrown.
    * @param error error thrown by the tracked method
@@ -110,11 +103,25 @@ export type TrackedRunArgs<TMethod extends (...methodArgs: any[]) => any> = {
  * Class that performs tracking of operation execution
  */
 export abstract class OperationTracker {
-  abstract logInfo(msg: string, metadata?: object): void
+  abstract initHooks(): { [key: string]: OperationTrackHooks } | OperationTrackHooks[]
+  _hooks: { [key: string]: OperationTrackHooks } | OperationTrackHooks[] | undefined
+  get hooks(): { [key: string]: OperationTrackHooks } | OperationTrackHooks[] {
+    //lazy initialization of hooks
+    if (!this._hooks) this._hooks = this.initHooks() || []
+    return this._hooks
+  }
 
-  abstract logError(msg: string, metadata?: object): void
-
-  abstract stats<TStatsMethod extends StatsMethod>(args: StatsArgs<TStatsMethod>): void
+  forEachHook(handler: (hooks: OperationTrackHooks) => void, ctx: OperationContext) {
+    const defaultPriority = 9999 //Number.MAX_SAFE_INTEGER
+    const prioritizedHooks = Object.values(this.hooks).sort((h1, h2) => {
+      const p1 = h1.getHookPriority ? h1.getHookPriority(ctx) : defaultPriority
+      const p2 = h2.getHookPriority ? h2.getHookPriority(ctx) : defaultPriority
+      return (p1 === undefined ? defaultPriority : p1) - (p2 === undefined ? defaultPriority : p2)
+    })
+    for (const hook of prioritizedHooks) {
+      handler(hook)
+    }
+  }
 
   private _currentOperation?: OperationContext //once we upgrade to TS 4.3, we can use private field #currentOperation
 
@@ -123,21 +130,6 @@ export abstract class OperationTracker {
    */
   get currentOperation(): OperationContext | undefined {
     return this._currentOperation
-  }
-
-  /**
-   * Get stack of operation contexts from root to current
-   * @param ctx current operation context
-   * @returns array of operation contexts
-   */
-  getOperationsStack(ctx?: OperationContext): OperationContext[] {
-    const res: OperationContext[] = []
-    let oper: OperationContext | undefined = ctx || this.currentOperation
-    while (oper) {
-      res.unshift(oper)
-      oper = oper.parent
-    }
-    return res
   }
 
   /**
@@ -151,12 +143,10 @@ export abstract class OperationTracker {
       state: 'try',
       trackArgs: runArgs.trackArgs,
       methodArgs: runArgs.methodArgs,
-      tags: [],
-      logs: [],
       onFinally: [],
       //traceId: this.currentOperation?.traceId || generateQuickGuid(),
       parent: this.currentOperation
-    }
+    } as any
 
     return wrapPromisable(() => runArgs.method.apply(runArgs.methodThis, runArgs.methodArgs), {
       onTry: () => this.onOperationTry(ctx),
@@ -177,56 +167,16 @@ export abstract class OperationTracker {
   }
 
   /**
-   * Defines if logging should happen for operation state by default when it's not explicitly specified in TrackArgs.
-   * By default implementation it returns true (log on each state of the operation)
-   * @param _ctx operation context
-   * @returns
-   */
-  protected shouldLogDefault(_ctx: OperationContext): boolean {
-    return true
-  }
-
-  /**
    * Invoked before running the tracked method
    * @param ctx operation context
    */
-  protected onOperationTry(ctx: OperationContext): void {
+  onOperationTry(ctx: OperationContext): void {
+    this.forEachHook((ext) => ext.beforeOperationTry?.(ctx), ctx)
+
     this._currentOperation = ctx
     ctx.startTime = Date.now()
-    this.onOperationTryLog(ctx)
-    this.onOperationTryStats(ctx)
-  }
 
-  protected onOperationTryStats(ctx: OperationContext) {
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'try',
-      shouldStats: false,
-      stats: {
-        metric: `${ctx.operation}.try`,
-        method: 'incr',
-        value: 1,
-        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
-      }
-    })
-  }
-
-  protected statsOperationEvent(args: OperationStatsEventArgs) {
-    if (args.context.trackArgs?.shouldStats) {
-      const shouldStats = args.context.trackArgs.shouldStats(args)
-      if (shouldStats !== undefined) args.shouldStats = shouldStats
-    }
-    if (args.shouldStats && args.stats) {
-      this.stats(args.stats)
-    }
-  }
-
-  private onOperationTryLog(ctx: OperationContext) {
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-    if (shouldLog !== false) {
-      const fullLogMessage = this.extractLogMessages(ctx)?.join('. ')
-      this.logInfo(fullLogMessage)
-    }
+    this.forEachHook((ext) => ext.afterOperationTry?.(ctx), ctx)
   }
 
   /**
@@ -234,7 +184,9 @@ export abstract class OperationTracker {
    * The error can be modified or reassigned in ctx.error
    * @param ctx operation context
    */
-  protected onOperationPrepareError(ctx: OperationContext): void {
+  onOperationPrepareError(ctx: OperationContext): void {
+    this.forEachHook((ext) => ext.beforeOperationPrepareError?.(ctx), ctx)
+
     const origError = ctx.error
     const trArgs = ctx.trackArgs
     let trackedError = origError as TrackedError
@@ -255,61 +207,26 @@ export abstract class OperationTracker {
       Object.defineProperty(trackedError, 'trackedContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
     ctx.error = trackedError
 
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'catch',
-      shouldStats: false,
-      stats: {
-        metric: `${ctx.operation}.catch`,
-        method: 'incr',
-        value: 1,
-        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
-      }
-    })
+    this.forEachHook((ext) => ext.afterOperationPrepareError?.(ctx), ctx)
   }
 
   /**
    * Invokes in finally section after the tracked method is executed. At this point ctx.error or ctx.result are set
    * @param ctx operation context
    */
-  protected onOperationFinally(ctx: OperationContext): void {
-    const start = ctx.startTime as number
-    ctx.duration = Date.now() - start
-
-    ctx.logs.push(...(this.extractLogMessages(ctx) || []))
-    ctx.tags.push(...(this.extractTags(ctx) || []))
+  onOperationFinally(ctx: OperationContext): void {
+    this.forEachHook((ext) => ext.beforeOperationFinally?.(ctx), ctx)
 
     // call onFinally hooks, which may modify the context (e.g. change tags/log messages)
     for (const onFinally of ctx.onFinally || []) {
       try {
         onFinally(ctx)
       } catch (finallyHandlerError) {
-        this.onOperationFinallyHookError(finallyHandlerError, ctx)
+        this.onOperationFinallyHookError?.(finallyHandlerError, ctx)
       }
     }
-
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-    if (shouldLog !== false) {
-      const fullLogMessage = (ctx.logs?.filter((t) => t) || []).join('. ')
-      if (ctx.error) this.logError(fullLogMessage, ctx.error)
-      else this.logInfo(fullLogMessage)
-    }
-
-    const finallyTags = ctx.tags?.filter((t) => t) || []
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'finally',
-      shouldStats: true,
-      stats: { metric: `${ctx.operation}`, method: 'incr', extraTags: finallyTags, value: 1 }
-    })
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'duration',
-      shouldStats: true,
-      stats: { metric: `${ctx.operation}.duration`, method: 'histogram', extraTags: finallyTags, value: ctx.duration }
-    })
-
     this._currentOperation = ctx.parent
+    this.forEachHook((ext) => ext.afterOperationFinally?.(ctx), ctx)
   }
 
   /**
@@ -317,135 +234,7 @@ export abstract class OperationTracker {
    * @param finallyHandlerError error happened in onFinally hook
    * @param ctx current operation context
    */
-  protected onOperationFinallyHookError(finallyHandlerError: unknown, ctx: OperationContext) {
-    this.logError(`Operation ${ctx.operation} onFinally handler error: ${this.getErrorMessage(finallyHandlerError)}`)
-  }
-
-  /**
-   * Extracts all stats tags for the operation's completion metrics
-   * @param ctx operation context
-   * @returns
-   */
-  protected extractTags(ctx: OperationContext): string[] {
-    const res: string[] = []
-    res.push(`error:${ctx.error ? 'true' : 'false'}`)
-    if (ctx.error) {
-      const error = ctx.error as TrackedError
-      res.push(...(this.extractTagsFromError(error, ctx) || []))
-    }
-
-    return res
-  }
-
-  /**
-   * Called by extractTags to extract tags from the error. The error may have happened on the child operation (in this case error.trackedContext != ctx)
-   * @param error error to extract tags from
-   * @param ctx operation context (may be different from the error.trackedContext)
-   * @returns
-   */
-  protected extractTagsFromError(error: TrackedError, ctx: OperationContext): string[] {
-    const res: string[] = []
-    const errorContext = error.trackedContext
-    res.push(`error_operation:${errorContext?.operation || ctx.operation}`)
-    res.push(`error_class:${error?.constructor?.name || typeof error}`)
-    // for all upstream operations add error tags
-    if (error.tags /* && error.trackedContext == ctx */) res.push(...error.tags)
-
-    return res
-  }
-
-  /**
-   * Extracts all log messages for the operation log message on operation states (try|finally only)
-   * @param ctx operation context
-   * @returns list of log messages (will be concatenated with '. ' in the result log message)
-   */
-  protected extractLogMessages(ctx: OperationContext): string[] {
-    const res: string[] = []
-    switch (ctx.state) {
-      case 'try':
-        res.push(this.getOperationTryMessage(ctx))
-        break
-      case 'finally':
-        res.push(this.getOperationCompletedMessage(ctx))
-        if (ctx.error) {
-          const error = ctx.error as TrackedError
-          res.push(...(this.getOperationErrorDetails(error, ctx) || []))
-        }
-        break
-      default:
-        break
-    }
-    return res
-  }
-
-  /**
-   * Gets the log message of the operation attempt
-   * @param ctx operation
-   * @returns
-   */
-  protected getOperationTryMessage(ctx: OperationContext): string {
-    const fullOperationName = this.getOperationsStack(ctx)
-      .map((op) => op.operation)
-      .join(' > ')
-    return `${fullOperationName} starting...`
-  }
-
-  /**
-   * Gets the first part of the operation's completion log message.
-   * Should describe the name/path of operation, duration and whether it succeeded or failed.
-   * It should not contain the details of failure, as it's covered by extractLogMessagesFromError
-   * @param ctx operation context
-   * @returns
-   */
-  protected getOperationCompletedMessage(ctx: OperationContext): string {
-    const hasError = !!ctx.error
-    const fullOperationName = this.getOperationsStack(ctx)
-      .map((op) => op.operation)
-      .join(' > ')
-    return `${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${ctx.duration} ms`
-  }
-
-  /**
-   * Called by extractLogMessages to extract log messages from the error as well as its Underlying Error
-   * The error may have happened on the child operation (in this case error.trackedContext != ctx)
-   * @param error error to get log messages from
-   * @param ctx current operation context (may be different from the error.trackedContext)
-   * @returns list of log messages (will be concatenated with '. ' in the result log message)
-   */
-  protected getOperationErrorDetails(error: TrackedError, ctx: OperationContext): string[] {
-    const errorContext = error.trackedContext
-    const logMessages: string[] = []
-    logMessages.push(this.getErrorMessage(error, ctx))
-    if (errorContext == ctx && error.underlyingError) {
-      logMessages.push(`Underlying error: ${this.getErrorMessage(error.underlyingError, ctx)}`)
-    }
-    return logMessages
-  }
-
-  /**
-   * Error parsing function. Override to customize error message for different error types
-   * @param error error to get message from
-   * @param _ctx current operation context
-   * @returns
-   */
-  protected getErrorMessage(error: unknown, _ctx?: OperationContext): string {
-    if (error instanceof Error) {
-      const trError = error as TrackedError
-      const errorClass = trError?.constructor?.name
-      return `${errorClass || '[undefined]'}: ${trError.message}`
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return (error as any)?.toString?.() || 'unknown error'
-  }
-}
-
-export type StatsMethod = 'incr' | 'histogram' | 'set'
-
-export type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
-  method?: TStatsMethod
-  metric: string
-  value?: number
-  extraTags?: string[]
+  onOperationFinallyHookError?(finallyHandlerError: unknown, ctx: OperationContext): void
 }
 
 // function generateQuickGuid(): string {
@@ -457,87 +246,3 @@ type GenericMethodDecorator<This = unknown, TFunc extends (...args: any[]) => an
   propertyKey: string,
   descriptor: TypedPropertyDescriptor<TFunc>
 ) => TypedPropertyDescriptor<TFunc> | void
-
-/**
- * Tracked Operation Context - contains all the information about the operation
- */
-export type OperationContext = {
-  /**
-   * Operation name - used for metric naming and log messages. Can only use alphanumberics,dots or underscores
-   */
-  operation: string
-  /**
-   * Operation's current state (try/catch/finally)
-   */
-  state: 'try' | 'catch' | 'finally'
-  // /**
-  //  * TraceId - unique identifier of the operation shared accross parent/child operations
-  //  */
-  // traceId: string
-  /**
-   * track configuration provided in the tracked decorator factory
-   */
-  trackArgs?: TrackArgs
-  /**
-   * Parent operation context - let you traverse the path of the operation
-   */
-  parent?: OperationContext
-  /**
-   * contains result of the operation's underlying function if it was executed successfully
-   */
-  result?: any
-  /**
-   * contains error of the operation's underlying function if it failed
-   */
-  error?: any
-  /**
-   * log messages collected during the operation that will be logged at the end of the operation
-   */
-  logs: string[]
-  /**
-   * tags collected during the operation that will be added to the operation completion metrics
-   */
-  tags: string[]
-  /**
-   * extra finally handlers of the operation that can be appended by the underlying function so it can add extra tags/log messages. E.g. add parameter of the function to the log in case of operation failure
-   */
-  onFinally: ((ctx: OperationContext) => void)[]
-  /**
-   * underlying function args (can be used for logging purposes)
-   */
-  methodArgs: unknown[]
-
-  [key: string]: any
-}
-
-/**
- * Error object that contains tracked data
- */
-export interface TrackedError extends Error {
-  /**
-   * Underlying error that this error wraps
-   */
-  underlyingError?: unknown
-  /**
-   * Operation context during which the error happened
-   */
-  trackedContext?: OperationContext
-  /**
-   * Tags to add to the operation completion metrics
-   */
-  tags?: string[]
-
-  [key: string]: any
-}
-
-export type OperationStatsEvent = OperationContext['state'] | 'duration'
-
-/**
- * configuration of the operation event to stats
- */
-export interface OperationStatsEventArgs {
-  event: OperationStatsEvent
-  context: OperationContext
-  stats: StatsArgs
-  shouldStats: boolean
-}

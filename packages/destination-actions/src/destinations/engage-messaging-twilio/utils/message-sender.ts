@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
@@ -11,7 +12,10 @@ import {
   TrackedError,
   OperationContext,
   OperationTracker,
-  createTrackDecoratorFactory
+  createTrackDecoratorFactory,
+  OperationLogger,
+  OperationStats,
+  OperationDuration
 } from '../operationTracking'
 
 const Liquid = new LiquidJs()
@@ -326,37 +330,56 @@ export function isDestinationActionService() {
 }
 
 class MessageOperationTracker extends OperationTracker {
+  static Logger = class extends OperationLogger {
+    constructor(public messageSender: MessageSender<any>) {
+      super()
+    }
+    logInfo(msg: string, metadata?: object): void {
+      this.messageSender.logInfo(msg, ...(metadata ? [JSON.stringify(metadata)] : []))
+    }
+    logError(msg: string, _metadata?: object): void {
+      this.messageSender.logError(undefined, msg)
+    }
+    // getErrorMessage(error: unknown, ctx: OperationContext) {
+    //   const res = super.getErrorMessage(error, ctx)
+    //   if(error['response']) { ... }
+    // }
+  }
+
+  static Stats = class extends OperationStats {
+    constructor(public messageSender: MessageSender<any>) {
+      super()
+    }
+    stats(args: StatsArgs): void {
+      this.messageSender.stats(args)
+    }
+
+    extractTagsFromError(error: TrackedError, ctx: OperationContext) {
+      const res = super.extractTagsFromError(error, ctx)
+      if (error instanceof IntegrationError) {
+        if (error.code) res.push(`error_code:${error.code}`)
+        if (error.status) res.push(`error_status:${error.status}`)
+      }
+      return res
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(readonly messageSender: MessageSender<any>) {
     super()
   }
-  logInfo(msg: string, metadata?: object): void {
-    this.messageSender.logInfo(msg, ...(metadata ? [JSON.stringify(metadata)] : []))
-  }
-  logError(msg: string, _metadata?: object): void {
-    this.messageSender.logError(undefined, msg)
-  }
-  stats(args: StatsArgs): void {
-    this.messageSender.stats(args)
+
+  initHooks() {
+    return [
+      new OperationDuration(),
+      new MessageOperationTracker.Logger(this.messageSender),
+      new MessageOperationTracker.Stats(this.messageSender)
+    ]
   }
 
-  extractTagsFromError(error: TrackedError, ctx: OperationContext) {
-    const res = super.extractTagsFromError(error, ctx)
-    if (error instanceof IntegrationError) {
-      if (error.code) res.push(`error_code:${error.code}`)
-      if (error.status) res.push(`error_status:${error.status}`)
-    }
-    return res
-  }
-
-  protected onOperationPrepareError(ctx: OperationContext): void {
-    //if error is already integration error
+  onOperationPrepareError(ctx: OperationContext) {
+    //if error is already integration error we don't run trackArgs.onError
     if (ctx.error instanceof IntegrationError) return
     super.onOperationPrepareError(ctx)
   }
-
-  // getErrorMessage(error: unknown, ctx: OperationContext) {
-  //   const res = super.getErrorMessage(error, ctx)
-  //   if(error instanceof Error)
-  // }
 }

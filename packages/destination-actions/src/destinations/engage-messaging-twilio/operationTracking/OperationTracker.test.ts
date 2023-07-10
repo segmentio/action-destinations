@@ -1,11 +1,37 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+import { OperationDuration } from './OperationDuration'
+import { OperationLogger } from './OperationLogger'
+import { OperationStats } from './OperationStats'
 import { OperationTracker, TrackArgs, createTrackDecoratorFactory } from './OperationTracker'
 
 class TestTracker extends OperationTracker {
-  logInfo = jest.fn()
-  logError = jest.fn()
-  stats = jest.fn()
+  static TestLogger = class extends OperationLogger {
+    logInfo = jest.fn()
+    logError = jest.fn()
+  }
+
+  static TestStats = class extends OperationStats {
+    stats = jest.fn()
+  }
+
+  _logger = new TestTracker.TestLogger()
+
+  _stats = new TestTracker.TestStats()
+
+  initHooks() {
+    return [this._logger, this._stats, new OperationDuration()]
+  }
+
+  get logInfo() {
+    return this._logger.logInfo
+  }
+  get logError() {
+    return this._logger.logError
+  }
+  get stats() {
+    return this._stats.stats
+  }
 }
 
 const testTrack = createTrackDecoratorFactory<any>((t) => t.tracker)
@@ -16,7 +42,7 @@ function createTestClass(
   asyncMethods: boolean
 ) {
   class MyTestTargetBase {
-    tracker: OperationTracker = new TestTracker()
+    tracker = new TestTracker()
 
     testMethodImpl = jest.fn(testMethodImpl)
 
