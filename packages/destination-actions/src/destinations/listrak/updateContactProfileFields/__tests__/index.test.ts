@@ -156,7 +156,7 @@ describe('updateContactProfileFields', () => {
   it('List ID dynamic field tries to retreive and throws error', async () => {
     withGetAccessToken()
 
-    nock('https://api.listrak.com/email/v1').get('/List').matchHeader('authorization', `Bearer token`).reply(500)
+    withGetListsInternalServerError()
 
     const settings = {
       client_id: 'clientId1',
@@ -343,6 +343,10 @@ describe('updateContactProfileFields', () => {
     verifyNocks()
   })
 })
+
+function withGetListsInternalServerError() {
+  nock('https://api.listrak.com/email/v1').get('/List').matchHeader('authorization', `Bearer token`).reply(500)
+}
 
 function withGetLists() {
   nock('https://api.listrak.com/email/v1')
