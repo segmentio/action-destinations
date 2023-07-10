@@ -1,6 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, DynamicFieldResponse, DynamicFieldResponse } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
+import { clearToken, setToken } from '../../listrak'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -12,10 +13,12 @@ const verifyNocks = () => {
 
 describe('updateContactProfileFields', () => {
   beforeEach(() => {
+    clearToken()
     nock.cleanAll()
   })
   
   it('No Auth Token updates contact profile fields', async () => {
+
     nock('https://auth.listrak.com')
       .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')
       .matchHeader('Content-Type', 'application/x-www-form-urlencoded')
@@ -208,8 +211,8 @@ describe('updateContactProfileFields', () => {
     verifyNocks()
   })
 
-  it('Auth token does, does not retrieve one', async () => {
-
+  it('Auth token does exist, does not retrieve one', async () => {
+    setToken('token')
     nock('https://api.listrak.com/email/v1')
       .post('/List/123/Contact/SegmentationField', [
         {

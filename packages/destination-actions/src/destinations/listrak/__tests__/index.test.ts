@@ -1,10 +1,17 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { clearToken } from '../listrak'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('testAuthentication', () => {
+
+  beforeEach(() => {
+    clearToken()
+    nock.cleanAll()
+  })
+
   it('Should pass client id and secret to auth endpoint and verify access token received', async () => {
     nock('https://auth.listrak.com')
       .post('/OAuth2/Token', 'client_id=clientId1&client_secret=clientSecret1&grant_type=client_credentials')

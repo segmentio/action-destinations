@@ -1,13 +1,22 @@
 import { RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export type ClientCredentials = {
-  client_id: string
-  client_secret: string
-  access_token?: string
-} 
+let accessToken: string = ''
+
+export const clearToken = () => {
+  accessToken = '';
+}
+
+export const setToken = (value: string) => {
+  accessToken = value;
+}
 
 export const getAuthToken = async (request: RequestClient, settings: Settings): Promise<string> => {
+
+  if(accessToken) {
+    return accessToken;
+  }
+
   const res = await request(`https://auth.listrak.com/OAuth2/Token`, {
     method: 'POST',
     body: new URLSearchParams({
@@ -26,6 +35,7 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
     if (!json.access_token) {
       throw new RetryableError(`Error while getting an access token`)
     }
+    setToken(json.access_token)
     return json.access_token
   } catch {
     throw new RetryableError(`Error while getting an access token`)
