@@ -1,6 +1,4 @@
-interface WrapContext {
-  [key: string]: unknown
-}
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Wraps parameterless function execution in try/catch/finally allowing to define callback to be called in all those sections and return the result of the original function execution.
@@ -82,4 +80,11 @@ function isPromise<T = unknown>(obj: unknown): obj is Promise<T> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return obj instanceof Object && 'then' in obj && typeof obj.then === 'function'
+}
+
+/**
+ * context shared between args callbacks within same wrapped function call
+ */
+interface WrapContext {
+  [key: string]: unknown
 }
