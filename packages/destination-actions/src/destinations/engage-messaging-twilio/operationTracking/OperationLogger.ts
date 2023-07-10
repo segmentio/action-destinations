@@ -141,7 +141,7 @@ export abstract class OperationLogger implements OperationTrackHooks {
     const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
       const fullLogMessage = (ctx.logs?.filter((t) => t) || []).join('. ')
-      if (ctx.error) this.logError(fullLogMessage, ctx.error)
+      if (ctx.error) this.logError(fullLogMessage, { error: ctx.error })
       else this.logInfo(fullLogMessage)
     }
   }

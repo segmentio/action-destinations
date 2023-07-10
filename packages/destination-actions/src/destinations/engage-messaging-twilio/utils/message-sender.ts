@@ -29,7 +29,7 @@ export const track = createTrackDecoratorFactory<{ operationTracker: OperationTr
 )
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  operationTracker: MessageOperationTracker = new MessageOperationTracker(this)
+  readonly operationTracker: MessageOperationTracker
 
   get currentOperation(): OperationContext | undefined {
     return this.operationTracker.currentOperation
@@ -41,29 +41,15 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   readonly payload: MessagePayload
   readonly settings: Settings
-  readonly statsClient: StatsClient | undefined
-  readonly tags: StatsContext['tags']
-  readonly logger: Logger | undefined
 
-  constructor(
-    readonly requestRaw: RequestFn,
-    readonly executeInput: ExecuteInput<Settings, MessagePayload>,
-    readonly logDetails: Record<string, unknown> = {}
-  ) {
+  constructor(readonly requestRaw: RequestFn, readonly executeInput: ExecuteInput<Settings, MessagePayload>) {
     this.payload = executeInput.payload
     this.settings = executeInput.settings
-    this.statsClient = executeInput.statsContext?.statsClient
-    this.tags = executeInput.statsContext?.tags ?? []
     if (!this.settings.region) {
       this.settings.region = 'us-west-1'
     }
-    this.tags.push(
-      `space_id:${this.settings.spaceId}`,
-      `projectid:${this.settings.sourceId}`,
-      `region:${this.settings.region}`,
-      `channel:${this.getChannelType()}`
-    )
-    this.logger = executeInput.logger
+
+    this.operationTracker = new MessageOperationTracker(this)
   }
 
   @track()
@@ -128,34 +114,12 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return this.executeInput.features[featureName]
   }
 
-  logInfo(...msgs: string[]) {
-    if (!this.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
-    const [firstMsg, ...rest] = msgs
-    this.logger?.info(
-      `TE Messaging: ${this.getChannelType().toUpperCase()} ${firstMsg}`,
-      ...rest,
-      JSON.stringify(this.logDetails)
-    )
+  logInfo(msg: string, metadata?: object) {
+    this.operationTracker.logger.logInfo(msg, metadata)
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logError(error?: any, ...msgs: string[]) {
-    if (!this.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
-    const msgPrefix = `TE Messaging: ${this.getChannelType().toUpperCase()}`
-    const [firstMsg, ...rest] = msgs
-    if (typeof error === 'string') {
-      this.logger?.error(`${msgPrefix} ${error}`, ...msgs, JSON.stringify(this.logDetails))
-    } else {
-      this.logger?.error(
-        `${msgPrefix}} ${firstMsg}`,
-        ...rest,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        ...(error ? [error instanceof Error ? error.message : error?.toString()] : []),
-        JSON.stringify(this.logDetails)
-      )
-    }
+  logError(msg: string, metadata?: object) {
+    this.operationTracker.logger.logError(msg, metadata)
   }
-
   /**
    * Add a message to the log of current tracked operation, only if error happens during current operation. You can add some arguments here
    * @param getLogMessage
@@ -170,35 +134,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   stats(statsArgs: StatsArgs): void {
-    if (!this.statsClient) return
-    const { method: statsMethod, metric, value, extraTags } = statsArgs
-    //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.extraTags]
-    let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
-    if (!statsFunc)
-      switch (
-        statsMethod ||
-        'incr' // have to do this to avoid issues with JS bundler/minifier
-      ) {
-        case 'incr':
-          statsFunc = this.statsClient?.incr.bind(this.statsClient)
-          break
-          break
-        case 'histogram':
-          statsFunc = this.statsClient?.histogram.bind(this.statsClient)
-          break
-          break
-        case 'set':
-          statsFunc = this.statsClient?.set.bind(this.statsClient)
-          break
-          break
-        default:
-          break
-      }
-
-    statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
-      ...this.tags,
-      ...(extraTags ?? [])
-    ])
+    this.operationTracker.stats.stats(statsArgs)
   }
 
   statsIncr(metric: string, value?: number, extraTags?: string[]) {
@@ -211,6 +147,14 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   statsSet(metric: string, value: number, extraTags?: string[]) {
     this.stats({ method: 'set', metric, value, extraTags })
+  }
+
+  get logDetails(): Record<string, unknown> {
+    return this.operationTracker.logger.logDetails
+  }
+
+  get tags(): string[] {
+    return this.operationTracker.stats.tags
   }
 
   /**
@@ -331,16 +275,30 @@ export function isDestinationActionService() {
   )
 }
 
-class MessageOperationTracker extends OperationTracker {
+export class MessageOperationTracker extends OperationTracker {
   static Logger = class extends OperationLogger {
     constructor(public messageSender: MessageSender<any>) {
       super()
+      this.loggerClient = messageSender.executeInput.logger
     }
+    readonly loggerClient: Logger | undefined
+    readonly logDetails: Record<string, unknown> = {}
+
     logInfo(msg: string, metadata?: object): void {
-      this.messageSender.logInfo(msg, ...(metadata ? [JSON.stringify(metadata)] : []))
+      const msgs = [msg, ...(metadata ? [JSON.stringify(metadata)] : [])]
+      if (!this.messageSender.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
+      const [firstMsg, ...rest] = msgs
+      this.loggerClient?.info(
+        `TE Messaging: ${this.messageSender.getChannelType().toUpperCase()} ${firstMsg}`,
+        ...rest,
+        JSON.stringify({ ...this.logDetails, ...metadata })
+      )
     }
-    logError(msg: string, _metadata?: object): void {
-      this.messageSender.logError(undefined, msg)
+
+    logError(msg: string, metadata?: object): void {
+      if (!this.messageSender.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
+      const msgPrefix = `TE Messaging: ${this.messageSender.getChannelType().toUpperCase()}`
+      this.loggerClient?.error(`${msgPrefix}} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
     }
     // getErrorMessage(error: unknown, ctx: OperationContext) {
     //   const res = super.getErrorMessage(error, ctx)
@@ -351,9 +309,49 @@ class MessageOperationTracker extends OperationTracker {
   static Stats = class extends OperationStats {
     constructor(public messageSender: MessageSender<any>) {
       super()
+      this.statsClient = this.messageSender.executeInput.statsContext?.statsClient
+      this.tags = this.messageSender.executeInput.statsContext?.tags ?? []
+      this.tags.push(
+        `space_id:${this.messageSender.settings.spaceId}`,
+        `projectid:${this.messageSender.settings.sourceId}`,
+        `region:${this.messageSender.settings.region}`,
+        `channel:${this.messageSender.getChannelType()}`
+      )
     }
-    stats(args: StatsArgs): void {
-      this.messageSender.stats(args)
+
+    readonly statsClient: StatsClient | undefined
+    readonly tags: StatsContext['tags']
+
+    stats(statsArgs: StatsArgs): void {
+      if (!this.statsClient) return
+      const { method: statsMethod, metric, value, extraTags } = statsArgs
+      //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.extraTags]
+      let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
+      if (!statsFunc)
+        switch (
+          statsMethod ||
+          'incr' // have to do this to avoid issues with JS bundler/minifier
+        ) {
+          case 'incr':
+            statsFunc = this.statsClient?.incr.bind(this.statsClient)
+            break
+            break
+          case 'histogram':
+            statsFunc = this.statsClient?.histogram.bind(this.statsClient)
+            break
+            break
+          case 'set':
+            statsFunc = this.statsClient?.set.bind(this.statsClient)
+            break
+            break
+          default:
+            break
+        }
+
+      statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
+        ...this.tags,
+        ...(extraTags ?? [])
+      ])
     }
 
     extractTagsFromError(error: TrackedError, ctx: OperationContext) {
@@ -371,12 +369,11 @@ class MessageOperationTracker extends OperationTracker {
     super()
   }
 
+  logger = new MessageOperationTracker.Logger(this.messageSender)
+  stats = new MessageOperationTracker.Stats(this.messageSender)
+
   initHooks() {
-    return [
-      new OperationDuration(),
-      new MessageOperationTracker.Logger(this.messageSender),
-      new MessageOperationTracker.Stats(this.messageSender)
-    ]
+    return [new OperationDuration(), this.logger, this.stats]
   }
 
   onOperationPrepareError(ctx: OperationContext) {

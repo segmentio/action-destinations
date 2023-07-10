@@ -202,7 +202,7 @@ export abstract class OperationTracker {
     if (errPrep?.tags) {
       trackedError.tags = [...(trackedError.tags || []), ...errPrep.tags]
     }
-    if (!trackedError.trackedContext)
+    if (trackedError.trackedContext)
       Object.defineProperty(trackedError, 'trackedContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
     ctx.error = trackedError
 
