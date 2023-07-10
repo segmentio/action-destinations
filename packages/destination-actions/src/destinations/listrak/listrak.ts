@@ -3,15 +3,15 @@ import type { Settings } from './generated-types'
 
 let accessToken = ''
 
-export const clearToken = () => {
+export function clearToken() {
   accessToken = ''
 }
 
-export const setToken = (value: string) => {
+export function setToken(value: string) {
   accessToken = value
 }
 
-export const getAuthToken = async (request: RequestClient, settings: Settings): Promise<string> => {
+export async function getAuthToken(request: RequestClient, settings: Settings): Promise<string> {
   if (accessToken) {
     return accessToken
   }
@@ -41,7 +41,7 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
   }
 }
 
-export const makePostRequest = async (request: RequestClient, settings: Settings, url: string, jsonBody: any) => {
+export async function makePostRequest(request: RequestClient, settings: Settings, url: string, jsonBody: any): Promise<void> {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
