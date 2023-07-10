@@ -153,6 +153,32 @@ describe('updateContactProfileFields', () => {
     verifyNocks()
   })
 
+  it('List ID dynamic field tries to retreive and throws error', async () => {
+    withGetAccessToken()
+
+    withGetLists()
+
+    const settings = {
+      client_id: 'clientId1',
+      client_secret: 'clientSecret1'
+    }
+
+    nock('https://api.listrak.com/email/v1')
+      .get('/List')
+      .matchHeader('authorization', `Bearer token`)
+      .reply(500, {
+        choices: [],
+        nextPage: '',
+        error: {
+          message: 'Unknown error',
+          code: 'Unknown error'
+        }
+    })
+
+
+    verifyNocks()
+  })
+
   it('Auth token expired for get lists, retrieves new one', async () => {
     setToken('token')
     withUnauthorizedGetLists()

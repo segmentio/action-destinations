@@ -2,6 +2,7 @@ import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { makePostRequest, makeGetRequest, getAuthToken } from '../listrak'
+import { HTTPError } from '@segment/actions-core'
 
 interface List {
   listId: number
@@ -74,8 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [],
           nextPage: '',
           error: {
-            message: (err as APIError).message ?? 'Unknown error',
-            code: (err as APIError).status + '' ?? 'Unknown error'
+            message: (err as HTTPError).message ?? 'Unknown error',
+            code: (err as HTTPError).response.status + '' ?? 'Unknown error'
           }
         }
       }
