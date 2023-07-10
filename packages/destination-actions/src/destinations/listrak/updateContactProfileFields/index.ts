@@ -1,8 +1,7 @@
 import type { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { makeHttpRequest, clearToken, getAuthToken } from '../listrak'
-import { HTTPError } from '@segment/actions-core'
+import { makePostRequest, makeGetRequest, getAuthToken } from '../listrak'
 
 interface List {
   listId: number
@@ -55,13 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         const accessToken = await getAuthToken(request, data.settings)
 
-        const response: ListsResponse = await request('https://api.listrak.com/email/v1/List', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          },
-          skipResponseCloning: true
-        })
+        const response: ListsResponse = await makeGetRequest(request, data.settings, 'https://api.listrak.com/email/v1/List' )
 
         const choices = response.data.data
           .sort(function (a, b) {
@@ -87,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    await makeHttpRequest(
+    await makePostRequest(
       request,
       data.settings,
       `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,

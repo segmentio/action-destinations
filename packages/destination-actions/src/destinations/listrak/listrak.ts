@@ -40,27 +40,12 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
     throw new RetryableError(`Error while getting an access token`)
   }
 }
-type HttpMethod =
-  | 'get'
-  | 'post'
-  | 'put'
-  | 'delete'
-  | 'patch'
-  | 'head'
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'PATCH'
-  | 'HEAD'
-  | undefined
 
-export const makeHttpRequest = async (
+export const makePostRequest = async (
   request: RequestClient,
   settings: Settings,
   url: string,
-  jsonBody: any,
-  method: HttpMethod
+  jsonBody: any
 ) => {
   if (!accessToken) {
     await getAuthToken(request, settings)
@@ -68,7 +53,7 @@ export const makeHttpRequest = async (
 
   const makeRequest = async () =>
     request(url, {
-      method: method,
+      method: 'POST',
       json: jsonBody,
       headers: {
         Authorization: `Bearer ${accessToken}`
@@ -85,6 +70,35 @@ export const makeHttpRequest = async (
     }
   }
 }
+
+export const makeGetRequest = async <T> (
+  request: RequestClient,
+  settings: Settings,
+  url: string,
+) :Promise<T> =>  {
+  if (!accessToken) {
+    await getAuthToken(request, settings)
+  }
+
+  const makeRequest :T = async () => 
+    request(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+  try {
+    return await makeRequest()
+  } catch (err) {
+    if (isResponseUnauthorized(err)) {
+      clearToken()
+      await getAuthToken(request, settings)
+      return await makeRequest()
+    }
+  }
+}
+
 function isResponseUnauthorized(error: any) {
   const httpError = error as HTTPError
   return httpError.response && httpError.response.status && httpError.response.status === 401
