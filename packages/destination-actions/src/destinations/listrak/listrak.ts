@@ -1,4 +1,4 @@
-import { HTTPError, RequestClient, RetryableError } from '@segment/actions-core'
+import { HTTPError, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 let accessToken = ''
@@ -41,12 +41,7 @@ export const getAuthToken = async (request: RequestClient, settings: Settings): 
   }
 }
 
-export const makePostRequest = async (
-  request: RequestClient,
-  settings: Settings,
-  url: string,
-  jsonBody: any
-) => {
+export const makePostRequest = async (request: RequestClient, settings: Settings, url: string, jsonBody: any) => {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
@@ -71,17 +66,17 @@ export const makePostRequest = async (
   }
 }
 
-export const makeGetRequest = async <T> (
+export async function makeGetRequest<T>(
   request: RequestClient,
   settings: Settings,
-  url: string,
-) :Promise<T> =>  {
+  url: string
+): Promise<ModifiedResponse<T>> {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
 
-  const makeRequest :T = async () => 
-    request(url, {
+  const makeRequest: Promise<ModifiedResponse<T>> = async () =>
+    await request(url, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
