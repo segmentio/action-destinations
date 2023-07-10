@@ -1,4 +1,4 @@
-import { HTTPError, ModifiedResponse, RequestClient, RetryableError } from '@segment/actions-core'
+import { HTTPError, RequestClient, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 let accessToken = ''
@@ -41,49 +41,52 @@ export async function getAuthToken(request: RequestClient, settings: Settings): 
   }
 }
 
+interface RequestBody {
+  method: string
+  json?: object
+}
+
 export async function makePostRequest(
   request: RequestClient,
   settings: Settings,
   url: string,
-  jsonBody: any
+  jsonBody: object
 ): Promise<void> {
-  await MakeRequest(request, settings, url, () => {
-    return {
-      method: 'POST',
-      json: jsonBody,
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    }
+  await MakeRequest(request, settings, url, {
+    method: 'POST',
+    json: jsonBody
   })
 }
 
 export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
-  return await MakeRequest<T>(request, settings, url, () => {
-    return {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    }
+  return await MakeRequest<T>(request, settings, url, {
+    method: 'GET'
   })
 }
 
-async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, getRequestBody: any) {
+async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestBody: RequestBody) {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
 
   try {
-    return (await request(url, getRequestBody())) as T
+    return (await request(url, addAuthorization(requestBody))) as T
   } catch (err) {
     if (isResponseUnauthorized(err)) {
       clearToken()
       await getAuthToken(request, settings)
-      return (await request(url, getRequestBody())) as T
+      return (await request(url, addAuthorization(requestBody))) as T
     }
     throw err
   }
+}
+
+function addAuthorization(requestBody: object) {
+  return Object.assign(requestBody, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
 }
 
 function isResponseUnauthorized(error: any) {

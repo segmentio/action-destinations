@@ -87,7 +87,6 @@ const action: ActionDefinition<Settings, Payload> = {
       request,
       data.settings,
       `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
-
       [
         {
           emailAddress: data.payload.emailAddress,
