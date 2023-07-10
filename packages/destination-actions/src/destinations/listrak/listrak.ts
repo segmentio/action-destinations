@@ -72,7 +72,7 @@ async function MakeRequest<T>(request: RequestClient, settings: Settings, url: s
   try {
     return (await request(url, addAuthorization(requestBody))) as T
   } catch (err) {
-    if (isResponseUnauthorized(err)) {
+    if (isResponseUnauthorized(err as HTTPError)) {
       clearToken()
       await getAuthToken(request, settings)
       return (await request(url, addAuthorization(requestBody))) as T
@@ -89,7 +89,6 @@ function addAuthorization(requestBody: object) {
   })
 }
 
-function isResponseUnauthorized(error: any) {
-  const httpError = error as HTTPError
+function isResponseUnauthorized(httpError: HTTPError) {
   return httpError.response && httpError.response.status && httpError.response.status === 401
 }
