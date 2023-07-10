@@ -66,31 +66,34 @@ export const makePostRequest = async (request: RequestClient, settings: Settings
   }
 }
 
+async function makeGetRequestHelper<T>(request: RequestClient, url: string): Promise<ModifiedResponse<T>> {
+  return await request(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+}
+    
+
 export async function makeGetRequest<T>(
   request: RequestClient,
   settings: Settings,
   url: string
-): Promise<ModifiedResponse<T>> {
+): Promise<T> {
   if (!accessToken) {
     await getAuthToken(request, settings)
   }
-
-  const makeRequest: Promise<ModifiedResponse<T>> = async () =>
-    await request(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
+  
   try {
-    return await makeRequest()
+    return await makeGetRequestHelper<T>(request, url) as T
   } catch (err) {
     if (isResponseUnauthorized(err)) {
       clearToken()
       await getAuthToken(request, settings)
-      return await makeRequest()
+      return await makeGetRequestHelper<T>(request, url) as T
     }
+    throw err;
   }
 }
 

@@ -52,8 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     listId: async (request, data): Promise<DynamicFieldResponse> => {
       try {
-        let t: ListsResponse = await request('')
-        const response: ListsResponse = await makeGetRequest(
+        const response: ListsResponse = await makeGetRequest<ListsResponse>(
           request,
           data.settings,
           'https://api.listrak.com/email/v1/List'
