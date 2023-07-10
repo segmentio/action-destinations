@@ -51,11 +51,13 @@ const person_attributes: InputField = {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
   description: 'Create or update an Attio User and attempt to link it to a Person, based on a shared email address.',
+
   fields: {
     email_address,
     user_attributes,
     person_attributes
   },
+
   perform: async (request, data) => {
     const {
       payload: { email_address, user_attributes, person_attributes }

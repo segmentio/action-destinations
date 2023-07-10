@@ -1,6 +1,7 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
+import assertRecord from './assertRecord'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attio',
@@ -23,7 +24,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    identifyUser
+    identifyUser,
+    assertRecord
   },
 
   presets: [

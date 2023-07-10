@@ -1,5 +1,7 @@
 import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { ModifiedResponse } from '@segment/actions-core'
+import get from 'lodash/get'
+import sortBy from 'lodash/sortBy'
 
 type AssertResponse = {
   data: {
@@ -11,6 +13,11 @@ type AssertResponse = {
     created_at: string
     values: Record<string, Array<unknown>>
   }
+}
+
+interface ObjectResponse {
+  api_slug: string
+  singular_noun: string
 }
 
 export class AttioClient {
@@ -49,5 +56,15 @@ export class AttioClient {
         ...requestOptions
       }
     )
+  }
+
+  /**
+   * List all of the available Objects in the Attio workspace.
+   */
+  async listObjects(): Promise<Array<ObjectResponse>> {
+    const response = await this.request(`${this.api_url}/v2/objects`)
+    const objects: Array<ObjectResponse> = get(response, 'data.data', [])
+
+    return sortBy(objects, 'singular_noun')
   }
 }
