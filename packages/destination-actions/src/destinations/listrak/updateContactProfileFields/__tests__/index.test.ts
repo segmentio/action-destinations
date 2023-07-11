@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
 import { clearToken, setToken } from '../../listrak'
+import { ContactSegmentationFieldValues } from '..'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -61,12 +62,24 @@ describe('updateContactProfileFields', () => {
     withGetAccessToken()
 
     withUpdateProfileFieldsInBatch([
-      [
-        {
-          segmentationFieldId: 456,
-          value: 'on'
-        }
-      ]
+      {
+        emailAddress: 'test.email1@test.com',
+        segmentationFieldValues: [
+          {
+            segmentationFieldId: 456,
+            value: 'on'
+          }
+        ]
+      },
+      {
+        emailAddress: 'test.email2@test.com',
+        segmentationFieldValues: [
+          {
+            segmentationFieldId: 456,
+            value: 'on'
+          }
+        ]
+      }
     ])
 
     const settings = {
@@ -74,19 +87,22 @@ describe('updateContactProfileFields', () => {
       client_secret: 'clientSecret1'
     }
 
-    const events = [createTestEvent({
-      context: {
-        traits: {
-          email: 'test.email1@test.com'
+    const events = [
+      createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email1@test.com'
+          }
         }
-      }
-    }), createTestEvent({
-      context: {
-        traits: {
-          email: 'test2.email1@test.com'
+      }),
+      createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email2@test.com'
+          }
         }
-      }
-    })]
+      })
+    ]
 
     await expect(
       testDestination.testBatchAction('updateContactProfileFields', {
@@ -442,16 +458,9 @@ function withUpdateProfileFields(segmentationFieldValues: any[]) {
     })
 }
 
-function withUpdateProfileFieldsInBatch(segmentationFieldValues: any[][]) {
+function withUpdateProfileFieldsInBatch(contactSegmentationFieldValues: ContactSegmentationFieldValues[]) {
   nock('https://api.listrak.com/email/v1')
-    .post('/List/123/Contact/SegmentationField',
-      [
-        {
-          emailAddress: 'test.email1@test.com',
-          segmentationFieldValues: segmentationFieldValues[0]
-        }
-      ]
-    )
+    .post('/List/123/Contact/SegmentationField', contactSegmentationFieldValues)
     .matchHeader('content-type', 'application/json')
     .matchHeader('authorization', `Bearer token`)
     .reply(201, {

@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { makePostRequest, makeGetRequest } from '../listrak'
 import { HTTPError } from '@segment/actions-core'
+import { stringify } from 'querystring'
 
 interface List {
   listId: number
@@ -15,6 +16,16 @@ interface ListData {
 
 interface ListsResponse {
   data: ListData
+}
+
+export type SegmentationFieldValue = {
+  segmentationFieldId: number
+  value: string
+}
+
+export type ContactSegmentationFieldValues = {
+  emailAddress: string
+  segmentationFieldValues: SegmentationFieldValue[]
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -97,27 +108,31 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     await makePostRequest(
-      request, 
+      request,
       data.settings,
       `https://api.listrak.com/email/v1/List/${data.payload[0].listId}/Contact/SegmentationField`,
-      data.payload.filter(x => x.emailAddress && x.profileFieldValues).map(x => { 
-        return {
-          emailAddress: x.emailAddress,
-          segmentationFieldValues: createValidSegmentationFields(x.profileFieldValues)
-        }
-      })
+      data.payload
+        .filter((x) => x.emailAddress && x.profileFieldValues)
+        .map((x) => {
+          const response: ContactSegmentationFieldValues = {
+            emailAddress: x.emailAddress,
+            segmentationFieldValues: createValidSegmentationFields(x.profileFieldValues)
+          }
+          return response
+        })
     )
   }
 }
 export default action
 
-function createValidSegmentationFields(profileFieldValues: { [k: string]: unknown }) {
+function createValidSegmentationFields(profileFieldValues: { [k: string]: unknown }): SegmentationFieldValue[] {
   return Object.keys(profileFieldValues)
     .filter((x) => parseInt(x))
     .map((x) => {
-      return {
+      const segmentationFieldValue: SegmentationFieldValue = {
         segmentationFieldId: parseInt(x),
-        value: profileFieldValues[x]
+        value: profileFieldValues[x] + ''
       }
+      return segmentationFieldValue
     })
 }
