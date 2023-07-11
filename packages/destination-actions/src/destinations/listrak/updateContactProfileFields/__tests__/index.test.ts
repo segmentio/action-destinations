@@ -21,12 +21,19 @@ describe('updateContactProfileFields', () => {
   it('No Auth Token updates contact profile fields', async () => {
     withGetAccessToken()
 
-    withUpdateProfileFields([
-      {
-        segmentationFieldId: 456,
-        value: 'on'
-      }
-    ])
+    withUpdateProfileFields(
+      [
+        {
+          emailAddress: 'test.email@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ]
+    )
 
     const settings = {
       client_id: 'clientId1',
@@ -61,7 +68,7 @@ describe('updateContactProfileFields', () => {
   it('Perform batch maps and returns with no errors', async () => {
     withGetAccessToken()
 
-    withUpdateProfileFieldsInBatch([
+    withUpdateProfileFields([
       {
         emailAddress: 'test.email1@test.com',
         segmentationFieldValues: [
@@ -147,7 +154,14 @@ describe('updateContactProfileFields', () => {
     it(`${testData.name} for Segmentation Field ID, data gets filtered before API call`, async () => {
       withGetAccessToken()
 
-      withUpdateProfileFields([])
+      withUpdateProfileFields(
+        [
+          {
+            emailAddress: 'test.email@test.com',
+            segmentationFieldValues: []
+          }
+        ]
+      )
 
       const settings = {
         client_id: 'clientId1',
@@ -287,12 +301,19 @@ describe('updateContactProfileFields', () => {
   it('Auth token does exist, does not retrieve one', async () => {
     setToken('token')
 
-    withUpdateProfileFields([
-      {
-        segmentationFieldId: 456,
-        value: 'on'
-      }
-    ])
+    withUpdateProfileFields(
+      [
+        {
+          emailAddress: 'test.email@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ]
+    )
 
     const settings = {
       client_id: 'clientId1',
@@ -331,12 +352,19 @@ describe('updateContactProfileFields', () => {
 
     withGetAccessToken()
 
-    withUpdateProfileFields([
-      {
-        segmentationFieldId: 456,
-        value: 'on'
-      }
-    ])
+    withUpdateProfileFields(
+      [
+        {
+          emailAddress: 'test.email@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ]
+    )
 
     const settings = {
       client_id: 'clientId1',
@@ -442,23 +470,7 @@ function withUnauthorizedGetLists() {
   })
 }
 
-function withUpdateProfileFields(segmentationFieldValues: any[]) {
-  nock('https://api.listrak.com/email/v1')
-    .post('/List/123/Contact/SegmentationField', [
-      {
-        emailAddress: 'test.email@test.com',
-        segmentationFieldValues: segmentationFieldValues
-      }
-    ])
-    .matchHeader('content-type', 'application/json')
-    .matchHeader('authorization', `Bearer token`)
-    .reply(201, {
-      status: 201,
-      resourceId: ''
-    })
-}
-
-function withUpdateProfileFieldsInBatch(contactSegmentationFieldValues: ContactSegmentationFieldValues[]) {
+function withUpdateProfileFields(contactSegmentationFieldValues: ContactSegmentationFieldValues[]) {
   nock('https://api.listrak.com/email/v1')
     .post('/List/123/Contact/SegmentationField', contactSegmentationFieldValues)
     .matchHeader('content-type', 'application/json')
