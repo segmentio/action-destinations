@@ -57,22 +57,31 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
   performBatch: async (request, data) => {
-    await makePostRequest(
-      request,
-      data.settings,
-      `https://api.listrak.com/email/v1/List/${data.payload[0].listId}/Contact/SegmentationField`,
-      data.payload
-        .filter((x) => x.emailAddress && x.profileFieldValues)
-        .map((x) => {
-          const response: ContactSegmentationFieldValues = {
-            emailAddress: x.emailAddress,
-            segmentationFieldValues: createValidSegmentationFields(x.profileFieldValues)
-          }
-          return response
+    const dict: { [k: number]: ContactSegmentationFieldValues[] } = {}
+
+    data.payload
+      .filter((x) => x.emailAddress && x.profileFieldValues)
+      .forEach((p) => {
+        if (!dict[p.listId]) {
+          dict[p.listId] = []
+        }
+        dict[p.listId].push({
+          emailAddress: p.emailAddress,
+          segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues)
         })
-    )
+      })
+
+    for (const listId in dict) {
+      await makePostRequest(
+        request,
+        data.settings,
+        `https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`,
+        dict[listId]
+      )
+    }
   }
 }
+
 export default action
 
 function createValidSegmentationFields(profileFieldValues: { [k: string]: unknown }): SegmentationFieldValue[] {

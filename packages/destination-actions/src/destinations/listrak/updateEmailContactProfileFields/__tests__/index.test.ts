@@ -386,6 +386,14 @@ describe('updateEmailContactProfileFields', () => {
             listId: 456
           }
         }
+      }),
+      createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email3@test.com',
+            listId: 123
+          }
+        }
       })
     ]
 
@@ -396,7 +404,7 @@ describe('updateEmailContactProfileFields', () => {
         useDefaultMappings: true,
         mapping: {
           listId: {
-            '@path': '$.context.traits.email'
+            '@path': '$.context.traits.listId'
           },
           profileFieldValues: {
             '456': 'on'
