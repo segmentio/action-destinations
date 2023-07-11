@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-hilo destination: group action - all fields 1`] = `
+Object {
+  "event": Object {
+    "account_id": "9d(zYY&)B6ax[@hMB[X]",
+    "anonymous_id": "9d(zYY&)B6ax[@hMB[X]",
+    "contact_id": "9d(zYY&)B6ax[@hMB[X]",
+    "properties": Object {
+      "testType": "9d(zYY&)B6ax[@hMB[X]",
+    },
+    "timestamp": "2106-12-02T21:20:41.678Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: group action - required fields 1`] = `
+Object {
+  "event": Object {
+    "account_id": "9d(zYY&)B6ax[@hMB[X]",
+    "timestamp": "2106-12-02T21:20:41.678Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: identify action - all fields 1`] = `
+Object {
+  "event": Object {
+    "anonymous_id": "v0P$nqSl4S",
+    "contact_id": "v0P$nqSl4S",
+    "properties": Object {
+      "testType": "v0P$nqSl4S",
+    },
+    "timestamp": "2053-04-22T11:53:10.229Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: identify action - required fields 1`] = `
+Object {
+  "event": Object {
+    "timestamp": "2053-04-22T11:53:10.229Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: page action - all fields 1`] = `
+Object {
+  "event": Object {
+    "anonymous_id": "RANFnd",
+    "contact_id": "RANFnd",
+    "name": "RANFnd",
+    "properties": Object {
+      "testType": "RANFnd",
+    },
+    "timestamp": "2082-01-12T11:25:10.046Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: page action - required fields 1`] = `
+Object {
+  "event": Object {
+    "timestamp": "2082-01-12T11:25:10.046Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: screen action - all fields 1`] = `
+Object {
+  "event": Object {
+    "anonymous_id": "B4jJ)Kv0S0$i5pbk",
+    "contact_id": "B4jJ)Kv0S0$i5pbk",
+    "name": "B4jJ)Kv0S0$i5pbk",
+    "properties": Object {
+      "testType": "B4jJ)Kv0S0$i5pbk",
+    },
+    "timestamp": "2061-09-24T01:28:57.493Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: screen action - required fields 1`] = `
+Object {
+  "event": Object {
+    "timestamp": "2061-09-24T01:28:57.493Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: track action - all fields 1`] = `
+Object {
+  "event": Object {
+    "anonymous_id": "P]!Z4qn6]m!V8",
+    "contact_id": "P]!Z4qn6]m!V8",
+    "name": "P]!Z4qn6]m!V8",
+    "properties": Object {
+      "testType": "P]!Z4qn6]m!V8",
+    },
+    "timestamp": "2079-07-31T18:41:45.222Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-hilo destination: track action - required fields 1`] = `
+Object {
+  "event": Object {
+    "timestamp": "2079-07-31T18:41:45.222Z",
+  },
+}
+`;
