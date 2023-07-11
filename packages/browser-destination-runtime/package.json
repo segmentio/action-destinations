@@ -55,7 +55,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.69.0"
+    "@segment/actions-core": "^3.70.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"

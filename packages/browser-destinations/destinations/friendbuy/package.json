@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-shared": "^1.50.0",
-    "@segment/actions-core": "^3.69.0",
+    "@segment/actions-shared": "^1.52.0",
+    "@segment/actions-core": "^3.70.0",
     "@segment/browser-destination-runtime": "^0.0.0"
   },
   "peerDependencies": {
