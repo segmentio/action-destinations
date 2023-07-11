@@ -29,14 +29,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'email',
       default: {
-        '@path': '$.email'
+        '@path': '$.context.traits.email'
       },
       required: true
     },
     profileFieldValues: {
       label: 'Profile Field Values',
       description:
-        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. Find this under Help & Support > API ID Information in https://admin.listrak.com. The value is the profile field value.',
+        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. Find this under Help & Support > API ID Information in https://admin.listrak.com. The value is the profile field value. (i.e. 1234 = on)',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'

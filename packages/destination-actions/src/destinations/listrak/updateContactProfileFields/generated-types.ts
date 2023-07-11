@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Identifier used to locate the list.
+   * Identifier used to locate the list. Find this under Help & Support > API ID Information in https://admin.listrak.com.
    */
   listId: number
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   emailAddress: string
   /**
-   * Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.
+   * Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. Find this under Help & Support > API ID Information in https://admin.listrak.com. The value is the profile field value. (i.e. 1234 = on)
    */
   profileFieldValues: {
     [k: string]: unknown

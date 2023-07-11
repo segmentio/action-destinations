@@ -194,46 +194,6 @@ describe('updateContactProfileFields', () => {
     })
   })
 
-  it('Auth token expired for get lists, retrieves new one', async () => {
-    setToken('token')
-    withUnauthorizedGetLists()
-
-    withGetAccessToken()
-
-    withGetLists()
-
-    const settings = {
-      client_id: 'clientId1',
-      client_secret: 'clientSecret1'
-    }
-
-    const response = (await testDestination.testDynamicField('updateContactProfileFields', 'listId', {
-      settings,
-      payload: {}
-    })) as DynamicFieldResponse
-
-    expect(response.choices).toStrictEqual([
-      {
-        value: '789',
-        label: 'List Name a'
-      },
-      {
-        value: '456',
-        label: 'List Name b'
-      },
-      {
-        value: '123',
-        label: 'List Name C'
-      }
-    ])
-
-    expect(response.nextPage).toBeUndefined()
-
-    expect(response.error).toBeUndefined()
-
-    verifyNocks()
-  })
-
   it('Auth token does exist, does not retrieve one', async () => {
     setToken('token')
 
@@ -284,7 +244,7 @@ describe('updateContactProfileFields', () => {
   it('Auth token expired, retrieves new one', async () => {
     setToken('token')
 
-    withUnauthrizedUpdateProfileFields()
+    withUnauthorizedUpdateProfileFields()
 
     withGetAccessToken()
 
@@ -335,11 +295,11 @@ describe('updateContactProfileFields', () => {
   it('Auth token expired, retrieves new one, second token invalid, throws exception', async () => {
     setToken('token')
 
-    withUnauthrizedUpdateProfileFields()
+    withUnauthorizedUpdateProfileFields()
 
     withGetAccessToken()
 
-    withUnauthrizedUpdateProfileFields()
+    withUnauthorizedUpdateProfileFields()
 
     const settings = {
       client_id: 'clientId1',
@@ -372,40 +332,6 @@ describe('updateContactProfileFields', () => {
   })
 })
 
-function withGetListsInternalServerError() {
-  nock('https://api.listrak.com/email/v1').get('/List').matchHeader('authorization', `Bearer token`).reply(500)
-}
-
-function withGetLists() {
-  nock('https://api.listrak.com/email/v1')
-    .get('/List')
-    .matchHeader('authorization', `Bearer token`)
-    .reply(201, {
-      data: [
-        {
-          listId: 123,
-          listName: 'List Name C'
-        },
-        {
-          listId: 456,
-          listName: 'List Name b'
-        },
-        {
-          listId: 789,
-          listName: 'List Name a'
-        }
-      ]
-    })
-}
-
-function withUnauthorizedGetLists() {
-  nock('https://api.listrak.com/email/v1').get('/List').matchHeader('authorization', `Bearer token`).reply(401, {
-    status: 401,
-    error: 'ERROR_UNAUTHORIZED',
-    message: 'Authorization was denied for this request.'
-  })
-}
-
 function withUpdateProfileFields(contactSegmentationFieldValues: ContactSegmentationFieldValues[]) {
   nock('https://api.listrak.com/email/v1')
     .post('/List/123/Contact/SegmentationField', contactSegmentationFieldValues)
@@ -428,7 +354,7 @@ function withGetAccessToken() {
     })
 }
 
-function withUnauthrizedUpdateProfileFields() {
+function withUnauthorizedUpdateProfileFields() {
   nock('https://api.listrak.com/email/v1')
     .post('/List/123/Contact/SegmentationField', [
       {
