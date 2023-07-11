@@ -38,7 +38,7 @@ const updateUsersRequestBody = {
   batch_data: [
     [
       {
-        id: '44d206f60172cd898051a9fb2174750aee1eca00f6f63f12801b90644321e342',
+        id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
         audience_ids: ['1234345']
       },
       {
@@ -66,6 +66,40 @@ describe('TiktokAudiences.addUser', () => {
         }
       })
     ).resolves.not.toThrowError()
+  })
+
+  it('should normalize and hash emails correctly', async () => {
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, {
+        advertiser_ids: ['123'],
+        action: 'add',
+        id_schema: ['EMAIL_SHA256'],
+        batch_data: [
+          [
+            {
+              id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+              audience_ids: ['1234345']
+            }
+          ]
+        ]
+      })
+      .reply(200)
+    const responses = await testDestination.testAction('addUser', {
+      event,
+      settings: {
+        advertiser_ids: ['123']
+      },
+      useDefaultMappings: true,
+      auth,
+      mapping: {
+        selected_advertiser_id: '123',
+        audience_id: '1234345',
+        send_advertising_id: false
+      }
+    })
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"advertiser_ids\\":[\\"123\\"],\\"action\\":\\"add\\",\\"id_schema\\":[\\"EMAIL_SHA256\\"],\\"batch_data\\":[[{\\"id\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"audience_ids\\":[\\"1234345\\"]}]]}"`
+    )
   })
 
   it('should fail if an audience id is invalid', async () => {
