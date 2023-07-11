@@ -322,11 +322,96 @@ describe('updateEmailContactProfileFields', () => {
 
     verifyNocks()
   })
+
+  it('Payload has multiple list IDs, makes request for each list', async () => {
+    withGetAccessToken()
+
+    withUpdateProfileFields(
+      [
+        {
+          emailAddress: 'test.email1@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        },
+        {
+          emailAddress: 'test.email3@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ],
+      123
+    )
+
+    withUpdateProfileFields(
+      [
+        {
+          emailAddress: 'test.email2@test.com',
+          segmentationFieldValues: [
+            {
+              segmentationFieldId: 456,
+              value: 'on'
+            }
+          ]
+        }
+      ],
+      456
+    )
+
+    const settings = {
+      client_id: 'clientId1',
+      client_secret: 'clientSecret1'
+    }
+
+    const events = [
+      createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email1@test.com',
+            listId: 123
+          }
+        }
+      }),
+      createTestEvent({
+        context: {
+          traits: {
+            email: 'test.email2@test.com',
+            listId: 456
+          }
+        }
+      })
+    ]
+
+    await expect(
+      testDestination.testBatchAction('updateEmailContactProfileFields', {
+        events,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          listId: {
+            '@path': '$.context.traits.email'
+          },
+          profileFieldValues: {
+            '456': 'on'
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
+
+    verifyNocks()
+  })
 })
 
-function withUpdateProfileFields(contactSegmentationFieldValues: ContactSegmentationFieldValues[]) {
+function withUpdateProfileFields(contactSegmentationFieldValues: ContactSegmentationFieldValues[], listId = 123) {
   nock('https://api.listrak.com/email/v1')
-    .post('/List/123/Contact/SegmentationField', contactSegmentationFieldValues)
+    .post(`/List/${listId}/Contact/SegmentationField`, contactSegmentationFieldValues)
     .matchHeader('content-type', 'application/json')
     .matchHeader('authorization', `Bearer token`)
     .reply(201, {
