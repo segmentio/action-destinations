@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { makePostRequest } from '../listrak'
+import { RequestClient } from '@segment/actions-core'
 
 export type SegmentationFieldValue = {
   segmentationFieldId: number
@@ -12,6 +13,8 @@ export type ContactSegmentationFieldValues = {
   emailAddress: string
   segmentationFieldValues: SegmentationFieldValue[]
 }
+
+type RequestsByListId = { [k: number]: ContactSegmentationFieldValues[] }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Email Contact Profile Fields',
@@ -43,42 +46,36 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, data) => {
+  perform: async (request, { payload, settings }) => {
+    return await processPayload(request, settings, [payload])
+  },
+  performBatch: async (request, { payload, settings }) => {
+    return await processPayload(request, settings, payload)
+  }
+}
+
+async function processPayload(request: RequestClient, settings: Settings, payload: Payload[]) {
+  const requestsByListId: RequestsByListId = {}
+
+  payload
+    .filter((x) => x.emailAddress && x.profileFieldValues)
+    .forEach((p) => {
+      if (!requestsByListId[p.listId]) {
+        requestsByListId[p.listId] = []
+      }
+      requestsByListId[p.listId].push({
+        emailAddress: p.emailAddress,
+        segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues)
+      })
+    })
+
+  for (const listId in requestsByListId) {
     await makePostRequest(
       request,
-      data.settings,
-      `https://api.listrak.com/email/v1/List/${data.payload.listId}/Contact/SegmentationField`,
-      [
-        {
-          emailAddress: data.payload.emailAddress,
-          segmentationFieldValues: createValidSegmentationFields(data.payload.profileFieldValues)
-        }
-      ]
+      settings,
+      `https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`,
+      requestsByListId[listId]
     )
-  },
-  performBatch: async (request, data) => {
-    const dict: { [k: number]: ContactSegmentationFieldValues[] } = {}
-
-    data.payload
-      .filter((x) => x.emailAddress && x.profileFieldValues)
-      .forEach((p) => {
-        if (!dict[p.listId]) {
-          dict[p.listId] = []
-        }
-        dict[p.listId].push({
-          emailAddress: p.emailAddress,
-          segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues)
-        })
-      })
-
-    for (const listId in dict) {
-      await makePostRequest(
-        request,
-        data.settings,
-        `https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`,
-        dict[listId]
-      )
-    }
   }
 }
 
