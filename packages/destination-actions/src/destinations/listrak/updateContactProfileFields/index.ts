@@ -94,6 +94,19 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       ]
     )
+  },
+  performBatch: async (request, data) => {
+    await makePostRequest(
+      request, 
+      data.settings,
+      `https://api.listrak.com/email/v1/List/${data.payload[0].listId}/Contact/SegmentationField`,
+      data.payload.filter(x => x.emailAddress && x.profileFieldValues).map(x => { 
+        return {
+          emailAddress: x.emailAddress,
+          segmentationFieldValues: createValidSegmentationFields(x.profileFieldValues)
+        }
+      })
+    )
   }
 }
 export default action

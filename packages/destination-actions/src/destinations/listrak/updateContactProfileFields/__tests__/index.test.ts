@@ -57,6 +57,48 @@ describe('updateContactProfileFields', () => {
     verifyNocks()
   })
 
+  it('Perform batch maps and returns with no errors', async () => {
+    withGetAccessToken()
+
+    withUpdateProfileFieldsInBatch([
+      [
+        {
+          segmentationFieldId: 456,
+          value: 'on'
+        }
+      ]
+    ])
+
+    const settings = {
+      client_id: 'clientId1',
+      client_secret: 'clientSecret1'
+    }
+
+    const events = [createTestEvent({
+      context: {
+        traits: {
+          email: 'test.email1@test.com'
+        }
+      }
+    })]
+
+    await expect(
+      testDestination.testBatchAction('updateContactProfileFields', {
+        events,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          listId: 123,
+          profileFieldValues: {
+            '456': 'on'
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
+
+    verifyNocks()
+  })
+
   const testCases: any[] = [
     {
       name: 'undefined',
@@ -386,6 +428,24 @@ function withUpdateProfileFields(segmentationFieldValues: any[]) {
         segmentationFieldValues: segmentationFieldValues
       }
     ])
+    .matchHeader('content-type', 'application/json')
+    .matchHeader('authorization', `Bearer token`)
+    .reply(201, {
+      status: 201,
+      resourceId: ''
+    })
+}
+
+function withUpdateProfileFieldsInBatch(segmentationFieldValues: any[][]) {
+  nock('https://api.listrak.com/email/v1')
+    .post('/List/123/Contact/SegmentationField',
+      [
+        {
+          emailAddress: 'test.email1@test.com',
+          segmentationFieldValues: segmentationFieldValues[0]
+        }
+      ]
+    )
     .matchHeader('content-type', 'application/json')
     .matchHeader('authorization', `Bearer token`)
     .reply(201, {
