@@ -1,21 +1,7 @@
-import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { makePostRequest, makeGetRequest } from '../listrak'
-import { HTTPError } from '@segment/actions-core'
-
-interface List {
-  listId: number
-  listName: string
-}
-
-interface ListData {
-  data: List[]
-}
-
-interface ListsResponse {
-  data: ListData
-}
+import { makePostRequest } from '../listrak'
 
 export type SegmentationFieldValue = {
   segmentationFieldId: number
@@ -33,9 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     listId: {
       label: 'List ID',
-      description: 'Identifier used to locate the list.',
+      description: 'Identifier used to locate the list. Find this under Help & Support > API ID Information in https://admin.listrak.com.',
       type: 'integer',
-      dynamic: true,
       required: true
     },
     emailAddress: {
@@ -44,52 +29,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'email',
       default: {
-        '@path': '$.context.traits.email'
+        '@path': '$.email'
       },
       required: true
     },
     profileFieldValues: {
       label: 'Profile Field Values',
       description:
-        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. The value is the profile field value.',
+        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. Find this under Help & Support > API ID Information in https://admin.listrak.com. The value is the profile field value.',
       type: 'object',
       required: true,
-      defaultObjectUI: 'keyvalue:only',
-      default: {
-        123: 'on'
-      }
-    }
-  },
-  dynamicFields: {
-    listId: async (request, data): Promise<DynamicFieldResponse> => {
-      try {
-        const response: ListsResponse = await makeGetRequest<ListsResponse>(
-          request,
-          data.settings,
-          'https://api.listrak.com/email/v1/List'
-        )
-
-        const choices = response.data.data
-          .sort(function (a, b) {
-            return a.listName.toLowerCase().localeCompare(b.listName.toLowerCase())
-          })
-          .map((list) => {
-            return { value: list.listId.toString(), label: list.listName }
-          })
-
-        return {
-          choices
-        }
-      } catch (err) {
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message: (err as HTTPError).message ?? 'Unknown error',
-            code: (err as HTTPError).response?.status + '' ?? 'Unknown error'
-          }
-        }
-      }
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: async (request, data) => {

@@ -50,8 +50,7 @@ export async function makePostRequest(
 
 export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
   return await MakeRequest<T>(request, settings, url, {
-    method: 'GET',
-    skipResponseCloning: true
+    method: 'GET'
   })
 }
 
