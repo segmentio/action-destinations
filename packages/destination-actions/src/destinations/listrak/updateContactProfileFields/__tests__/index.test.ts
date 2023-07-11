@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { clearToken, setToken } from '../../listrak'
 import { ContactSegmentationFieldValues } from '..'
@@ -21,19 +21,17 @@ describe('updateContactProfileFields', () => {
   it('No Auth Token updates contact profile fields', async () => {
     withGetAccessToken()
 
-    withUpdateProfileFields(
-      [
-        {
-          emailAddress: 'test.email@test.com',
-          segmentationFieldValues: [
-            {
-              segmentationFieldId: 456,
-              value: 'on'
-            }
-          ]
-        }
-      ]
-    )
+    withUpdateProfileFields([
+      {
+        emailAddress: 'test.email@test.com',
+        segmentationFieldValues: [
+          {
+            segmentationFieldId: 456,
+            value: 'on'
+          }
+        ]
+      }
+    ])
 
     const settings = {
       client_id: 'clientId1',
@@ -154,14 +152,12 @@ describe('updateContactProfileFields', () => {
     it(`${testData.name} for Segmentation Field ID, data gets filtered before API call`, async () => {
       withGetAccessToken()
 
-      withUpdateProfileFields(
-        [
-          {
-            emailAddress: 'test.email@test.com',
-            segmentationFieldValues: []
-          }
-        ]
-      )
+      withUpdateProfileFields([
+        {
+          emailAddress: 'test.email@test.com',
+          segmentationFieldValues: []
+        }
+      ])
 
       const settings = {
         client_id: 'clientId1',
@@ -197,19 +193,17 @@ describe('updateContactProfileFields', () => {
   it('Auth token does exist, does not retrieve one', async () => {
     setToken('token')
 
-    withUpdateProfileFields(
-      [
-        {
-          emailAddress: 'test.email@test.com',
-          segmentationFieldValues: [
-            {
-              segmentationFieldId: 456,
-              value: 'on'
-            }
-          ]
-        }
-      ]
-    )
+    withUpdateProfileFields([
+      {
+        emailAddress: 'test.email@test.com',
+        segmentationFieldValues: [
+          {
+            segmentationFieldId: 456,
+            value: 'on'
+          }
+        ]
+      }
+    ])
 
     const settings = {
       client_id: 'clientId1',
@@ -248,19 +242,17 @@ describe('updateContactProfileFields', () => {
 
     withGetAccessToken()
 
-    withUpdateProfileFields(
-      [
-        {
-          emailAddress: 'test.email@test.com',
-          segmentationFieldValues: [
-            {
-              segmentationFieldId: 456,
-              value: 'on'
-            }
-          ]
-        }
-      ]
-    )
+    withUpdateProfileFields([
+      {
+        emailAddress: 'test.email@test.com',
+        segmentationFieldValues: [
+          {
+            segmentationFieldId: 456,
+            value: 'on'
+          }
+        ]
+      }
+    ])
 
     const settings = {
       client_id: 'clientId1',
