@@ -1,4 +1,4 @@
-import { HTTPError, RequestClient, RetryableError } from '@segment/actions-core'
+import { HTTPError, RequestClient, RequestOptions, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 let accessToken = ''
@@ -36,11 +36,6 @@ export async function fetchNewAccessToken(request: RequestClient, settings: Sett
   }
 }
 
-interface RequestBody {
-  method: string
-  json?: object
-}
-
 export async function makePostRequest(
   request: RequestClient,
   settings: Settings,
@@ -55,21 +50,22 @@ export async function makePostRequest(
 
 export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
   return await MakeRequest<T>(request, settings, url, {
-    method: 'GET'
+    method: 'GET',
+    skipResponseCloning: true
   })
 }
 
-async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestBody: RequestBody) {
+async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestOptions: RequestOptions) {
   try {
     if (!accessToken) {
       await fetchNewAccessToken(request, settings)
     }
 
-    return (await request(url, addAuthorizationHeader(requestBody))) as T
+    return (await request(url, addAuthorizationHeader(requestOptions))) as T
   } catch (err) {
     if (isResponseUnauthorized(err as HTTPError)) {
       await fetchNewAccessToken(request, settings)
-      return (await request(url, addAuthorizationHeader(requestBody))) as T
+      return (await request(url, addAuthorizationHeader(requestOptions))) as T
     }
     throw err
   }

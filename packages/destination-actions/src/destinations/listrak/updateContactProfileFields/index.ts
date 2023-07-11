@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { makePostRequest, makeGetRequest } from '../listrak'
 import { HTTPError } from '@segment/actions-core'
-import { stringify } from 'querystring'
 
 interface List {
   listId: number
