@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
 
@@ -163,5 +163,28 @@ describe('TiktokAudiences.addUser', () => {
         }
       })
     ).rejects.toThrowError('At least one of Email Id or Advertising ID must be provided.')
+  })
+})
+
+describe('TiktokAudiences.dynamicField', () => {
+  it('should give error if selected_advertiser_id is not provided', async () => {
+    const settings = {
+      advertiser_ids: ['123']
+    }
+    const payload = {
+      selected_advertiser_id: ''
+    }
+    const responses = (await testDestination.testDynamicField('addUser', 'audience_id', {
+      settings,
+      payload
+    })) as DynamicFieldResponse
+
+    expect(responses).toMatchObject({
+      choices: [],
+      error: {
+        message: 'Please select Advertiser ID first to get list of Audience IDs.',
+        code: 'FIELD_NOT_SELECTED'
+      }
+    })
   })
 })
