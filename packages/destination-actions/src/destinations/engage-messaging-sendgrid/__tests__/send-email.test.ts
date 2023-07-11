@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
-import { Logger } from '@segment/actions-core/src/destination-kit'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()

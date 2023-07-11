@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
 import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
 import globby from 'globby'

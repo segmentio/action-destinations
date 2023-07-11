@@ -1,5 +1,5 @@
 import { RequestClient, IntegrationError, APIError } from '@segment/actions-core'
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
   // Do not run on null or undefined
