@@ -14,12 +14,13 @@ export type ContactSegmentationFieldValues = {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Contact Profile Fields',
+  title: 'Update Email Contact Profile Fields',
   description: '',
   fields: {
     listId: {
       label: 'List ID',
-      description: 'Identifier used to locate the list. Find this under Help & Support > API ID Information in https://admin.listrak.com.',
+      description:
+        'Identifier used to locate the list. Find this under Help & Support > API ID Information in https://admin.listrak.com.',
       type: 'integer',
       required: true
     },

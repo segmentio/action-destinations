@@ -1,6 +1,6 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import updateContactProfileFields from './updateContactProfileFields'
+import updateEmailContactProfileFields from './updateEmailContactProfileFields'
 import { fetchNewAccessToken } from './listrak'
 
 const destination: DestinationDefinition<Settings> = {
@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    updateContactProfileFields
+    updateEmailContactProfileFields
   }
 }
 

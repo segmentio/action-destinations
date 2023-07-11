@@ -12,7 +12,7 @@ const verifyNocks = () => {
   }
 }
 
-describe('updateContactProfileFields', () => {
+describe('updateEmailContactProfileFields', () => {
   beforeEach(() => {
     clearToken()
     nock.cleanAll()
@@ -47,7 +47,7 @@ describe('updateContactProfileFields', () => {
     })
 
     await expect(
-      testDestination.testAction('updateContactProfileFields', {
+      testDestination.testAction('updateEmailContactProfileFields', {
         event,
         settings,
         useDefaultMappings: true,
@@ -110,7 +110,7 @@ describe('updateContactProfileFields', () => {
     ]
 
     await expect(
-      testDestination.testBatchAction('updateContactProfileFields', {
+      testDestination.testBatchAction('updateEmailContactProfileFields', {
         events,
         settings,
         useDefaultMappings: true,
@@ -173,7 +173,7 @@ describe('updateContactProfileFields', () => {
       })
 
       await expect(
-        testDestination.testAction('updateContactProfileFields', {
+        testDestination.testAction('updateEmailContactProfileFields', {
           event,
           settings,
           useDefaultMappings: true,
@@ -219,7 +219,7 @@ describe('updateContactProfileFields', () => {
     })
 
     await expect(
-      testDestination.testAction('updateContactProfileFields', {
+      testDestination.testAction('updateEmailContactProfileFields', {
         event,
         settings,
         useDefaultMappings: true,
@@ -268,7 +268,7 @@ describe('updateContactProfileFields', () => {
     })
 
     await expect(
-      testDestination.testAction('updateContactProfileFields', {
+      testDestination.testAction('updateEmailContactProfileFields', {
         event,
         settings,
         useDefaultMappings: true,
@@ -307,7 +307,7 @@ describe('updateContactProfileFields', () => {
     })
 
     await expect(
-      testDestination.testAction('updateContactProfileFields', {
+      testDestination.testAction('updateEmailContactProfileFields', {
         event,
         settings,
         useDefaultMappings: true,

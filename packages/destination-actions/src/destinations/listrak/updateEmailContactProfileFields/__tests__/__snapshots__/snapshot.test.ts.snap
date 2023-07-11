@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Listrak's updateEmailContactProfileFields destination action: all fields 1`] = `
+Array [
+  Object {
+    "emailAddress": "luobalo@onuzooti.cd",
+    "segmentationFieldValues": Array [],
+  },
+]
+`;
+
+exports[`Testing snapshot for Listrak's updateEmailContactProfileFields destination action: required fields 1`] = `"client_id=pA%257%5EefIB1%40%5B%28R8p&client_secret=pA%257%5EefIB1%40%5B%28R8p&grant_type=client_credentials"`;
+
+exports[`Testing snapshot for Listrak's updateEmailContactProfileFields destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "accept": Array [
+      "text/plain",
+    ],
+    "content-type": Array [
+      "application/x-www-form-urlencoded",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

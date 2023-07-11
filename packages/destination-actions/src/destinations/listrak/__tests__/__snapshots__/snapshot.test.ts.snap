@@ -1,17 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - all fields 1`] = `
+exports[`Testing snapshot for actions-listrak destination: updateEmailContactProfileFields action - all fields 1`] = `
 Array [
   Object {
-    "emailAddress": "ned@pijgi.ge",
+    "emailAddress": "odagot@dagsa.ma",
     "segmentationFieldValues": Array [],
   },
 ]
 `;
 
-exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - required fields 1`] = `"client_id=QJBkM%5EJG&client_secret=QJBkM%5EJG&grant_type=client_credentials"`;
+exports[`Testing snapshot for actions-listrak destination: updateEmailContactProfileFields action - required fields 1`] = `"client_id=2%26la%5Bn29O2houu&client_secret=2%26la%5Bn29O2houu&grant_type=client_credentials"`;
 
-exports[`Testing snapshot for actions-listrak destination: updateContactProfileFields action - required fields 2`] = `
+exports[`Testing snapshot for actions-listrak destination: updateEmailContactProfileFields action - required fields 2`] = `
 Headers {
   Symbol(map): Object {
     "accept": Array [

@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'updateContactProfileFields'
+const actionSlug = 'updateEmailContactProfileFields'
 const destinationSlug = 'Listrak'
 const seedName = `${destinationSlug}#${actionSlug}`
 
