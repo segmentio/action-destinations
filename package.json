@@ -29,8 +29,7 @@
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
     "release": "bash scripts/release.sh",
     "prepare": "husky install",
-    "clean": "sh scripts/clean.sh",
-    "gen:listrak": "./bin/run generate:types -p ./packages/*/src/destinations/listrak/index.ts"
+    "clean": "sh scripts/clean.sh"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
