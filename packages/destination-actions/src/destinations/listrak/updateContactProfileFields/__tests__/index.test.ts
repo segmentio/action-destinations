@@ -80,6 +80,12 @@ describe('updateContactProfileFields', () => {
           email: 'test.email1@test.com'
         }
       }
+    }), createTestEvent({
+      context: {
+        traits: {
+          email: 'test2.email1@test.com'
+        }
+      }
     })]
 
     await expect(
