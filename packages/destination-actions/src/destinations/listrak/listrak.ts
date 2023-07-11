@@ -20,7 +20,6 @@ export async function fetchNewAccessToken(request: RequestClient, settings: Sett
       grant_type: 'client_credentials'
     }),
     headers: {
-      Accept: 'text/plain', // TODO: remove this header
       'Content-Type': 'application/x-www-form-urlencoded'
     }
   })
@@ -79,5 +78,5 @@ function addAuthorizationHeader(requestBody: object) {
 }
 
 function isResponseUnauthorized(httpError: HTTPError) {
-  return httpError.response && httpError.response.status && httpError.response.status === 401
+  return httpError && httpError.response && httpError.response.status && httpError.response.status === 401
 }

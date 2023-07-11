@@ -14,9 +14,6 @@ exports[`Testing snapshot for Listrak's updateEmailContactProfileFields destinat
 exports[`Testing snapshot for Listrak's updateEmailContactProfileFields destination action: required fields 2`] = `
 Headers {
   Symbol(map): Object {
-    "accept": Array [
-      "text/plain",
-    ],
     "content-type": Array [
       "application/x-www-form-urlencoded",
     ],

@@ -13,13 +13,15 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       client_id: {
         label: 'API Client ID',
-        description: 'Your Listrak API client ID',
+        description:
+          'Your Listrak API client ID. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.',
         type: 'string',
         required: true
       },
       client_secret: {
         label: 'API Client Secret',
-        description: 'Your Lisrak API client secret',
+        description:
+          'Your Lisrak API client secret. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.',
         type: 'string',
         required: true
       }
