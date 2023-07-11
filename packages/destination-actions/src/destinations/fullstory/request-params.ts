@@ -147,9 +147,71 @@ export const deleteUserRequestParams = (settings: Settings, userId: string): Req
  * @param settings Settings configured for the cloud mode destination.
  * @param requestBody The request body containing user properties to set.
  */
-
 export const createUserRequestParams = (settings: Settings, requestBody: Object): RequestParams => {
   const defaultParams = defaultRequestParams(settings, `v2beta/users?${integrationSourceQueryParam}`)
+
+  return {
+    ...defaultParams,
+    options: {
+      ...defaultParams.options,
+      method: 'post',
+      json: requestBody
+    }
+  }
+}
+
+/**
+ * Returns {@link RequestParams} for the V2 Create Events HTTP API endpoint.
+ *
+ * @param settings Settings configured for the cloud mode destination.
+ * @param requestValues Values to send with the request.
+ */
+export const createEventRequestParams = (
+  settings: Settings,
+  requestValues: {
+    userId: string
+    eventName: string
+    properties: {}
+    timestamp?: string
+    useRecentSession?: boolean
+    sessionUrl?: string
+  }
+): RequestParams => {
+  const { userId, eventName, properties: eventData, timestamp, useRecentSession, sessionUrl } = requestValues
+  const defaultParams = defaultRequestParams(settings, `v2beta/events?${integrationSourceQueryParam}`)
+
+  const requestBody: Record<string, any> = {
+    name: eventName,
+    properties: eventData
+  }
+
+  if (userId) {
+    requestBody.user = {
+      uid: userId
+    }
+  }
+
+  if (timestamp) {
+    requestBody.timestamp = timestamp
+  }
+
+  if (sessionUrl) {
+    requestBody.session = {
+      id: decodeURIComponent(sessionUrl.substring(sessionUrl.lastIndexOf('/') + 1))
+    }
+  }
+  if (useRecentSession) {
+    // TODO(mattgrosvenor): We're intentionally omitting the use_recent_session request param when the given value is false. At
+    // time of writing, the API will treat use_recent_session=false as use_recent_session=true. This can be removed in
+    // the future when this bug is fixed in the API.
+    if (requestBody.session) {
+      requestBody.session.use_most_recent = useRecentSession
+    } else {
+      requestBody.session = {
+        use_most_recent: useRecentSession
+      }
+    }
+  }
 
   return {
     ...defaultParams,

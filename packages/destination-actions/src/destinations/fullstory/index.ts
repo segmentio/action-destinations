@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import identifyUserV2 from './identifyUserV2'
+import trackEventV2 from './trackEventV2'
 import { listOperationsRequestParams, deleteUserRequestParams } from './request-params'
 
 const destination: DestinationDefinition<Settings> = {
@@ -54,6 +55,7 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     trackEvent,
     identifyUser,
+    trackEventV2,
     identifyUserV2
   }
 }

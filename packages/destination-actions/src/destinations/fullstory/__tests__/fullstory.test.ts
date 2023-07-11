@@ -209,4 +209,93 @@ describe('FullStory', () => {
       })
     })
   })
+
+  describe('trackEventV2', () => {
+    it('makes expected request with default mappings', async () => {
+      nock(baseUrl).post(`/v2beta/events?${integrationSourceQueryParam}`).reply(200)
+      const eventName = 'test-event'
+
+      const sessionId = '12345:678'
+
+      const properties = {
+        'first-property': 'first-value',
+        second_property: 'second_value',
+        thirdProperty: 'thirdValue',
+        useRecentSession: true,
+        sessionUrl: `session/url/${encodeURIComponent(sessionId)}`
+      }
+
+      const timestamp = new Date(Date.UTC(2022, 1, 2, 3, 4, 5)).toISOString()
+
+      const event = createTestEvent({
+        type: 'track',
+        userId,
+        event: eventName,
+        timestamp,
+        properties
+      })
+
+      const [response] = await testDestination.testAction('trackEventV2', {
+        settings,
+        event,
+        // Default mappings defined under fields in ../trackEventV2/index.ts
+        useDefaultMappings: true,
+        mapping: {
+          useRecentSession: {
+            '@path': '$.properties.useRecentSession'
+          },
+          sessionUrl: {
+            '@path': '$.properties.sessionUrl'
+          }
+        }
+      })
+
+      expect(response.status).toBe(200)
+      expect(JSON.parse(response.options.body as string)).toEqual({
+        name: eventName,
+        properties: {
+          firstproperty: 'first-value',
+          second_property: 'second_value',
+          thirdProperty: 'thirdValue',
+          useRecentSession: true,
+          sessionUrl: `session/url/${encodeURIComponent(sessionId)}`
+        },
+        user: {
+          uid: userId
+        },
+        timestamp,
+        session: {
+          id: sessionId,
+          use_most_recent: properties.useRecentSession
+        }
+      })
+    })
+
+    it('handles undefined event values', async () => {
+      nock(baseUrl).post(`/v2beta/events?${integrationSourceQueryParam}`).reply(200)
+      const eventName = 'test-event'
+
+      const event = createTestEvent({
+        type: 'track',
+        userId,
+        event: eventName,
+        timestamp: undefined
+      })
+
+      const [response] = await testDestination.testAction('trackEventV2', {
+        settings,
+        event,
+        useDefaultMappings: true
+      })
+
+      expect(response.status).toBe(200)
+      expect(JSON.parse(response.options.body as string)).toEqual({
+        name: eventName,
+        properties: {},
+        user: {
+          uid: userId
+        }
+      })
+    })
+  })
 })
