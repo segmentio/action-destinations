@@ -156,7 +156,7 @@ describe('FullStory', () => {
   describe('onDelete', () => {
     const falsyUserIds = ['', undefined, null]
     it('makes expected request given a valid user id', async () => {
-      nock(baseUrl).delete(`/users/v1/individual/${urlEncodedUserId}`).reply(200)
+      nock(baseUrl).delete(`/v2beta/users?uid=${urlEncodedUserId}`).reply(200)
       await expect(testDestination.onDelete!({ type: 'delete', userId }, settings)).resolves.not.toThrowError()
     })
 

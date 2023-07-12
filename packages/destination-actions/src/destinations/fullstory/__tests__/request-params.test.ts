@@ -129,7 +129,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/users/v1/individual/${urlEncodedUserId}`)
+      expect(url).toBe(`${baseUrl}/v2beta/users?uid=${urlEncodedUserId}`)
     })
   })
 

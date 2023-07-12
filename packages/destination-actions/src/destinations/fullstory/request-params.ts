@@ -124,13 +124,13 @@ export const setUserPropertiesRequestParams = (
 }
 
 /**
- * Returns {@link RequestParams} for the delete user HTTP API endpoint.
+ * Returns {@link RequestParams} for the V2 delete user HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  * @param userId The id of the user to delete.
  */
 export const deleteUserRequestParams = (settings: Settings, userId: string): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `users/v1/individual/${encodeURIComponent(userId)}`)
+  const defaultParams = defaultRequestParams(settings, `v2beta/users?uid=${encodeURIComponent(userId)}`)
 
   return {
     ...defaultParams,
