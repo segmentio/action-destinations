@@ -32,8 +32,22 @@ const action: ActionDefinition<Settings, Payload> = {
     selected_advertiser_id: async (request, { settings }) => {
       try {
         const tiktok = new TikTokAudiences(request)
-
         return tiktok.fetchAdvertisers(settings.advertiser_ids)
+      } catch (err) {
+        return {
+          choices: [],
+          error: {
+            message: JSON.stringify(err),
+            code: '500'
+          }
+        }
+      }
+    },
+    audience_id: async (request, { payload }) => {
+      try {
+        const tiktok = new TikTokAudiences(request)
+
+        return await tiktok.fetchAudiences(payload.selected_advertiser_id)
       } catch (err) {
         return {
           choices: [],

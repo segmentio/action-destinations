@@ -85,6 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
     }
 
+    if (!payload.utk && !payload.email && !payload.objectId) {
+      throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
+    }
+
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event

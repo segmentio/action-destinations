@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
-import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'

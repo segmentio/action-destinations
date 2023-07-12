@@ -2,6 +2,8 @@
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: One of the following parameters: email, user token, or objectId is required]`;
+
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `

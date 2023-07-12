@@ -1,5 +1,5 @@
 import { IntegrationError } from '@segment/actions-core'
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { createHash } from 'crypto'
 import { Settings } from '../snap-conversions-api/generated-types'
 import { Payload } from './reportConversionEvent/generated-types'
