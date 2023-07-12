@@ -44,6 +44,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Listrak',
+      description:
+        'When enabled, multiple events will be sent to Listrak in a single request, which is recommended for optimal performance.',
+      required: true,
+      default: true
     }
   },
   perform: async (request, { payload, settings }) => {

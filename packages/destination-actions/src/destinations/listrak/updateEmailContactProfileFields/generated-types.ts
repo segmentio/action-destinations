@@ -15,4 +15,8 @@ export interface Payload {
   profileFieldValues: {
     [k: string]: unknown
   }
+  /**
+   * When enabled, multiple events will be sent to Listrak in a single request, which is recommended for optimal performance.
+   */
+  enable_batching: boolean
 }
