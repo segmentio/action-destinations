@@ -4,9 +4,9 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
-import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
 import { apiLookupActionFields, apiLookupLiquidKey, performApiLookups } from '../utils/api-lookups'
 import { Profile } from '../utils/types'
+
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
@@ -24,6 +24,56 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
       ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
     </div>
   `)
+
+  return $.html()
+}
+
+const insertUnsubscribeLinks = (
+  html: string,
+  emailProfile: any,
+  spaceId: string,
+  statsClient: StatsClient | undefined,
+  tags: string[],
+  groupId?: string,
+  logger?: Logger | undefined
+): string => {
+  const globalUnsubscribeLink = emailProfile?.unsubscribeLink
+  const preferencesLink = emailProfile?.preferencesLink
+  const unsubscribeLinkRef = 'a[href*="[upa_unsubscribe_link]"]'
+  const preferencesLinkRef = 'a[href*="[upa_preferences_link]"]'
+  const $ = cheerio.load(html)
+  if (groupId) {
+    const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
+    const groupUnsubscribeLink = group?.groupUnsubscribeLink
+    $(unsubscribeLinkRef).each(function () {
+      logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  - ${spaceId} ${groupId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
+      $(this).attr('href', groupUnsubscribeLink)
+    })
+  } else {
+    $(unsubscribeLinkRef).each(function () {
+      logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
+      $(this).attr('href', globalUnsubscribeLink)
+    })
+  }
+  $(preferencesLinkRef).each(function () {
+    if (!preferencesLink) {
+      // Remove the Manage Preferences link placeholder and the pipe (' | ') symbol
+      $(this.parent?.children).each(function () {
+        if ($(this).text() == ' | ') {
+          $(this).remove()
+        }
+      })
+      $(this).remove()
+      logger?.info(`TE Messaging: Email Preferences link removed from the html body  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.removed_preferences_link', 1, tags)
+    } else {
+      $(this).attr('href', preferencesLink)
+      logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
+    }
+  })
 
   return $.html()
 }
@@ -264,6 +314,16 @@ const attemptEmailDelivery = async (
     parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
   }
 
+  parsedBodyHtml = insertUnsubscribeLinks(
+    parsedBodyHtml,
+    emailProfile,
+    settings.spaceId,
+    statsClient,
+    tags,
+    payload.groupId,
+    logger
+  )
+
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
     const mailContentSubscriptionHonored = {
@@ -488,8 +548,18 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         subscriptionStatus: {
-          label: 'ID',
+          label: 'subscriptionStatus',
           description: 'The subscription status for the identity.',
+          type: 'string'
+        },
+        unsubscribeLink: {
+          label: 'unsubscribeLink',
+          description: 'Unsubscribe link for the end user',
+          type: 'string'
+        },
+        preferencesLink: {
+          label: 'preferencesLink',
+          description: 'Preferences link for the end user',
           type: 'string'
         },
         groups: {
@@ -507,6 +577,11 @@ const action: ActionDefinition<Settings, Payload> = {
               description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
               // for some reason this still gets deserialized as a string.
               type: 'boolean'
+            },
+            groupUnsubscribeLink: {
+              label: 'groupUnsubscribeLink',
+              description: 'Group unsubscribe link for the end user',
+              type: 'string'
             }
           }
         }
@@ -523,6 +598,12 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            unsubscribeLink: {
+              '@path': '$.unsubscribeLink'
+            },
+            preferencesLink: {
+              '@path': '$.preferencesLink'
             },
             groups: {
               '@path': '$.groups'

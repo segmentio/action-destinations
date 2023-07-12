@@ -13,11 +13,7 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `
-Object {
-  "eventName": "NTxWtuPi(z!bOHmgT^*3",
-}
-`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: One of the following parameters: email, user token, or objectId is required]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `
 Object {

@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
 
@@ -329,10 +329,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       space_id: this.settings.spaceId,
       __segment_internal_external_id_key__: externalIdType,
       __segment_internal_external_id_value__: externalIdValue
-    }
-
-    if ('userId' in this.payload) {
-      customArgs.user_id = this.payload.userId || ''
     }
 
     if (webhookUrl && customArgs) {
