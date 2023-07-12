@@ -169,7 +169,7 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
     })
   })
 
-  test('should fail when event name is not start with pe{hubId}_ and hubId configured in settings', async () => {
+  test('should fail when event name does not start with pe{hubId}_ and hubId is configured in settings', async () => {
     const event = createTestEvent({
       type: 'track',
       event: 'test_event',
@@ -208,7 +208,7 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
     ).rejects.toThrowError(`EventName should begin with pe${settings.portalId}_`)
   })
 
-  test('should fail when event name is not start with pe{hubId}_ and hubId is not configured in settings', async () => {
+  test('should fail when event name does not start with pe{hubId}_ and hubId is not configured in settings', async () => {
     const event = createTestEvent({
       type: 'track',
       event: 'test_event',
