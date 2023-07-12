@@ -1,7 +1,7 @@
 import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
-import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile } from './types'
