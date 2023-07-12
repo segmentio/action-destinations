@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
+import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
 import { apiLookupActionFields, apiLookupLiquidKey, performApiLookups } from '../utils/api-lookups'
 import { Profile } from '../utils/types'
 
