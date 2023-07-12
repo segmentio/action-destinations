@@ -8,7 +8,7 @@ import { IntegrationError, PayloadValidationError, RequestOptions } from '@segme
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
 import { StatsArgs, OperationContext } from '../operationTracking'
-import { MessageOperationTracker, track } from './MessageOperationTracker'
+import { MessageOperationTracker, track, wrapIntegrationError } from './MessageOperationTracker'
 import { isDestinationActionService } from './isDestinationActionService'
 
 const Liquid = new LiquidJs()
@@ -55,10 +55,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
   @track({
-    onError: () => ({
-      error: new PayloadValidationError('Unable to parse templating'),
-      tags: ['reason:invalid_liquid']
-    })
+    onError: wrapIntegrationError(() => new PayloadValidationError('Unable to parse templating, invalid liquid'))
   })
   async parseContent<R extends Record<string, string | string[] | undefined>>(
     content: R,
@@ -122,16 +119,16 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     this.operationTracker.stats.stats(statsArgs)
   }
 
-  statsIncr(metric: string, value?: number, extraTags?: string[]) {
-    this.stats({ method: 'incr', metric, value, extraTags })
+  statsIncr(metric: string, value?: number, tags?: string[]) {
+    this.stats({ method: 'incr', metric, value, tags })
   }
 
-  statsHistogram(metric: string, value: number, extraTags?: string[]) {
-    this.stats({ method: 'histogram', metric, value, extraTags })
+  statsHistogram(metric: string, value: number, tags?: string[]) {
+    this.stats({ method: 'histogram', metric, value, tags })
   }
 
-  statsSet(metric: string, value: number, extraTags?: string[]) {
-    this.stats({ method: 'set', metric, value, extraTags })
+  statsSet(metric: string, value: number, tags?: string[]) {
+    this.stats({ method: 'set', metric, value, tags })
   }
 
   get logDetails(): Record<string, unknown> {
@@ -165,9 +162,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   @track({
-    onError: () => ({
-      error: new IntegrationError('Unable to fetch content template', 'Twilio Content API request failure', 500)
-    })
+    onError: wrapIntegrationError(['Unable to fetch content template', 'Twilio Content API request failure', 500])
   })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
     if (!this.payload.contentSid) {
@@ -189,11 +184,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return this.extractTemplateTypes(template)
   }
 
-  @track({
-    onError: () => ({
-      tags: ['reason:invalid_template_type']
-    })
-  })
+  @track()
   private extractTemplateTypes(template: ContentTemplateResponse): ContentTemplateTypes {
     if (!template.types) {
       throw new IntegrationError(
@@ -215,7 +206,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
   }
 
-  @track({ onError: () => ({ error: new PayloadValidationError('Invalid webhook url arguments') }) })
+  @track({
+    onError: wrapIntegrationError(() => new PayloadValidationError('Invalid webhook url arguments'))
+  })
   getWebhookUrlWithParams(
     externalIdType?: string,
     externalIdValue?: string,

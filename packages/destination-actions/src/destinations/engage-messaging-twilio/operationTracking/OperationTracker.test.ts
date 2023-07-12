@@ -124,10 +124,7 @@ describe('pass through', () => {
         {},
         { operation: 'test_method' },
         {
-          onError: (_e) => ({
-            error: undefined,
-            tags: undefined
-          })
+          onError(_e) {}
         },
         {
           shouldLog: () => true,
@@ -271,7 +268,11 @@ describe('log', () => {
 
     test('onError for error wrapping', async () => {
       const testResult = await runTestMethod({
-        trackArgs: { onError: () => ({ error: new MyCustomError('Wrapper error') }) },
+        trackArgs: {
+          onError: (ctx) => {
+            ctx.error = new MyCustomError('Wrapper error')
+          }
+        },
         testMethodImpl: () => {
           throw new MyCustomError('Child error')
         }
@@ -354,7 +355,7 @@ describe('stats', () => {
         }
         // by default we only produce stats on finally state, and two metrics - finally and
         expect(testInstance.tracker.stats).toHaveBeenCalledTimes(2)
-        const extraTags = [
+        const tags = [
           _throwError ? 'error:true' : 'error:false',
           ...(_throwError ? ['error_operation:testMethod', 'error_class:MyCustomError'] : [])
         ]
@@ -362,13 +363,13 @@ describe('stats', () => {
           metric: 'testMethod',
           method: 'incr',
           value: 1,
-          extraTags
+          tags
         })
         expect(testInstance.tracker.stats).toHaveBeenCalledWith({
           metric: 'testMethod.duration',
           method: 'histogram',
           value: expect.any(Number),
-          extraTags
+          tags
         })
       })
 
@@ -385,28 +386,37 @@ describe('stats', () => {
           metric: 'testMethod.try',
           method: 'incr',
           value: 1,
-          extraTags: []
+          tags: []
         })
       })
     })
   })
 })
 
-function expectStringContainingAll(...strings: string[]) {
-  const wildcard = '(.*)'
-  return expect.stringMatching(new RegExp(strings.join(wildcard) + wildcard))
-}
-
 function expectLogInfo(logInfo: Function, ...messagesContains: string[][]) {
   expect(logInfo).toHaveBeenCalledTimes(messagesContains.length)
-  for (const messageParts of messagesContains) {
-    expect(logInfo).toHaveBeenCalledWith(expectStringContainingAll(...messageParts))
-  }
+  if (!jest.isMockFunction(logInfo)) fail('logInfo is not a mock function')
+  else
+    for (const messageParts of messagesContains) {
+      expect(
+        logInfo.mock.calls.some((args: any[]) => {
+          const [message, _meta] = args
+          return messageParts.every((part) => message.includes(part))
+        })
+      ).toBe(true)
+    }
 }
 
 function expectLogError(logError: Function, ...messagesContains: string[][]) {
   expect(logError).toHaveBeenCalledTimes(messagesContains.length)
-  for (const messageParts of messagesContains) {
-    expect(logError).toHaveBeenCalledWith(expectStringContainingAll(...messageParts), expect.anything())
-  }
+  if (!jest.isMockFunction(logError)) fail('logInfo is not a mock function')
+  else
+    for (const messageParts of messagesContains) {
+      expect(
+        logError.mock.calls.some((args: any[]) => {
+          const [message, _meta] = args
+          return messageParts.every((part) => message.includes(part))
+        })
+      ).toBe(true)
+    }
 }

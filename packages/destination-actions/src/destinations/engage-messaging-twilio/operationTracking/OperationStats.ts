@@ -9,6 +9,13 @@ declare module './OperationContext' {
      */
     tags: string[]
   }
+
+  interface OperationSharedContext {
+    /**
+     * tags that will be added to all operation metrics
+     */
+    tags: string[]
+  }
 }
 
 declare module './OperationTracker' {
@@ -22,10 +29,19 @@ declare module './OperationTracker' {
 }
 
 export abstract class OperationStats implements OperationTrackHooks {
-  abstract stats<TStatsMethod extends StatsMethod>(args: StatsArgs<TStatsMethod>): void
+  abstract stats(args: StatsArgs): void
 
   beforeOperationTry(ctx: OperationContext): void {
     ctx.tags = []
+    if (!ctx.sharedContext.tags) ctx.sharedContext.tags = []
+  }
+
+  mergeTags(...tagSets: (string[] | undefined)[]): string[] {
+    const res: string[] = []
+    for (const tags of tagSets) {
+      if (tags) res.push(...tags)
+    }
+    return res.filter((t) => t)
   }
 
   afterOperationTry(ctx: OperationContext) {
@@ -37,7 +53,7 @@ export abstract class OperationStats implements OperationTrackHooks {
         metric: `${ctx.operation}.try`,
         method: 'incr',
         value: 1,
-        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
+        tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
       }
     })
   }
@@ -61,47 +77,19 @@ export abstract class OperationStats implements OperationTrackHooks {
         metric: `${ctx.operation}.catch`,
         method: 'incr',
         value: 1,
-        extraTags: [...(ctx.tags?.filter((t) => t) || [])]
+        tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
       }
     })
   }
 
   beforeOperationFinally(ctx: OperationContext): void {
-    ctx.tags.push(...(this.extractTags(ctx) || []))
-  }
-
-  afterOperationFinally(ctx: OperationContext): void {
-    const finallyTags = ctx.tags?.filter((t) => t) || []
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'finally',
-      shouldStats: true,
-      stats: { metric: `${ctx.operation}`, method: 'incr', extraTags: finallyTags, value: 1 }
-    })
-
-    if (ctx.duration !== undefined)
-      this.statsOperationEvent({
-        context: ctx,
-        event: 'duration',
-        shouldStats: true,
-        stats: { metric: `${ctx.operation}.duration`, method: 'histogram', extraTags: finallyTags, value: ctx.duration }
-      })
-  }
-
-  /**
-   * Extracts all stats tags for the operation's completion metrics
-   * @param ctx operation context
-   * @returns
-   */
-  extractTags(ctx: OperationContext): string[] {
-    const res: string[] = []
-    res.push(`error:${ctx.error ? 'true' : 'false'}`)
+    const finallyTags: string[] = []
+    if (ctx.state == 'finally') finallyTags.push(`error:${ctx.error ? 'true' : 'false'}`)
     if (ctx.error) {
       const error = ctx.error as TrackedError
-      res.push(...(this.extractTagsFromError(error, ctx) || []))
+      finallyTags.push(...(this.extractTagsFromError(error, ctx) || []))
     }
-
-    return res
+    ctx.tags.push(...finallyTags)
   }
 
   /**
@@ -115,20 +103,35 @@ export abstract class OperationStats implements OperationTrackHooks {
     const errorContext = error.trackedContext
     res.push(`error_operation:${errorContext?.operation || ctx.operation}`)
     res.push(`error_class:${error?.constructor?.name || typeof error}`)
-    // for all upstream operations add error tags
-    if (error.tags /* && error.trackedContext == ctx */) res.push(...error.tags)
-
     return res
+  }
+
+  afterOperationFinally(ctx: OperationContext): void {
+    const finallyTags = this.mergeTags(ctx.sharedContext.tags, ctx.tags)
+    this.statsOperationEvent({
+      context: ctx,
+      event: 'finally',
+      shouldStats: true,
+      stats: { metric: `${ctx.operation}`, method: 'incr', value: 1, tags: [...finallyTags] }
+    })
+
+    if (ctx.duration !== undefined)
+      this.statsOperationEvent({
+        context: ctx,
+        event: 'duration',
+        shouldStats: true,
+        stats: { metric: `${ctx.operation}.duration`, method: 'histogram', value: ctx.duration, tags: [...finallyTags] }
+      })
   }
 }
 
 export type StatsMethod = 'incr' | 'histogram' | 'set'
 
-export type StatsArgs<TStatsMethod extends StatsMethod = StatsMethod> = {
-  method?: TStatsMethod
+export type StatsArgs = {
+  method?: StatsMethod
   metric: string
   value?: number
-  extraTags?: string[]
+  tags?: string[]
 }
 
 export type OperationStatsEvent = OperationContext['state'] | 'duration'

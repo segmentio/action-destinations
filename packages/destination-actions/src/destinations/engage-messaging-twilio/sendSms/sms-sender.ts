@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { Payload } from './generated-types'
-import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessage } from '../utils/phone-message'
-import { track } from '../utils/message-sender'
+import { track, wrapIntegrationError } from '../utils/message-sender'
 
 export class SmsMessageSender extends PhoneMessage<Payload> {
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
@@ -71,12 +71,7 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
   }
 
   @track({
-    onError: (e) => ({
-      error:
-        e instanceof IntegrationError
-          ? e
-          : new IntegrationError('Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500)
-    })
+    onError: wrapIntegrationError(['Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500])
   })
   private async getProfileTraits() {
     if (!this.payload.userId) {

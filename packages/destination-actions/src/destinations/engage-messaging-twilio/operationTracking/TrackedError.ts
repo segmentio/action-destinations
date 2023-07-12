@@ -3,7 +3,6 @@ import { OperationContext } from './OperationContext'
 /**
  * Error object that contains tracked data
  */
-
 export interface TrackedError extends Error {
   /**
    * Underlying error that this error wraps
@@ -13,10 +12,7 @@ export interface TrackedError extends Error {
    * Operation context during which the error happened
    */
   trackedContext?: OperationContext
-  /**
-   * Tags to add to the operation completion metrics
-   */
-  tags?: string[]
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }

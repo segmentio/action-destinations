@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender, track } from '../utils/message-sender'
+import { MessageSender, track, wrapIntegrationError } from '../utils/message-sender'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
@@ -178,10 +178,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   }
 
   @track({
-    onError: () => ({
-      error: new PayloadValidationError('Unable to construct Notify API request body'),
-      tags: ['reason:invalid_payload']
-    })
+    onError: wrapIntegrationError(() => new PayloadValidationError('Unable to construct Notify API request body'))
   })
   async getBody(): Promise<BodyCustomDataBundle> {
     let templateTypes: ContentTemplateTypes | undefined

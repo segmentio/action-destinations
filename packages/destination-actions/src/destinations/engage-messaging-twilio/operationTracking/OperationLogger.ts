@@ -10,6 +10,17 @@ declare module './OperationContext' {
      * log messages collected during the operation that will be logged at the end of the operation
      */
     logs: string[]
+    /**
+     * log details added to log messages of this operation
+     */
+    logMetadata?: Record<string, unknown>
+  }
+  interface OperationSharedContext {
+    logs: string[]
+    /**
+     * log details added to each log message
+     */
+    logMetadata?: Record<string, unknown>
   }
 }
 
@@ -30,13 +41,19 @@ export abstract class OperationLogger implements OperationTrackHooks {
 
   beforeOperationTry(ctx: OperationContext) {
     ctx.logs = []
+    if (!ctx.sharedContext.logs) ctx.sharedContext.logs = []
   }
 
   afterOperationTry(ctx: OperationContext) {
     const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
-      const fullLogMessage = this.extractLogMessages(ctx)?.join('. ')
-      this.logInfo(fullLogMessage)
+      const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
+      this.logInfo(
+        fullLogMessage,
+        ctx.logMetadata || ctx.sharedContext.logMetadata
+          ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
+          : undefined
+      )
     }
   }
 
@@ -54,7 +71,7 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param ctx operation context
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
-  extractLogMessages(ctx: OperationContext): string[] {
+  getOperationLogMessages(ctx: OperationContext): string[] {
     const res: string[] = []
     switch (ctx.state) {
       case 'try':
@@ -134,15 +151,22 @@ export abstract class OperationLogger implements OperationTrackHooks {
   }
 
   beforeOperationFinally(ctx: OperationContext): void {
-    ctx.logs.push(...(this.extractLogMessages(ctx) || []))
+    ctx.logs.push(...(this.getOperationLogMessages(ctx) || []))
   }
 
   afterOperationFinally(ctx: OperationContext) {
     const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
     if (shouldLog !== false) {
-      const fullLogMessage = (ctx.logs?.filter((t) => t) || []).join('. ')
-      if (ctx.error) this.logError(fullLogMessage, { error: ctx.error })
-      else this.logInfo(fullLogMessage)
+      const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
+        .concat(...(ctx.logs || []))
+        .filter((t) => t)
+        .join('. ')
+      const logDetails =
+        ctx.logMetadata || ctx.sharedContext.logMetadata
+          ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
+          : undefined
+      if (ctx.error) this.logError(fullLogMessage, { error: ctx.error, ...logDetails })
+      else this.logInfo(fullLogMessage, logDetails)
     }
   }
 }

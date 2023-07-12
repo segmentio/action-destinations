@@ -9,7 +9,8 @@ import {
   OperationLogger,
   OperationStats,
   OperationDuration,
-  createTrackDecoratorFactory
+  createTrackDecoratorFactory,
+  TrackArgs
 } from '../operationTracking'
 import { MessageSender } from './message-sender'
 
@@ -20,9 +21,12 @@ export class MessageOperationTracker extends OperationTracker {
   static Logger = class extends OperationLogger {
     constructor(public messageSender: MessageSender<any>) {
       super()
-      this.loggerClient = messageSender.executeInput.logger
+      this.channelType = this.messageSender.getChannelType().toUpperCase()
     }
-    readonly loggerClient: Logger | undefined
+    readonly channelType: string
+    get loggerClient(): Logger | undefined {
+      return this.messageSender.executeInput.logger
+    }
     readonly logDetails: Record<string, unknown> = {}
 
     logInfo(msg: string, metadata?: object): void {
@@ -30,7 +34,7 @@ export class MessageOperationTracker extends OperationTracker {
       if (!this.messageSender.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
       const [firstMsg, ...rest] = msgs
       this.loggerClient?.info(
-        `TE Messaging: ${this.messageSender.getChannelType().toUpperCase()} ${firstMsg}`,
+        `TE Messaging: ${this.channelType} ${firstMsg}`,
         ...rest,
         JSON.stringify({ ...this.logDetails, ...metadata })
       )
@@ -38,7 +42,7 @@ export class MessageOperationTracker extends OperationTracker {
 
     logError(msg: string, metadata?: object): void {
       if (!this.messageSender.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
-      const msgPrefix = `TE Messaging: ${this.messageSender.getChannelType().toUpperCase()}`
+      const msgPrefix = `TE Messaging: ${this.channelType}`
       this.loggerClient?.error(`${msgPrefix}} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
     }
   }
@@ -46,7 +50,6 @@ export class MessageOperationTracker extends OperationTracker {
   static Stats = class extends OperationStats {
     constructor(public messageSender: MessageSender<any>) {
       super()
-      this.statsClient = this.messageSender.executeInput.statsContext?.statsClient
       this.tags = this.messageSender.executeInput.statsContext?.tags ?? []
       this.tags.push(
         `space_id:${this.messageSender.settings.spaceId}`,
@@ -56,13 +59,15 @@ export class MessageOperationTracker extends OperationTracker {
       )
     }
 
-    readonly statsClient: StatsClient | undefined
+    get statsClient(): StatsClient | undefined {
+      return this.messageSender.executeInput.statsContext?.statsClient
+    }
     readonly tags: StatsContext['tags']
 
     stats(statsArgs: StatsArgs): void {
       if (!this.statsClient) return
-      const { method: statsMethod, metric, value, extraTags } = statsArgs
-      //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.extraTags]
+      const { method: statsMethod, metric, value, tags } = statsArgs
+      //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.tags]
       let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
       if (!statsFunc)
         switch (
@@ -87,7 +92,7 @@ export class MessageOperationTracker extends OperationTracker {
 
       statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
         ...this.tags,
-        ...(extraTags ?? [])
+        ...(tags ?? [])
       ])
     }
 
@@ -110,13 +115,7 @@ export class MessageOperationTracker extends OperationTracker {
   stats = new MessageOperationTracker.Stats(this.messageSender)
 
   initHooks() {
-    return [new OperationDuration(), this.logger, this.stats]
-  }
-
-  onOperationPrepareError(ctx: OperationContext) {
-    //if error is already integration error we don't run trackArgs.onError
-    if (ctx.error instanceof IntegrationError) return
-    super.onOperationPrepareError(ctx)
+    return [new OperationDuration(), (this.logger = new MessageOperationTracker.Logger(this.messageSender)), this.stats]
   }
 }
 
@@ -124,3 +123,28 @@ export class MessageOperationTracker extends OperationTracker {
 export const track = createTrackDecoratorFactory<{ operationTracker: OperationTracker }>(
   (trackerContainer) => trackerContainer.operationTracker
 )
+
+/**
+ * Creates a trackArgs.onError handler that let you wrap the operationContext.error with an IntegrationError unless current error is already an IntegrationError
+ * @param args IntegrationError constructor args
+ * @returns
+ */
+export function wrapIntegrationError(
+  createIntegrationError: (op: OperationContext) => IntegrationError
+): TrackArgs['onError']
+export function wrapIntegrationError(
+  integrationErrorConstructorArgs: ConstructorParameters<typeof IntegrationError>
+): TrackArgs['onError']
+export function wrapIntegrationError(args: unknown): TrackArgs['onError'] {
+  return (ctx: OperationContext) => {
+    const error = ctx.error
+    if (!(error instanceof IntegrationError)) {
+      if (args instanceof Function) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        ctx.error = args(ctx)
+      } else if (args instanceof Array) {
+        ctx.error = new IntegrationError(...(args as ConstructorParameters<typeof IntegrationError>))
+      }
+    }
+  }
+}

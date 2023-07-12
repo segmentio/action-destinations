@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OperationContext } from './OperationContext'
-import { OperationTrackHooks } from './OperationTrackHooks'
+import { DefaultHookPriority, OperationTrackHooks } from './OperationTrackHooks'
 import { TrackedError } from './TrackedError'
 import { wrapPromisable } from './wrapPromisable'
 
@@ -14,21 +14,10 @@ export interface TrackArgs {
    */
   operation?: string
   /**
-   * Callback for preparing Error object to be logged/rethrown.
-   * @param error error thrown by the tracked method
-   * @param ctx operation context
-   * @returns (optionally) error substitute to be rethrown/logged and (optionally) tags to be added to the error
+   * Callback for preparing Error object to be logged/rethrown. You can reassign the error to be thrown or add tags/logs to context which will be used in the finally
+   * @param ctx operation context, which contains the error (ctx.error)
    */
-  onError?: (
-    error: unknown,
-    ctx: OperationContext
-  ) =>
-    | {
-        error?: TrackedError
-        tags?: string[]
-      }
-    | void
-    | undefined
+  onError?(ctx: OperationContext): void
 
   [key: string]: any
 }
@@ -112,11 +101,10 @@ export abstract class OperationTracker {
   }
 
   forEachHook(handler: (hooks: OperationTrackHooks) => void, ctx: OperationContext) {
-    const defaultPriority = 9999 //Number.MAX_SAFE_INTEGER
     const prioritizedHooks = Object.values(this.hooks).sort((h1, h2) => {
-      const p1 = h1.getHookPriority ? h1.getHookPriority(ctx) : defaultPriority
-      const p2 = h2.getHookPriority ? h2.getHookPriority(ctx) : defaultPriority
-      return (p1 === undefined ? defaultPriority : p1) - (p2 === undefined ? defaultPriority : p2)
+      const p1 = h1.getHookPriority ? h1.getHookPriority(ctx) : DefaultHookPriority
+      const p2 = h2.getHookPriority ? h2.getHookPriority(ctx) : DefaultHookPriority
+      return (p1 === undefined ? DefaultHookPriority : p1) - (p2 === undefined ? DefaultHookPriority : p2)
     })
     for (const hook of prioritizedHooks) {
       handler(hook)
@@ -144,8 +132,9 @@ export abstract class OperationTracker {
       trackArgs: runArgs.trackArgs,
       methodArgs: runArgs.methodArgs,
       onFinally: [],
-      parent: this.currentOperation
-    } as any
+      parent: this.currentOperation,
+      sharedContext: this.currentOperation?.sharedContext || {}
+    } as Partial<OperationContext> as any
 
     return wrapPromisable(() => runArgs.method.apply(runArgs.methodThis, runArgs.methodArgs), {
       onTry: () => this.onOperationTry(ctx),
@@ -173,8 +162,6 @@ export abstract class OperationTracker {
     this.forEachHook((ext) => ext.beforeOperationTry?.(ctx), ctx)
 
     this._currentOperation = ctx
-    ctx.startTime = Date.now()
-
     this.forEachHook((ext) => ext.afterOperationTry?.(ctx), ctx)
   }
 
@@ -190,21 +177,23 @@ export abstract class OperationTracker {
     const trArgs = ctx.trackArgs
     let trackedError = origError as TrackedError
 
-    // try to get error wrapper from onError callback
-    const errPrep = trArgs?.onError?.apply(this, [ctx.error, ctx])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (errPrep?.error && errPrep?.error != ctx.error) {
-      trackedError = errPrep.error
+    // onError callback can wrap the error, modify it, add new tags, logs etc
+    trArgs?.onError?.apply(this, [ctx])
+
+    // if error was wrapped, we want wrappedError.underlyingError = originalError
+    if (ctx.error !== origError) {
+      trackedError = ctx.error
       trackedError.underlyingError = origError
-      trackedError.trackedContext = ctx
-      //trackedError.tags = [...(origError.tags || [])] // if we want to inherit tags from original error
     }
-    if (errPrep?.tags) {
-      trackedError.tags = [...(trackedError.tags || []), ...errPrep.tags]
+    if (!trackedError.trackedContext) trackedError.trackedContext = ctx
+
+    // need to make sure trackedError.trackedContext is not enumerable, because this will cause JSON.stringify to fail with circular reference
+    const ctxProp = Object.getOwnPropertyDescriptor(trackedError, 'trackedContext')
+    if (ctxProp?.enumerable) {
+      //to make sure the operation context is not JSON.stringified with error
+      ctxProp.enumerable = false
+      Object.defineProperty(trackedError, 'trackedContext', ctxProp)
     }
-    if (trackedError.trackedContext)
-      Object.defineProperty(trackedError, 'trackedContext', { value: ctx, enumerable: false }) //to make sure the operation context is not JSON.stringified with error
-    ctx.error = trackedError
 
     this.forEachHook((ext) => ext.afterOperationPrepareError?.(ctx), ctx)
   }
