@@ -6,7 +6,7 @@ import {processPayload} from "../../launchdarkly-audiences/syncAudience/custom-a
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: '',
-  defaultSubscription: 'type = "track" or type = "identify"',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     custom_audience_name: {
       label: 'Custom Audience Name',

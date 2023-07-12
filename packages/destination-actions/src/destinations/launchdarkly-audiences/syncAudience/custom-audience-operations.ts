@@ -11,7 +11,8 @@ import { CONSTANTS } from '../constants'
  */
 type CustomAudienceOperation = {
   action: string
-  list: string
+  cohortName: string
+  cohortId: string
   emails: string[]
 }
 
@@ -61,7 +62,8 @@ const getCustomAudienceOperations = (payload: Payload[]): CustomAudienceOperatio
     // value will map of action=>email_list
     action_map_values.forEach((emails: string[], action: string) => {
       const custom_audience_op: CustomAudienceOperation = {
-        list: list,
+        cohortName: list,
+        cohortId: list,
         action: action,
         emails: emails
       }
@@ -83,12 +85,13 @@ async function processPayload(request: RequestClient, events: Payload[]) {
 
   for (const op of custom_audience_ops) {
     if (op.emails.length > 0) {
-      // if emails are present for action, send to rokt. Push to list of promises
-      // There will be max 2 promies for 2 http reuests ( include & exclude actions )
+      // if emails are present for action, send to ld. Push to list of promises
+      // There will be max 2 promises for 2 http requests ( include & exclude actions )
+      console.log(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT)
       promises.push(
-        request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT, {
+        request(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT, {
           method: 'POST',
-          json: op
+          json: op,
         })
       )
     }

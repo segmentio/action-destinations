@@ -5,4 +5,8 @@ export interface Settings {
    * APIKey used for LaunchDarkly API authorization before sending custom audiences data
    */
   apiKey: string
+  /**
+   * ID of the environment
+   */
+  environmentId: string
 }
