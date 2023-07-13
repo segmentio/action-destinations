@@ -10,6 +10,8 @@ import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { BrazeDestinationClient } from './braze-types'
 
+import setSubscriptionGroups from './setSubscriptionGroups'
+
 declare global {
   interface Window {
     braze: typeof braze
@@ -355,7 +357,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
     updateUserProfile,
     trackEvent,
     trackPurchase,
-    debounce
+    debounce,
+    setSubscriptionGroups
   }
 }
 
