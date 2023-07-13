@@ -63,7 +63,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    console.log('********', settings, payload)
     return processPayload(request, settings, [payload])
   },
 

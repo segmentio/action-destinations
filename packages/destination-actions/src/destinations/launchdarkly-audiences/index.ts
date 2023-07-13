@@ -9,6 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Launchdarkly Audiences',
   slug: 'actions-launchdarkly-audiences',
   mode: 'cloud',
+  description: 'Sync Segments audiences to LaunchDarkly Big Segments.',
 
   authentication: {
     scheme: 'custom',
@@ -43,6 +44,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest({ settings }) {
+    console.log('extendRequest', settings)
     return {
       headers: {
         'User-Agent': 'SegmentSyncAudiences/1.0.0',
