@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * APIKey used for LaunchDarkly API authorization before sending custom audiences data
+   * API Key used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization) before sending custom audiences data.
    */
   apiKey: string
   /**
-   * ID of the environment
+   * Find and copy the [client-side ID](https://ld-stg.launchdarkly.com/settings/projects) in the LaunchDarkly account settings page.
    */
-  environmentId: string
+  client_id: string
 }

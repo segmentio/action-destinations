@@ -1,16 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {processPayload} from "../../launchdarkly-audiences/syncAudience/custom-audience-operations";
+import { processPayload } from '../../launchdarkly-audiences/syncAudience/custom-audience-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: '',
+  description: 'Sync Engage Audiences to LaunchDarkly segments',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     custom_audience_name: {
       label: 'Custom Audience Name',
-      description: 'Name of custom audience list to which emails should added/removed',
+      description: 'Name of custom audience list to which user identifier should added/removed',
       type: 'string',
       required: true,
       default: {
@@ -26,6 +26,27 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       }
     },
+    context_kind: {
+      label: 'Context kind',
+      description: 'LaunchDarkly context kind',
+      type: 'string',
+      required: true,
+      default: 'user',
+      choices: [{ label: 'User', value: 'user' }]
+    },
+    context_key: {
+      label: 'Context key',
+      description: 'LaunchDarkly context key',
+      type: 'string',
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.email' }
+        }
+      }
+    },
     traits_or_props: {
       label: 'traits or properties object',
       description: 'Object which will be computed differently for track and identify events',
@@ -38,35 +59,16 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits' }
         }
       }
-    },
-    enable_batching: {
-      type: 'boolean',
-      label: 'enable batching to rokt api',
-      description: 'Set as true to ensure Segment infrastructure uses batching when possible.',
-      default: true
-    },
-    email: {
-      label: 'Email',
-      description: "User's email address for including/excluding from custom audience",
-      type: 'string',
-      format: 'email',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.traits.email' }
-        }
-      }
     }
   },
 
-  perform: (request, { payload }) => {
-    return processPayload(request, [payload])
+  perform: (request, { payload, settings }) => {
+    console.log('********', settings, payload)
+    return processPayload(request, settings, [payload])
   },
 
-  performBatch: (request, { payload }) => {
-    return processPayload(request, payload)
+  performBatch: (request, { payload, settings }) => {
+    return processPayload(request, settings, payload)
   }
 }
 

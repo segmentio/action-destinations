@@ -2,99 +2,100 @@ import type { RequestClient } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 
 import { CONSTANTS } from '../constants'
-/**
- * CustomAudienceOperation is a custom type to encapsulate the request body params
- * for inserting/updating custom audience list in rokt data platform
- * @action [include, exclude]
- * @list custom audience name ( or list ) in rokt data platform
- * @emails list of user emails to be included/excluded from custom audience list
- */
-type CustomAudienceOperation = {
-  action: string
-  cohortName: string
+import { Settings } from '../generated-types'
+
+type AudienceBatch = {
+  environmentId: string
+  batch: AudienceBatchItem[]
+}
+
+type AudienceName = string
+
+type AudienceBatchItem = {
+  userId: string
+  cohortName: AudienceName
   cohortId: string
-  emails: string[]
+  value: boolean
 }
 
 /**
- * getCustomAudienceOperations parses event payloads from segment to convert to request object for rokt api
- * @payload payload of events
+ * Creates a context payload that can be consumed by LaunchDarkly's segment targeting api
+ * @param contextKey contextKey Context key
+ * @param audienceId audience id
+ * @param include include or exclude the context from LaunchDarkly's segment
+ */
+const createContextForBatch = (contextKey: string, audienceId: string, include: boolean) => ({
+  userId: contextKey,
+  cohortName: audienceId,
+  cohortId: audienceId,
+  value: include
+})
+
+/**
+ * getCustomAudienceOperations parses event payloads from segment to convert to request object for launchdarkly api
+ * @param payload payload of events
+ * @param settings user configured settings
  */
 
-const getCustomAudienceOperations = (payload: Payload[]): CustomAudienceOperation[] => {
+const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): AudienceBatch[] => {
   // map to handle different audiences in the batch
-  // this will contain audience_name=>[action=>emails]
-  const audience_map = new Map<string, Map<string, string[]>>([])
+  const audienceMap = new Map<AudienceName, AudienceBatch>()
+
   for (const p of payload) {
-    if (p.segment_computation_action != CONSTANTS.SUPPORTED_SEGMENT_COMPUTATION_ACTION) {
+    if (p.segment_computation_action !== CONSTANTS.SUPPORTED_SEGMENT_COMPUTATION_ACTION) {
       // ignore event
       continue
     }
 
-    let action_map = new Map<string, string[]>([
-      [CONSTANTS.INCLUDE, []],
-      [CONSTANTS.EXCLUDE, []]
-    ])
+    const contextKey = p.context_key
+    const audienceId = p.custom_audience_name
+    const traitsOrProps = p.traits_or_props
+    const environmentId = settings.client_id
 
-    // check if we have already saved this audience in map
-    const existing_action_map_for_audience = audience_map.get(p.custom_audience_name)
-    if (existing_action_map_for_audience !== undefined) {
-      // use existing map for audience, to include/exclude new email
-      action_map = existing_action_map_for_audience
-    } else {
-      // if audience is not in map, add it to the map
-      audience_map.set(p.custom_audience_name, action_map)
+    let audienceBatch: AudienceBatch = {
+      environmentId,
+      batch: []
     }
 
-    if (p.traits_or_props[p.custom_audience_name] === true) {
+    // check if we have already saved this audience in map
+    const existingBatchForAudience = audienceMap.get(audienceId)
+    if (existingBatchForAudience) {
+      // use existing map for audience, to include/exclude new email
+      audienceBatch = existingBatchForAudience
+    } else {
+      // if audience is not in map, add it to the map
+      audienceMap.set(audienceId, audienceBatch)
+    }
+
+    if (traitsOrProps[audienceId] === true) {
       // audience entered 'true', include email to list
-      action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
-    } else if (p.traits_or_props[p.custom_audience_name] === false) {
+      audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, true))
+    } else if (traitsOrProps[audienceId] === false) {
       // audience entered 'false', exclude email from list
-      action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
+      audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, false))
     }
   }
 
-  // build operation request to be sent to rokt api
-  const custom_audience_ops: CustomAudienceOperation[] = []
-  audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
-    // key will be audience list
-    // value will map of action=>email_list
-    action_map_values.forEach((emails: string[], action: string) => {
-      const custom_audience_op: CustomAudienceOperation = {
-        cohortName: list,
-        cohortId: list,
-        action: action,
-        emails: emails
-      }
-      custom_audience_ops.push(custom_audience_op)
-    })
-  })
-  return custom_audience_ops
+  return Array.from(audienceMap.values())
 }
 
 /**
- * Takes an array of events of type Payload, decides whether event is meant for include/exclude action of rokt api
+ * Takes an array of events of type Payload, decides whether event should be included or excluded from LaunchDarkly's segment
  * and then pushes the event to proper list to build request body.
  * @param request request object used to perform HTTP calls
+ * @param settings user configured settings
  * @param events array of events containing Rokt custom audience details
  */
-async function processPayload(request: RequestClient, events: Payload[]) {
-  const custom_audience_ops: CustomAudienceOperation[] = getCustomAudienceOperations(events)
+async function processPayload(request: RequestClient, settings: Settings, events: Payload[]) {
+  const audienceBatches: AudienceBatch[] = parseCustomAudienceBatches(events, settings)
   const promises = []
 
-  for (const op of custom_audience_ops) {
-    if (op.emails.length > 0) {
-      // if emails are present for action, send to ld. Push to list of promises
-      // There will be max 2 promises for 2 http requests ( include & exclude actions )
-      console.log(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT)
-      promises.push(
-        request(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT, {
-          method: 'POST',
-          json: op,
-        })
-      )
-    }
+  for (const batch of audienceBatches) {
+    const ldRequest = request(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT, {
+      method: 'POST',
+      json: batch
+    })
+    promises.push(ldRequest)
   }
 
   return await Promise.all(promises)

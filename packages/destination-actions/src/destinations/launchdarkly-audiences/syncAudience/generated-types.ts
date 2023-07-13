@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of custom audience list to which emails should added/removed
+   * Name of custom audience list to which user identifier should added/removed
    */
   custom_audience_name: string
   /**
@@ -10,17 +10,17 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * LaunchDarkly context kind
+   */
+  context_kind: string
+  /**
+   * LaunchDarkly context key
+   */
+  context_key: string
+  /**
    * Object which will be computed differently for track and identify events
    */
   traits_or_props: {
     [k: string]: unknown
   }
-  /**
-   * Set as true to ensure Segment infrastructure uses batching when possible.
-   */
-  enable_batching?: boolean
-  /**
-   * User's email address for including/excluding from custom audience
-   */
-  email: string
 }
