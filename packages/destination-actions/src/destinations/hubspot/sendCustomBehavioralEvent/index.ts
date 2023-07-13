@@ -77,6 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: flattenObject(payload.properties)
     }
 
+    event.eventName = event.eventName.toLowerCase()
+
     if (!payload.utk && !payload.email && !payload.objectId) {
       throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
     }
