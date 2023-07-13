@@ -1705,7 +1705,7 @@ describe.each([
           content: [
             {
               type: 'text/html',
-              value: `Current temperature: 70, Current bitcoin price: 20000`
+              value: `<html><head></head><body>Current temperature: 70, Current bitcoin price: 20000</body></html>`
             }
           ]
         })
