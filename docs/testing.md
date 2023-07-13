@@ -167,7 +167,7 @@ curl --location --request POST 'http://localhost:3000/authentication' \
 
 ### Example request to test createAudience() and getAudience()
 
-You can test the createAudience and getAudience methods as well. Use the commands bellow as an example and populate the
+You can test the createAudience and getAudience methods as well. Use the commands below as an example and populate the
 settings according to the needs of your destination.
 
 **createAudience**
