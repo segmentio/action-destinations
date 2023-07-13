@@ -179,7 +179,7 @@ const parseTemplating = async (
   content: string,
   liquidData: {
     profile: Profile
-    lookups?: Record<string, unknown>
+    [apiLookupLiquidKey]?: Record<string, unknown>
   },
   contentType: string,
   statsClient: StatsClient | undefined,
