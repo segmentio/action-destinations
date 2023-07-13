@@ -365,7 +365,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       this.logDetails['error'] = twilioApiError.response
 
       this.logError(`${apiName} error - ${this.settings.spaceId}`)
-      const statusCode = twilioApiError.status || twilioApiError.response?.data?.status
+      // also retry undefined error codes
+      const statusCode = twilioApiError.status || twilioApiError.response?.data?.status || 500
+
       this.tags.push(`twilio_status_code:${statusCode}`)
       this.stats('incr', 'response', 1)
 
