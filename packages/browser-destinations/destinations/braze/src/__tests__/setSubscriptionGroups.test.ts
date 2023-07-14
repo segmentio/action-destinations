@@ -35,7 +35,7 @@ describe('braze.setSubscriptionGroups', () => {
           "subscription_state": "unsubscribed"
       }, {
           "subscription_group_id": "ytghkuguymjghb",
-          "subscription_state": "unsubscribed"
+          "subscription_state": "subscribed"
     }];
 
     await event.identify?.(

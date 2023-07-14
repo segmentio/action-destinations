@@ -7,7 +7,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
   title: 'Set Subscription Groups',
   description: 'Subscribe or unsubscribe from Braze Subscription Groups',
   platform: 'web',
-  defaultSubscription: 'type = "identify" and property = "braze_subscription_groups"',
+  defaultSubscription: 'type = "identify" and traits.braze_subscription_groups != null',
   fields: {
     subscriptionGroups: {
       label: 'Subscription Groups',
@@ -15,7 +15,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       type: 'object',
       multiple: true,
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits.braze_subscription_groups'
       },
       properties: {
         subscription_group_id: {

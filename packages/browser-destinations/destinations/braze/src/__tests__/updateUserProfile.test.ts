@@ -166,7 +166,10 @@ describe('updateUserProfile', () => {
         type: 'identify',
         traits: {
           dob: '01/01/2000',
-          braze_subscription_groups: brazeSubscriptionGroups
+          custom_attributes: {
+            foo: 'bar',
+            braze_subscription_groups: brazeSubscriptionGroups
+          }
         }
       })
     )
@@ -180,9 +183,16 @@ describe('updateUserProfile', () => {
 
       expect.objectContaining({
         payload: {
-          dob: '01/01/2000'
+          traits: {
+           dob: '01/01/2000',
+            custom_attributes: {
+              foo: 'bar',
+              braze_subscription_groups: brazeSubscriptionGroups
+            }
+          }
         }
       }),
+
       // TODO
       // expect.not.objectContaining({
       //   payload: {
