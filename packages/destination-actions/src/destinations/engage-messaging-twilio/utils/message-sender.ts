@@ -7,7 +7,7 @@ import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { track, wrapIntegrationError, OperationContext } from './track'
+import { track, OperationContext } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { MessageLogger } from './MessageLogger'
 import { MessageStats } from './MessageStats'
@@ -15,8 +15,8 @@ import { MessageStats } from './MessageStats'
 const Liquid = new LiquidJs()
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  readonly logger: MessageLogger
-  readonly statsClient: MessageStats
+  readonly logger: MessageLogger = new MessageLogger(this)
+  readonly statsClient: MessageStats = new MessageStats(this)
 
   readonly currentOperation: OperationContext | undefined
 
@@ -33,8 +33,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if (!this.settings.region) {
       this.settings.region = 'us-west-1'
     }
-    this.logger = new MessageLogger(this)
-    this.statsClient = new MessageStats(this)
   }
 
   @track()
@@ -55,7 +53,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
    */
   @track({
-    onError: wrapIntegrationError(() => new PayloadValidationError('Unable to parse templating, invalid liquid'))
+    wrapIntegrationError: () => new PayloadValidationError('Unable to parse templating, invalid liquid')
   })
   async parseContent<R extends Record<string, string | string[] | undefined>>(
     content: R,
@@ -155,11 +153,11 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
     if ('deliveryAttempt' in (this.executeInput as any)['rawData'])
-      this.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
+      this.currentOperation?.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
   }
 
   @track({
-    onError: wrapIntegrationError(['Unable to fetch content template', 'Twilio Content API request failure', 500])
+    wrapIntegrationError: ['Unable to fetch content template', 'Twilio Content API request failure', 500]
   })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
     if (!this.payload.contentSid) {
@@ -204,7 +202,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   @track({
-    onError: wrapIntegrationError(() => new PayloadValidationError('Invalid webhook url arguments'))
+    wrapIntegrationError: () => new PayloadValidationError('Invalid webhook url arguments')
   })
   getWebhookUrlWithParams(
     externalIdType?: string,

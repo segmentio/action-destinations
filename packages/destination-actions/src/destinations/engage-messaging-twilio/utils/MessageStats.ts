@@ -18,16 +18,20 @@ export class MessageStats extends OperationStats {
 
   constructor(public messageSender: MessageSender<any>) {
     super()
-    this.tags = this.messageSender.executeInput.statsContext?.tags ?? []
-    this.tags.push(
+  }
+
+  onTry(ctx: OperationStatsContext): () => void {
+    const res = super.onTry(ctx)
+    ctx.sharedContext.tags.push(
       `space_id:${this.messageSender.settings.spaceId}`,
       `projectid:${this.messageSender.settings.sourceId}`,
       `region:${this.messageSender.settings.region}`,
       `channel:${this.messageSender.getChannelType()}`
     )
+    return res
   }
 
-  get statsClient(): StatsClient | undefined {
+  protected get statsClient(): StatsClient | undefined {
     return this.messageSender.executeInput.statsContext?.statsClient
   }
   readonly tags: StatsContext['tags']
@@ -59,7 +63,7 @@ export class MessageStats extends OperationStats {
       }
 
     statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
-      ...this.tags,
+      ...(this.messageSender.executeInput.statsContext?.tags || []),
       ...(tags ?? [])
     ])
   }

@@ -70,7 +70,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
         body
       }
     )
-    this.tags.push(`twilio_status_code:${response.status}`)
+    this.currentOperation?.tags.push(`twilio_status_code:${response.status}`)
     this.statsIncr('response', 1)
 
     if (this.payload.eventOccurredTS != undefined) {

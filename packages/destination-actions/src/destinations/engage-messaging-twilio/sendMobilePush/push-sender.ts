@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender, track, wrapIntegrationError } from '../utils'
+import { MessageSender, track } from '../utils'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
@@ -168,8 +168,8 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       )
     }
 
-    this.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
-    this.tags.push(`total_failed:${failedSends.length}`)
+    this.currentOperation?.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
+    this.currentOperation?.tags.push(`total_failed:${failedSends.length}`)
     if (this.payload.eventOccurredTS != undefined) {
       this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
@@ -178,7 +178,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   }
 
   @track({
-    onError: wrapIntegrationError(() => new PayloadValidationError('Unable to construct Notify API request body'))
+    wrapIntegrationError: () => new PayloadValidationError('Unable to construct Notify API request body')
   })
   async getBody(): Promise<BodyCustomDataBundle> {
     let templateTypes: ContentTemplateTypes | undefined

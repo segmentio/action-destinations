@@ -35,6 +35,11 @@ export type OperationHookContext<
   trackArgs?: TTrackArgs
 }
 
+/**
+ * Knows how to get the tryCatchFinally hook for the operation, which is invoked by the wrapTryCatchFinally for each wrapped function call
+ * Each hook provider impacts the evetuak types of TrackArgs and operation Context of the decorator
+ * Each hook provider is invoked for each decorated function call, so be mindful about memory usage and use singletons where you don't need state
+ */
 export interface OperationHookProvider<
   TContext extends OperationHookContext = OperationHookContext,
   TDecoratorUtils = {}
@@ -56,14 +61,6 @@ export type TrackArgsFromContext<TContext extends TryCatchFinallyContext> = TCon
 }
   ? TTrackArgs
   : TrackArgs
-
-// export type ContextFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends OperationHookProvider<infer TContext>[] ? TContext : never
-
-// export type TrackArgsFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends OperationHookProvider<infer TContext>[] ? TrackArgsFromContext<TContext> : never
-
-// export type FuncFromHookProviders<TProviders extends OperationHookProvider[]> = FuncFromTryCatchFinallyContext<ContextFromHookProviders<TProviders>>
-
-//export type UtilsFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends OperationHookProvider<any, infer TUtils>[] ? TUtils : never
 
 export type ContextFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends [
   OperationHookProvider<infer THeadContext>,
@@ -92,6 +89,12 @@ export type FuncFromHookProviders<TProviders extends OperationHookProvider[]> = 
 >
 
 export class OperationDecorator {
+  /**
+   * creates a decorator factory for the given set of hook providers.
+   * Each hook provider impacts the evetuak types of TrackArgs and operation Context of the decorator
+   * Each hook provider is invoked for each decorated function call, so be mindful about memory usage and use singletons where you don't need state
+   * @param hookProviders set of hook providers.
+   */
   static createDecoratorFactory<TOperationHookProviders extends OperationHookProvider[]>(
     ...hookProviders: TOperationHookProviders
   ): ((
@@ -129,15 +132,25 @@ export class OperationDecorator {
 
     return Object.assign(decorator, decoratorUtils) as any
   }
+
+  /**
+   * Creates decorator factory with default hook providers:
+   * OperationErrorHandler,
+   * OperationTree,
+   * OperationDuration,
+   * OperationFinallyHooks
+   * @param notDefaultHookProviders extra (non default) hook providers
+   * @returns decorator factory that can be used to decorate methods
+   */
   static createDecoratorFactoryWithDefault<TOperationHookProviders extends OperationHookProvider[]>(
-    ...hookProviders: TOperationHookProviders
+    ...notDefaultHookProviders: TOperationHookProviders
   ) {
     return OperationDecorator.createDecoratorFactory(
       OperationErrorHandler,
       OperationTree,
       OperationDuration,
       OperationFinallyHooks,
-      ...hookProviders
+      ...notDefaultHookProviders
     )
   }
 

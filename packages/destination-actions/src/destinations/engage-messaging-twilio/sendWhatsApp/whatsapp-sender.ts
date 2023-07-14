@@ -3,7 +3,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { track, wrapIntegrationError, PhoneMessage } from '../utils'
+import { track, PhoneMessage } from '../utils'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
@@ -14,11 +14,7 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
   }
 
   @track({
-    onError: wrapIntegrationError([
-      'Phone number must be able to be formatted to e164 for whatsapp',
-      `INVALID_PHONE`,
-      400
-    ])
+    wrapIntegrationError: ['Phone number must be able to be formatted to e164 for whatsapp', `INVALID_PHONE`, 400]
   })
   async getBody(phone: string) {
     let parsedPhone
@@ -47,11 +43,11 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
   }
 
   @track({
-    onError: wrapIntegrationError([
+    wrapIntegrationError: [
       `Unable to parse templating in content variables`,
       `Content variables templating parse failure`,
       400
-    ])
+    ]
   })
   private async getVariables(): Promise<string | null> {
     // contentVariables can be rendered to their respective values in the upstream actor
