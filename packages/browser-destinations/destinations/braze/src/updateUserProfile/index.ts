@@ -145,6 +145,28 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       label: 'Push Subscribe',
       description: `The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).`,
       type: 'string'
+    },
+    braze_subscription_groups: {
+      label: 'Subscription Groups',
+      description: 'A list of subscription group IDs and states to set. Subscription group states can be either "subscribed" or "unsubscribed". Subscription Group IDs are found in the Braze dashboard.',
+      type: 'object',
+      multiple: true,
+      default: {
+        '@path': '$.traits.braze_subscription_groups'
+      },
+      properties: {
+        subscription_group_id: {
+          label: "Subscription Group ID",
+          type: 'string',
+          required: true,
+        },
+        subscription_group_state: {
+          label: "Subscription Group State",
+          type: "string",
+          required: true,
+          choices: [{value: "subscribed", label: "Subscribed"}, {value: "unsubscribed", label: "unsubscribed"}]
+        }
+      }
     }
   },
 
@@ -154,7 +176,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     }
 
     // TODO - addAlias / addToCustomAttributeArray?
-    if (payload.external_id !== undefined) {
+    if (payload.external_id && typeof payload.external_id === 'string') {
       client.instance.changeUser(payload.external_id)
     }
 
@@ -181,7 +203,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
 
     // Adding `firstName` and `lastName` here as these fields are mapped using cammel_case.
     const reservedFields = [...Object.keys(action.fields), 'firstName', 'lastName']
-    if (payload.custom_attributes !== undefined) {
+    if (payload.custom_attributes && typeof payload.custom_attributes === 'object') {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
         if (!reservedFields.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
@@ -203,6 +225,20 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     payload.phone !== undefined && user.setPhoneNumber(payload.phone)
     payload.push_subscribe !== undefined &&
       user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
+
+
+    if (Array.isArray(payload.braze_subscription_groups)) {
+      payload.braze_subscription_groups.forEach(group => {
+        if (group && group.subscription_group_id && group.subscription_group_state) {
+          if (group.subscription_group_state === 'subscribed') {
+            client.instance.getUser()?.addToSubscriptionGroup(group.subscription_group_id)
+          }
+          if (group.subscription_group_state === 'unsubscribed') {
+            client.instance.getUser()?.removeFromSubscriptionGroup(group.subscription_group_id)
+          }
+        }
+      })
+    }
   }
 }
 

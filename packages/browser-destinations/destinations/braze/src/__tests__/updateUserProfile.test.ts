@@ -22,7 +22,8 @@ describe('updateUserProfile', () => {
         language: { '@path': '$.traits.language' },
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
-        push_subscribe: { '@path': '$.traits.push_subscribe' }
+        push_subscribe: { '@path': '$.traits.push_subscribe' },
+        braze_subscription_groups: { '@path': '$.traits.braze_subscription_groups' },
       }
     }
   ]
@@ -143,7 +144,7 @@ describe('updateUserProfile', () => {
     )
   })
 
-  test('does not forward braze_subscription_groups as custom attributes', async () => {
+  test('sets subscription groups not as custom attributes', async () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
@@ -174,31 +175,15 @@ describe('updateUserProfile', () => {
       })
     )
 
+
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
-        instance: expect.objectContaining({
-          changeUser: expect.any(Function)
-        })
-      }),
-
-      expect.objectContaining({
         payload: {
-          traits: {
-           dob: '01/01/2000',
-            custom_attributes: {
-              foo: 'bar',
-              braze_subscription_groups: brazeSubscriptionGroups
-            }
-          }
+          custom_attributes: { foo: 'bar' },
+          dob: '01/01/2000',
+          braze_subscription_groups: brazeSubscriptionGroups,
         }
-      }),
-
-      // TODO
-      // expect.not.objectContaining({
-      //   payload: {
-      //     braze_subscription_groups: brazeSubscriptionGroups
-      //   }
-      // })
+      })
     )
   })
 })
