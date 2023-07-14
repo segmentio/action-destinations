@@ -155,7 +155,7 @@ describe('updateUserProfile', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const brazeSubscriptionGroups = [{
+    const braze_subscription_groups = [{
           "subscription_group_id": "5ertykiuyfjyttgkf",
           "subscription_state": "unsubscribed"
       }, {
@@ -167,10 +167,8 @@ describe('updateUserProfile', () => {
         type: 'identify',
         traits: {
           dob: '01/01/2000',
-          custom_attributes: {
-            foo: 'bar',
-            braze_subscription_groups: brazeSubscriptionGroups
-          }
+          braze_subscription_groups,
+          custom_attributes: {foo: 'bar' }
         }
       })
     )
@@ -179,9 +177,9 @@ describe('updateUserProfile', () => {
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
         payload: {
+          braze_subscription_groups,
           custom_attributes: { foo: 'bar' },
           dob: '01/01/2000',
-          braze_subscription_groups: brazeSubscriptionGroups,
         }
       })
     )
