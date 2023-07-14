@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       integrationId: {
         description: 'Hilo integration ID. This can be found on the integration page.',
