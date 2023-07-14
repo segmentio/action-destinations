@@ -79,7 +79,7 @@ const destination: DestinationDefinition<Settings> = {
       // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
       if (settings.upload_mode == 'SFTP') {
         const sftpClient = new ClientSFTP()
-        await testAuthenticationSFTP(sftpClient, settings)
+        return await testAuthenticationSFTP(sftpClient, settings)
       }
     }
   },
