@@ -80,3 +80,32 @@ export interface SearchResponse {
 }
 
 export interface UpsertRecordResponse extends ResponseInfo {}
+
+export interface AssociationType {
+  associationCategory: string | unknown
+  associationTypeId: number | unknown
+}
+// export interface BatchAssociationsInput {
+//   from: {
+//     id: string
+//   }
+//   to: {
+//     id: string
+//   }
+//   types: AssociationType[]
+// }
+export interface CreateAssociation {
+  to: {
+    id: string
+  }
+  types: AssociationType[]
+}
+
+export interface AssociationLabel {
+  category: string
+  typeId: number
+  label: string
+}
+export interface GetAssociationLabelResponse {
+  results: AssociationLabel[]
+}

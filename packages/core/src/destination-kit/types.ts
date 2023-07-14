@@ -49,7 +49,7 @@ export interface DynamicFieldError {
 
 export interface DynamicFieldItem {
   label: string
-  value: string
+  value: string | object
 }
 
 /** The shape of authentication and top-level settings */
