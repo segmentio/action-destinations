@@ -41,29 +41,29 @@ export async function makePostRequest(
   url: string,
   jsonBody: object
 ): Promise<void> {
-  await MakeRequest(request, settings, url, {
+  await makeRequest(request, settings, url, {
     method: 'POST',
     json: jsonBody
   })
 }
 
 export async function makeGetRequest<T>(request: RequestClient, settings: Settings, url: string): Promise<T> {
-  return await MakeRequest<T>(request, settings, url, {
+  return await makeRequest<T>(request, settings, url, {
     method: 'GET'
   })
 }
 
-async function MakeRequest<T>(request: RequestClient, settings: Settings, url: string, requestOptions: RequestOptions) {
+async function makeRequest<T>(request: RequestClient, settings: Settings, url: string, requestOptions: RequestOptions) {
   try {
     if (!accessToken) {
       await fetchNewAccessToken(request, settings)
     }
 
-    return (await request(url, addAuthorizationHeader(requestOptions))) as T
+    return (await request(url, addAuthorizationHeader(requestOptions))) as unknown as T
   } catch (err) {
     if (isResponseUnauthorized(err as HTTPError)) {
       await fetchNewAccessToken(request, settings)
-      return (await request(url, addAuthorizationHeader(requestOptions))) as T
+      return (await request(url, addAuthorizationHeader(requestOptions))) as unknown as T
     }
     throw err
   }
