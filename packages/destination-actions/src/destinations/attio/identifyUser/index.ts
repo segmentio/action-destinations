@@ -45,12 +45,12 @@ const person_attributes: InputField = {
     'Additional attributes to either set or update on the Attio Person Record. The keys on the left should be ' +
     'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: true
+  default: {}
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: 'Create or update an Attio User and attempt to link it to a Person, based on a shared email address.',
+  description: 'Create or update an Attio User and link it to a Person based on a shared email address.',
 
   fields: {
     email_address,
@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     await client.assertRecord({
       object: 'users',
-      matching_attribute: 'email_address',
+      matching_attribute: 'primary_email_address',
       values: {
         primary_email_address: email_address,
         person: email_address,

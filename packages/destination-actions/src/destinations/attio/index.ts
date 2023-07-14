@@ -1,6 +1,7 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
+import groupWorkspace from './groupWorkspace'
 import assertRecord from './assertRecord'
 
 const destination: DestinationDefinition<Settings> = {
@@ -25,6 +26,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     identifyUser,
+    groupWorkspace,
     assertRecord
   },
 
@@ -34,6 +36,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields)
+    },
+    {
+      name: 'Group Workspace',
+      subscribe: 'type = "group"',
+      partnerAction: 'groupWorkspace',
+      mapping: defaultValues(groupWorkspace.fields)
     }
   ]
 }

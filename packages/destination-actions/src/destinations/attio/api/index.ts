@@ -3,7 +3,7 @@ import { ModifiedResponse } from '@segment/actions-core'
 import get from 'lodash/get'
 import sortBy from 'lodash/sortBy'
 
-type AssertResponse = {
+export type AssertResponse = {
   data: {
     id: {
       workspace_id: string

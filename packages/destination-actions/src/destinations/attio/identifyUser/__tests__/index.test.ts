@@ -36,7 +36,7 @@ describe('Attio.identifyUser', () => {
       .reply(200, {})
 
     nock('https://api.attio.com')
-      .put('/v2/objects/users/records/simple?matching_attribute=email_address', {
+      .put('/v2/objects/users/records/simple?matching_attribute=primary_email_address', {
         data: {
           values: {
             name: 'George Oscar Bluth',
