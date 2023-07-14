@@ -1,40 +1,29 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { OperationDuration } from './OperationDuration'
-import { OperationLogger } from './OperationLogger'
-import { OperationStats } from './OperationStats'
-import { OperationTracker, TrackArgs, createTrackDecoratorFactory } from './OperationTracker'
+import { OperationLogger, OperationLoggerContext } from './OperationLogger'
+import { OperationStats, OperationStatsContext } from './OperationStats'
+import { OperationDecorator, ContextFromDecorator } from './OperationDecorator'
+import { TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 
-class TestTracker extends OperationTracker {
-  static TestLogger = class extends OperationLogger {
-    logInfo = jest.fn()
-    logError = jest.fn()
-  }
-
-  static TestStats = class extends OperationStats {
-    stats = jest.fn()
-  }
-
-  _logger = new TestTracker.TestLogger()
-
-  _stats = new TestTracker.TestStats()
-
-  initHooks() {
-    return [this._logger, this._stats, new OperationDuration()]
-  }
-
-  get logInfo() {
-    return this._logger.logInfo
-  }
-  get logError() {
-    return this._logger.logError
-  }
-  get stats() {
-    return this._stats.stats
+class TestLogger extends OperationLogger {
+  logInfo = jest.fn()
+  logError = jest.fn()
+  static getTryCatchFinallyHook(ctx: OperationLoggerContext): TryCatchFinallyHook<OperationLoggerContext> {
+    return ctx.funcThis.logger
   }
 }
 
-const testTrack = createTrackDecoratorFactory<any>((t) => t.tracker)
+class TestStats extends OperationStats {
+  stats = jest.fn()
+  static getTryCatchFinallyHook(ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
+    return ctx.funcThis.stats
+  }
+}
+
+const testTrack = OperationDecorator.createDecoratorFactoryWithDefault(TestLogger, TestStats)
+type TestOperationContext = ContextFromDecorator<typeof testTrack>
+
+type TrackArgs = Parameters<typeof testTrack>[0]
 
 function createTestClass(
   trackArgs: TrackArgs | undefined,
@@ -42,7 +31,8 @@ function createTestClass(
   asyncMethods: boolean
 ) {
   class MyTestTargetBase {
-    tracker = new TestTracker()
+    logger = new TestLogger()
+    stats = new TestStats()
 
     testMethodImpl = jest.fn(testMethodImpl)
 
@@ -191,12 +181,8 @@ describe('log', () => {
       const testResult = await runTestMethod({ testMethodImpl: () => 'success' })
 
       expect(testResult.testMethodResult).toBe('success')
-      expectLogInfo(
-        testResult.classInstance.tracker.logInfo,
-        ['testMethod starting...'],
-        ['testMethod succeeded after']
-      )
-      expect(testResult.classInstance.tracker.logError).toHaveBeenCalledTimes(0)
+      expectLogInfo(testResult.classInstance.logger.logInfo, ['testMethod starting...'], ['testMethod succeeded after'])
+      expect(testResult.classInstance.logger.logError).toHaveBeenCalledTimes(0)
     })
 
     test('on method failing', async () => {
@@ -207,8 +193,8 @@ describe('log', () => {
       })
 
       expect(testResult.testMethodError instanceof MyCustomError).toBe(true)
-      expectLogInfo(testResult.classInstance.tracker.logInfo, ['testMethod starting...'])
-      expectLogError(testResult.classInstance.tracker.logError, [
+      expectLogInfo(testResult.classInstance.logger.logInfo, ['testMethod starting...'])
+      expectLogError(testResult.classInstance.logger.logError, [
         'testMethod failed after',
         'MyCustomError',
         testResult.testMethodError.message
@@ -222,25 +208,26 @@ describe('log', () => {
       })
 
       expect(testResult.testMethodResult).toBe('success')
-      expect(testResult.classInstance.tracker.logInfo).toHaveBeenCalledTimes(0)
-      expect(testResult.classInstance.tracker.logError).toHaveBeenCalledTimes(0)
+      expect(testResult.classInstance.logger.logInfo).toHaveBeenCalledTimes(0)
+      expect(testResult.classInstance.logger.logError).toHaveBeenCalledTimes(0)
     })
 
     test('shouldLog finally only', async () => {
       const testResult = await runTestMethod({
-        trackArgs: { shouldLog: (t) => t.state == 'finally' },
+        trackArgs: { shouldLog: (t) => t.stage == 'finally' },
         testMethodImpl: () => 'success'
       })
 
       expect(testResult.testMethodResult).toBe('success')
-      expectLogInfo(testResult.classInstance.tracker.logInfo, ['testMethod succeeded after'])
+      expectLogInfo(testResult.classInstance.logger.logInfo, ['testMethod succeeded after'])
     })
 
     test('onFinally hook to add extra data on error', async () => {
       const myCustomError = new MyCustomError('My custom error')
       const someExtraErrorMessage = 'some extra info about error'
-      const methodImpl = function (this: { tracker: OperationTracker }, throwError: boolean) {
-        this.tracker.currentOperation?.onFinally.push((op) => {
+      const methodImpl = function (this: any, throwError: boolean) {
+        const op = testTrack.getCurrentOperation(this) as TestOperationContext
+        op?.onFinally.push(() => {
           expect(!!op.error).toBe(throwError)
           op.logs.push(someExtraErrorMessage)
         })
@@ -250,15 +237,15 @@ describe('log', () => {
       const testResultSuccess = await runTestMethod({ testMethodImpl: methodImpl, methodArgs: [false] })
       expect(testResultSuccess.testMethodResult).toBe('success')
       expectLogInfo(
-        testResultSuccess.classInstance.tracker.logInfo,
+        testResultSuccess.classInstance.logger.logInfo,
         ['testMethod starting...'],
         ['testMethod succeeded after', someExtraErrorMessage]
       )
 
       const testResultFailure = await runTestMethod({ testMethodImpl: methodImpl, methodArgs: [true] })
       expect(testResultFailure.testMethodError).toBe(myCustomError)
-      expectLogInfo(testResultFailure.classInstance.tracker.logInfo, ['testMethod starting...'])
-      expectLogError(testResultFailure.classInstance.tracker.logError, [
+      expectLogInfo(testResultFailure.classInstance.logger.logInfo, ['testMethod starting...'])
+      expectLogError(testResultFailure.classInstance.logger.logError, [
         'testMethod failed after',
         'MyCustomError',
         testResultFailure.testMethodError.message,
@@ -277,7 +264,7 @@ describe('log', () => {
           throw new MyCustomError('Child error')
         }
       })
-      expectLogError(testResult.classInstance.tracker.logError, ['Wrapper error', 'Child error'])
+      expectLogError(testResult.classInstance.logger.logError, ['Wrapper error', 'Child error'])
       expect(testResult.testMethodError!.message).toBe('Wrapper error')
       expect(testResult.testMethodError!.underlyingError.message).toBe('Child error')
     })
@@ -292,7 +279,7 @@ describe('log', () => {
         iAm: 'parent',
         child: { iAm: 'child', testMethod: 'test method' }
       })
-      const { logInfo } = testRes.classInstance.tracker
+      const { logInfo } = testRes.classInstance.logger
       expectLogInfo(
         logInfo,
         ['parentMethod starting'],
@@ -316,13 +303,13 @@ describe('log', () => {
       expect(testRes.testMethodError).toBe(myCustomError)
 
       expectLogInfo(
-        testRes.classInstance.tracker.logInfo,
+        testRes.classInstance.logger.logInfo,
         ['parentMethod starting'],
         ['parentMethod > childMethod starting'],
         ['parentMethod > childMethod > testMethod starting']
       )
       expectLogError(
-        testRes.classInstance.tracker.logError,
+        testRes.classInstance.logger.logError,
         ['parentMethod > childMethod > testMethod failed', myCustomError.message],
         ['parentMethod > childMethod failed'],
         ['parentMethod failed']
@@ -354,18 +341,18 @@ describe('stats', () => {
           // eslint-disable-next-line no-empty
         }
         // by default we only produce stats on finally state, and two metrics - finally and
-        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(2)
+        expect(testInstance.stats.stats).toHaveBeenCalledTimes(2)
         const tags = [
           _throwError ? 'error:true' : 'error:false',
           ...(_throwError ? ['error_operation:testMethod', 'error_class:MyCustomError'] : [])
         ]
-        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+        expect(testInstance.stats.stats).toHaveBeenCalledWith({
           metric: 'testMethod',
           method: 'incr',
           value: 1,
           tags
         })
-        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+        expect(testInstance.stats.stats).toHaveBeenCalledWith({
           metric: 'testMethod.duration',
           method: 'histogram',
           value: expect.any(Number),
@@ -381,8 +368,8 @@ describe('stats', () => {
         } catch (e) {
           // eslint-disable-next-line no-empty
         }
-        expect(testInstance.tracker.stats).toHaveBeenCalledTimes(1)
-        expect(testInstance.tracker.stats).toHaveBeenCalledWith({
+        expect(testInstance.stats.stats).toHaveBeenCalledTimes(1)
+        expect(testInstance.stats.stats).toHaveBeenCalledWith({
           metric: 'testMethod.try',
           method: 'incr',
           value: 1,
@@ -398,12 +385,17 @@ function expectLogInfo(logInfo: Function, ...messagesContains: string[][]) {
   if (!jest.isMockFunction(logInfo)) fail('logInfo is not a mock function')
   else
     for (const messageParts of messagesContains) {
-      expect(
-        logInfo.mock.calls.some((args: any[]) => {
-          const [message, _meta] = args
-          return messageParts.every((part) => message.includes(part))
-        })
-      ).toBe(true)
+      const hasSomeMatches = logInfo.mock.calls.some((args: any[]) => {
+        const [message, _meta] = args
+        return messageParts.every((part) => message.includes(part))
+      })
+      if (!hasSomeMatches) {
+        throw new Error(
+          `expectLogInfo failed to match\nExpected: ${messageParts.join('*')}\nActual calls:\n${logInfo.mock.calls
+            .map((args: any[]) => args.join(', '))
+            .join('\n')}`
+        )
+      }
     }
 }
 
@@ -412,11 +404,16 @@ function expectLogError(logError: Function, ...messagesContains: string[][]) {
   if (!jest.isMockFunction(logError)) fail('logInfo is not a mock function')
   else
     for (const messageParts of messagesContains) {
-      expect(
-        logError.mock.calls.some((args: any[]) => {
-          const [message, _meta] = args
-          return messageParts.every((part) => message.includes(part))
-        })
-      ).toBe(true)
+      const hasSomeMatches = logError.mock.calls.some((args: any[]) => {
+        const [message, _meta] = args
+        return messageParts.every((part) => message.includes(part))
+      })
+      if (!hasSomeMatches) {
+        throw new Error(
+          `expectLogError failed to match\nExpected: ${messageParts.join('*')}\nActual calls:\n${logError.mock.calls
+            .map((args: any[]) => args.join(', '))
+            .join('\n')}`
+        )
+      }
     }
 }

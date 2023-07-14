@@ -1,9 +1,9 @@
-import { OperationContext } from './OperationContext'
+import { TryCatchFinallyContext } from './wrapTryCatchFinallyPromisable'
 
 /**
  * Error object that contains tracked data
  */
-export interface TrackedError extends Error {
+export interface TrackedError<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> extends Error {
   /**
    * Underlying error that this error wraps
    */
@@ -11,7 +11,7 @@ export interface TrackedError extends Error {
   /**
    * Operation context during which the error happened
    */
-  trackedContext?: OperationContext
+  trackedContext?: TContext
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any

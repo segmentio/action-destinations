@@ -1,22 +1,25 @@
-import { OperationContext } from './OperationContext'
-import { OperationTrackHooks } from './OperationTrackHooks'
+import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 
-declare module './OperationContext' {
-  interface OperationContext {
-    start?: number
-    duration?: number
-  }
+export type OperationDurationContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> = TContext & {
+  start?: number
+  duration?: number
 }
 
-export class OperationDuration implements OperationTrackHooks {
-  getHookPriority() {
-    return 0 // should be first
+export class OperationDuration {
+  static getTryCatchFinallyHook(_ctx: OperationDurationContext): TryCatchFinallyHook<OperationDurationContext> {
+    return this
   }
-  afterOperationTry(ctx: OperationContext) {
+  static getPriority() {
+    return -1000 // should be first
+  }
+  static onTry(ctx: OperationDurationContext) {
     ctx.start = Date.now()
   }
 
-  beforeOperationFinally(ctx: OperationContext) {
+  static onFinally(ctx: OperationDurationContext) {
     if (ctx.start !== undefined) ctx.duration = Date.now() - ctx.start
+  }
+  static getDuration<TContext extends OperationDurationContext>(ctx: TContext) {
+    return ctx.duration
   }
 }

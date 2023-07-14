@@ -1,59 +1,63 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { OperationTrackHooks } from './OperationTrackHooks'
+import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 import { TrackedError } from './TrackedError'
-import { OperationContext } from './OperationContext'
-import { getOperationsStack } from './getOperationsStack'
+import { OperationTree } from './OperationTree'
+import { OperationDecoratorContext } from './OperationDecorator'
+import { OperationDurationContext } from './OperationDuration'
 
-declare module './OperationContext' {
-  interface OperationContext {
-    /**
-     * log messages collected during the operation that will be logged at the end of the operation
-     */
-    logs: string[]
-    /**
-     * log details added to log messages of this operation
-     */
-    logMetadata?: Record<string, unknown>
-  }
-  interface OperationSharedContext {
-    logs: string[]
-    /**
-     * log details added to each log message
-     */
-    logMetadata?: Record<string, unknown>
-  }
+export type OperationLoggerContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> = TContext & {
+  /**
+   * log messages collected during the operation that will be logged at the end of the operation
+   */
+  logs: string[]
+  /**
+   * log details added to log messages of this operation
+   */
+  logMetadata?: Record<string, unknown>
+
+  trackArgs?: OperationLoggerTrackArgs
+
+  sharedContext: OperationLoggerSharedContext
+}
+export interface OperationLoggerSharedContext {
+  logs: string[]
+  /**
+   * log details added to each log message
+   */
+  logMetadata?: Record<string, unknown>
 }
 
-declare module './OperationTracker' {
-  interface TrackArgs {
-    /**
-     * should the method execution be logged at current ctx.state (try/finally)?
-     * False by default and true for Finally state
-     */
-    shouldLog?: (ctx: OperationContext) => boolean | void
-  }
+export interface OperationLoggerTrackArgs {
+  /**
+   * should the method execution be logged at current ctx.state (try/finally)?
+   * False by default and true for Finally state
+   */
+  shouldLog?: (ctx: OperationLoggerContext) => boolean | void
 }
 
-export abstract class OperationLogger implements OperationTrackHooks {
+export abstract class OperationLogger implements TryCatchFinallyHook<OperationLoggerContext> {
+  static getTryCatchFinallyHook(_ctx: OperationLoggerContext): TryCatchFinallyHook<OperationLoggerContext> {
+    const _inheritecClass = this as any
+    return new _inheritecClass()
+  }
+
   abstract logInfo(msg: string, metadata?: object): void
 
   abstract logError(msg: string, metadata?: object): void
 
-  beforeOperationTry(ctx: OperationContext) {
+  onTry(ctx: OperationLoggerContext) {
     ctx.logs = []
     if (!ctx.sharedContext.logs) ctx.sharedContext.logs = []
-  }
-
-  afterOperationTry(ctx: OperationContext) {
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-    if (shouldLog !== false) {
-      const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
-      this.logInfo(
-        fullLogMessage,
-        ctx.logMetadata || ctx.sharedContext.logMetadata
-          ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
-          : undefined
-      )
+    return () => {
+      const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
+      if (shouldLog !== false) {
+        const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
+        this.logInfo(
+          fullLogMessage,
+          ctx.logMetadata || ctx.sharedContext.logMetadata
+            ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
+            : undefined
+        )
+      }
     }
   }
 
@@ -63,7 +67,7 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param _ctx operation context
    * @returns
    */
-  shouldLogDefault(_ctx: OperationContext): boolean {
+  shouldLogDefault(_ctx: OperationLoggerContext): boolean {
     return true
   }
   /**
@@ -71,9 +75,9 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param ctx operation context
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
-  getOperationLogMessages(ctx: OperationContext): string[] {
+  getOperationLogMessages(ctx: OperationLoggerContext): string[] {
     const res: string[] = []
-    switch (ctx.state) {
+    switch (ctx.stage) {
       case 'try':
         res.push(this.getOperationTryMessage(ctx))
         break
@@ -95,11 +99,22 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param ctx operation
    * @returns
    */
-  getOperationTryMessage(ctx: OperationContext): string {
-    const fullOperationName = getOperationsStack(ctx)
-      .map((op) => op.operation)
+  getOperationTryMessage(ctx: OperationLoggerContext): string {
+    return `${this.getOperationName(ctx)} starting...`
+  }
+
+  getOperationName(ctx: OperationLoggerContext): string {
+    const fullOperationName = OperationTree.getOperationsStack(ctx)
+      .map((op: OperationLoggerContext & OperationDecoratorContext) => {
+        return (
+          op.trackArgs?.operation ||
+          op.decoratorOf?.methodName ||
+          op.decoratorOf?.originalMethod?.name ||
+          '<Anonymous operation>'
+        )
+      })
       .join(' > ')
-    return `${fullOperationName} starting...`
+    return fullOperationName
   }
 
   /**
@@ -109,12 +124,12 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param ctx operation context
    * @returns
    */
-  getOperationCompletedMessage(ctx: OperationContext): string {
+  getOperationCompletedMessage(ctx: OperationLoggerContext): string {
     const hasError = !!ctx.error
-    const fullOperationName = getOperationsStack(ctx)
-      .map((op) => op.operation)
-      .join(' > ')
-    return `${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${ctx.duration} ms`
+    const fullOperationName = this.getOperationName(ctx)
+    const duration = (ctx as OperationDurationContext).duration
+    if (duration !== undefined) return `${fullOperationName} ${hasError ? 'failed' : 'succeeded'} after ${duration} ms`
+    else return `${fullOperationName} ${hasError ? 'failed' : 'succeeded'}`
   }
 
   /**
@@ -124,7 +139,7 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param ctx current operation context (may be different from the error.trackedContext)
    * @returns list of log messages (will be concatenated with '. ' in the result log message)
    */
-  getOperationErrorDetails(error: TrackedError, ctx: OperationContext): string[] {
+  getOperationErrorDetails(error: TrackedError, ctx: OperationLoggerContext): string[] {
     const errorContext = error.trackedContext
     const logMessages: string[] = []
     logMessages.push(this.getErrorMessage(error, ctx))
@@ -140,7 +155,7 @@ export abstract class OperationLogger implements OperationTrackHooks {
    * @param _ctx current operation context
    * @returns
    */
-  getErrorMessage(error: unknown, _ctx?: OperationContext): string {
+  getErrorMessage(error: unknown, _ctx?: OperationLoggerContext): string {
     if (error instanceof Error) {
       const trError = error as TrackedError
       const errorClass = trError?.constructor?.name
@@ -150,23 +165,23 @@ export abstract class OperationLogger implements OperationTrackHooks {
     return (error as any)?.toString?.() || 'unknown error'
   }
 
-  beforeOperationFinally(ctx: OperationContext): void {
+  onFinally(ctx: OperationLoggerContext) {
     ctx.logs.push(...(this.getOperationLogMessages(ctx) || []))
-  }
-
-  afterOperationFinally(ctx: OperationContext) {
-    const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-    if (shouldLog !== false) {
-      const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
-        .concat(...(ctx.logs || []))
-        .filter((t) => t)
-        .join('. ')
-      const logDetails =
-        ctx.logMetadata || ctx.sharedContext.logMetadata
-          ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
-          : undefined
-      if (ctx.error) this.logError(fullLogMessage, { error: ctx.error, ...logDetails })
-      else this.logInfo(fullLogMessage, logDetails)
+    // somewhere here ctx.onFinally hooks are triggered
+    return () => {
+      const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
+      if (shouldLog !== false) {
+        const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
+          .concat(...(ctx.logs || []))
+          .filter((t) => t)
+          .join('. ')
+        const logDetails =
+          ctx.logMetadata || ctx.sharedContext.logMetadata
+            ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
+            : undefined
+        if (ctx.error) this.logError(fullLogMessage, { error: ctx.error, ...logDetails })
+        else this.logInfo(fullLogMessage, logDetails)
+      }
     }
   }
 }

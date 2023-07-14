@@ -1,25 +1,21 @@
-import { OperationContext } from './OperationContext'
-import { OperationTrackHooks } from './OperationTrackHooks'
+import { OperationDuration } from './OperationDuration'
 import { TrackedError } from './TrackedError'
+import { OperationDecorator } from './OperationDecorator'
+import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 
-declare module './OperationContext' {
-  interface OperationContext {
-    /**
-     * tags collected during the operation that will be added to the operation completion metrics
-     */
-    tags: string[]
-  }
-
-  interface OperationSharedContext {
+export type OperationStatsContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> = TContext & {
+  /**
+   * tags collected during the operation that will be added to the operation completion metrics
+   */
+  tags: string[]
+  sharedContext: {
     /**
      * tags that will be added to all operation metrics
      */
     tags: string[]
   }
-}
 
-declare module './OperationTracker' {
-  interface TrackArgs {
+  trackArgs?: {
     /**
      * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
      * False by default and true for Finally state
@@ -28,12 +24,48 @@ declare module './OperationTracker' {
   }
 }
 
-export abstract class OperationStats implements OperationTrackHooks {
+export abstract class OperationStats<TContext extends OperationStatsContext = OperationStatsContext>
+  implements TryCatchFinallyHook<TContext>
+{
+  static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
+    const _inheritecClass = this as any
+    return new _inheritecClass()
+  }
   abstract stats(args: StatsArgs): void
 
-  beforeOperationTry(ctx: OperationContext): void {
+  getMetricName(ctx: OperationStatsContext): string | undefined {
+    const opName = OperationDecorator.getOperationName(ctx)
+    if (!opName) return undefined
+
+    switch (ctx.stage) {
+      case 'try':
+        return `${opName}.try`
+      case 'catch':
+        return `${opName}.catch`
+      case 'finally':
+      default:
+        return `${opName}`
+    }
+  }
+
+  onTry(ctx: OperationStatsContext) {
     ctx.tags = []
     if (!ctx.sharedContext.tags) ctx.sharedContext.tags = []
+    return () => {
+      const metricName = this.getMetricName(ctx)
+      if (metricName)
+        this.statsOperationEvent({
+          context: ctx,
+          event: 'try',
+          shouldStats: false,
+          stats: {
+            metric: metricName,
+            method: 'incr',
+            value: 1,
+            tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
+          }
+        })
+    }
   }
 
   mergeTags(...tagSets: (string[] | undefined)[]): string[] {
@@ -42,20 +74,6 @@ export abstract class OperationStats implements OperationTrackHooks {
       if (tags) res.push(...tags)
     }
     return res.filter((t) => t)
-  }
-
-  afterOperationTry(ctx: OperationContext) {
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'try',
-      shouldStats: false,
-      stats: {
-        metric: `${ctx.operation}.try`,
-        method: 'incr',
-        value: 1,
-        tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
-      }
-    })
   }
 
   statsOperationEvent(args: OperationStatsEventArgs) {
@@ -68,28 +86,57 @@ export abstract class OperationStats implements OperationTrackHooks {
     }
   }
 
-  afterOperationPrepareError(ctx: OperationContext): void {
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'catch',
-      shouldStats: false,
-      stats: {
-        metric: `${ctx.operation}.catch`,
-        method: 'incr',
-        value: 1,
-        tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
-      }
-    })
+  onCatch(ctx: OperationStatsContext) {
+    const metricName = this.getMetricName(ctx)
+    if (metricName)
+      this.statsOperationEvent({
+        context: ctx,
+        event: ctx.stage,
+        shouldStats: false, //by default: do not stats (can be overriden by trackArgs.shouldStats)
+        stats: {
+          metric: metricName,
+          method: 'incr',
+          value: 1,
+          tags: this.mergeTags(ctx.sharedContext.tags, ctx.tags)
+        }
+      })
   }
 
-  beforeOperationFinally(ctx: OperationContext): void {
+  onFinally(ctx: OperationStatsContext) {
     const finallyTags: string[] = []
-    if (ctx.state == 'finally') finallyTags.push(`error:${ctx.error ? 'true' : 'false'}`)
+    if (ctx.stage == 'finally') finallyTags.push(`error:${ctx.error ? 'true' : 'false'}`)
     if (ctx.error) {
       const error = ctx.error as TrackedError
       finallyTags.push(...(this.extractTagsFromError(error, ctx) || []))
     }
     ctx.tags.push(...finallyTags)
+    return () => {
+      const finallyTags = this.mergeTags(ctx.sharedContext.tags, ctx.tags)
+      const metricName = this.getMetricName(ctx)
+      if (metricName)
+        this.statsOperationEvent({
+          context: ctx,
+          event: 'finally',
+          shouldStats: true,
+          stats: { metric: metricName, method: 'incr', value: 1, tags: [...finallyTags] }
+        })
+
+      const duration = OperationDuration.getDuration(ctx)
+      const histogramMetric = this.getHistogramMetric(ctx)
+      if (duration !== undefined && histogramMetric)
+        this.statsOperationEvent({
+          context: ctx,
+          event: 'duration',
+          shouldStats: true,
+          stats: { metric: histogramMetric, method: 'histogram', value: duration, tags: [...finallyTags] }
+        })
+    }
+  }
+
+  getHistogramMetric(ctx: OperationStatsContext) {
+    const opName = OperationDecorator.getOperationName(ctx)
+    if (!opName) return undefined
+    return `${opName}.duration`
   }
 
   /**
@@ -98,30 +145,16 @@ export abstract class OperationStats implements OperationTrackHooks {
    * @param ctx operation context (may be different from the error.trackedContext)
    * @returns
    */
-  extractTagsFromError(error: TrackedError, ctx: OperationContext): string[] {
+  extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res: string[] = []
     const errorContext = error.trackedContext
-    res.push(`error_operation:${errorContext?.operation || ctx.operation}`)
+    res.push(
+      `error_operation:${
+        OperationDecorator.getOperationName(errorContext as any) || OperationDecorator.getOperationName(ctx)
+      }`
+    )
     res.push(`error_class:${error?.constructor?.name || typeof error}`)
     return res
-  }
-
-  afterOperationFinally(ctx: OperationContext): void {
-    const finallyTags = this.mergeTags(ctx.sharedContext.tags, ctx.tags)
-    this.statsOperationEvent({
-      context: ctx,
-      event: 'finally',
-      shouldStats: true,
-      stats: { metric: `${ctx.operation}`, method: 'incr', value: 1, tags: [...finallyTags] }
-    })
-
-    if (ctx.duration !== undefined)
-      this.statsOperationEvent({
-        context: ctx,
-        event: 'duration',
-        shouldStats: true,
-        stats: { metric: `${ctx.operation}.duration`, method: 'histogram', value: ctx.duration, tags: [...finallyTags] }
-      })
   }
 }
 
@@ -134,14 +167,14 @@ export type StatsArgs = {
   tags?: string[]
 }
 
-export type OperationStatsEvent = OperationContext['state'] | 'duration'
+export type OperationStatsEvent = OperationStatsContext['stage'] | 'duration'
 /**
  * configuration of the operation event to stats
  */
 
 export interface OperationStatsEventArgs {
   event: OperationStatsEvent
-  context: OperationContext
+  context: OperationStatsContext
   stats: StatsArgs
   shouldStats: boolean
 }

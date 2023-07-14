@@ -2,7 +2,8 @@
 import { MessageSender } from './message-sender'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { TrackedError } from '../operationTracking'
+import { OperationDecorator, TrackedError } from '../operationTracking'
+import { OperationContext } from './track'
 
 enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -31,9 +32,13 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
       )
       return
     }
-    this.currentOperation?.onFinally.push((op) => {
+    const op = this.currentOperation as OperationContext
+    this.currentOperation?.onFinally.push(() => {
       const error = op.error as TrackedError
-      if (error) op.tags.push('not_sent_reason:error_operation_' + error.trackedContext?.operation)
+      if (error)
+        op.tags.push(
+          'not_sent_reason:error_operation_' + OperationDecorator.getOperationName(error.trackedContext || op)
+        )
     })
 
     const body = await this.getBody(phone)

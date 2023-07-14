@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'

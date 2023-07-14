@@ -7,18 +7,18 @@ import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { StatsArgs, OperationContext } from '../operationTracking'
-import { MessageOperationTracker, track, wrapIntegrationError } from './MessageOperationTracker'
+import { track, wrapIntegrationError, OperationContext } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
+import { MessageLogger } from './MessageLogger'
+import { MessageStats } from './MessageStats'
 
 const Liquid = new LiquidJs()
 
 export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  readonly operationTracker: MessageOperationTracker
+  readonly logger: MessageLogger
+  readonly statsClient: MessageStats
 
-  get currentOperation(): OperationContext | undefined {
-    return this.operationTracker.currentOperation
-  }
+  readonly currentOperation: OperationContext | undefined
 
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
@@ -33,8 +33,8 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     if (!this.settings.region) {
       this.settings.region = 'us-west-1'
     }
-
-    this.operationTracker = new MessageOperationTracker(this)
+    this.logger = new MessageLogger(this)
+    this.statsClient = new MessageStats(this)
   }
 
   @track()
@@ -97,46 +97,43 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   logInfo(msg: string, metadata?: object) {
-    this.operationTracker.logger.logInfo(msg, metadata)
+    this.logger.logInfo(msg, metadata)
   }
   logError(msg: string, metadata?: object) {
-    this.operationTracker.logger.logError(msg, metadata)
+    this.logger.logError(msg, metadata)
   }
   /**
    * Add a message to the log of current tracked operation, only if error happens during current operation. You can add some arguments here
    * @param getLogMessage
    */
   logOnError(logMessage: string | ((ctx: OperationContext) => string)) {
-    this.operationTracker.currentOperation?.onFinally.push((ctx) => {
-      if (ctx.error) {
-        const msg = typeof logMessage === 'function' ? logMessage(ctx) : logMessage
-        ctx.logs.push(msg)
+    const op = this.currentOperation
+    op?.onFinally.push(() => {
+      if (op.error) {
+        const msg = typeof logMessage === 'function' ? logMessage(op) : logMessage
+        op.logs.push(msg)
       }
     })
   }
 
-  stats(statsArgs: StatsArgs): void {
-    this.operationTracker.stats.stats(statsArgs)
-  }
-
   statsIncr(metric: string, value?: number, tags?: string[]) {
-    this.stats({ method: 'incr', metric, value, tags })
+    this.statsClient.stats({ method: 'incr', metric, value, tags })
   }
 
   statsHistogram(metric: string, value: number, tags?: string[]) {
-    this.stats({ method: 'histogram', metric, value, tags })
+    this.statsClient.stats({ method: 'histogram', metric, value, tags })
   }
 
   statsSet(metric: string, value: number, tags?: string[]) {
-    this.stats({ method: 'set', metric, value, tags })
+    this.statsClient.stats({ method: 'set', metric, value, tags })
   }
 
   get logDetails(): Record<string, unknown> {
-    return this.operationTracker.logger.logDetails
+    return this.logger.logDetails
   }
 
   get tags(): string[] {
-    return this.operationTracker.stats.tags
+    return this.statsClient.tags
   }
 
   /**
@@ -245,5 +242,3 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 }
 
 export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
-
-export * from './MessageOperationTracker'
