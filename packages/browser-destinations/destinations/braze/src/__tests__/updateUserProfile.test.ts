@@ -142,4 +142,53 @@ describe('updateUserProfile', () => {
       })
     )
   })
+
+  test('does not forward braze_subscription_groups as custom attributes', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      sdkVersion: '3.5',
+      doNotLoadFontAwesome: true,
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const brazeSubscriptionGroups = [{
+          "subscription_group_id": "5ertykiuyfjyttgkf",
+          "subscription_state": "unsubscribed"
+      }, {
+          "subscription_group_id": "ytghkuguymjghb",
+          "subscription_state": "unsubscribed"
+    }];
+    await event.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          dob: '01/01/2000',
+          braze_subscription_groups: brazeSubscriptionGroups
+        }
+      })
+    )
+
+    expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instance: expect.objectContaining({
+          changeUser: expect.any(Function)
+        })
+      }),
+
+      expect.objectContaining({
+        payload: {
+          dob: '01/01/2000'
+        }
+      }),
+      // TODO
+      // expect.not.objectContaining({
+      //   payload: {
+      //     braze_subscription_groups: brazeSubscriptionGroups
+      //   }
+      // })
+    )
+  })
 })
