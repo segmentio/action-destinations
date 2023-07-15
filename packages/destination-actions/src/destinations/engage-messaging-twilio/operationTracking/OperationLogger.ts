@@ -14,7 +14,7 @@ export type OperationLoggerContext<TContext extends TryCatchFinallyContext = Try
    */
   logMetadata?: Record<string, unknown>
 
-  trackArgs?: OperationLoggerTrackArgs
+  decoratorArgs?: OperationLoggerDecoratorArgs
 
   sharedContext: OperationLoggerSharedContext
 }
@@ -26,7 +26,7 @@ export interface OperationLoggerSharedContext {
   logMetadata?: Record<string, unknown>
 }
 
-export interface OperationLoggerTrackArgs {
+export interface OperationLoggerDecoratorArgs {
   /**
    * should the method execution be logged at current ctx.state (try/finally)?
    * False by default and true for Finally state
@@ -36,7 +36,9 @@ export interface OperationLoggerTrackArgs {
 
 export abstract class OperationLogger implements TryCatchFinallyHook<OperationLoggerContext> {
   static getTryCatchFinallyHook(_ctx: OperationLoggerContext): TryCatchFinallyHook<OperationLoggerContext> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _inheritecClass = this as any
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return new _inheritecClass()
   }
 
@@ -48,7 +50,7 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     ctx.logs = []
     if (!ctx.sharedContext.logs) ctx.sharedContext.logs = []
     return () => {
-      const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
+      const shouldLog = ctx.decoratorArgs?.shouldLog ? ctx.decoratorArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
       if (shouldLog !== false) {
         const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
         this.logInfo(
@@ -62,7 +64,7 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
   }
 
   /**
-   * Defines if logging should happen for operation state by default when it's not explicitly specified in TrackArgs.
+   * Defines if logging should happen for operation state by default when it's not explicitly specified in DecoratorArgs.
    * By default implementation it returns true (log on each state of the operation)
    * @param _ctx operation context
    * @returns
@@ -107,7 +109,7 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     const fullOperationName = OperationTree.getOperationsStack(ctx)
       .map((op: OperationLoggerContext & OperationDecoratorContext) => {
         return (
-          op.trackArgs?.operation ||
+          op.decoratorArgs?.operation ||
           op.decoratorOf?.methodName ||
           op.decoratorOf?.originalMethod?.name ||
           '<Anonymous operation>'
@@ -169,7 +171,7 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     ctx.logs.push(...(this.getOperationLogMessages(ctx) || []))
     // somewhere here ctx.onFinally hooks are triggered
     return () => {
-      const shouldLog = ctx.trackArgs?.shouldLog ? ctx.trackArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
+      const shouldLog = ctx.decoratorArgs?.shouldLog ? ctx.decoratorArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
       if (shouldLog !== false) {
         const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
           .concat(...(ctx.logs || []))

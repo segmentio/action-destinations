@@ -3,7 +3,7 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinal
 
 export type OperationErrorHandlerContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
-    trackArgs?: {
+    decoratorArgs?: {
       onError?: (ctx: OperationErrorHandlerContext<TContext>) => void
     }
   }
@@ -18,11 +18,11 @@ export class OperationErrorHandler {
 
   static onCatch(ctx: OperationErrorHandlerContext) {
     const origError = ctx.error
-    const trArgs = ctx.trackArgs
+    const dArgs = ctx.decoratorArgs
     let trackedError = origError as TrackedError
 
     // onError callback can wrap the error, modify it, add new tags, logs etc
-    trArgs?.onError?.apply(this, [ctx])
+    dArgs?.onError?.apply(this, [ctx])
 
     // if error was wrapped, we want wrappedError.underlyingError = originalError
     if (ctx.error !== origError) {

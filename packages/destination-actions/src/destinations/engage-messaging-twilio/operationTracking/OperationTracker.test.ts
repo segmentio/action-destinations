@@ -23,10 +23,10 @@ class TestStats extends OperationStats {
 const testTrack = OperationDecorator.createDecoratorFactoryWithDefault(TestLogger, TestStats)
 type TestOperationContext = ContextFromDecorator<typeof testTrack>
 
-type TrackArgs = Parameters<typeof testTrack>[0]
+type TestDecoratorArgs = Parameters<typeof testTrack>[0]
 
 function createTestClass(
-  trackArgs: TrackArgs | undefined,
+  decoratorArgs: TestDecoratorArgs | undefined,
   testMethodImpl: (...args: any[]) => any,
   asyncMethods: boolean
 ) {
@@ -36,7 +36,7 @@ function createTestClass(
 
     testMethodImpl = jest.fn(testMethodImpl)
 
-    @testTrack(trackArgs)
+    @testTrack(decoratorArgs)
     testMethod(...args: any[]): any {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const instance = this
@@ -51,7 +51,7 @@ function createTestClass(
 
   if (asyncMethods) {
     class MyTestTargetAsync extends MyTestTargetBase {
-      @testTrack(trackArgs)
+      @testTrack(decoratorArgs)
       async parentMethod(...args: any[]) {
         return {
           iAm: 'parent',
@@ -59,7 +59,7 @@ function createTestClass(
         }
       }
 
-      @testTrack(trackArgs)
+      @testTrack(decoratorArgs)
       async childMethod(...args: any[]) {
         return {
           iAm: 'child',
@@ -70,7 +70,7 @@ function createTestClass(
     return MyTestTargetAsync
   } else {
     class MyTestTargetSync extends MyTestTargetBase {
-      @testTrack(trackArgs)
+      @testTrack(decoratorArgs)
       parentMethod(...args: any[]) {
         return {
           iAm: 'parent',
@@ -78,7 +78,7 @@ function createTestClass(
         }
       }
 
-      @testTrack(trackArgs)
+      @testTrack(decoratorArgs)
       childMethod(...args: any[]) {
         return {
           iAm: 'child',
@@ -109,7 +109,7 @@ describe('pass through', () => {
       ['target method thows error', true],
       ['target completes successfully', false]
     ])('%s', (_name, throwError) => {
-      test.each(<(TrackArgs | undefined)[]>[
+      test.each(<(TestDecoratorArgs | undefined)[]>[
         undefined,
         {},
         { operation: 'test_method' },
@@ -124,7 +124,7 @@ describe('pass through', () => {
           shouldLog: () => false,
           shouldStats: () => false
         }
-      ])(`${throwError ? 'error' : 'result'} passed through. trackArgs: %s`, async (trackArgs) => {
+      ])(`${throwError ? 'error' : 'result'} passed through. decoratorArgs: %s`, async (decoratorArgs) => {
         const testMethod = function (this: any) {
           if (throwError) throw new MyCustomError('my custom error')
           expect(this).toEqual(instance)
@@ -133,7 +133,7 @@ describe('pass through', () => {
             result: 'success'
           }
         }
-        const TestClass = createTestClass(trackArgs, testMethod, isAsync)
+        const TestClass = createTestClass(decoratorArgs, testMethod, isAsync)
         const instance = new TestClass()
         if (throwError) {
           await expect(async () => await instance.testMethod()).rejects.toThrow('my custom error')
@@ -160,12 +160,12 @@ describe('log', () => {
     ['sync target method', false]
   ])('%s', (_name, isAsync) => {
     async function runTestMethod<TParams extends any[]>(args: {
-      trackArgs?: TrackArgs
+      decoratorArgs?: TestDecoratorArgs
       testMethodImpl: (...args: TParams) => any
       methodToRun?: 'testMethod' | 'parentMethod' | 'childMethod'
       methodArgs?: TParams
     }) {
-      const MyTestClass = createTestClass(args.trackArgs, args.testMethodImpl, isAsync)
+      const MyTestClass = createTestClass(args.decoratorArgs, args.testMethodImpl, isAsync)
       const classInstance = new MyTestClass()
       const testMethodMock = classInstance.testMethodImpl
       try {
@@ -203,7 +203,7 @@ describe('log', () => {
 
     test('shouldLog false', async () => {
       const testResult = await runTestMethod({
-        trackArgs: { shouldLog: () => false },
+        decoratorArgs: { shouldLog: () => false },
         testMethodImpl: () => 'success'
       })
 
@@ -214,7 +214,7 @@ describe('log', () => {
 
     test('shouldLog finally only', async () => {
       const testResult = await runTestMethod({
-        trackArgs: { shouldLog: (t) => t.stage == 'finally' },
+        decoratorArgs: { shouldLog: (t) => t.stage == 'finally' },
         testMethodImpl: () => 'success'
       })
 
@@ -255,7 +255,7 @@ describe('log', () => {
 
     test('onError for error wrapping', async () => {
       const testResult = await runTestMethod({
-        trackArgs: {
+        decoratorArgs: {
           onError: (ctx) => {
             ctx.error = new MyCustomError('Wrapper error')
           }
@@ -332,7 +332,7 @@ describe('stats', () => {
         return 'success'
       })
 
-      test('try and finally. trackargs undefined', async () => {
+      test('try and finally. decoratorArgs undefined', async () => {
         const TestClass = createTestClass(undefined, testMethod, isAsync)
         const testInstance = new TestClass()
         try {

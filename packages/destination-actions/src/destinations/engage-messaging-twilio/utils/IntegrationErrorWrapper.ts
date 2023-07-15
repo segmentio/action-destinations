@@ -3,7 +3,7 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from '../operationTrackin
 
 export type IntegrationErrorWrapperContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
-    trackArgs?: {
+    decoratorArgs?: {
       wrapIntegrationError?: ((ctx: TContext) => IntegrationError) | ConstructorParameters<typeof IntegrationError>
     }
   }
@@ -18,8 +18,8 @@ export class IntegrationErrorWrapper {
     return this
   }
   static onCatch(ctx: IntegrationErrorWrapperContext) {
-    const args = ctx.trackArgs?.wrapIntegrationError
-    if (ctx.trackArgs?.wrapIntegrationError) {
+    const args = ctx.decoratorArgs?.wrapIntegrationError
+    if (ctx.decoratorArgs?.wrapIntegrationError) {
       const error = ctx.error
       if (!(error instanceof IntegrationError)) {
         if (args instanceof Function) {

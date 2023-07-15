@@ -14,7 +14,7 @@ import {
 /**
  * Base Configuration used by track decorator defining how the method execution should be tracked
  */
-export interface TrackArgs {
+export interface DecoratorArgs {
   /**
    * Name of the operation to be tracked. By default the method name is used.
    * The name is used in log messages and stats metric - so it should be only using alphanumeric, underscores and dots
@@ -30,14 +30,14 @@ export interface TrackArgs {
 
 export type OperationHookContext<
   TContext extends TryCatchFinallyContext = TryCatchFinallyContext,
-  TTrackArgs extends TrackArgs = TrackArgs
+  TDecoratorArgs extends DecoratorArgs = DecoratorArgs
 > = TContext & {
-  trackArgs?: TTrackArgs
+  decoratorArgs?: TDecoratorArgs
 }
 
 /**
  * Knows how to get the tryCatchFinally hook for the operation, which is invoked by the wrapTryCatchFinally for each wrapped function call
- * Each hook provider impacts the evetuak types of TrackArgs and operation Context of the decorator
+ * Each hook provider impacts the evetuak types of DecoratorArgs and operation Context of the decorator
  * Each hook provider is invoked for each decorated function call, so be mindful about memory usage and use singletons where you don't need state
  */
 export interface OperationHookProvider<
@@ -53,36 +53,40 @@ export interface OperationHookProvider<
   getDecoratorUtils?(): TDecoratorUtils
 }
 
-export type UnionTypesFromArray<T, TDefault = {}> = T extends [head: infer THead, ...args: infer TTail]
-  ? THead & UnionTypesFromArray<TTail>
-  : TDefault
-export type TrackArgsFromContext<TContext extends TryCatchFinallyContext> = TContext extends {
-  trackArgs?: infer TTrackArgs
+// some Typescript magic to converting union to intersection, i.e. (A|B|C) => (A & B & C)
+// It is explained here: https://stackoverflow.com/a/50375286/1332513 or here https://fettblog.eu/typescript-union-to-intersection/#contra-variant-type-positions
+// have fun understanding it :)
+export type UnionToIntersection<TUnion> = (TUnion extends any ? (k: TUnion) => void : never) extends (
+  k: infer I
+) => void
+  ? I
+  : never
+
+// Using that magical UnionToIntersection we can extract the type of super Context from the array of hook providers types
+export type ContextFromHookProviders<TProviders extends OperationHookProvider[]> =
+  TProviders extends OperationHookProvider<infer TContext>[] ? UnionToIntersection<TContext> : TryCatchFinallyContext
+// below commented the convetional way to archieve the same via type recursion, which is more code, but easier to understand:
+// = TProviders extends [OperationHookProvider<infer THeadContext>,
+//   ...infer TRestProviders
+// ]
+// ? THeadContext &
+// (TRestProviders extends OperationHookProvider[]
+//   ? ContextFromHookProviders<TRestProviders>
+//   : TryCatchFinallyContext)
+// : TryCatchFinallyContext
+
+export type DecoratorArgsFromContext<TContext extends TryCatchFinallyContext> = TContext extends {
+  decoratorArgs?: infer TDecoratorArgs
 }
-  ? TTrackArgs
-  : TrackArgs
+  ? TDecoratorArgs
+  : DecoratorArgs
 
-export type ContextFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends [
-  OperationHookProvider<infer THeadContext>,
-  ...infer TRestProviders
-]
-  ? THeadContext &
-      (TRestProviders extends OperationHookProvider[]
-        ? ContextFromHookProviders<TRestProviders>
-        : TryCatchFinallyContext)
-  : TryCatchFinallyContext
-
-export type DecoratorUtilsFromHookProviders<TProviders extends OperationHookProvider[]> = TProviders extends [
-  OperationHookProvider<any, infer TDecoratorUtils>,
-  ...infer TRestProviders
-]
-  ? TDecoratorUtils &
-      (TRestProviders extends OperationHookProvider[] ? DecoratorUtilsFromHookProviders<TRestProviders> : {})
-  : {}
-
-export type TrackArgsFromHookProviders<TProviders extends OperationHookProvider[]> = TrackArgsFromContext<
+export type DecoratorArgsFromHookProviders<TProviders extends OperationHookProvider[]> = DecoratorArgsFromContext<
   ContextFromHookProviders<TProviders>
 >
+
+export type DecoratorUtilsFromHookProviders<TProviders extends OperationHookProvider[]> =
+  TProviders extends OperationHookProvider<any, infer TDecoratorUtils>[] ? UnionToIntersection<TDecoratorUtils> : {}
 
 export type FuncFromHookProviders<TProviders extends OperationHookProvider[]> = FuncFromTryCatchFinallyContext<
   ContextFromHookProviders<TProviders>
@@ -91,22 +95,22 @@ export type FuncFromHookProviders<TProviders extends OperationHookProvider[]> = 
 export class OperationDecorator {
   /**
    * creates a decorator factory for the given set of hook providers.
-   * Each hook provider impacts the evetuak types of TrackArgs and operation Context of the decorator
+   * Each hook provider impacts the evetuak types of DecoratorArgs and operation Context of the decorator
    * Each hook provider is invoked for each decorated function call, so be mindful about memory usage and use singletons where you don't need state
    * @param hookProviders set of hook providers.
    */
   static createDecoratorFactory<TOperationHookProviders extends OperationHookProvider[]>(
     ...hookProviders: TOperationHookProviders
   ): ((
-    trackArgs?: TrackArgsFromHookProviders<TOperationHookProviders>
+    decoratorArgs?: DecoratorArgsFromHookProviders<TOperationHookProviders>
   ) => GenericMethodDecorator<FuncFromHookProviders<TOperationHookProviders>>) &
     DecoratorUtilsFromHookProviders<TOperationHookProviders> & {
       _contextType: ContextFromHookProviders<TOperationHookProviders>
     } {
     type TFunc = FuncFromHookProviders<TOperationHookProviders>
-    type TTrackArgs = TrackArgsFromHookProviders<TOperationHookProviders>
+    type TDecoratorArgs = DecoratorArgsFromHookProviders<TOperationHookProviders>
 
-    const decorator = (trackArgs?: TTrackArgs): GenericMethodDecorator<TFunc> => {
+    const decorator = (decoratorArgs?: TDecoratorArgs): GenericMethodDecorator<TFunc> => {
       return function (classProto, methodName, descriptor) {
         const originalMethod = descriptor.value as TFunc
         if (!(originalMethod instanceof Function))
@@ -120,7 +124,7 @@ export class OperationDecorator {
         }
         descriptor.value = wrapTryCatchFinallyPromisable(originalMethod, (ctx: OperationDecoratorContext) => {
           ctx.decoratorOf = decoratorOf
-          ctx.trackArgs = trackArgs
+          ctx.decoratorArgs = decoratorArgs
           return hookProviders.map((h) => h.getTryCatchFinallyHook(ctx))
         })
       }
@@ -155,7 +159,7 @@ export class OperationDecorator {
   }
 
   static getOperationName(ctx: OperationDecoratorContext): string | undefined {
-    return ctx.trackArgs?.operation || ctx.decoratorOf?.methodName
+    return ctx.decoratorArgs?.operation || ctx.decoratorOf?.methodName
   }
 }
 
@@ -166,7 +170,7 @@ export type OperationDecoratorContext<TContext extends TryCatchFinallyContext = 
     descriptor: TypedPropertyDescriptor<any>
     originalMethod: FuncFromTryCatchFinallyContext<TContext>
   }
-  trackArgs?: TrackArgsFromContext<TContext> & TrackArgs
+  decoratorArgs?: DecoratorArgsFromContext<TContext> & DecoratorArgs
 }
 
 export type ContextFromDecorator<TDecorator> = TDecorator extends { _contextType: infer TContext } ? TContext : never

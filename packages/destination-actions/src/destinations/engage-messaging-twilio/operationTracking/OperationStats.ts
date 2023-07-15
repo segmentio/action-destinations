@@ -15,7 +15,7 @@ export type OperationStatsContext<TContext extends TryCatchFinallyContext = TryC
     tags: string[]
   }
 
-  trackArgs?: {
+  decoratorArgs?: {
     /**
      * should the method execution be tracked in stats at current ctx.state (try/catch/finally)?
      * False by default and true for Finally state
@@ -28,7 +28,9 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
   implements TryCatchFinallyHook<TContext>
 {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _inheritecClass = this as any
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return new _inheritecClass()
   }
   abstract stats(args: StatsArgs): void
@@ -77,8 +79,8 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
   }
 
   statsOperationEvent(args: OperationStatsEventArgs) {
-    if (args.context.trackArgs?.shouldStats) {
-      const shouldStats = args.context.trackArgs.shouldStats(args)
+    if (args.context.decoratorArgs?.shouldStats) {
+      const shouldStats = args.context.decoratorArgs.shouldStats(args)
       if (shouldStats !== undefined) args.shouldStats = shouldStats
     }
     if (args.shouldStats && args.stats) {
@@ -92,7 +94,7 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
       this.statsOperationEvent({
         context: ctx,
         event: ctx.stage,
-        shouldStats: false, //by default: do not stats (can be overriden by trackArgs.shouldStats)
+        shouldStats: false, //by default: do not stats (can be overriden by decoratorArgs.shouldStats)
         stats: {
           metric: metricName,
           method: 'incr',
