@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     metadata: {
       label: 'User Metadata',
       type: 'object',
-      required: true,
+      required: false,
       description: 'Properties to set on the user profile',
       default: {
         '@path': '$.traits'

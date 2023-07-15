@@ -12,9 +12,6 @@ Object {
 
 exports[`Testing snapshot for actions-rehook destination: identifyUser action - required fields 1`] = `
 Object {
-  "metadata": Object {
-    "testType": "POZi46v3T29EjRK])q8",
-  },
   "source_id": "POZi46v3T29EjRK])q8",
 }
 `;
@@ -32,9 +29,6 @@ Object {
 exports[`Testing snapshot for actions-rehook destination: trackEvent action - required fields 1`] = `
 Object {
   "event_name": "tPnhwFBXwdz)OE8P]1",
-  "metadata": Object {
-    "testType": "tPnhwFBXwdz)OE8P]1",
-  },
   "source_id": "tPnhwFBXwdz)OE8P]1",
 }
 `;

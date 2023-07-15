@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     metadata: {
       label: 'Event Properties',
       type: 'object',
-      required: true,
+      required: false,
       description: 'An object of key-value pairs that represent event properties to be sent along with the event.',
       default: {
         '@path': '$.properties'

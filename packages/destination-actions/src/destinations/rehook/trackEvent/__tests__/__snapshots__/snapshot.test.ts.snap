@@ -13,9 +13,6 @@ Object {
 exports[`Testing snapshot for Rehook's trackEvent destination action: required fields 1`] = `
 Object {
   "event_name": "c8Wjj300JvaVIqdQny0O",
-  "metadata": Object {
-    "testType": "c8Wjj300JvaVIqdQny0O",
-  },
   "source_id": "c8Wjj300JvaVIqdQny0O",
 }
 `;

@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Properties to set on the user profile
    */
-  metadata: {
+  metadata?: {
     [k: string]: unknown
   }
   /**

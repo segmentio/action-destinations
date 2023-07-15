@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * An object of key-value pairs that represent event properties to be sent along with the event.
    */
-  metadata: {
+  metadata?: {
     [k: string]: unknown
   }
 }
