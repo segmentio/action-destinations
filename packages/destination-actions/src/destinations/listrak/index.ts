@@ -1,7 +1,10 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateEmailContactProfileFields from './updateEmailContactProfileFields'
-import { fetchNewAccessToken } from './listrak'
+
+interface RefreshTokenResponse {
+  access_token: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Listrak',
@@ -9,7 +12,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       client_id: {
         label: 'API Client ID',
@@ -26,8 +29,27 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      await fetchNewAccessToken(request, settings)
+    refreshAccessToken: async (request, { settings, auth }) => {
+      const baseUrl = `https://auth.listrak.com/OAuth2/Token`
+      const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: settings.client_id ?? auth.clientId,
+          client_secret: settings.client_secret ?? auth.clientSecret,
+          grant_type: 'client_credentials'
+        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      return { accessToken: res.data.access_token }
+    }
+  },
+  extendRequest({ auth }) {
+    return {
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`
+      }
     }
   },
   actions: {

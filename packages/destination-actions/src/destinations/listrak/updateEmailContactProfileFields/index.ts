@@ -1,7 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { makePostRequest } from '../listrak'
 import { RequestClient } from '@segment/actions-core'
 
 export type SegmentationFieldValue = {
@@ -54,15 +53,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return await processPayload(request, settings, [payload])
+  perform: async (request, { payload }) => {
+    return await processPayload(request, [payload])
   },
-  performBatch: async (request, { payload, settings }) => {
-    return await processPayload(request, settings, payload)
+  performBatch: async (request, { payload }) => {
+    return await processPayload(request, payload)
   }
 }
 
-async function processPayload(request: RequestClient, settings: Settings, payload: Payload[]) {
+async function processPayload(request: RequestClient, payload: Payload[]) {
   const requestsByListId: RequestsByListId = {}
 
   payload
@@ -78,12 +77,10 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     })
 
   for (const listId in requestsByListId) {
-    await makePostRequest(
-      request,
-      settings,
-      `https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`,
-      requestsByListId[listId]
-    )
+    await request(`https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`, {
+      method: 'POST',
+      json: requestsByListId[listId]
+    })
   }
 }
 
