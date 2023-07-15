@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Client Secret',
         description:
           'Your Lisrak API client secret. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
