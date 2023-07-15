@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 import { TrackedError } from './TrackedError'
 import { OperationTree } from './OperationTree'
@@ -36,10 +37,7 @@ export interface OperationLoggerDecoratorArgs {
 
 export abstract class OperationLogger implements TryCatchFinallyHook<OperationLoggerContext> {
   static getTryCatchFinallyHook(_ctx: OperationLoggerContext): TryCatchFinallyHook<OperationLoggerContext> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _inheritecClass = this as any
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return new _inheritecClass()
+    throw new Error('OperationLogger.getTryCatchFinallyHook is abstract and must be implemented by derived class')
   }
 
   abstract logInfo(msg: string, metadata?: object): void
@@ -164,7 +162,7 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
       return `${errorClass || '[undefined]'}: ${trError.message}`
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return (error as any)?.toString?.() || 'unknown error'
+    return (error as Error)?.toString?.() || 'unknown error'
   }
 
   onFinally(ctx: OperationLoggerContext) {

@@ -10,7 +10,7 @@ export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext
  */
 export class OperationFinallyHooks {
   static getTryCatchFinallyHook(_ctx: OperationFinallyHooksContext): TryCatchFinallyHook<OperationFinallyHooksContext> {
-    return this as any
+    return this
   }
   static getPriority() {
     return 100 //invoked after all standard hooks

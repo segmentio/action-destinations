@@ -158,8 +158,9 @@ export class OperationDecorator {
     )
   }
 
-  static getOperationName(ctx: OperationDecoratorContext): string | undefined {
-    return ctx.decoratorArgs?.operation || ctx.decoratorOf?.methodName
+  static getOperationName<TContext extends TryCatchFinallyContext>(ctx: TContext): string | undefined {
+    const ctxDecorated = ctx as OperationDecoratorContext
+    return ctxDecorated.decoratorArgs?.operation || ctxDecorated.decoratorOf?.methodName
   }
 }
 

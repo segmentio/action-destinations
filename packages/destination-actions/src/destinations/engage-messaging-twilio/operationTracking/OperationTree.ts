@@ -29,7 +29,8 @@ export class OperationTree {
     }
   }
   static getCurrentOperationFromTrackedClassInstance<TClassInstance>(classInstance: TClassInstance) {
-    return (classInstance as any).currentOperation as OperationTreeContext
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (classInstance as any)?.currentOperation as OperationTreeContext
   }
   static getCurrentOperationFromContext(ctx: OperationTreeContext) {
     return ctx.funcThis.currentOperation as OperationTreeContext
@@ -41,18 +42,20 @@ export class OperationTree {
     ctx.funcThis.currentOperation = newCurrentOperation
   }
 
-  static getOperationsStack<TContext extends OperationTreeContext>(ctx: TContext) {
-    const stack: (TContext & OperationTreeContext)[] = []
+  static getOperationsStack<TContext extends OperationTreeContext>(ctx: TContext): TContext[] {
+    const stack: TContext[] = []
     let current = ctx
     while (current) {
       stack.unshift(current)
-      current = current.parent as any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      current = current.parent as TContext
     }
     return stack
   }
 
   static getDecoratorUtils() {
     return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getCurrentOperation(classInstance: any): OperationTreeContext | undefined {
         return classInstance?.currentOperation
       }

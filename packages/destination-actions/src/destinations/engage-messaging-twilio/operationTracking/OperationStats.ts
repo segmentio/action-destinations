@@ -24,14 +24,14 @@ export type OperationStatsContext<TContext extends TryCatchFinallyContext = TryC
   }
 }
 
+/**
+ * Base class
+ */
 export abstract class OperationStats<TContext extends OperationStatsContext = OperationStatsContext>
   implements TryCatchFinallyHook<TContext>
 {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _inheritecClass = this as any
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return new _inheritecClass()
+    throw new Error('OperationStats.getTryCatchFinallyHook is abstract and must be implemented by derived class')
   }
   abstract stats(args: StatsArgs): void
 
@@ -152,7 +152,7 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
     const errorContext = error.trackedContext
     res.push(
       `error_operation:${
-        OperationDecorator.getOperationName(errorContext as any) || OperationDecorator.getOperationName(ctx)
+        errorContext ? OperationDecorator.getOperationName(errorContext) : OperationDecorator.getOperationName(ctx)
       }`
     )
     res.push(`error_class:${error?.constructor?.name || typeof error}`)

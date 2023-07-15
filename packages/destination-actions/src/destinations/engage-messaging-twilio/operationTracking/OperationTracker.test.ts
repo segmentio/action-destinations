@@ -4,6 +4,7 @@ import { OperationLogger, OperationLoggerContext } from './OperationLogger'
 import { OperationStats, OperationStatsContext } from './OperationStats'
 import { OperationDecorator, ContextFromDecorator } from './OperationDecorator'
 import { TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
+import { TrackedError } from './TrackedError'
 
 class TestLogger extends OperationLogger {
   logInfo = jest.fn()
@@ -173,7 +174,7 @@ describe('log', () => {
         const testMethodResult = await methodToRun(...(args.methodArgs || []))
         return { classInstance, testMethodResult, testMethodMock }
       } catch (e) {
-        return { classInstance, testMethodError: e as any, testMethodMock }
+        return { classInstance, testMethodError: e as Error, testMethodMock }
       }
     }
 
@@ -197,7 +198,7 @@ describe('log', () => {
       expectLogError(testResult.classInstance.logger.logError, [
         'testMethod failed after',
         'MyCustomError',
-        testResult.testMethodError.message
+        testResult.testMethodError!.message
       ])
     })
 
@@ -248,7 +249,7 @@ describe('log', () => {
       expectLogError(testResultFailure.classInstance.logger.logError, [
         'testMethod failed after',
         'MyCustomError',
-        testResultFailure.testMethodError.message,
+        testResultFailure.testMethodError!.message,
         someExtraErrorMessage
       ])
     })
@@ -266,7 +267,7 @@ describe('log', () => {
       })
       expectLogError(testResult.classInstance.logger.logError, ['Wrapper error', 'Child error'])
       expect(testResult.testMethodError!.message).toBe('Wrapper error')
-      expect(testResult.testMethodError!.underlyingError.message).toBe('Child error')
+      expect(((testResult.testMethodError as TrackedError).underlyingError as Error)?.message).toBe('Child error')
     })
 
     test('child operations success: parentMethod > childMethod > testMethod', async () => {
