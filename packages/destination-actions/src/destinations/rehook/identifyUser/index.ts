@@ -26,11 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'Properties to set on the user profile',
       default: {
-        '@if': {
-          exists: { '@path': '$.traits' },
-          then: { '@path': '$.traits' },
-          else: { '@path': '$.context' }
-        }
+        '@path': '$.traits'
       }
     },
     referral_code: {

@@ -39,11 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'An object of key-value pairs that represent event properties to be sent along with the event.',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.context' }
-        }
+        '@path': '$.properties'
       }
     }
   },
