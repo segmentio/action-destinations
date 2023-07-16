@@ -179,6 +179,11 @@ describe('updateUserProfile', () => {
 
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
+        instance: expect.objectContaining({
+          changeUser: expect.any(Function)
+        })
+      }),
+      expect.objectContaining({
         payload: {
           dob: '01/01/2000',
           subscription_groups: braze_subscription_groups,
