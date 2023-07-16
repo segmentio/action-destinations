@@ -68,6 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
+    payload.eventName = payload.eventName.replace(/[\s.]+/g, '_').toLocaleLowerCase()
+
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
@@ -76,9 +78,6 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
-
-    event.eventName = event.eventName.toLowerCase()
-
     const hubId = settings?.portalId
     const regExp = /^pe\d+_.*/
 
