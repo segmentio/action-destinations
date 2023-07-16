@@ -146,9 +146,10 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       description: `The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).`,
       type: 'string'
     },
-    braze_subscription_groups: {
+    subscription_groups: {
       label: 'Subscription Groups',
-      description: 'A list of subscription group IDs and states to set. Subscription group states can be either "subscribed" or "unsubscribed". Subscription Group IDs are found in the Braze dashboard.',
+      description:
+        'A list of subscription group IDs and states to set. Subscription group states can be either "subscribed" or "unsubscribed". Subscription Group IDs are found in the Braze dashboard.',
       type: 'object',
       multiple: true,
       default: {
@@ -156,15 +157,18 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       },
       properties: {
         subscription_group_id: {
-          label: "Subscription Group ID",
+          label: 'Subscription Group ID',
           type: 'string',
-          required: true,
+          required: true
         },
         subscription_group_state: {
-          label: "Subscription Group State",
-          type: "string",
+          label: 'Subscription Group State',
+          type: 'string',
           required: true,
-          choices: [{value: "subscribed", label: "Subscribed"}, {value: "unsubscribed", label: "unsubscribed"}]
+          choices: [
+            { value: 'subscribed', label: 'Subscribed' },
+            { value: 'unsubscribed', label: 'unsubscribed' }
+          ]
         }
       }
     }
@@ -226,9 +230,8 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     payload.push_subscribe !== undefined &&
       user.setPushNotificationSubscriptionType(payload.push_subscribe as braze.NotificationSubscriptionTypes)
 
-
-    if (Array.isArray(payload.braze_subscription_groups)) {
-      payload.braze_subscription_groups.forEach(group => {
+    if (Array.isArray(payload.subscription_groups)) {
+      payload.subscription_groups.forEach((group) => {
         if (group && group.subscription_group_id && group.subscription_group_state) {
           if (group.subscription_group_state === 'subscribed') {
             client.instance.getUser()?.addToSubscriptionGroup(group.subscription_group_id)

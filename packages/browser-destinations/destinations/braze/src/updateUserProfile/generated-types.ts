@@ -70,7 +70,7 @@ export interface Payload {
   /**
    * A list of subscription group IDs and states to set. Subscription group states can be either "subscribed" or "unsubscribed". Subscription Group IDs are found in the Braze dashboard.
    */
-  braze_subscription_groups?: {
+  subscription_groups?: {
     subscription_group_id: string
     subscription_group_state: string
   }[]
