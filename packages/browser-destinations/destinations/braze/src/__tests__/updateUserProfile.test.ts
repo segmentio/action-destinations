@@ -23,7 +23,7 @@ describe('updateUserProfile', () => {
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
         push_subscribe: { '@path': '$.traits.push_subscribe' },
-        braze_subscription_groups: { '@path': '$.traits.braze_subscription_groups' },
+        subscription_groups: { '@path': '$.traits.braze_subscription_groups' }
       }
     }
   ]
@@ -35,6 +35,7 @@ describe('updateUserProfile', () => {
   })
 
   test('changes the external_id when present', async () => {
+    // @ts-expect-error all integrations seem to have this typescript error?
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
@@ -155,31 +156,33 @@ describe('updateUserProfile', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const braze_subscription_groups = [{
-          "subscription_group_id": "5ertykiuyfjyttgkf",
-          "subscription_state": "unsubscribed"
-      }, {
-          "subscription_group_id": "ytghkuguymjghb",
-          "subscription_state": "unsubscribed"
-    }];
+    const braze_subscription_groups = [
+      {
+        subscription_group_id: '5ertykiuyfjyttgkf',
+        subscription_state: 'unsubscribed'
+      },
+      {
+        subscription_group_id: 'ytghkuguymjghb',
+        subscription_state: 'unsubscribed'
+      }
+    ]
     await event.identify?.(
       new Context({
         type: 'identify',
         traits: {
           dob: '01/01/2000',
-          braze_subscription_groups,
-          custom_attributes: {foo: 'bar' }
+          braze_subscription_groups: braze_subscription_groups,
+          custom_attributes: { foo: 'bar' }
         }
       })
     )
 
-
     expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
       expect.objectContaining({
         payload: {
-          braze_subscription_groups,
-          custom_attributes: { foo: 'bar' },
           dob: '01/01/2000',
+          subscription_groups: braze_subscription_groups,
+          custom_attributes: { foo: 'bar' }
         }
       })
     )
