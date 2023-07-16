@@ -50,9 +50,10 @@ export default class GenerateAction extends Command {
 
   async run() {
     const { args, flags } = this.parseArgs()
+    const isBrowserDestination = (args.type as string).includes('browser')
     let integrationsGlob = './packages/destination-actions/src/destinations/*'
-    if ((args.type as string).includes('browser')) {
-      integrationsGlob = './packages/browser-destinations/src/destinations/*'
+    if (isBrowserDestination) {
+      integrationsGlob = './packages/browser-destinations/destinations/*'
     }
     const integrationDirs = await this.integrationDirs(integrationsGlob)
 
@@ -70,9 +71,10 @@ export default class GenerateAction extends Command {
         message: 'Which integration (directory)?',
         choices: integrationDirs.map((integrationPath) => {
           const [name] = integrationPath.split(path.sep).reverse()
+          const value = isBrowserDestination ? path.join(integrationPath, 'src') : integrationPath
           return {
             title: name,
-            value: integrationPath
+            value: value
           }
         })
       }
