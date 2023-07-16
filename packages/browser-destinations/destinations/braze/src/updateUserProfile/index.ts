@@ -167,7 +167,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
           required: true,
           choices: [
             { value: 'subscribed', label: 'Subscribed' },
-            { value: 'unsubscribed', label: 'unsubscribed' }
+            { value: 'unsubscribed', label: 'Unsubscribed' }
           ]
         }
       }
