@@ -1,5 +1,5 @@
 import { RequestOptions, IntegrationError, HTTPError } from '@segment/actions-core'
-import { StateContext } from '@segment/actions-core/src/destination-kit'
+import { StateContext } from '@segment/actions-core/destination-kit'
 import type { Settings } from './generated-types'
 import type { Payload } from './triggerStudioFlow/generated-types'
 interface ExternalId {
