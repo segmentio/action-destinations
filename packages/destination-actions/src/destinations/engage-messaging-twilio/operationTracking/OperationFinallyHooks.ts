@@ -1,3 +1,4 @@
+import { OperationLoggerContext } from './OperationLogger'
 import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 
 export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
@@ -24,8 +25,11 @@ export class OperationFinallyHooks {
     for (const hook of ctx.onFinally) {
       try {
         hook()
-      } catch (err) {
-        //todo - log finally hook error
+      } catch (e) {
+        const error = e as Error
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const loggerCtx = ctx as any as Partial<OperationLoggerContext>
+        if (loggerCtx.logs) loggerCtx.logs.push(`Error in onFinally hook: ${error?.message || error.toString()}`)
       }
     }
   }
