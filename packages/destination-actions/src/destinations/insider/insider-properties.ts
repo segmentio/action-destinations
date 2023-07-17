@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const getEventParameteres = (wantedParameters: string[]): InputField => {
   const event_parameters: InputField = {

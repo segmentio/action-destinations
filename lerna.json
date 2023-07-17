@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/*"],
+  "packages": ["packages/*", "packages/browser-destinations/destinations/*"],
   "npmClient": "yarn",
   "version": "independent",
   "useWorkspaces": true,

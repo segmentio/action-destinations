@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { PayloadValidationError } from '@segment/actions-core'
 
 // Implementation of the facebook pixel object properties.
