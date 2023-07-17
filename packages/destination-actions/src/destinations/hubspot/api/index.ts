@@ -121,7 +121,7 @@ export class Hubspot {
 
   async getObjectResponseToAssociate(
     searchFieldsToAssociateCustomObjects: { [key: string]: unknown } | undefined,
-    associationType: { [k: string]: unknown } | undefined
+    associationType: AssociationType | null
   ) {
     try {
       if (

@@ -10,6 +10,7 @@ import {
   MultipleCustomRecordsInSearchResultToAssociateThrowableError
 } from '../errors'
 import {
+  AssociationType,
   // AssociationType,
   CreateAssociation,
   flattenObject,
@@ -92,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
     associationType: {
       label: 'Association Label',
       description: 'Type of Association between two objectType',
-      type: 'object',
+      type: 'string',
       dynamic: true
     }
   },
@@ -131,15 +132,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       throw e
     }
+    const parsedAssociationType: AssociationType = payload?.associationType
+      ? JSON.parse(payload?.associationType)
+      : null
     // Get Custom object response on the basis of provided search fields to associate
     searchCustomResponseToAssociate = await hubspotApiClient.getObjectResponseToAssociate(
       payload.searchFieldsToAssociateCustomObjects,
-      payload.associationType
+      parsedAssociationType
     )
     // if it gives single unique record then associate else skip it for now
     const toCustomObjectId =
       searchCustomResponseToAssociate?.data?.total === 1 ? searchCustomResponseToAssociate?.data.results[0].id : null
-    association = createAssociationObject(toCustomObjectId, payload?.associationType)
+    association = createAssociationObject(toCustomObjectId, parsedAssociationType)
 
     // Store Custom Object Record Id in parent scope
     // This would be used to store custom object record Id after search or create.
@@ -171,8 +175,8 @@ const action: ActionDefinition<Settings, Payload> = {
       if (toCustomObjectId) {
         await hubspotApiClient.associate(searchCustomResponse.data.results[0].id, toCustomObjectId, [
           {
-            associationCategory: payload.associationType?.associationCategory,
-            associationTypeId: payload.associationType?.associationTypeId
+            associationCategory: parsedAssociationType?.associationCategory,
+            associationTypeId: parsedAssociationType?.associationTypeId
           }
         ])
       }
@@ -232,7 +236,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
     )
     const choices = response?.data?.results?.map((res) => ({
       label: !res.label ? `Unlabeled Association (Type ${res.typeId})` : res.label,
-      value: { associationCategory: res.category, associationTypeId: res.typeId }
+      value: JSON.stringify({ associationCategory: res.category, associationTypeId: res.typeId })
     }))
     return {
       choices
@@ -248,14 +252,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
   }
 }
 
-function createAssociationObject(
-  toCustomObjectId: string | null,
-  associationType:
-    | {
-        [k: string]: unknown
-      }
-    | undefined
-) {
+function createAssociationObject(toCustomObjectId: string | null, associationType: AssociationType | null) {
   if (toCustomObjectId) {
     return {
       to: {

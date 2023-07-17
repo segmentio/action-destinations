@@ -34,7 +34,5 @@ export interface Payload {
   /**
    * Type of Association between two objectType
    */
-  associationType?: {
-    [k: string]: unknown
-  }
+  associationType?: string
 }
