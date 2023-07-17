@@ -29,6 +29,14 @@ interface ObjectSchema {
 interface GetSchemasResponse {
   results: ObjectSchema[]
 }
+const defaultChoices = [
+  { value: 'deals', label: 'Deals' },
+  { value: 'tickets', label: 'Tickets' }
+]
+const defaultToObjectTypeChoices = [
+  { value: 'contacts', label: 'Contacts' },
+  { value: 'companies', label: 'Companies' }
+]
 
 // slug name - upsertCustomObjectRecord. We will be introducing upsert logic soon.
 // To avoid slug name changes in future, naming it as upsertCustomObjectRecord straight away.
@@ -83,19 +91,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     associationType: {
       label: 'Association Label',
-      description:
-        'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
+      description: 'Type of Association between two objectType',
       type: 'object',
       dynamic: true
     }
   },
   dynamicFields: {
     objectType: async (request, { payload }) => {
-      return getCustomObjects(request, payload.toObjectType)
+      return getCustomObjects(request, defaultChoices, payload.toObjectType)
     },
     toObjectType: async (request, { payload }) => {
-      console.log(payload)
-      return getCustomObjects(request, payload.objectType)
+      return getCustomObjects(request, [...defaultChoices, ...defaultToObjectTypeChoices], payload.objectType)
     },
     associationType: async (request, { payload }) => {
       return getAssociationLabel(request, payload)
@@ -107,13 +113,9 @@ const action: ActionDefinition<Settings, Payload> = {
     let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
     // If Search Fields to Associate custom Object doesn't have any defined property , skip the associate
     let searchCustomResponseToAssociate: ModifiedResponse<SearchResponse> | null = null
-    // console.log(payload)
     const hubspotApiClient: Hubspot = new Hubspot(request, payload.objectType, payload.toObjectType)
     let association: CreateAssociation | null = null
-    // if (
-    //   typeof payload.customObjectSearchFields === 'object' &&
-    //   Object.keys(payload.customObjectSearchFields).length > 0
-    // ) {
+
     try {
       searchCustomResponse = await hubspotApiClient.search(
         { ...payload.customObjectSearchFields },
@@ -124,21 +126,20 @@ const action: ActionDefinition<Settings, Payload> = {
     } catch (e) {
       // HubSpot throws a generic 400 error if an undefined property is used in search
       // Throw a more informative error instead
-      console.log(e)
       if ((e as HTTPError)?.response?.status === 400) {
         throw CustomSearchThrowableError
       }
       throw e
     }
-    searchCustomResponseToAssociate = await hubspotApiClient.getObjectIdAssociate(
+    // Get Custom object response on the basis of provided search fields to associate
+    searchCustomResponseToAssociate = await hubspotApiClient.getObjectResponseToAssociate(
       payload.searchFieldsToAssociateCustomObjects,
       payload.associationType
     )
+    // if it gives single unique record then associate else skip it for now
     const toCustomObjectId =
       searchCustomResponseToAssociate?.data?.total === 1 ? searchCustomResponseToAssociate?.data.results[0].id : null
     association = createAssociationObject(toCustomObjectId, payload?.associationType)
-
-    // }
 
     // Store Custom Object Record Id in parent scope
     // This would be used to store custom object record Id after search or create.
@@ -166,7 +167,7 @@ const action: ActionDefinition<Settings, Payload> = {
         searchCustomResponse.data.results[0].id,
         payload.properties
       )
-
+      // If we have custom object record id to associate then associate it else don't associate
       if (toCustomObjectId) {
         await hubspotApiClient.associate(searchCustomResponse.data.results[0].id, toCustomObjectId, [
           {
@@ -176,6 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ])
       }
     }
+    // If Provided Custom Search Fields to associate gives a multiple record , then throw an error!
     if (searchCustomResponseToAssociate?.data && searchCustomResponseToAssociate?.data?.total > 1) {
       throw MultipleCustomRecordsInSearchResultToAssociateThrowableError
     }
@@ -183,14 +185,12 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function getCustomObjects(request: RequestClient, objectType: string | undefined) {
+async function getCustomObjects(
+  request: RequestClient,
+  defaultChoices: { label: string; value: string }[],
+  objectType: string | undefined
+) {
   // List of HubSpot defined Objects that segment has OAuth Scope to access
-  const defaultChoices = [
-    { value: 'deals', label: 'Deals' },
-    { value: 'tickets', label: 'Tickets' },
-    { value: 'contacts', label: 'Contacts' },
-    { value: 'companies', label: 'Companies' }
-  ]
 
   try {
     // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
@@ -249,6 +249,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
     }
   }
 }
+
 function createAssociationObject(
   toCustomObjectId: string | null,
   associationType:

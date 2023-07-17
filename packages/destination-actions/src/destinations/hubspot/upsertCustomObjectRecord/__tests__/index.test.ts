@@ -346,7 +346,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
       settings: {}
     })) as DynamicFieldResponse
 
-    expect(responses.choices.length).toBe(6)
+    expect(responses.choices.length).toBe(4)
     expect(responses.choices).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -364,14 +364,6 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         expect.objectContaining({
           label: 'Tickets',
           value: 'tickets'
-        }),
-        expect.objectContaining({
-          label: 'Contacts',
-          value: 'contacts'
-        }),
-        expect.objectContaining({
-          label: 'Companies',
-          value: 'companies'
         })
       ])
     )

@@ -32,7 +32,7 @@ export interface Payload {
    */
   toObjectType?: string
   /**
-   * The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).
+   * Type of Association between two objectType
    */
   associationType?: {
     [k: string]: unknown

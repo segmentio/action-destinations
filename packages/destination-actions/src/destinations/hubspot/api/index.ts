@@ -70,7 +70,7 @@ export class Hubspot {
    * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the object
    * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves the updated object
    */
-  async create(properties: { [key: string]: unknown }, associations?: CreateAssociation[]) {
+  async create(properties: { [key: string]: unknown }, associations: CreateAssociation[] = []) {
     return this.request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${this.objectType}`, {
       method: 'POST',
       json: {
@@ -119,13 +119,9 @@ export class Hubspot {
     })
   }
 
-  async getObjectIdAssociate(
+  async getObjectResponseToAssociate(
     searchFieldsToAssociateCustomObjects: { [key: string]: unknown } | undefined,
-    associationType:
-      | {
-          [k: string]: unknown
-        }
-      | undefined
+    associationType: { [k: string]: unknown } | undefined
   ) {
     try {
       if (
