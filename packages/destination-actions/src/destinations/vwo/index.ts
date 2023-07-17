@@ -2,9 +2,10 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
+import pageVisit from './pageVisit'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
-import pageVisit from './pageVisit'
+import syncAudience from './syncAudience'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'VWO Cloud Mode (Actions)',
@@ -28,6 +29,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "page"',
       partnerAction: 'pageVisit',
       mapping: defaultValues(pageVisit.fields)
+    },
+    {
+      name: 'Sync Audience',
+      subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields)
     }
   ],
   authentication: {
@@ -58,7 +65,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     trackEvent,
     identifyUser,
-    pageVisit
+    pageVisit,
+    syncAudience
   }
 }
 

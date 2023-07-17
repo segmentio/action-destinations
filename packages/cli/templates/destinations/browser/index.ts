@@ -1,5 +1,5 @@
 import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '../../runtime/shim'
 
 // Switch from unknown to the partner SDK client types

@@ -13,7 +13,7 @@ import { getAuthCreds, getAccessToken, doPOST } from '../tablemaintutilities'
 jest.mock('@segment/actions-core')
 jest.mock('@segment/actions-core')
 jest.mock('lodash/get')
-jest.mock('@segment/actions-core/src/destination-kit/parse-settings')
+jest.mock('@segment/actions-core/destination-kit/parse-settings')
 jest.mock('../../generated-types')
 //jest.mock('../generated-types');
 

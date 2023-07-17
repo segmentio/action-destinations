@@ -6,9 +6,15 @@ export interface Payload {
    */
   audience_key: string
   /**
-   * Additional data pertaining to the user.
+   * Additional data pertaining to the user to be written to the file.
    */
   identifier_data?: {
+    [k: string]: unknown
+  }
+  /**
+   * Additional data pertaining to the user to be hashed before written to the file
+   */
+  unhashed_identifier_data?: {
     [k: string]: unknown
   }
   /**
