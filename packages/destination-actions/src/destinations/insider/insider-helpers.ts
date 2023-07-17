@@ -214,7 +214,7 @@ export function sendTrackEvent(
   }
 
   let event: insiderEvent = {
-    event_name: event_name.toString().toLowerCase().trim().split(' ').join('_').toString(),
+    event_name,
     timestamp: data.timestamp.toString(),
     event_params: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
