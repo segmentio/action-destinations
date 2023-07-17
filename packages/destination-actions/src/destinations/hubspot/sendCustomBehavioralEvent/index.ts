@@ -68,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
+    //Converted the event name into lowercase
     payload.eventName = payload.eventName.replace(/[\s.]+/g, '_').toLocaleLowerCase()
 
     const event: CustomBehavioralEvent = {
