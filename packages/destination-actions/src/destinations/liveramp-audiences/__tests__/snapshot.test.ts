@@ -24,13 +24,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
-    const event = createTestEvent({
-      properties: eventData
-    })
+    const events = new Array(25).fill(0).map(() =>
+      createTestEvent({
+        properties: eventData
+      })
+    )
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      mapping: events[0].properties,
       settings: settingsData,
       auth: undefined
     })
@@ -59,12 +61,47 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
+    const events = new Array(25).fill(0).map(() =>
+      createTestEvent({
+        properties: eventData
+      })
+    )
+
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      mapping: events[0].properties,
+      settings: settingsData,
+      auth: undefined
+    })
+
+    const request = responses[0].request
+    const rawBody = await request.text()
+
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+  })
+
+  it('missing minimum payload size', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    eventData.delimiter = ','
+    settingsData.upload_mode = 'S3'
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
     const event = createTestEvent({
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events: [event],
       mapping: event.properties,
       settings: settingsData,
       auth: undefined
