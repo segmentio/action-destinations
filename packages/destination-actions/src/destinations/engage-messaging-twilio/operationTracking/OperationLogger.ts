@@ -48,8 +48,10 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     ctx.logs = []
     if (!ctx.sharedContext.logs) ctx.sharedContext.logs = []
     return () => {
-      const shouldLog = ctx.decoratorArgs?.shouldLog ? ctx.decoratorArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-      if (shouldLog !== false) {
+      let shouldLog = ctx.decoratorArgs?.shouldLog?.(ctx)
+      if (shouldLog === undefined) shouldLog = this.shouldLogDefault(ctx)
+
+      if (shouldLog) {
         const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
         this.logInfo(
           fullLogMessage,
@@ -169,8 +171,10 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     ctx.logs.push(...(this.getOperationLogMessages(ctx) || []))
     // somewhere here ctx.onFinally hooks are triggered
     return () => {
-      const shouldLog = ctx.decoratorArgs?.shouldLog ? ctx.decoratorArgs?.shouldLog(ctx) : this.shouldLogDefault(ctx)
-      if (shouldLog !== false) {
+      let shouldLog = ctx.decoratorArgs?.shouldLog?.(ctx)
+      if (shouldLog === undefined) shouldLog = this.shouldLogDefault(ctx)
+
+      if (shouldLog) {
         const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
           .concat(...(ctx.logs || []))
           .filter((t) => t)

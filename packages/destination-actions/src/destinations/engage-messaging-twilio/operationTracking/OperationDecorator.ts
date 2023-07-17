@@ -37,7 +37,7 @@ export type OperationHookContext<
 
 /**
  * Knows how to get the tryCatchFinally hook for the operation, which is invoked by the wrapTryCatchFinally for each wrapped function call
- * Each hook provider impacts the evetuak types of DecoratorArgs and operation Context of the decorator
+ * Each hook provider mutates the types of DecoratorArgs and the operation Context of the decorator
  * Each hook provider is invoked for each decorated function call, so be mindful about memory usage and use singletons where you don't need state
  */
 export interface OperationHookProvider<
@@ -143,18 +143,18 @@ export class OperationDecorator {
    * OperationTree,
    * OperationDuration,
    * OperationFinallyHooks
-   * @param notDefaultHookProviders extra (non default) hook providers
+   * @param customHookProviders extra (non default) hook providers
    * @returns decorator factory that can be used to decorate methods
    */
   static createDecoratorFactoryWithDefault<TOperationHookProviders extends OperationHookProvider[]>(
-    ...notDefaultHookProviders: TOperationHookProviders
+    ...customHookProviders: TOperationHookProviders
   ) {
     return OperationDecorator.createDecoratorFactory(
       OperationErrorHandler,
       OperationTree,
       OperationDuration,
       OperationFinallyHooks,
-      ...notDefaultHookProviders
+      ...customHookProviders
     )
   }
 
