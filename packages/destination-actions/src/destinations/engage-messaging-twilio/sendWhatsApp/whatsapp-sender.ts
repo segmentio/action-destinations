@@ -13,18 +13,25 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
     return 'whatsapp'
   }
 
-  @track({
-    wrapIntegrationError: ['Phone number must be able to be formatted to e164 for whatsapp', `INVALID_PHONE`, 400]
-  })
+  @track()
   async getBody(phone: string) {
     let parsedPhone
 
-    // Defaulting to US for now as that's where most users will seemingly be. Though
-    // any number already given in e164 format should parse correctly even with the
-    // default region being US.
-    parsedPhone = phoneUtil.parse(phone, 'US')
-    parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
-    parsedPhone = `whatsapp:${parsedPhone}`
+    try {
+      // Defaulting to US for now as that's where most users will seemingly be. Though
+      // any number already given in e164 format should parse correctly even with the
+      // default region being US.
+      parsedPhone = phoneUtil.parse(phone, 'US')
+      parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+      parsedPhone = `whatsapp:${parsedPhone}`
+    } catch (e) {
+      const underlyingError = e as Error
+      throw new IntegrationError(
+        'Phone number must be able to be formatted to e164 for whatsapp. ' + underlyingError.message,
+        `INVALID_PHONE`,
+        400
+      )
+    }
 
     if (!this.payload.contentSid) {
       throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
