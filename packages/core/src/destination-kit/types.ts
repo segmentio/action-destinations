@@ -46,13 +46,13 @@ export interface DynamicFieldError {
   code: string
   message: string
 }
-
+// Supports string and object both
 export interface DynamicFieldItem {
   label: string
   value: string | object
 }
 
-/** The shape of authentication and top-level settings */
+/** The shape of authentication and top-level settings  */
 export interface GlobalSetting {
   /** A short, human-friendly label for the field */
   label: string
