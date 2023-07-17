@@ -160,7 +160,11 @@ export class OperationDecorator {
 
   static getOperationName<TContext extends TryCatchFinallyContext>(ctx: TContext): string | undefined {
     const ctxDecorated = ctx as OperationDecoratorContext
-    return ctxDecorated.decoratorArgs?.operation || ctxDecorated.decoratorOf?.methodName
+    return (
+      ctxDecorated.decoratorArgs?.operation ||
+      ctxDecorated.decoratorOf?.methodName ||
+      ctxDecorated.decoratorOf?.originalMethod?.name
+    )
   }
 }
 

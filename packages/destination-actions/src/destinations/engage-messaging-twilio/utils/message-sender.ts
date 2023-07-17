@@ -43,7 +43,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
       const operationPath = OperationTree.getOperationsStack(op)
       operationPath.pop() // remove the current operation. Pop appears to be faster than splice(-1)
       if (operationPath.length) {
-        op.tags.push('operation_path:' + operationPath.join('::')) // '/' would be difficult to query in datadog, as it requires escaping
+        op.tags.push('operation_path:' + this.logger.getOperationName(op, true, '::')) // '/' would be difficult to query in datadog, as it requires escaping
       }
 
       // log response from error or success
