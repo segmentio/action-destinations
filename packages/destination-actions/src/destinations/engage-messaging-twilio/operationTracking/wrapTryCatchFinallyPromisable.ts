@@ -35,13 +35,14 @@ export const DefaultHookPriority = 0 //Number.MAX_SAFE_INTEGER
  *
  * @param func original function to wrap
  * @param getHooks provide set of hooks once for each original function execution
+ * @param onHookError optional callback to handle errors in hooks and their callbacks. If not provided, the error will be thrown as is
  * @returns
  */
 export function wrapTryCatchFinallyPromisable<
   TFunc extends (...args: any[]) => any,
   TContext extends TryCatchFinallyContext<TFunc> = TryCatchFinallyContext<TFunc>,
   THooks extends TryCatchFinallyHook<TContext>[] = TryCatchFinallyHook<TContext>[]
->(func: TFunc, getHooks: (ctx: TContext) => THooks): TFunc {
+>(func: TFunc, getHooks: (ctx: TContext) => THooks, onHookError?: (e: unknown) => unknown | undefined): TFunc {
   type Hook = THooks[number]
   function forEachHook(hooks: THooks, inContext: TContext, doThis: (hook: Hook) => void | (() => void)) {
     const prioritizedHooks = Object.values(hooks).sort((h1, h2) => {
@@ -56,7 +57,9 @@ export function wrapTryCatchFinallyPromisable<
         const callback = doThis(hook)
         if (callback instanceof Function) postCallbacks.push(callback)
       } catch (hookError) {
-        //TODO: log hook error
+        let errorToThrow = hookError
+        if (onHookError) errorToThrow = onHookError(errorToThrow)
+        if (errorToThrow) throw errorToThrow
       }
     }
     //invoke callbacks in reverse order, so the highest priority hook will run the last
@@ -64,7 +67,9 @@ export function wrapTryCatchFinallyPromisable<
       try {
         callback()
       } catch (callbackError) {
-        //TODO: log callback error
+        let errorToThrow = callbackError
+        if (onHookError) errorToThrow = onHookError(errorToThrow)
+        if (errorToThrow) throw errorToThrow
       }
     }
   }
