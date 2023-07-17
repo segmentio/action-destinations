@@ -4,6 +4,7 @@ import { MessageSender, track } from '../utils'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { SendabilityStatus } from '../utils'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -36,7 +37,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   async doSend() {
     if (!this.payload.send) {
       this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-      this.statsIncr('send_disabled', 1)
+      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.SendDisabled)
       return
     }
     // we send notifications to every eligible device (subscribed and of a push type)
@@ -59,8 +60,10 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
 
     if (!recipientDevices?.length) {
       this.logInfo(`not sending push notification, no devices are subscribed - ${this.settings.spaceId}`)
+      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.NotSubscribed)
       return
     }
+    this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.ShouldSend)
 
     const { requestBody, customData } = await this.getBody()
     const twilioHostname = this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME

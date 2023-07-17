@@ -5,7 +5,7 @@ import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types
 import { OperationDecorator, TrackedError } from '../operationTracking'
 import { OperationContext } from './track'
 
-enum SendabilityStatus {
+export enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
   ShouldSend = 'should_send',
   NotSubscribed = 'not_subscribed',
@@ -25,13 +25,17 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
   async doSend() {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
-    if (sendabilityStatus !== SendabilityStatus.ShouldSend || !phone) {
-      this.currentOperation?.tags.push('not_sent_reason:' + sendabilityStatus)
+    this.currentOperation?.tags.push('sendability_status:' + sendabilityStatus)
+
+    if (sendabilityStatus !== SendabilityStatus.ShouldSend) {
       this.currentOperation?.logs.push(
         `Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`
       )
       return
+    } else {
+      this.currentOperation?.logs.push(`Sending message to phone: ${this.redactPii(phone)}`)
     }
+
     const op = this.currentOperation as OperationContext
     this.currentOperation?.onFinally.push(() => {
       const error = op.error as TrackedError
@@ -41,7 +45,8 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
         )
     })
 
-    const body = await this.getBody(phone)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const body = await this.getBody(phone!)
 
     const webhookUrlWithParams = this.getWebhookUrlWithParams(
       this.EXTERNAL_ID_KEY,
@@ -57,8 +62,6 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
     )
 
     this.statsSet('message_body_size', body?.toString().length)
-
-    this.logInfo('Sending message to Twilio API')
 
     const response = await this.request(
       `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
@@ -78,8 +81,6 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
     }
 
     this.logDetails['twilio-request-id'] = response.headers?.get('twilio-request-id')
-
-    this.logInfo('Message sent successfully')
 
     return response
   }

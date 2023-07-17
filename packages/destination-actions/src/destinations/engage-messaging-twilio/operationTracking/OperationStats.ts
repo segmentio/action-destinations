@@ -2,7 +2,6 @@ import { OperationDuration } from './OperationDuration'
 import { TrackedError } from './TrackedError'
 import { OperationDecorator } from './OperationDecorator'
 import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
-
 export type OperationStatsContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> = TContext & {
   /**
    * tags collected during the operation that will be added to the operation completion metrics

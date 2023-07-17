@@ -6,11 +6,12 @@ import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
 import { ExecuteInput } from '@segment/actions-core'
-import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
+import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
 import { track, OperationContext } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { MessageLogger } from './MessageLogger'
 import { MessageStats } from './MessageStats'
+import { OperationTree } from '../operationTracking'
 
 const Liquid = new LiquidJs()
 
@@ -37,6 +38,23 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
 
   @track()
   async request(url: string, options: RequestOptions): Promise<Response> {
+    const op = this.currentOperation
+    op?.onFinally.push(() => {
+      const operationPath = OperationTree.getOperationsStack(op)
+      operationPath.pop() // remove the current operation. Pop appears to be faster than splice(-1)
+      if (operationPath.length) {
+        op.tags.push('operation_path:' + operationPath.join('::')) // '/' would be difficult to query in datadog, as it requires escaping
+      }
+
+      // log response from error or success
+      const respError = op?.error as TwilioApiError
+      const response = respError?.response || (op.result as Response)
+      const response_code = response?.data?.code || respError?.code
+      if (response_code) op.tags.push(`response_code:${response_code}`)
+
+      const response_status = response?.data?.status || respError?.status
+      if (response_status) op.tags.push(`response_status:${response_status}`)
+    })
     return this.requestRaw(url, options)
   }
 

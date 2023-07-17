@@ -19,6 +19,10 @@ export interface TryCatchFinallyHook<
   onCatch?(ctx: TContext): void | (() => void)
   onFinally?(ctx: TContext): void | (() => void)
 
+  /**
+   * Defines the order of execution of the hook provider (default = 0, can be negative). The decorator will sort the hooks by priority before invoking them. The higher the number, the later the hook will be executed.
+   * @param ctx
+   */
   getPriority?(ctx: TContext): number | void
 }
 

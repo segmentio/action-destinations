@@ -1,14 +1,7 @@
-import { IntegrationError } from '@segment/actions-core'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
-import {
-  StatsArgs,
-  TrackedError,
-  OperationStats,
-  OperationStatsContext,
-  TryCatchFinallyHook
-} from '../operationTracking'
+import { StatsArgs, OperationStats, OperationStatsContext, TryCatchFinallyHook } from '../operationTracking'
 import { MessageSender } from './message-sender'
-import { OperationContext } from './track'
 
 export class MessageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
@@ -66,14 +59,5 @@ export class MessageStats extends OperationStats {
       ...(this.messageSender.executeInput.statsContext?.tags || []),
       ...(tags ?? [])
     ])
-  }
-
-  extractTagsFromError(error: TrackedError, ctx: OperationContext) {
-    const res = super.extractTagsFromError(error, ctx)
-    if (error instanceof IntegrationError) {
-      if (error.code) res.push(`error_code:${error.code}`)
-      if (error.status) res.push(`error_status:${error.status}`)
-    }
-    return res
   }
 }

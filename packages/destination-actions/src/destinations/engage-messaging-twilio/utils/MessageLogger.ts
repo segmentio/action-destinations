@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from '@segment/actions-core/src/destination-kit'
 import { OperationLogger, OperationLoggerContext, TryCatchFinallyHook } from '../operationTracking'
 import { MessageSender } from './message-sender'
@@ -35,6 +36,6 @@ export class MessageLogger extends OperationLogger {
   logError(msg: string, metadata?: object): void {
     if (!this.messageSender.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
     const msgPrefix = `TE Messaging: ${this.channelType}`
-    this.loggerClient?.error(`${msgPrefix}} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
+    this.loggerClient?.error(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
   }
 }
