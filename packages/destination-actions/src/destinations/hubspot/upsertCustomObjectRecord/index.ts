@@ -223,8 +223,6 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
   try {
     // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
     //
-    payload.objectType = 'companies'
-    payload.toObjectType = 'tickets'
     const response = await request<GetAssociationLabelResponse>(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${payload.objectType}/${payload.toObjectType}/labels`,
       {
