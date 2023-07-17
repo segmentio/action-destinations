@@ -73,8 +73,6 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
         body
       }
     )
-    this.currentOperation?.tags.push(`twilio_status_code:${response.status}`)
-    this.statsIncr('response', 1)
 
     if (this.payload.eventOccurredTS != undefined) {
       this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
