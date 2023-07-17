@@ -78,6 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
+
     const hubId = settings?.portalId
     const regExp = /^pe\d+_.*/
 
