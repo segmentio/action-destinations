@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
 import { StatsArgs, OperationStats, OperationStatsContext, TryCatchFinallyHook } from '../operationTracking'
 import { MessageSender } from './message-sender'
 

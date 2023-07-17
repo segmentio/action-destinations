@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Logger } from '@segment/actions-core/src/destination-kit'
+import { Logger } from '@segment/actions-core/destination-kit'
 import { OperationLogger, OperationLoggerContext, TryCatchFinallyHook } from '../operationTracking'
 import { MessageSender } from './message-sender'
 
