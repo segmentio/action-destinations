@@ -2,7 +2,7 @@
 import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
 import { TrackedError } from './TrackedError'
 import { OperationTree } from './OperationTree'
-import { OperationDecorator } from './OperationDecorator'
+import { OperationDecorator, OperationDecoratorContext } from './OperationDecorator'
 import { OperationDurationContext } from './OperationDuration'
 
 export type OperationLoggerContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> = TContext & {
@@ -105,10 +105,14 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     return `${this.getOperationName(ctx)} starting...`
   }
 
-  getOperationName(ctx: OperationLoggerContext, fullPath = true, separator = ' > '): string {
+  getOperationName<TContext extends OperationDecoratorContext>(
+    ctx: TContext,
+    fullPath = true,
+    separator = ' > '
+  ): string {
     if (!fullPath) return OperationDecorator.getOperationName(ctx) || '(anonymous)'
 
-    const fullOperationName = OperationTree.getOperationsStack(ctx)
+    const fullOperationName = OperationTree.getOperationsStack(ctx as any)
       .map((op) => this.getOperationName(op, false))
       .join(separator)
     return fullOperationName

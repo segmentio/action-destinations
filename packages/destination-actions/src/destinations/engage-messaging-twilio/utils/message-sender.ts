@@ -11,7 +11,6 @@ import { track, OperationContext } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { MessageLogger } from './MessageLogger'
 import { MessageStats } from './MessageStats'
-import { OperationTree } from '../operationTracking'
 
 const Liquid = new LiquidJs()
 
@@ -40,10 +39,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   async request(url: string, options: RequestOptions): Promise<Response> {
     const op = this.currentOperation
     op?.onFinally.push(() => {
-      const operationPath = OperationTree.getOperationsStack(op)
-      operationPath.pop() // remove the current operation. Pop appears to be faster than splice(-1)
-      if (operationPath.length) {
-        op.tags.push('operation_path:' + this.logger.getOperationName(op, true, '::')) // '/' would be difficult to query in datadog, as it requires escaping
+      const opParent = op.parent
+      if (opParent) {
+        op.tags.push('operation_path:' + this.logger.getOperationName(opParent, true, '::')) // '/' would be difficult to query in datadog, as it requires escaping
       }
 
       // log response from error or success
