@@ -50,7 +50,7 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
     const contextKey = p.context_key
     const audienceId = p.custom_audience_name
     const traitsOrProps = p.traits_or_props
-    const environmentId = settings.client_id
+    const environmentId = settings.clientId
 
     let audienceBatch: AudienceBatch = {
       environmentId,

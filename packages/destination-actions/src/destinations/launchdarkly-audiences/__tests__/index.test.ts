@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { CONSTANTS } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -11,11 +12,8 @@ describe('Launchdarkly Audiences', () => {
         clientId: 'valid-id',
         apiKey: 'valid-key'
       }
-      nock(`https://clientsdk.launchdarkly.com`).head(`/sdk/goals/${authData.clientId}`).reply(200, {})
-      nock(`https://app.launchdarkly.com/api/v2`)
-        .get('/versions')
-        .matchHeader('authorization', authData.apiKey)
-        .reply(200, {})
+      nock(CONSTANTS.LD_CLIENT_SDK_BASE_URL).head(`/sdk/goals/${authData.clientId}`).reply(200, {})
+      nock(CONSTANTS.LD_API_BASE_URL).get('/versions').matchHeader('authorization', authData.apiKey).reply(200, {})
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
@@ -25,11 +23,8 @@ describe('Launchdarkly Audiences', () => {
         clientId: 'invalid-id',
         apiKey: 'valid-key'
       }
-      nock(`https://clientsdk.launchdarkly.com`).head(`/sdk/goals/${authData.clientId}`).reply(404, {})
-      nock(`https://app.launchdarkly.com/api/v2`)
-        .get('/versions')
-        .matchHeader('authorization', authData.apiKey)
-        .reply(200, {})
+      nock(CONSTANTS.LD_CLIENT_SDK_BASE_URL).head(`/sdk/goals/${authData.clientId}`).reply(404, {})
+      nock(CONSTANTS.LD_API_BASE_URL).get('/versions').matchHeader('authorization', authData.apiKey).reply(200, {})
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
     })
@@ -39,11 +34,8 @@ describe('Launchdarkly Audiences', () => {
         clientId: 'valid-id',
         apiKey: 'invalid-key'
       }
-      nock(`https://clientsdk.launchdarkly.com`).head(`/sdk/goals/${authData.clientId}`).reply(200, {})
-      nock(`https://app.launchdarkly.com/api/v2`)
-        .get('/versions')
-        .matchHeader('authorization', authData.apiKey)
-        .reply(403, {})
+      nock(CONSTANTS.LD_CLIENT_SDK_BASE_URL).head(`/sdk/goals/${authData.clientId}`).reply(200, {})
+      nock(CONSTANTS.LD_API_BASE_URL).get('/versions').matchHeader('authorization', authData.apiKey).reply(403, {})
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
     })
