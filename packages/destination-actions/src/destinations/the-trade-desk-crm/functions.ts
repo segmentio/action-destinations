@@ -35,6 +35,9 @@ export interface CREATE_API_RESPONSE {
 }
 
 export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  if (payloads.length < 1500) {
+    throw new IntegrationError('The batch must have atleast 1500 payloads', 'INSUFFICIENT_DATA', 400)
+  }
   const crmID = await getCRMID(request, settings, payloads[0])
 
   // Get user emails from the payloads
