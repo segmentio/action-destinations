@@ -410,7 +410,7 @@ const attemptEmailDelivery = async (
   }
 }
 
-const action: ActionDefinition<Settings, Payload> = {
+export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send Email',
   description: 'Sends Email to a user powered by SendGrid',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
@@ -705,5 +705,3 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   }
 }
-
-export default action

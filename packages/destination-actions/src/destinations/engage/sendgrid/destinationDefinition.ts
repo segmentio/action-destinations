@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendEmail from './sendEmail'
+import { actionDefinition as sendEmailAction } from './sendEmail'
 import previewApiLookup from './previewApiLookup'
 
 export const destinationDefinition: DestinationDefinition<Settings> = {
@@ -63,9 +63,7 @@ export const destinationDefinition: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendEmail,
+    sendEmail: sendEmailAction,
     previewApiLookup
   }
 }
-
-export default destinationDefinition
