@@ -37,6 +37,8 @@ Array [
 ]
 `;
 
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: missing minimum payload size 1`] = `[PayloadValidationError: received payload count below LiveRamp's ingestion limits. expected: >=25 actual: 1]`;
+
 exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: required fields 1`] = `
 "audience_key,testType,testType
 \\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"

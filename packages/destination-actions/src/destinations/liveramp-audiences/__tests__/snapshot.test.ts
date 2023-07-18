@@ -100,22 +100,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    const responses = await testDestination.testBatchAction(actionSlug, {
-      events: [event],
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
-
     try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-      return
+      await testDestination.testBatchAction(actionSlug, {
+        events: [event],
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined
+      })
+      throw new Error('expected action to throw')
     } catch (err) {
-      expect(rawBody).toMatchSnapshot()
+      expect(err).toMatchSnapshot()
     }
   })
 
