@@ -47,13 +47,14 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         tapAction: {
           label: 'Notification open action',
-          description: 'Sets the noitfication click action/category',
+          description:
+            'Sets the notification click action/category: open_app, open_url, deep_link, dismiss, or a custom string',
           type: 'string',
           required: false
         },
-        deepLink: {
-          label: 'Notification title',
-          description: 'Sets the deep link',
+        link: {
+          label: 'Notification Link',
+          description: 'Deep link or URL to navigate to when the notification is tapped',
           type: 'string',
           required: false
         },
@@ -77,6 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Badge amount',
           description: 'The badge count which is used in combination with badge strategy to determine the final badge',
           type: 'number',
+          default: 1,
           required: false
         },
         badgeStrategy: {
@@ -84,6 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Sets the badge count strategy in the notification',
           type: 'string',
           required: false,
+          default: 'inc',
           choices: [
             {
               value: 'inc',
@@ -104,6 +107,40 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Sets the time to live for the notification',
           type: 'number',
           required: false
+        },
+        tapActionButtons: {
+          label: 'Tap action buttons',
+          description: 'Sets the buttons to show when interacting with a notification',
+          required: false,
+          type: 'object',
+          multiple: true,
+          properties: {
+            id: {
+              label: 'Id',
+              description: 'Button id',
+              type: 'string',
+              required: true
+            },
+            text: {
+              label: 'Text',
+              description: 'Button text',
+              type: 'string',
+              required: true
+            },
+            onTap: {
+              label: 'Tap action',
+              description:
+                'The action to perform when this button is tapped: open_app, open_url, deep_link, dismiss, or a custom string',
+              type: 'string',
+              required: true
+            },
+            link: {
+              label: 'Link',
+              description: 'Deep link or URL to navigate to when this button is tapped',
+              type: 'string',
+              required: false
+            }
+          }
         }
       }
     },
@@ -192,7 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    return new PushSender(request, data).send()
+    return new PushSender(request, data).perform()
   }
 }
 

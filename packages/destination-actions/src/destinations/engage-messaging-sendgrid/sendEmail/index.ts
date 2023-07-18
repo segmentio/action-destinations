@@ -1,10 +1,13 @@
-import { ActionDefinition, IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, RequestClient, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import cheerio from 'cheerio'
 import { htmlEscape } from 'escape-goat'
-import { Logger, StatsClient } from '@segment/actions-core/src/destination-kit'
+import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
+import { apiLookupActionFields, apiLookupLiquidKey, performApiLookups } from '../utils/api-lookups'
+import { Profile } from '../utils/types'
+
 const Liquid = new LiquidJs()
 
 type Region = 'us-west-2' | 'eu-west-1'
@@ -26,6 +29,69 @@ const insertEmailPreviewText = (html: string, previewText: string): string => {
   return $.html()
 }
 
+const insertUnsubscribeLinks = (
+  html: string,
+  emailProfile: any,
+  spaceId: string,
+  statsClient: StatsClient | undefined,
+  tags: string[],
+  groupId?: string,
+  logger?: Logger | undefined
+): string => {
+  const globalUnsubscribeLink = emailProfile?.unsubscribeLink
+  const preferencesLink = emailProfile?.preferencesLink
+  const unsubscribeLinkRef = 'a[href*="[upa_unsubscribe_link]"]'
+  const preferencesLinkRef = 'a[href*="[upa_preferences_link]"]'
+  const sendgridUnsubscribeLinkTag = '[unsubscribe]'
+  const $ = cheerio.load(html)
+  if (groupId) {
+    const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
+    const groupUnsubscribeLink = group?.groupUnsubscribeLink
+    $(unsubscribeLinkRef).each(function () {
+      if (!groupUnsubscribeLink) {
+        logger?.info(`TE Messaging: Email Group Unsubscribe link missing  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.group_unsubscribe_link_missing', 1, tags)
+        $(this).attr('href', sendgridUnsubscribeLinkTag)
+      } else {
+        $(this).attr('href', groupUnsubscribeLink)
+        logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
+      }
+    })
+  } else {
+    $(unsubscribeLinkRef).each(function () {
+      if (!globalUnsubscribeLink) {
+        logger?.info(`TE Messaging: Email Global Unsubscribe link missing  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.global_unsubscribe_link_missing', 1, tags)
+        $(this).attr('href', sendgridUnsubscribeLinkTag)
+      } else {
+        $(this).attr('href', globalUnsubscribeLink)
+        logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
+      }
+    })
+  }
+  $(preferencesLinkRef).each(function () {
+    if (!preferencesLink) {
+      // Remove the Manage Preferences link placeholder and the pipe (' | ') symbol
+      $(this.parent?.children).each(function () {
+        if ($(this).text() == ' | ') {
+          $(this).remove()
+        }
+      })
+      $(this).remove()
+      logger?.info(`TE Messaging: Email Preferences link removed from the html body  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.removed_preferences_link', 1, tags)
+    } else {
+      $(this).attr('href', preferencesLink)
+      logger?.info(`TE Messaging: Email Preferences link replaced  - ${spaceId}`)
+      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1, tags)
+    }
+  })
+
+  return $.html()
+}
+
 // These profile calls will be removed when Profile sync can fetch external_id
 const getProfileApiEndpoint = (environment: string, region?: Region): string => {
   const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
@@ -33,12 +99,8 @@ const getProfileApiEndpoint = (environment: string, region?: Region): string => 
   return `https://${domainName}.${topLevelName}`
 }
 
-type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
-
-type RequestModifiedFn = (url: string, options?: RequestOptions) => Promise<ModifiedResponse>
-
 const fetchProfileTraits = async (
-  request: RequestFn,
+  request: RequestClient,
   settings: Settings,
   profileId: string,
   statsClient: StatsClient | undefined,
@@ -95,7 +157,7 @@ interface UnlayerResponse {
 }
 
 const generateEmailHtml = async (
-  request: RequestFn,
+  request: RequestClient,
   settings: Settings,
   design: string,
   statsClient: StatsClient | undefined,
@@ -126,16 +188,12 @@ const generateEmailHtml = async (
   }
 }
 
-interface Profile {
-  user_id?: string
-  anonymous_id?: string
-  email?: string
-  traits: Record<string, string>
-}
-
 const parseTemplating = async (
   content: string,
-  profile: Profile,
+  liquidData: {
+    profile: Profile
+    [apiLookupLiquidKey]?: Record<string, unknown>
+  },
   contentType: string,
   statsClient: StatsClient | undefined,
   tags: string[],
@@ -143,7 +201,7 @@ const parseTemplating = async (
   logger?: Logger | undefined
 ) => {
   try {
-    const parsedContent = await Liquid.parseAndRender(content, { profile })
+    const parsedContent = await Liquid.parseAndRender(content, liquidData)
     return parsedContent
   } catch (error) {
     logger?.error(`TE Messaging: Email templating parse failure - ${settings.spaceId} - [${error}]`)
@@ -160,7 +218,7 @@ const parseTemplating = async (
 const EXTERNAL_ID_KEY = 'email'
 
 const attemptEmailDelivery = async (
-  request: RequestModifiedFn,
+  request: RequestClient,
   settings: Settings,
   payload: Payload,
   logger: Logger | undefined,
@@ -224,18 +282,30 @@ const attemptEmailDelivery = async (
   }
 
   const bcc = JSON.parse(payload.bcc ?? '[]')
-  const parsedSubject = await parseTemplating(payload.subject, profile, 'Subject', statsClient, tags, settings, logger)
+  const [parsedSubject, apiLookupData] = await Promise.all([
+    parseTemplating(payload.subject, { profile }, 'Subject', statsClient, tags, settings, logger),
+    performApiLookups(request, payload.apiLookups, profile, statsClient, tags, settings, logger)
+  ])
+
   let parsedBodyHtml
 
   if (payload.bodyUrl && settings.unlayerApiKey) {
     const { content: body } = await request(payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
     const bodyHtml =
       payload.bodyType === 'html' ? body : await generateEmailHtml(request, settings, body, statsClient, tags, logger)
-    parsedBodyHtml = await parseTemplating(bodyHtml, profile, 'Body', statsClient, tags, settings, logger)
+    parsedBodyHtml = await parseTemplating(
+      bodyHtml,
+      { profile, [apiLookupLiquidKey]: apiLookupData },
+      'Body',
+      statsClient,
+      tags,
+      settings,
+      logger
+    )
   } else {
     parsedBodyHtml = await parseTemplating(
       payload.bodyHtml ?? '',
-      profile,
+      { profile, [apiLookupLiquidKey]: apiLookupData },
       'Body HTML',
       statsClient,
       tags,
@@ -248,7 +318,7 @@ const attemptEmailDelivery = async (
   if (payload.bodyType === 'design' && payload.previewText) {
     const parsedPreviewText = await parseTemplating(
       payload.previewText,
-      profile,
+      { profile },
       'Preview text',
       statsClient,
       tags,
@@ -257,6 +327,16 @@ const attemptEmailDelivery = async (
     )
     parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
   }
+
+  parsedBodyHtml = insertUnsubscribeLinks(
+    parsedBodyHtml,
+    emailProfile,
+    settings.spaceId,
+    statsClient,
+    tags,
+    payload.groupId,
+    logger
+  )
 
   try {
     statsClient?.incr('actions-personas-messaging-sendgrid.request', 1, tags)
@@ -458,6 +538,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    apiLookups: {
+      label: 'API Lookups',
+      description: 'Any API lookup configs that are needed to send the template',
+      type: 'object',
+      multiple: true,
+      properties: apiLookupActionFields
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -475,8 +562,18 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         subscriptionStatus: {
-          label: 'ID',
+          label: 'subscriptionStatus',
           description: 'The subscription status for the identity.',
+          type: 'string'
+        },
+        unsubscribeLink: {
+          label: 'unsubscribeLink',
+          description: 'Unsubscribe link for the end user',
+          type: 'string'
+        },
+        preferencesLink: {
+          label: 'preferencesLink',
+          description: 'Preferences link for the end user',
           type: 'string'
         },
         groups: {
@@ -494,6 +591,11 @@ const action: ActionDefinition<Settings, Payload> = {
               description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
               // for some reason this still gets deserialized as a string.
               type: 'boolean'
+            },
+            groupUnsubscribeLink: {
+              label: 'groupUnsubscribeLink',
+              description: 'Group unsubscribe link for the end user',
+              type: 'string'
             }
           }
         }
@@ -510,6 +612,12 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
+            },
+            unsubscribeLink: {
+              '@path': '$.unsubscribeLink'
+            },
+            preferencesLink: {
+              '@path': '$.preferencesLink'
             },
             groups: {
               '@path': '$.groups'

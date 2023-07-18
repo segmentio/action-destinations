@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { DataStreamType } from './ga4-types'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {

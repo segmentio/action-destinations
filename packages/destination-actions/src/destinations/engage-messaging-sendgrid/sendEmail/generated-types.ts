@@ -78,6 +78,45 @@ export interface Payload {
    */
   byPassSubscription?: boolean
   /**
+   * Any API lookup configs that are needed to send the template
+   */
+  apiLookups?: {
+    /**
+     * The id of the API lookup for use in logging & observability
+     */
+    id?: string
+    /**
+     * The name of the API lookup referenced in liquid syntax
+     */
+    name: string
+    /**
+     * The URL endpoint to call
+     */
+    url: string
+    /**
+     * The request method, e.g. GET/POST/etc.
+     */
+    method: string
+    /**
+     * The cache TTL in ms
+     */
+    cacheTtl: number
+    /**
+     * The request body for use with POST/PUT/PATCH requests
+     */
+    body?: string
+    /**
+     * Headers in JSON to be sent with the request
+     */
+    headers?: {
+      [k: string]: unknown
+    }
+    /**
+     * The response type of the request. Currently only supporting JSON.
+     */
+    responseType: string
+  }[]
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -94,6 +133,14 @@ export interface Payload {
      */
     subscriptionStatus?: string
     /**
+     * Unsubscribe link for the end user
+     */
+    unsubscribeLink?: string
+    /**
+     * Preferences link for the end user
+     */
+    preferencesLink?: string
+    /**
      * Subscription groups and their statuses for this id.
      */
     groups?: {
@@ -102,6 +149,10 @@ export interface Payload {
        * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
        */
       isSubscribed?: boolean
+      /**
+       * Group unsubscribe link for the end user
+       */
+      groupUnsubscribeLink?: string
     }[]
   }[]
   /**

@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
+import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
 import { PushSender } from '../sendMobilePush/push-sender'
 
@@ -36,12 +36,13 @@ const testAction = createTestAction({
     customizations: {
       title: customizationTitle,
       tapAction: null,
-      deepLink: null,
+      link: null,
       sound: null,
       priority: null,
       badgeAmount: null,
       badgeStrategy: null,
-      ttl: null
+      ttl: null,
+      tapActionButtons: null
     }
   })
 })
@@ -51,11 +52,15 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
     Body: defaultTemplate.types['twilio/text'].body,
     Title: customizationTitle,
     FcmPayload: JSON.stringify({
-      mutable_content: true
+      mutable_content: true,
+      notification: {
+        badge: 1
+      }
     }),
     ApnPayload: JSON.stringify({
       aps: {
-        'mutable-content': 1
+        'mutable-content': 1,
+        badge: 1
       }
     }),
     Recipients:
@@ -68,6 +73,8 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
           }),
     CustomData: JSON.stringify({
       space_id: spaceId,
+      badgeAmount: 1,
+      badgeStrategy: 'inc',
       __segment_internal_external_id_key__: extId.type,
       __segment_internal_external_id_value__: extId.id
     })
@@ -214,19 +221,13 @@ describe('sendMobilePush action', () => {
         }
       })
       expect(responses.length).toEqual(0)
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`not sending push notification, no devices are subscribed - ${spaceId}`),
-        expect.any(String)
-      )
+      expectInfoLogged(`not sending push notification, no devices are subscribed`)
     })
 
     it('should abort when send is disabled', async () => {
       const responses = await testAction({ mappingOverrides: { send: false } })
       expect(responses.length).toEqual(0)
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining(`not sending push notification, payload.send = false - ${spaceId}`),
-        expect.any(String)
-      )
+      expectInfoLogged(`not sending push notification, payload.send = false`)
     })
 
     it('should fail on invalid webhook url', async () => {
@@ -238,10 +239,7 @@ describe('sendMobilePush action', () => {
           settingsOverrides: { webhookUrl: 'foo' }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH invalid webhook url - ${spaceId}`),
-        expect.any(String)
-      )
+      expectErrorLogged('Invalid webhook url arguments')
     })
 
     it('throws retryable error when all sends fail for retryable reasons', async () => {
@@ -267,10 +265,7 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, errorResponse)
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'RETRYABLE_ERROR')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
-        expect.any(String)
-      )
+      expectErrorLogged('Failed to send to all subscribed devices')
     })
 
     it('throws non-retryable error when all sends fail for non-retryable reasons', async () => {
@@ -295,10 +290,7 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(400, errorResponse)
 
       await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH failed to send to all subscribed devices - ${spaceId}`),
-        expect.any(String)
-      )
+      expectErrorLogged('Failed to send to all subscribed devices. First error:')
     })
 
     it('does not throw retryable error when at least one send succeeds', async () => {
@@ -331,10 +323,7 @@ describe('sendMobilePush action', () => {
           mappingOverrides: { customizations: { title: 'hi {{profile.traits.first_name$=}}' } }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: MOBILEPUSH unable to parse templating - ${spaceId}`),
-        expect.any(String)
-      )
+      expectErrorLogged('Unable to parse templating')
     })
   })
 
@@ -358,11 +347,15 @@ describe('sendMobilePush action', () => {
         Body: 'Welcome to Wadiya General Aladeen!',
         Title: 'Aladeen',
         FcmPayload: JSON.stringify({
-          mutable_content: true
+          mutable_content: true,
+          notification: {
+            badge: 1
+          }
         }),
         ApnPayload: JSON.stringify({
           aps: {
-            'mutable-content': 1
+            'mutable-content': 1,
+            badge: 1
           }
         }),
         Recipients: JSON.stringify({
@@ -370,6 +363,8 @@ describe('sendMobilePush action', () => {
         }),
         CustomData: JSON.stringify({
           space_id: spaceId,
+          badgeAmount: 1,
+          badgeStrategy: 'inc',
           media: ['http://myimg.com/&color=mantis_green'],
           __segment_internal_external_id_key__: 'ios.push_token',
           __segment_internal_external_id_value__: 'ios-token-1'
@@ -403,11 +398,15 @@ describe('sendMobilePush action', () => {
         Body: 'I have Aladeeen news',
         Title: 'General',
         FcmPayload: JSON.stringify({
-          mutable_content: true
+          mutable_content: true,
+          notification: {
+            badge: 1
+          }
         }),
         ApnPayload: JSON.stringify({
           aps: {
-            'mutable-content': 1
+            'mutable-content': 1,
+            badge: 1
           }
         }),
         Recipients: JSON.stringify({
@@ -415,6 +414,8 @@ describe('sendMobilePush action', () => {
         }),
         CustomData: JSON.stringify({
           space_id: spaceId,
+          badgeAmount: 1,
+          badgeStrategy: 'inc',
           media: ['http://myimg.com/&color=mantis_green'],
           __segment_internal_external_id_key__: 'ios.push_token',
           __segment_internal_external_id_value__: 'ios-token-1'
@@ -434,6 +435,139 @@ describe('sendMobilePush action', () => {
       })
       expect(responses[0].url).toEqual(notifyReqUrl)
       expect(responses[0].data).toMatchObject(externalIds[0])
+    })
+  })
+
+  describe('fields', () => {
+    const title = 'buy'
+    const body = 'now'
+    const tapAction = 'OPEN_DEEP_LINK'
+    const sound = 'app://mysound.aif'
+    const ttl = 1234
+    const priority = 'low'
+    const customizations = {
+      badgeAmount: 3,
+      badgeStrategy: 'dec',
+      media: ['http://myimg.com/product.png'],
+      link: 'app://propducts-view',
+      tapActionButtons: [
+        {
+          id: '1',
+          text: 'open',
+          onTap: 'deep_link',
+          link: 'app://buy-now'
+        },
+        {
+          id: '2',
+          text: 'close',
+          onTap: 'dismiss'
+        }
+      ]
+    }
+
+    const externalIds = [
+      { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+    ]
+
+    it('displays all fields without content sid', async () => {
+      const notificationReq = new URLSearchParams({
+        Body: body,
+        Action: tapAction,
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          ...customizations,
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid: undefined,
+          customizations: { title, body, tapAction, sound, ttl, priority, ...customizations },
+          externalIds
+        }
+      })
+      expect(responses[0].url).toEqual(notifyReqUrl)
+      expect(responses[0].data).toMatchObject(externalIds[0])
+    })
+
+    it('displays all fields with content sid replacements', async () => {
+      const template = {
+        types: {
+          ['twilio/media']: {
+            body: 'text body',
+            media: ['http://myimg.com/me.png']
+          }
+        }
+      }
+
+      const notificationReq = new URLSearchParams({
+        Body: template.types['twilio/media'].body,
+        Action: tapAction,
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          ...customizations,
+          media: template.types['twilio/media'].media,
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, template)
+      nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid,
+          customizations: { title, body, tapAction, sound, ttl, priority, ...customizations },
+          externalIds
+        }
+      })
+      expect(responses[1].url).toEqual(notifyReqUrl)
+      expect(responses[1].data).toMatchObject(externalIds[0])
     })
   })
 })
