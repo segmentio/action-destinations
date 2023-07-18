@@ -209,7 +209,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
         badgeAmount,
         badgeStrategy,
         media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-        deepLink: this.payload.customizations?.deepLink,
+        link: this.payload.customizations?.link,
         tapActionButtons: this.payload.customizations?.tapActionButtons
       })
 

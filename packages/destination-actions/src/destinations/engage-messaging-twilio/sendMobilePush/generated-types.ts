@@ -26,13 +26,13 @@ export interface Payload {
      */
     media?: string[]
     /**
-     * Sets the notification click action/category
+     * Sets the notification click action/category: open_app, open_url, deep_link, dismiss, or a custom string
      */
     tapAction?: string
     /**
-     * Sets the deep link
+     * Deep link or URL to navigate to when the notification is tapped
      */
-    deepLink?: string
+    link?: string
     /**
      * Sets the sound played when the notification arrives
      */
@@ -66,7 +66,7 @@ export interface Payload {
        */
       text: string
       /**
-       * The action to perform when this button is tapped
+       * The action to perform when this button is tapped: open_app, open_url, deep_link, dismiss, or a custom string
        */
       onTap: string
       /**
