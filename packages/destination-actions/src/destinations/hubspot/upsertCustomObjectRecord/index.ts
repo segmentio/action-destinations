@@ -132,9 +132,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       throw e
     }
-    const parsedAssociationType: AssociationType = payload?.associationType
-      ? JSON.parse(payload?.associationType)
-      : null
+
+    const parsedAssociationType: AssociationType | null = parseAssociationType(payload.associationType)
+
     // Get Custom object response on the basis of provided search fields to associate
     searchCustomResponseToAssociate = await hubspotApiClient.getObjectResponseToAssociate(
       payload.searchFieldsToAssociateCustomObjects,
@@ -267,6 +267,14 @@ function createAssociationObject(toCustomObjectId: string | null, associationTyp
     }
   }
   return null
+}
+
+function parseAssociationType(associationType: string | undefined) {
+  try {
+    return associationType ? JSON.parse(associationType) : null
+  } catch (err) {
+    return null
+  }
 }
 
 export default action

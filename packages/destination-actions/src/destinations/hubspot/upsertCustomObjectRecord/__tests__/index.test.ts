@@ -504,10 +504,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: {
-          associationCategory: 'HUBSPOT_DEFINED',
-          associationTypeId: 279
-        },
+        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -617,10 +614,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: {
-          associationCategory: 'HUBSPOT_DEFINED',
-          associationTypeId: 279
-        },
+        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -780,10 +774,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: {
-          associationCategory: 'HUBSPOT_DEFINED',
-          associationTypeId: 279
-        },
+        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -893,10 +884,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
           searchFieldsToAssociateCustomObjects: {
             shopping_code: 'test_1234'
           },
-          associationType: {
-            associationCategory: 'HUBSPOT_DEFINED',
-            associationTypeId: 279
-          },
+          associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
           properties: {
             coupon_code: {
               '@path': '$.properties.couponCode'
