@@ -9,4 +9,4 @@ fi;
 
 git pull --ff-only
 echo "Running lerna version minor..."
-lerna version minor --no-private -y --dist-tag=latest
+lerna version minor --no-private -y
