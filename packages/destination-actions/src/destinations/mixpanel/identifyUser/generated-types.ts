@@ -19,17 +19,4 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
-  /**
-   * Increment the value of a user profile property. Learn more about [Incrementing Numerical Properties](https://developer.mixpanel.com/reference/profile-numerical-add).
-   */
-  $add?: {
-    /**
-     * Property to increment
-     */
-    property: string
-    /**
-     * Positive or negative amount to increment
-     */
-    value: number
-  }[]
 }
