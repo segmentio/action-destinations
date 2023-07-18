@@ -40,11 +40,6 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   async request(url: string, options: RequestOptions): Promise<Response> {
     const op = this.currentOperation
     op?.onFinally.push(() => {
-      const opParent = op.parent
-      if (opParent) {
-        op.tags.push('operation_path:' + this.logger.getOperationName(opParent, true, '::')) // '/' would be difficult to query in datadog, as it requires escaping
-      }
-
       // log response from error or success
       const respError = op?.error as TwilioApiError
       const response = respError?.response || (op.result as Response)

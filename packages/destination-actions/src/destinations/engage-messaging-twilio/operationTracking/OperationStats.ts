@@ -148,14 +148,30 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
    */
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res: string[] = []
-    const errorContext = error.trackedContext
-    res.push(
-      `error_operation:${
-        errorContext ? OperationDecorator.getOperationName(errorContext) : OperationDecorator.getOperationName(ctx)
-      }`
-    )
+    const errorOperation = this.getErrorOperationNameTag(error, ctx)
+    if (errorOperation) res.push(`error_operation:${errorOperation}`)
     res.push(`error_class:${error?.constructor?.name || typeof error}`)
     return res
+  }
+
+  /**
+   * gets the value for the tag error_operation which attached to the metric on error
+   * @param error
+   * @param ctx
+   * @returns
+   */
+  getErrorOperationNameTag(error: TrackedError, ctx: OperationStatsContext): string | undefined {
+    const errorContext = error.trackedContext as OperationStatsContext
+    return errorContext ? this.getOperationNameTag(errorContext) : this.getOperationNameTag(ctx)
+  }
+
+  /**
+   * gets operation name that will be used for stats tags
+   * @param ctx
+   * @returns
+   */
+  getOperationNameTag(ctx: OperationStatsContext) {
+    return OperationDecorator.getOperationName(ctx)
   }
 }
 

@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
-import { StatsArgs, OperationStats, OperationStatsContext, TryCatchFinallyHook } from '../operationTracking'
+import {
+  StatsArgs,
+  OperationStats,
+  OperationStatsContext,
+  TryCatchFinallyHook,
+  TrackedError
+} from '../operationTracking'
 import { MessageSender } from './message-sender'
+import { OperationContext } from './track'
 
 export class MessageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
@@ -21,6 +28,13 @@ export class MessageStats extends OperationStats {
       `region:${this.messageSender.settings.region}`,
       `channel:${this.messageSender.getChannelType()}`
     )
+
+    //for operations like request which can be used in multiple places, we need to have operation_path tag that will show where this operation is invoked from
+    const parentOperation = (ctx as OperationContext).parent
+    if (parentOperation) {
+      const operation_path = this.getOperationNameTag(parentOperation as any)
+      if (operation_path) ctx.tags.push('operation_path:' + operation_path)
+    }
     return res
   }
 
@@ -59,5 +73,30 @@ export class MessageStats extends OperationStats {
       ...(this.messageSender.executeInput.statsContext?.tags || []),
       ...(tags ?? [])
     ])
+  }
+
+  extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
+    const res = super.extractTagsFromError(error, ctx)
+
+    if (error.status) res.push(`error_status:${error?.status}`)
+
+    if (error.code) res.push(`error_code:${error?.code}`)
+
+    if (error.underlyingError) {
+      const underlyingErrorTags = this.extractTagsFromError(error.underlyingError as any, ctx)
+      res.push(...underlyingErrorTags.map((t) => `underlying_${t}`))
+    }
+    return res
+  }
+
+  /**
+   * gets operation name that will be used for stats tags
+   * @param ctx
+   * @returns
+   */
+  getOperationNameTag(ctx: OperationStatsContext) {
+    if (!ctx) return undefined
+    //we want to have full path to the operation so we can distiguish getBody::request vs perform::request
+    return this.messageSender.logger.getOperationName(ctx, true, '::') // '/' would be difficult to query in datadog, as it requires escaping
   }
 }
