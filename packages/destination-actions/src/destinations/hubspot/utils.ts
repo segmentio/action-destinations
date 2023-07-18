@@ -85,15 +85,6 @@ export interface AssociationType {
   associationCategory: string | unknown
   associationTypeId: number | unknown
 }
-// export interface BatchAssociationsInput {
-//   from: {
-//     id: string
-//   }
-//   to: {
-//     id: string
-//   }
-//   types: AssociationType[]
-// }
 export interface CreateAssociation {
   to: {
     id: string
