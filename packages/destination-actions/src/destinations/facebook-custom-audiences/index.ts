@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-const FACEBOOK_API_VERSION = 'v17.0'
+export const FACEBOOK_API_VERSION = 'v17.0'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Custom Audiences (Actions)',
@@ -25,6 +25,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   audienceSettings: {
     mode: {
+      // TODO: Document modes
       type: 'synced',
       full_audience_sync: false
     },
@@ -32,17 +33,17 @@ const destination: DestinationDefinition<Settings> = {
       const externalIdKey = 'id'
       const { audienceName } = createAudienceInput
 
-      // @ts-ignore will remove exception when audienceSettings work concludes
+      // @ts-ignore TODO will remove exception when audienceSettings work concludes
       const { adAccountId, audienceDescription } = createAudienceInput.audienceSettings
 
-      // @ts-ignore until I figure out how to read Auth Tokens from these kind of requests.
-      const accessToken = createAudienceInput.settings.accessToken
+      // @ts-ignore TODO until I figure out how to read Auth Tokens from these kind of requests.
+      const accessToken = createAudienceInput.accessToken
 
-      if (audienceName.length === 0) {
+      if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (adAccountId.length === 0) {
+      if (!adAccountId) {
         throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
@@ -72,23 +73,10 @@ const destination: DestinationDefinition<Settings> = {
         externalId: r[externalIdKey]
       }
     },
-    async getAudience(request, getAudienceInput) {
+    async getAudience(_request, _getAudienceInput) {
       // TODO: Implement this method
-      const externalIdKey = 'externalId'
-      const response = await request(`https://graph.facebook.com/${FACEBOOK_API_VERSION}`, {
-        method: 'POST',
-        json: {
-          [externalIdKey]: getAudienceInput.externalId
-        }
-      })
-
-      const jsonOutput = await response.json()
-      if (!jsonOutput[externalIdKey]) {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-      }
-
       return {
-        externalId: jsonOutput[externalIdKey]
+        externalId: '42'
       }
     }
   },
