@@ -5,6 +5,8 @@ import updateUser from './updateUser'
 import trackEvent from './trackEvent'
 import updateCart from './updateCart'
 import trackPurchase from './trackPurchase'
+import { Region } from './shared-fields'
+import { getRegionalEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Iterable (Actions)',
@@ -20,10 +22,28 @@ const destination: DestinationDefinition<Settings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
+      },
+      apiRegion: {
+        label: 'Endpoint Region',
+        description: 'The region to send your data.',
+        type: 'string',
+        format: 'text',
+        choices: [
+          {
+            label: 'North America',
+            value: 'north_america'
+          },
+          {
+            label: 'Europe',
+            value: 'europe'
+          }
+        ],
+        default: 'north_america'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://api.iterable.com/api/webhooks', {
+      const endpoint = getRegionalEndpoint('getWebhooks', settings.apiRegion as Region)
+      return request(endpoint, {
         method: 'get',
         headers: { 'Api-Key': settings.apiKey }
       })

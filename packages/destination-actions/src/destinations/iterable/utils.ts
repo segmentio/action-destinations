@@ -1,6 +1,6 @@
 import { omit } from '@segment/actions-core'
 import { Payload as UpdateCart } from './updateCart/generated-types'
-import { CommerceItem } from './shared-fields'
+import { CommerceItem, Region } from './shared-fields'
 
 // Regular expression for matching ISO date strings in various formats
 // Taken from https://github.com/segmentio/isodate/blob/master/lib/index.js
@@ -78,4 +78,39 @@ export function transformItems(items: UpdateCart['items']): CommerceItem[] {
     dataFields: convertDatesInObject(omit(rest, reservedItemKeys) || {}),
     ...(categories && { categories: [categories] })
   }))
+}
+
+export const apiEndpoints = {
+  updateUser: {
+    north_america: 'https://api.iterable.com/api/users/update',
+    europe: 'https://api.eu.iterable.com/api/users/update'
+  },
+  trackEvent: {
+    north_america: 'https://api.iterable.com/api/events/track',
+    europe: 'https://api.eu.iterable.com/api/events/track'
+  },
+  updateCart: {
+    north_america: 'https://api.iterable.com/api/commerce/updateCart',
+    europe: 'https://api.eu.iterable.com/api/commerce/updateCart'
+  },
+  trackPurchase: {
+    north_america: 'https://api.iterable.com/api/commerce/trackPurchase',
+    europe: 'https://api.eu.iterable.com/api/commerce/trackPurchase'
+  },
+  getWebhooks: {
+    north_america: 'https://api.iterable.com/api/webhooks',
+    europe: 'https://api.eu.iterable.com/api/webhooks'
+  }
+}
+
+/**
+ * Retrieves the regional API endpoint for a specific API action.
+ * If the region provided is invalid or not specified, it defaults to 'north_america'.
+ *
+ * @param action The name of the API action.
+ * @param region The region for data residency.
+ * @returns The regional API endpoint.
+ */
+export function getRegionalEndpoint(action: keyof typeof apiEndpoints, region: Region = 'north_america'): string {
+  return apiEndpoints[action][region] ?? apiEndpoints[action]['north_america']
 }

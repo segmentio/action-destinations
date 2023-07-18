@@ -192,3 +192,5 @@ export type CommerceItem = {
     [k: string]: unknown
   }
 }
+
+export type Region = 'north_america' | 'europe'
