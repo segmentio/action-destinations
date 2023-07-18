@@ -81,10 +81,10 @@ export class MessageStats extends OperationStats {
 
     const respError = error as TwilioApiError
     const error_code = respError?.response?.data?.code || respError?.code
-    if (error_code) res.push(`error_code:${error?.code}`)
+    if (error_code) res.push(`error_code:${error_code}`)
 
     const error_status = respError?.response?.data?.status || respError?.status
-    if (error_status) res.push(`error_status:${error?.status}`)
+    if (error_status) res.push(`error_status:${error_status}`)
 
     if (error.underlyingError) {
       const underlyingErrorTags = this.extractTagsFromError(error.underlyingError as any, ctx)
