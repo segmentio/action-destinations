@@ -17,14 +17,14 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key provided by the LaunchDarkly integration',
         description:
-          'API Key used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization) before sending custom audiences data.',
+          'API Key used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization).',
         type: 'password',
         required: true
       },
-      client_id: {
+      clientId: {
         label: 'LaunchDarkly client-side ID',
         description:
-          'Find and copy the [client-side ID](https://ld-stg.launchdarkly.com/settings/projects) in the LaunchDarkly account settings page.',
+          'Find and copy the [client-side ID](https://app.launchdarkly.com/settings/projects) in the LaunchDarkly account settings page.',
         type: 'string',
         required: true
       }
@@ -32,8 +32,8 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       // The sdk/goals/{clientID} endpoint returns a 200 if the client ID is valid and a 404 otherwise.
       return Promise.all([
-        request(`${CONSTANTS.LD_CLIENT_SDK_BASE_URL}/sdk/goals/${settings.client_id}`, { method: 'head' }),
-        request(`${CONSTANTS.LD_API_BASE_URL}/api/v2/versions`, {
+        request(`${CONSTANTS.LD_CLIENT_SDK_BASE_URL}/sdk/goals/${settings.clientId}`, { method: 'head' }),
+        request(`${CONSTANTS.LD_API_BASE_URL}/versions`, {
           method: 'GET',
           headers: {
             Authorization: `${settings.apiKey}`
@@ -44,7 +44,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest({ settings }) {
-    console.log('extendRequest', settings)
     return {
       headers: {
         'User-Agent': 'SegmentSyncAudiences/1.0.0',
