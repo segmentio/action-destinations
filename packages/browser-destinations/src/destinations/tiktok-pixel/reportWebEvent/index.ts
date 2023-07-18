@@ -122,10 +122,13 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
     }
   },
   perform: (ttq, { payload }) => {
-    ttq.identify({
-      sha256_email: formatEmail(payload.email),
-      sha256_phone_number: formatPhone(payload.phone_number)
-    })
+    if (payload.email || payload.phone_number) {
+      ttq.identify({
+        sha256_email: formatEmail(payload.email),
+        sha256_phone_number: formatPhone(payload.phone_number)
+      })
+    }
+
     ttq.track(payload.event, {
       contents: payload.contents ? payload.contents : [],
       currency: payload.currency ? payload.currency : 'USD', // default to 'USD'
