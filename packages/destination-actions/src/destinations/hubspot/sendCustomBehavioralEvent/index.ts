@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject } from '../utils'
+import { flattenObject, transformEventName } from '../utils'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -68,8 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    //Converted the event name into lowercase
-    payload.eventName = payload.eventName.replace(/[\s.]+/g, '_').toLocaleLowerCase()
+    //Transform the eventName
+    payload.eventName = transformEventName(payload.eventName)
 
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,

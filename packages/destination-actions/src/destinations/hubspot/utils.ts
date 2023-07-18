@@ -80,3 +80,7 @@ export interface SearchResponse {
 }
 
 export interface UpsertRecordResponse extends ResponseInfo {}
+
+export function transformEventName(eventName: string) {
+  return eventName.replace(/[\s.]+/g, '_').toLocaleLowerCase()
+}
