@@ -36,7 +36,7 @@ const testAction = createTestAction({
     customizations: {
       title: customizationTitle,
       tapAction: null,
-      deepLink: null,
+      link: null,
       sound: null,
       priority: null,
       badgeAmount: null,
@@ -449,7 +449,7 @@ describe('sendMobilePush action', () => {
       badgeAmount: 3,
       badgeStrategy: 'dec',
       media: ['http://myimg.com/product.png'],
-      deepLink: 'app://propducts-view',
+      link: 'app://propducts-view',
       tapActionButtons: [
         {
           id: '1',

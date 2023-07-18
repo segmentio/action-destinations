@@ -1,90 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Insider's trackEvent destination action: all fields 1`] = `
-Object {
-  "users": Array [
-    Object {
-      "attributes": Object {
-        "age": -10845372872130.56,
-        "app_version": "Ef*GhBp7kEUO",
-        "birthday": "Ef*GhBp7kEUO",
-        "carrier": "Ef*GhBp7kEUO",
-        "city": "Ef*GhBp7kEUO",
-        "country": "Ef*GhBp7kEUO",
-        "custom": Object {},
-        "email": "tuoc@giciwco.net",
-        "gender": "Ef*GhBp7kEUO",
-        "idfa": "Ef*GhBp7kEUO",
-        "last_ip": "Ef*GhBp7kEUO",
-        "locale": "Ef*GhBp7kEUO",
-        "model": "Ef*GhBp7kEUO",
-        "name": "Ef*GhBp7kEUO",
-        "os_version": "Ef*GhBp7kEUO",
-        "phone": "Ef*GhBp7kEUO",
-        "platform": "Ef*GhBp7kEUO",
-        "surname": "Ef*GhBp7kEUO",
-        "timezone": "Ef*GhBp7kEUO",
-      },
-      "events": Array [
-        Object {
-          "event_name": "Ef*GhBp7kEUO",
-          "event_params": Object {
-            "currency": "LTL",
-            "custom": Object {},
-            "event_group_id": "Ef*GhBp7kEUO",
-            "name": "Ef*GhBp7kEUO",
-            "product_id": "Ef*GhBp7kEUO",
-            "product_image_url": "Ef*GhBp7kEUO",
-            "quantity": -1084537287213056,
-            "referrer": "Ef*GhBp7kEUO",
-            "taxonomy": Array [
-              "Ef*GhBp7kEUO",
-            ],
-            "unit_price": -10845372872130.56,
-            "unit_sale_price": -10845372872130.56,
-            "url": "Ef*GhBp7kEUO",
-            "user_agent": "Ef*GhBp7kEUO",
-            "variant_id": -10845372872130.56,
-          },
-          "timestamp": "2021-02-01T00:00:00.000Z",
-        },
-      ],
-      "identifiers": Object {
-        "custom": Object {
-          "segment_anonymous_id": "Ef*GhBp7kEUO",
-        },
-        "email": "tuoc@giciwco.net",
-        "phone_number": "Ef*GhBp7kEUO",
-        "uuid": "Ef*GhBp7kEUO",
-      },
-    },
-  ],
-}
-`;
+exports[`Testing snapshot for Insider's trackEvent destination action: all fields 1`] = `"{\\"users\\":[{\\"identifiers\\":{\\"uuid\\":\\"Ef*GhBp7kEUO\\",\\"custom\\":{\\"segment_anonymous_id\\":\\"Ef*GhBp7kEUO\\"},\\"email\\":\\"tuoc@giciwco.net\\",\\"phone_number\\":\\"Ef*GhBp7kEUO\\"},\\"attributes\\":{\\"custom\\":{},\\"email\\":\\"tuoc@giciwco.net\\",\\"phone\\":\\"Ef*GhBp7kEUO\\",\\"age\\":-10845372872130.56,\\"birthday\\":\\"Ef*GhBp7kEUO\\",\\"name\\":\\"Ef*GhBp7kEUO\\",\\"gender\\":\\"Ef*GhBp7kEUO\\",\\"surname\\":\\"Ef*GhBp7kEUO\\",\\"app_version\\":\\"Ef*GhBp7kEUO\\",\\"idfa\\":\\"Ef*GhBp7kEUO\\",\\"model\\":\\"Ef*GhBp7kEUO\\",\\"last_ip\\":\\"Ef*GhBp7kEUO\\",\\"city\\":\\"Ef*GhBp7kEUO\\",\\"country\\":\\"Ef*GhBp7kEUO\\",\\"carrier\\":\\"Ef*GhBp7kEUO\\",\\"os_version\\":\\"Ef*GhBp7kEUO\\",\\"platform\\":\\"Ef*GhBp7kEUO\\",\\"timezone\\":\\"Ef*GhBp7kEUO\\",\\"locale\\":\\"Ef*GhBp7kEUO\\"},\\"events\\":[{\\"event_name\\":\\"ef*ghbp7keuo\\",\\"timestamp\\":\\"2021-02-01T00:00:00.000Z\\",\\"event_params\\":{\\"custom\\":{},\\"url\\":\\"Ef*GhBp7kEUO\\",\\"currency\\":\\"LTL\\",\\"product_id\\":\\"Ef*GhBp7kEUO\\",\\"taxonomy\\":[\\"Ef*GhBp7kEUO\\"],\\"name\\":\\"Ef*GhBp7kEUO\\",\\"variant_id\\":-10845372872130.56,\\"unit_sale_price\\":-10845372872130.56,\\"unit_price\\":-10845372872130.56,\\"quantity\\":-1084537287213056,\\"product_image_url\\":\\"Ef*GhBp7kEUO\\",\\"event_group_id\\":\\"Ef*GhBp7kEUO\\",\\"referrer\\":\\"Ef*GhBp7kEUO\\",\\"user_agent\\":\\"Ef*GhBp7kEUO\\"}}]}]}"`;
 
-exports[`Testing snapshot for Insider's trackEvent destination action: required fields 1`] = `
-Object {
-  "users": Array [
-    Object {
-      "attributes": Object {
-        "custom": Object {},
-      },
-      "events": Array [
-        Object {
-          "event_name": "Ef*GhBp7kEUO",
-          "event_params": Object {
-            "custom": Object {},
-          },
-          "timestamp": "2021-02-01T00:00:00.000Z",
-        },
-      ],
-      "identifiers": Object {
-        "custom": Object {
-          "segment_anonymous_id": "Ef*GhBp7kEUO",
-        },
-        "uuid": "Ef*GhBp7kEUO",
-      },
-    },
-  ],
+exports[`Testing snapshot for Insider's trackEvent destination action: required fields 1`] = `"{\\"users\\":[{\\"identifiers\\":{\\"uuid\\":\\"Ef*GhBp7kEUO\\",\\"custom\\":{\\"segment_anonymous_id\\":\\"Ef*GhBp7kEUO\\"}},\\"attributes\\":{\\"custom\\":{}},\\"events\\":[{\\"event_name\\":\\"ef*ghbp7keuo\\",\\"timestamp\\":\\"2021-02-01T00:00:00.000Z\\",\\"event_params\\":{\\"custom\\":{}}}]}]}"`;
+
+exports[`Testing snapshot for Insider's trackEvent destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-partner-name": Array [
+      "Ef*GhBp7kEUO",
+    ],
+    "x-request-token": Array [
+      "Ef*GhBp7kEUO",
+    ],
+  },
 }
 `;

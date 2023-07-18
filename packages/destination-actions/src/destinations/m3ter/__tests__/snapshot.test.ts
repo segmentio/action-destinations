@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'actions-insider-cloud'
+const destinationSlug = 'm3ter'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
@@ -33,10 +33,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        // @ts-ignore
-        if (action == 'trackEvent') {
-          json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
-        }
         expect(json).toMatchSnapshot()
         return
       } catch (err) {
@@ -71,10 +67,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        // @ts-ignore
-        if (action == 'trackEvent') {
-          json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
-        }
         expect(json).toMatchSnapshot()
         return
       } catch (err) {
