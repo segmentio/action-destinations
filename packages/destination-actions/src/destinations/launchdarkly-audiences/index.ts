@@ -9,13 +9,13 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Launchdarkly Audiences',
   slug: 'actions-launchdarkly-audiences',
   mode: 'cloud',
-  description: 'Sync Segments audiences to LaunchDarkly Big Segments.',
+  description: 'Sync [Segment Audiences](https://segment.com/docs/engage/audiences/) to LaunchDarkly [Big Segments](https://docs.launchdarkly.com/home/contexts/big-segments).',
 
   authentication: {
     scheme: 'custom',
     fields: {
       apiKey: {
-        label: 'API Key provided by the LaunchDarkly integration',
+        label: 'LaunchDarkly Service Token',
         description:
           'API Key used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization).',
         type: 'password',
