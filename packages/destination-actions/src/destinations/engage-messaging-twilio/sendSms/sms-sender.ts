@@ -69,28 +69,34 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
     return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 
-  @track({
-    wrapIntegrationError: ['Unable to get profile traits for SMS message', 'SMS trait fetch failure', 500]
-  })
+  @track()
   private async getProfileTraits() {
     if (!this.payload.userId) {
       throw new PayloadValidationError('Unable to process sms, no userId provided and no traits provided')
     }
-    const { region, profileApiEnvironment, spaceId, profileApiAccessToken } = this.settings
-    const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
-    const topLevelName = profileApiEnvironment === 'production' ? 'com' : 'build'
-    const response = await this.request(
-      `https://${domainName}.${topLevelName}/v1/spaces/${spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
-        this.payload.userId
-      )}/traits?limit=200`,
-      {
-        headers: {
-          authorization: `Basic ${Buffer.from(profileApiAccessToken + ':').toString('base64')}`,
-          'content-type': 'application/json'
+    try {
+      const { region, profileApiEnvironment, spaceId, profileApiAccessToken } = this.settings
+      const domainName = region === 'eu-west-1' ? 'profiles.euw1.segment' : 'profiles.segment'
+      const topLevelName = profileApiEnvironment === 'production' ? 'com' : 'build'
+      const response = await this.request(
+        `https://${domainName}.${topLevelName}/v1/spaces/${spaceId}/collections/users/profiles/user_id:${encodeURIComponent(
+          this.payload.userId
+        )}/traits?limit=200`,
+        {
+          headers: {
+            authorization: `Basic ${Buffer.from(profileApiAccessToken + ':').toString('base64')}`,
+            'content-type': 'application/json'
+          }
         }
-      }
-    )
-    const body = await response.json()
-    return body.traits
+      )
+      const body = await response.json()
+      return body.traits
+    } catch (e) {
+      this.rethrowIntegrationError(e, () => [
+        'Unable to get profile traits for SMS message',
+        'SMS trait fetch failure',
+        500
+      ])
+    }
   }
 }

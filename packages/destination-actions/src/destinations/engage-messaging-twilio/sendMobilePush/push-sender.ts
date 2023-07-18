@@ -180,9 +180,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     return responses
   }
 
-  @track({
-    wrapIntegrationError: () => new PayloadValidationError('Unable to construct Notify API request body')
-  })
+  @track()
   async getBody(): Promise<BodyCustomDataBundle> {
     let templateTypes: ContentTemplateTypes | undefined
     if (this.payload.contentSid) {
@@ -204,44 +202,51 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     const badgeAmount = this.payload.customizations?.badgeAmount ?? 1
     const badgeStrategy = this.payload.customizations?.badgeStrategy ?? 'inc'
 
-    const customData: Record<string, unknown> = this.removeEmpties({
-      ...this.payload.customArgs,
-      space_id: this.settings.spaceId,
-      badgeAmount,
-      badgeStrategy,
-      media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-      deepLink: this.payload.customizations?.deepLink,
-      tapActionButtons: this.payload.customizations?.tapActionButtons
-    })
+    try {
+      const customData: Record<string, unknown> = this.removeEmpties({
+        ...this.payload.customArgs,
+        space_id: this.settings.spaceId,
+        badgeAmount,
+        badgeStrategy,
+        media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
+        deepLink: this.payload.customizations?.deepLink,
+        tapActionButtons: this.payload.customizations?.tapActionButtons
+      })
 
-    const body = this.removeEmpties({
-      Body: parsedTemplateContent.body,
-      Action: this.payload.customizations?.tapAction,
-      Title: parsedTemplateContent.title,
-      Sound: this.payload.customizations?.sound,
-      Priority: this.payload.customizations?.priority,
-      TimeToLive: this.payload.customizations?.ttl,
-      FcmPayload: this.removeEmpties({
-        mutable_content: true,
-        notification: {
-          badge: badgeAmount
+      const body = this.removeEmpties({
+        Body: parsedTemplateContent.body,
+        Action: this.payload.customizations?.tapAction,
+        Title: parsedTemplateContent.title,
+        Sound: this.payload.customizations?.sound,
+        Priority: this.payload.customizations?.priority,
+        TimeToLive: this.payload.customizations?.ttl,
+        FcmPayload: this.removeEmpties({
+          mutable_content: true,
+          notification: {
+            badge: badgeAmount
+          }
+        }),
+        ApnPayload: {
+          aps: {
+            'mutable-content': 1,
+            badge: badgeAmount
+          }
         }
-      }),
-      ApnPayload: {
-        aps: {
-          'mutable-content': 1,
-          badge: badgeAmount
-        }
-      }
-    })
+      })
 
-    const requestBody = new URLSearchParams({
-      ...body,
-      FcmPayload: JSON.stringify(body.FcmPayload),
-      ApnPayload: JSON.stringify(body.ApnPayload)
-    })
+      const requestBody = new URLSearchParams({
+        ...body,
+        FcmPayload: JSON.stringify(body.FcmPayload),
+        ApnPayload: JSON.stringify(body.ApnPayload)
+      })
 
-    return { requestBody, customData }
+      return { requestBody, customData }
+    } catch (error: unknown) {
+      this.rethrowIntegrationError(
+        error,
+        () => new PayloadValidationError('Unable to construct Notify API request body')
+      )
+    }
   }
 
   /*

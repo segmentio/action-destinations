@@ -1,15 +1,17 @@
 import { IntegrationError } from '@segment/actions-core'
-import { TryCatchFinallyContext, TryCatchFinallyHook } from '../operationTracking'
+import { OperationErrorHandler, TryCatchFinallyContext, TryCatchFinallyHook } from '../operationTracking'
+import { TwilioApiError } from './types'
 
 export type IntegrationErrorWrapperContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
     decoratorArgs?: {
-      wrapIntegrationError?: ((ctx: TContext) => IntegrationError) | ConstructorParameters<typeof IntegrationError>
+      wrapIntegrationError?: (ctx: TContext) => IntegrationError | ConstructorParameters<typeof IntegrationError>
     }
   }
 
 /**
- * Lets to simply wrap errors into IntegrationError right from the track decorator
+ * Lets to wrap errors into IntegrationError right from the track decorator.
+ * After wrapping it tries to replace status with the one from the original error's response object if it exists.
  */
 export class IntegrationErrorWrapper {
   static getTryCatchFinallyHook(
@@ -18,17 +20,31 @@ export class IntegrationErrorWrapper {
     return this
   }
   static onCatch(ctx: IntegrationErrorWrapperContext) {
-    const args = ctx.decoratorArgs?.wrapIntegrationError
-    if (ctx.decoratorArgs?.wrapIntegrationError) {
-      const error = ctx.error
-      if (!(error instanceof IntegrationError)) {
-        if (args instanceof Function) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          ctx.error = args(ctx)
-        } else if (args instanceof Array) {
-          ctx.error = new IntegrationError(...(args as ConstructorParameters<typeof IntegrationError>))
+    const getWrapper = ctx.decoratorArgs?.wrapIntegrationError
+    if (!getWrapper) return
+    ctx.error = this.wrap(ctx.error, () => getWrapper(ctx), ctx)
+  }
+
+  static wrap<TContext extends TryCatchFinallyContext>(
+    error: unknown,
+    getWrapper: () => IntegrationError | ConstructorParameters<typeof IntegrationError>,
+    ctx?: TContext
+  ) {
+    return OperationErrorHandler.wrap(
+      error,
+      () => {
+        if (error instanceof IntegrationError) return error
+        const wrapper = getWrapper()
+        const resultError = (Array.isArray(wrapper) ? new IntegrationError(...wrapper) : wrapper) as TwilioApiError
+
+        //trying to get original error status from Response if esist. If there is one, we set it to the result error
+        const responseErrorStatus = resultError.response?.data?.status
+        if (responseErrorStatus) {
+          resultError.status = responseErrorStatus
         }
-      }
-    }
+        return resultError
+      },
+      ctx
+    )
   }
 }

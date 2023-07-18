@@ -11,6 +11,7 @@ import { track, OperationContext } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { MessageLogger } from './MessageLogger'
 import { MessageStats } from './MessageStats'
+import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 
 const Liquid = new LiquidJs()
 
@@ -173,7 +174,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   }
 
   @track({
-    wrapIntegrationError: ['Unable to fetch content template', 'Twilio Content API request failure', 500]
+    wrapIntegrationError: () => ['Unable to fetch content template', 'Twilio Content API request failure', 500]
   })
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
     if (!this.payload.contentSid) {
@@ -252,6 +253,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
 
     return null
+  }
+
+  rethrowIntegrationError(
+    error: unknown,
+    getWrapper: () => IntegrationError | ConstructorParameters<typeof IntegrationError>
+  ): never {
+    throw IntegrationErrorWrapper.wrap(error, getWrapper, this.currentOperation)
   }
 }
 

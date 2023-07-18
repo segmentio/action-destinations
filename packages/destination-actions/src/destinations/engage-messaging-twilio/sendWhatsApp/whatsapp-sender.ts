@@ -50,7 +50,7 @@ export class WhatsAppMessageSender extends PhoneMessage<Payload> {
   }
 
   @track({
-    wrapIntegrationError: [
+    wrapIntegrationError: () => [
       `Unable to parse templating in content variables`,
       `Content variables templating parse failure`,
       400

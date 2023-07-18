@@ -17,26 +17,45 @@ export class OperationErrorHandler {
   }
 
   static onCatch(ctx: OperationErrorHandlerContext) {
-    const origError = ctx.error
     const dArgs = ctx.decoratorArgs
-    let trackedError = origError as TrackedError
 
-    // onError callback can wrap the error, modify it, add new tags, logs etc
-    dArgs?.onError?.apply(this, [ctx])
+    // attaches underlyingError to the wrapper, trackedContext etc
+    ctx.error = this.wrap(
+      ctx.error,
+      () => {
+        // onError callback can wrap the error, modify it, remove it, change props, add logs/stats of the ctx operation, etc.
+        dArgs?.onError?.apply(this, [ctx])
+        return ctx.error as TrackedError
+      },
+      ctx
+    )
+  }
 
-    // if error was wrapped, we want wrappedError.underlyingError = originalError
-    if (ctx.error !== origError) {
-      trackedError = ctx.error as TrackedError
-      trackedError.underlyingError = origError
-    }
+  static wrap<TContext extends OperationErrorHandlerContext = OperationErrorHandlerContext>(
+    originalError: unknown,
+    getWrapper: (e: unknown) => unknown | undefined,
+    ctx?: TContext
+  ) {
+    const wrapper = getWrapper(originalError) as TrackedError
+    // if error was wrapped, we want wrapper.underlyingError = originalError
+    if (wrapper && originalError !== wrapper) wrapper.underlyingError = originalError
+
+    const trackedError = wrapper
+    if (!trackedError) return //in case onError handler removed the error
+
+    if (!ctx) return
+
+    // if trackedContext is not assigned yet, assign it now
     if (!trackedError.trackedContext) trackedError.trackedContext = ctx
 
     // need to make sure trackedError.trackedContext is not enumerable, because this will cause JSON.stringify to fail with circular reference
-    const ctxProp = Object.getOwnPropertyDescriptor(trackedError, 'trackedContext')
-    if (ctxProp?.enumerable) {
+    const trackedContextProp = Object.getOwnPropertyDescriptor(trackedError, 'trackedContext')
+    if (trackedContextProp?.enumerable) {
       //to make sure the operation context is not JSON.stringified with error
-      ctxProp.enumerable = false
-      Object.defineProperty(trackedError, 'trackedContext', ctxProp)
+      trackedContextProp.enumerable = false
+      Object.defineProperty(trackedError, 'trackedContext', trackedContextProp)
     }
+
+    return wrapper
   }
 }
