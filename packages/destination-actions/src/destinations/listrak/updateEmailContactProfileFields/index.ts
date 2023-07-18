@@ -17,7 +17,7 @@ type RequestsByListId = { [k: number]: ContactSegmentationFieldValues[] }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Email Contact Profile Fields',
-  description: '',
+  description: 'One or more list imports will be started to update the specified contact profile fields on the specified list.',
   fields: {
     listId: {
       label: 'List ID',
