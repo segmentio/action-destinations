@@ -245,7 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    return new PushSender(request, data).send()
+    return new PushSender(request, data).perform()
   }
 }
 

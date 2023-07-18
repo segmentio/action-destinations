@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
+import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
@@ -115,10 +115,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           settingsOverrides: { webhookUrl: 'foo' }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: WHATSAPP invalid webhook url`),
-        expect.any(String)
-      )
+      expectErrorLogged('getWebhookUrlWithParams failed')
     })
   })
   describe('subscription handling', () => {
@@ -167,7 +164,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+    it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
       const randomSubscriptionStatusPhrase = 'some-subscription-enum'
 
       const expectedTwilioRequest = new URLSearchParams({
@@ -193,14 +190,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }
       })
       expect(responses).toHaveLength(0)
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: WHATSAPP Invalid subscription statuses found in externalIds'),
-        expect.anything()
-      )
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('TE Messaging: WHATSAPP Not sending message, because sendabilityStatus'),
-        expect.anything()
-      )
+      expectInfoLogged('Invalid subscription statuses found in externalIds')
+      expectInfoLogged('Not sending message, because sendabilityStatus')
     })
 
     it('formats the to number correctly for whatsapp', async () => {
@@ -234,13 +225,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
         }
       })
-      await expect(response).rejects.toThrowError(
-        'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.'
-      )
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP invalid phone number - ${spaceId}`)),
-        expect.anything()
-      )
+      await expect(response).rejects.toThrowError('Phone number must be able to be formatted to e164 for whatsapp')
+      expectErrorLogged('Phone number must be able to be formatted to e164 for whatsapp')
     })
 
     it('throws an error when liquid template parsing fails', async () => {
@@ -256,12 +242,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }
       })
       await expect(response).rejects.toThrowError('Unable to parse templating in content variables')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: WHATSAPP Failed to parse template with content variables - ${spaceId}`)
-        ),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to parse templating in content variables')
     })
 
     it('throws an error when Twilio API request fails', async () => {
@@ -276,10 +257,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const response = testAction()
       await expect(response).rejects.toThrowError()
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: WHATSAPP Twilio Programmable API error - ${spaceId}`)),
-        expect.anything()
-      )
+      expectErrorLogged('Bad Request')
     })
 
     it('formats and sends content variables', async () => {
