@@ -33,10 +33,10 @@ const destination: DestinationDefinition<Settings> = {
       const externalIdKey = 'id'
       const { audienceName } = createAudienceInput
 
-      // @ts-ignore TODO will remove exception when audienceSettings work concludes
+      // @ts-ignore TODO: Remove when audienceSettings work concludes
       const { adAccountId, audienceDescription } = createAudienceInput.audienceSettings
 
-      // @ts-ignore TODO until I figure out how to read Auth Tokens from these kind of requests.
+      // @ts-ignore TODO: Remove when we start to read the token from the DB
       const accessToken = createAudienceInput.accessToken
 
       if (!audienceName) {
