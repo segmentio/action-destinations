@@ -34,7 +34,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Prodeology',
+  name: 'actions-prodeology',
   slug: 'prodeology-actions',
   mode: 'cloud',
 
