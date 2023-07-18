@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender } from '../utils/message-sender'
+import { MessageSender, track } from '../utils'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { SendabilityStatus } from '../utils'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -36,7 +37,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
   async doSend() {
     if (!this.payload.send) {
       this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-      this.stats('incr', 'send_disabled', 1)
+      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.SendDisabled)
       return
     }
     // we send notifications to every eligible device (subscribed and of a push type)
@@ -49,18 +50,20 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       ) || []
 
     if (recipientDevices.length) {
-      this.stats('incr', 'subscribed', 1)
+      this.statsIncr('subscribed', 1)
     }
 
     const totalUnsubscribed = allPushDevices.length - recipientDevices.length
     if (totalUnsubscribed > 0) {
-      this.stats('incr', 'notsubscribed', totalUnsubscribed)
+      this.statsIncr('notsubscribed', totalUnsubscribed)
     }
 
     if (!recipientDevices?.length) {
       this.logInfo(`not sending push notification, no devices are subscribed - ${this.settings.spaceId}`)
+      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.NotSubscribed)
       return
     }
+    this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.ShouldSend)
 
     const { requestBody, customData } = await this.getBody()
     const twilioHostname = this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
@@ -111,7 +114,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           body.append('DeliveryCallbackUrl', webhookUrl)
         }
 
-        this.stats('set', 'message_body_size', body?.toString().length)
+        this.statsSet('message_body_size', body?.toString().length)
 
         const response = await this.request(
           `https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`,
@@ -124,8 +127,6 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           }
         )
 
-        this.tags.push(`twilio_status_code:${response.status}`)
-        this.stats('incr', 'response', 1)
         responses.push(response)
       } catch (error: unknown) {
         /* on unexpected fail, do not block rest of phones from receiving push notification
@@ -133,9 +134,11 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
          * if we do, we run the risk of spamming devices that succeeded with centrifuge retries
          * it's accepted that the user received the notification since all devices in externalIds belong to them
          */
+        let errorResponse = undefined
         if (error instanceof Object) {
           const apiError = error as PushApiError
-          responses.push(apiError.response)
+          errorResponse = apiError.response
+          responses.push(errorResponse)
 
           // we set a flag to retry only if a non-retryable status has not been encountered already
           const errorStatus = apiError.response?.status ?? apiError.response?.data?.status
@@ -146,9 +149,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
           failureIsRetryable = false
         }
 
-        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id) })
-        this.logDetails['failed-recipient-devices'] = failedSends
-        this.getRethrowableError(error, 'Twilio Push API')
+        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id), error, response: errorResponse })
       }
     }
 
@@ -156,27 +157,30 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
      * if every device failed to send, lets attempt to retry if possible
      */
     if (failedSends.length === recipientDevices.length) {
-      this.logError(`failed to send to all subscribed devices - ${this.settings.spaceId}`)
+      //This statement wont be reached if recipientDevices.length = 0
       if (failureIsRetryable) {
-        throw new RetryableError('Unexpected response from Twilio Push API')
+        throw new RetryableError(
+          'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0])
+        )
       }
 
       throw new IntegrationError(
-        'Unexpected response from Twilio Push API',
+        'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0]),
         'UNEXPECTED_ERROR',
         responses.find((resp) => !this.retryableStatusCodes.includes(resp.status))?.status || 400
       )
     }
 
-    this.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
-    this.tags.push(`total_failed:${failedSends.length}`)
+    this.currentOperation?.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
+    this.currentOperation?.tags.push(`total_failed:${failedSends.length}`)
     if (this.payload.eventOccurredTS != undefined) {
-      this.stats('histogram', 'eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
+      this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
     }
 
     return responses
   }
 
+  @track()
   async getBody(): Promise<BodyCustomDataBundle> {
     let templateTypes: ContentTemplateTypes | undefined
     if (this.payload.contentSid) {
@@ -237,11 +241,11 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
       })
 
       return { requestBody, customData }
-    } catch (error) {
-      this.tags.push('reason:invalid_payload')
-      this.stats('incr', 'error', 1)
-      this.logError(`unable to construct Notify API request body - ${this.settings.spaceId}`, JSON.stringify(error))
-      throw new PayloadValidationError('Unable to construct Notify API request body')
+    } catch (error: unknown) {
+      this.rethrowIntegrationError(
+        error,
+        () => new PayloadValidationError('Unable to construct Notify API request body')
+      )
     }
   }
 

@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'trackEvent'
-const destinationSlug = 'Insider'
+const actionSlug = 'submitMeasurements'
+const destinationSlug = 'm3ter'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -33,7 +33,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
@@ -67,7 +66,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {

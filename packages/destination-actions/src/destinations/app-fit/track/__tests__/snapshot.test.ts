@@ -1,11 +1,11 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import nock from 'nock'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
-import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'trackEvent'
-const destinationSlug = 'Insider'
+const actionSlug = 'track'
+const destinationSlug = 'AppFit'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -33,7 +33,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
@@ -67,7 +66,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
