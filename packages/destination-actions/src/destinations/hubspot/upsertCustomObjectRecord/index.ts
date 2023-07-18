@@ -235,7 +235,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
       }
     )
     const choices = response?.data?.results?.map((res) => ({
-      label: !res.label ? `Unlabeled Association (Type ${res.typeId})` : res.label,
+      label: !res.label ? `Unlabeled Associations (Type ${res.typeId})` : res.label,
       value: JSON.stringify({ associationCategory: res.category, associationTypeId: res.typeId })
     }))
     return {
