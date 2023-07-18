@@ -69,4 +69,8 @@ export interface Payload {
   income?: {
     [k: string]: unknown
   }
+  /**
+   * When enabled the action will send multiple events in a single API request, improving efficiency. This is m3ter’s recommended mode.
+   */
+  enable_batching: boolean
 }
