@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { getApiServerUrl, getConcatenatedName } from '../utils'
-import { MixpanelEngageProperties, MixpanelEngageSet, MixpanelIncrementPropertyObject } from '../mixpanel-types'
+import { MixpanelEngageProperties, MixpanelEngageSet } from '../mixpanel-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -43,27 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Properties to set on the user profile',
       default: {
         '@path': '$.traits'
-      }
-    },
-    $add: {
-      label: 'Increment Numerical Properties',
-      type: 'object',
-      multiple: true,
-      description:
-        'Increment the value of a user profile property. Learn more about [Incrementing Numerical Properties](https://developer.mixpanel.com/reference/profile-numerical-add).',
-      properties: {
-        property: {
-          label: 'Property Name',
-          type: 'string',
-          description: 'Property to increment',
-          required: true
-        },
-        value: {
-          label: 'Increment Value',
-          type: 'number',
-          description: 'Positive or negative amount to increment',
-          required: true
-        }
       }
     }
   },
@@ -110,8 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
           'lastName',
           'name',
           'username',
-          'phone',
-          '$add'
+          'phone'
         ]),
         // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
         $created: payload.traits.created ?? payload.traits.createdAt ?? payload.traits.created_at,
@@ -128,16 +106,6 @@ const action: ActionDefinition<Settings, Payload> = {
         $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
-      }
-
-      if (Array.isArray(payload.$add)) {
-        data.$add = {} as MixpanelIncrementPropertyObject
-        for (const item of payload.$add) {
-          const { property, value } = item
-          if (!isNaN(value)) {
-            data.$add[property] = value
-          }
-        }
       }
 
       const engageResponse = request(`${apiServerUrl}/engage`, {

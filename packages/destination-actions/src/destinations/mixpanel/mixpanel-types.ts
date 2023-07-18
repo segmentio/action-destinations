@@ -65,12 +65,9 @@ export type MixpanelEngageSet = {
   $phone?: unknown
 } & { [key: string]: unknown }
 
-export type MixpanelIncrementPropertyObject = { [key: string]: number }
-
 export type MixpanelEngageProperties = {
   $token: string
   $distinct_id?: string | null
   $ip?: string
   $set?: MixpanelEngageSet
-  $add?: MixpanelIncrementPropertyObject
 }
