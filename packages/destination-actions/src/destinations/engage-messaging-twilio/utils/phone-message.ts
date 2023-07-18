@@ -63,7 +63,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
     this.statsSet('message_body_size', body?.toString().length)
 
-    const response = await this.request(
+    let response = await this.request(
       `https://${twilioHostname}/2010-04-01/Accounts/${this.settings.twilioAccountSID}/Messages.json`,
       {
         method: 'POST',
@@ -73,6 +73,13 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
         body
       }
     )
+
+    if (!response.status) {
+      response = {
+        ...response,
+        status: 500
+      }
+    }
 
     if (this.payload.eventOccurredTS != undefined) {
       this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
