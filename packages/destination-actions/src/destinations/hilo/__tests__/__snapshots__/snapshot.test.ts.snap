@@ -9,7 +9,7 @@ Object {
     "properties": Object {
       "testType": "9d(zYY&)B6ax[@hMB[X]",
     },
-    "timestamp": "2106-12-02T21:20:41.678Z",
+    "timestamp": "2106-12-02T22:20:41.678Z",
   },
 }
 `;
@@ -18,7 +18,7 @@ exports[`Testing snapshot for actions-hilo destination: group action - required 
 Object {
   "event": Object {
     "account_id": "9d(zYY&)B6ax[@hMB[X]",
-    "timestamp": "2106-12-02T21:20:41.678Z",
+    "timestamp": "2106-12-02T22:20:41.678Z",
   },
 }
 `;
@@ -31,7 +31,7 @@ Object {
     "properties": Object {
       "testType": "v0P$nqSl4S",
     },
-    "timestamp": "2053-04-22T11:53:10.229Z",
+    "timestamp": "2053-04-22T13:53:10.229Z",
   },
 }
 `;
@@ -39,7 +39,7 @@ Object {
 exports[`Testing snapshot for actions-hilo destination: identify action - required fields 1`] = `
 Object {
   "event": Object {
-    "timestamp": "2053-04-22T11:53:10.229Z",
+    "timestamp": "2053-04-22T13:53:10.229Z",
   },
 }
 `;
@@ -53,7 +53,7 @@ Object {
     "properties": Object {
       "testType": "RANFnd",
     },
-    "timestamp": "2082-01-12T11:25:10.046Z",
+    "timestamp": "2082-01-12T12:25:10.046Z",
   },
 }
 `;
@@ -61,7 +61,7 @@ Object {
 exports[`Testing snapshot for actions-hilo destination: page action - required fields 1`] = `
 Object {
   "event": Object {
-    "timestamp": "2082-01-12T11:25:10.046Z",
+    "timestamp": "2082-01-12T12:25:10.046Z",
   },
 }
 `;
@@ -75,7 +75,7 @@ Object {
     "properties": Object {
       "testType": "B4jJ)Kv0S0$i5pbk",
     },
-    "timestamp": "2061-09-24T01:28:57.493Z",
+    "timestamp": "2061-09-24T03:28:57.493Z",
   },
 }
 `;
@@ -83,7 +83,7 @@ Object {
 exports[`Testing snapshot for actions-hilo destination: screen action - required fields 1`] = `
 Object {
   "event": Object {
-    "timestamp": "2061-09-24T01:28:57.493Z",
+    "timestamp": "2061-09-24T03:28:57.493Z",
   },
 }
 `;
@@ -97,7 +97,7 @@ Object {
     "properties": Object {
       "testType": "P]!Z4qn6]m!V8",
     },
-    "timestamp": "2079-07-31T18:41:45.222Z",
+    "timestamp": "2079-07-31T20:41:45.222Z",
   },
 }
 `;
@@ -105,7 +105,7 @@ Object {
 exports[`Testing snapshot for actions-hilo destination: track action - required fields 1`] = `
 Object {
   "event": Object {
-    "timestamp": "2079-07-31T18:41:45.222Z",
+    "timestamp": "2079-07-31T20:41:45.222Z",
   },
 }
 `;
