@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
-import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
+import { createMessagingTestEvent } from '../../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
 import { Logger } from '@segment/actions-core/destination-kit'
 
