@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
@@ -75,6 +75,16 @@ const action: ActionDefinition<Settings, Payload> = {
       email: payload.email,
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
+    }
+
+    const hubId = settings?.portalId
+    const regExp = /^pe\d+_.*/
+
+    if (!hubId && !regExp.exec(payload?.eventName)) {
+      throw new PayloadValidationError(`EventName should begin with pe<hubId>_`)
+    }
+    if (hubId && !payload?.eventName.startsWith(`pe${hubId}_`)) {
+      throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
     }
 
     if (!payload.utk && !payload.email && !payload.objectId) {
