@@ -5,7 +5,7 @@ import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
-import { TwilioApiError } from './TwilioApiError'
+import { ResponseError } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core/errors'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
@@ -37,7 +37,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const op = this.currentOperation
     op?.onFinally.push(() => {
       // log response from error or success
-      const respError = op?.error as TwilioApiError
+      const respError = op?.error as ResponseError
       const response = respError?.response || (op.result as Response)
       const response_code = response?.data?.code || respError?.code
       if (response_code) op.tags.push(`response_code:${response_code}`)

@@ -1,4 +1,4 @@
-export interface TwilioApiError extends Error {
+export interface ResponseError extends Error {
   response: {
     data: {
       code: number

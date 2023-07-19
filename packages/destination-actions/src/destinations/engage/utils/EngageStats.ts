@@ -9,7 +9,7 @@ import {
 } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
-import { TwilioApiError } from './TwilioApiError'
+import { ResponseError } from './ResponseError'
 
 export class EngageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
@@ -51,8 +51,8 @@ export class EngageStats extends OperationStats {
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
-        statsMethod ||
-        'incr' // have to do this to avoid issues with JS bundler/minifier
+      statsMethod ||
+      'incr' // have to do this to avoid issues with JS bundler/minifier
       ) {
         case 'incr':
           statsFunc = this.statsClient?.incr.bind(this.statsClient)
@@ -79,7 +79,7 @@ export class EngageStats extends OperationStats {
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res = super.extractTagsFromError(error, ctx)
 
-    const respError = error as TwilioApiError
+    const respError = error as ResponseError
     const error_code = respError?.response?.data?.code || respError?.code
     if (error_code) res.push(`error_code:${error_code}`)
 
