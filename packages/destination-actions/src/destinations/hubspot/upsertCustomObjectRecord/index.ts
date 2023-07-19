@@ -10,8 +10,8 @@ import {
   MultipleCustomRecordsInSearchResultToAssociateThrowableError
 } from '../errors'
 import {
+  AssociationCategory,
   AssociationType,
-  // AssociationType,
   CreateAssociation,
   flattenObject,
   GetAssociationLabelResponse,
@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       dynamic: true
     },
-    associationType: {
+    associationLabel: {
       label: 'Association Label',
       description: 'Type of Association between two objectType',
       type: 'string',
@@ -104,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
     toObjectType: async (request, { payload }) => {
       return getCustomObjects(request, [...defaultChoices, ...defaultToObjectTypeChoices], payload.objectType)
     },
-    associationType: async (request, { payload }) => {
+    associationLabel: async (request, { payload }) => {
       return getAssociationLabel(request, payload)
     }
   },
@@ -133,7 +133,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw e
     }
 
-    const parsedAssociationType: AssociationType | null = parseAssociationType(payload.associationType)
+    const parsedAssociationType: AssociationType | null = payload.associationLabel
+      ? parseAssociationType(payload.associationLabel)
+      : null
 
     // Get Custom object response on the basis of provided search fields to associate
     searchCustomResponseToAssociate = await hubspotApiClient.getObjectResponseToAssociate(
@@ -157,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const createNewCustomRecord = payload?.createNewCustomRecord ?? true
       // If Create New custom object record flag is set to false, skip creation
       if (!createNewCustomRecord) {
-        return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
+        return `[Testing in Logic]- ${payload.associationLabel}---- ${parsedAssociationType}--There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag`
       }
       const properties = { ...flattenObject(payload.properties) }
       upsertCustomRecordResponse = await hubspotApiClient.create(properties, association ? [association] : [])
@@ -172,11 +174,11 @@ const action: ActionDefinition<Settings, Payload> = {
         payload.properties
       )
       // If we have custom object record id to associate then associate it else don't associate
-      if (toCustomObjectId) {
+      if (toCustomObjectId && parsedAssociationType) {
         await hubspotApiClient.associate(searchCustomResponse.data.results[0].id, toCustomObjectId, [
           {
-            associationCategory: parsedAssociationType?.associationCategory,
-            associationTypeId: parsedAssociationType?.associationTypeId
+            associationCategory: parsedAssociationType.associationCategory,
+            associationTypeId: parsedAssociationType.associationTypeId
           }
         ])
       }
@@ -235,8 +237,8 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
       }
     )
     const choices = response?.data?.results?.map((res) => ({
-      label: !res.label ? `Unlabeled Association Type (Type ${res.typeId})` : res.label,
-      value: JSON.stringify({ associationCategory: res.category, associationTypeId: res.typeId })
+      label: !res.label ? `Unlabeled-Association-Type (Type ${res.typeId})` : res.label,
+      value: `${res.category}:${res.typeId}`
     }))
     return {
       choices
@@ -253,27 +255,26 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
 }
 
 function createAssociationObject(toCustomObjectId: string | null, associationType: AssociationType | null) {
-  if (toCustomObjectId) {
-    return {
-      to: {
-        id: toCustomObjectId
-      },
-      types: [
-        {
-          associationCategory: associationType?.associationCategory,
-          associationTypeId: associationType?.associationTypeId
-        }
-      ]
-    }
-  }
-  return null
+  return toCustomObjectId && associationType
+    ? {
+        to: {
+          id: toCustomObjectId
+        },
+        types: [
+          {
+            associationCategory: associationType.associationCategory,
+            associationTypeId: associationType.associationTypeId
+          }
+        ]
+      }
+    : null
 }
 
-function parseAssociationType(associationType: string | undefined) {
-  try {
-    return associationType ? JSON.parse(associationType) : null
-  } catch (err) {
-    return null
+function parseAssociationType(associationLabel: string): AssociationType {
+  const associationType = associationLabel.split(':')
+  return {
+    associationCategory: associationType[0] as AssociationCategory,
+    associationTypeId: Number(associationType[1])
   }
 }
 

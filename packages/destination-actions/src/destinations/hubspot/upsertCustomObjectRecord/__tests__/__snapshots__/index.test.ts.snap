@@ -9,7 +9,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertCustomObjectRecord Should only Upsert Custom Object record and would skip association if anyone of 'toObjectType , associationType and searchFieldsToAssociateCustomObjects' is not provided 1`] = `
+exports[`HubSpot.upsertCustomObjectRecord Should only Upsert Custom Object record and would skip association if anyone of 'toObjectType , associationLabel and searchFieldsToAssociateCustomObjects' is not provided 1`] = `
 Object {
   "properties": Object {
     "coupon_code": "TEST1234",

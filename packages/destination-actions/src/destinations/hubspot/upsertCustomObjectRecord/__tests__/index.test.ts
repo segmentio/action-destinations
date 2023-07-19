@@ -504,7 +504,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
+        associationLabel: 'HUBSPOT_DEFINED:279',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -614,7 +614,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
+        associationLabel: 'HUBSPOT_DEFINED:279',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -634,7 +634,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     expect(responses[3].options.json).toMatchSnapshot()
   })
 
-  it("Should only Upsert Custom Object record and would skip association if anyone of 'toObjectType , associationType and searchFieldsToAssociateCustomObjects' is not provided", async () => {
+  it("Should only Upsert Custom Object record and would skip association if anyone of 'toObjectType , associationLabel and searchFieldsToAssociateCustomObjects' is not provided", async () => {
     // Mock: Search Custom Object Record with custom Search Fields
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/${objectType}/search`)
@@ -774,7 +774,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         searchFieldsToAssociateCustomObjects: {
           shopping_code: 'test_1234'
         },
-        associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
+        associationLabel: 'HUBSPOT_DEFINED:279',
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -884,7 +884,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
           searchFieldsToAssociateCustomObjects: {
             shopping_code: 'test_1234'
           },
-          associationType: '{"associationCategory":"HUBSPOT_DEFINED","associationTypeId":279}',
+          associationLabel: 'HUBSPOT_DEFINED:279',
           properties: {
             coupon_code: {
               '@path': '$.properties.couponCode'

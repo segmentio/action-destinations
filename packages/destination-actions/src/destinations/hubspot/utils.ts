@@ -81,9 +81,15 @@ export interface SearchResponse {
 
 export interface UpsertRecordResponse extends ResponseInfo {}
 
+export enum AssociationCategory {
+  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
+  USER_DEFINED = 'USER_DEFINED',
+  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
+}
+
 export interface AssociationType {
-  associationCategory: string | unknown
-  associationTypeId: number | unknown
+  associationCategory: AssociationCategory
+  associationTypeId: number
 }
 export interface CreateAssociation {
   to: {
@@ -93,7 +99,7 @@ export interface CreateAssociation {
 }
 
 export interface AssociationLabel {
-  category: string
+  category: AssociationCategory
   typeId: number
   label: string
 }
