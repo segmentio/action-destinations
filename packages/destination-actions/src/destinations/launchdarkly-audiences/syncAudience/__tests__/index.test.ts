@@ -52,7 +52,7 @@ const badEvent = createTestEvent({
   }
 })
 
-describe('LaunchdarklyAudiences.syncAudience', () => {
+describe('LaunchDarklyAudiences.syncAudience', () => {
   it('should not throw an error if the audience creation succeed - track', async () => {
     nock(CONSTANTS.LD_API_BASE_URL).post(CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT).reply(204)
 

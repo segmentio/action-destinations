@@ -21,7 +21,7 @@ type AudienceBatchItem = {
 /**
  *
  * @param key snake-cased Audience key
- * @returns sentence cased version of the Audience key (used for the LaunchDarkly Segment name)
+ * @returns sentence sentence-cased version of the Audience key (used for the LaunchDarkly Segment name)
  */
 const snakeCaseToSentenceCase = (key: string) => {
   return (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ')
