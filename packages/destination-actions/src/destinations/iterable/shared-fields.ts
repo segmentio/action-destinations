@@ -193,4 +193,4 @@ export type CommerceItem = {
   }
 }
 
-export type Region = 'united_states' | 'europe'
+export type DataCenterLocation = 'united_states' | 'europe'

@@ -9,7 +9,7 @@ import {
   CAMPAGIN_ID_FIELD,
   TEMPLATE_ID_FIELD,
   EVENT_DATA_FIELDS,
-  Region
+  DataCenterLocation
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
 
@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
       createdAt: dayjs(payload.createdAt).unix()
     }
 
-    const endpoint = getRegionalEndpoint('trackEvent', settings.apiRegion as Region)
+    const endpoint = getRegionalEndpoint('trackEvent', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
       json: trackEventRequest

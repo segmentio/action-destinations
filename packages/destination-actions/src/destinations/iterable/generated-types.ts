@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * The region to send your data.
+   * The location where your Iterable data is hosted.
    */
-  apiRegion?: string
+  dataCenterLocation?: string
 }

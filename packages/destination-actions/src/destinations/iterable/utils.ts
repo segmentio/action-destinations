@@ -1,6 +1,6 @@
 import { omit } from '@segment/actions-core'
 import { Payload as UpdateCart } from './updateCart/generated-types'
-import { CommerceItem, Region } from './shared-fields'
+import { CommerceItem, DataCenterLocation } from './shared-fields'
 
 // Regular expression for matching ISO date strings in various formats
 // Taken from https://github.com/segmentio/isodate/blob/master/lib/index.js
@@ -96,14 +96,17 @@ export const apiEndpoints = {
 
 /**
  * Retrieves the regional API endpoint for a specific API action.
- * If the region provided is invalid or not specified, it defaults to 'united_states'.
+ * If the data center location provided is invalid or not specified, it defaults to 'united_states'.
  *
  * @param action The name of the API action.
- * @param region The region for data residency.
+ * @param dataCenterLocation The data center location for data residency.
  * @returns The regional API endpoint.
  */
-export function getRegionalEndpoint(action: keyof typeof apiEndpoints, region: Region = 'united_states'): string {
-  const regionEndpoint = regionEndpoints[region] || regionEndpoints['united_states']
+export function getRegionalEndpoint(
+  action: keyof typeof apiEndpoints,
+  dataCenterLocation: DataCenterLocation = 'united_states'
+): string {
+  const regionEndpoint = regionEndpoints[dataCenterLocation] || regionEndpoints['united_states']
   const endpoint = apiEndpoints[action]
   return regionEndpoint + endpoint
 }

@@ -12,7 +12,7 @@ describe('Iterable', () => {
 
       const settings = {
         apiKey: 'iterableApiKey',
-        apiRegion: 'united_states'
+        dataCenterLocation: 'united_states'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
@@ -23,7 +23,7 @@ describe('Iterable', () => {
 
       const settings = {
         apiKey: 'badApiKey',
-        apiRegion: 'united_states'
+        dataCenterLocation: 'united_states'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError(
@@ -36,14 +36,14 @@ describe('Iterable', () => {
 describe('getRegionalEndpoint', () => {
   test('should return the correct endpoint for a specific action and region', () => {
     const action = 'updateUser'
-    const apiRegion = 'europe'
+    const dataCenterLocation = 'europe'
     const expectedEndpoint = 'https://api.eu.iterable.com/api/users/update'
-    const endpoint = getRegionalEndpoint(action, apiRegion)
+    const endpoint = getRegionalEndpoint(action, dataCenterLocation)
 
     expect(endpoint).toBe(expectedEndpoint)
   })
 
-  test('should use the default region if no region is provided', () => {
+  test('should use the default dataCenterLocation if no dataCenterLocation is provided', () => {
     const action = 'updateCart'
     const expectedEndpoint = 'https://api.iterable.com/api/commerce/updateCart'
     const endpoint = getRegionalEndpoint(action)

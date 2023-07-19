@@ -7,7 +7,7 @@ import {
   USER_DATA_FIELDS,
   MERGE_NESTED_OBJECTS_FIELD,
   USER_PHONE_NUMBER_FIELD,
-  Region
+  DataCenterLocation
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
 
@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    const endpoint = getRegionalEndpoint('updateUser', settings.apiRegion as Region)
+    const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
       json: userUpdateRequest

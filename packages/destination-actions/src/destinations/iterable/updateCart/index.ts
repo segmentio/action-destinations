@@ -9,7 +9,7 @@ import {
   USER_DATA_FIELDS,
   USER_PHONE_NUMBER_FIELD,
   CommerceItem,
-  Region
+  DataCenterLocation
 } from '../shared-fields'
 import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
 
@@ -95,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
       items: transformItems(items)
     }
 
-    const endpoint = getRegionalEndpoint('updateCart', settings.apiRegion as Region)
+    const endpoint = getRegionalEndpoint('updateCart', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
       json: updateCartRequest
