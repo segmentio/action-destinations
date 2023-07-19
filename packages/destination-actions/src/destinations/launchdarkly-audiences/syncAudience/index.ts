@@ -9,9 +9,9 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     custom_audience_name: {
-      label: 'Custom Audience Name',
-      description: 'Name of custom audience list to which user identifier should added/removed',
-      type: 'string',
+      label: 'Audience Key',
+      description: 'Segment Audience key to which user identifier should added/removed',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -20,16 +20,18 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_computation_action: {
       label: 'Segment Computation Action',
       description: "Segment computation class used to determine if action is an 'Engage-Audience'",
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.context.personas.computation_class'
       }
     },
+
+    // Consider deleting context_kind until the syncedSegment capability supports it
     context_kind: {
       label: 'Context kind',
       description: 'LaunchDarkly context kind',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: 'user',
       choices: [{ label: 'User', value: 'user' }]

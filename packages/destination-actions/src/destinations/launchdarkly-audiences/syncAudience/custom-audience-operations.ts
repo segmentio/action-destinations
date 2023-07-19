@@ -19,6 +19,15 @@ type AudienceBatchItem = {
 }
 
 /**
+ *
+ * @param key snake-cased Audience key
+ * @returns sentence cased version of the Audience key (used for the LaunchDarkly Segment name)
+ */
+const snakeCaseToSentenceCase = (key: string) => {
+  return (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ')
+}
+
+/**
  * Creates a context payload that can be consumed by LaunchDarkly's segment targeting api
  * @param contextKey contextKey Context key
  * @param audienceId audience id
@@ -26,13 +35,13 @@ type AudienceBatchItem = {
  */
 const createContextForBatch = (contextKey: string, audienceId: string, include: boolean) => ({
   userId: contextKey,
-  cohortName: audienceId,
+  cohortName: snakeCaseToSentenceCase(audienceId),
   cohortId: audienceId,
   value: include
 })
 
 /**
- * getCustomAudienceOperations parses event payloads from segment to convert to request object for launchdarkly api
+ * getCustomAudienceOperations parses event payloads from Segment to convert to request object for launchdarkly api
  * @param payload payload of events
  * @param settings user configured settings
  */
@@ -84,13 +93,16 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
  * and then pushes the event to proper list to build request body.
  * @param request request object used to perform HTTP calls
  * @param settings user configured settings
- * @param events array of events containing Rokt custom audience details
+ * @param events array of events containing LaunchDarkly segment details
  */
 async function processPayload(request: RequestClient, settings: Settings, events: Payload[]) {
   const audienceBatches: AudienceBatch[] = parseCustomAudienceBatches(events, settings)
   const promises = []
 
   for (const batch of audienceBatches) {
+    if (batch.batch.length === 0) {
+      continue
+    }
     const ldRequest = request(CONSTANTS.LD_API_BASE_URL + CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT, {
       method: 'POST',
       json: batch

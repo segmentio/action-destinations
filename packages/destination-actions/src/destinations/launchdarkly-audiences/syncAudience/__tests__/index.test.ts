@@ -5,7 +5,8 @@ import { CONSTANTS } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
-const goodEvent = createTestEvent({
+const goodTrackEvent = createTestEvent({
+  type: 'track',
   context: {
     personas: {
       computation_class: 'audience',
@@ -15,10 +16,25 @@ const goodEvent = createTestEvent({
       email: 'test@email.com'
     }
   },
-  traits: {
-    email: 'test@email.com',
+  properties: {
+    audience_key: 'ld_segment_test',
     ld_segment_test: true
   }
+})
+
+const goodIdentifyEvent = createTestEvent({
+  type: 'identify',
+  context: {
+    personas: {
+      computation_class: 'audience',
+      computation_key: 'ld_segment_test'
+    }
+  },
+  traits: {
+    audience_key: 'ld_segment_test',
+    ld_segment_test: true
+  },
+  properties: undefined
 })
 
 const badEvent = createTestEvent({
@@ -30,19 +46,30 @@ const badEvent = createTestEvent({
       email: 'test@email.com'
     }
   },
-  traits: {
-    email: 'test@email.com',
+  properties: {
+    audience_key: 'ld_segment_test',
     ld_segment_test: true
   }
 })
 
 describe('LaunchdarklyAudiences.syncAudience', () => {
-  it('should not throw an error if the audience creation succeed', async () => {
+  it('should not throw an error if the audience creation succeed - track', async () => {
     nock(CONSTANTS.LD_API_BASE_URL).post(CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT).reply(204)
 
     await expect(
       testDestination.testAction('syncAudience', {
-        event: goodEvent,
+        event: goodTrackEvent,
+        useDefaultMappings: true
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should not throw an error if the audience creation succeed - identify', async () => {
+    nock(CONSTANTS.LD_API_BASE_URL).post(CONSTANTS.LD_API_CUSTOM_AUDIENCE_ENDPOINT).reply(204)
+
+    await expect(
+      testDestination.testAction('syncAudience', {
+        event: goodIdentifyEvent,
         useDefaultMappings: true
       })
     ).resolves.not.toThrowError()
@@ -53,7 +80,7 @@ describe('LaunchdarklyAudiences.syncAudience', () => {
 
     await expect(
       testDestination.testAction('syncAudience', {
-        event: goodEvent,
+        event: goodTrackEvent,
         useDefaultMappings: true
       })
     ).rejects.toThrowError('Bad Request')
@@ -73,7 +100,7 @@ describe('LaunchdarklyAudiences.syncAudience', () => {
 
     await expect(
       testDestination.testAction('syncAudience', {
-        event: goodEvent,
+        event: goodTrackEvent,
         useDefaultMappings: true
       })
     ).rejects.toThrowError('Forbidden')

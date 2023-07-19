@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of custom audience list to which user identifier should added/removed
+   * Segment Audience key to which user identifier should added/removed
    */
   custom_audience_name: string
   /**
