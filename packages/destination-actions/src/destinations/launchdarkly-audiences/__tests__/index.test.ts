@@ -5,7 +5,7 @@ import { CONSTANTS } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
-describe('Launchdarkly Audiences', () => {
+describe('LaunchDarkly Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       const authData = {

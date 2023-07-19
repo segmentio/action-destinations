@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Segment Audience key to which user identifier should added/removed
+   * Segment Audience key to which user identifier should be added or removed
    */
   custom_audience_name: string
   /**
@@ -18,7 +18,7 @@ export interface Payload {
    */
   context_key: string
   /**
-   * A computed object for track and identify events - this field should not need to be edited.
+   * A computed object for track and identify events. This field should not need to be edited.
    */
   traits_or_props: {
     [k: string]: unknown

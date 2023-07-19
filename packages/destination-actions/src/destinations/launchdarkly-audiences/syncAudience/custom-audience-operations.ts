@@ -30,7 +30,7 @@ const snakeCaseToSentenceCase = (key: string) => {
 /**
  * Creates a context payload that can be consumed by LaunchDarkly's segment targeting api
  * @param contextKey contextKey Context key
- * @param audienceId audience id
+ * @param audienceId audience ID
  * @param include include or exclude the context from LaunchDarkly's segment
  */
 const createContextForBatch = (contextKey: string, audienceId: string, include: boolean) => ({
@@ -41,7 +41,7 @@ const createContextForBatch = (contextKey: string, audienceId: string, include: 
 })
 
 /**
- * getCustomAudienceOperations parses event payloads from Segment to convert to request object for launchdarkly api
+ * getCustomAudienceOperations parses event payloads from Segment to convert to request object for LaunchDarkly API
  * @param payload payload of events
  * @param settings user configured settings
  */

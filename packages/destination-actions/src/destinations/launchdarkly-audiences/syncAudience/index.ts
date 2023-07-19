@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     custom_audience_name: {
       label: 'Audience Key',
-      description: 'Segment Audience key to which user identifier should added/removed',
+      description: 'Segment Audience key to which user identifier should be added or removed',
       type: 'hidden',
       required: true,
       default: {
@@ -49,8 +49,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     traits_or_props: {
-      label: 'traits or properties object',
-      description: 'A computed object for track and identify events - this field should not need to be edited.',
+      label: 'Traits or properties object',
+      description: 'A computed object for track and identify events. This field should not need to be edited.',
       type: 'object',
       required: true,
       default: {
