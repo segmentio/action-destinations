@@ -51,8 +51,8 @@ export class EngageStats extends OperationStats {
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
-      statsMethod ||
-      'incr' // have to do this to avoid issues with JS bundler/minifier
+        statsMethod ||
+        'incr' // have to do this to avoid issues with JS bundler/minifier
       ) {
         case 'incr':
           statsFunc = this.statsClient?.incr.bind(this.statsClient)
@@ -70,10 +70,11 @@ export class EngageStats extends OperationStats {
           break
       }
 
-    statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
-      ...(this.actionPerformer.executeInput.statsContext?.tags || []),
-      ...(tags ?? [])
-    ])
+    statsFunc?.(
+      `${this.actionPerformer.getIntegrationStatsName()}.${metric}`,
+      typeof value === 'undefined' ? 1 : value,
+      [...(this.actionPerformer.executeInput.statsContext?.tags || []), ...(tags ?? [])]
+    )
   }
 
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {

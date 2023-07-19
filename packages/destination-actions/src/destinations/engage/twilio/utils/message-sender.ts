@@ -14,6 +14,9 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   Settings,
   MessagePayload
 > {
+  getIntegrationStatsName(): string {
+    return 'actions_personas_messaging_twilio'
+  }
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]

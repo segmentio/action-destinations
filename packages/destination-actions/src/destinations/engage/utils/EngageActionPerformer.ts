@@ -30,6 +30,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   abstract doPerform(): MaybePromise<TReturn>
 
+  /**
+   * gets the name of the integration used as a prefix for all stats metrics under this Action Performer
+   */
+  abstract getIntegrationStatsName(): string
+  /**
+   * used for stats tag of all metrics under this performer + for all log messages
+   */
   abstract getChannelType(): string
 
   @track()
