@@ -1,8 +1,8 @@
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
-import { apiLookupLiquidKey } from '../utils/api-lookups'
-import { Profile } from '../utils/types'
+import { apiLookupLiquidKey } from '../previewApiLookup/api-lookups'
+import { Profile } from '../Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 export const Liquid = new LiquidJs()
 

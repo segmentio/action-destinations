@@ -1,10 +1,10 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { apiLookupActionFields, performApiLookup } from '../utils/api-lookups'
-import { Profile } from '../utils/types'
+import { apiLookupActionFields, performApiLookup } from './api-lookups'
+import { Profile } from '../Profile'
 
-const action: ActionDefinition<Settings, Payload> = {
+export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Perform a single API lookup',
   description: 'Perform a single API lookup and return the response',
   fields: {
@@ -27,5 +27,3 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   }
 }
-
-export default action
