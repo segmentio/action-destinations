@@ -9,7 +9,8 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Launchdarkly Audiences',
   slug: 'actions-launchdarkly-audiences',
   mode: 'cloud',
-  description: 'Sync [Segment Audiences](https://segment.com/docs/engage/audiences/) to LaunchDarkly [Big Segments](https://docs.launchdarkly.com/home/contexts/big-segments).',
+  description:
+    'Sync [Segment Audiences](https://segment.com/docs/engage/audiences/) to LaunchDarkly [Big Segments](https://docs.launchdarkly.com/home/contexts/big-segments).',
 
   authentication: {
     scheme: 'custom',
@@ -17,14 +18,14 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'LaunchDarkly Service Token',
         description:
-          'API Key used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization).',
+          'A service token used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization).',
         type: 'password',
         required: true
       },
       clientId: {
         label: 'LaunchDarkly client-side ID',
         description:
-          'Find and copy the [client-side ID](https://app.launchdarkly.com/settings/projects) in the LaunchDarkly account settings page.',
+          'Find and copy the [client-side ID](https://app.launchdarkly.com/settings/projects) of the environment for your segment in the LaunchDarkly account settings page.',
         type: 'string',
         required: true
       }

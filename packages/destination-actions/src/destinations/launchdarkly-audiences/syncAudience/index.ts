@@ -26,11 +26,10 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       }
     },
-
-    // Consider deleting context_kind until the syncedSegment capability supports it
     context_kind: {
       label: 'Context kind',
-      description: 'LaunchDarkly context kind',
+      description:
+        "The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).",
       type: 'hidden',
       required: true,
       default: 'user',
@@ -38,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     context_key: {
       label: 'Context key',
-      description: 'LaunchDarkly context key',
+      description: 'The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.',
       type: 'string',
       required: true,
       default: {
@@ -51,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits_or_props: {
       label: 'traits or properties object',
-      description: 'Object which will be computed differently for track and identify events',
+      description: 'A computed object for track and identify events - this field should not need to be edited.',
       type: 'object',
       required: true,
       default: {
