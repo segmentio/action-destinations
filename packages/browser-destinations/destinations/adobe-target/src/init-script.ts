@@ -3,11 +3,11 @@
 
 import { getPageParams } from './utils'
 
-export function initScript(settings) {
+export function initScript(_settings) {
   window.pageParams = {}
-  window.targetGlobalSettings = {
-    cookieDomain: settings.cookie_domain,
-    enabled: true
+
+  if (!window.targetGlobalSettings) {
+    console.log('Warning! window.targetGlobalSettings should be set before loading your Segment library.')
   }
 
   // DO NOT RENAME. This function is required by Adobe Target.

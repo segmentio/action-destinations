@@ -16,6 +16,13 @@ declare global {
   }
 }
 
+// Times to check for the at.js library
+// 2 seconds limit. Fail-safe afterward.
+const MAX_RETRY = 4
+
+// Time delay between at.js library load
+const LIBRARY_LOAD_DELAY = 500
+
 export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
   name: 'Adobe Target Web',
   slug: 'actions-adobe-target-web',
@@ -37,7 +44,7 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
       type: 'string'
     },
     version: {
-      label: 'ATJS Version',
+      label: 'ATJS Version', // Ignored when at.js library is self-hosted.
       description: 'The version of ATJS to use. Defaults to 2.8.0.',
       type: 'string',
       choices: [
@@ -67,13 +74,23 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
 
   initialize: async ({ settings }, deps) => {
     initScript(settings)
+    let dependencyCheckLimit = MAX_RETRY
 
-    const targetUrl = 'testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download'
-    const atjsUrl = `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
+    await deps.resolveWhen(() => {
+      dependencyCheckLimit--
 
-    await deps.loadScript(atjsUrl)
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'adobe'), 100)
-    return window.adobe
+      // If at.js library is never loaded fail silently.
+      // Don't throw exception as loading at.js can be blocked by an Ad-blocker.
+      // Throwing can result in a noisy destination.
+      // Return true to stop the eventListener from hanging.
+      if (!dependencyCheckLimit) {
+        return true
+      }
+
+      return Object.prototype.hasOwnProperty.call(window, 'adobe')
+    }, LIBRARY_LOAD_DELAY)
+
+    return window.adobe || {}
   },
 
   actions: {

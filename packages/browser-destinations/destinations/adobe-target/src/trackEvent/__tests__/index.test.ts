@@ -56,6 +56,9 @@ describe('Adobe Target Web', () => {
         subscriptions
       })
 
+      // Mock adobe object as it will be sourced from a self-hosted library
+      window.adobe = { target: { trackEvent: () => {}, triggerView: () => {} } }
+
       jest.spyOn(destination, 'initialize')
 
       destination.actions.trackEvent.perform = jest.fn(destination.actions.trackEvent.perform)
