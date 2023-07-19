@@ -1,7 +1,4 @@
-import type { RequestOptions } from '@segment/actions-core'
 import { Payload } from '../sendSms/generated-types'
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export interface ContentTemplateResponse {
   types: {

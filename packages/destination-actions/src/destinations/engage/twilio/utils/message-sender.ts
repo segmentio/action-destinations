@@ -4,7 +4,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, RequestClient, RequestOptions } from '@segment/actions-core'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
 import { track, OperationContext } from './track'
@@ -28,7 +28,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   readonly payload: MessagePayload
   readonly settings: Settings
 
-  constructor(readonly requestRaw: RequestFn, readonly executeInput: ExecuteInput<Settings, MessagePayload>) {
+  constructor(readonly requestRaw: RequestClient, readonly executeInput: ExecuteInput<Settings, MessagePayload>) {
     this.payload = executeInput.payload
     this.settings = executeInput.settings
     if (!this.settings.region) {
@@ -257,5 +257,3 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     throw IntegrationErrorWrapper.wrap(error, getWrapper, this.currentOperation)
   }
 }
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
