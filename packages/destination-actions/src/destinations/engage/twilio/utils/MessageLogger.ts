@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from '@segment/actions-core/destination-kit'
-import { OperationLogger, OperationLoggerContext, TryCatchFinallyHook } from '../../operationTracking'
+import { OperationLogger, OperationLoggerContext, TryCatchFinallyHook } from '../../utils/operationTracking'
 import { MessageSender } from './message-sender'
 
 export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'

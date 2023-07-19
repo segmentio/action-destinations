@@ -2,7 +2,7 @@
 import { MessageSender } from './message-sender'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { OperationDecorator, TrackedError } from '../../operationTracking'
+import { OperationDecorator, TrackedError } from '../../utils/operationTracking'
 import { OperationContext } from './track'
 
 export enum SendabilityStatus {

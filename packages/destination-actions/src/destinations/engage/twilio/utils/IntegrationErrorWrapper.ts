@@ -1,5 +1,5 @@
 import { IntegrationError } from '@segment/actions-core'
-import { OperationErrorHandler, TryCatchFinallyContext, TryCatchFinallyHook } from '../../operationTracking'
+import { OperationErrorHandler, TryCatchFinallyContext, TryCatchFinallyHook } from '../../utils/operationTracking'
 import { TwilioApiError } from './types'
 
 export type IntegrationErrorWrapperContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =

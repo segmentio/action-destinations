@@ -6,7 +6,7 @@ import {
   OperationStatsContext,
   TryCatchFinallyHook,
   TrackedError
-} from '../../operationTracking'
+} from '../../utils/operationTracking'
 import { MessageSender } from './message-sender'
 import { OperationContext } from './track'
 import { TwilioApiError } from './types'
