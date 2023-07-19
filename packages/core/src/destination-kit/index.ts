@@ -70,7 +70,7 @@ export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audienc
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
 
   audienceName: string
 }
@@ -78,7 +78,7 @@ export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> 
 export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
 
   externalId: string
 }
@@ -416,8 +416,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const context: ExecuteInput<Settings, any> = {
       settings: destinationSettings,
       payload: undefined,
-      auth,
-      audienceSettings: undefined
+      auth
     }
 
     // Validate settings according to the destination's `authentication.fields` schema
@@ -454,7 +453,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     // TODO: clean up context/extendRequest so we don't have to send information that is not needed (payload & cachedFields)
     const context: ExecuteInput<Settings, any> = {
       settings,
-      audienceSettings: undefined,
       payload: undefined,
       auth: getAuthData(settings as unknown as JSONObject)
     }
@@ -678,14 +676,12 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const data: ExecuteInput<Settings, DeletionPayload> = {
       payload,
       settings: destinationSettings,
-      auth,
-      audienceSettings: undefined
+      auth
     }
     const context: ExecuteInput<Settings, any> = {
       settings: destinationSettings,
       payload,
-      auth,
-      audienceSettings: undefined
+      auth
     }
 
     const opts = this.extendRequest?.(context) ?? {}

@@ -68,7 +68,7 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
   settings: Settings
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
   payload: Payload
   page?: string
   auth?: AuthTokens
@@ -77,7 +77,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any> {
   data: Data
   settings: T
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */

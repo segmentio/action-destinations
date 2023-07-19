@@ -325,7 +325,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 payload: req.body.payload || {},
                 page: req.body.page || 1,
                 auth: req.body.auth || {},
-                audienceSettings: req.body.audienceSettings
+                audienceSettings: req.body.audienceSettings || {}
               }
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)

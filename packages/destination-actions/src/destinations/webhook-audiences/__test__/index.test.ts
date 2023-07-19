@@ -21,7 +21,7 @@ describe('Webhook Audience Tests', () => {
     const expectedResponse = await testDestination.createAudience({
       audienceName: 'My Cool Audience',
       audienceSettings: {
-        extraSettings: JSON.stringify({ nice: 'ok' })
+        extras: JSON.stringify({ nice: 'ok' })
       },
       settings: { createAudienceUrl: fakeUrl }
     })
@@ -44,7 +44,7 @@ describe('Webhook Audience Tests', () => {
       externalId: 'abc123xyz',
       settings: { getAudienceUrl: fakeUrl },
       audienceSettings: {
-        extraSettings: JSON.stringify({ nice: 'ok' })
+        extras: JSON.stringify({ nice: 'ok' })
       }
     })
 
@@ -57,7 +57,7 @@ describe('Webhook Audience Tests', () => {
       context: {
         personas: {
           settings: {
-            extraSettings: JSON.stringify({ nice: 'ok' })
+            extras: JSON.stringify({ nice: 'ok' })
           }
         }
       }
