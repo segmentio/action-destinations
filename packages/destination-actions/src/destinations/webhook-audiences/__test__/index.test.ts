@@ -1,7 +1,7 @@
 import WebhookAudience from '../index'
 import { baseWebhookTests } from '../../webhook/__test__/webhook.test'
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 
 baseWebhookTests(WebhookAudience)
 
@@ -10,7 +10,8 @@ describe('Webhook Audience Tests', () => {
   it('creates an audience', async () => {
     const fakeUrl = 'http://segmentfake.xyz'
     const exampleRequest = {
-      audienceName: 'My Cool Audience'
+      audienceName: 'My Cool Audience',
+      nice: 'ok'
     }
     const exampleResponse = {
       externalId: 'abc123xyz'
@@ -19,6 +20,9 @@ describe('Webhook Audience Tests', () => {
 
     const expectedResponse = await testDestination.createAudience({
       audienceName: 'My Cool Audience',
+      audienceSettings: {
+        extraSettings: JSON.stringify({ nice: 'ok' })
+      },
       settings: { createAudienceUrl: fakeUrl }
     })
 
@@ -28,7 +32,8 @@ describe('Webhook Audience Tests', () => {
   it('gets an audience', async () => {
     const fakeUrl = 'http://segmentfake.xyz'
     const exampleRequest = {
-      externalId: 'abc123xyz'
+      externalId: 'abc123xyz',
+      nice: 'ok'
     }
     const exampleResponse = {
       externalId: 'abc123xyz'
@@ -37,9 +42,42 @@ describe('Webhook Audience Tests', () => {
 
     const expectedResponse = await testDestination.getAudience({
       externalId: 'abc123xyz',
-      settings: { getAudienceUrl: fakeUrl }
+      settings: { getAudienceUrl: fakeUrl },
+      audienceSettings: {
+        extraSettings: JSON.stringify({ nice: 'ok' })
+      }
     })
 
     expect(expectedResponse).toStrictEqual(exampleResponse)
+  })
+
+  it('send through audience extra settings', async () => {
+    const url = 'https://example.com'
+    const event = createTestEvent({
+      context: {
+        personas: {
+          settings: {
+            extraSettings: JSON.stringify({ nice: 'ok' })
+          }
+        }
+      }
+    })
+
+    nock(url)
+      .post('/')
+      .reply(200, (_, requestBody) => requestBody)
+
+    const responses = await testDestination.testAction('send', {
+      event,
+      mapping: {
+        url
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    const response = responses[0]
+    const json = await response.json()
+    expect(json['nice']).toBe('ok')
   })
 })
