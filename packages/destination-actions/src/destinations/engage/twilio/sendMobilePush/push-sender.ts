@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender, track } from '../utils'
+import { MessageSender, SendabilityStatus } from '../utils'
+import { track } from '../../utils'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { SendabilityStatus } from '../utils'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -34,7 +34,7 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     return 'mobilepush'
   }
 
-  async doSend() {
+  async send() {
     if (!this.payload.send) {
       this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
       this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.SendDisabled)

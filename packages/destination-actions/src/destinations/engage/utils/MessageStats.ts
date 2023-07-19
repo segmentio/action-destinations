@@ -7,27 +7,27 @@ import {
   TryCatchFinallyHook,
   TrackedError
 } from './operationTracking'
-import { MessageSender } from './message-sender'
+import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
 import { TwilioApiError } from './TwilioApiError'
 
 export class MessageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
-    const msgSender = _ctx.funcThis as MessageSender<any>
+    const msgSender = _ctx.funcThis as EngageActionPerformer
     return msgSender?.statsClient
   }
 
-  constructor(public messageSender: MessageSender<any>) {
+  constructor(public actionPerformer: EngageActionPerformer) {
     super()
   }
 
   onTry(ctx: OperationStatsContext): () => void {
     const res = super.onTry(ctx)
     ctx.sharedContext.tags.push(
-      `space_id:${this.messageSender.settings.spaceId}`,
-      `projectid:${this.messageSender.settings.sourceId}`,
-      `region:${this.messageSender.settings.region}`,
-      `channel:${this.messageSender.getChannelType()}`
+      `space_id:${this.actionPerformer.settings.spaceId}`,
+      `projectid:${this.actionPerformer.settings.sourceId}`,
+      `region:${this.actionPerformer.settings.region}`,
+      `channel:${this.actionPerformer.getChannelType()}`
     )
 
     //for operations like request which can be used in multiple places, we need to have operation_path tag that will show where this operation is invoked from
@@ -40,7 +40,7 @@ export class MessageStats extends OperationStats {
   }
 
   protected get statsClient(): StatsClient | undefined {
-    return this.messageSender.executeInput.statsContext?.statsClient
+    return this.actionPerformer.executeInput.statsContext?.statsClient
   }
   readonly tags: StatsContext['tags']
 
@@ -71,7 +71,7 @@ export class MessageStats extends OperationStats {
       }
 
     statsFunc?.(`actions_personas_messaging_twilio.${metric}`, typeof value === 'undefined' ? 1 : value, [
-      ...(this.messageSender.executeInput.statsContext?.tags || []),
+      ...(this.actionPerformer.executeInput.statsContext?.tags || []),
       ...(tags ?? [])
     ])
   }
@@ -101,6 +101,6 @@ export class MessageStats extends OperationStats {
   getOperationNameTag(ctx: OperationStatsContext) {
     if (!ctx) return undefined
     //we want to have full path to the operation so we can distiguish getBody::request vs perform::request
-    return this.messageSender.logger.getOperationName(ctx, true, '::') // '/' would be difficult to query in datadog, as it requires escaping
+    return this.actionPerformer.logger.getOperationName(ctx, true, '::') // '/' would be difficult to query in datadog, as it requires escaping
   }
 }

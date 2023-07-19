@@ -2,8 +2,7 @@
 import { MessageSender } from './message-sender'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { OperationDecorator, TrackedError } from '../../utils/operationTracking'
-import { OperationContext } from './track'
+import { OperationDecorator, TrackedError, OperationContext } from '../../utils'
 
 export enum SendabilityStatus {
   NoSenderPhone = 'no_sender_phone',
@@ -22,7 +21,7 @@ export abstract class PhoneMessage<Payload extends SmsPayload | WhatsappPayload>
 
   abstract getBody(phone: string): Promise<URLSearchParams>
 
-  async doSend() {
+  async send() {
     const { phone, sendabilityStatus } = this.getSendabilityPayload()
 
     this.currentOperation?.tags.push('sendability_status:' + sendabilityStatus)

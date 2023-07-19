@@ -4,62 +4,25 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
-import { IntegrationError, PayloadValidationError, RequestClient, RequestOptions } from '@segment/actions-core'
-import { ExecuteInput } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { TwilioApiError } from '../../utils/TwilioApiError'
-import { track, OperationContext } from '../../utils/track'
-import { isDestinationActionService } from '../../utils/isDestinationActionService'
-import { MessageLogger } from '../../utils/MessageLogger'
-import { MessageStats } from '../../utils/MessageStats'
-import { IntegrationErrorWrapper } from '../../utils/IntegrationErrorWrapper'
+import { track, EngageActionPerformer } from '../../utils'
 
 const Liquid = new LiquidJs()
 
-export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> {
-  readonly logger: MessageLogger = new MessageLogger(this)
-  readonly statsClient: MessageStats = new MessageStats(this)
-
-  readonly currentOperation: OperationContext | undefined
-
+export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> extends EngageActionPerformer<
+  Settings,
+  MessagePayload
+> {
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
   protected readonly supportedTemplateTypes: string[]
 
-  readonly payload: MessagePayload
-  readonly settings: Settings
+  abstract send(): Promise<Response | Response[] | object[] | undefined>
 
-  constructor(readonly requestRaw: RequestClient, readonly executeInput: ExecuteInput<Settings, MessagePayload>) {
-    this.payload = executeInput.payload
-    this.settings = executeInput.settings
-    if (!this.settings.region) {
-      this.settings.region = 'us-west-1'
-    }
-  }
-
-  @track()
-  async request(url: string, options: RequestOptions): Promise<Response> {
-    const op = this.currentOperation
-    op?.onFinally.push(() => {
-      // log response from error or success
-      const respError = op?.error as TwilioApiError
-      const response = respError?.response || (op.result as Response)
-      const response_code = response?.data?.code || respError?.code
-      if (response_code) op.tags.push(`response_code:${response_code}`)
-
-      const response_status = response?.data?.status || respError?.status
-      if (response_status) op.tags.push(`response_status:${response_status}`)
-    })
-    return this.requestRaw(url, options)
-  }
-
-  abstract getChannelType(): string
-  abstract doSend(): Promise<Response | Response[] | object[] | undefined>
-
-  @track()
-  async perform() {
+  async doPerform() {
     this.beforeSend()
-    return this.doSend()
+    return this.send()
   }
 
   /*
@@ -90,67 +53,13 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     return Object.fromEntries(parsedEntries)
   }
 
-  redactPii(pii: string | undefined) {
-    if (!pii) {
-      return pii
-    }
-
-    if (pii.length <= 8) {
-      return '***'
-    }
-    return pii.substring(0, 3) + '***' + pii.substring(pii.length - 3)
-  }
-
-  isFeatureActive(featureName: string, getDefault?: () => boolean) {
-    if (isDestinationActionService()) return true
-    if (!this.executeInput.features || !(featureName in this.executeInput.features)) return getDefault?.()
-    return this.executeInput.features[featureName]
-  }
-
-  logInfo(msg: string, metadata?: object) {
-    this.logger.logInfo(msg, metadata)
-  }
-  logError(msg: string, metadata?: object) {
-    this.logger.logError(msg, metadata)
-  }
-  /**
-   * Add a message to the log of current tracked operation, only if error happens during current operation. You can add some arguments here
-   * @param getLogMessage
-   */
-  logOnError(logMessage: string | ((ctx: OperationContext) => string)) {
-    const op = this.currentOperation
-    op?.onFinally.push(() => {
-      if (op.error) {
-        const msg = typeof logMessage === 'function' ? logMessage(op) : logMessage
-        op.logs.push(msg)
-      }
-    })
-  }
-
-  statsIncr(metric: string, value?: number, tags?: string[]) {
-    this.statsClient.stats({ method: 'incr', metric, value, tags })
-  }
-
-  statsHistogram(metric: string, value: number, tags?: string[]) {
-    this.statsClient.stats({ method: 'histogram', metric, value, tags })
-  }
-
-  statsSet(metric: string, value: number, tags?: string[]) {
-    this.statsClient.stats({ method: 'set', metric, value, tags })
-  }
-
-  get logDetails(): Record<string, unknown> {
-    return this.logger.logDetails
-  }
-
-  get tags(): string[] {
-    return this.statsClient.tags
-  }
-
   /**
    * populate the logDetails object with the data that should be logged for every message
    */
   beforeSend() {
+    if (!this.settings.region) {
+      this.settings.region = 'us-west-1'
+    }
     //overrideable
     Object.assign(this.logDetails, {
       externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
@@ -249,12 +158,5 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
     }
 
     return null
-  }
-
-  rethrowIntegrationError(
-    error: unknown,
-    getWrapper: () => IntegrationError | ConstructorParameters<typeof IntegrationError>
-  ): never {
-    throw IntegrationErrorWrapper.wrap(error, getWrapper, this.currentOperation)
   }
 }

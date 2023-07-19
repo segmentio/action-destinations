@@ -1,7 +1,7 @@
 import { Logger } from '@segment/actions-core/destination-kit'
 import { omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../../../lib/engage-test-data/create-messaging-test-event'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../../utils/MessageLogger'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../../../utils'
 import { createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Twilio from '../..'

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { PhoneMessage, track } from '../utils'
+import { PhoneMessage } from '../utils'
+import { track } from '../../utils'
 
 export class SmsMessageSender extends PhoneMessage<Payload> {
   protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']

@@ -3,7 +3,8 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { track, PhoneMessage } from '../utils'
+import { PhoneMessage } from '../utils'
+import { track } from '../../utils'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
