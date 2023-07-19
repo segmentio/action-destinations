@@ -193,4 +193,4 @@ export type CommerceItem = {
   }
 }
 
-export type Region = 'north_america' | 'europe'
+export type Region = 'united_states' | 'europe'

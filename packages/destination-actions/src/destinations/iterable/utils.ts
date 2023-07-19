@@ -82,35 +82,35 @@ export function transformItems(items: UpdateCart['items']): CommerceItem[] {
 
 export const apiEndpoints = {
   updateUser: {
-    north_america: 'https://api.iterable.com/api/users/update',
+    united_states: 'https://api.iterable.com/api/users/update',
     europe: 'https://api.eu.iterable.com/api/users/update'
   },
   trackEvent: {
-    north_america: 'https://api.iterable.com/api/events/track',
+    united_states: 'https://api.iterable.com/api/events/track',
     europe: 'https://api.eu.iterable.com/api/events/track'
   },
   updateCart: {
-    north_america: 'https://api.iterable.com/api/commerce/updateCart',
+    united_states: 'https://api.iterable.com/api/commerce/updateCart',
     europe: 'https://api.eu.iterable.com/api/commerce/updateCart'
   },
   trackPurchase: {
-    north_america: 'https://api.iterable.com/api/commerce/trackPurchase',
+    united_states: 'https://api.iterable.com/api/commerce/trackPurchase',
     europe: 'https://api.eu.iterable.com/api/commerce/trackPurchase'
   },
   getWebhooks: {
-    north_america: 'https://api.iterable.com/api/webhooks',
+    united_states: 'https://api.iterable.com/api/webhooks',
     europe: 'https://api.eu.iterable.com/api/webhooks'
   }
 }
 
 /**
  * Retrieves the regional API endpoint for a specific API action.
- * If the region provided is invalid or not specified, it defaults to 'north_america'.
+ * If the region provided is invalid or not specified, it defaults to 'united_states'.
  *
  * @param action The name of the API action.
  * @param region The region for data residency.
  * @returns The regional API endpoint.
  */
-export function getRegionalEndpoint(action: keyof typeof apiEndpoints, region: Region = 'north_america'): string {
-  return apiEndpoints[action][region] ?? apiEndpoints[action]['north_america']
+export function getRegionalEndpoint(action: keyof typeof apiEndpoints, region: Region = 'united_states'): string {
+  return apiEndpoints[action][region] ?? apiEndpoints[action]['united_states']
 }

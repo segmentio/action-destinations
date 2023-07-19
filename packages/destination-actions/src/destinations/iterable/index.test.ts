@@ -12,7 +12,7 @@ describe('Iterable', () => {
 
       const settings = {
         apiKey: 'iterableApiKey',
-        apiRegion: 'north_america'
+        apiRegion: 'united_states'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
@@ -23,7 +23,7 @@ describe('Iterable', () => {
 
       const settings = {
         apiKey: 'badApiKey',
-        apiRegion: 'north_america'
+        apiRegion: 'united_states'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError(

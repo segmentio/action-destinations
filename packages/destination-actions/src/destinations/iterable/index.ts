@@ -30,15 +30,15 @@ const destination: DestinationDefinition<Settings> = {
         format: 'text',
         choices: [
           {
-            label: 'North America',
-            value: 'north_america'
+            label: 'United States',
+            value: 'united_states'
           },
           {
             label: 'Europe',
             value: 'europe'
           }
         ],
-        default: 'north_america'
+        default: 'united_states'
       }
     },
     testAuthentication: (request, { settings }) => {
