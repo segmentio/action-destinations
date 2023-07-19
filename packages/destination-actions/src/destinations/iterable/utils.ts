@@ -80,27 +80,18 @@ export function transformItems(items: UpdateCart['items']): CommerceItem[] {
   }))
 }
 
+const regionEndpoints = {
+  united_states: 'https://api.iterable.com',
+  europe: 'https://api.eu.iterable.com'
+  // Add more regions and their corresponding endpoints here
+}
+
 export const apiEndpoints = {
-  updateUser: {
-    united_states: 'https://api.iterable.com/api/users/update',
-    europe: 'https://api.eu.iterable.com/api/users/update'
-  },
-  trackEvent: {
-    united_states: 'https://api.iterable.com/api/events/track',
-    europe: 'https://api.eu.iterable.com/api/events/track'
-  },
-  updateCart: {
-    united_states: 'https://api.iterable.com/api/commerce/updateCart',
-    europe: 'https://api.eu.iterable.com/api/commerce/updateCart'
-  },
-  trackPurchase: {
-    united_states: 'https://api.iterable.com/api/commerce/trackPurchase',
-    europe: 'https://api.eu.iterable.com/api/commerce/trackPurchase'
-  },
-  getWebhooks: {
-    united_states: 'https://api.iterable.com/api/webhooks',
-    europe: 'https://api.eu.iterable.com/api/webhooks'
-  }
+  updateUser: '/api/users/update',
+  trackEvent: '/api/events/track',
+  updateCart: '/api/commerce/updateCart',
+  trackPurchase: '/api/commerce/trackPurchase',
+  getWebhooks: '/api/webhooks'
 }
 
 /**
@@ -112,5 +103,7 @@ export const apiEndpoints = {
  * @returns The regional API endpoint.
  */
 export function getRegionalEndpoint(action: keyof typeof apiEndpoints, region: Region = 'united_states'): string {
-  return apiEndpoints[action][region] ?? apiEndpoints[action]['united_states']
+  const regionEndpoint = regionEndpoints[region] || regionEndpoints['united_states']
+  const endpoint = apiEndpoints[action]
+  return regionEndpoint + endpoint
 }
