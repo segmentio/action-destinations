@@ -6,10 +6,10 @@ import {
   OperationStatsContext,
   TryCatchFinallyHook,
   TrackedError
-} from '../../utils/operationTracking'
+} from './operationTracking'
 import { MessageSender } from './message-sender'
 import { OperationContext } from './track'
-import { TwilioApiError } from './types'
+import { TwilioApiError } from './TwilioApiError'
 
 export class MessageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
