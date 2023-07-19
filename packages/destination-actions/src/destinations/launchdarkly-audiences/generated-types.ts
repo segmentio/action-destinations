@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * A service token used for [LaunchDarkly API authorization](https://app.launchdarkly.com/settings/authorization).
+   * We recommend creating a dedicated [LaunchDarkly service token](https://docs.launchdarkly.com/home/account-security/api-access-tokens#service-tokens) for this destination. The service token will need to have the ability to perform the `createSegment` and `updateIncluded` [role actions](https://docs.launchdarkly.com/home/members/role-actions#segment-actions).
    */
   apiKey: string
   /**
