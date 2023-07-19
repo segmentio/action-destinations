@@ -1,6 +1,6 @@
 import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
-import { browserDestination } from '../../runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import reportWebEvent from './reportWebEvent'
 import { defaultValues } from '@segment/actions-core'
 import { TikTokPixel } from './types'
@@ -54,7 +54,7 @@ const multiProductContents = {
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = {
   name: 'TikTok Pixel',
-  slug: 'tiktok-pixel-actions',
+  slug: 'actions-tiktok-pixel',
   mode: 'device',
   presets: [
     {

@@ -1,7 +1,7 @@
-import type { BrowserActionDefinition } from '../../../lib/browser-destinations'
+import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatEmail, formatPhone } from './formatter'
+import { formatPhone } from './formatter'
 import { TikTokPixel } from '../types'
 
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
@@ -124,8 +124,8 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   perform: (ttq, { payload }) => {
     if (payload.email || payload.phone_number) {
       ttq.identify({
-        sha256_email: formatEmail(payload.email),
-        sha256_phone_number: formatPhone(payload.phone_number)
+        email: payload.email,
+        phone_number: formatPhone(payload.phone_number)
       })
     }
 
