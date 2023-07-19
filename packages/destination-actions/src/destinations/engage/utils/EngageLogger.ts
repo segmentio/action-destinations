@@ -7,7 +7,7 @@ import { EngageActionPerformer } from './EngageActionPerformer'
 export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
 
-export class MessageLogger extends OperationLogger {
+export class EngageLogger extends OperationLogger {
   static getTryCatchFinallyHook(_ctx: OperationLoggerContext): TryCatchFinallyHook<OperationLoggerContext> {
     const msgSender = _ctx.funcThis as EngageActionPerformer
     return msgSender?.logger

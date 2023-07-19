@@ -1,8 +1,8 @@
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ExecuteInput } from '@segment/actions-core/destination-kit'
 import { MaybePromise } from '@segment/actions-core/destination-kittypes'
-import { MessageLogger } from './MessageLogger'
-import { MessageStats } from './MessageStats'
+import { EngageLogger } from './EngageLogger'
+import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { TwilioApiError } from './TwilioApiError'
@@ -11,8 +11,8 @@ import { IntegrationError } from '@segment/actions-core/errors'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
-  readonly logger: MessageLogger = new MessageLogger(this)
-  readonly statsClient: MessageStats = new MessageStats(this)
+  readonly logger: EngageLogger = new EngageLogger(this)
+  readonly statsClient: EngageStats = new EngageStats(this)
   readonly currentOperation: OperationContext | undefined
 
   readonly payload: TPayload

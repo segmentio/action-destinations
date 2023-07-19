@@ -11,7 +11,7 @@ import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
 import { TwilioApiError } from './TwilioApiError'
 
-export class MessageStats extends OperationStats {
+export class EngageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
     const msgSender = _ctx.funcThis as EngageActionPerformer
     return msgSender?.statsClient
