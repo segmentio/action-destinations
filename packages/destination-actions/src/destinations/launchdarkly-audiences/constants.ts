@@ -1,5 +1,4 @@
 export const CONSTANTS = {
-  // TODO: update to prod URLs when testing is complete
   LD_CLIENT_SDK_BASE_URL: 'https://clientsdk.launchdarkly.com',
   LD_API_BASE_URL: 'https://app.launchdarkly.com/api/v2',
 

@@ -49,7 +49,8 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         'User-Agent': 'SegmentSyncAudiences/1.0.0',
         'Content-Type': 'application/json',
-        Authorization: `${settings.apiKey}`
+        Authorization: `${settings.apiKey}`,
+        'LD-API-Version': '20220603'
       }
     }
   },
