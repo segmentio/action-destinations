@@ -7,7 +7,7 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Listrak',
+  name: 'Listrak (Actions)',
   slug: 'actions-listrak',
   mode: 'cloud',
 

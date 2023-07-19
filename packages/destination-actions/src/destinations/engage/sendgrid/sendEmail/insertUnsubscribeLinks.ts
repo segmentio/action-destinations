@@ -14,20 +14,33 @@ export const insertUnsubscribeLinks = (
   const preferencesLink = emailProfile?.preferencesLink
   const unsubscribeLinkRef = 'a[href*="[upa_unsubscribe_link]"]'
   const preferencesLinkRef = 'a[href*="[upa_preferences_link]"]'
+  const sendgridUnsubscribeLinkTag = '[unsubscribe]'
   const $ = cheerio.load(html)
   if (groupId) {
     const group = emailProfile?.groups.find((group: { id: string }) => group?.id === groupId)
     const groupUnsubscribeLink = group?.groupUnsubscribeLink
     $(unsubscribeLinkRef).each(function () {
-      logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  - ${spaceId} ${groupId}`)
-      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
-      $(this).attr('href', groupUnsubscribeLink)
+      if (!groupUnsubscribeLink) {
+        logger?.info(`TE Messaging: Email Group Unsubscribe link missing  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.group_unsubscribe_link_missing', 1, tags)
+        $(this).attr('href', sendgridUnsubscribeLinkTag)
+      } else {
+        $(this).attr('href', groupUnsubscribeLink)
+        logger?.info(`TE Messaging: Email Group Unsubscribe link replaced  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1, tags)
+      }
     })
   } else {
     $(unsubscribeLinkRef).each(function () {
-      logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
-      statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
-      $(this).attr('href', globalUnsubscribeLink)
+      if (!globalUnsubscribeLink) {
+        logger?.info(`TE Messaging: Email Global Unsubscribe link missing  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.global_unsubscribe_link_missing', 1, tags)
+        $(this).attr('href', sendgridUnsubscribeLinkTag)
+      } else {
+        $(this).attr('href', globalUnsubscribeLink)
+        logger?.info(`TE Messaging: Email Global Unsubscribe link replaced  - ${spaceId}`)
+        statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1, tags)
+      }
     })
   }
   $(preferencesLinkRef).each(function () {
