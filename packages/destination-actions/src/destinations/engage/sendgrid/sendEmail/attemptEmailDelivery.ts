@@ -2,7 +2,7 @@ import { IntegrationError, RequestClient, RequestOptions } from '@segment/action
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
-import { apiLookupLiquidKey, performApiLookups } from '../previewApiLookup/api-lookups'
+import { apiLookupLiquidKey, performApiLookups } from '../previewApiLookup'
 import { Profile } from '../Profile'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import { insertUnsubscribeLinks } from './insertUnsubscribeLinks'
