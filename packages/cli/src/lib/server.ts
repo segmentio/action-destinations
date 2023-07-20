@@ -72,9 +72,10 @@ const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
 const server = http.createServer(app)
 const destinationSlug = process.env.DESTINATION as string
 const directory = process.env.DIRECTORY as string
+const entryPath = (process.env.ENTRY as string) || 'index.ts'
 
 // For now, include the slug in the path, but when we support external repos, we'll have to change this
-const targetDirectory = path.join(process.cwd(), directory, destinationSlug, 'index.ts')
+const targetDirectory = path.join(process.cwd(), directory, destinationSlug, entryPath)
 
 const gracefulShutdown = once((exitCode: number) => {
   logger.info('Server stopping...')
