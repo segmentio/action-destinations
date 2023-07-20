@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEmail from './sendEmail'
+import previewApiLookup from './previewApiLookup'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging SendGrid',
@@ -62,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendEmail
+    sendEmail,
+    previewApiLookup
   }
 }
 
