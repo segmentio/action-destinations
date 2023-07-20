@@ -80,7 +80,7 @@ export function transformItems(items: UpdateCart['items']): CommerceItem[] {
   }))
 }
 
-const regionEndpoints = {
+const regionBaseUrls = {
   united_states: 'https://api.iterable.com',
   europe: 'https://api.eu.iterable.com'
   // Add more regions and their corresponding endpoints here
@@ -106,7 +106,7 @@ export function getRegionalEndpoint(
   action: keyof typeof apiEndpoints,
   dataCenterLocation: DataCenterLocation = 'united_states'
 ): string {
-  const regionEndpoint = regionEndpoints[dataCenterLocation] || regionEndpoints['united_states']
+  const regionBaseUrl = regionBaseUrls[dataCenterLocation] || regionBaseUrls['united_states']
   const endpoint = apiEndpoints[action]
-  return regionEndpoint + endpoint
+  return regionBaseUrl + endpoint
 }
