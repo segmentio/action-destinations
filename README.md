@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://brand.segment.com/site-assets/7b19c1a2/images/brand-guidelines/content/twilio/twilio-segment-logo-2x.png" width="300"></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://github-production-user-asset-6210df.s3.amazonaws.com/316711/254403783-df7b9cdd-1e45-48a8-a255-e1cc087e2196.svg" width="100"/></a></p>
 
 # Action Destinations
 
@@ -19,6 +19,7 @@ For more detailed instruction, see the following READMEs:
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
+- [Error Handling](./docs/error-handling.md)
 
 ## Table of Contents:
 

@@ -1,8 +1,13 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
-import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { Features } from '@segment/actions-core/src/mapping-kit'
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
+import { ModifiedResponse, RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { fullFormats } from 'ajv-formats/dist/formats'
+
+export const API_VERSION = 'v12'
+export const CANARY_API_VERSION = 'v13'
+export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 export function formatCustomVariables(
   customVariables: object,
@@ -43,19 +48,25 @@ export async function getCustomVariables(
   customerId: string,
   auth: any,
   request: RequestClient,
-  features?: Features,
-  statsContext?: StatsContext
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`${getUrlByVersion(features, statsContext)}/${customerId}/googleAds:searchStream`, {
-    method: 'post',
-    headers: {
-      authorization: `Bearer ${auth?.accessToken}`,
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json: {
-      query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+  return await request(
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}/googleAds:searchStream`,
+    {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`,
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+      }
     }
-  })
+  )
 }
 
 /* Ensures there is no error when using Google's partialFailure mode
@@ -74,13 +85,26 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
 }
 
-// Ticket to remove flagon - https://segment.atlassian.net/browse/STRATCONN-1953
-export function getUrlByVersion(features?: Features, statsContext?: StatsContext): string {
+export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
 
-  const API_VERSION = features && features['google-enhanced-v12'] ? 'v12' : 'v11'
-  tags?.push(`version:${API_VERSION}`)
-  statsClient?.incr(`google_enhanced_conversions`, 1, tags)
-  return `https://googleads.googleapis.com/${API_VERSION}/customers`
+  const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr(`google_api_version`, 1, tags)
+  return version
+}
+
+export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+export const commonHashedEmailValidation = (email: string): string => {
+  if (isHashedEmail(email)) {
+    return email
+  }
+
+  // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
+  if (!(fullFormats.email as RegExp).test(email)) {
+    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
+  }
+
+  return String(hash(email))
 }

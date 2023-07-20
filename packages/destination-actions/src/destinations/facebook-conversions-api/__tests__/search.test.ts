@@ -35,7 +35,9 @@ describe('FacebookConversionsApi', () => {
             { id: 'ABC123', quantity: 2 },
             { id: 'XYZ789', quantity: 3 }
           ],
-          search_string: 'Oreo`s Quadruple Stack'
+          search_string: 'Oreo`s Quadruple Stack',
+          partner_name: 'liveramp',
+          partner_id: 'faf12efasdfasdf1edasdasdfadf='
         }
       })
 
@@ -52,6 +54,12 @@ describe('FacebookConversionsApi', () => {
           user_data: {
             email: {
               '@path': '$.properties.email'
+            },
+            partner_id: {
+              '@path': '$.properties.partner_id'
+            },
+            partner_name: {
+              '@path': '$.properties.partner_name'
             }
           },
           action_source: {
@@ -79,7 +87,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"Search\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\",\\"value\\":12.12,\\"search_string\\":\\"Oreo\`s Quadruple Stack\\"}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"Search\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\",\\"value\\":12.12,\\"search_string\\":\\"Oreo\`s Quadruple Stack\\"}}]}"`
       )
     })
 

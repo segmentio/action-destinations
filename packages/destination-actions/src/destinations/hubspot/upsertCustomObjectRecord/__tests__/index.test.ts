@@ -3,10 +3,13 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../../properties'
+import { MultipleCustomRecordsInSearchResultThrowableError } from '../../errors'
 
 const endpoint = `${HUBSPOT_BASE_URL}/crm/v3/objects`
 
 let testDestination = createTestIntegration(Destination)
+const objectType = 'p11223344_discount'
+const hubspotGeneratedCustomObjectRecordId = '1234567890'
 
 beforeEach((done) => {
   // Re-Initialize the destination before each test
@@ -17,12 +20,90 @@ beforeEach((done) => {
 })
 
 describe('HubSpot.upsertCustomObjectRecord', () => {
-  // Validate creation of custom object with fullyQualifiedName of a HubSpot Schema
-  it('should create a Custom Object with fullyQualifiedName of a Schema', async () => {
+  it('should update a custom Object with custom Search Field, if record matches', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: 'TEST1234',
+        discountPercentage: '10%'
+      }
+    })
+
+    // Mock: Search Custom Object Record with custom Search Fields
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/${objectType}/search`)
+      .reply(200, {
+        total: 1,
+        results: [
+          {
+            id: hubspotGeneratedCustomObjectRecordId,
+            properties: {
+              createdate: '2023-06-01T19:56:33.914Z',
+              hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+              hs_object_id: hubspotGeneratedCustomObjectRecordId,
+              test: 'new_test_value',
+              test_custom_object_type: 'new_test_custom_object_type'
+            },
+            createdAt: '2023-06-01T19:56:33.914Z',
+            updatedAt: '2023-06-01T13:19:08.067Z',
+            archived: false
+          }
+        ]
+      })
+
+    // Mock: Update a custom object record  with record ID
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/${objectType}/${hubspotGeneratedCustomObjectRecordId}`)
+      .reply(200, {
+        id: hubspotGeneratedCustomObjectRecordId,
+        properties: {
+          createdate: '2023-06-01T19:56:33.914Z',
+          hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+          hs_object_id: hubspotGeneratedCustomObjectRecordId,
+          test: 'new_test_value',
+          test_custom_object_type: 'new_test_custom_object_type'
+        },
+        createdAt: '2022-09-25T19:56:33.914Z',
+        updatedAt: '2022-10-14T13:19:08.067Z',
+        archived: false
+      })
+
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: objectType,
+        createNewCustomRecord: true,
+        customObjectSearchFields: {
+          test_custom_object_type: 'new_test_custom_object_type'
+        },
+        properties: {
+          coupon_code: {
+            '@path': '$.properties.couponCode'
+          },
+          discount_percent: {
+            '@path': '$.properties.couponCode'
+          }
+        }
+      }
+    })
+    expect(responses).toHaveLength(2)
+    expect(responses[0].status).toEqual(200)
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].status).toEqual(200)
+    expect(responses[1].options.json).toMatchSnapshot()
+  })
+
+  it("should create a Custom Object when create new custom object flag is true and record doesn't match", async () => {
+    // Mock: Search Custom Object Record with custom Search Fields
+    nock(HUBSPOT_BASE_URL).post(`/crm/v3/objects/${objectType}/search`).reply(200, {
+      total: 0,
+      results: []
+    })
     nock(endpoint)
-      .post(/.*/)
+      .post(`/${objectType}`)
       .reply(201, {
-        id: '1234567890',
+        id: hubspotGeneratedCustomObjectRecordId,
         properties: {
           coupon_code: 'TEST1234',
           discount_percent: '10%',
@@ -47,7 +128,11 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     const responses = await testDestination.testAction('upsertCustomObjectRecord', {
       event,
       mapping: {
-        objectType: 'p11223344_discount',
+        objectType: objectType,
+        createNewCustomRecord: true,
+        customObjectSearchFields: {
+          test_custom_object_type: 'new_test_custom_object_type'
+        },
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'
@@ -58,8 +143,113 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         }
       }
     })
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(201)
+  })
 
-    expect(responses[0].status).toBe(201)
+  it("should skip creation of a Custom Object when create new custom object flag is false and record doesn't match", async () => {
+    // Mock: Search Custom Object Record with custom Search Fields
+    nock(HUBSPOT_BASE_URL).post(`/crm/v3/objects/${objectType}/search`).reply(200, {
+      total: 0,
+      results: []
+    })
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: 'TEST1234',
+        discountPercentage: '10%'
+      }
+    })
+
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: objectType,
+        createNewCustomRecord: false,
+        customObjectSearchFields: {
+          test_custom_object_type: 'new_test_custom_object_type'
+        },
+        properties: {
+          coupon_code: {
+            '@path': '$.properties.couponCode'
+          },
+          discount_percent: {
+            '@path': '$.properties.couponCode'
+          }
+        }
+      }
+    })
+    expect(responses).toHaveLength(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should throw an error when custom object search returns multiple records', async () => {
+    // Mock: Search Custom Object Record with custom Search Fields
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/${objectType}/search`)
+      .reply(200, {
+        total: 2,
+        results: [
+          {
+            id: hubspotGeneratedCustomObjectRecordId,
+            properties: {
+              createdate: '2023-06-01T19:56:33.914Z',
+              hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+              hs_object_id: hubspotGeneratedCustomObjectRecordId,
+              test: 'new_test_value',
+              test_custom_object_type: 'new_test_custom_object_type'
+            },
+            createdAt: '2023-06-01T19:56:33.914Z',
+            updatedAt: '2023-06-01T13:19:08.067Z',
+            archived: false
+          },
+          {
+            id: '12349876',
+            properties: {
+              createdate: '2023-06-01T19:56:33.914Z',
+              hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+              hs_object_id: hubspotGeneratedCustomObjectRecordId,
+              test: 'new_test_value',
+              test_custom_object_type: 'new_test_custom_object_type_1'
+            },
+            createdAt: '2023-06-01T19:56:33.914Z',
+            updatedAt: '2023-06-01T13:19:08.067Z',
+            archived: false
+          }
+        ]
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: 'TEST1234',
+        discountPercentage: '10%'
+      }
+    })
+
+    await expect(
+      testDestination.testAction('upsertCustomObjectRecord', {
+        event,
+        mapping: {
+          objectType: objectType,
+          createNewCustomRecord: true,
+          customObjectSearchFields: {
+            test: 'new_test_value'
+          },
+          properties: {
+            coupon_code: {
+              '@path': '$.properties.couponCode'
+            },
+            discount_percent: {
+              '@path': '$.properties.couponCode'
+            }
+          }
+        }
+      })
+    ).rejects.toThrowError(MultipleCustomRecordsInSearchResultThrowableError)
   })
 
   it('should dynamically fetch custom object name', async () => {
@@ -216,6 +406,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
       event,
       mapping: {
         objectType: 'p11223344_discount',
+        createNewCustomRecord: true,
         properties: {
           coupon_code: {
             '@path': '$.properties.couponCode'

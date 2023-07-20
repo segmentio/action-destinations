@@ -46,7 +46,7 @@ export default class Serve extends Command {
   async run() {
     const { argv, flags } = this.parse(Serve)
     let destinationName = flags.destination
-
+    const isBrowser = !!flags.browser
     if (!destinationName) {
       const integrationsGlob = `${flags.directory}/*`
       const integrationDirs = await globby(integrationsGlob, {
@@ -62,9 +62,10 @@ export default class Serve extends Command {
         message: 'Which destination?',
         choices: integrationDirs.map((integrationPath) => {
           const [name] = integrationPath.split(path.sep).reverse()
+          const destinationPath = isBrowser ? path.join(name, 'src') : name
           return {
             title: name,
-            value: { name }
+            value: { name: destinationPath }
           }
         })
       })

@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { APIError, ActionDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -9,8 +9,6 @@ import {
   BufferBatchContacts,
   BufferBatchContactItem
 } from '../emarsys-helper'
-import { IntegrationError } from '@segment/actions-core'
-import { RetryableError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -36,6 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)',
       type: 'object',
       required: true,
+      additionalProperties: true,
       properties: {
         1: {
           label: 'Given name',
@@ -64,9 +63,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const contact: ContactData = {}
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
 
     contact[data.payload.key_field] = data.payload.key_value
     Object.assign(contact, data.payload.write_field)
@@ -85,12 +81,13 @@ const action: ActionDefinition<Settings, Payload> = {
         try {
           const body = await response.json()
           if (body.replyCode === 0) return response
-          else throw new IntegrationError('Something went wrong while upserting the contact')
+          else
+            throw new APIError(`Something went wrong while upserting the contact: ${body?.replyText ?? 'UNKNOWN'}`, 500)
         } catch (err) {
-          throw new IntegrationError('Invalid JSON response')
+          throw new APIError('Invalid JSON response', 400)
         }
       case 400:
-        throw new IntegrationError('Contact could not be upserted')
+        throw new APIError('Contact could not be upserted', 400)
       case 429:
         throw new RetryableError('Rate limit reached.')
       default:

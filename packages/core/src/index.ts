@@ -3,8 +3,16 @@ export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
+export { default as createInstance } from './request-client'
 export { defaultValues } from './defaults'
-export { IntegrationError, InvalidAuthenticationError, RetryableError } from './errors'
+export {
+  IntegrationError,
+  InvalidAuthenticationError,
+  RetryableError,
+  PayloadValidationError,
+  APIError,
+  ErrorCodes
+} from './errors'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
@@ -29,11 +37,14 @@ export type {
   BasicAuthentication,
   CustomAuthentication,
   OAuth2Authentication,
+  OAuthManagedAuthentication,
   OAuth2ClientCredentials,
   RefreshAccessTokenResult,
   RequestFn,
   DecoratedResponse,
-  MinimalInputField
+  MinimalInputField,
+  StateContext,
+  StatsContext
 } from './destination-kit'
 
 export type {

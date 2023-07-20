@@ -1,7 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { SKY_API_BASE_URL, SKY_OAUTH2_TOKEN_URL } from './constants'
+import { SKY_API_CONSTITUENT_URL, SKY_OAUTH2_TOKEN_URL } from './constants'
 import { RefreshTokenResponse } from './types'
+import createConstituentAction from './createConstituentAction'
+import createGift from './createGift'
 import createOrUpdateIndividualConstituent from './createOrUpdateIndividualConstituent'
 
 const destination: DestinationDefinition<Settings> = {
@@ -20,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`${SKY_API_BASE_URL}/emailaddresstypes`)
+      return request(`${SKY_API_CONSTITUENT_URL}/emailaddresstypes`)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
@@ -29,12 +31,13 @@ const destination: DestinationDefinition<Settings> = {
         body: new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: auth.refreshToken,
+          preserve_refresh_token: 'true',
           client_id: auth.clientId,
           client_secret: auth.clientSecret
         })
       })
 
-      return { accessToken: res.data.access_token }
+      return { accessToken: res.data.access_token, refreshToken: res.data.refresh_token }
     }
   },
   extendRequest({ auth, settings }) {
@@ -54,6 +57,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
+    createConstituentAction,
+    createGift,
     createOrUpdateIndividualConstituent
   }
 }

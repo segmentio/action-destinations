@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEmail from './sendEmail'
+import previewApiLookup from './previewApiLookup'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Engage Messaging SendGrid',
@@ -44,6 +45,17 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Source ID',
         type: 'string',
         required: true
+      },
+      region: {
+        label: 'Region',
+        description: 'The region where the email is originating from',
+        type: 'string',
+        choices: [
+          { value: 'us-west-2', label: 'US West 2' },
+          { value: 'eu-west-1', label: 'EU West 1' }
+        ],
+        default: 'us-west-2',
+        required: false
       }
     },
     testAuthentication: (request) => {
@@ -51,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendEmail
+    sendEmail,
+    previewApiLookup
   }
 }
 

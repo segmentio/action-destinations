@@ -1,8 +1,8 @@
 {
-  "packages": ["packages/*"],
+  "packages": ["packages/*", "packages/browser-destinations/destinations/*"],
   "npmClient": "yarn",
-  "useWorkspaces": true,
   "version": "independent",
+  "useWorkspaces": true,
   "command": {
     "bootstrap": {
       "npmClientArgs": ["--ignore-engines", "--ignore-optional"]

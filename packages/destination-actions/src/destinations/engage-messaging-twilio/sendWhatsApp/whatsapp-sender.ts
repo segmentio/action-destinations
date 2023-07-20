@@ -1,32 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Liquid as LiquidJs } from 'liquidjs'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { RequestFn, MessageSender } from '../utils/message-sender'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { track, PhoneMessage } from '../utils'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
 
-export class WhatsAppMessageSender extends MessageSender<Payload> {
-  constructor(
-    readonly request: RequestFn,
-    readonly payload: Payload,
-    readonly settings: Settings,
-    readonly statsClient: StatsClient | undefined,
-    readonly tags: StatsContext['tags'] | undefined
-  ) {
-    super(request, payload, settings, statsClient, tags)
+export class WhatsAppMessageSender extends PhoneMessage<Payload> {
+  getChannelType() {
+    return 'whatsapp'
   }
 
-  getExternalId = () =>
-    this.payload.externalIds?.find(
-      ({ type, channelType }) => channelType?.toLowerCase() === 'whatsapp' && type === 'phone'
-    )
-
-  getBody = async (phone: string) => {
+  @track()
+  async getBody(phone: string) {
     let parsedPhone
 
     try {
@@ -36,11 +24,10 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
       parsedPhone = phoneUtil.parse(phone, 'US')
       parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
       parsedPhone = `whatsapp:${parsedPhone}`
-    } catch (error: unknown) {
-      this.tags?.push('type:invalid_phone_e164')
-      this.statsClient?.incr('actions-personas-messaging-twilio.error', 1, this.tags)
+    } catch (e) {
+      const underlyingError = e as Error
       throw new IntegrationError(
-        'The string supplied did not seem to be a phone number. Phone number must be able to be formatted to e164 for whatsapp.',
+        'Phone number must be able to be formatted to e164 for whatsapp. ' + underlyingError.message,
         `INVALID_PHONE`,
         400
       )
@@ -62,36 +49,35 @@ export class WhatsAppMessageSender extends MessageSender<Payload> {
     return new URLSearchParams(params)
   }
 
-  private getVariables = async (): Promise<string | null> => {
-    try {
-      // contentVariables can be rendered to their respective values in the upstream actor
-      // before they send it to this action.
-      // to signify this behavior, traitsEnrichment will be passed as false by the upstream actor
-      if (!this.payload.traitEnrichment && this.payload.contentVariables)
-        return JSON.stringify(this.payload.contentVariables) ?? null
-      if (!this.payload.contentVariables || !this.payload.traits) return null
+  @track({
+    wrapIntegrationError: () => [
+      `Unable to parse templating in content variables`,
+      `Content variables templating parse failure`,
+      400
+    ]
+  })
+  private async getVariables(): Promise<string | null> {
+    // contentVariables can be rendered to their respective values in the upstream actor
+    // before they send it to this action.
+    // to signify this behavior, traitsEnrichment will be passed as false by the upstream actor
+    if (!this.payload.traitEnrichment && this.payload.contentVariables)
+      return JSON.stringify(this.payload.contentVariables) ?? null
+    if (!this.payload.contentVariables || !this.payload.traits) return null
 
-      const profile = {
-        profile: {
-          traits: this.payload.traits
-        }
+    const profile = {
+      profile: {
+        traits: this.payload.traits
       }
-
-      const mapping: Record<string, string> = {}
-      for (const [key, val] of Object.entries(this.payload.contentVariables)) {
-        const parsed = await Liquid.parseAndRender(val as string, profile)
-        if (parsed?.length) {
-          mapping[key] = parsed
-        }
-      }
-
-      return JSON.stringify(mapping)
-    } catch (error: unknown) {
-      throw new IntegrationError(
-        `Unable to parse templating in content variables`,
-        `Content variables templating parse failure`,
-        400
-      )
     }
+
+    const mapping: Record<string, string> = {}
+    for (const [key, val] of Object.entries(this.payload.contentVariables)) {
+      const parsed = await Liquid.parseAndRender(val as string, profile)
+      if (parsed?.length) {
+        mapping[key] = parsed
+      }
+    }
+
+    return JSON.stringify(mapping)
   }
 }

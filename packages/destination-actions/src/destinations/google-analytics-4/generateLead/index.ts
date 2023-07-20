@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, ErrorCodes, IntegrationError } from '@segment/actions-core'
 import {
   verifyCurrency,
   verifyParams,
@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: params
   },
-  perform: (request, { payload, features, settings }) => {
+  perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
     const stream_params: DataStreamParams =
       data_stream_type === DataStreamType.MobileApp
@@ -54,13 +54,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Google requires that currency be included at the event level if value is included.
     if (payload.value && payload.currency === undefined) {
-      throw new IntegrationError('Currency is required if value is set.', 'Misconfigured required field', 400)
+      throw new IntegrationError('Currency is required if value is set.', ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
+    verifyParams(payload.params)
+    verifyUserProps(payload.user_properties)
 
     const request_object: { [key: string]: unknown } = {
       ...stream_params.identifier,
@@ -76,11 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+      ...formatUserProperties(payload.user_properties),
+      timestamp_micros: convertTimestamp(payload.timestamp_micros)
     }
 
     return sendData(request, stream_params.search_params, request_object)

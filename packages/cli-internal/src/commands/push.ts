@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chalk from 'chalk'
 import { pick, omit, sortBy } from 'lodash'
 import { diffString } from 'json-diff'
@@ -433,7 +433,7 @@ export function getOptions(
       default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
-      hidden: false,
+      hidden: existing?.hidden ?? false,
       label: schema.label,
       private: isPrivateSetting,
       scope: 'event_destination',

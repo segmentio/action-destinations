@@ -123,12 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-
-    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags).send()
+  perform: async (request, data) => {
+    return new WhatsAppMessageSender(request, data).perform()
   }
 }
 

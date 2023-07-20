@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: all fields 1`] = `
+"audience_key,testType,testType
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\""
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: enquotated indentifier data 1`] = `
+Array [
+  "\\"LCD TV,50\\"\\"\\"",
+  "\\"\\"\\"early-bird\\"\\" special\\"",
+  "\\"5'8\\"\\"\\"",
+]
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: missing minimum payload size 1`] = `[PayloadValidationError: received payload count below LiveRamp's ingestion limits. expected: >=25 actual: 1]`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: required fields 1`] = `
+"audience_key,testType,testType
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\"
+\\"PywYAY\\",\\"PywYAY\\",\\"7c7ff3a8560d336d69d788505dafaee28b45e77aecd04dd34648e3435865bb38\\""
+`;
+
+exports[`Testing snapshot for LiverampAudiences's audienceEntered destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "AWS4-HMAC-SHA256 Credential=PywYAY/19700101/PywYAY/s3/aws4_request, SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date, Signature=3b1c7252eb8f178c58f423003f652a7b8ee011d6e2b9b93891ac9d9bc370b958",
+    ],
+    "content-length": Array [
+      "2155",
+    ],
+    "content-type": Array [
+      "application/x-www-form-urlencoded; charset=utf-8",
+    ],
+    "host": Array [
+      "PywYAY.s3.amazonaws.com",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-amz-content-sha256": Array [
+      "96dc25e0e1fe62a71b555772ecc16e57abf5544c149d8522d9486994d605c3c3",
+    ],
+    "x-amz-date": Array [
+      "19700101T000012Z",
+    ],
+  },
+}
+`;
