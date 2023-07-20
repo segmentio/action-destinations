@@ -75,38 +75,54 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
     const eventName = event.payload.name
     const browserArrayLimit = event.settings.browserArrayLimit || 0
     const browserArrayLimitSet = !!browserArrayLimit
-    let arrayEventsCount = 0
 
-    for (const [key, value] of Object.entries(eventProperties)) {
-      if (browserArrayLimitSet && arrayEventsCount >= browserArrayLimit) {
-        break
-      }
-
-      if (!Array.isArray(value)) {
-        continue
-      }
-
-      delete eventProperties[key]
-      eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
-
-      const arrayLength = value.length
-      let arrayPropertyValues
-      // truncate in case there are multiple array properties
-      if (browserArrayLimitSet && arrayLength + arrayEventsCount > browserArrayLimit) {
-        arrayPropertyValues = value.splice(0, browserArrayLimit - arrayEventsCount)
-      } else {
-        arrayPropertyValues = value
-      }
-
-      arrayEventsCount += arrayLength
-
-      arrayPropertyValues.forEach((arrayPropertyValue) => {
-        const arrayProperties = flattenProperties(arrayPropertyValue)
-        heapTrack(heap, `${eventName} ${key} item`, arrayProperties)
-      })
+    if (browserArrayLimitSet) {
+      eventProperties = heapTrackArrays(heap, eventName, eventProperties, browserArrayLimit)
     }
+
     heapTrack(heap, eventName, eventProperties)
   }
+}
+
+const heapTrackArrays = (
+  heap: HeapApi,
+  eventName: string,
+  properties: {
+    [k: string]: unknown
+  },
+  browserArrayLimit: number
+) => {
+  let eventProperties = Object.assign({}, properties)
+  let arrayEventsCount = 0
+  for (const [key, value] of Object.entries(eventProperties)) {
+    if (arrayEventsCount >= browserArrayLimit) {
+      return eventProperties
+    }
+
+    if (!Array.isArray(value)) {
+      continue
+    }
+
+    delete eventProperties[key]
+    eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
+
+    const arrayLength = value.length
+    let arrayPropertyValues
+    // truncate in case there are multiple array properties
+    if (arrayLength + arrayEventsCount > browserArrayLimit) {
+      arrayPropertyValues = value.splice(0, browserArrayLimit - arrayEventsCount)
+    } else {
+      arrayPropertyValues = value
+    }
+
+    arrayEventsCount += arrayLength
+
+    arrayPropertyValues.forEach((arrayPropertyValue) => {
+      const arrayProperties = flattenProperties(arrayPropertyValue)
+      heapTrack(heap, `${eventName} ${key} item`, arrayProperties)
+    })
+  }
+  return eventProperties
 }
 
 const heapTrack = (
