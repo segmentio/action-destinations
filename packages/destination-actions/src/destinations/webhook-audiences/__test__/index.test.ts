@@ -56,7 +56,7 @@ describe('Webhook Audience Tests', () => {
     const event = createTestEvent({
       context: {
         personas: {
-          settings: {
+          audience_settings: {
             extras: JSON.stringify({ nice: 'ok' })
           }
         }

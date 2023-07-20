@@ -507,7 +507,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     let audienceSettings = {} as AudienceSettings
     if (event.context?.personas) {
-      audienceSettings = event.context?.personas?.settings as AudienceSettings
+      audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
     }
 
     return action.execute({
@@ -546,7 +546,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     let audienceSettings = {} as AudienceSettings
     // All events should be batched on the same audience
     if (events[0].context?.personas) {
-      audienceSettings = events[0].context?.personas?.settings as AudienceSettings
+      audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
     await action.executeBatch({
