@@ -1,11 +1,5 @@
 export interface TikTokPixel {
-  identify: ({
-    sha256_email,
-    sha256_phone_number
-  }: {
-    sha256_email: string | undefined
-    sha256_phone_number: string | undefined
-  }) => void
+  identify: ({ email, phone_number }: { email: string | undefined; phone_number: string | undefined }) => void
   track: (
     event: string,
     {
