@@ -6,11 +6,12 @@ Object {
     Object {
       "cohortId": "test_audience",
       "cohortName": "Test audience",
-      "userId": "uKRBKG",
+      "userId": "user-id",
       "value": true,
     },
   ],
-  "environmentId": "uKRBKG",
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
 }
 `;
 
@@ -22,6 +23,9 @@ Headers {
     ],
     "content-type": Array [
       "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
     ],
     "user-agent": Array [
       "SegmentSyncAudiences/1.0.0",

@@ -16,6 +16,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       eventData['segment_computation_action'] = 'audience'
       eventData['traits_or_props'] = { [eventData['custom_audience_name']]: true }
 
+      setStaticDataForSnapshot(eventData, 'context_kind', 'customContextKind')
+      setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
+
+      setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
+
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
@@ -41,3 +46,14 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     })
   }
 })
+
+/**
+ * Sets data used in snapshot tests to a static value to prevent snapshots from failing. Will only
+ * set override the value if its already set.
+ */
+const setStaticDataForSnapshot = (data: any, fieldName: string, staticValue: string) => {
+  if (data[fieldName]) {
+    data[fieldName] = staticValue
+  }
+  return data
+}

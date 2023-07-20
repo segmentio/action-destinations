@@ -13,12 +13,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData['custom_audience_name'] = 'test_audience'
-    eventData['context_kind'] = 'customContextKind'
-    eventData['context_key'] = 'user-id'
     eventData['segment_computation_action'] = 'audience'
     eventData['traits_or_props'] = { [eventData['custom_audience_name']]: true }
 
-    settingsData['clientId'] = 'environment-id'
+    setStaticDataForSnapshot(eventData, 'context_kind', 'customContextKind')
+    setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
+
+    setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -48,12 +49,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData['custom_audience_name'] = 'test_audience'
-    eventData['context_kind'] = 'customContextKind'
-    eventData['context_key'] = 'user-id'
     eventData['segment_computation_action'] = 'audience'
     eventData['traits_or_props'] = { [eventData['custom_audience_name']]: false }
 
-    settingsData['clientId'] = 'environment-id'
+    setStaticDataForSnapshot(eventData, 'context_kind', 'customContextKind')
+    setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
+
+    setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -79,3 +81,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(request.headers).toMatchSnapshot()
   })
 })
+
+/**
+ * Sets data used in snapshot tests to a static value to prevent snapshots from failing. Will only
+ * set override the value if its already set.
+ */
+const setStaticDataForSnapshot = (data: any, fieldName: string, staticValue: string) => {
+  if (data[fieldName]) {
+    data[fieldName] = staticValue
+  }
+  return data
+}
