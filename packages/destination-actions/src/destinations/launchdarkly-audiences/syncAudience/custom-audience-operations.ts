@@ -6,6 +6,7 @@ import { Settings } from '../generated-types'
 
 type AudienceBatch = {
   environmentId: string
+  contextKind: string
   batch: AudienceBatchItem[]
 }
 
@@ -57,12 +58,14 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
     }
 
     const contextKey = p.context_key
+    const contextKind = p.context_kind
     const audienceId = p.custom_audience_name
     const traitsOrProps = p.traits_or_props
     const environmentId = settings.clientId
 
     let audienceBatch: AudienceBatch = {
       environmentId,
+      contextKind,
       batch: []
     }
 
