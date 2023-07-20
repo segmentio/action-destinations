@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const createNewCustomRecord = payload?.createNewCustomRecord ?? true
       // If Create New custom object record flag is set to false, skip creation
       if (!createNewCustomRecord) {
-        return `[Testing in Logic]- ${payload.associationLabel}---- ${parsedAssociationType}--There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag`
+        return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
       const properties = { ...flattenObject(payload.properties) }
       upsertCustomRecordResponse = await hubspotApiClient.create(properties, association ? [association] : [])
@@ -237,7 +237,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
       }
     )
     const choices = response?.data?.results?.map((res) => ({
-      label: !res.label ? `Unlabeled-Association-Type (Type ${res.typeId})` : res.label,
+      label: !res.label ? `Unlabeled Association (Type ${res.typeId})` : res.label,
       value: `${res.category}:${res.typeId}`
     }))
     return {
