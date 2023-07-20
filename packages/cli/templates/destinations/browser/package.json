@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/browser-destinations/destinations/{{name}}"
+    "directory": "packages/browser-destinations/destinations/{{slugWithoutActions}}"
   },
   "main": "./dist/cjs",
   "module": "./dist/esm",
