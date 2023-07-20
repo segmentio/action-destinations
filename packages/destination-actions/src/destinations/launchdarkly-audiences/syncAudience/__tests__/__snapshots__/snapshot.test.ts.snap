@@ -6,11 +6,12 @@ Object {
     Object {
       "cohortId": "test_audience",
       "cohortName": "Test audience",
-      "userId": "Zzm(mpiX(u6tjxt",
+      "userId": "user-id",
       "value": true,
     },
   ],
-  "environmentId": "Zzm(mpiX(u6tjxt",
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
 }
 `;
 
@@ -18,10 +19,13 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Zzm(mpiX(u6tjxt",
+      "&bUSudpNPsUWT",
     ],
     "content-type": Array [
       "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
     ],
     "user-agent": Array [
       "SegmentSyncAudiences/1.0.0",
@@ -36,11 +40,12 @@ Object {
     Object {
       "cohortId": "test_audience",
       "cohortName": "Test audience",
-      "userId": "Zzm(mpiX(u6tjxt",
+      "userId": "user-id",
       "value": false,
     },
   ],
-  "environmentId": "Zzm(mpiX(u6tjxt",
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
 }
 `;
 
@@ -48,10 +53,13 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Zzm(mpiX(u6tjxt",
+      "&bUSudpNPsUWT",
     ],
     "content-type": Array [
       "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
     ],
     "user-agent": Array [
       "SegmentSyncAudiences/1.0.0",
