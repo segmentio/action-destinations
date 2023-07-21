@@ -203,13 +203,10 @@ export class PushSender<Payload extends PushPayload> extends MessageSender<Paylo
     const tapActionButtons = this.payload.customizations?.tapActionButtons ?? []
     const parsedTapActionButtons = await Promise.all(
       tapActionButtons.map(async (button) => {
-        return await this.parseContent(
-          {
-            ...button,
-            link: button.link
-          },
-          profile
-        )
+        return {
+          ...button,
+          ...(await this.parseContent({ link: button.link }, profile))
+        }
       })
     )
 
