@@ -13,11 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'The unique user identifier set by you',
       default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
+        '@path': '$.userId'
       }
     },
     metadata: {

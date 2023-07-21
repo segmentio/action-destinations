@@ -4,8 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Send the Track, Page or Screen event to rehook.',
-  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
+  description: 'Send the Track event to rehook.',
+  defaultSubscription: 'type = "track"',
   fields: {
     event_name: {
       label: 'Event Name',
@@ -26,11 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'The unique user identifier set by you',
       default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
+        '@path': '$.userId'
       }
     },
     metadata: {
