@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const client = new AttioClient(request)
 
-    await client.assertRecord({
+    return await client.assertRecord({
       object,
       matching_attribute,
       values: attributes ?? {}

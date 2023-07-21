@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     })
 
-    await client.assertRecord({
+    return await client.assertRecord({
       object: 'workspaces',
       matching_attribute: 'name',
       values: {

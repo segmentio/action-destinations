@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     })
 
-    await client.assertRecord({
+    return await client.assertRecord({
       object: 'users',
       matching_attribute: 'primary_email_address',
       values: {
