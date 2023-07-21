@@ -110,7 +110,10 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
     description: {
       label: 'Description',
       type: 'string',
-      description: 'A string description of the web event.'
+      description: 'A string description of the web event.',
+      default: {
+        '@path': '$.properties.description'
+      }
     },
     query: {
       label: 'Query',
