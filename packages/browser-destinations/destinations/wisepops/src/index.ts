@@ -73,8 +73,8 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
   initialize: async ({ settings }, deps) => {
     window.wisepops =
       window.wisepops ||
-      function () {
-        (window.wisepops.q = window.wisepops.q || []).push(arguments)
+      function (...args) {
+        (window.wisepops.q = window.wisepops.q || []).push(args)
       }
     window.wisepops.l = Date.now()
     window.wisepops('options', { autoPageview: false })
