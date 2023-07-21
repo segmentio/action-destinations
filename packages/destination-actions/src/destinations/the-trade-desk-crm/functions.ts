@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, ModifiedResponse } from '@segment/actions-core'
+import { IntegrationError, RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
@@ -35,6 +35,12 @@ export interface CREATE_API_RESPONSE {
 }
 
 export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
+  const TTD_MIN_RECORD_COUNT = 1500
+  if (payloads.length < TTD_MIN_RECORD_COUNT) {
+    throw new PayloadValidationError(
+      `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${payloads.length}`
+    )
+  }
   const crmID = await getCRMID(request, settings, payloads[0])
 
   // Get user emails from the payloads
