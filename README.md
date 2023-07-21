@@ -537,6 +537,58 @@ const response = await request('https://example.com', {
 })
 ```
 
+### Audience Support (Alpha)
+
+In order to support audience destinations, we've introduced a type that extends regular destinations:
+
+```js
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+  // ...other properties
+  audienceFields: {
+    audienceId: {
+      label: 'An audience id required by the destination',
+      description: 'An audience id required by the destination',
+      type: 'string',
+      required: true
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule
+      full_audience_sync: true // If true, we send the entire audience. If false, we just send the delta.
+    }
+  },
+  // Create an audience on the destinaiton side
+  async createAudience(request, { settings, audienceSettings, audienceName }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        new_audience_name: audienceName,
+        some_audience_specific_id: audienceSettings.audienceId // As defined in audienceFields
+      }
+    })
+    const jsonOutput = await response.json()
+    // Segment will save this externalId for subsequent calls
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  },
+  // Right now, this serves mostly as a check to ensure the audience still exists in the destination
+  async getAudience(request, { settings, audienceSettings, externalId }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        my_audience_id: externalId
+      }
+    })
+    const jsonOutput = await response.json()
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  }
+}
+```
+
 ### Differences from the Fetch API
 
 There are a few subtle differences from the Fetch API which are meant to limit the interface to be a bit more predictable. We may consider loosening this to match the complete spec.
