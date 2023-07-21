@@ -241,4 +241,106 @@ describe('TikTokPixel.reportWebEvent', () => {
       value: 10
     })
   })
+
+  test('maps properties correctly for "ViewContent" event', async () => {
+    const subscriptions: Subscription[] = [
+      {
+        partnerAction: 'reportWebEvent',
+        name: 'View Content',
+        enabled: true,
+        subscribe: 'type="page"',
+        mapping: {
+          messageId: {
+            '@path': '$.messageId'
+          },
+          anonymousId: {
+            '@path': '$.anonymousId'
+          },
+          external_id: {
+            '@path': '$.userId'
+          },
+          phone_number: {
+            '@path': '$.properties.phone'
+          },
+          email: {
+            '@path': '$.properties.email'
+          },
+          groupId: {
+            '@path': '$.groupId'
+          },
+          event: 'ViewContent',
+          contents: {
+            '@arrayPath': [
+              '$.properties',
+              {
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_type: {
+                  '@path': '$.category'
+                },
+                content_id: {
+                  '@path': '$.product_id'
+                }
+              }
+            ]
+          },
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          query: {
+            '@path': '$.properties.query'
+          },
+          description: {
+            '@path': '$.properties.description'
+          }
+        }
+      }
+    ]
+
+    const context = new Context({
+      messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      type: 'page',
+      anonymousId: 'anonymousId',
+      properties: {
+        product_id: '123',
+        category: 'product',
+        quantity: 1,
+        price: 1,
+        query: 'test-query',
+        value: 10,
+        currency: 'USD',
+        phone: '+12345678900',
+        email: 'aaa@aaa.com',
+        description: 'test-description'
+      }
+    })
+
+    const [webEvent] = await TikTokDestination({
+      ...settings,
+      subscriptions
+    })
+    reportWebEvent = webEvent
+
+    await reportWebEvent.load(Context.system(), {} as Analytics)
+    await reportWebEvent.track?.(context)
+
+    expect(mockTtp.identify).toHaveBeenCalledWith({
+      email: 'aaa@aaa.com',
+      phone_number: '+12345678900'
+    })
+    expect(mockTtp.track).toHaveBeenCalledWith('ViewContent', {
+      contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+      currency: 'USD',
+      description: 'test-description',
+      query: 'test-query',
+      value: 10
+    })
+  })
 })
