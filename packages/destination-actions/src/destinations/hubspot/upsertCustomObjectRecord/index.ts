@@ -187,7 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (searchCustomResponseToAssociate?.data && searchCustomResponseToAssociate?.data?.total > 1) {
       throw MultipleCustomRecordsInSearchResultToAssociateThrowableError
     }
-    return upsertCustomRecordResponse.data
+    return upsertCustomRecordResponse
   }
 }
 
