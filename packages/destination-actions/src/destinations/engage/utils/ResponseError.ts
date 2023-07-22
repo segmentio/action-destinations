@@ -12,3 +12,10 @@ export interface ResponseError extends Error {
   status?: number
   statusCode?: number
 }
+
+export function getErrorStatusCode(error: any) {
+  const respError = error as ResponseError
+  const status = respError?.response?.data?.status || respError.status || respError?.statusCode
+  const code = respError?.response?.data?.code || respError.code
+  return { status, code }
+}
