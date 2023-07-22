@@ -13,10 +13,10 @@ export interface ResponseError extends Error {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getErrorStatusCode(error: any) {
+export function getErrorDetails(error: any) {
   const respError = error as ResponseError
   const status = respError?.response?.data?.status || respError.status
   const code = respError?.response?.data?.code || respError.code
-  const message = respError?.response?.data?.message || respError.message
+  const message = [respError.message, respError?.response?.data?.message].filter(Boolean).join(': ')
   return { status, code, message }
 }
