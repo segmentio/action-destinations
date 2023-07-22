@@ -13,6 +13,7 @@ export interface ResponseError extends Error {
   statusCode?: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getErrorStatusCode(error: any) {
   const respError = error as ResponseError
   const status = respError?.response?.data?.status || respError.status || respError?.statusCode
