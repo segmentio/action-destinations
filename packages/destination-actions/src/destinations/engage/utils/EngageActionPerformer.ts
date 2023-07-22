@@ -1,6 +1,6 @@
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ExecuteInput } from '@segment/actions-core/destination-kit'
-import { MaybePromise } from '@segment/actions-core/destination-kittypes'
+import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'

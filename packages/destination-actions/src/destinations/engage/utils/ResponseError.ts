@@ -17,5 +17,6 @@ export function getErrorStatusCode(error: any) {
   const respError = error as ResponseError
   const status = respError?.response?.data?.status || respError.status
   const code = respError?.response?.data?.code || respError.code
-  return { status, code }
+  const message = respError?.response?.data?.message || respError.message
+  return { status, code, message }
 }
