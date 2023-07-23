@@ -77,6 +77,16 @@ export class EngageStats extends OperationStats {
     )
   }
 
+  incr(metric: string, value?: number, tags?: string[]) {
+    this.stats({ metric, value, tags, method: 'incr' })
+  }
+  histogram(metric: string, value?: number, tags?: string[]) {
+    this.stats({ metric, value, tags, method: 'histogram' })
+  }
+  set(metric: string, value?: number, tags?: string[]) {
+    this.stats({ metric, value, tags, method: 'set' })
+  }
+
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res = super.extractTagsFromError(error, ctx)
 
