@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { HTTPError, IntegrationError, RetryableError } from '@segment/actions-core'
-import { MessageSender, SendabilityStatus } from '../utils'
-import { track } from '../../utils'
+import { TwilioMessageSender } from '../utils'
+import { ExtId, track } from '../../utils'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
@@ -11,173 +11,87 @@ interface BodyCustomDataBundle {
   customData: object
 }
 
-// TODO: get concrete error shapes once the push api service is finalized
-// we currently do not know the exact error response for this endpoint
-// below is inferred from insomnia tests
-class PushApiError extends HTTPError {
-  response: Response & {
-    data?: {
-      code: number
-      status: number
-      message: string
-    }
-  }
+type Recepient = ExtId<PushPayload>
+
+export enum MobilePushExtIdTypes {
+  IOS = 'ios.push_token',
+  ANDROID = 'android.push_token'
 }
 
-export class PushSender<Payload extends PushPayload> extends MessageSender<Payload> {
-  static readonly externalIdTypes = ['ios.push_token', 'android.push_token']
-  protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
-  private retryableStatusCodes = [500, 429]
-  private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
-
+export class PushSender extends TwilioMessageSender<PushPayload> {
+  static readonly externalIdTypes = Object.values(MobilePushExtIdTypes)
   getChannelType(): string {
     return 'mobilepush'
   }
+  isSupportedExternalId(externalId: ExtId<PushPayload>): boolean {
+    return PushSender.externalIdTypes.includes(externalId.type as any)
+  }
 
-  async send() {
-    if (!this.payload.send) {
-      this.logInfo(`not sending push notification, payload.send = ${this.payload.send} - ${this.settings.spaceId}`)
-      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.SendDisabled)
-      return
+  readonly supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
+  private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
+
+  get twilioHostname() {
+    return this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
+  }
+  get twilioToken() {
+    //TODO cache this (lazy load)
+    return Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString('base64')
+  }
+
+  async beforeSend(recepients: Recepient[]) {
+    if (this.payload.send && recepients.length > 0) {
+      this.bodyCustomDataBundle = await this.getBody()
     }
-    // we send notifications to every eligible device (subscribed and of a push type)
-    const allPushDevices =
-      this.payload.externalIds?.filter((extId) => extId.type && PushSender.externalIdTypes.includes(extId.type)) || []
-    const recipientDevices =
-      allPushDevices?.filter(
-        (extId) =>
-          extId.subscriptionStatus && MessageSender.sendableStatuses.includes(extId.subscriptionStatus?.toLowerCase())
-      ) || []
+  }
 
-    if (recipientDevices.length) {
-      this.statsIncr('subscribed', 1)
-    }
+  bodyCustomDataBundle: BodyCustomDataBundle
 
-    const totalUnsubscribed = allPushDevices.length - recipientDevices.length
-    if (totalUnsubscribed > 0) {
-      this.statsIncr('notsubscribed', totalUnsubscribed)
-    }
+  async sendToRecepient(recipientDevice: Recepient) {
+    const { requestBody, customData } = this.bodyCustomDataBundle
 
-    if (!recipientDevices?.length) {
-      this.logInfo(`not sending push notification, no devices are subscribed - ${this.settings.spaceId}`)
-      this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.NotSubscribed)
-      return
-    }
-    this.currentOperation?.tags.push('sendability_status:' + SendabilityStatus.ShouldSend)
+    const webhookUrl = this.getWebhookUrlWithParams(recipientDevice.type, recipientDevice.id)
 
-    const { requestBody, customData } = await this.getBody()
-    const twilioHostname = this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
-    const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
-      'base64'
-    )
+    const body = new URLSearchParams(requestBody)
 
-    /*
-     * we send a request for each individual subscribed device because the delivery
-     * webhook callback does not include the push token/external id value
-     * this is a limitation that will be handled post beta
-     */
-    const responses = []
-    const failedSends = []
-    let failureIsRetryable = true
-    for (const recipientDevice of recipientDevices) {
-      const webhookUrl = this.getWebhookUrlWithParams(recipientDevice.type, recipientDevice.id)
-
-      try {
-        const body = new URLSearchParams(requestBody)
-
-        if (recipientDevice?.type?.toLowerCase() === 'ios.push_token') {
-          body.append(
-            'Recipients',
-            JSON.stringify({
-              apn: [{ addr: recipientDevice.id }]
-            })
-          )
-        } else {
-          body.append(
-            'Recipients',
-            JSON.stringify({
-              fcm: [{ addr: recipientDevice.id }]
-            })
-          )
-        }
-
-        body.append(
-          'CustomData',
-          JSON.stringify({
-            ...customData,
-            __segment_internal_external_id_key__: recipientDevice.type,
-            __segment_internal_external_id_value__: recipientDevice.id
-          })
-        )
-
-        if (webhookUrl) {
-          body.append('DeliveryCallbackUrl', webhookUrl)
-        }
-
-        this.statsSet('message_body_size', body?.toString().length)
-
-        const response = await this.request(
-          `https://${twilioHostname}/v1/Services/${this.payload.from}/Notifications`,
-          {
-            method: 'POST',
-            headers: {
-              authorization: `Basic ${twilioToken}`
-            },
-            body
-          }
-        )
-
-        responses.push(response)
-      } catch (error: unknown) {
-        /* on unexpected fail, do not block rest of phones from receiving push notification
-         * we dont want to retry the entire send again either if some succeeded and some failed,
-         * if we do, we run the risk of spamming devices that succeeded with centrifuge retries
-         * it's accepted that the user received the notification since all devices in externalIds belong to them
-         */
-        let errorResponse = undefined
-        if (error instanceof Object) {
-          const apiError = error as PushApiError
-          errorResponse = apiError.response
-          responses.push(errorResponse)
-
-          // we set a flag to retry only if a non-retryable status has not been encountered already
-          const errorStatus = apiError.response?.status ?? apiError.response?.data?.status
-
-          failureIsRetryable = failureIsRetryable && this.retryableStatusCodes.includes(errorStatus)
-        } else {
-          // unknown error - do not retry
-          failureIsRetryable = false
-        }
-
-        failedSends.push({ ...recipientDevice, id: this.redactPii(recipientDevice.id), error, response: errorResponse })
-      }
-    }
-
-    /*
-     * if every device failed to send, lets attempt to retry if possible
-     */
-    if (failedSends.length === recipientDevices.length) {
-      //This statement wont be reached if recipientDevices.length = 0
-      if (failureIsRetryable) {
-        throw new RetryableError(
-          'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0])
-        )
-      }
-
-      throw new IntegrationError(
-        'Failed to send to all subscribed devices. First error: ' + JSON.stringify(failedSends[0]),
-        'UNEXPECTED_ERROR',
-        responses.find((resp) => !this.retryableStatusCodes.includes(resp.status))?.status || 400
+    if (recipientDevice?.type?.toLowerCase() === 'ios.push_token') {
+      body.append(
+        'Recipients',
+        JSON.stringify({
+          apn: [{ addr: recipientDevice.id }]
+        })
+      )
+    } else {
+      body.append(
+        'Recipients',
+        JSON.stringify({
+          fcm: [{ addr: recipientDevice.id }]
+        })
       )
     }
 
-    this.currentOperation?.tags.push(`total_succeeded:${recipientDevices.length - failedSends.length}`)
-    this.currentOperation?.tags.push(`total_failed:${failedSends.length}`)
-    if (this.payload.eventOccurredTS != undefined) {
-      this.statsHistogram('eventDeliveryTS', Date.now() - new Date(this.payload.eventOccurredTS).getTime())
+    body.append(
+      'CustomData',
+      JSON.stringify({
+        ...customData,
+        __segment_internal_external_id_key__: recipientDevice.type,
+        __segment_internal_external_id_value__: recipientDevice.id
+      })
+    )
+
+    if (webhookUrl) {
+      body.append('DeliveryCallbackUrl', webhookUrl)
     }
 
-    return responses
+    this.statsSet('message_body_size', body?.toString().length)
+
+    const res = await this.request(`https://${this.twilioHostname}/v1/Services/${this.payload.from}/Notifications`, {
+      method: 'POST',
+      headers: {
+        authorization: `Basic ${this.twilioToken}`
+      },
+      body
+    })
+    return res
   }
 
   @track()

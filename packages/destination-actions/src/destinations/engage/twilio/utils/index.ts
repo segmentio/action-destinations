@@ -1,2 +1,2 @@
-export * from './message-sender'
-export * from './phone-message'
+export * from './TwilioMessageSender'
+export * from './PhoneMessageSender'

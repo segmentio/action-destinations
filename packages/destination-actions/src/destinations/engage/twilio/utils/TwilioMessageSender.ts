@@ -2,31 +2,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
-import type { Payload as SmsPayload } from '../sendSms/generated-types'
-import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
+// import type { Payload as SmsPayload } from '../sendSms/generated-types'
+// import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { track, EngageActionPerformer } from '../../utils'
+import { track, MessageSendPerformer, MessagePayloadBase } from '../../utils'
 
 const Liquid = new LiquidJs()
 
-export abstract class MessageSender<MessagePayload extends SmsPayload | WhatsappPayload> extends EngageActionPerformer<
+export interface TwilioPayloadBase extends MessagePayloadBase {
+  contentSid?: string
+}
+
+export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> extends MessageSendPerformer<
   Settings,
-  MessagePayload
+  TPayload
 > {
   getIntegrationStatsName(): string {
     return 'actions_personas_messaging_twilio'
   }
-  static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
-  static readonly sendableStatuses = ['subscribed', 'true']
-  protected readonly supportedTemplateTypes: string[]
-
-  abstract send(): Promise<Response | Response[] | object[] | undefined>
-
-  async doPerform() {
-    this.beforeSend()
-    return this.send()
-  }
+  abstract readonly supportedTemplateTypes: string[]
 
   /*
    * takes an object full of content containing liquid traits, renders it, and returns it in the same shape
@@ -59,7 +54,7 @@ export abstract class MessageSender<MessagePayload extends SmsPayload | Whatsapp
   /**
    * populate the logDetails object with the data that should be logged for every message
    */
-  beforeSend() {
+  beforePeform() {
     if (!this.settings.region) {
       this.settings.region = 'us-west-1'
     }

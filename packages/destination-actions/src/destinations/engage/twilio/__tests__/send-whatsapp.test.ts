@@ -190,8 +190,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         }
       })
       expect(responses).toHaveLength(0)
-      expectInfoLogged('Invalid subscription statuses found in externalIds')
-      expectInfoLogged('Not sending message, because sendabilityStatus')
+      expectInfoLogged('Not sending message because INVALID_SUBSCRIPTION_STATUS')
     })
 
     it('formats the to number correctly for whatsapp', async () => {

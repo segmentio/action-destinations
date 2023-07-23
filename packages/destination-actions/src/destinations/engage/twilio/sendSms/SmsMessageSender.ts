@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { PhoneMessage } from '../utils'
-import { track } from '../../utils'
+import { PhoneMessageSender } from '../utils'
+import { ExtId, track } from '../../utils'
 
-export class SmsMessageSender extends PhoneMessage<Payload> {
-  protected supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
+export class SmsMessageSender extends PhoneMessageSender<Payload> {
+  supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']
 
   @track()
   async getBody(phone: string): Promise<URLSearchParams> {
@@ -63,13 +63,6 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
     return 'sms'
   }
 
-  isValidExternalId(externalId: NonNullable<Payload['externalIds']>[number]): boolean {
-    if (externalId.type !== 'phone') {
-      return false
-    }
-    return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
-  }
-
   @track()
   private async getProfileTraits() {
     if (!this.payload.userId) {
@@ -99,5 +92,12 @@ export class SmsMessageSender extends PhoneMessage<Payload> {
         500
       ])
     }
+  }
+
+  isSupportedExternalId(externalId: ExtId<Payload>): boolean {
+    if (externalId.type !== 'phone') {
+      return false
+    }
+    return !externalId.channelType || externalId.channelType.toLowerCase() === this.getChannelType()
   }
 }

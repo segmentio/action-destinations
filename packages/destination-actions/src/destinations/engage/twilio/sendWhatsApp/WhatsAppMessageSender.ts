@@ -3,13 +3,16 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { PhoneMessage } from '../utils'
+import { PhoneMessageSender } from '../utils'
 import { track } from '../../utils'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()
 
-export class WhatsAppMessageSender extends PhoneMessage<Payload> {
+export class WhatsAppMessageSender extends PhoneMessageSender<Payload> {
+  get supportedTemplateTypes(): string[] {
+    throw new Error('Method not supported.')
+  }
   getChannelType() {
     return 'whatsapp'
   }

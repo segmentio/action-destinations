@@ -1,4 +1,5 @@
 export * from './EngageActionPerformer'
+export * from './MessageSendPerformer'
 export * from './operationTracking'
 export * from './EngageLogger'
 export * from './EngageStats'

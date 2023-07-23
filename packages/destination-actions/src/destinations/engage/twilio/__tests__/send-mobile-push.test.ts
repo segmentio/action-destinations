@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
 import { PushSender } from '../sendMobilePush/push-sender'
+import { SendabilityStatus } from '../../utils'
 
 const spaceId = 'spaceid'
 const contentSid = 'HX1234'
@@ -221,13 +222,13 @@ describe('sendMobilePush action', () => {
         }
       })
       expect(responses.length).toEqual(0)
-      expectInfoLogged(`not sending push notification, no devices are subscribed`)
+      expectInfoLogged(`Not sending message because`, SendabilityStatus.NotSubscribed.toUpperCase())
     })
 
     it('should abort when send is disabled', async () => {
       const responses = await testAction({ mappingOverrides: { send: false } })
       expect(responses.length).toEqual(0)
-      expectInfoLogged(`not sending push notification, payload.send = false`)
+      expectInfoLogged(`Not sending message because`, SendabilityStatus.SendDisabled.toUpperCase())
     })
 
     it('should fail on invalid webhook url', async () => {
@@ -264,8 +265,8 @@ describe('sendMobilePush action', () => {
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(500, errorResponse)
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, errorResponse)
 
-      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'RETRYABLE_ERROR')
-      expectErrorLogged('Failed to send to all subscribed devices')
+      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', errorResponse.code)
+      expectErrorLogged('Failed to send to all subscribed recepients \\(retryable\\)')
     })
 
     it('throws non-retryable error when all sends fail for non-retryable reasons', async () => {
@@ -282,15 +283,15 @@ describe('sendMobilePush action', () => {
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
 
       const errorResponse = {
-        code: 20004,
+        code: '20004',
         statusCode: 400,
         message: 'bad stuff'
       }
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(400, errorResponse)
       nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(400, errorResponse)
 
-      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', 'UNEXPECTED_ERROR')
-      expectErrorLogged('Failed to send to all subscribed devices. First error:')
+      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', errorResponse.code)
+      expectErrorLogged('Failed to send to all subscribed recepients \\(non-retryable\\)')
     })
 
     it('does not throw retryable error when at least one send succeeds', async () => {
