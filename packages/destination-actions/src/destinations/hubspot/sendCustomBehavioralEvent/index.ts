@@ -67,9 +67,11 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload, settings }) => {
-    //Transform the eventName
-    payload.eventName = transformEventName(payload.eventName)
+  perform: (request, { payload, settings, features }) => {
+    if (features && features['actions-hubspot-event-name']) {
+      //Transform the eventName
+      payload.eventName = transformEventName(payload.eventName)
+    }
 
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
