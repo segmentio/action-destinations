@@ -94,6 +94,19 @@ export abstract class MessageSendPerformer<
   }
 
   /**
+   * check if extId is (un)subscribed (returns true|false) or if subscription status is invalid (returns undefined)
+   */
+  isExternalIdSubscribed(extId: ExtId<TPayload>): boolean | undefined {
+    const staticMems = this.getStaticMembersOfThisClass()
+    const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
+    if (!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
+    // if subStatus is not in any of the lists of valid statuses, then return true
+    if (staticMems.sendableStatuses.includes(subStatus)) return true
+    if (staticMems.nonSendableStatuses.includes(subStatus)) return false
+    return undefined //Invalid subscriptionStatus
+  }
+
+  /**
    * Gets all sendable recepients for the current payload or a reason why it is not sendable
    * @returns
    */
@@ -102,27 +115,19 @@ export abstract class MessageSendPerformer<
       return { sendabilityStatus: SendabilityStatus.SendDisabled }
     }
 
-    const staticMems = this.getStaticMembersOfThisClass()
-
     // list of extenalIds that are supported by this Channel, if none - exit
-    const supportedExtIds = this.payload.externalIds?.filter((extId) => this.isSupportedExternalId(extId))
-    if (!supportedExtIds || !supportedExtIds.length)
+    const supportedExtIdsWithSub = this.payload.externalIds
+      ?.filter((extId) => this.isSupportedExternalId(extId))
+      .map((extId) => ({ extId, isSubscribed: this.isExternalIdSubscribed(extId) }))
+    if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
         sendabilityStatus: SendabilityStatus.NotSubscribed
       }
 
-    const invalidSubStatuses = supportedExtIds.filter((extId) => {
-      const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
-      if (!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
-      // if subStatus is not in any of the lists of valid statuses, then return true
-      return !(staticMems.nonSendableStatuses.includes(subStatus) || staticMems.sendableStatuses.includes(subStatus))
-    })
+    const invalidSubStatuses = supportedExtIdsWithSub.filter((e) => e.isSubscribed === undefined).map((e) => e.extId)
 
-    const subscribedExtIds = supportedExtIds.filter(
-      (extId) =>
-        extId.subscriptionStatus &&
-        staticMems.sendableStatuses.includes(extId.subscriptionStatus?.toString()?.toLowerCase())
-    )
+    const subscribedExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)
+
     // if have subscribed, then return them IF they have id values (e.g. phone numbers)
     if (subscribedExtIds.length) {
       // making sure subscribed have phone numbers
@@ -134,6 +139,7 @@ export abstract class MessageSendPerformer<
       }
     }
 
+    //only if there was no subscribed found, then we report invalid sub statuses
     if (invalidSubStatuses.length)
       return {
         sendabilityStatus: SendabilityStatus.InvalidSubscriptionStatus,
@@ -143,7 +149,7 @@ export abstract class MessageSendPerformer<
     // should not get here, but if we did - return no phones
     return {
       sendabilityStatus: SendabilityStatus.NoSenderPhone,
-      recepients: supportedExtIds
+      recepients: supportedExtIdsWithSub.map((e) => e.extId)
     }
   }
 
