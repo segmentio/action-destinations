@@ -21,6 +21,11 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
   getIntegrationStatsName(): string {
     return 'actions_personas_messaging_twilio'
   }
+
+  getDefaultSettingsRegion() {
+    return 'us-west-1'
+  }
+
   abstract readonly supportedTemplateTypes: string[]
 
   /*
@@ -133,8 +138,8 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     return null
   }
 
-  beforePeform() {
-    super.beforePeform()
+  beforePerform() {
+    super.beforePerform()
     Object.assign(this.logDetails, {
       contentSid: this.payload.contentSid,
       twilioApiKeySID: this.settings.twilioApiKeySID

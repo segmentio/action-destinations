@@ -197,9 +197,9 @@ export abstract class MessageSendPerformer<
   /**
    * populate the logDetails object with the data that should be logged for every message
    */
-  beforePeform() {
-    if (!this.settings.region) {
-      this.settings.region = 'us-west-1'
+  beforePerform() {
+    if (!this.settings.region && this.getDefaultSettingsRegion) {
+      this.settings.region = this.getDefaultSettingsRegion()
     }
     //overrideable
     Object.assign(this.logDetails, {
@@ -213,9 +213,17 @@ export abstract class MessageSendPerformer<
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
-    if ('deliveryAttempt' in (this.executeInput as any)['rawData'])
-      this.currentOperation?.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
+    if ('deliveryAttempt' in (this.executeInput as any)['rawData']) {
+      const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
+      this.currentOperation?.tags.push(`delivery_attempt:${delivery_attempt}`)
+      this.logDetails['delivery_attempt'] = delivery_attempt
+    }
   }
+
+  /**
+   * used to set settings.region if it's undefined
+   */
+  getDefaultSettingsRegion?(): string
 
   statsEventDeliveryTs(): void {
     const eventOccurredTS = (this.payload as any)?.eventOccurredTS
