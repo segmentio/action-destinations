@@ -6,7 +6,7 @@ import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../..
 /**
  * Base class for sending sms/mms
  */
-export abstract class PhoneMessageSender<Payload extends TwilioPayloadBase> extends TwilioMessageSender<Payload> {
+export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> extends TwilioMessageSender<Payload> {
   private readonly EXTERNAL_ID_KEY = 'phone'
   private readonly DEFAULT_HOSTNAME = 'api.twilio.com'
   private readonly DEFAULT_CONNECTION_OVERRIDES = 'rp=all&rc=5'
@@ -65,8 +65,22 @@ export abstract class PhoneMessageSender<Payload extends TwilioPayloadBase> exte
   }
 
   getRecepients(): ExtId<Payload>[] {
-    // for phone messages we only support one first recepient
+    if (this.payload.toNumber)
+      return [
+        {
+          id: this.payload.toNumber
+        }
+      ]
+
+    // for phone and email channels we only support single recepient and we take the first subscribed
     const res = super.getRecepients()
     return res.length > 0 ? [res[0]] : res
   }
+}
+
+export interface PhoneMessagePayload extends TwilioPayloadBase {
+  /**
+   * used as an override when testing
+   */
+  toNumber?: string
 }
