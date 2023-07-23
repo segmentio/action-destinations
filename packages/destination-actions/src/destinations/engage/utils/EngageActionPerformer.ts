@@ -43,7 +43,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   abstract getChannelType(): string
 
   @track()
-  async request(url: string, options: RequestOptions): Promise<Response> {
+  async request(url: string, options: RequestOptions) {
     const op = this.currentOperation
     op?.onFinally.push(() => {
       // log response from error or success
@@ -55,7 +55,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       const response_status = response?.data?.status || respError?.status
       if (response_status) op.tags.push(`response_status:${response_status}`)
     })
-    return this.requestClient(url, options)
+    return await this.requestClient(url, options)
   }
 
   redactPii(pii: string | undefined) {
