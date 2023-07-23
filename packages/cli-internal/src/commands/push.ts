@@ -55,7 +55,7 @@ export default class Push extends Command {
     await deprecationWarning(this.warn)
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
-      type: 'multiselect',
+      type: 'autocompleteMultiselect',
       name: 'metadataIds',
       message: 'Pick the definitions you would like to push to Segment:',
       choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
