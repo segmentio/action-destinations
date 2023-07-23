@@ -51,31 +51,6 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     return Object.fromEntries(parsedEntries)
   }
 
-  /**
-   * populate the logDetails object with the data that should be logged for every message
-   */
-  beforePeform() {
-    if (!this.settings.region) {
-      this.settings.region = 'us-west-1'
-    }
-    //overrideable
-    Object.assign(this.logDetails, {
-      externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
-      shouldSend: this.payload.send,
-      contentSid: this.payload.contentSid,
-      sourceId: this.settings.sourceId,
-      spaceId: this.settings.spaceId,
-      twilioApiKeySID: this.settings.twilioApiKeySID,
-      region: this.settings.region,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messageId: (this.executeInput as any)['rawData']?.messageId, // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
-      channelType: this.getChannelType()
-    })
-    if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
-    if ('deliveryAttempt' in (this.executeInput as any)['rawData'])
-      this.currentOperation?.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
-  }
-
   @track({
     wrapIntegrationError: () => ['Unable to fetch content template', 'Twilio Content API request failure', 500]
   })
@@ -156,5 +131,13 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     }
 
     return null
+  }
+
+  beforePeform() {
+    super.beforePeform()
+    Object.assign(this.logDetails, {
+      contentSid: this.payload.contentSid,
+      twilioApiKeySID: this.settings.twilioApiKeySID
+    })
   }
 }

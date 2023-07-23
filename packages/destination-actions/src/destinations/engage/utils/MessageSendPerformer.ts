@@ -40,6 +40,12 @@ export interface MessagePayloadBase {
   }[]
 }
 
+export interface MessageSettingsBase {
+  region?: string
+  sourceId?: string
+  spaceId?: string
+}
+
 export type ExtId<TPayload extends MessagePayloadBase> = NonNullable<TPayload['externalIds']>[number]
 
 export interface SendabilityPayload<TPayload extends MessagePayloadBase> {
@@ -56,12 +62,10 @@ export type RecepientSendResult<TPayload extends MessagePayloadBase, TResult = a
 }
 
 export abstract class MessageSendPerformer<
-  TSettings,
+  TSettings extends MessageSettingsBase,
   TPayload extends MessagePayloadBase
 > extends EngageActionPerformer<TSettings, TPayload> {
   async doPerform() {
-    await this.beforePeform?.()
-
     // sending messages and collecting results, including exceptions
     const res = this.forAllRecepients((recepient) => this.sendToRecepient(recepient))
 
@@ -190,7 +194,28 @@ export abstract class MessageSendPerformer<
 
   abstract sendToRecepient(recepient: ExtId<TPayload>): any
 
-  beforePeform?(): MaybePromise<void>
+  /**
+   * populate the logDetails object with the data that should be logged for every message
+   */
+  beforePeform() {
+    if (!this.settings.region) {
+      this.settings.region = 'us-west-1'
+    }
+    //overrideable
+    Object.assign(this.logDetails, {
+      externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
+      shouldSend: this.payload.send,
+      region: this.settings.region,
+      sourceId: this.settings.sourceId,
+      spaceId: this.settings.spaceId,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messageId: (this.executeInput as any)['rawData']?.messageId, // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
+      channelType: this.getChannelType()
+    })
+    if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
+    if ('deliveryAttempt' in (this.executeInput as any)['rawData'])
+      this.currentOperation?.tags.push(`delivery_attempt:${(this.executeInput as any)['rawData'].deliveryAttempt}`)
+  }
 
   statsEventDeliveryTs(): void {
     const eventOccurredTS = (this.payload as any)?.eventOccurredTS

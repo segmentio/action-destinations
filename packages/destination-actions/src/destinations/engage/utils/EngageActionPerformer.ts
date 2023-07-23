@@ -23,8 +23,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     this.settings = executeInput.settings
   }
 
+  async beforePerform?(): Promise<void>
+
   @track()
-  perform() {
+  async perform() {
+    await this.beforePerform?.()
     return this.doPerform()
   }
 
