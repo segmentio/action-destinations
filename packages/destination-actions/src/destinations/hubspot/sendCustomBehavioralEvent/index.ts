@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
@@ -67,7 +67,24 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: async (request, { payload, settings, auth }) => {
+    //Will remove after testing
+    console.log('Hubspot oauth credentials:', auth)
+    console.log('Hubspot settings:', settings)
+
+    let response
+    try {
+      response = await request(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
+        method: 'get'
+      })
+    } catch (err) {
+      //No need to throw error in case doesn't get response
+    }
+
+    if (!response?.data?.scopes?.includes('analytics.behavioral_events.send')) {
+      throw new IntegrationError(`Access token doesn't contain the required token by action`, 'MISSING_SCOPE', 403)
+    }
+
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
