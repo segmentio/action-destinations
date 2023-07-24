@@ -7,11 +7,7 @@ export interface AccessTokenResponse {
   expires_in: number
 }
 
-export default async function getAccessToken(
-  request: RequestClient,
-  accessKeyId: string,
-  apiSecret: string
-): Promise<string> {
+export default async function getAccessToken(request: RequestClient, accessKeyId: string, apiSecret: string): Promise<string> {
   const res = await request<AccessTokenResponse>(`${M3TER_AUTH_API}/oauth/token`, {
     method: 'POST',
     body: '{"grant_type":"client_credentials"}',

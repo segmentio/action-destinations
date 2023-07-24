@@ -14,34 +14,28 @@ describe('m3ter', () => {
     org_id: 'someOrgId'
   }
   describe('testAuthentication', () => {
-    it('should correctly authenticate given correct settings ', async function () {
+    it('should correctly authenticate given correct settings ', async function() {
       const response: AccessTokenResponse = {
-        token_type: 'bearer',
-        access_token: 'someTokenValue',
+        'token_type': 'bearer',
+        'access_token': 'someTokenValue',
         expires_in: 122222222
       }
       nock(M3TER_AUTH_API)
         .post(`/oauth/token`, '{"grant_type":"client_credentials"}')
-        .matchHeader(
-          'authorization',
-          `Basic ${Buffer.from(`${settings.access_key_id}:${settings.api_secret}`).toString('base64')}`
-        )
+        .matchHeader('authorization', `Basic ${Buffer.from(`${settings.access_key_id}:${settings.api_secret}`).toString('base64')}`)
         .matchHeader('Content-Type', 'application/json')
         .reply(200, response)
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
-    it('should throw exception if auth has failed', async function () {
+    it('should throw exception if auth has failed', async function() {
       const response = {
-        error: 'invalid_request',
-        error_description: 'Invalid Credentials'
+        'error': 'invalid_request',
+        'error_description': 'Invalid Credentials'
       }
       nock(M3TER_AUTH_API)
         .post(`/oauth/token`, '{"grant_type":"client_credentials"}')
-        .matchHeader(
-          'authorization',
-          `Basic ${Buffer.from(`${settings.access_key_id}:${settings.api_secret}`).toString('base64')}`
-        )
+        .matchHeader('authorization', `Basic ${Buffer.from(`${settings.access_key_id}:${settings.api_secret}`).toString('base64')}`)
         .matchHeader('Content-Type', 'application/json')
         .reply(401, response)
 

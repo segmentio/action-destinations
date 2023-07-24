@@ -35,22 +35,19 @@ const action: ActionDefinition<Settings, Payload> = {
     ets: {
       label: 'End timestamp',
       type: 'datetime',
-      description:
-        'End timestamp for the measurement. Can be used in the case a usage event needs to have an explicit start and end rather than being instantaneous',
+      description: 'End timestamp for the measurement. Can be used in the case a usage event needs to have an explicit start and end rather than being instantaneous',
       required: false
     },
     who: {
       label: 'Who',
       type: 'object',
-      description:
-        'Non-numeric who values for data measurements, such as: who logged-in to the service; who was contacted by the service',
+      description: 'Non-numeric who values for data measurements, such as: who logged-in to the service; who was contacted by the service',
       required: false
     },
     where: {
       label: 'Where',
       type: 'object',
-      description:
-        'Non-numeric where values for data measurements such as: where someone logged into your service from',
+      description: 'Non-numeric where values for data measurements such as: where someone logged into your service from',
       required: false
     },
     what: {
@@ -62,15 +59,13 @@ const action: ActionDefinition<Settings, Payload> = {
     other: {
       label: 'Other',
       type: 'object',
-      description:
-        'Non-numeric other values for measurements such as textual data which is not applicable to Who, What, or Where events',
+      description: 'Non-numeric other values for measurements such as textual data which is not applicable to Who, What, or Where events',
       required: false
     },
     metadata: {
       label: 'Metadata',
       type: 'object',
-      description:
-        "Non-numeric metadata values for measurements using high-cardinality fields that you don't intend to segment when you aggregate the data",
+      description: 'Non-numeric metadata values for measurements using high-cardinality fields that you don\'t intend to segment when you aggregate the data',
       required: false
     },
     measure: {
@@ -94,8 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'Send data to m3ter in batches',
-      description:
-        'When enabled the action will send multiple events in a single API request, improving efficiency. This is m3ter’s recommended mode.',
+      description: 'When enabled the action will send multiple events in a single API request, improving efficiency. This is m3ter’s recommended mode.',
       required: true,
       default: true
     }
@@ -108,18 +102,13 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function submitMeasurements(
-  request: RequestClient,
-  orgId: string,
-  payload: Payload[]
-): Promise<ModifiedResponse[]> {
+async function submitMeasurements(request: RequestClient, orgId: string, payload: Payload[]): Promise<ModifiedResponse[]> {
   const batches = [...limitBatch(payload)]
-  const requests = batches.map((batch) =>
+  const requests = batches.map(batch =>
     request(`${M3TER_INGEST_API}/organizations/${orgId}/measurements`, {
       method: 'post',
-      json: { measurements: batch }
-    })
-  )
+      json: { 'measurements': batch }
+    }))
   return Promise.all(requests)
 }
 

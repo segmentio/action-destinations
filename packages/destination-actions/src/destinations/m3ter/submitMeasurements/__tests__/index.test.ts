@@ -17,7 +17,7 @@ describe('m3ter.submitMeasurements', () => {
     nock(M3TER_INGEST_API)
       .post(`/organizations/${orgId}/measurements`)
       .matchHeader('Authorization', `Bearer ${access_token}`)
-      .reply(200, { result: 'accepted' })
+      .reply(200, { 'result': 'accepted' })
 
     const event = createTestEvent({
       type: 'track',
@@ -52,14 +52,12 @@ describe('m3ter.submitMeasurements', () => {
     })
     expect(response[0].status).toBe(200)
     expect(await response[0].request.json()).toMatchObject({
-      measurements: [
-        {
-          uid: event?.properties?.uid,
-          meter: event?.properties?.meter,
-          account: event?.properties?.account,
-          ts: event?.properties?.ts
-        }
-      ]
+      'measurements': [{
+        uid: event?.properties?.uid,
+        meter: event?.properties?.meter,
+        account: event?.properties?.account,
+        ts: event?.properties?.ts
+      }]
     })
   })
   it('should submitMeasurement in a batch', async () => {
@@ -67,7 +65,8 @@ describe('m3ter.submitMeasurements', () => {
       .post(`/organizations/${orgId}/measurements`)
       .times(2)
       .matchHeader('Authorization', `Bearer ${access_token}`)
-      .reply(200, { result: 'accepted' })
+      .reply(200, { 'result': 'accepted' })
+
 
     const event = createTestEvent({
       type: 'track',
@@ -102,7 +101,7 @@ describe('m3ter.submitMeasurements', () => {
     })
     expect(response[0].status).toBe(200)
     expect(await response[0].request.json()).toMatchObject({
-      measurements: Array(MAX_MEASUREMENTS_PER_BATCH).fill({
+      'measurements': Array(MAX_MEASUREMENTS_PER_BATCH).fill({
         uid: event?.properties?.uid,
         meter: event?.properties?.meter,
         account: event?.properties?.account,
@@ -112,7 +111,7 @@ describe('m3ter.submitMeasurements', () => {
 
     expect(response[1].status).toBe(200)
     expect(await response[1].request.json()).toMatchObject({
-      measurements: Array(eventsExceedingMaxBatch).fill({
+      'measurements': Array(eventsExceedingMaxBatch).fill({
         uid: event?.properties?.uid,
         meter: event?.properties?.meter,
         account: event?.properties?.account,
