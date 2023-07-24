@@ -431,9 +431,12 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
-    } catch (error) {
-      const statusCode = error?.response?.status ?? ''
-      throw new Error(`Credentials are invalid: ${statusCode} ${error.message}`)
+    } catch (error: unknown) {
+      if (error instanceof HTTPError) {
+        const statusCode = error?.response?.status ?? ''
+        throw new Error(`Credentials are invalid: ${statusCode} ${error.message}`)
+      }
+      throw error
     }
   }
 
@@ -614,7 +617,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
 
       const isBatch = Array.isArray(events)
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const allEvents = isBatch ? events : [events]
       const subscribedEvents = allEvents.filter((event) => validate(parsedSubscription, event))
 
       if (subscribedEvents.length === 0) {
