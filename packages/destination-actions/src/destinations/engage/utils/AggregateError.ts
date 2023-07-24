@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core/errors'
+import { IntegrationError } from '@segment/actions-core'
 import { getErrorDetails } from './ResponseError'
 
 export class AggregateError extends IntegrationError {

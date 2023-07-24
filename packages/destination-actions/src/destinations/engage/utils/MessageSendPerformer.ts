@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { RetryableError } from "@segment/actions-core/errors";
+// import { RetryableError } from "@segment/actions-core";
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { isRetryableError } from './isRetryableError'
 import { AggregateError } from './AggregateError'

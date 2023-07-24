@@ -8,7 +8,7 @@ import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
 import { ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
-import { IntegrationError } from '@segment/actions-core/errors'
+import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited } from './operationTracking'
 
