@@ -43,4 +43,20 @@ export interface Payload {
    * Timestamp of event
    */
   timestamp: string
+  /**
+   * GDPR optin.
+   */
+  gdprOptin?: boolean
+  /**
+   * Email optin.
+   */
+  emailOptin?: boolean
+  /**
+   * SMS optin.
+   */
+  smsOptin?: boolean
+  /**
+   * Whatsapp optin.
+   */
+  whatsappOptin?: boolean
 }

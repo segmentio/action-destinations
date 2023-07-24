@@ -54,6 +54,10 @@ export interface Payload {
    */
   country?: string
   /**
+   * GDPR optin.
+   */
+  gdprOptin?: boolean
+  /**
    * Email optin.
    */
   emailOptin?: boolean
@@ -69,4 +73,10 @@ export interface Payload {
    * The user's preferred language.
    */
   language?: string
+  /**
+   * The user's additional information.
+   */
+  custom?: {
+    [k: string]: unknown
+  }
 }
