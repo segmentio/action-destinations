@@ -4,6 +4,10 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinal
 export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
     onFinally: (() => void)[]
+    decoratorArgs?: {
+      onTry?: (ctx: TContext) => void
+      onFinally?: (ctx: TContext) => void
+    }
   }
 
 /**
@@ -19,6 +23,7 @@ export class OperationFinallyHooks {
 
   static onTry<TContext extends TryCatchFinallyContext>(ctx: OperationFinallyHooksContext<TContext>) {
     ctx.onFinally = []
+    ctx.decoratorArgs?.onTry?.(ctx)
   }
 
   static onFinally<TContext extends TryCatchFinallyContext>(ctx: OperationFinallyHooksContext<TContext>) {
@@ -32,5 +37,6 @@ export class OperationFinallyHooks {
         if (loggerCtx.logs) loggerCtx.logs.push(`Error in onFinally hook: ${error?.message || error.toString()}`)
       }
     }
+    ctx.decoratorArgs?.onFinally?.(ctx)
   }
 }

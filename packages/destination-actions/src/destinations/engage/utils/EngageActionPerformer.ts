@@ -47,7 +47,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
    */
   abstract getChannelType(): string
 
-  @track()
+  @track({
+    onTry: (ctx) => {
+      const ctxFull = ctx as OperationContext
+      const argUrl = ctx.funcArgs?.[0]
+      if (ctxFull.logs && argUrl) ctxFull.logs.push(argUrl)
+    }
+  })
   async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
     op?.onFinally.push(() => {
