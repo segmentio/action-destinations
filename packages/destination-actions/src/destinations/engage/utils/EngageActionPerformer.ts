@@ -62,13 +62,27 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
         if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
+        if (this.onResponse)
+          try {
+            this.onResponse({ error: respError, operation: op })
+          } catch (e) {
+            op.logs.push(`Error in onResponse: ${e}`)
+          }
       } else {
         const resp: Awaited<ReturnType<RequestClient>> = op?.result
         if (resp && resp.status) op.tags.push(`response_status:${resp.status}`)
+        if (this.onResponse)
+          try {
+            this.onResponse({ response: resp, operation: op })
+          } catch (e) {
+            op.logs.push(`Error in onResponse: ${e}`)
+          }
       }
     })
     return await this.requestClient(url, options)
   }
+
+  onResponse?(args: { response?: Awaited<ReturnType<RequestClient>>; error?: any; operation: OperationContext }): void
 
   redactPii(pii: string | undefined) {
     if (!pii) {

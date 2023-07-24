@@ -1,4 +1,4 @@
-import { ExtId, MessageSendPerformer, track } from '../../utils'
+import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../utils'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Profile } from '../Profile'
@@ -372,6 +372,13 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     })
 
     return $.html()
+  }
+
+  onResponse(args: { response?: Response; error?: ResponseError; operation: OperationContext }) {
+    const headers = args.response?.headers || args.error?.response.headers
+    // if we need to investigate with sendgrid, we'll need this: https://docs.sendgrid.com/glossary/message-id
+    const sgMsgId = headers?.get('X-Message-ID')
+    if (sgMsgId) args.operation.logs.push('[sendgrid]X-Message-ID: ' + sgMsgId)
   }
 }
 
