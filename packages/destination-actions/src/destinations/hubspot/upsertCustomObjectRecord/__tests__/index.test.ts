@@ -257,7 +257,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     ).rejects.toThrowError(MultipleCustomRecordsInSearchResultThrowableError)
   })
 
-  it('should dynamically fetch custom object name', async () => {
+  it('should dynamically fetch custom objectType', async () => {
     nock(HUBSPOT_BASE_URL)
       .get(`/crm/v3/schemas?archived=false`)
       .reply(200, {
@@ -340,9 +340,10 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
           }
         ]
       })
-    const payload = {}
+
+    //Dynamically Fetch objectType
     const responses = (await testDestination.executeDynamicField('upsertCustomObjectRecord', 'objectType', {
-      payload: payload,
+      payload: {},
       settings: {}
     })) as DynamicFieldResponse
 
@@ -364,6 +365,173 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         expect.objectContaining({
           label: 'Tickets',
           value: 'tickets'
+        })
+      ])
+    )
+  })
+
+  it('should dynamically fetch toObjectType', async () => {
+    nock(HUBSPOT_BASE_URL)
+      .get(`/crm/v3/schemas?archived=false`)
+      .reply(200, {
+        results: [
+          {
+            labels: {
+              singular: 'Car',
+              plural: 'Cars'
+            },
+            fullyQualifiedName: 'p22596207_car',
+            createdAt: '2022-09-02T06:37:55.855Z',
+            updatedAt: '2022-09-02T07:04:56.159Z',
+            objectTypeId: '2-8594192',
+            properties: [
+              {
+                updatedAt: '2022-09-02T06:37:55.966Z',
+                createdAt: '2022-09-02T06:37:55.966Z',
+                name: 'color',
+                label: 'Color',
+                type: 'string',
+                fieldType: 'text',
+                description: '',
+                groupName: 'car_information',
+                options: [],
+                createdUserId: '1058338',
+                updatedUserId: '1058338',
+                displayOrder: -1,
+                calculated: false,
+                externalOptions: false,
+                archived: false,
+                hasUniqueValue: false,
+                hidden: false,
+                modificationMetadata: {
+                  archivable: true,
+                  readOnlyDefinition: false,
+                  readOnlyValue: false
+                },
+                formField: false
+              }
+            ],
+            name: 'car'
+          },
+          {
+            labels: {
+              singular: 'ServiceRequest',
+              plural: 'ServiceRequests'
+            },
+            fullyQualifiedName: 'p22596207_service_request',
+            createdAt: '2022-09-05T08:16:13.083Z',
+            updatedAt: '2022-09-05T08:16:13.083Z',
+            objectTypeId: '2-8648833',
+            properties: [
+              {
+                updatedAt: '2022-09-05T08:16:13.214Z',
+                createdAt: '2022-09-05T08:16:13.214Z',
+                name: 'customer_id',
+                label: 'Unique ID for a customer',
+                type: 'string',
+                fieldType: 'text',
+                description: '',
+                groupName: 'service_request_information',
+                options: [],
+                createdUserId: '1058338',
+                updatedUserId: '1058338',
+                displayOrder: -1,
+                calculated: false,
+                externalOptions: false,
+                archived: false,
+                hasUniqueValue: false,
+                hidden: false,
+                modificationMetadata: {
+                  archivable: true,
+                  readOnlyDefinition: false,
+                  readOnlyValue: false
+                },
+                formField: true
+              }
+            ],
+            name: 'service_request'
+          }
+        ]
+      })
+
+    //Dynamically Fetch toObjectType
+    const toObjectTypeResponses = (await testDestination.executeDynamicField(
+      'upsertCustomObjectRecord',
+      'toObjectType',
+      {
+        payload: {},
+        settings: {}
+      }
+    )) as DynamicFieldResponse
+
+    expect(toObjectTypeResponses.choices.length).toBe(6)
+    expect(toObjectTypeResponses.choices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Cars',
+          value: 'p22596207_car'
+        }),
+        expect.objectContaining({
+          label: 'ServiceRequests',
+          value: 'p22596207_service_request'
+        }),
+        expect.objectContaining({
+          label: 'Deals',
+          value: 'deals'
+        }),
+        expect.objectContaining({
+          label: 'Tickets',
+          value: 'tickets'
+        }),
+        expect.objectContaining({
+          label: 'Contacts',
+          value: 'contacts'
+        }),
+        expect.objectContaining({
+          label: 'Companies',
+          value: 'companies'
+        })
+      ])
+    )
+  })
+  it('should dynamically fetch association labels between objectType and toObjectType', async () => {
+    nock(HUBSPOT_BASE_URL)
+      .get(`/crm/v4/associations/${objectType}/${toObjectType}/labels`)
+      .reply(200, {
+        results: [
+          {
+            category: 'HUBSPOT_DEFINED',
+            typeId: 279,
+            label: null
+          },
+          {
+            category: 'HUBSPOT_DEFINED',
+            typeId: 1,
+            label: 'Primary'
+          }
+        ]
+      })
+
+    //Dynamically Fetch association Labels between objectType and toObjectType
+    const payload = {
+      objectType: objectType,
+      toObjectType: toObjectType
+    }
+    const responses = (await testDestination.executeDynamicField('upsertCustomObjectRecord', 'associationLabel', {
+      payload: payload,
+      settings: {}
+    })) as DynamicFieldResponse
+
+    expect(responses.choices.length).toBe(2)
+    expect(responses.choices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Unlabeled Association (Type 279)',
+          value: 'HUBSPOT_DEFINED:279'
+        }),
+        expect.objectContaining({
+          label: 'Primary',
+          value: 'HUBSPOT_DEFINED:1'
         })
       ])
     )
