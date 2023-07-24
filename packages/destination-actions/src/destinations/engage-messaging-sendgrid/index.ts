@@ -5,4 +5,6 @@
     at ActionVersionManager.importAndRegisterDestination (/usr/src/integrations/createActionDestination/actionVersionManager.js:177:19)
     at ActionVersionManager.retrieveIntegration (/usr/src/integrations/createActionDestination/actionVersionManager.js:130:18)
  */
+import destination from '../engage/sendgrid'
+export default destination
 export * from '../engage/sendgrid'

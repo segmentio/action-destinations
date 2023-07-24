@@ -6,4 +6,6 @@
     at ActionVersionManager.retrieveIntegration (/usr/src/integrations/createActionDestination/actionVersionManager.js:130:18)
 
  */
+import destination from '../engage/twilio'
+export default destination
 export * from '../engage/twilio'
