@@ -103,3 +103,9 @@ describe('Testing _validate_timestamp', () => {
     expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual('2023-05-06T20:45:12')
   })
 })
+
+describe('Testing parse_date', () => {
+  it('should parse a date into a date object', () => {
+    expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
+  })
+})
