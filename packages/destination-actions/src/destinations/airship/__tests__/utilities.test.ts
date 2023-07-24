@@ -120,3 +120,9 @@ describe('Testing parse_date', () => {
     expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
   })
 })
+
+describe('Testing parse_date', () => {
+  it('should parse a date into a date object', () => {
+    expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
+  })
+})
