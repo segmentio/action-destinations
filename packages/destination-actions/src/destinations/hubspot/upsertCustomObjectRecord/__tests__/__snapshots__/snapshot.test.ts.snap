@@ -14,9 +14,7 @@ Object {
     },
   ],
   "properties": Array [],
-  "sorts": Array [
-    "name",
-  ],
+  "sorts": Array [],
 }
 `;
 
@@ -24,6 +22,7 @@ exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination act
 
 exports[`Testing snapshot for HubSpot's upsertCustomObjectRecord destination action: required fields 1`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "testType": "3mKhorxHT$[h[CqZ2ptH",
   },
