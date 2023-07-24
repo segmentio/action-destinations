@@ -13,6 +13,13 @@ interface CustomBehavioralEvent {
   objectId?: string
 }
 
+interface AccessTokenInfo {
+  token: string
+  user: string
+  scopes: string[]
+  hub_id: number
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Behavioral Event',
   description: 'Send a custom behavioral event to HubSpot.',
@@ -74,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     let response
     try {
-      response = await request(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
+      response = await request<AccessTokenInfo>(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
         method: 'get'
       })
     } catch (err) {
