@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     return request(`${AppFitConfig.apiUrl}/metric-events`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${settings.apiKey}` },
+      headers: { Authorization: `Basic ${settings.apiKey}` },
 
       json: {
         eventSource: 'segment',
