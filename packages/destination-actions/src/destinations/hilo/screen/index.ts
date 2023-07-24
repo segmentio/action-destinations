@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Screen',
   description: 'Track mobile screen view in Hilo',
+  defaultSubscription: 'type = "screen"',
   fields: {
     anonymousId: {
       type: 'string',
