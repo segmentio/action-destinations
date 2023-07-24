@@ -19,7 +19,7 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "&bUSudpNPsUWT",
+      "api-key",
     ],
     "content-type": Array [
       "application/json",
@@ -53,7 +53,7 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "&bUSudpNPsUWT",
+      "api-key",
     ],
     "content-type": Array [
       "application/json",

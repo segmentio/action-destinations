@@ -19,7 +19,7 @@ exports[`Testing snapshot for actions-launchdarkly-audiences destination: syncAu
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "uKRBKG",
+      "api-key",
     ],
     "content-type": Array [
       "application/json",
