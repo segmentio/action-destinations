@@ -68,13 +68,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings, features }) => {
+    let transformedEventName
     if (features && features['actions-hubspot-event-name']) {
       //Transform the eventName
-      payload.eventName = transformEventName(payload.eventName)
+      transformedEventName = transformEventName(payload.eventName)
     }
 
     const event: CustomBehavioralEvent = {
-      eventName: payload.eventName,
+      eventName: transformedEventName ? transformedEventName : payload.eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
       email: payload.email,
