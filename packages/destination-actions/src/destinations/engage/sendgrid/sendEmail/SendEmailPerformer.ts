@@ -47,11 +47,11 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
     const recepientGroup = extId.groups?.find((g) => g.id === this.payload.groupId)
     if (!recepientGroup) {
-      //this.statsClient.incr('group_notfound', 1)
+      this.statsClient.incr('group_notfound', 1)
       return false
     }
     if (!recepientGroup.isSubscribed) {
-      //this.statsClient.incr('group_notsubscribed', 1)
+      this.statsClient.incr('group_notsubscribed', 1)
       return false
     }
 
