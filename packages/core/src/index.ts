@@ -30,6 +30,7 @@ export type {
   ActionDefinition,
   BaseDefinition,
   DestinationDefinition,
+  AudienceDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
