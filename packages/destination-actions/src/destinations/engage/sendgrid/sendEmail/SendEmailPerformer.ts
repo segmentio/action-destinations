@@ -146,28 +146,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       this.performApiLookups(this.payload.apiLookups, profile)
     ])
 
-    let parsedBodyHtml
-
-    if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
-      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
-      const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
-      parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
-    } else {
-      parsedBodyHtml = await this.parseTemplating(
-        this.payload.bodyHtml ?? '',
-        { profile, [apiLookupLiquidKey]: apiLookupData },
-        'Body HTML'
-      )
-    }
-
-    // only include preview text in design editor templates
-    if (this.payload.bodyType === 'design' && this.payload.previewText) {
-      const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
-    }
-
-    parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)
+    const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
 
     const mailContentSubscriptionHonored = {
       personalizations: [
@@ -243,6 +222,45 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
     return response
+  }
+
+  @track()
+  async getBodyHtml(
+    profile: Profile,
+    apiLookupData: Record<string, unknown>,
+    emailProfile: {
+      id?: string | undefined
+      type?: string | undefined
+      subscriptionStatus?: string | undefined
+      unsubscribeLink?: string | undefined
+      preferencesLink?: string | undefined
+      groups?:
+        | { id?: string | undefined; isSubscribed?: boolean | undefined; groupUnsubscribeLink?: string | undefined }[]
+        | undefined
+    }
+  ) {
+    let parsedBodyHtml
+    if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
+      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
+      parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
+    } else {
+      parsedBodyHtml = await this.parseTemplating(
+        this.payload.bodyHtml ?? '',
+        { profile, [apiLookupLiquidKey]: apiLookupData },
+        'Body HTML'
+      )
+    }
+
+    // only include preview text in design editor templates
+    if (this.payload.bodyType === 'design' && this.payload.previewText) {
+      const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+    }
+
+    parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)
+    return parsedBodyHtml
   }
 
   @track()
