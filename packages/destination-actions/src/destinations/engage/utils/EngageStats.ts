@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
+import { StatsClient } from '@segment/actions-core/destination-kit'
 import {
   StatsArgs,
   OperationStats,
@@ -42,7 +42,13 @@ export class EngageStats extends OperationStats {
   get statsClient(): StatsClient | undefined {
     return this.actionPerformer.executeInput.statsContext?.statsClient
   }
-  readonly tags: StatsContext['tags']
+  get tags() {
+    if (this.actionPerformer.currentOperation?.tags) return this.actionPerformer.currentOperation.tags
+    if (this.actionPerformer.executeInput.statsContext?.tags)
+      return this.actionPerformer.executeInput.statsContext?.tags
+    return this._tags
+  }
+  _tags: string[] = []
 
   stats(statsArgs: StatsArgs): void {
     if (!this.statsClient) return

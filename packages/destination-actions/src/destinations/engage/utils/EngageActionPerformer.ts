@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ExecuteInput } from '@segment/actions-core/destination-kit'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
@@ -5,11 +6,14 @@ import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
-import { ResponseError } from './ResponseError'
+import { ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core/errors'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 
+/**
+ * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
+ */
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
   readonly logger: EngageLogger = new EngageLogger(this)
   readonly statsClient: EngageStats = new EngageStats(this)
@@ -48,12 +52,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     op?.onFinally.push(() => {
       // log response from error or success
       const respError = op?.error as ResponseError
-      const response = respError?.response || (op.result as Response)
-      const response_code = response?.data?.code || respError?.code
-      if (response_code) op.tags.push(`response_code:${response_code}`)
-
-      const response_status = response?.data?.status || respError?.status
-      if (response_status) op.tags.push(`response_status:${response_status}`)
+      const errorDetails = getErrorDetails(respError)
+      if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
+      if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
     })
     return await this.requestClient(url, options)
   }

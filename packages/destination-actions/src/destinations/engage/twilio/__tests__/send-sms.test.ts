@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../../utils'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
@@ -436,7 +436,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     })
     expect(responses).toHaveLength(0)
-    expectInfoLogged('Not sending message because INVALID_SUBSCRIPTION_STATUS')
+    expectInfoLogged(SendabilityStatus.InvalidSubscriptionStatus.toUpperCase())
   })
 
   describe('get profile traits', () => {

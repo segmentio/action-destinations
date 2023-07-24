@@ -222,7 +222,7 @@ describe('sendMobilePush action', () => {
         }
       })
       expect(responses.length).toEqual(0)
-      expectInfoLogged(`Not sending message because`, SendabilityStatus.NotSubscribed.toUpperCase())
+      expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
     })
 
     it('should abort when send is disabled', async () => {

@@ -8,7 +8,10 @@ import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 
 export enum SendabilityStatus {
   ShouldSend = 'should_send',
-  NoSenderPhone = 'no_sender_phone',
+  /**
+   * No externalIds that supported by this Channel exist in the payload
+   */
+  NoSupportedExternalIds = 'no_supported_ids',
   NotSubscribed = 'not_subscribed',
   SendDisabled = 'send_disabled',
   InvalidSubscriptionStatus = 'invalid_subscription_status'
@@ -121,19 +124,31 @@ export abstract class MessageSendPerformer<
       .map((extId) => ({ extId, isSubscribed: this.isExternalIdSubscribed(extId) }))
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
-        sendabilityStatus: SendabilityStatus.NotSubscribed
+        sendabilityStatus: SendabilityStatus.NoSupportedExternalIds
       }
 
     const invalidSubStatuses = supportedExtIdsWithSub.filter((e) => e.isSubscribed === undefined).map((e) => e.extId)
 
     const subscribedExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)
 
+    if (!subscribedExtIds.length) {
+      return invalidSubStatuses.length == 0
+        ? {
+            sendabilityStatus: SendabilityStatus.NotSubscribed
+          }
+        : {
+            sendabilityStatus: SendabilityStatus.InvalidSubscriptionStatus,
+            invalid: invalidSubStatuses
+          }
+    }
+
     // if have subscribed, then return them IF they have id values (e.g. phone numbers)
     if (subscribedExtIds.length) {
       // making sure subscribed have phone numbers
       const subWithPhone = subscribedExtIds.filter((extId) => extId.id)
       return {
-        sendabilityStatus: subWithPhone.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSenderPhone,
+        sendabilityStatus:
+          subWithPhone.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSupportedExternalIds,
         recepients: subWithPhone.length > 0 ? subWithPhone : subscribedExtIds,
         invalid: invalidSubStatuses
       }
@@ -148,7 +163,7 @@ export abstract class MessageSendPerformer<
 
     // should not get here, but if we did - return no phones
     return {
-      sendabilityStatus: SendabilityStatus.NoSenderPhone,
+      sendabilityStatus: SendabilityStatus.NoSupportedExternalIds,
       recepients: supportedExtIdsWithSub.map((e) => e.extId)
     }
   }

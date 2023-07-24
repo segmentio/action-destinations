@@ -5,6 +5,9 @@ import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../../../utils'
 import { createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Twilio from '../..'
+import { loggerMock } from './test-utils'
+
+export * from '../../../utils/testUtils'
 
 const twilio = createTestIntegration(Twilio)
 afterEach(() => {
@@ -12,17 +15,6 @@ afterEach(() => {
   jest.clearAllMocks()
   nock.cleanAll()
 })
-
-function createLoggerMock() {
-  return {
-    level: 'error',
-    name: 'test',
-    error: jest.fn() as Logger['error'],
-    info: jest.fn() as Logger['info']
-  } as Logger
-}
-
-export const loggerMock = createLoggerMock()
 
 interface CreateTestActionArgs {
   action: string
@@ -92,18 +84,4 @@ export function createTestAction({
           : features || { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true }
     })
   }
-}
-
-export function expectLogged(logMethod: Function, ...msgs: string[]) {
-  expect(logMethod).toHaveBeenCalledWith(
-    expect.stringMatching(new RegExp(`TE Messaging: (.+)${msgs.join('(.+)')}`)),
-    expect.anything()
-  )
-}
-
-export function expectErrorLogged(...msgs: string[]) {
-  expectLogged(loggerMock.error, ...msgs)
-}
-export function expectInfoLogged(...msgs: string[]) {
-  expectLogged(loggerMock.info, ...msgs)
 }
