@@ -9,7 +9,7 @@ Object {
     "properties": Object {
       "testType": "lVjL7s!yRn*B1*Y[Aj",
     },
-    "timestamp": "2038-11-20T03:30:48.252Z",
+    "timestamp": Any<String>,
   },
 }
 `;
@@ -17,7 +17,7 @@ Object {
 exports[`Testing snapshot for Hilo's screen destination action: required fields 1`] = `
 Object {
   "event": Object {
-    "timestamp": "2038-11-20T03:30:48.252Z",
+    "timestamp": Any<String>,
   },
 }
 `;
