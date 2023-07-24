@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Hilo's page destination action: all fields 1`] = `
+Object {
+  "event": Object {
+    "anonymous_id": "X0CGC(OsH",
+    "contact_id": "X0CGC(OsH",
+    "name": "X0CGC(OsH",
+    "properties": Object {
+      "testType": "X0CGC(OsH",
+    },
+    "timestamp": Any<String>,
+  },
+}
+`;
+
+exports[`Testing snapshot for Hilo's page destination action: required fields 1`] = `
+Object {
+  "event": Object {
+    "timestamp": Any<String>,
+  },
+}
+`;
