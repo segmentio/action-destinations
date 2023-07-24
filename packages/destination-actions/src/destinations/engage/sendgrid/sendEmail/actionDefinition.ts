@@ -231,75 +231,7 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, executeInput) => {
-    //perform: async (request, { settings, payload, statsContext, logger }) => {
     const performer = new SendEmailPerformer(request, executeInput)
     return performer.perform()
-
-    // const statsClient = statsContext?.statsClient
-    // const tags = statsContext?.tags ?? []
-    // if (!settings.region) {
-    //   settings.region = 'us-west-2'
-    // }
-    // tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`)
-    // if (!payload.send) {
-    //   logger?.info(`send disabled - ${settings.spaceId}`)
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.send-disabled', 1, tags)
-    //   return
-    // }
-    // const emailProfile = payload?.externalIds?.find((meta) => meta.type === 'email')
-
-    // if (emailProfile === undefined) {
-    //   logger?.info(
-    //     `recipient external ids were omitted from request or were not of email type - ${settings.spaceId}`
-    //   )
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.missing_email_external_id', 1, tags)
-    //   return
-    // }
-    // let byPassSubscription = false
-    // if (payload.byPassSubscription !== undefined && payload.byPassSubscription) {
-    //   byPassSubscription = true
-    //   logger?.info(
-    //     `TE Messaging: Bypassing subscription - space_id:${settings.spaceId}`,
-    //     `projectid:${settings.sourceId}`,
-    //     `region:${settings.region}`
-    //   )
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.bypass_subscription', 1, tags)
-    //   return await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
-    // } else if (
-    //   !emailProfile?.subscriptionStatus ||
-    //   ['unsubscribed', 'did not subscribed', 'false'].includes(emailProfile.subscriptionStatus)
-    // ) {
-    //   logger?.info(
-    //     `recipient not subscribed or external ids were omitted from request - ${settings.spaceId}`
-    //   )
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.notsubscribed', 1, tags)
-    //   return
-    // } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
-    //   if (payload.groupId && payload.groupId.length !== 0) {
-    //     const group = (payload.externalIds ?? [])
-    //       .flatMap((externalId) => externalId.groups)
-    //       .find((group) => group?.id === payload.groupId)
-    //     if (!group) {
-    //       statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
-    //       return
-    //     } else if (!group.isSubscribed) {
-    //       statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
-    //       return
-    //     }
-    //     statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
-    //   }
-    //   return await attemptEmailDelivery(request, settings, payload, logger, statsClient, tags, byPassSubscription)
-    // } else {
-    //   logger?.error(
-    //     `subscription status invalid "${emailProfile.subscriptionStatus}" - ${settings.spaceId}`
-    //   )
-    //   statsClient?.incr('actions-personas-messaging-sendgrid.sendgrid-error', 1, tags)
-    //   throw new IntegrationError(
-    //     `Failed to process the subscription state: "${emailProfile.subscriptionStatus}"`,
-    //     'Invalid subscriptionStatus value',
-    //     400
-    //   )
-    // }
   }
 }
