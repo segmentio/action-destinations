@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group',
   description: 'Create or update an account in Hilo',
+  defaultSubscription: 'type = "group"',
   fields: {
     anonymousId: {
       type: 'string',
