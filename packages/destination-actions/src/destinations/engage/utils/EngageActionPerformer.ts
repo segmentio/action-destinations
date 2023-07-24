@@ -48,7 +48,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   abstract getChannelType(): string
 
   @track()
-  async request(url: string, options: RequestOptions) {
+  async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
     op?.onFinally.push(() => {
       // log response from error or success
@@ -79,7 +79,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
-    return await this.requestClient(url, options)
+    return await this.requestClient<Data>(url, options)
   }
 
   onResponse?(args: { response?: Awaited<ReturnType<RequestClient>>; error?: any; operation: OperationContext }): void

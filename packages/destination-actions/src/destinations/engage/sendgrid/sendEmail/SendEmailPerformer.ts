@@ -293,10 +293,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     if (!apiLookups) {
       return {}
     }
+    const request = this.request.bind(this)
+
     const data = await Promise.all(
       apiLookups.map(async (apiLookup) => {
         const data = await performApiLookup(
-          this.requestClient,
+          request,
           apiLookup,
           profile,
           this.statsClient.statsClient,
