@@ -589,6 +589,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 }
 ```
 
+**Other considerations for audience support:**
+
+- It is highly recommended to implement a `performBatch` function in your actions implementation.
+- You should implement actions specific to audiences such as adding and removing a user
+
 ### Differences from the Fetch API
 
 There are a few subtle differences from the Fetch API which are meant to limit the interface to be a bit more predictable. We may consider loosening this to match the complete spec.
