@@ -39,4 +39,10 @@ export class EngageLogger extends OperationLogger {
     const msgPrefix = `TE Messaging: ${this.channelType}`
     this.loggerClient?.error(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
   }
+  error(msg: string, metadata?: object) {
+    return this.logError(msg, metadata)
+  }
+  info(msg: string, metadata?: object) {
+    return this.logInfo(msg, metadata)
+  }
 }

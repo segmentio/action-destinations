@@ -39,7 +39,7 @@ export class EngageStats extends OperationStats {
     return res
   }
 
-  protected get statsClient(): StatsClient | undefined {
+  get statsClient(): StatsClient | undefined {
     return this.actionPerformer.executeInput.statsContext?.statsClient
   }
   readonly tags: StatsContext['tags']
