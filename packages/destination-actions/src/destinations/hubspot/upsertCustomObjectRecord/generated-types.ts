@@ -21,4 +21,18 @@ export interface Payload {
   properties: {
     [k: string]: unknown
   }
+  /**
+   * The unique field(s) used to search for an existing custom record in HubSpot to get toObjectId so that segment will associate the record with this record. If a Record is not found on the basis of data provided here in key:value format will skip the association.
+   */
+  searchFieldsToAssociateCustomObjects?: {
+    [k: string]: unknown
+  }
+  /**
+   * The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).
+   */
+  toObjectType?: string
+  /**
+   * Type of Association between two objectType
+   */
+  associationLabel?: string
 }
