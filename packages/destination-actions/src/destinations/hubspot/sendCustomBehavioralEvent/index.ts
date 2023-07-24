@@ -75,10 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings, auth }) => {
-    //Will remove after testing
-    console.log('Hubspot oauth credentials:', auth)
-    console.log('Hubspot settings:', settings)
-
     let response
     try {
       response = await request<AccessTokenInfo>(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
