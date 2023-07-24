@@ -5,6 +5,7 @@ import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile } from '../Profile'
+import { SendEmailPerformer } from '../sendEmail/SendEmailPerformer'
 
 const Liquid = new LiquidJs()
 
@@ -76,22 +77,25 @@ export const performApiLookup = async (
  *   [\<api lookup name\>]: \<data returned from request\>
  * }
  */
-export const performApiLookups = async (
-  request: RequestClient,
+export async function performApiLookups(
+  this: SendEmailPerformer,
   apiLookups: ApiLookupConfig[] | undefined,
-  profile: Profile,
-  statsClient: StatsClient | undefined,
-  tags: string[],
-  settings: Settings,
-  logger?: Logger | undefined
-) => {
+  profile: Profile
+) {
   if (!apiLookups) {
     return {}
   }
-
   const data = await Promise.all(
     apiLookups.map(async (apiLookup) => {
-      const data = await performApiLookup(request, apiLookup, profile, statsClient, tags, settings, logger)
+      const data = await performApiLookup(
+        this.requestClient,
+        apiLookup,
+        profile,
+        this.statsClient.statsClient,
+        this.tags,
+        this.settings,
+        this.logger.loggerClient
+      )
       return { name: apiLookup.name, data }
     })
   )

@@ -2,10 +2,25 @@ import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
-import { Logger } from '@segment/actions-core/destination-kit'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
+import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
+
+function createDefaultActionProps() {
+  return {
+    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true },
+    logger: loggerMock
+  }
+}
+
+const defaultActionProps = createDefaultActionProps()
+
+afterEach(() => {
+  jest.clearAllMocks() // to clear all mock calls
+  nock.cleanAll()
+})
 
 describe.each([
   {
@@ -160,10 +175,6 @@ describe.each([
         })
     })
 
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it('should send Email', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
@@ -191,8 +202,6 @@ describe.each([
     })
 
     it('should not send email when send = false', async () => {
-      const logInfoSpy = jest.fn() as Logger['info']
-
       const mapping = getDefaultMapping({
         groupId: 'any_group',
         send: false
@@ -205,17 +214,15 @@ describe.each([
         }),
         settings,
         mapping,
-        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+        ...defaultActionProps
       })
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logInfoSpy).toHaveBeenCalledWith(`TE Messaging: Email send disabled - ${spaceId}`)
+      expectInfoLogged(SendabilityStatus.SendDisabled.toUpperCase())
     })
 
     it('should throw error and not send email with no trait enrichment and no user id', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
-
       const mapping = getDefaultMapping({
         userId: undefined,
         traitEnrichment: false
@@ -229,20 +236,17 @@ describe.each([
           }),
           settings,
           mapping,
-          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+          ...defaultActionProps
         })
       ).rejects.toThrow('Unable to process email, no userId provided and trait enrichment disabled')
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Unable to process email, no userId provided and trait enrichment disabled - ${spaceId}`
-      )
+      expectErrorLogged(`Unable to process email, no userId provided and trait enrichment disabled`)
     })
 
     it('should throw an error when SendGrid API request fails', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
-
+      nock('https://api.sendgrid.com').post('/v3/mail/send').replyWithError('Something wrong happened')
       const response = sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -251,20 +255,15 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping(),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        ...defaultActionProps
       })
 
-      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(500, {})
-
-      await expect(response).rejects.toThrowError('Unable to send email message')
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Email message request failure - ${spaceId}`))
-      )
+      await expect(response).rejects.toThrowError()
+      expectErrorLogged('Something wrong happened')
     })
 
     it('should not send an email when send field not in payload', async () => {
-      const logInfoSpy = jest.fn() as Logger['info']
-
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       const responses = await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -273,13 +272,12 @@ describe.each([
         }),
         settings,
         mapping: omit(getDefaultMapping(), ['send']),
-        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+        ...defaultActionProps
       })
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
-      expect(responses.length).toEqual(0)
+      expectInfoLogged(SendabilityStatus.SendDisabled.toUpperCase())
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logInfoSpy).toHaveBeenCalledWith(`TE Messaging: Email send disabled - ${spaceId}`)
+      expect(responses.length).toEqual(0)
     })
 
     it('should send email with journey metadata', async () => {
@@ -383,8 +381,6 @@ describe.each([
     it.each(['gmailx.com', 'yahoox.com', 'aolx.com', 'hotmailx.com'])(
       `should return an error when given a restricted domain "%s"`,
       async (domain) => {
-        const logErrorSpy = jest.fn() as Logger['error']
-
         try {
           await sendgrid.testAction('sendEmail', {
             event: createMessagingTestEvent({
@@ -394,16 +390,14 @@ describe.each([
             }),
             settings,
             mapping: getDefaultMapping({ toEmail: `lauren@${domain}` }),
-            logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+            ...defaultActionProps
           })
           fail('Test should throw an error')
         } catch (e) {
           expect((e as unknown as any).message).toBe(
             'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
           )
-          expect(logErrorSpy).toHaveBeenCalledWith(
-            `TE Messaging: Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked - ${settings.spaceId}`
-          )
+          expectErrorLogged(`Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked`)
         }
       }
     )
@@ -1104,8 +1098,6 @@ describe.each([
   })
 
   describe('send Email subscription handling', () => {
-    const logInfoSpy = jest.fn() as Logger['info']
-    const infoLoggerMock = { level: 'info', name: 'test', info: logInfoSpy } as Logger
     beforeEach(() => {
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
         .get('/traits?limit=200')
@@ -1115,10 +1107,6 @@ describe.each([
             lastName: userData.lastName
           }
         })
-    })
-
-    afterEach(() => {
-      nock.cleanAll()
     })
 
     it('sends the email when subscriptionStatus is true', async () => {
@@ -1163,12 +1151,10 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping(),
-        logger: infoLoggerMock
+        ...defaultActionProps
       })
       // expect(sendGridRequest.isDone()).toBe(false)
-      expect(logInfoSpy).toHaveBeenCalledWith(
-        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
-      )
+      expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
     })
 
     it('Should not send email when email is not present in external id byPassSubscription is true', async () => {
@@ -1185,12 +1171,10 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping({ byPassSubscription: true }),
-        logger: infoLoggerMock
+        ...defaultActionProps
       })
       expect(sendGridRequest.isDone()).toBe(false)
-      expect(logInfoSpy).toHaveBeenCalledWith(
-        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
-      )
+      expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
     })
 
     it('sends the email when subscriptionStatus is false but byPassSubscription is true', async () => {
@@ -1206,7 +1190,7 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping({ byPassSubscription: true }),
-        logger: infoLoggerMock
+        ...defaultActionProps
       })
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
@@ -1234,16 +1218,14 @@ describe.each([
           }),
           settings,
           mapping: getDefaultMapping(),
-          logger: infoLoggerMock
+          ...defaultActionProps
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toBe(false)
-        expect(logInfoSpy).toHaveBeenCalledWith(
-          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
-        )
+        expectInfoLogged(SendabilityStatus.NotSubscribed.toUpperCase())
       }
     )
 
@@ -1260,16 +1242,14 @@ describe.each([
           mapping: getDefaultMapping({
             externalIds: [{ type: 'email', id: userData.email, subscriptionStatus }]
           }),
-          logger: infoLoggerMock
+          ...defaultActionProps
         })
         const sendGridRequest = nock('https://api.sendgrid.com')
           .post('/v3/mail/send', sendgridRequestBody)
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toEqual(false)
-        expect(logInfoSpy).toHaveBeenCalledWith(
-          `TE Messaging: Email recipient not subscribed or external ids were omitted from request - ${spaceId}`
-        )
+        expectInfoLogged(`${SendabilityStatus.NotSubscribed.toUpperCase()}`)
       }
     )
 
@@ -1290,19 +1270,15 @@ describe.each([
           }),
           settings,
           mapping: getDefaultMapping({ byPassSubscription: true }),
-          logger: infoLoggerMock
+          ...defaultActionProps
         })
         expect(sendGridRequest.isDone()).toBe(true)
-        expect(logInfoSpy).toHaveBeenCalledWith(
-          `TE Messaging: Bypassing subscription - space_id:${settings.spaceId}`,
-          `projectid:${settings.sourceId}`,
-          `region:${settings.region}`
-        )
+        expectInfoLogged(`Bypassing subscription`)
       }
     )
 
     it.each(['unsubscribed', 'did not subscribed'])(
-      'does NOT send the email when subscriptionStatus = "%s" but byPassSubscription is true',
+      'send the email when subscriptionStatus = "%s" but byPassSubscription is true',
       async (subscriptionStatus: string) => {
         const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
@@ -1317,22 +1293,16 @@ describe.each([
             externalIds: [{ type: 'email', id: userData.email, subscriptionStatus }],
             byPassSubscription: true
           }),
-          logger: infoLoggerMock
+          ...defaultActionProps
         })
 
         expect(sendGridRequest.isDone()).toEqual(true)
-        expect(logInfoSpy).toHaveBeenCalledWith(
-          `TE Messaging: Bypassing subscription - space_id:${settings.spaceId}`,
-          `projectid:${settings.sourceId}`,
-          `region:${settings.region}`
-        )
+        expectInfoLogged(`Bypassing subscription`)
       }
     )
   })
 
   describe('subscription groups', () => {
-    const logInfoSpy = jest.fn() as Logger['info']
-    const infoLoggerMock = { level: 'info', name: 'test', info: logInfoSpy } as Logger
     beforeEach(() => {
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
         .get('/traits?limit=200')
@@ -1342,10 +1312,6 @@ describe.each([
             lastName: userData.lastName
           }
         })
-    })
-
-    afterEach(() => {
-      nock.cleanAll()
     })
 
     it('should send email to group', async () => {
@@ -1472,7 +1438,7 @@ describe.each([
             ...settings
           },
           mapping: getDefaultMapping({ groupId: 'grp_1', byPassSubscription: true }),
-          logger: infoLoggerMock
+          ...defaultActionProps
         })
 
         expect(sendGridRequest.isDone()).toBe(true)
@@ -1540,14 +1506,12 @@ describe.each([
           ...settings
         },
         mapping: getDefaultMapping({ groupId: 'grp_2', byPassSubscription: true }),
-        logger: infoLoggerMock
+        ...defaultActionProps
       })
       expect(sendGridRequest.isDone()).toBe(true)
     })
 
     it('does NOT send email to group when external ids are not present', async () => {
-      const logInfoSpy = jest.fn() as Logger['info']
-
       await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
           timestamp,
@@ -1559,15 +1523,13 @@ describe.each([
           ...settings
         },
         mapping: getDefaultMapping({ groupId: 'grp_2' }),
-        logger: { level: 'info', name: 'test', info: logInfoSpy } as Logger
+        ...defaultActionProps
       })
 
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(500, {})
 
       expect(sendGridRequest.isDone()).toBe(false)
-      expect(logInfoSpy).toHaveBeenCalledWith(
-        `TE Messaging: Email recipient external ids were omitted from request or were not of email type - ${spaceId}`
-      )
+      expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
     })
 
     it('should send email to group with group unsubscribe and preference link', async () => {
@@ -1661,13 +1623,7 @@ describe.each([
   })
 
   describe('get profile traits', () => {
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it('should throw error if unable to request profile traits', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
-
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
         .get('/traits?limit=200')
         .reply(500)
@@ -1682,21 +1638,15 @@ describe.each([
         mapping: getDefaultMapping({
           traitEnrichment: false
         }),
-        logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+        ...defaultActionProps
       })
 
       await expect(response).rejects.toThrowError('Unable to get profile traits for the email message')
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: Email profile traits request failure - ${spaceId}`))
-      )
+      expectErrorLogged(`profile traits request failure`)
     })
   })
 
   describe('api lookups', () => {
-    afterEach(() => {
-      nock.cleanAll()
-    })
-
     it('liquid renders url with profile traits before requesting', async () => {
       nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
@@ -1858,8 +1808,6 @@ describe.each([
     })
 
     it('should throw error if at least one api lookup fails', async () => {
-      const logErrorSpy = jest.fn() as Logger['error']
-
       nock(`https://fakeweather.com`).get('/api').reply(429)
 
       await expect(
@@ -1889,15 +1837,13 @@ describe.each([
               responseType: 'json'
             }
           }),
-          logger: { level: 'error', name: 'test', error: logErrorSpy } as Logger
+          ...defaultActionProps
         })
       ).rejects.toThrowError('Too Many Requests')
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
-      expect(logErrorSpy).toHaveBeenCalledWith(
-        `TE Messaging: Email api lookup failure - api lookup id: 1 - ${spaceId} - [HTTPError: Too Many Requests]`
-      )
+      expectErrorLogged('Too Many Requests')
     })
   })
 })
