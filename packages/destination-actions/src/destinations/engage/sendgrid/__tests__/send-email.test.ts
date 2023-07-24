@@ -1641,8 +1641,8 @@ describe.each([
         ...defaultActionProps
       })
 
-      await expect(response).rejects.toThrowError('Unable to get profile traits for the email message')
-      expectErrorLogged(`profile traits request failure`)
+      await expect(response).rejects.toThrowError()
+      expectErrorLogged(`fetchProfileTraits failed`)
     })
   })
 

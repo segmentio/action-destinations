@@ -1,9 +1,8 @@
-import { ExtId, MessageSendPerformer } from '../../utils'
+import { ExtId, MessageSendPerformer, track } from '../../utils'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Profile } from '../Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
-
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
 import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
@@ -48,11 +47,11 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
     const recepientGroup = extId.groups?.find((g) => g.id === this.payload.groupId)
     if (!recepientGroup) {
-      //statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
+      //this.statsClient.incr('group_notfound', 1)
       return false
     }
     if (!recepientGroup.isSubscribed) {
-      //statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
+      //this.statsClient.incr('group_notsubscribed', 1)
       return false
     }
 
@@ -79,6 +78,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return res
   }
 
+  @track({
+    wrapIntegrationError: () => [`Unable to parse templating in email`, `templating parse failure`, 400]
+  })
   async parseTemplating(
     content: string,
     liquidData: {
@@ -87,18 +89,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     },
     contentType: string
   ) {
-    try {
-      const parsedContent = await Liquid.parseAndRender(content, liquidData)
-      return parsedContent
-    } catch (error) {
-      // this.tags.push('reason:parse_templating')
-      // this.statsClient.incr('actions-personas-messaging-sendgrid.error', 1)
-      throw new IntegrationError(
-        `Unable to parse templating in email ${contentType}`,
-        `${contentType} templating parse failure`,
-        400
-      )
-    }
+    const parsedContent = await Liquid.parseAndRender(content, liquidData)
+    this.logOnError(() => 'Content type: ' + contentType)
+    return parsedContent
   }
   async sendToRecepient(emailProfile: ExtId<Payload>) {
     let traits
@@ -228,10 +221,10 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           }
         }
       }
-      this.statsClient?.incr('actions-personas-messaging-sendgrid.this.request.by_pass_subscription', 1)
+      this.statsClient?.incr('request.by_pass_subscription', 1)
     } else {
       mailContent = mailContentSubscriptionHonored
-      this.statsClient?.incr('actions-personas-messaging-sendgrid.this.request.dont_pass_subscription', 1)
+      this.statsClient?.incr('request.dont_pass_subscription', 1)
     }
     const req: RequestOptions = {
       method: 'post',
@@ -240,10 +233,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       },
       json: mailContent
     }
-    this.statsClient?.set('actions-personas-messaging-sendgrid.this.request_body_size', JSON.stringify(req).length)
+    this.statsClient?.set('message_body_size', JSON.stringify(req).length)
     const response = await this.request('https://api.sendgrid.com/v3/mail/send', req)
-    this.tags.push(`sendgrid_status_code:${response.status}`)
-    this.statsClient?.incr('actions-personas-messaging-sendgrid.response', 1)
     if (this.payload?.eventOccurredTS != undefined) {
       this.statsClient?.histogram(
         'eventDeliveryTS',
@@ -254,54 +245,41 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return response
   }
 
+  @track()
   async fetchProfileTraits(profileId: string): Promise<Record<string, string>> {
-    try {
-      const endpoint = getProfileApiEndpoint(this.settings.profileApiEnvironment, this.settings.region as Region)
-      const response = await this.request(
-        `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
-        {
-          headers: {
-            authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
-            'content-type': 'application/json'
-          }
+    const endpoint = getProfileApiEndpoint(this.settings.profileApiEnvironment, this.settings.region as Region)
+    const response = await this.request(
+      `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
+      {
+        headers: {
+          authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
+          'content-type': 'application/json'
         }
-      )
-      this.tags.push(`profile_status_code:${response.status}`)
-      this.statsClient.incr('actions-personas-messaging-sendgrid.profile_invoked', 1)
-
-      const body = await response.json()
-      return body.traits
-    } catch (error) {
-      this.logger.error(`profile traits request failure - ${this.settings.spaceId} - [${error}]`)
-      this.tags.push('reason:profile_error')
-      this.statsClient.incr('actions-personas-messaging-sendgrid.error', 1)
-      throw new IntegrationError('Unable to get profile traits for the email message', 'Email trait fetch failure', 500)
-    }
+      }
+    )
+    const body = await response.json()
+    return body.traits
   }
 
+  @track({
+    wrapIntegrationError: () => ['Unable to export email as HTML', 'Export HTML failure', 400]
+  })
   async generateEmailHtml(design: string): Promise<string> {
-    try {
-      this.statsClient.incr('actions-personas-messaging-sendgrid.unlayer_request', 1)
-      const response = await this.request('https://api.unlayer.com/v2/export/html', {
-        method: 'POST',
-        headers: {
-          authorization: `Basic ${Buffer.from(`${this.settings.unlayerApiKey}:`).toString('base64')}`,
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          displayMode: 'email',
-          design: JSON.parse(design)
-        })
+    this.statsClient.incr('unlayer_request', 1)
+    const response = await this.request('https://api.unlayer.com/v2/export/html', {
+      method: 'POST',
+      headers: {
+        authorization: `Basic ${Buffer.from(`${this.settings.unlayerApiKey}:`).toString('base64')}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        displayMode: 'email',
+        design: JSON.parse(design)
       })
+    })
 
-      const body = await response.json()
-      return (body as UnlayerResponse).data.html
-    } catch (error) {
-      this.logger.error(`export request failure - ${this.settings.spaceId} - [${error}]`)
-      this.tags.push('reason:generate_email_html')
-      this.statsClient.incr('actions-personas-messaging-sendgrid.error', 1)
-      throw new IntegrationError('Unable to export email as HTML', 'Export HTML failure', 400)
-    }
+    const body = await response.json()
+    return (body as UnlayerResponse).data.html
   }
 
   /**
@@ -310,6 +288,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
    *   [\<api lookup name\>]: \<data returned from request\>
    * }
    */
+  @track()
   async performApiLookups(this: SendEmailPerformer, apiLookups: ApiLookupConfig[] | undefined, profile: Profile) {
     if (!apiLookups) {
       return {}
@@ -335,6 +314,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }, {})
   }
 
+  @track()
   insertUnsubscribeLinks(html: string, emailProfile: EmailProfile): string {
     const spaceId = this.settings.spaceId
     const groupId = this.payload.groupId
@@ -351,25 +331,25 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       const groupUnsubscribeLink = group?.groupUnsubscribeLink
       $(unsubscribeLinkRef).each(function () {
         if (!groupUnsubscribeLink) {
-          _this.logger.info(`Group Unsubscribe link missing  - ${spaceId}`)
-          _this.statsClient.incr('actions-personas-messaging-sendgrid.group_unsubscribe_link_missing', 1)
+          _this.logger.info(`Group Unsubscribe link missing`)
+          _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
           $(this).attr('href', groupUnsubscribeLink)
-          _this.logger?.info(`Group Unsubscribe link replaced  - ${spaceId}`)
-          _this.statsClient?.incr('actions-personas-messaging-sendgrid.replaced_group_unsubscribe_link', 1)
+          _this.logger?.info(`Group Unsubscribe link replaced`)
+          _this.statsClient?.incr('replaced_group_unsubscribe_link', 1)
         }
       })
     } else {
       $(unsubscribeLinkRef).each(function () {
         if (!globalUnsubscribeLink) {
-          _this.logger?.info(`Global Unsubscribe link missing  - ${spaceId}`)
-          _this.statsClient?.incr('actions-personas-messaging-sendgrid.global_unsubscribe_link_missing', 1)
+          _this.logger?.info(`Global Unsubscribe link missing`)
+          _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
           $(this).attr('href', globalUnsubscribeLink)
-          _this.logger?.info(`Global Unsubscribe link replaced  - ${spaceId}`)
-          _this.statsClient?.incr('actions-personas-messaging-sendgrid.replaced_global_unsubscribe_link', 1)
+          _this.logger?.info(`Global Unsubscribe link replaced`)
+          _this.statsClient?.incr('replaced_global_unsubscribe_link', 1)
         }
       })
     }
@@ -383,11 +363,11 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         })
         $(this).remove()
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
-        _this.statsClient?.incr('actions-personas-messaging-sendgrid.removed_preferences_link', 1)
+        _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
         $(this).attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
-        _this.statsClient?.incr('actions-personas-messaging-sendgrid.replaced_preferences_link', 1)
+        _this.statsClient?.incr('replaced_preferences_link', 1)
       }
     })
 
