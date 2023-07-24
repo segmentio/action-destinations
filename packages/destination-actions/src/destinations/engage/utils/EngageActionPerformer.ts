@@ -10,6 +10,7 @@ import { ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core/errors'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
+import { Awaited } from './operationTracking'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -52,9 +53,19 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     op?.onFinally.push(() => {
       // log response from error or success
       const respError = op?.error as ResponseError
-      const errorDetails = getErrorDetails(respError)
-      if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
-      if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
+      if (respError) {
+        const errorDetails = getErrorDetails(respError)
+
+        if (errorDetails.message?.toLowerCase().includes('timeout') && !respError.status)
+          // to fix missing status of Integrations/ETIMEOUT error that makes it not retryable
+          respError.status = 408
+
+        if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
+        if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
+      } else {
+        const resp: Awaited<ReturnType<RequestClient>> = op?.result
+        if (resp && resp.status) op.tags.push(`response_status:${resp.status}`)
+      }
     })
     return await this.requestClient(url, options)
   }
