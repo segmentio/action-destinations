@@ -69,7 +69,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings, features }) => {
     const shouldTransformEventName = features && features['actions-hubspot-event-name']
+    //Will remove the console after testing on stage
+    console.log('Flagon value for hubspot: ', features)
     const eventName = shouldTransformEventName ? transformEventName(payload.eventName) : payload.eventName
+
+    //Will remove the console after testing on stage
+    console.log('Event name for hubspot: ', eventName)
 
     const event: CustomBehavioralEvent = {
       eventName: eventName,
