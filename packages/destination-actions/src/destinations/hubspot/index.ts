@@ -17,13 +17,7 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {
-      portalId: {
-        description: 'The Hub ID of your HubSpot account.',
-        label: 'Hub ID',
-        type: 'string'
-      }
-    },
+    fields: {},
     testAuthentication: (request) => {
       // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
       return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts?limit=1`)

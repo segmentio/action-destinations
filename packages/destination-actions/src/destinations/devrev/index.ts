@@ -6,8 +6,6 @@ import createWork from './createWork'
 import createRevUser from './createRevUser'
 import { devrevApiPaths, devrevApiRoot } from './utils'
 
-import streamEvent from './streamEvent'
-
 const destination: DestinationDefinition<Settings> = {
   name: 'DevRev',
   slug: 'actions-devrev',
@@ -46,8 +44,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     createWork,
-    createRevUser,
-    streamEvent
+    createRevUser
   }
 }
 

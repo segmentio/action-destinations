@@ -19,17 +19,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     identifier_data: {
       label: 'Identifier Data',
-      description: `Additional data pertaining to the user to be written to the file.`,
+      description: `Additional data pertaining to the user.`,
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue:only'
-    },
-    unhashed_identifier_data: {
-      label: 'Hashable Identifier Data',
-      description: `Additional data pertaining to the user to be hashed before written to the file`,
-      type: 'object',
-      required: false,
-      defaultObjectUI: 'keyvalue:only'
+      defaultObjectUI: 'keyvalue:only',
+      default: { '@path': '$.context.traits' }
     },
     delimiter: {
       label: 'Delimeter',
@@ -57,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 1000000
+      default: 100000
     }
   },
   perform: async (request, { settings, payload }) => {

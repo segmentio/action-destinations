@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload as SmsPayload } from '../sendSms/generated-types'
 import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError, PayloadValidationError, RequestOptions } from '@segment/actions-core'
-import { Logger, StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
+import { Logger, StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
 import { ExecuteInput } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile, TwilioApiError } from './types'
 
