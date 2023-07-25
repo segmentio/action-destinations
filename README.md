@@ -558,7 +558,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: true // If true, we send the entire audience. If false, we just send the delta.
     }
   },
-  // Create an audience on the destinaiton side
+  // These are optional and only needed if you need to create an audience before sending events/users.
+  // Create an audience on the destination side
   async createAudience(request, { settings, audienceSettings, audienceName }) {
     const response = await request(YOUR_URL, {
       method: 'POST',
