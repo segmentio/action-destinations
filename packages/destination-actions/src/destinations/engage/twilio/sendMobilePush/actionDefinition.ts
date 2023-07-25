@@ -2,7 +2,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PushSender } from './push-sender'
+import { PushSender } from './PushSender'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send Mobile Push Notification',
