@@ -45,21 +45,41 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
   abstract logError(msg: string, metadata?: object): void
 
   onTry(ctx: OperationLoggerContext) {
-    ctx.logs = []
+    return this.stageLog(ctx)
+  }
+  onFinally(ctx: OperationLoggerContext) {
+    return this.stageLog(ctx)
+  }
+
+  /**
+   * method with unified logging for both try and finally stages of the operation
+   * @param ctx
+   * @returns
+   */
+  stageLog(ctx: OperationLoggerContext) {
     if (!ctx.sharedContext.logs) ctx.sharedContext.logs = []
+    if (!ctx.logs) ctx.logs = []
+
+    const stageLogMessages = this.getOperationLogMessages(ctx)
+    if (stageLogMessages) ctx.logs.push(...stageLogMessages)
+
     return () => {
       let shouldLog = ctx.decoratorArgs?.shouldLog?.(ctx)
       if (shouldLog === undefined) shouldLog = this.shouldLogDefault(ctx)
 
       if (shouldLog) {
-        const fullLogMessage = this.getOperationLogMessages(ctx)?.join('. ')
-        this.logInfo(
-          fullLogMessage,
+        const fullLogMessage = (ctx.logs || [])
+          .concat(...(ctx.sharedContext.logs || []))
+          .filter((t) => t)
+          .join('. ')
+        const logDetails =
           ctx.logMetadata || ctx.sharedContext.logMetadata
             ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
             : undefined
-        )
+        if (ctx.error) this.logError(fullLogMessage, { error: ctx.error, ...logDetails })
+        else this.logInfo(fullLogMessage, logDetails)
       }
+      ctx.logs.length = 0 //clean up logs from this stage
     }
   }
 
@@ -164,27 +184,5 @@ export abstract class OperationLogger implements TryCatchFinallyHook<OperationLo
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return (error as Error)?.toString?.() || 'unknown error'
-  }
-
-  onFinally(ctx: OperationLoggerContext) {
-    ctx.logs.push(...(this.getOperationLogMessages(ctx) || []))
-    // somewhere here ctx.onFinally hooks are triggered
-    return () => {
-      let shouldLog = ctx.decoratorArgs?.shouldLog?.(ctx)
-      if (shouldLog === undefined) shouldLog = this.shouldLogDefault(ctx)
-
-      if (shouldLog) {
-        const fullLogMessage = (ctx.sharedContext.logs?.filter((t) => t) || [])
-          .concat(...(ctx.logs || []))
-          .filter((t) => t)
-          .join('. ')
-        const logDetails =
-          ctx.logMetadata || ctx.sharedContext.logMetadata
-            ? { ...ctx.sharedContext.logMetadata, ...ctx.logMetadata }
-            : undefined
-        if (ctx.error) this.logError(fullLogMessage, { error: ctx.error, ...logDetails })
-        else this.logInfo(fullLogMessage, logDetails)
-      }
-    }
   }
 }

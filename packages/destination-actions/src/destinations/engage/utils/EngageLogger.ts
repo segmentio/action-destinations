@@ -37,7 +37,7 @@ export class EngageLogger extends OperationLogger {
 
   logError(msg: string, metadata?: object): void {
     if (!this.actionPerformer.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
-    const msgPrefix = `TE Messaging: ${this.channelType}`
+    const msgPrefix = `⛔ TE Messaging: ${this.channelType}`
     this.loggerClient?.error(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
   }
   error(msg: string, metadata?: object) {
