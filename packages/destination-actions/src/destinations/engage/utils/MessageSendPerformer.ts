@@ -154,12 +154,12 @@ export abstract class MessageSendPerformer<
 
     // if have subscribed, then return them IF they have id values (e.g. phone numbers)
     if (subscribedExtIds.length) {
-      // making sure subscribed have phone numbers
-      const subWithPhone = subscribedExtIds.filter((extId) => extId.id)
+      // making sure subscribed have id value
+      const subWithIds = subscribedExtIds.filter((extId) => extId.id)
       return {
         sendabilityStatus:
-          subWithPhone.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSupportedExternalIds,
-        recepients: subWithPhone.length > 0 ? subWithPhone : subscribedExtIds,
+          subWithIds.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSupportedExternalIds,
+        recepients: subWithIds.length > 0 ? subWithIds : subscribedExtIds,
         invalid: invalidSubStatuses
       }
     }
@@ -180,31 +180,6 @@ export abstract class MessageSendPerformer<
 
   getRecepients(): ExtId<TPayload>[] {
     const sendabilityPayload = this.getSendabilityPayload()
-
-    //TODO: tags and Log sendability statuses and recepients if necessary
-    // sendabilityPayloads.forEach(ss => {
-    //   sendCtx.tags[ss.sendabilityStatus] = (sendCtx.tags[ss.sendabilityStatus] || 0) + 1
-    // })
-
-    // this.currentOperation?.tags.push('sendability_status:' + sendabilityStatus)
-
-    // if (sendabilityStatus !== SendabilityStatus.ShouldSend) {
-    //   this.currentOperation?.logs.push(
-    //     `Not sending message, because sendabilityStatus: ${sendabilityStatus}, phone: ${this.redactPii(phone)}`
-    //   )
-    //   return
-    // } else {
-    //   this.currentOperation?.logs.push(`Sending message to phone: ${this.redactPii(phone)}`)
-    // }
-
-    // filtering recipients we should send messages to
-    //const recepients = sendabilityPayload.recepients || []
-
-    // if (recepients.length === 0) {
-    //   const sp1 = recepients[0]
-    //   const spRecipient = typeof sp1?.recepient === 'string' ? sp1?.recepient : JSON.stringify(sp1?.recepient)
-    //   this.currentOperation?.logs.push(`Not sending message, because sendabilityStatus: ${sp1?.sendabilityStatus}, recepient: ${this.redactPii(spRecipient)}`)
-    // }
     const shouldSend = sendabilityPayload.sendabilityStatus === SendabilityStatus.ShouldSend
 
     this.currentOperation?.tags.push('sendability_status:' + sendabilityPayload.sendabilityStatus)
