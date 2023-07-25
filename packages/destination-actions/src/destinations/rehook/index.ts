@@ -26,13 +26,8 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      return request(`https://api.rehook.ai/events/segment/check-auth`, {
-        method: 'get',
-        headers: {
-          authorization: `Basic ${Buffer.from(`${settings.api_key}:${settings.api_secret}`).toString('base64')}`
-        }
-      })
+    testAuthentication: (request) => {
+      return request(`https://api.rehook.ai/events/segment/check-auth`)
     }
   },
   extendRequest({ settings }) {
@@ -41,9 +36,8 @@ const destination: DestinationDefinition<Settings> = {
     }
 
     return {
-      headers: {
-        authorization: `Basic ${Buffer.from(`${settings.api_key}:${settings.api_secret}`).toString('base64')}`
-      }
+      username: settings.api_key,
+      password: settings.api_secret
     }
   },
   actions: {
