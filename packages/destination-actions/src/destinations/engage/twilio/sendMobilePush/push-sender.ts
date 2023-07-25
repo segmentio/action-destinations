@@ -53,7 +53,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
 
     const body = new URLSearchParams(requestBody)
 
-    if (recipientDevice?.type?.toLowerCase() === 'ios.push_token') {
+    if (recipientDevice?.type?.toLowerCase() === MobilePushExtIdTypes.IOS) {
       body.append(
         'Recipients',
         JSON.stringify({
