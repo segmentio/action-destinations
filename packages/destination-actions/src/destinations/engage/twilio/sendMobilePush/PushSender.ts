@@ -108,9 +108,20 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         title: this.payload.customizations?.title,
         body: this.payload.customizations?.body,
         media: this.payload.customizations?.media,
+        link: this.payload.customizations?.link,
         ...templateTypes
       },
       profile
+    )
+
+    const tapActionButtons = this.payload.customizations?.tapActionButtons ?? []
+    const parsedTapActionButtons = await Promise.all(
+      tapActionButtons.map(async (button) => {
+        return {
+          ...button,
+          ...(await this.parseContent({ link: button.link }, profile))
+        }
+      })
     )
 
     const badgeAmount = this.payload.customizations?.badgeAmount ?? 1
@@ -123,8 +134,8 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         badgeAmount,
         badgeStrategy,
         media: parsedTemplateContent.media?.length ? parsedTemplateContent.media : undefined,
-        link: this.payload.customizations?.link,
-        tapActionButtons: this.payload.customizations?.tapActionButtons
+        link: parsedTemplateContent.link?.length ? parsedTemplateContent.link : undefined,
+        tapActionButtons: parsedTapActionButtons
       })
 
       const body = this.removeEmpties({
