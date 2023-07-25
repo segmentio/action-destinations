@@ -18,9 +18,9 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload>
+  data: ExecuteInput<Settings, Payload, AudienceSettings>
 ) => MaybePromise<Return>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,32 +50,34 @@ export interface BaseActionDefinition {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ActionDefinition<Settings, Payload = any> extends BaseActionDefinition {
+export interface ActionDefinition<Settings, Payload = any, AudienceSettings = any> extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse>
+    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload>
+  perform: RequestFn<Settings, Payload, any, AudienceSettings>
 
   /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[]>
+  performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 }
 
-export interface ExecuteDynamicFieldInput<Settings, Payload> {
+export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
   settings: Settings
+  audienceSettings?: AudienceSettings
   payload: Payload
   page?: string
   auth?: AuthTokens
 }
 
-interface ExecuteBundle<T = unknown, Data = unknown> {
+interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any> {
   data: Data
   settings: T
+  audienceSettings?: AudienceSettings
   mapping: JSONObject
   auth: AuthTokens | undefined
   /** For internal Segment/Twilio use only. */
@@ -90,8 +92,8 @@ interface ExecuteBundle<T = unknown, Data = unknown> {
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
  */
-export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload>
+export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
+  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
@@ -101,7 +103,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload>,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings>,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -118,7 +120,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     }
   }
 
-  async execute(bundle: ExecuteBundle<Settings, InputData | undefined>): Promise<Result[]> {
+  async execute(bundle: ExecuteBundle<Settings, InputData | undefined, AudienceSettings>): Promise<Result[]> {
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
@@ -147,7 +149,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
       statsContext: bundle.statsContext,
       logger: bundle.logger,
       transactionContext: bundle.transactionContext,
-      stateContext: bundle.stateContext
+      stateContext: bundle.stateContext,
+      audienceSettings: bundle.audienceSettings
     }
 
     // Construct the request client and perform the action
@@ -157,7 +160,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[]>): Promise<void> {
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<void> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
@@ -189,6 +192,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
         rawData: bundle.data,
         rawMapping: bundle.mapping,
         settings: bundle.settings,
+        audienceSettings: bundle.audienceSettings,
         payload: payloads,
         auth: bundle.auth,
         features: bundle.features,
@@ -203,7 +207,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
 
   async executeDynamicField(
     field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload>
+    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>
   ): Promise<DynamicFieldResponse> {
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
@@ -227,8 +231,8 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
    * and given data bundle
    */
   private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T>,
-    data: ExecuteInput<Settings, T>
+    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
+    data: ExecuteInput<Settings, T, AudienceSettings>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)

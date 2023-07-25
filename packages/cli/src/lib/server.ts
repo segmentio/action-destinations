@@ -11,11 +11,13 @@ import {
   DestinationDefinition as CloudDestinationDefinition,
   HTTPError,
   ModifiedResponse,
-  JSONObject
+  JSONObject,
+  AudienceDestinationDefinition
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
+import { AudienceDestinationConfigurationWithCreateGet } from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
 }
@@ -148,9 +150,11 @@ app.use((req, res, next) => {
 function setupRoutes(def: DestinationDefinition | null): void {
   const destination = new Destination(def as CloudDestinationDefinition)
   const supportsDelete = destination.onDelete
-  const audienceSettings = destination?.definition.audienceSettings !== undefined
-  const supportsCreateAudience = !!(audienceSettings && destination.createAudience)
-  const supportsGetAudience = !!(audienceSettings && destination.getAudience)
+  const audienceDef = destination?.definition as AudienceDestinationDefinition
+  const audienceSettings = audienceDef.audienceConfig !== undefined
+  const audienceConfigWithGetCreate = audienceDef.audienceConfig as AudienceDestinationConfigurationWithCreateGet
+  const supportsCreateAudience = !!(audienceSettings && audienceConfigWithGetCreate.createAudience)
+  const supportsGetAudience = !!(audienceSettings && audienceConfigWithGetCreate.getAudience)
 
   const router = express.Router()
 
@@ -285,6 +289,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
+            audienceSettings: req.body.audienceSettings || {},
             mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {}
           }
@@ -320,7 +325,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 settings: req.body.settings || {},
                 payload: req.body.payload || {},
                 page: req.body.page || 1,
-                auth: req.body.auth || {}
+                auth: req.body.auth || {},
+                audienceSettings: req.body.audienceSettings || {}
               }
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)

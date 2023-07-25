@@ -51,3 +51,11 @@ export const enable_batching: InputField = {
   type: 'boolean',
   default: true
 }
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+  type: 'number',
+  required: false,
+  default: 100000
+}
