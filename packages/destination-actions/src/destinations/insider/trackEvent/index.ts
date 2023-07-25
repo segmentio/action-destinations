@@ -32,7 +32,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, data) => {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
-      json: sendTrackEvent(data.payload, data.payload.event_name)
+      json: sendTrackEvent(
+        data.payload,
+        data.payload.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
+      )
     })
   }
 }
