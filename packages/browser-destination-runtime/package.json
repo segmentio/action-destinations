@@ -1,6 +1,7 @@
 {
   "name": "@segment/browser-destination-runtime",
   "version": "1.5.0",
+  "license": "MIT",
   "scripts": {
     "build": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc --outDir ./dist/esm",
