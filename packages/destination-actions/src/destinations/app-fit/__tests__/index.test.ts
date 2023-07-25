@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Definition)
 describe('App Fit', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(AppFitConfig.apiUrl).get('/api-key/current').reply(200, {})
+      nock(AppFitConfig.apiUrl).get('/api-keys/current').reply(200, {})
 
       // This should match your authentication.fields
       const authData = { apiKey: '1234abc' }
