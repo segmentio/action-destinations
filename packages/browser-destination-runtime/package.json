@@ -1,6 +1,7 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.4.0",
+  "version": "1.6.0",
+  "license": "MIT",
   "scripts": {
     "build": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc --outDir ./dist/esm",
@@ -55,7 +56,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.75.0"
+    "@segment/actions-core": "^3.76.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"

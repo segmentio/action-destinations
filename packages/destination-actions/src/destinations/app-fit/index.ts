@@ -20,8 +20,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`${AppFitConfig.apiUrl}/api-key/current`, {
-        headers: { Authorization: `Bearer ${settings.apiKey}` }
+      return request(`${AppFitConfig.apiUrl}/api-keys/current`, {
+        headers: { Authorization: `Basic ${settings.apiKey}` }
       })
     }
   },

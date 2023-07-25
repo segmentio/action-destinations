@@ -5,7 +5,7 @@ import groupWorkspace from './groupWorkspace'
 import assertRecord from './assertRecord'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Attio',
+  name: 'Attio (Actions)',
   description: 'The Attio destination allows you to assert Records in your Attio workspace based on Segment events',
   slug: 'actions-attio',
   mode: 'cloud',
