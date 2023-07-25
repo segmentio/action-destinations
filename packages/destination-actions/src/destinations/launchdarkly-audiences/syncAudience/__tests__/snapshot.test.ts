@@ -20,6 +20,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
 
     setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
+    setStaticDataForSnapshot(settingsData, 'apiKey', 'api-key')
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -56,6 +57,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
 
     setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
+    setStaticDataForSnapshot(settingsData, 'apiKey', 'api-key')
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
