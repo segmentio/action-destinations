@@ -238,11 +238,11 @@ describe.each([
           mapping,
           ...defaultActionProps
         })
-      ).rejects.toThrow('Unable to process email, no userId provided and trait enrichment disabled')
+      ).rejects.toThrow('No userId provided and no traits provided')
 
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
       expect(sendGridRequest.isDone()).toEqual(false)
-      expectErrorLogged(`Unable to process email, no userId provided and trait enrichment disabled`)
+      expectErrorLogged(`No userId provided and no traits provided`)
     })
 
     it('should throw an error when SendGrid API request fails', async () => {
@@ -1626,7 +1626,7 @@ describe.each([
     it('should throw error if unable to request profile traits', async () => {
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
         .get('/traits?limit=200')
-        .reply(500)
+        .reply(500, { message: 'Something went wrong fetching traits' })
 
       const response = sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
@@ -1642,7 +1642,7 @@ describe.each([
       })
 
       await expect(response).rejects.toThrowError()
-      expectErrorLogged(`fetchProfileTraits failed`)
+      expectErrorLogged(`Something went wrong fetching traits`)
     })
   })
 

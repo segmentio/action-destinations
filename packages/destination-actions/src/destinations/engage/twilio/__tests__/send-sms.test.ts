@@ -49,8 +49,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
-      expectErrorLogged('Unable to process sms, no userId provided and no traits provided')
+      ).rejects.toThrowError('No userId provided and no traits provided')
+      expectErrorLogged('No userId provided and no traits provided')
     })
 
     it('should throw error if unable to parse liquid template', async () => {
@@ -450,8 +450,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to get profile traits for SMS message')
-      expectErrorLogged('Unable to get profile traits for SMS message')
+      ).rejects.toThrowError('Unable to get profile traits')
+      expectErrorLogged('Unable to get profile traits')
     })
 
     it('should get profile traits successfully', async () => {

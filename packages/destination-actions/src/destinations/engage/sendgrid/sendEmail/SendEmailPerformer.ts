@@ -8,8 +8,6 @@ import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previe
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
-import { getProfileApiEndpoint } from './getProfileApiEndpoint'
-import { Region } from './Region'
 import { UnlayerResponse } from './UnlayerResponse'
 
 export const EXTERNAL_ID_KEY = 'email'
@@ -94,20 +92,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return parsedContent
   }
   async sendToRecepient(emailProfile: ExtId<Payload>) {
-    let traits
-    if (this.payload.traitEnrichment) {
-      traits = this.payload?.traits ? this.payload?.traits : JSON.parse('{}')
-    } else {
-      if (!this.payload.userId) {
-        this.tags.push('reason:missing_user_id')
-        throw new IntegrationError(
-          'Unable to process email, no userId provided and trait enrichment disabled',
-          'Invalid parameters',
-          400
-        )
-      }
-      traits = await this.fetchProfileTraits(this.payload.userId)
-    }
+    const traits = await this.getProfileTraits()
 
     const profile: Profile = {
       email: emailProfile?.id,
@@ -261,22 +246,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
     parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)
     return parsedBodyHtml
-  }
-
-  @track()
-  async fetchProfileTraits(profileId: string): Promise<Record<string, string>> {
-    const endpoint = getProfileApiEndpoint(this.settings.profileApiEnvironment, this.settings.region as Region)
-    const response = await this.request(
-      `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${profileId}/traits?limit=200`,
-      {
-        headers: {
-          authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
-          'content-type': 'application/json'
-        }
-      }
-    )
-    const body = await response.json()
-    return body.traits
   }
 
   @track({

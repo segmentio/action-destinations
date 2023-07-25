@@ -5,6 +5,9 @@ import { EngageActionPerformer } from './EngageActionPerformer'
 import { isRetryableError } from './isRetryableError'
 import { AggregateError } from './AggregateError'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
+import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
+import { track } from './track'
+import { PayloadValidationError } from '@segment/actions-core'
 
 export enum SendabilityStatus {
   ShouldSend = 'should_send',
@@ -41,12 +44,19 @@ export interface MessagePayloadBase {
      */
     subscriptionStatus?: string
   }[]
+
+  traitEnrichment?: boolean
+  traits?: {
+    [k: string]: unknown
+  }
 }
 
 export interface MessageSettingsBase {
   region?: string
   sourceId?: string
   spaceId?: string
+  profileApiEnvironment: string
+  profileApiAccessToken: string
 }
 
 export type ExtId<TPayload extends MessagePayloadBase> = NonNullable<TPayload['externalIds']>[number]
@@ -315,5 +325,30 @@ export abstract class MessageSendPerformer<
       takeCodeAndStatusFromError: firstNonRetryable,
       message: (msg) => 'Failed to send to all subscribed recepients (non-retryable):' + msg
     })
+  }
+
+  @track({
+    wrapIntegrationError: () => ['Unable to get profile traits', 'SMS trait fetch failure', 500]
+  })
+  async getProfileTraits(): Promise<Record<string, string>> {
+    if (this.payload.traitEnrichment) return this.payload?.traits || ({} as any)
+
+    if (!this.payload.userId) {
+      throw new PayloadValidationError('No userId provided and no traits provided')
+    }
+
+    const endpoint = getProfileApiEndpoint(this.settings.profileApiEnvironment, this.settings.region as Region)
+    const encodedProfileId = encodeURIComponent(this.payload.userId)
+    const response = await this.request(
+      `${endpoint}/v1/spaces/${this.settings.spaceId}/collections/users/profiles/user_id:${encodedProfileId}/traits?limit=200`,
+      {
+        headers: {
+          authorization: `Basic ${Buffer.from(this.settings.profileApiAccessToken + ':').toString('base64')}`,
+          'content-type': 'application/json'
+        }
+      }
+    )
+    const body = await response.json()
+    return body.traits
   }
 }
