@@ -187,6 +187,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
+    //Will remove the console after testing on stage
+    console.log('Flagon value for Google Enhanced Conversions: ', features)
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
