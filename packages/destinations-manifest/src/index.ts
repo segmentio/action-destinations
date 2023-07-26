@@ -45,7 +45,6 @@ register('631a1c2bfdce36a23f0a14ec', '@segment/analytics-browser-actions-hubspot
 register('6340a951fbda093061f5f1d7', '@segment/analytics-browser-actions-utils')
 register('634ef204885be3def430af66', '@segment/analytics-browser-actions-playerzero')
 register('635ada35ce269dbe305203ff', '@segment/analytics-browser-actions-logrocket')
-register('6372e18fb2b3d5d741c34bb6', '@segment/analytics-browser-actions-sabil')
 register('6372e1e36d9c2181f3900834', '@segment/analytics-browser-actions-wiseops')
 register('637c192eba61b944e08ee158', '@segment/analytics-browser-actions-vwo')
 register('638f843c4520d424f63c9e51', '@segment/analytics-browser-actions-commandbar')
