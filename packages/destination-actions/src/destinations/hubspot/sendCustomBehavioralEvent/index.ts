@@ -75,6 +75,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings, auth }) => {
+    //Will remove this logger after stage testing
+    console.log('Setting for hubspot:- ', settings)
+
     let response
     try {
       response = await request<AccessTokenInfo>(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
