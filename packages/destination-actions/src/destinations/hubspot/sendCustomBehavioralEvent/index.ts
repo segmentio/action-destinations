@@ -70,7 +70,7 @@ const action: ActionDefinition<destinationSettings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { payload, settings }) => {
+  perform: (request, { payload, settings }) => {
     if (settings.scopes && !settings.scopes.includes('analytics.behavioral_events.send')) {
       throw new IntegrationError(`Access token doesn't contain the required token by action`, 'MISSING_SCOPE', 403)
     }
