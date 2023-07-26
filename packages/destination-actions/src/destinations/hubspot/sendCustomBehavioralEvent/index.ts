@@ -12,15 +12,11 @@ interface CustomBehavioralEvent {
   email?: string
   objectId?: string
 }
-
-interface AccessTokenInfo {
-  token: string
-  user: string
-  scopes: string[]
-  hub_id: number
+interface destinationSettings extends Settings {
+  scopes?: string[] | null
 }
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<destinationSettings, Payload> = {
   title: 'Send Custom Behavioral Event',
   description: 'Send a custom behavioral event to HubSpot.',
   defaultSubscription: 'type = "track"',
@@ -74,20 +70,8 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { payload, settings, auth }) => {
-    //Will remove this logger after stage testing
-    console.log('Setting for hubspot:- ', settings)
-
-    let response
-    try {
-      response = await request<AccessTokenInfo>(`https://api.hubapi.com/oauth/v1/access-tokens/${auth?.accessToken}`, {
-        method: 'get'
-      })
-    } catch (err) {
-      //No need to throw error in case doesn't get response
-    }
-
-    if (!response?.data?.scopes?.includes('analytics.behavioral_events.send')) {
+  perform: async (request, { payload, settings }) => {
+    if (settings.scopes && !settings.scopes.includes('analytics.behavioral_events.send')) {
       throw new IntegrationError(`Access token doesn't contain the required token by action`, 'MISSING_SCOPE', 403)
     }
 
