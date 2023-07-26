@@ -25,6 +25,8 @@ const valid_attributes_payload: AttributesPayload = {
     trait2: 'test',
     trait3: true,
     birthdate: '1965-01-25T00:47:43.378Z'
+    trait3: true,
+    birthdate: '1965-01-25T00:47:43.378Z'
   }
 }
 
