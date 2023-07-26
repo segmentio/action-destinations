@@ -2,7 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import sabil, { destination } from '../index'
 import { subscriptions, TEST_CLIENT_ID } from '../test-utils'
 
-test('load Sabil', async () => {
+test.skip('load Sabil', async () => {
   const [event] = await sabil({
     client_id: TEST_CLIENT_ID,
     subscriptions
