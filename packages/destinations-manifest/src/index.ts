@@ -53,4 +53,4 @@ register('63ed446fe60a1b56c5e6f130', '@segment/analytics-browser-actions-google-
 register('640267d74c13708d74062dcd', '@segment/analytics-browser-actions-upollo')
 register('6480b4eeab29eca5415089d4', '@segment/analytics-browser-actions-userpilot')
 register('64820d8030d09e775fbac372', '@segment/analytics-browser-actions-screeb')
-register('638f843c4520d424f63c9e51', '@segment/analytics-browser-actions-tiktok-pixel')
+register('64c1690a9f08c84a420aba78', '@segment/analytics-browser-actions-tiktok-pixel')
