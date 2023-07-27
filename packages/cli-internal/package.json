@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.143..1",
+  "version": "3.143.1",
   "license": "MIT",
   "repository": {
     "type": "git",
