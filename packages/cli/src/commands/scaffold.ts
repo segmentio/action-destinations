@@ -9,7 +9,7 @@ import fs from 'fs-extra'
 import { camelCase, startCase } from 'lodash'
 import { fieldsToJsonSchema } from '@segment/actions-core'
 import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import { JSONSchema4 } from 'json-schema'
 import { compile } from 'json-schema-to-typescript'
 import prettier from 'prettier'
@@ -129,6 +129,7 @@ export default class Init extends Command {
             field.isTemplate = true
             field.directiveType = '@template'
             const templateValue: string = field.defaultValue['@template']
+            // Replace double curly braces with square brackets so that it can be properly rendered in Mustache template
             field.value = templateValue.replace(/\{\{([^{}]+)\}\}/g, '[[$1]]')
           }
           field.defaultValue = defaultValue
@@ -142,6 +143,8 @@ export default class Init extends Command {
           {
             name: action.name,
             description: action.description,
+            hasDefaultSubscription: action.hasDefaultSubscription,
+            trigger: action.trigger,
             slug,
             destination,
             fields: action.fields,

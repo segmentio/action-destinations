@@ -5,25 +5,28 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: '{{name}}',
   description: '{{description}}',
+  {{#hasDefaultSubscription}}
+  defaultSubscription: '{{{trigger}}}',
+  {{/hasDefaultSubscription}}
   fields: {
     {{#fields}}
-   {{key}}: {
-     label: '{{label}}',
-     description: '{{description}}',
-     type: '{{type}}',
-     required: {{required}},
-     {{#hasDefault}}
-     {{#isTemplate}}
-     default: {
-      "@template": "{{value}}"
-     }
-     {{/isTemplate}}
-     {{^isTemplate}}
-     default: {{{defaultValue}}}
-     {{/isTemplate}}
-     {{/hasDefault}}
-   },
-   {{/fields}}
+    {{key}}: {
+      label: '{{label}}',
+      description: '{{description}}',
+      type: '{{type}}',
+      required: {{required}},
+      {{#hasDefault}}
+      {{#isTemplate}}
+      default: {
+        "@template": "{{value}}"
+      }
+      {{/isTemplate}}
+      {{^isTemplate}}
+      default: {{{defaultValue}}}
+      {{/isTemplate}}
+      {{/hasDefault}}
+    },
+    {{/fields}}
   },
   perform: (request, { payload }) => {
     return request('{{{apiEndpoint}}}', {

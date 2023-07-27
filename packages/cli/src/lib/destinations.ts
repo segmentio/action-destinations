@@ -1,4 +1,4 @@
-import type { ManifestEntry as BrowserManifest, BrowserDestinationDefinition } from '@segment/browser-destinations'
+import type { ManifestEntry as BrowserManifest, BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 import type { ManifestEntry as CloudManifest } from '@segment/action-destinations'
 import path from 'path'
@@ -36,7 +36,7 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
 // So here we need to intelligently merge them until we explore colocating all actions with a single
 // definition file.
 export const getManifest: () => Record<string, CloudManifest | BrowserManifest> = () => {
-  const { manifest: browserManifest } = require('@segment/browser-destinations')
+  const { manifest: browserManifest } = require('@segment/destinations-manifest')
   const { manifest: cloudManifest } = require('@segment/action-destinations')
   const { mergeWith } = require('lodash')
 

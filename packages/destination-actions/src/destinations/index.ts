@@ -108,6 +108,16 @@ register('647f2f7ce3b561ab931c2b77', './ambee')
 register('647f30a35eedd03afde0a1c3', './userpilot')
 register('6489bbade6fe3eb57c13bd6a', './canny-functions')
 register('6489c893dd5357493f365a96', './koala')
+register('6492cbb7df74e63cfa2f3e36', './iqm')
+register('6492cbd495feedacdcf431a4', './playerzero-cloud')
+register('649adeaa719bd3f55fe81bef', './devrev')
+register('649a1418b31e61334c66a7e7', './webhook-audiences')
+register('64b67be0d0dd66094c162ca7', './app-fit')
+register('64b67add9c22bc2cce3bf8bc', './m3ter')
+register('64b6a221baf168a989be641a', './listrak')
+register('64c022a713fa5f5a1452c106', './hilo')
+register('64c02312ff0ce798cc8d1a7e', './rehook')
+register('64c031541451bb784943f809', './attio')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

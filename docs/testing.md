@@ -165,6 +165,43 @@ curl --location --request POST 'http://localhost:3000/authentication' \
 }'
 ```
 
+### Example request to test createAudience() and getAudience()
+
+You can test the createAudience and getAudience methods as well. Use the commands below as an example and populate the
+settings according to the needs of your destination.
+
+**createAudience**
+
+```sh
+curl --location 'http://localhost:3000/createAudience' \
+--header 'Content-Type: application/json' \
+--data '{
+    "settings": {
+        "createAudienceUrl": "http://localhost:4242"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
+    "audienceName": "The Super Mario Brothers Super Audience"
+}'
+```
+
+**getAudience**
+
+```sh
+curl --location 'http://localhost:3000/getAudience' \
+--header 'Content-Type: application/json' \
+--data '{
+    "settings": {
+        "getAudienceUrl": "http://localhost:4242/getAudience"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
+    "externalId": 21
+}'
+```
+
 ## Unit Testing
 
 When building a destination action, you should write unit and end-to-end tests to ensure your action is working as intended. Tests are automatically run on every commit in Github Actions. Pull requests that do not include relevant tests will not be approved.

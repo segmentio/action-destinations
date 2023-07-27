@@ -1,6 +1,7 @@
 {
   "name": "@segment/browser-destinations",
-  "version": "3.95.0",
+  "private": true,
+  "version": "0.0.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "license": "MIT",
@@ -9,40 +10,19 @@
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/browser-destinations"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
-  },
-  "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/cjs/index.js"
-  },
-  "types": "dist/index.d.ts",
   "scripts": {
     "analyze": "NODE_ENV=production webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
-    "build": "yarn clean && yarn build-ts && yarn build-cjs && yarn build-web",
-    "build-ts": "yarn tsc -b tsconfig.build.json",
-    "build-cjs": "yarn tsc -p ./tsconfig.build.json -m commonjs --outDir ./dist/cjs/",
-    "build-web": "bash scripts/build-web.sh",
+    "build-web": "yarn clean && bash scripts/build-web.sh",
     "build-web-stage": "bash scripts/build-web-stage.sh",
     "deploy-prod": "yarn build-web && aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-production/next-integrations/actions --grants read=id=$npm_config_prod_cdn_oai,id=$npm_config_prod_custom_domain_oai",
     "deploy-stage": "yarn build-web-stage && aws-okta exec plat-write -- aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-stage/next-integrations/actions --grants read=id=$npm_config_stage_cdn_oai,id=$npm_config_stage_custom_domain_oai",
-    "clean": "tsc -b tsconfig.build.json --clean",
-    "postclean": "rm -rf dist",
+    "clean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
   },
   "dependencies": {
-    "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
-    "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@fullstory/browser": "^1.4.9",
-    "@segment/actions-shared": "^1.50.0",
-    "@segment/analytics-next": "^1.51.3",
-    "@segment/destination-subscriptions": "^3.22.0",
-    "dayjs": "^1.10.7",
-    "logrocket": "^3.0.1",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },
@@ -52,23 +32,19 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@segment/actions-core": "^3.68.0",
-    "@types/amplitude-js": "^7.0.1",
     "@types/jest": "^27.0.0",
-    "@types/js-cookie": "^3.0.0",
     "babel-jest": "^27.3.1",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.3.0",
     "globby": "^11.0.2",
     "jest": "^27.3.1",
-    "js-cookie": "^3.0.1",
     "serve": "^12.0.1",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^9.2.6",
-    "webpack": "^5.36.1",
+    "webpack": "^5.82.0",
     "webpack-bundle-analyzer": "^4.4.1",
-    "webpack-cli": "^4.4.0",
-    "webpack-dev-server": "^4.2.0",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0",
     "webpack-manifest-plugin": "^5.0.0"
   },
   "jest": {
@@ -83,7 +59,8 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
-      "@segment/actions-shared": "<rootDir>/../actions-shared/src"
+      "@segment/actions-shared": "<rootDir>/../actions-shared/src",
+      "@segment/browser-destination-runtime/(.*)": "<rootDir>/../browser-destination-runtime/src/$1"
     },
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
