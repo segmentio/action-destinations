@@ -5,6 +5,8 @@ import updateUser from './updateUser'
 import trackEvent from './trackEvent'
 import updateCart from './updateCart'
 import trackPurchase from './trackPurchase'
+import { DataCenterLocation } from './shared-fields'
+import { getRegionalEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Iterable (Actions)',
@@ -20,10 +22,28 @@ const destination: DestinationDefinition<Settings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
+      },
+      dataCenterLocation: {
+        label: 'Data Center Location',
+        description: 'The location where your Iterable data is hosted.',
+        type: 'string',
+        format: 'text',
+        choices: [
+          {
+            label: 'United States',
+            value: 'united_states'
+          },
+          {
+            label: 'Europe',
+            value: 'europe'
+          }
+        ],
+        default: 'united_states'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://api.iterable.com/api/webhooks', {
+      const endpoint = getRegionalEndpoint('getWebhooks', settings.dataCenterLocation as DataCenterLocation)
+      return request(endpoint, {
         method: 'get',
         headers: { 'Api-Key': settings.apiKey }
       })
