@@ -117,28 +117,28 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     gdprOptin: {
-      label: 'GDPR Optin',
+      label: 'GDPR Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'GDPR optin.'
+      description: 'GDPR opt-in.'
     },
     emailOptin: {
-      label: 'Email Optin',
+      label: 'Email Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'Email optin.'
+      description: 'Email opt-in.'
     },
     smsOptin: {
-      label: 'SMS Optin',
+      label: 'SMS Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'SMS optin.'
+      description: 'SMS opt-in.'
     },
     whatsappOptin: {
-      label: 'Whatsapp Optin',
+      label: 'Whatsapp Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'Whatsapp optin.'
+      description: 'Whatsapp opt-in.'
     }
   },
   perform: (request, { payload }) => {

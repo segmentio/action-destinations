@@ -44,19 +44,19 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * GDPR optin.
+   * GDPR opt-in.
    */
   gdprOptin?: boolean
   /**
-   * Email optin.
+   * Email opt-in.
    */
   emailOptin?: boolean
   /**
-   * SMS optin.
+   * SMS opt-in.
    */
   smsOptin?: boolean
   /**
-   * Whatsapp optin.
+   * Whatsapp opt-in.
    */
   whatsappOptin?: boolean
 }
