@@ -2,10 +2,6 @@
 
 export interface Settings {
   /**
-   * Choose delivery route for the files
-   */
-  upload_mode: string
-  /**
    * IAM user credentials with write permissions to the S3 bucket.
    */
   s3_aws_access_key?: string

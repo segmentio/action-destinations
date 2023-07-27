@@ -2,7 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import audienceEntered from './audienceEntered'
-import { testAuthenticationSFTP, Client as ClientSFTP } from './audienceEntered/sftp'
+import audienceEnteredSftp from './audienceEnteredSftp'
+// import { testAuthenticationSFTP, Client as ClientSFTP } from './audienceEnteredSftp/sftp'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Liveramp Audiences',
@@ -12,17 +13,6 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      upload_mode: {
-        label: 'Upload Mode',
-        description: 'Choose delivery route for the files',
-        type: 'string',
-        required: true,
-        default: 'S3',
-        choices: [
-          { value: 'S3', label: 'S3' },
-          { value: 'SFTP', label: 'SFTP' }
-        ]
-      },
       s3_aws_access_key: {
         label: 'AWS Access Key ID (S3 only)',
         description: 'IAM user credentials with write permissions to the S3 bucket.',
@@ -74,17 +64,18 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         default: true
       }
-    },
-    testAuthentication: async (_, { settings }) => {
-      // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
-      if (settings.upload_mode == 'SFTP') {
-        const sftpClient = new ClientSFTP()
-        return await testAuthenticationSFTP(sftpClient, settings)
-      }
     }
+    // testAuthentication: async (_, { settings }) => {
+    //   // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
+    //   if (settings.upload_mode == 'SFTP') {
+    //     const sftpClient = new ClientSFTP()
+    //     return await testAuthenticationSFTP(sftpClient, settings)
+    //   }
+    // }
   },
   actions: {
-    audienceEntered
+    audienceEntered,
+    audienceEnteredSftp
   }
 }
 

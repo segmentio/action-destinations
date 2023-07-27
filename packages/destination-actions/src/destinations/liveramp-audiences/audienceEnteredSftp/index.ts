@@ -1,11 +1,11 @@
-import { ActionDefinition, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { uploadS3, validateS3 } from './s3'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Audience Entered S3',
+  title: 'Audience Entered SFTP',
   description: 'Uploads audience membership data to a file for LiveRamp ingestion.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
@@ -56,18 +56,18 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 1000000
+      default: 290000
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (_, { settings, payload }) => {
+    return processData(settings, [payload])
   },
-  performBatch: (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: (_, { settings, payload }) => {
+    return processData(settings, payload)
   }
 }
 
-async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+async function processData(settings: Settings, payloads: Payload[]) {
   const LIVERAMP_MIN_RECORD_COUNT = 25
   if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
@@ -75,11 +75,12 @@ async function processData(request: RequestClient, settings: Settings, payloads:
     )
   }
 
-  validateS3(settings)
+  validateSFTP(settings)
 
   const { filename, fileContent } = generateFile(payloads)
 
-  return uploadS3(settings, filename, fileContent, request)
+  const sftpClient = new ClientSFTP()
+  return uploadSFTP(sftpClient, settings, filename, fileContent)
 }
 
 export default action
