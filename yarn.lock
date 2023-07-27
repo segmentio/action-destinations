@@ -2195,29 +2195,6 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-"@segment/actions-core@^3.76.0":
-  version "3.76.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.76.0.tgz#b0ed58c8e11e0451f6eacb1afc52b9af29edb6ea"
-  integrity sha512-5xIFczPltcMRxL1QPbFu5tVBRZCx3nS3qE1PMk9KR/tiwOOAgy9Lnkbn2zRJ0jD+YEXETkIc9JHZBHXOdVbXjg==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/ajv-human-errors" "^2.11.0"
-    "@segment/destination-subscriptions" "^3.28.0"
-    "@types/node" "^18.11.15"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
-"@segment/ajv-human-errors@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.11.0.tgz#08e17e8f6dbff92c09c9868c10045113a8036ead"
-  integrity sha512-Aeb0L30mSdour4feuxcMlviNk+9UhmdzKHU652JWRSHg3aqxGz2SJ7DElZgO9AYPz25gahQhlRhtmrYA67vMJw==
-
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
@@ -2258,13 +2235,6 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destination-runtime@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.6.0.tgz#e098d00c931b9d609973a25227b9c2f068397e81"
-  integrity sha512-sc+flruAMXIy7EpOA/6y9f6Bggf6iGUl7zWJZ35EUFdDxR92YTY+sj0el2j6WbC3VcfWUZ/ko3wWLrwX2yV/vQ==
-  dependencies:
-    "@segment/actions-core" "^3.76.0"
-
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
   resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#e5cd6e7cd335cf00640e43a5ece17a290e003ddd"
@@ -2275,13 +2245,6 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
-
-"@segment/destination-subscriptions@^3.28.0":
-  version "3.28.0"
-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.28.0.tgz#d9319c9678b10b58de23ab0e835cd5cfb2192077"
-  integrity sha512-Er8z4/Z7vviPCDpppMhOuX7G/k2oJkFh6DyCxnPCStTzrhMT8LBa+w1A9dudtXJiPnrR2sZLJ+6b0mZv+wEXGg==
-  dependencies:
-    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
