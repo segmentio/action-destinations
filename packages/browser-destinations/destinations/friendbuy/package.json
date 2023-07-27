@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.6.0",
+  "version": "1.6.1-main.0",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,9 +11,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.76.0",
-    "@segment/actions-shared": "^1.58.0",
-    "@segment/browser-destination-runtime": "^1.6.0"
+    "@segment/actions-core": "^3.76.1-main.0",
+    "@segment/actions-shared": "^1.58.1-main.0",
+    "@segment/browser-destination-runtime": "^1.6.1-main.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"

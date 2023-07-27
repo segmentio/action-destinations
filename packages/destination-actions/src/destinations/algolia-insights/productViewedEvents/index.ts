@@ -1,5 +1,5 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import { Subscription, defaultValues } from '@segment/actions-core'
+import type { ActionDefinition, Preset } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -76,9 +76,10 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const productViewedPresets: Subscription = {
+export const productViewedPresets: Preset = {
   name: 'Send product viewed events to Algolia',
   subscribe: productViewedEvents.defaultSubscription as string,
   partnerAction: 'productViewedEvents',
-  mapping: defaultValues(productViewedEvents.fields)
+  mapping: defaultValues(productViewedEvents.fields),
+  type: 'automatic'
 }

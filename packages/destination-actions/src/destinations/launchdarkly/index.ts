@@ -1,21 +1,23 @@
-import { defaultValues, DestinationDefinition, Subscription } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition, Preset } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import aliasUser from './aliasUser'
 import trackEvent from './trackEvent'
 
-const presets: Subscription[] = [
+const presets: Preset[] = [
   {
     name: 'Track Event',
     subscribe: 'type = "track"',
     partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
+    mapping: defaultValues(trackEvent.fields),
+    type: 'automatic'
   },
   {
     name: 'Alias User',
     subscribe: 'type = "identify" or type = "alias"',
     partnerAction: 'aliasUser',
-    mapping: defaultValues(aliasUser.fields)
+    mapping: defaultValues(aliasUser.fields),
+    type: 'automatic'
   }
 ]
 
