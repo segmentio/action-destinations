@@ -179,6 +179,9 @@ curl --location 'http://localhost:3000/createAudience' \
     "settings": {
         "createAudienceUrl": "http://localhost:4242"
     },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
     "audienceName": "The Super Mario Brothers Super Audience"
 }'
 ```
@@ -191,6 +194,9 @@ curl --location 'http://localhost:3000/getAudience' \
 --data '{
     "settings": {
         "getAudienceUrl": "http://localhost:4242/getAudience"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
     },
     "externalId": 21
 }'
