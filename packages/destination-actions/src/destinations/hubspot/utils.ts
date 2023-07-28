@@ -107,7 +107,11 @@ export interface GetAssociationLabelResponse {
   results: AssociationLabel[]
 }
 
-export function validateProperty(property: object) {
+interface Property {
+  [key: string]: any
+}
+
+export function validateProperty(property: Property) {
   const urlPattern = /url/i
   const referrerPattern = /referrer/i
   const linkPattern = /link/i
