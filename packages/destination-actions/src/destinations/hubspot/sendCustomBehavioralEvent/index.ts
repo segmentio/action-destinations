@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject } from '../utils'
+import { flattenObject, validateProperty } from '../utils'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -79,6 +79,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const hubId = settings?.portalId
     const regExp = /^pe\d+_.*/
+
+    const res = event.properties ? validateProperty(event.properties) : true
+    if (!res) {
+      throw new PayloadValidationError(`Length of non-url and non-referrer properties should be maximum 256`)
+    }
 
     if (!hubId && !regExp.exec(payload?.eventName)) {
       throw new PayloadValidationError(`EventName should begin with pe<hubId>_`)
