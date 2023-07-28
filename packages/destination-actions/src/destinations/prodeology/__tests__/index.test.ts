@@ -1,6 +1,6 @@
-import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
-import Definition from '../index'
+import nock from 'nock';
+import { createTestIntegration } from '@segment/actions-core';
+import Definition from '../index';
 
 const testDestination = createTestIntegration(Definition)
 
