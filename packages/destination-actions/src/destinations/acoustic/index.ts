@@ -29,7 +29,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Identify Calls',
@@ -44,7 +45,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 

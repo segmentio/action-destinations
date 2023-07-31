@@ -40,7 +40,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send an event to IQM',
       subscribe: 'type = "track"',
       partnerAction: 'postEvent',
-      mapping: defaultValues(postEvent.fields)
+      mapping: defaultValues(postEvent.fields),
+      type: 'automatic'
     }
   ]
 }

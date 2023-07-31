@@ -35,13 +35,15 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Group Workspace',
       subscribe: 'type = "group"',
       partnerAction: 'groupWorkspace',
-      mapping: defaultValues(groupWorkspace.fields)
+      mapping: defaultValues(groupWorkspace.fields),
+      type: 'automatic'
     }
   ]
 }
