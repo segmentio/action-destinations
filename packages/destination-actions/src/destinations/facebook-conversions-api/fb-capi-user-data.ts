@@ -16,7 +16,8 @@ export const user_data_field: InputField = {
       label: 'External ID',
       description:
         'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
-      type: 'string'
+      type: 'string',
+      multiple: true
     },
     email: {
       label: 'Email',
@@ -229,15 +230,10 @@ export const normalize_user_data = (payload: UserData) => {
       payload.user_data.country = COUNTRY_CODES.get(payload.user_data.country)
     }
   }
-
-  if (payload.user_data.externalId) {
-    payload.user_data.externalId = payload.user_data.externalId.replace(/\s/g, '').toLowerCase()
-  }
 }
 
 export const hash_user_data = (payload: UserData): Object => {
   normalize_user_data(payload)
-
   return {
     em: hash(payload.user_data?.email),
     ph: hash(payload.user_data?.phone),
@@ -249,7 +245,7 @@ export const hash_user_data = (payload: UserData): Object => {
     st: hash(payload.user_data?.state),
     zp: hash(payload.user_data?.zip),
     country: hash(payload.user_data?.country),
-    external_id: hash(payload.user_data?.externalId), // Hashing this is recommended but not required.
+    external_id: payload.user_data?.externalId?.map((el: string) => hash(el.replace(/\s/g, '').toLowerCase())),
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
