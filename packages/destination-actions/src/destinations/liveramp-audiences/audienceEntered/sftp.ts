@@ -35,16 +35,13 @@ async function doSFTP(sftp: Client, settings: Settings, action: { (sftp: Client)
     password: settings.sftp_password
   })
 
-  const retVal = await action(sftp)
+  await action(sftp)
   await sftp.end()
-  return retVal
 }
 
 async function testAuthenticationSFTP(sftp: Client, settings: Settings) {
   return doSFTP(sftp, settings, async (sftp) => {
-    return sftp.exists(settings.sftp_folder_path as string).then((fileType) => {
-      if (!fileType) throw new Error(`Could not find path: ${settings.sftp_folder_path}`)
-    })
+    return sftp.list(settings.sftp_folder_path as string)
   })
 }
 

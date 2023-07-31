@@ -2,37 +2,21 @@
 
 exports[`Testing snapshot for actions-acoustic-campaign destination: receiveEvents action - all fields 1`] = `
 "<Envelope>
-      <Body>
-        <InsertUpdateRelationalTable>
-        <TABLE_ID>lLhce#$[oZh </TABLE_ID>
-          <ROWS>
-     <ROW>
-     <COLUMN name=\\"Email\\">           <![CDATA[wel@nubno.fk]]></COLUMN>
-     <COLUMN name=\\"EventSource\\">     <![CDATA[lLhce#$[oZh Event]]></COLUMN>  
-     <COLUMN name=\\"EventName\\">       <![CDATA[testType]]></COLUMN>
-     <COLUMN name=\\"EventValue\\">      <![CDATA[lLhce#$[oZh]]></COLUMN>
-     <COLUMN name=\\"Event Timestamp\\"> <![CDATA[2021-02-01T00:00:00.000Z]]></COLUMN>
-     </ROW>
-     <ROW>
-     <COLUMN name=\\"Email\\">           <![CDATA[wel@nubno.fk]]></COLUMN>
-     <COLUMN name=\\"EventSource\\">     <![CDATA[lLhce#$[oZh Event]]></COLUMN>  
-     <COLUMN name=\\"EventName\\">       <![CDATA[0.testType]]></COLUMN>
-     <COLUMN name=\\"EventValue\\">      <![CDATA[lLhce#$[oZh]]></COLUMN>
-     <COLUMN name=\\"Event Timestamp\\"> <![CDATA[2021-02-01T00:00:00.000Z]]></COLUMN>
-     </ROW></ROWS>
-        </InsertUpdateRelationalTable>
-      </Body>
-    </Envelope>"
+  <Body>
+  <GetLists>
+  <VISIBILITY>1 </VISIBILITY>
+  <LIST_TYPE> 15 </LIST_TYPE>
+  <INCLUDE_ALL_LISTS> True </INCLUDE_ALL_LISTS>
+  </GetLists>
+  </Body>
+  </Envelope>"
 `;
 
 exports[`Testing snapshot for actions-acoustic-campaign destination: receiveEvents action - required fields 1`] = `
-"<Envelope>
-      <Body>
-        <InsertUpdateRelationalTable>
-        <TABLE_ID>lLhce#$[oZh </TABLE_ID>
-          <ROWS></ROWS>
-        </InsertUpdateRelationalTable>
-      </Body>
+"
+    <Envelope> <Body>
+    <GetListMetaData> <LIST_ID>lLhce#$[oZh</LIST_ID>
+    </GetListMetaData> </Body>
     </Envelope>"
 `;
 
@@ -46,7 +30,7 @@ Headers {
       "gzip, deflate, br",
     ],
     "authorization": Array [
-      "Bearer fake_accessToken",
+      "Bearer undefined",
     ],
     "connection": Array [
       "keep-alive",
@@ -55,7 +39,7 @@ Headers {
       "text/xml",
     ],
     "user-agent": Array [
-      "Segment Action (Acoustic Destination) POST_Updates",
+      "Segment Action (Acoustic Destination)",
     ],
   },
 }

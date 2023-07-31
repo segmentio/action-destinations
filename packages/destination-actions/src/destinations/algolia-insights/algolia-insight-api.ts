@@ -10,7 +10,6 @@ type EventCommon = {
   userToken: string
   objectIDs: string[]
   timestamp?: number
-  queryID?: string
 }
 
 export type AlgoliaProductViewedEvent = EventCommon & {
@@ -19,7 +18,8 @@ export type AlgoliaProductViewedEvent = EventCommon & {
 
 export type AlgoliaProductClickedEvent = EventCommon & {
   eventType: 'click'
-  positions?: number[]
+  queryID: string
+  positions: number[]
 }
 
 export type AlgoliaConversionEvent = EventCommon & {

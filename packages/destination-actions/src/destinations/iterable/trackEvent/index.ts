@@ -8,10 +8,9 @@ import {
   CREATED_AT_FIELD,
   CAMPAGIN_ID_FIELD,
   TEMPLATE_ID_FIELD,
-  EVENT_DATA_FIELDS,
-  DataCenterLocation
+  EVENT_DATA_FIELDS
 } from '../shared-fields'
-import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -51,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...TEMPLATE_ID_FIELD
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
     }
@@ -76,8 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       createdAt: dayjs(payload.createdAt).unix()
     }
 
-    const endpoint = getRegionalEndpoint('trackEvent', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    return request('https://api.iterable.com/api/events/track', {
       method: 'post',
       json: trackEventRequest
     })

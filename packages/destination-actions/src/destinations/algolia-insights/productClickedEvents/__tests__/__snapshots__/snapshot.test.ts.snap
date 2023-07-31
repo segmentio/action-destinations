@@ -34,6 +34,11 @@ Object {
       "objectIDs": Array [
         "tTO6#",
       ],
+      "position": -8127732168785920,
+      "positions": Array [
+        -8127732168785920,
+      ],
+      "queryID": "tTO6#",
       "timestamp": 1674843786677,
       "userToken": "tTO6#",
     },

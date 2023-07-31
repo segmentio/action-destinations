@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InputField } from '@segment/actions-core/src/destination-kit/types'
 
 export const selected_advertiser_id: InputField = {
   label: 'Advertiser ID',
@@ -26,15 +26,6 @@ export const audience_id: InputField = {
   label: 'Audience ID',
   description:
     'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
-  type: 'string',
-  dynamic: true,
-  required: true
-}
-
-export const custom_audience_name: InputField = {
-  label: 'Custom Audience Name',
-  description:
-    'Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with "..." appended.',
   type: 'string',
   required: true
 }

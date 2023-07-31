@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "module": "esnext",
-    "removeComments": false,
-    "baseUrl": "."
-  },
-  "exclude": ["dist"]
-}

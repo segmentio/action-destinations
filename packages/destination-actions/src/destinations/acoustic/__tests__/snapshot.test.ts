@@ -8,22 +8,10 @@ const destinationSlug = 'actions-acoustic-campaign'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
-    //Required Fields
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
-      nock(/.*/)
-        .persist()
-        .post(/^\/oauth\/token/)
-        .reply(
-          200,
-          `{
-            accessToken: "fake_accessToken",
-            refreshToken: "fake_refreshToken",
-          }`
-        )
 
       nock(/.*/)
         .persist()
@@ -50,6 +38,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
                         <SUPPRESSION_LIST_ID>0</SUPPRESSION_LIST_ID>
                         <IS_DATABASE_TEMPLATE>false</IS_DATABASE_TEMPLATE>
                     </LIST>
+        
                 </RESULT>
             </Body>
         </Envelope>`
@@ -65,17 +54,14 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         settings: {
           ...settingsData,
 
-          clientId: 'fake_client_id',
-          clientSecret: 'fake_client_secret',
-          refreshToken: 'fake_refresh_token',
-          attributesMax: undefined,
-          region: 'us',
-          pod: '2'
+          a_clientId: 'fake_client_id',
+          a_clientSecret: 'fake_client_secret',
+          a_refreshToken: 'fake_refresh_token',
+          a_attributesMax: undefined,
+          a_region: 'us',
+          a_pod: '2'
         },
-        auth: {
-          accessToken: 'fake_accessToken',
-          refreshToken: 'fake_refreshToken'
-        }
+        auth: undefined
       })
 
       const request = responses[0].request
@@ -92,22 +78,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       expect(request.headers).toMatchSnapshot()
     })
 
-    //All Fields
     it(`${actionSlug} action - all fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
-      nock(/.*/)
-        .persist()
-        .post(/^\/oauth\/token/)
-        .reply(
-          200,
-          `{
-            accessToken: "fake_accessToken",
-            refreshToken: "fake_refreshToken",
-          }`
-        )
 
       nock(/.*/)
         .persist()
@@ -149,18 +123,15 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         mapping: event.properties,
         settings: {
           ...settingsData,
-          events_table_list_id: '',
-          clientId: 'fake_client_id',
-          clientSecret: 'fake_client_secret',
-          refreshToken: 'fake_refresh_token',
-          attributesMax: 30,
-          region: 'us',
-          pod: '2'
+          a_events_table_list_id: '',
+          a_clientId: 'fake_client_id',
+          a_clientSecret: 'fake_client_secret',
+          a_refreshToken: 'fake_refresh_token',
+          a_attributesMax: 30,
+          a_region: 'us',
+          a_pod: '2'
         },
-        auth: {
-          accessToken: 'fake_accessToken',
-          refreshToken: 'fake_refreshToken'
-        }
+        auth: undefined
       })
 
       const request = responses[0].request

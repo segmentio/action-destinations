@@ -14,7 +14,7 @@ export interface Payload {
    */
   id?: string
   /**
-   * Data for the object fields in Encharge. Any unexisting fields will be ignored.
+   * Data for the Object fields to associate with the user in Encharge. Any unexisting fields will be ignored.
    */
   objectData?: {
     [k: string]: unknown

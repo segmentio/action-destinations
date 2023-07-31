@@ -38,7 +38,7 @@ const updateUsersRequestBody = {
   batch_data: [
     [
       {
-        id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+        id: '44d206f60172cd898051a9fb2174750aee1eca00f6f63f12801b90644321e342',
         audience_ids: ['1234345']
       },
       {

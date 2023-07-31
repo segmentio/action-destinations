@@ -8,36 +8,32 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Assign a specific group and its traits to the customer.',
   defaultSubscription: 'type = "group"',
   fields: {
-    customer: {
-      label: 'Customer Object',
-      required: true,
+    source_id: {
+      label: 'Source ID',
       description:
-        'Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).',
-      type: 'object',
-      properties: {
-        source_id: {
-          label: 'Source ID',
-          type: 'string',
-          required: true,
-          description:
-            'The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.'
-        },
-        email: {
-          label: 'Email',
-          type: 'string',
-          description:
-            'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.'
-        }
-      },
+        'The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+      type: 'string',
+      required: true,
       default: {
-        source_id: { '@path': '$.userId' },
-        email: { '@path': '$.email' }
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
+    },
+    email: {
+      label: 'Email Address',
+      description:
+        'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
+      type: 'string',
+      default: {
+        '@path': '$.email'
       }
     },
     group_id: {
       label: 'Group ID',
-      description:
-        'The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.',
+      description: 'The ID used to uniquely identify a group to which customer belongs.',
       type: 'string',
       required: true,
       default: {
@@ -46,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
 
     traits: {
-      label: 'Group Traits',
+      label: 'Group traits',
       description:
         'Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).',
       type: 'object',
@@ -56,8 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Event Type',
-      description:
-        'Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group.',
+      description: 'Type of the event [The Segment Spec](https://segment.com/docs/connections/spec/).',
       type: 'string',
       required: true,
       default: {
