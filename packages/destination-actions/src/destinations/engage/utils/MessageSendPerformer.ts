@@ -224,6 +224,11 @@ export abstract class MessageSendPerformer<
       this.currentOperation?.tags.push(`delivery_attempt:${delivery_attempt}`)
       this.logDetails['delivery_attempt'] = delivery_attempt
     }
+    if ('replay' in (this.executeInput as any)['rawData']) {
+      const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
+      this.currentOperation?.tags.push(`replay:${delivery_attempt}`)
+      this.logDetails['replay'] = delivery_attempt
+    }
   }
 
   /**
