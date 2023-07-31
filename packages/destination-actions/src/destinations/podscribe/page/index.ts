@@ -59,14 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.ip'
       }
     },
-    library: {
-      label: 'Segment Library',
-      type: 'object',
-      description: 'The library sending the event.',
-      default: {
-        '@path': '$.context.library'
-      }
-    },
     userAgent: {
       label: 'User Agent',
       type: 'string',
@@ -85,8 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer: payload.referrer,
       url: payload.url,
       ip: payload.ip,
-      user_agent: payload.userAgent,
-      library: JSON.stringify(payload.library)
+      user_agent: payload.userAgent
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)

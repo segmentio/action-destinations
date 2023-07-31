@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Definition from '../index'
 
 export const apiKey = 'fake-api-key'
@@ -162,7 +162,7 @@ describe('FullStory', () => {
     falsyUserIds.forEach((falsyUserId) => {
       it(`it throws PayloadValidationError given falsy user id ${falsyUserId}`, async () => {
         await expect(testDestination.onDelete!({ type: 'delete', userId: falsyUserId }, settings)).rejects.toThrowError(
-          new PayloadValidationError('User Id is required for user deletion.')
+          new IntegrationError('User Id is required for user deletion.')
         )
       })
     })

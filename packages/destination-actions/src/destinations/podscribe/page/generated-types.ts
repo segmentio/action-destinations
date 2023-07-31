@@ -22,12 +22,6 @@ export interface Payload {
    */
   ip: string
   /**
-   * The library sending the event.
-   */
-  library?: {
-    [k: string]: unknown
-  }
-  /**
    * The user agent of the device sending the event.
    */
   userAgent?: string

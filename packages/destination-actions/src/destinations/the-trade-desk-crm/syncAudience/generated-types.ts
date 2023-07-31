@@ -25,8 +25,4 @@ export interface Payload {
    * The name of the current Segment event.
    */
   event_name?: string
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }

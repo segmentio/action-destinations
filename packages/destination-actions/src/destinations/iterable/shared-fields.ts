@@ -192,5 +192,3 @@ export type CommerceItem = {
     [k: string]: unknown
   }
 }
-
-export type DataCenterLocation = 'united_states' | 'europe'

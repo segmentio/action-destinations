@@ -33,7 +33,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
@@ -67,7 +66,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
       expect(json).toMatchSnapshot()
       return
     } catch (err) {

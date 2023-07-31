@@ -33,10 +33,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        // @ts-ignore
-        if (action == 'trackEvent') {
-          json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
-        }
         expect(json).toMatchSnapshot()
         return
       } catch (err) {
@@ -71,10 +67,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        // @ts-ignore
-        if (action == 'trackEvent') {
-          json.event_name = json.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
-        }
         expect(json).toMatchSnapshot()
         return
       } catch (err) {

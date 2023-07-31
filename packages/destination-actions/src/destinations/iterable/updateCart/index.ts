@@ -8,10 +8,9 @@ import {
   EMAIL_FIELD,
   USER_DATA_FIELDS,
   USER_PHONE_NUMBER_FIELD,
-  CommerceItem,
-  DataCenterLocation
+  CommerceItem
 } from '../shared-fields'
-import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { transformItems, convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Cart Updates',
@@ -60,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...ITEMS_FIELD
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     const { user, items } = payload
     if (!user.email && !user.userId) {
       throw new PayloadValidationError('Must include email or userId.')
@@ -95,8 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       items: transformItems(items)
     }
 
-    const endpoint = getRegionalEndpoint('updateCart', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    return request('https://api.iterable.com/api/commerce/updateCart', {
       method: 'post',
       json: updateCartRequest
     })

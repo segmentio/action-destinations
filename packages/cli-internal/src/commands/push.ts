@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import type { DestinationDefinition as CloudDestinationDefinition, MinimalInputField } from '@segment/actions-core'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import { BrowserDestinationDefinition } from '@segment/destinations-manifest'
+import { BrowserDestinationDefinition } from '@segment/browser-destinations'
 import chalk from 'chalk'
 import { pick, omit, sortBy } from 'lodash'
 import { diffString } from 'json-diff'
@@ -55,7 +55,7 @@ export default class Push extends Command {
     await deprecationWarning(this.warn)
 
     const { metadataIds } = await prompt<{ metadataIds: string[] }>({
-      type: 'autocompleteMultiselect',
+      type: 'multiselect',
       name: 'metadataIds',
       message: 'Pick the definitions you would like to push to Segment:',
       choices: sortBy(Object.entries(manifest), '[1].definition.name').map(([metadataId, entry]) => ({
@@ -433,7 +433,7 @@ export function getOptions(
       default: schema.default ?? defaultValues[schema.type],
       description: schema.description,
       encrypt: schema.type === 'password',
-      hidden: existing?.hidden ?? false,
+      hidden: existing['hidden'] ?? false,
       label: schema.label,
       private: isPrivateSetting,
       scope: 'event_destination',

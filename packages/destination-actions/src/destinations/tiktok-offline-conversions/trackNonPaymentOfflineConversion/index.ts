@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../common_fields'
@@ -6,17 +6,11 @@ import { formatEmails, formatPhones } from '../formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Non Payment Offline Conversion',
-  description: 'Send a non payment related event to the TikTok Offline Conversions API',
+  description: 'Send a non payment related event to the Tiktok Offline Conversions API',
   fields: {
     ...commonFields
   },
   perform: (request, { payload, settings }) => {
-    const phone_numbers = formatPhones(payload.phone_numbers)
-    const emails = formatEmails(payload.email_addresses)
-
-    if (phone_numbers.length < 1 && emails.length < 1)
-      throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number')
-
     return request('https://business-api.tiktok.com/open_api/v1.3/offline/track/', {
       method: 'post',
       json: {
@@ -26,8 +20,8 @@ const action: ActionDefinition<Settings, Payload> = {
         timestamp: payload.timestamp,
         context: {
           user: {
-            phone_numbers,
-            emails
+            phone_numbers: formatPhones(payload.phone_numbers),
+            emails: formatEmails(payload.email_addresses)
           }
         },
         properties: {

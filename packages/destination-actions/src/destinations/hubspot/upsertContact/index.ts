@@ -3,7 +3,7 @@ import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { flattenObject } from '../utils'
+import { flattenObject } from '../helperFunctions'
 
 interface ContactResponse {
   id: string

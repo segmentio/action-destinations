@@ -1,7 +1,8 @@
 import nock from 'nock'
-import { APIError, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_HOST, API_PATH } from '../../emarsys-helper'
+import { IntegrationError } from '@segment/actions-core'
 import { RetryableError } from '@segment/actions-core'
 // import { IntegrationError } from '@segment/actions-core'
 // import { RetryableError } from '@segment/actions-core'
@@ -71,7 +72,7 @@ describe('Emarsys.triggerEvent', () => {
         mapping: TESTPAYLOAD,
         settings: SETTINGS
       })
-    ).rejects.toThrowError(APIError)
+    ).rejects.toThrowError(IntegrationError)
   })
 
   it('should throw an RetryableError if the API responds with a server error', async () => {

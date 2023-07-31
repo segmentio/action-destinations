@@ -31,9 +31,9 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     },
     queryID: {
       label: 'Query ID',
-      description: 'Query ID of the list on which the item was purchased.',
+      description: 'Query ID of the list on which the item was clicked.',
       type: 'string',
-      required: false,
+      required: true,
       default: {
         '@path': '$.properties.query_id'
       }

@@ -6,10 +6,9 @@ import {
   USER_ID_FIELD,
   USER_DATA_FIELDS,
   MERGE_NESTED_OBJECTS_FIELD,
-  USER_PHONE_NUMBER_FIELD,
-  DataCenterLocation
+  USER_PHONE_NUMBER_FIELD
 } from '../shared-fields'
-import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert User',
@@ -33,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...MERGE_NESTED_OBJECTS_FIELD
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     const { email, userId, dataFields } = payload
 
     if (!email && !userId) {
@@ -62,8 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    return request('https://api.iterable.com/api/users/update', {
       method: 'post',
       json: userUpdateRequest
     })

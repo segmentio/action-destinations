@@ -2,21 +2,17 @@
 
 export interface Settings {
   /**
-   * Pod Number for API Endpoint
+   * Pod Number of Campaign Instance
    */
-  pod: string
+  a_pod: string
   /**
-   * Region for API Endpoint, either US, EU, AP, or CA
+   * Region where Pod is hosted, either US, EU, AP, or CA
    */
-  region: string
+  a_region: string
   /**
-   * The Segment Table Name in Acoustic Campaign Data dialog.
+   * The Segment Events Table List Id from the Database dialog in Acoustic Campaign
    */
-  tableName: string
-  /**
-   * The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign
-   */
-  tableListId: string
+  a_events_table_list_id?: string
   /**
    * The Client Id from the App definition dialog in Acoustic Campaign
    */
@@ -30,13 +26,7 @@ export interface Settings {
    */
   a_refreshToken: string
   /**
-   * A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
+   * Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
-  attributesMax?: number
-  /**
-   *
-   * Last-Modified: 06.23.2023 12.42.42
-   *
-   */
-  version?: string
+  a_attributesMax?: number
 }

@@ -12,9 +12,9 @@ export interface Payload {
    */
   index: string
   /**
-   * Query ID of the list on which the item was purchased.
+   * Query ID of the list on which the item was clicked.
    */
-  queryID?: string
+  queryID: string
   /**
    * The ID associated with the user.
    */

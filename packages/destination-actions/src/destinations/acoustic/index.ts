@@ -1,12 +1,8 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
-import { getAccessToken } from './Utility/tablemaintutilities'
 
-const mod = `
-Last-Modified: 06.23.2023 12.42.42
-`
-//May 30th, refactor for additional Customers
+//Apr 05, 2023 reset
 export interface refreshTokenResult {
   access_token: string
   token_type: string
@@ -55,16 +51,16 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      pod: {
+      a_pod: {
         label: 'Pod',
-        description: 'Pod Number for API Endpoint',
+        description: 'Pod Number of Campaign Instance',
         default: '2',
         type: 'string',
         required: true
       },
-      region: {
+      a_region: {
         label: 'Region',
-        description: 'Region for API Endpoint, either US, EU, AP, or CA',
+        description: 'Region where Pod is hosted, either US, EU, AP, or CA',
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
@@ -75,29 +71,22 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      tableName: {
-        label: 'Acoustic Segment Table Name',
-        description: `The Segment Table Name in Acoustic Campaign Data dialog.`,
-        default: 'Segment Events Table Name',
-        type: 'string',
-        required: true
-      },
-      tableListId: {
-        label: 'Acoustic Segment Table List Id',
-        description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
+      a_events_table_list_id: {
+        label: 'Acoustic Segment Events Table List Id',
+        description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
         default: '',
         type: 'string',
-        required: true
+        required: false
       },
       a_clientId: {
-        label: 'Acoustic App Definition ClientId',
+        label: 'Acoustic app definition ClientId',
         description: 'The Client Id from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'string',
         required: true
       },
       a_clientSecret: {
-        label: 'Acoustic App Definition ClientSecret',
+        label: 'Acoustic App definition ClientSecret',
         description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'password',
@@ -110,24 +99,35 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       },
-      attributesMax: {
+      a_attributesMax: {
         label: 'Properties Max',
-        description:
-          'A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 15,
+        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        default: 30,
         type: 'number',
-        required: false
-      },
-      version: {
-        label: `Version:`,
-        description: `${mod}`,
-        default: 'Version 3.1',
-        type: 'string',
         required: false
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      return await getAccessToken(request, settings)
+      const at = await request<refreshTokenResult>(
+        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
+        {
+          method: 'POST',
+          body: new URLSearchParams({
+            refresh_token: settings.a_refreshToken,
+            client_id: settings.a_clientId,
+            client_secret: settings.a_clientSecret,
+            grant_type: 'refresh_token'
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'user-agent': `Segment Action (Acoustic Destination)`,
+            Connection: 'keep-alive',
+            'Accept-Encoding': 'gzip, deflate, br',
+            Accept: '*/*'
+          }
+        }
+      )
+      return { accessToken: at.data.access_token }
     }
   },
   presets,

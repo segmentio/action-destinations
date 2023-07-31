@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://github-production-user-asset-6210df.s3.amazonaws.com/316711/254403783-df7b9cdd-1e45-48a8-a255-e1cc087e2196.svg" width="100"/></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://library.twilio.com/m/75a81eb2857bfd02/webimage-logo-segment-icon-clearspace-rgb.png" width="100"/></a></p>
 
 # Action Destinations
 
@@ -536,64 +536,6 @@ const response = await request('https://example.com', {
   throwHttpErrors: true
 })
 ```
-
-### Audience Support (Alpha)
-
-In order to support audience destinations, we've introduced a type that extends regular destinations:
-
-```js
-const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  // ...other properties
-  audienceFields: {
-    audienceId: {
-      label: 'An audience id required by the destination',
-      description: 'An audience id required by the destination',
-      type: 'string',
-      required: true
-    }
-  },
-  audienceConfig: {
-    mode: {
-      type: 'synced', // Indicates that the audience is synced on some schedule
-      full_audience_sync: true // If true, we send the entire audience. If false, we just send the delta.
-    }
-  },
-  // These are optional and only needed if you need to create an audience before sending events/users.
-  // Create an audience on the destination side
-  async createAudience(request, { settings, audienceSettings, audienceName }) {
-    const response = await request(YOUR_URL, {
-      method: 'POST',
-      json: {
-        new_audience_name: audienceName,
-        some_audience_specific_id: audienceSettings.audienceId // As defined in audienceFields
-      }
-    })
-    const jsonOutput = await response.json()
-    // Segment will save this externalId for subsequent calls
-    return {
-      externalId: jsonOutput['my_audience_id']
-    }
-  },
-  // Right now, this serves mostly as a check to ensure the audience still exists in the destination
-  async getAudience(request, { settings, audienceSettings, externalId }) {
-    const response = await request(YOUR_URL, {
-      method: 'POST',
-      json: {
-        my_audience_id: externalId
-      }
-    })
-    const jsonOutput = await response.json()
-    return {
-      externalId: jsonOutput['my_audience_id']
-    }
-  }
-}
-```
-
-**Other considerations for audience support:**
-
-- It is highly recommended to implement a `performBatch` function in your actions implementation.
-- You should implement actions specific to audiences such as adding and removing a user
 
 ### Differences from the Fetch API
 

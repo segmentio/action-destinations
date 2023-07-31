@@ -2,43 +2,25 @@
 
 export interface Payload {
   /**
-   * This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).
+   * The source_id which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
-  customer: {
-    /**
-     * The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
-     */
-    source_id: string
-    /**
-     * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
-     */
-    email?: string
-  }
+  source_id: string
   /**
-   * If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.
+   * The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.
    */
-  referral?: {
-    code?: string
-    referrer_id?: string
-  }
-  /**
-   * If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.
-   */
-  loyalty?: {
-    code?: string
-  }
-  /**
-   * The metadata object stores all custom attributes assigned to the [custom event](https://docs.voucherify.io/reference/custom-event-object). A set of key/value pairs that you can attach to an event object. It can be useful for storing additional information about the event in a structured format. Event metadata schema is defined in the Dashboard > Project Settings > Event Schema > Edit particular event > Metadata property definition.
-   */
-  metadata?: {
-    [k: string]: unknown
-  }
+  email?: string
   /**
    * The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.
    */
   event?: string
   /**
-   * Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group
+   * Additional data that will be stored in the [custom event](https://docs.voucherify.io/reference/the-custom-event-object) metadata in Voucherify.
+   */
+  metadata?: {
+    [k: string]: unknown
+  }
+  /**
+   * Type of the event. It can be track, page or screen.
    */
   type: string
 }

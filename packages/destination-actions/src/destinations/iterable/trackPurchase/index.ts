@@ -13,10 +13,9 @@ import {
   EVENT_DATA_FIELDS,
   USER_DATA_FIELDS,
   USER_PHONE_NUMBER_FIELD,
-  CommerceItem,
-  DataCenterLocation
+  CommerceItem
 } from '../shared-fields'
-import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { transformItems, convertDatesInObject } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -94,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...TEMPLATE_ID_FIELD
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     const { user, dataFields } = payload
 
     if (!user.email && !user.userId) {
@@ -147,8 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
       dataFields: formattedDataFields
     }
 
-    const endpoint = getRegionalEndpoint('trackPurchase', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    return request('https://api.iterable.com/api/commerce/trackPurchase', {
       method: 'post',
       json: trackPurchaseRequest
     })
