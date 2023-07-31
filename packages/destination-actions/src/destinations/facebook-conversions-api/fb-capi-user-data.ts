@@ -233,6 +233,7 @@ export const normalize_user_data = (payload: UserData) => {
 }
 
 export const hash_user_data = (payload: UserData): Object => {
+  const externalIds = payload.user_data?.externalId || []
   normalize_user_data(payload)
   return {
     em: hash(payload.user_data?.email),
@@ -245,7 +246,7 @@ export const hash_user_data = (payload: UserData): Object => {
     st: hash(payload.user_data?.state),
     zp: hash(payload.user_data?.zip),
     country: hash(payload.user_data?.country),
-    external_id: payload.user_data?.externalId?.map((el: string) => hash(el.replace(/\s/g, '').toLowerCase())),
+    external_id: externalIds.map((el: string) => hash(el.replace(/\s/g, '').toLowerCase())),
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
