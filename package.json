@@ -4,7 +4,8 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/browser-destinations/destinations/*"
     ]
   },
   "engines": {
@@ -17,10 +18,11 @@
     "cli-internal": "yarn workspace @segment/actions-cli-internal",
     "core": "yarn workspace @segment/actions-core",
     "bootstrap": "lerna bootstrap",
-    "build": "./bin/run generate:types && lerna run build --stream --ignore @segment/actions-cli-internal",
+    "build": "./bin/run generate:types && lerna run build  --concurrency 1 --stream --ignore @segment/actions-cli-internal && yarn browser build-web",
+    "build:browser-destinations": "yarn lerna run build --concurrency 1 --scope=@segment/destinations-manifest --include-dependencies --stream && yarn browser build-web",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
-    "lint": "eslint '**/*.ts' --cache",
+    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "lerna run test --stream",
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
@@ -56,7 +58,7 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^6.0.3",
+    "lerna": "^6.5.0",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",
@@ -68,7 +70,7 @@
     "timers-browserify": "^2.0.12",
     "ts-jest": "^27.0.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.3",
+    "typescript": "4.3.5",
     "ws": "^8.5.0"
   },
   "resolutions": {
@@ -86,7 +88,7 @@
       "./bin/run generate:types",
       "git add **/generated-types.ts"
     ],
-    "!(templates)/**/*.ts": [
+    "!(**/templates/**)/*.ts": [
       "eslint --fix --cache",
       "prettier --write"
     ],

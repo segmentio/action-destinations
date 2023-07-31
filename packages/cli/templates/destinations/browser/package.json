@@ -1,0 +1,24 @@
+{
+  "name": "@segment/analytics-browser-{{slug}}",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/{{slugWithoutActions}}"
+  },
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
+  "dependencies": {
+    "@segment/browser-destination-runtime": "^1.4.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  }
+}

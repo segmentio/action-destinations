@@ -1,4 +1,9 @@
-import { ActionDefinition, InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  RequestClient
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
@@ -19,11 +24,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     identifier_data: {
       label: 'Identifier Data',
-      description: `Additional data pertaining to the user.`,
+      description: `Additional data pertaining to the user to be written to the file.`,
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue:only',
-      default: { '@path': '$.context.traits' }
+      defaultObjectUI: 'keyvalue:only'
+    },
+    unhashed_identifier_data: {
+      label: 'Hashable Identifier Data',
+      description: `Additional data pertaining to the user to be hashed before written to the file`,
+      type: 'object',
+      required: false,
+      defaultObjectUI: 'keyvalue:only'
     },
     delimiter: {
       label: 'Delimeter',
@@ -37,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Name of the CSV file to upload for LiveRamp ingestion.`,
       type: 'string',
       required: true,
-      default: { '@template': '{{properties.audience_key}}_PII_{{receivedAt}}.csv' }
+      default: { '@template': '{{properties.audience_key}}_PII_{{timestamp}}.csv' }
     },
     enable_batching: {
       type: 'boolean',
@@ -45,6 +56,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
       required: true,
       default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 1000000
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -56,7 +74,13 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  // STRATCONN-2584: error if less than 25 elements in payload
+  const LIVERAMP_MIN_RECORD_COUNT = 25
+  if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
+    throw new PayloadValidationError(
+      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${payloads.length}`
+    )
+  }
+
   switch (settings.upload_mode) {
     case 'S3':
       validateS3(settings)

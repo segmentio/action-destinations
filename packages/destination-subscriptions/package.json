@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.22.0",
+  "version": "3.28.0",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
@@ -22,16 +22,6 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
-    },
-    "./": {
-      "require": "./dist/cjs/",
-      "default": "./dist/esm/"
-    }
-  },
   "sideEffects": false,
   "files": [
     "dist",

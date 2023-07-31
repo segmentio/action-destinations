@@ -612,7 +612,7 @@ Object {
       },
       "events": Array [
         Object {
-          "event_name": "74Eoa(TEWXz$1Kje",
+          "event_name": "74eoa(tewxz$1kje",
           "event_params": Object {
             "currency": "TJS",
             "custom": Object {},
@@ -654,7 +654,7 @@ Object {
       },
       "events": Array [
         Object {
-          "event_name": "74Eoa(TEWXz$1Kje",
+          "event_name": "74eoa(tewxz$1kje",
           "event_params": Object {
             "custom": Object {},
           },

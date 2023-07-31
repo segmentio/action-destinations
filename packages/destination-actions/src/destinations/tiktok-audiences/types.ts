@@ -15,6 +15,11 @@ export interface GetAudienceAPIResponse extends APIResponse {
     list: [Audiences]
   }
 }
+export interface CreateAudienceAPIResponse extends APIResponse {
+  data: {
+    audience_id: string
+  }
+}
 
 export interface Audiences {
   is_expiring: boolean
@@ -27,4 +32,9 @@ export interface Audiences {
   shared: boolean
   expired_time: string
   calculate_type: string
+}
+
+export interface AudienceInfoError {
+  code: number
+  message: string
 }

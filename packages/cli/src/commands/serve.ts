@@ -46,7 +46,7 @@ export default class Serve extends Command {
   async run() {
     const { argv, flags } = this.parse(Serve)
     let destinationName = flags.destination
-
+    const isBrowser = !!flags.browser
     if (!destinationName) {
       const integrationsGlob = `${flags.directory}/*`
       const integrationDirs = await globby(integrationsGlob, {
@@ -64,7 +64,7 @@ export default class Serve extends Command {
           const [name] = integrationPath.split(path.sep).reverse()
           return {
             title: name,
-            value: { name }
+            value: { name: name }
           }
         })
       })
@@ -107,7 +107,8 @@ export default class Serve extends Command {
           ...process.env,
           DESTINATION: destinationName,
           DIRECTORY: flags.directory,
-          TS_NODE_PROJECT: require.resolve('../../tsconfig.json')
+          TS_NODE_PROJECT: require.resolve('../../tsconfig.json'),
+          ENTRY: isBrowser ? path.join('src', 'index.ts') : 'index.ts'
         },
         execArgv: [
           '-r',
