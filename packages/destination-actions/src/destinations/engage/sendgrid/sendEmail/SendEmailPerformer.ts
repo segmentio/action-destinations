@@ -59,15 +59,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   getRecepients(): ExtId<Payload>[] {
     //if toEmail specified => send test email requested
     if (this.payload.toEmail) {
-      const externIdContext = this.payload?.externalIds && this.payload?.externalIds[0]
+      // Get the externalIdContext from the first elemet of the array, for test emails we only send one externalid (i.e email)
+      const externalIdContext = this.payload?.externalIds && this.payload?.externalIds[0]
       return [
         {
           id: this.payload.toEmail,
           type: 'email',
-          subscriptionStatus: externIdContext?.subscriptionStatus,
-          unsubscribeLink: externIdContext?.unsubscribeLink,
-          preferencesLink: externIdContext?.preferencesLink,
-          groups: externIdContext?.groups
+          subscriptionStatus: externalIdContext?.subscriptionStatus,
+          unsubscribeLink: externalIdContext?.unsubscribeLink,
+          preferencesLink: externalIdContext?.preferencesLink,
+          groups: externalIdContext?.groups
         }
       ]
     }
