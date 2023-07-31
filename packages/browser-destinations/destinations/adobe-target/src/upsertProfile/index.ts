@@ -32,6 +32,10 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     }
   },
   perform: (Adobe, event) => {
+    if (!Object.prototype.hasOwnProperty.call(window, 'adobe')) {
+      return Promise.resolve()
+    }
+
     /*
        NOTE:
        identify() and track() actions leverage the same function (adobe.target.trackEvent()) to send data to Adobe.

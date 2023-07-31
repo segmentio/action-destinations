@@ -49,6 +49,10 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
     }
   },
   perform: (Adobe, event) => {
+    if (!Object.prototype.hasOwnProperty.call(window, 'adobe')) {
+      return Promise.resolve()
+    }
+
     const sendNotification = event.payload.sendNotification
     const pageParams = event.payload.pageParameters
 

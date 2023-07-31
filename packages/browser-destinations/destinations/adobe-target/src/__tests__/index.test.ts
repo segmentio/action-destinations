@@ -3,7 +3,8 @@ import adobeTarget, { destination } from '../index'
 import { Subscription } from '@segment/browser-destination-runtime/types'
 
 describe('Adobe Target Web', () => {
-  test('can load ATJS', async () => {
+  // Skipping this test as we don't load at.js in the destination anymore
+  test.skip('can load ATJS', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'upsertProfile',
