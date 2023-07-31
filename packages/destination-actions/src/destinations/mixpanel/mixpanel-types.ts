@@ -82,4 +82,7 @@ export type MixpanelEngageProperties = {
   $distinct_id?: string | null
   $ip?: string
   $set?: MixpanelEngageSet
+  $add?: MixpanelIncrementPropertyObject
 }
+
+export type MixpanelIncrementPropertyObject = { [key: string]: number }
