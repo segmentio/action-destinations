@@ -80,8 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
       dependencyCheckLimit--
 
       // If at.js library is never loaded fail silently.
-      // Don't throw exception as loading at.js can be blocked by an Ad-blocker.
-      // Throwing can result in a noisy destination.
+      // Don't throw exception as throwing can result in a noisy destination.
       // Return true to stop the eventListener from hanging.
       if (!dependencyCheckLimit) {
         return true
