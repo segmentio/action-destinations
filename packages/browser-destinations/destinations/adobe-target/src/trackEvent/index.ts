@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Adobe, Payload> = {
   },
   perform: (Adobe, event) => {
     if (!Object.prototype.hasOwnProperty.call(window, 'adobe')) {
-      return Promise.reject()
+      return Promise.resolve()
     }
 
     const payload = event.payload
