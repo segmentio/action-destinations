@@ -206,7 +206,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     }
 
     // Adding `firstName` and `lastName` here as these fields are mapped using cammel_case.
-    const reservedFields = [...Object.keys(action.fields), 'firstName', 'lastName']
+    const reservedFields = [...Object.keys(action.fields), 'firstName', 'lastName', 'braze_subscription_groups']
     if (payload.custom_attributes && typeof payload.custom_attributes === 'object') {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
         if (!reservedFields.includes(key)) {
