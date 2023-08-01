@@ -59,17 +59,10 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       const respError = op?.error as ResponseError
       if (respError) {
         const errorDetails = getErrorDetails(respError)
-        const msgLowercare = errorDetails?.message?.toLowerCase()
 
-        // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
-        const isTimeoutError =
-          msgLowercare?.includes('timeout') ||
-          msgLowercare?.includes('timedout') ||
-          msgLowercare?.includes('exceeded the deadline') ||
-          errorDetails.code?.toLowerCase().includes('etimedout')
-
-        // CHANNELS-651 somehow Timeouts are not retried by Integrations, this is fixing it
-        if (isTimeoutError && !respError.status) respError.status = 408
+        if (errorDetails.message?.toLowerCase().includes('timeout') && !respError.status)
+          // to fix missing status of Integrations/ETIMEOUT error that makes it not retryable
+          respError.status = 408
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
         if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
