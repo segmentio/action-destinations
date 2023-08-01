@@ -106,3 +106,20 @@ export interface AssociationLabel {
 export interface GetAssociationLabelResponse {
   results: AssociationLabel[]
 }
+
+interface Property {
+  [key: string]: any
+}
+
+export function validateProperty(property: Property) {
+  const urlPattern = /url/i
+  const referrerPattern = /referrer/i
+  const linkPattern = /link/i
+
+  for (const key of Object.keys(property)) {
+    if (!urlPattern.test(key) && !referrerPattern.test(key) && !linkPattern.test(key) && property[key].length > 256) {
+      return false
+    }
+  }
+  return true
+}

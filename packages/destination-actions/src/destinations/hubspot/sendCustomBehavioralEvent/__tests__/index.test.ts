@@ -401,4 +401,52 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
     expect(responses[0].status).toBe(204)
     expect(responses[0].options.json).toMatchSnapshot()
   })
+
+  test('should fail non-url/non-referrer property length should be maximum 256', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'pe22596207_test_event_http',
+      properties: {
+        city: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum facilisis dignissim tellus, quis congue ex malesuada nec. Mauris commodo turpis at ante tincidunt, id venenatis nisl dignissim. Nunc nec congue dui, vitae commodo elit. Proin bibendum fringilla augue, ac fringilla lacus bibendum nec. Fusce ut nisl augue. Nullam sit amet urna massa. Suspendisse pulvinar erat et sapien varius malesuada. Sed scelerisque auctor odio, ut vulputate mi tempus vel. Nullam eleifend dictum metus, nec iaculis sapien rhoncus quis. Vestibulum quis nibh quis justo interdum sagittis ut ac justo. Vivamus luctus, odio a ultricies vulputate, ipsum odio tincidunt tellus, ac aliquam odio nibh ut erat. Sed facilisis volutpat massa, eu bibendum purus. Nulla facilisi. Proin accumsan mauris nec bibendum faucibus. Vestibulum fermentum lorem nec magna dignissim, ut fermentum enim aliquam.'
+      }
+    })
+
+    const expectedPayload = {
+      eventName: event.event,
+      occurredAt: event.timestamp as string,
+      utk: event.properties?.utk,
+      email: event.properties?.email,
+      objectId: event.properties?.userId,
+      properties: {
+        hs_city: event.properties?.city
+      }
+    }
+
+    const mapping = {
+      eventName: {
+        '@path': '$.event'
+      },
+      utk: {
+        '@path': '$.properties.utk'
+      },
+      objectId: {
+        '@path': '$.properties.userId'
+      },
+      properties: {
+        hs_city: {
+          '@path': '$.properties.city'
+        }
+      }
+    }
+
+    nock(HUBSPOT_BASE_URL).post('/events/v3/send', expectedPayload).reply(400, {})
+
+    return expect(
+      testDestination.testAction('sendCustomBehavioralEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: mapping
+      })
+    ).rejects.toThrowError('Length of non-url and non-referrer properties should be maximum 256')
+  })
 })
