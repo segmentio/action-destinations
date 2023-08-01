@@ -211,7 +211,7 @@ export abstract class MessageSendPerformer<
     Object.assign(this.logDetails, {
       externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
       shouldSend: this.payload.send,
-      region: this.settings.region,
+      settings_region: this.settings.region,
       sourceId: this.settings.sourceId,
       spaceId: this.settings.spaceId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

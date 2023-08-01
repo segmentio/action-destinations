@@ -437,6 +437,104 @@ describe('sendMobilePush action', () => {
       expect(responses[0].url).toEqual(notifyReqUrl)
       expect(responses[0].data).toMatchObject(externalIds[0])
     })
+
+    it('parses links in tapActionButtons', async () => {
+      const title = 'buy'
+      const body = 'now'
+      const tapAction = 'OPEN_DEEP_LINK'
+      const sound = 'app://mysound.aif'
+      const ttl = 1234
+      const priority = 'low'
+      const customizations = {
+        badgeAmount: 3,
+        badgeStrategy: 'dec',
+        media: ['http://myimg.com/product.png'],
+        link: 'app://products-view/{{profile.traits.first_name}}',
+        tapActionButtons: [
+          {
+            id: '1',
+            text: 'open',
+            onTap: 'deep_link',
+            link: 'app://buy-now/{{profile.traits.fav_color}}'
+          },
+          {
+            id: '2',
+            text: 'close',
+            onTap: 'dismiss'
+          }
+        ]
+      }
+
+      const externalIds = [
+        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+      ]
+
+      const traits = { first_name: 'Aladeen', fav_color: 'mantis_green' }
+
+      const notificationReq = new URLSearchParams({
+        Body: body,
+        Action: tapAction,
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          badgeAmount: 3,
+          badgeStrategy: 'dec',
+          media: ['http://myimg.com/product.png'],
+          link: 'app://products-view/Aladeen',
+          tapActionButtons: [
+            {
+              id: '1',
+              text: 'open',
+              onTap: 'deep_link',
+              link: 'app://buy-now/mantis_green'
+            },
+            {
+              id: '2',
+              text: 'close',
+              onTap: 'dismiss'
+            }
+          ],
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(notifyReqUrl).persist().post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid: undefined,
+          customizations: { title, body, tapAction, sound, ttl, priority, ...customizations },
+          externalIds,
+          traits
+        }
+      })
+      expect(responses[0].url).toEqual(notifyReqUrl)
+      expect(responses[0].data).toMatchObject(externalIds[0])
+      const options = new URLSearchParams(responses[0].options?.body?.toString())
+      const parsedCustomData = JSON.parse(options?.get('CustomData') ?? '{}')
+      expect(parsedCustomData.link).toEqual('app://products-view/Aladeen')
+      expect(parsedCustomData.tapActionButtons[0].link).toEqual('app://buy-now/mantis_green')
+    })
   })
 
   describe('fields', () => {
