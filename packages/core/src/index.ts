@@ -45,7 +45,8 @@ export type {
   DecoratedResponse,
   MinimalInputField,
   StateContext,
-  StatsContext
+  StatsContext,
+  Preset
 } from './destination-kit'
 
 export type {
