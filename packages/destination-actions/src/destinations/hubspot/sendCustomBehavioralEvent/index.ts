@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
@@ -12,8 +12,11 @@ interface CustomBehavioralEvent {
   email?: string
   objectId?: string
 }
+interface destinationSettings extends Settings {
+  scopes?: string[] | null
+}
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<destinationSettings, Payload> = {
   title: 'Send Custom Behavioral Event',
   description: 'Send a custom behavioral event to HubSpot.',
   defaultSubscription: 'type = "track"',
@@ -68,6 +71,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
+    if (settings.scopes && !settings.scopes.includes('analytics.behavioral_events.send')) {
+      throw new IntegrationError(`Access token doesn't contain the required token by action`, 'MISSING_SCOPE', 403)
+    }
+
     const event: CustomBehavioralEvent = {
       eventName: payload.eventName,
       occurredAt: payload.occurredAt,
