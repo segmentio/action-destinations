@@ -23,6 +23,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { accessToken: 'TODO: Implement this' }
     }
   },
+  extendRequest({ auth }) {
+    return {
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`
+      }
+    }
+  },
   audienceFields: {
     adAccountId: {
       type: 'string',
@@ -39,15 +46,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   audienceConfig: {
     mode: {
-      // TODO: Document modes
       type: 'synced',
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
       const externalIdKey = 'id'
 
-      // TODO: Implement Auth Token retrieval
-      const accessToken = 'token'
       const audienceName = createAudienceInput.audienceName
       const adAccountId = createAudienceInput.audienceSettings?.adAccountId
       const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
@@ -63,7 +67,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const createAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/act_${adAccountId}/customaudiences`
       const payload = {
         name: audienceName,
-        access_token: accessToken,
         description: audienceDescription || '',
         subtype: 'CUSTOM',
         customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
