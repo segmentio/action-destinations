@@ -64,13 +64,15 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Custom Events',
       subscribe: 'type = "track"',
       partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields)
+      mapping: defaultValues(customEvents.fields),
+      type: 'automatic'
     },
     {
       name: 'Set Attributes',
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
-      mapping: defaultValues(setAttributes.fields)
+      mapping: defaultValues(setAttributes.fields),
+      type: 'automatic'
     }
   ],
   onDelete: async (request, { settings, payload }) => {

@@ -28,6 +28,7 @@ For more detailed instruction, see the following READMEs:
 - [Example Destination](#example-destination)
 - [Input Fields](#input-fields)
 - [Default Values](#default-values)
+- [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
@@ -380,6 +381,40 @@ const destination = {
       }
     }
   }
+}
+```
+
+## Presets
+
+Presets are pre-built use cases to enable customers to get started quickly with an action destination. They include everything needed to generate a valid subscription.
+
+There are two types of Presets: `automatic` and `specificEvent`.
+
+Automatic presets generate subscriptions automatically when an action destination is connected to a _non-Engage_ source. Automatic presets are also available for the customer to choose to generate a subscription at any point in the destination's lifecycle. If you are not sure which type of preset to choose, this is probably the right type.
+
+[Experimental] SpecificEvent presets are meant to be used with destinations connected to Segment Engage Sources. A subscription will be created from the preset when a _specific action_ is taken by the customer, as specified by the `eventSlug`. If you think your destination should include a specific event preset, please reach out to us.
+
+```js
+const destination = {
+  // ...other properties
+  presets: [
+    // automatic preset
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    // specific event preset
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'specificEvent'
+      slug: 'warehouse_entity_added_track'
+    },
+  ],
 }
 ```
 

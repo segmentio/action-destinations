@@ -38,19 +38,22 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send User Profiles',
       subscribe: 'type = "identify"',
       partnerAction: 'sendUserProfiles',
-      mapping: defaultValues(sendUserProfiles.fields)
+      mapping: defaultValues(sendUserProfiles.fields),
+      type: 'automatic'
     },
     {
       name: 'Send Account Profiles',
       subscribe: 'type = "group"',
       partnerAction: 'sendAccountProfiles',
-      mapping: defaultValues(sendAccountProfiles.fields)
+      mapping: defaultValues(sendAccountProfiles.fields),
+      type: 'automatic'
     },
     {
       name: 'Send Events',
       subscribe: 'type = "track"',
       partnerAction: 'sendEvents',
-      mapping: defaultValues(sendEvents.fields)
+      mapping: defaultValues(sendEvents.fields),
+      type: 'automatic'
     }
   ],
 

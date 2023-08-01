@@ -105,10 +105,12 @@ export default class Validate extends Command {
       const actionFields = Object.keys(destination.actions[preset.partnerAction].fields ?? {})
 
       // Validate the FQL
-      const fqlError = this.validateFQL(preset.subscribe)
-      if (fqlError) {
-        this.isInvalid = true
-        errors.push(new Error(`The preset "${preset.name}" has an invalid \`subscribe\` query: ${fqlError.message}`))
+      if (preset.type === 'automatic') {
+        const fqlError = this.validateFQL(preset.subscribe)
+        if (fqlError) {
+          this.isInvalid = true
+          errors.push(new Error(`The preset "${preset.name}" has an invalid \`subscribe\` query: ${fqlError.message}`))
+        }
       }
 
       // Validate that the fields match defined fields
