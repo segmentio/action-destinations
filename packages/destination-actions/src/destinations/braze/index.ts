@@ -75,19 +75,22 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Calls',
       subscribe: 'type = "track" and event != "Order Completed"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Order Completed Calls',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields)
+      mapping: defaultValues(trackPurchase.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUserProfile',
-      mapping: defaultValues(updateUserProfile.fields)
+      mapping: defaultValues(updateUserProfile.fields),
+      type: 'automatic'
     }
   ]
 }

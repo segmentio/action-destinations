@@ -46,7 +46,7 @@ interface InputData<Settings> {
   stateContext?: StateContext
 }
 
-class TestDestination<T> extends Destination<T> {
+class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
   responses: Destination['responses'] = []
 
   constructor(destination: DestinationDefinition<T>) {
