@@ -2,6 +2,10 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
+import add from './add'
+
+import remove from './remove'
+
 export const FACEBOOK_API_VERSION = 'v17.0'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -96,7 +100,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
-  actions: {}
+  actions: {
+    add,
+    remove
+  }
 }
 
 export default destination
