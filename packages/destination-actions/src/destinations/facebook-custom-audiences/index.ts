@@ -1,6 +1,6 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { Settings, AudienceSettings } from './generated-types'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
 
