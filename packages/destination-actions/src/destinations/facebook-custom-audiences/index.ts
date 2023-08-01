@@ -1,10 +1,10 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Facebook Custom Audiences (Actions)',
   slug: 'actions-facebook-custom-audiences',
   mode: 'cloud',
@@ -23,7 +23,21 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: 'TODO: Implement this' }
     }
   },
-  audienceSettings: {
+  audienceFields: {
+    adAccountId: {
+      type: 'string',
+      label: 'Advertiser Account ID',
+      description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
+      required: true
+    },
+    audienceDescription: {
+      type: 'string',
+      label: 'Description',
+      description: 'A brief description about your audience.',
+      required: true
+    }
+  },
+  audienceConfig: {
     mode: {
       // TODO: Document modes
       type: 'synced',
@@ -31,13 +45,12 @@ const destination: DestinationDefinition<Settings> = {
     },
     async createAudience(request, createAudienceInput) {
       const externalIdKey = 'id'
-      const { audienceName } = createAudienceInput
 
-      // @ts-ignore TODO: Remove when audienceSettings work concludes
-      const { adAccountId, audienceDescription } = createAudienceInput.audienceSettings
-
-      // @ts-ignore TODO: Remove when we start to read the token from the DB
-      const accessToken = createAudienceInput.accessToken
+      // TODO: Implement Auth Token retrieval
+      const accessToken = 'token'
+      const audienceName = createAudienceInput.audienceName
+      const adAccountId = createAudienceInput.audienceSettings?.adAccountId
+      const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
