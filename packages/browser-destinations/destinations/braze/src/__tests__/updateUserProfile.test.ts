@@ -159,11 +159,11 @@ describe('updateUserProfile', () => {
     const braze_subscription_groups = [
       {
         subscription_group_id: '5ertykiuyfjyttgkf',
-        subscription_state: 'unsubscribed'
+        subscription_group_state: 'unsubscribed'
       },
       {
         subscription_group_id: 'ytghkuguymjghb',
-        subscription_state: 'unsubscribed'
+        subscription_group_state: 'unsubscribed'
       }
     ]
     await event.identify?.(

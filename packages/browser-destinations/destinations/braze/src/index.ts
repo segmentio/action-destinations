@@ -10,7 +10,6 @@ import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { BrazeDestinationClient } from './braze-types'
 
-
 declare global {
   interface Window {
     braze: typeof braze
@@ -324,10 +323,14 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             return false
           }
 
-          client.instance.initialize(api_key, {
-            baseUrl: window.BRAZE_BASE_URL || endpoint,
-            ...expectedConfig
-          })
+          if (
+            !client.instance.initialize(api_key, {
+              baseUrl: window.BRAZE_BASE_URL || endpoint,
+              ...expectedConfig
+            })
+          ) {
+            return false
+          }
 
           if (typeof client.instance.addSdkMetadata === 'function') {
             client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])
@@ -359,7 +362,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
     updateUserProfile,
     trackEvent,
     trackPurchase,
-    debounce,
+    debounce
   }
 }
 
