@@ -23,7 +23,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send Revx Ping',
       subscribe: 'type = "track" or type ="screen"',
       partnerAction: 'sendRevxPing',
-      mapping: defaultValues(sendRevxPing.fields)
+      mapping: defaultValues(sendRevxPing.fields),
+      type: 'automatic'
     }
   ],
   actions: {

@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
+    "@segment/action-emitters": "^1.1.2",
     "@segment/ajv-human-errors": "^2.11.0",
     "@segment/destination-subscriptions": "^3.28.0",
     "@types/node": "^18.11.15",

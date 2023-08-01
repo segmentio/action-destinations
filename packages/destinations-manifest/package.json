@@ -28,12 +28,12 @@
     "@segment/analytics-browser-actions-screeb": "^1.6.0",
     "@segment/analytics-browser-actions-sprig": "^1.6.0",
     "@segment/analytics-browser-actions-stackadapt": "^1.6.0",
+    "@segment/analytics-browser-actions-tiktok-pixel": "^1.0.0",
     "@segment/analytics-browser-actions-upollo": "^1.6.0",
     "@segment/analytics-browser-actions-userpilot": "^1.6.0",
     "@segment/analytics-browser-actions-utils": "^1.6.0",
     "@segment/analytics-browser-actions-vwo": "^1.6.0",
     "@segment/analytics-browser-actions-wiseops": "^1.6.0",
-    "@segment/analytics-browser-actions-tiktok-pixel": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.6.0"
   }
 }
