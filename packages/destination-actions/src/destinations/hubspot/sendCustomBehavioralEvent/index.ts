@@ -83,10 +83,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const hubId = settings?.portalId
     const regExp = /^pe\d+_.*/
 
-    if (!hubId && !regExp.exec(payload?.eventName)) {
+    if (!hubId && !regExp.exec(event?.eventName)) {
       throw new PayloadValidationError(`EventName should begin with pe<hubId>_`)
     }
-    if (hubId && !payload?.eventName.startsWith(`pe${hubId}_`)) {
+    if (hubId && !event?.eventName.startsWith(`pe${hubId}_`)) {
       throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
     }
 
