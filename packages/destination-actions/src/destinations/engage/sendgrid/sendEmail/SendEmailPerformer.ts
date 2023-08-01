@@ -122,7 +122,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     } else if (traits.name) {
       name = traits.name
     } else {
-      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || 'User'
+      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || toEmail
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
