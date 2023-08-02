@@ -43,7 +43,7 @@ function generateFile(payloads: Payload[]) {
         }
       }
     }
-    rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length) ? '' : '\n')])
+    rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }
 
   // TODO: verify multiple emails are handled
