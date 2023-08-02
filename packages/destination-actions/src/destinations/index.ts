@@ -21,6 +21,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * To test in staging, the ids should match across environments.
  * It is recommended that you register/create destination definitions
  * in production and sync them into staging via `sprout`.
+ * 
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
 register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
