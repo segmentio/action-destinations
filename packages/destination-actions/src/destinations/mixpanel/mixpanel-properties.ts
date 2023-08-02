@@ -316,7 +316,7 @@ export const eventProperties: Record<string, InputField> = {
     description: 'The App Platform, if applicable',
     required: false,
     default: {
-      '@path': '$.context.timezone'
+      '@path': '$.context.app.platform'
     }
   },
   name: {
