@@ -3,12 +3,14 @@ export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
+export { default as createInstance } from './request-client'
 export { defaultValues } from './defaults'
 export {
   IntegrationError,
   InvalidAuthenticationError,
   RetryableError,
   PayloadValidationError,
+  APIError,
   ErrorCodes
 } from './errors'
 export { get } from './get'
@@ -28,6 +30,7 @@ export type {
   ActionDefinition,
   BaseDefinition,
   DestinationDefinition,
+  AudienceDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
@@ -42,7 +45,8 @@ export type {
   DecoratedResponse,
   MinimalInputField,
   StateContext,
-  StatsContext
+  StatsContext,
+  Preset
 } from './destination-kit'
 
 export type {

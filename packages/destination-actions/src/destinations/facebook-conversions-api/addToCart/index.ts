@@ -20,7 +20,7 @@ import {
   dataProcessingOptions
 } from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { user_data_field, hash_user_data } from '../fb-capi-user-data'
+import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
@@ -67,7 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings, features, statsContext }) => {
-    console.log('FBCAPI_payload', payload)
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
@@ -98,10 +97,9 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_country,
       payload.data_processing_options_state
     )
-    console.log('FBCAPI_app_data_field', payload.app_data_field)
-    console.log('FBCAPI_AddToCart')
+
     return request(
-      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events?debug=all`,
+      `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
         method: 'POST',
         json: {

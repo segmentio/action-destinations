@@ -1,8 +1,9 @@
 import { createHash } from 'crypto'
 import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
-import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
-import { Features } from '@segment/actions-core/src/mapping-kit'
+import { ModifiedResponse, RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { fullFormats } from 'ajv-formats/dist/formats'
 
 export const API_VERSION = 'v12'
 export const CANARY_API_VERSION = 'v13'
@@ -33,15 +34,14 @@ export function formatCustomVariables(
   return variables
 }
 
-export const hash = (value: string | undefined, features?: Features): string | undefined => {
+export const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) {
     return
   }
 
   const hash = createHash('sha256')
   hash.update(value)
-  const encoding = features && features['google-ads-base64-hashing'] ? 'base64' : 'hex'
-  return hash.digest(encoding)
+  return hash.digest('hex')
 }
 
 export async function getCustomVariables(
@@ -96,3 +96,15 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
 }
 
 export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+export const commonHashedEmailValidation = (email: string): string => {
+  if (isHashedEmail(email)) {
+    return email
+  }
+
+  // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
+  if (!(fullFormats.email as RegExp).test(email)) {
+    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
+  }
+
+  return String(hash(email))
+}

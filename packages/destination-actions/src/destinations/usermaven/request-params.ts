@@ -20,7 +20,7 @@ interface RequestParams {
  */
 const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestParams => {
   return {
-    url: `${apiBaseUrl}/${relativeUrl}?token=${settings.api_key}`,
+    url: `${apiBaseUrl}/${relativeUrl}?token=${settings.api_key}.${settings.server_token}`,
     options: {
       method: 'post',
       headers: {
@@ -41,7 +41,7 @@ export const eventRequestParams = (
   payload?: Record<string, unknown>,
   eventType?: string
 ): RequestParams => {
-  const defaultRequest = defaultRequestParams(settings, 'api/v1/event')
+  const defaultRequest = defaultRequestParams(settings, 'api/v1/s2s/event')
 
   return {
     ...defaultRequest,
@@ -66,6 +66,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
     ids: {},
     doc_encoding: 'utf-8',
     src: 'usermaven-segment',
+    screen_resolution: '0',
     ...payload
   }
 
@@ -153,7 +154,7 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   // Resolve company_custom_attributes properties
   if (payload?.company && payload?.company_custom_attributes) {
     // omit the company_name, company_created_at, and company_id properties, as these props are already handled
-    const { name, created_at, company_id, ...customAttributes } = payload.company_custom_attributes
+    const { name, created_at, company_id, company_created_at, ...customAttributes } = payload.company_custom_attributes
     properties.company.custom = customAttributes
   }
 

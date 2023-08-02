@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getApiVersion, isHashedEmail } from '../functions'
+import { hash, handleGoogleErrors, convertTimestamp, getApiVersion, commonHashedEmailValidation } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse } from '../types'
@@ -79,7 +79,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
       type: 'string',
-      format: 'email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -213,7 +212,6 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.adjustment_timestamp = new Date().toISOString()
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const request_object: { [key: string]: any } = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
@@ -236,14 +234,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
+      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+
       request_object.userIdentifiers.push({
-        hashedEmail: isHashedEmail(payload.email_address) ? payload.email_address : hash(payload.email_address)
+        hashedEmail: validatedEmail
       })
     }
 
     if (payload.phone_number) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number, features) })
+      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
     }
 
     const containsAddressInfo =
@@ -256,12 +255,11 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.street_address
 
     if (containsAddressInfo) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       request_object.userIdentifiers.push({
         addressInfo: {
-          hashedFirstName: hash(payload.first_name, features),
-          hashedLastName: hash(payload.last_name, features),
-          hashedStreetAddress: hash(payload.street_address, features),
+          hashedFirstName: hash(payload.first_name),
+          hashedLastName: hash(payload.last_name),
+          hashedStreetAddress: hash(payload.street_address),
           city: payload.city,
           state: payload.state,
           countryCode: payload.country,

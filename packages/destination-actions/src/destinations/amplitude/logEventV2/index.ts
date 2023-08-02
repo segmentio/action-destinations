@@ -204,20 +204,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer'
     }
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings }) => {
     const { time, session_id, userAgent, userAgentParsing, min_id_length, library, setOnce, setAlways, add, ...rest } =
       omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
-    const libraryValue = features?.['amplitude-library'] && library ? library : 'segment'
-
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library === 'analytics.js' && !properties.platform) {
-      properties.platform = 'Web'
+    if (library) {
+      if (library === 'analytics.js') {
+        properties.platform = 'Web'
+      }
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -251,7 +251,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(userAgentParsing && parseUserAgentProperties(userAgent)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: libraryValue
+        library: 'segment'
       }
     ]
 

@@ -20,7 +20,13 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         type: 'string',
         label: 'API Key',
-        description: 'Found on your settings page.',
+        description: 'Found on your general settings page.',
+        required: true
+      },
+      server_token: {
+        type: 'string',
+        label: 'Server Token',
+        description: 'Found on your general settings page.',
         required: true
       }
     },
@@ -31,6 +37,10 @@ const destination: DestinationDefinition<Settings> = {
       if (!settings.api_key || settings.api_key.length === 0) {
         throw new IntegrationError('API Key is required', 'Invalid API Key', 400)
       }
+
+      if (!settings.server_token || settings.server_token.length === 0) {
+        throw new IntegrationError('Server Token is required', 'Invalid Server Token', 400)
+      }
     }
   },
   presets: [
@@ -38,25 +48,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Group',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     },
     {
       name: 'Page',
       subscribe: 'type = "page"',
       partnerAction: 'page',
-      mapping: defaultValues(page.fields)
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
     }
   ],
   actions: {

@@ -195,7 +195,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer'
     }
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
     const {
       products = [],
@@ -213,14 +213,12 @@ const action: ActionDefinition<Settings, Payload> = {
     const properties = rest as AmplitudeEvent
     let options
 
-    const libraryValue = features?.['amplitude-library'] && library ? library : 'segment'
-
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library === 'analytics.js' && !properties.platform) {
-      properties.platform = 'Web'
+    if (library) {
+      if (library === 'analytics.js') properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -251,7 +249,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: libraryValue
+        library: 'segment'
       }
     ]
 
@@ -263,7 +261,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: libraryValue
+        library: 'segment'
       })
     }
 

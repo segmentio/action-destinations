@@ -1,0 +1,19 @@
+{
+  "name": "@segment/analytics-browser-actions-amplitude-plugins",
+  "version": "1.7.0",
+  "license": "MIT",
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
+  "dependencies": {
+    "@segment/browser-destination-runtime": "^1.7.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  }
+}

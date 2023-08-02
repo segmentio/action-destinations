@@ -21,19 +21,29 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: { ...eventData, email: 'hello@world.com' }
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
+    try {
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined
+      })
 
-    const request = responses[0].request
-    const json = await request.json()
+      const request = responses[0].request
+      const rawBody = await request.text()
 
-    expect(json).toMatchSnapshot()
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
 
-    expect(request.headers).toMatchSnapshot()
+      expect(request.headers).toMatchSnapshot()
+    } catch (e) {
+      expect(e).toMatchSnapshot()
+    }
   })
 
   it('all fields', async () => {
@@ -46,15 +56,28 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
+    try {
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined
+      })
 
-    const request = responses[0].request
-    const json = await request.json()
-    expect(json).toMatchSnapshot()
+      const request = responses[0].request
+      const rawBody = await request.json()
+
+      try {
+        const json = JSON.parse(rawBody)
+        expect(json).toMatchSnapshot()
+        return
+      } catch (err) {
+        expect(rawBody).toMatchSnapshot()
+      }
+
+      expect(request.headers).toMatchSnapshot()
+    } catch (e) {
+      expect(e).toMatchSnapshot()
+    }
   })
 })

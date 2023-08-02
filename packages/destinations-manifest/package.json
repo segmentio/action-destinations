@@ -1,0 +1,39 @@
+{
+  "name": "@segment/destinations-manifest",
+  "version": "1.7.0",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc"
+  },
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "dependencies": {
+    "@segment/analytics-browser-actions-adobe-target": "^1.7.0",
+    "@segment/analytics-browser-actions-amplitude-plugins": "^1.7.0",
+    "@segment/analytics-browser-actions-braze": "^1.7.0",
+    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.7.0",
+    "@segment/analytics-browser-actions-commandbar": "^1.7.0",
+    "@segment/analytics-browser-actions-friendbuy": "^1.7.0",
+    "@segment/analytics-browser-actions-fullstory": "^1.7.0",
+    "@segment/analytics-browser-actions-google-analytics-4": "^1.7.0",
+    "@segment/analytics-browser-actions-heap": "^1.7.0",
+    "@segment/analytics-browser-actions-hubspot": "^1.7.0",
+    "@segment/analytics-browser-actions-intercom": "^1.7.0",
+    "@segment/analytics-browser-actions-iterate": "^1.7.0",
+    "@segment/analytics-browser-actions-koala": "^1.7.0",
+    "@segment/analytics-browser-actions-logrocket": "^1.7.0",
+    "@segment/analytics-browser-actions-playerzero": "^1.7.0",
+    "@segment/analytics-browser-actions-ripe": "^1.7.0",
+    "@segment/analytics-browser-actions-sabil": "^1.6.0",
+    "@segment/analytics-browser-actions-screeb": "^1.7.0",
+    "@segment/analytics-browser-actions-sprig": "^1.7.0",
+    "@segment/analytics-browser-actions-stackadapt": "^1.7.0",
+    "@segment/analytics-browser-actions-tiktok-pixel": "^1.1.0",
+    "@segment/analytics-browser-actions-upollo": "^1.7.0",
+    "@segment/analytics-browser-actions-userpilot": "^1.7.0",
+    "@segment/analytics-browser-actions-utils": "^1.7.0",
+    "@segment/analytics-browser-actions-vwo": "^1.7.0",
+    "@segment/analytics-browser-actions-wiseops": "^1.7.0",
+    "@segment/browser-destination-runtime": "^1.7.0"
+  }
+}

@@ -1,5 +1,5 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import { Subscription, defaultValues } from '@segment/actions-core'
+import type { ActionDefinition, Preset } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -31,9 +31,9 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     },
     queryID: {
       label: 'Query ID',
-      description: 'Query ID of the list on which the item was clicked.',
+      description: 'Query ID of the list on which the item was purchased.',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.query_id'
       }
@@ -79,9 +79,10 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const conversionPresets: Subscription = {
+export const conversionPresets: Preset = {
   name: 'Send conversion events to Algolia',
   subscribe: conversionEvents.defaultSubscription as string,
   partnerAction: 'conversionEvents',
-  mapping: defaultValues(conversionEvents.fields)
+  mapping: defaultValues(conversionEvents.fields),
+  type: 'automatic'
 }

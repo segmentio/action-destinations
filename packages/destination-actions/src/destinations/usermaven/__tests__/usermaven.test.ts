@@ -5,6 +5,7 @@ import Definition from '../index'
 
 export const baseUrl = 'https://events.usermaven.com'
 export const apiKey = 'fake-api-key'
+export const server_token = 'fake-server-token'
 export const userId = 'fake/user/id'
 export const anonymousId = 'fake-anonymous-id'
 export const email = 'fake+email@example.com'
@@ -12,7 +13,8 @@ export const createdAt = '2021-01-01T00:00:00.000Z'
 export const companyName = 'Usermaven'
 
 export const settings = {
-  api_key: apiKey
+  api_key: apiKey,
+  server_token: server_token
 }
 const testDestination = createTestIntegration(Definition)
 
@@ -25,7 +27,7 @@ describe('Usermaven', () => {
 
   describe('usermaven.identify', () => {
     it('should work', async () => {
-      nock(baseUrl).post(`/api/v1/event?token=${settings.api_key}`).reply(200, {})
+      nock(baseUrl).post(`/api/v1/s2s/event?token=${settings.api_key}.${settings.server_token}`).reply(200, {})
 
       const event = createTestEvent({
         anonymousId,
@@ -58,7 +60,7 @@ describe('Usermaven', () => {
 
   describe('usermaven.track', () => {
     it('should work', async () => {
-      nock(baseUrl).post(`/api/v1/event?token=${settings.api_key}`).reply(200, {})
+      nock(baseUrl).post(`/api/v1/s2s/event?token=${settings.api_key}.${settings.server_token}`).reply(200, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -92,7 +94,7 @@ describe('Usermaven', () => {
 
   describe('usermaven.group', () => {
     it('should work', async () => {
-      nock(baseUrl).post(`/api/v1/event?token=${settings.api_key}`).reply(200, {})
+      nock(baseUrl).post(`/api/v1/s2s/event?token=${settings.api_key}.${settings.server_token}`).reply(200, {})
 
       const event = createTestEvent({
         groupId: 'fake-group-id',
@@ -134,7 +136,7 @@ describe('Usermaven', () => {
 
   describe('usermaven.page', () => {
     it('should work', async () => {
-      nock(baseUrl).post(`/api/v1/event?token=${settings.api_key}`).reply(200, {})
+      nock(baseUrl).post(`/api/v1/s2s/event?token=${settings.api_key}.${settings.server_token}`).reply(200, {})
 
       const event = createTestEvent({
         properties: {

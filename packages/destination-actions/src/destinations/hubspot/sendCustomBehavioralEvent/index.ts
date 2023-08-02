@@ -1,8 +1,8 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject } from '../helperFunctions'
+import { flattenObject, transformEventName } from '../utils'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -67,15 +67,33 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings, features }) => {
+    const shouldTransformEventName = features && features['actions-hubspot-event-name']
+    const eventName = shouldTransformEventName ? transformEventName(payload.eventName) : payload.eventName
+
     const event: CustomBehavioralEvent = {
-      eventName: payload.eventName,
+      eventName: eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
+
+    const hubId = settings?.portalId
+    const regExp = /^pe\d+_.*/
+
+    if (!hubId && !regExp.exec(event?.eventName)) {
+      throw new PayloadValidationError(`EventName should begin with pe<hubId>_`)
+    }
+    if (hubId && !event?.eventName.startsWith(`pe${hubId}_`)) {
+      throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
+    }
+
+    if (!payload.utk && !payload.email && !payload.objectId) {
+      throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
+    }
+
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event

@@ -116,67 +116,67 @@ export interface Payload {
      */
     application_tracking_enabled?: boolean
     /**
-     * *Required for app events* Example: i2
+     * *Required for app events* Example: 'i2'.
      */
     version?: string
     /**
-     * Example: com.facebook.sdk.samples.hellofacebook
+     * Example: 'com.facebook.sdk.samples.hellofacebook'.
      */
     packageName?: string
     /**
-     * Example: 1.0
+     * Example: '1.0'.
      */
     shortVersion?: string
     /**
-     * Example: 1.0 long
+     * Example: '1.0 long'.
      */
     longVersion?: string
     /**
-     * Example: 13.4.1
+     * Example: '13.4.1'.
      */
     osVersion?: string
     /**
-     * Example: iPhone5,1
+     * Example: 'iPhone5,1'.
      */
     deviceName?: string
     /**
-     * Example: En_US
+     * Example: 'En_US'.
      */
     locale?: string
     /**
-     * Example: 'PST'
+     * Example: 'PST'.
      */
     timezone?: string
     /**
-     * Example: AT&T
+     * Example: 'AT&T'.
      */
     carrier?: string
     /**
-     * Example: 1080
+     * Example: '1080'.
      */
     width?: string
     /**
-     * Example: 1920
+     * Example: '1920'.
      */
     height?: string
     /**
-     * Example: 2.0
+     * Example: '2.0'.
      */
     density?: string
     /**
-     * Example: 8
+     * Example: '8'.
      */
     cpuCores?: string
     /**
-     * Example: 64
+     * Example: '64'.
      */
     storageSize?: string
     /**
-     * Example: 32
+     * Example: '32'.
      */
     freeStorage?: string
     /**
-     * Example: USA/New York
+     * Example: 'USA/New York'.
      */
     deviceTimezone?: string
   }
