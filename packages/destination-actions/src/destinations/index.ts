@@ -118,6 +118,7 @@ register('64b6a221baf168a989be641a', './listrak')
 register('64c022a713fa5f5a1452c106', './hilo')
 register('64c02312ff0ce798cc8d1a7e', './rehook')
 register('64c031541451bb784943f809', './attio')
+register('64ca21ee1f8f380283837ba1', './prodeology')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
