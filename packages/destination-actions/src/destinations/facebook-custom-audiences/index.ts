@@ -7,6 +7,7 @@ import add from './add'
 import remove from './remove'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
+const EXTERNAL_ID_KEY = 'id'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Facebook Custom Audiences (Actions)',
@@ -54,8 +55,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const externalIdKey = 'id'
-
       const audienceName = createAudienceInput.audienceName
       const adAccountId = createAudienceInput.audienceSettings?.adAccountId
       const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
@@ -85,18 +84,30 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       })
 
       const r = await response.json()
-      if (!r[externalIdKey]) {
+      if (!r[EXTERNAL_ID_KEY]) {
         throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
       }
 
       return {
-        externalId: r[externalIdKey]
+        externalId: r[EXTERNAL_ID_KEY]
       }
     },
-    async getAudience(_request, _getAudienceInput) {
-      // TODO: Implement this method
+    async getAudience(request, getAudienceInput) {
+      const getAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${getAudienceInput.externalId}`
+
+      const response = await request(getAudienceUrl, { method: 'GET' })
+
+      const r = await response.json()
+      if (!r[EXTERNAL_ID_KEY]) {
+        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+      }
+
+      if (getAudienceInput.externalId !== r[EXTERNAL_ID_KEY]) {
+        throw new IntegrationError("Couldn't find audience", 'INVALID_RESPONSE', 400)
+      }
+
       return {
-        externalId: '42'
+        externalId: r[EXTERNAL_ID_KEY]
       }
     }
   },
