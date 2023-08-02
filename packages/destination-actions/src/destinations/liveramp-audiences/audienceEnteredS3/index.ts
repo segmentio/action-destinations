@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     },
     s3_aws_region: {
-      label: 'AWS Region (S3 only)',
+      label: 'AWS Region',
       description: 'Region where the S3 bucket is hosted.',
       type: 'string'
     },
