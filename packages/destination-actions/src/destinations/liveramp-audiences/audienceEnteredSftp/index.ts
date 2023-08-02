@@ -5,10 +5,28 @@ import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Audience Entered SFTP',
-  description: 'Uploads audience membership data to a file for LiveRamp ingestion.',
+  title: 'Audience Entered (SFTP)',
+  description: 'Uploads audience membership data to a file through SFTP for LiveRamp ingestion.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
+    sftp_username: {
+      label: 'Username',
+      description: 'User credentials for establishing an SFTP connection with LiveRamp.',
+      type: 'string'
+    },
+    sftp_password: {
+      label: 'Password',
+      description: 'User credentials for establishing an SFTP connection with LiveRamp.',
+      type: 'password'
+    },
+    sftp_folder_path: {
+      label: 'Folder Path',
+      description:
+        'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
+      type: 'string',
+      default: '/uploads/audience_name/',
+      format: 'uri-reference'
+    },
     audience_key: {
       label: 'Audience Key',
       description: 'Identifies the user within the entered audience.',
@@ -56,18 +74,18 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 290000
+      default: 50000
     }
   },
-  perform: async (_, { settings, payload }) => {
-    return processData(settings, [payload])
+  perform: async (_, { payload }) => {
+    return processData([payload])
   },
-  performBatch: (_, { settings, payload }) => {
-    return processData(settings, payload)
+  performBatch: (_, { payload }) => {
+    return processData(payload)
   }
 }
 
-async function processData(settings: Settings, payloads: Payload[]) {
+async function processData(payloads: Payload[]) {
   const LIVERAMP_MIN_RECORD_COUNT = 25
   if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
@@ -75,12 +93,12 @@ async function processData(settings: Settings, payloads: Payload[]) {
     )
   }
 
-  validateSFTP(settings)
+  validateSFTP(payloads[0])
 
   const { filename, fileContent } = generateFile(payloads)
 
   const sftpClient = new ClientSFTP()
-  return uploadSFTP(sftpClient, settings, filename, fileContent)
+  return uploadSFTP(sftpClient, payloads[0], filename, fileContent)
 }
 
 export default action
