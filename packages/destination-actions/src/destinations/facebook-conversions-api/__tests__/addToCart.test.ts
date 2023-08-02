@@ -18,7 +18,7 @@ const settingsWithTestEventCode = {
 describe('FacebookConversionsApi', () => {
   describe('AddToCart', () => {
     it('should handle a basic event', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -81,7 +81,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error for invalid currency values', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -123,7 +123,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle default mappings', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -155,7 +155,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no id parameter is included in contents array objects', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -209,7 +209,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should send data processing options', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -255,7 +255,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should not send data processing options', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -295,7 +295,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should send data processing options without state or country code set by user', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -333,7 +333,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if contents.delivery_category is not supported', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -391,7 +391,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw an error if no user_data keys are included', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -429,7 +429,7 @@ describe('FacebookConversionsApi', () => {
 
     it('should send test_event_code if present in settings', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settingsWithTestEventCode.pixelId}`)
-        .post(`/events?debug=all`)
+        .post(`/events`)
         .reply(201, {})
 
       const event = createTestEvent({
@@ -485,7 +485,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should send app events using default mappings correctly', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -593,7 +593,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should not send app events by default', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
@@ -661,7 +661,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should handle basic event with mutiple externalIds', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events?debug=all`).reply(201, {})
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
         event: 'Product Added',
