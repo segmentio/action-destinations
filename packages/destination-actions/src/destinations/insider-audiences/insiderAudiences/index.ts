@@ -115,30 +115,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
-    },
-    gdprOptin: {
-      label: 'GDPR Opt-in',
-      type: 'boolean',
-      default: undefined,
-      description: 'GDPR opt-in.'
-    },
-    emailOptin: {
-      label: 'Email Opt-in',
-      type: 'boolean',
-      default: undefined,
-      description: 'Email opt-in.'
-    },
-    smsOptin: {
-      label: 'SMS Opt-in',
-      type: 'boolean',
-      default: undefined,
-      description: 'SMS opt-in.'
-    },
-    whatsappOptin: {
-      label: 'Whatsapp Opt-in',
-      type: 'boolean',
-      default: undefined,
-      description: 'Whatsapp opt-in.'
     }
   },
   perform: (request, { payload }) => {
