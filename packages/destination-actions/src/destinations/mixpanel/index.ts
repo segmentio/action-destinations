@@ -17,13 +17,15 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Calls',
     subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
+    mapping: defaultValues(trackEvent.fields),
+    type: 'automatic'
   },
   {
     name: 'Order Completed Calls',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchase.fields)
+    mapping: defaultValues(trackPurchase.fields),
+    type: 'automatic'
   },
   {
     name: 'Page Calls',
@@ -34,7 +36,8 @@ const presets: DestinationDefinition['presets'] = [
       event: {
         '@template': 'Viewed {{name}}'
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Screen Calls',
@@ -45,19 +48,22 @@ const presets: DestinationDefinition['presets'] = [
       event: {
         '@template': 'Viewed {{name}}'
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
     partnerAction: 'identifyUser',
-    mapping: defaultValues(identifyUser.fields)
+    mapping: defaultValues(identifyUser.fields),
+    type: 'automatic'
   },
   {
     name: 'Group Calls',
     subscribe: 'type = "group"',
     partnerAction: 'groupIdentifyUser',
-    mapping: defaultValues(groupIdentifyUser.fields)
+    mapping: defaultValues(groupIdentifyUser.fields),
+    type: 'automatic'
   }
 ]
 
@@ -93,7 +99,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Source Name',
         description:
           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
-        type: 'string',
+        type: 'string'
       },
       strictMode: {
         label: 'Strict Mode',

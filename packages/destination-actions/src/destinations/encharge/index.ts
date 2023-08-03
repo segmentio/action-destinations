@@ -52,31 +52,36 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackEvent',
       name: 'Track Event',
       subscribe: 'type = "track"',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'identifyUser',
       name: 'Identify User',
       subscribe: 'type = "identify"',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'trackPageView',
       name: 'Track Page View',
       subscribe: 'type = "page"',
-      mapping: defaultValues(trackPageView.fields)
+      mapping: defaultValues(trackPageView.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'aliasUser',
       name: 'Alias User',
       subscribe: 'type = "alias"',
-      mapping: defaultValues(aliasUser.fields)
+      mapping: defaultValues(aliasUser.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'createUpdateObject',
       name: 'Create or Update Object',
       subscribe: 'type = "group"',
-      mapping: defaultValues(createUpdateObject.fields)
+      mapping: defaultValues(createUpdateObject.fields),
+      type: 'automatic'
     }
   ],
 

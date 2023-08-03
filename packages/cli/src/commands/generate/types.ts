@@ -42,7 +42,10 @@ export default class GenerateTypes extends Command {
   async run() {
     const { flags } = this.parse(GenerateTypes)
 
-    const globs = flags.path || ['./packages/*/src/destinations/*/index.ts']
+    const globs = flags.path || [
+      './packages/*/src/destinations/*/index.ts',
+      './packages/browser-destinations/destinations/*/src/index.ts'
+    ]
     const files = await globby(globs, {
       expandDirectories: false,
       gitignore: true,

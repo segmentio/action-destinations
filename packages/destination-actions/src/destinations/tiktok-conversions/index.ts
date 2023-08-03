@@ -52,7 +52,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...singleProductContents,
       event: 'ViewContent'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Search',
@@ -61,7 +62,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...singleProductContents,
       event: 'Search'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Add to Wishlist',
@@ -70,7 +72,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...singleProductContents,
       event: 'AddToWishlist'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Add to Cart',
@@ -79,7 +82,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...singleProductContents,
       event: 'AddToCart'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Initiate Checkout',
@@ -88,7 +92,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...multiProductContents,
       event: 'InitiateCheckout'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Add Payment Info',
@@ -97,7 +102,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...multiProductContents,
       event: 'AddPaymentInfo'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Place an Order',
@@ -106,7 +112,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...multiProductContents,
       event: 'PlaceAnOrder'
-    }
+    },
+    type: 'automatic'
   }
 ]
 
