@@ -61,12 +61,10 @@ export function userProfilePayload(data: UserPayload) {
           phone_number: data.phone,
           city: data.city,
           country: data.country,
-          gdpr_optin: data.gdprOptin,
           email_optin: data.emailOptin,
           sms_optin: data.smsOptin,
           whatsapp_optin: data.whatsappOptin,
-          language: data.language?.replace('-', '_'),
-          custom: data.custom
+          language: data.language?.replace('-', '_')
         }
       }
     ]

@@ -54,29 +54,19 @@ export interface Payload {
    */
   country?: string
   /**
-   * GDPR opt-in.
-   */
-  gdprOptin?: boolean
-  /**
-   * Email opt-in.
+   * Email optin.
    */
   emailOptin?: boolean
   /**
-   * SMS opt-in.
+   * SMS optin.
    */
   smsOptin?: boolean
   /**
-   * Whatsapp opt-in.
+   * Whatsapp optin.
    */
   whatsappOptin?: boolean
   /**
    * The user's preferred language.
    */
   language?: string
-  /**
-   * The user's additional information.
-   */
-  custom?: {
-    [k: string]: unknown
-  }
 }
