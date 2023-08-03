@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
+import { CREATE_AUDIENCE_BASE_URL, TIKTOK_API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -51,7 +51,9 @@ const updateUsersRequestBody = {
 
 describe('TiktokAudiences.addUser', () => {
   it('should succeed if audience id is valid', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, updateUsersRequestBody)
+      .reply(200)
     await expect(
       testDestination.testAction('addUser', {
         event,
@@ -69,7 +71,7 @@ describe('TiktokAudiences.addUser', () => {
   })
 
   it('should normalize and hash emails correctly', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
       .post(/.*/, {
         advertiser_ids: ['123'],
         action: 'add',
@@ -103,7 +105,9 @@ describe('TiktokAudiences.addUser', () => {
   })
 
   it('should fail if an audience id is invalid', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(400)
+    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, updateUsersRequestBody)
+      .reply(400)
 
     await expect(
       testDestination.testAction('addUser', {
@@ -122,7 +126,9 @@ describe('TiktokAudiences.addUser', () => {
   })
 
   it('should fail if all the send fields are false', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, updateUsersRequestBody)
+      .reply(200)
 
     await expect(
       testDestination.testAction('addUser', {
@@ -142,7 +148,9 @@ describe('TiktokAudiences.addUser', () => {
     ).rejects.toThrow('At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.')
   })
   it('should fail if email and/or advertising_id is not in the payload', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(400)
+    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, updateUsersRequestBody)
+      .reply(400)
 
     delete event?.context?.device
     delete event?.context?.traits
