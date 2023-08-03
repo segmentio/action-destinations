@@ -12,7 +12,6 @@ import {
   event_name,
   enable_batching
 } from '../properties'
-import { TikTokAudiences } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Users',
@@ -27,37 +26,6 @@ const action: ActionDefinition<Settings, Payload> = {
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching }
-  },
-  dynamicFields: {
-    selected_advertiser_id: async (request, { settings }) => {
-      try {
-        const tiktok = new TikTokAudiences(request)
-        return tiktok.fetchAdvertisers(settings.advertiser_ids)
-      } catch (err) {
-        return {
-          choices: [],
-          error: {
-            message: JSON.stringify(err),
-            code: '500'
-          }
-        }
-      }
-    },
-    audience_id: async (request, { payload }) => {
-      try {
-        const tiktok = new TikTokAudiences(request)
-
-        return await tiktok.fetchAudiences(payload.selected_advertiser_id)
-      } catch (err) {
-        return {
-          choices: [],
-          error: {
-            message: JSON.stringify(err),
-            code: '500'
-          }
-        }
-      }
-    }
   },
   perform: async (request, { settings, payload }) => {
     return processPayload(request, settings, [payload], 'delete')
