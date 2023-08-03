@@ -35,4 +35,12 @@ export interface Payload {
    * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
+  /**
+   * The name of the library that generated the event. If nothing is provided, Segment will send "segment" as the Library.
+   */
+  library?: string
+  /**
+   * The name of the library which generated the event, taken from context.library.name
+   */
+  library_hidden?: string
 }

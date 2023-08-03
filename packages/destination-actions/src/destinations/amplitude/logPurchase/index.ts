@@ -208,6 +208,7 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer,
       min_id_length,
       library,
+      library_hidden,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -217,8 +218,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library) {
-      if (library === 'analytics.js') properties.platform = 'Web'
+    if (library_hidden) {
+      if (library_hidden === 'analytics.js') properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -249,7 +250,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: 'segment'
+        library: library ?? 'segment'
       }
     ]
 
@@ -261,7 +262,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
+        library: library ?? 'segment'
       })
     }
 
