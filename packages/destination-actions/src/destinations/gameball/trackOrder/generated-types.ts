@@ -22,13 +22,13 @@ export interface Payload {
    */
   orderDate: string | number
   /**
-   * The actual paid amount to the store. (Based on this amount, the player will be rewarded. Also, According to the Cashback Configuration). Must be positive.
-   */
-  totalPaid: number
-  /**
    * The sum of all order items' prices, including discounts, shipping, taxes, and tips. (Note: totalPaid is part of the totalPrice). Must be positive.
    */
   totalPrice: number
+  /**
+   * The actual paid amount to the store. (Based on this amount, the player will be rewarded. Also, According to the Cashback Configuration). Must be positive.
+   */
+  totalPaid: number
   /**
    * The total shipping price of the order. Must be positive.
    */

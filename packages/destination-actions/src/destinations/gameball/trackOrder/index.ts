@@ -4,13 +4,13 @@ import { endpoints, playerProperties, sendRequest } from '../util'
 import type { Payload } from './generated-types'
 
 const mapPayload = (payload: Payload) => {
-  let object = { ...payload } as any;
-  delete object.branch;
+  const object = { ...payload } as any
+  delete object.branch
   if (payload.merchantId && payload.merchantName) {
     object.merchant = {
       uniqueId: payload.merchantId,
       name: payload.merchantName
-    };
+    }
 
     if (payload.branchId && payload.branchName) {
       object.merchant.branch = {
@@ -20,22 +20,23 @@ const mapPayload = (payload: Payload) => {
     }
   }
 
-  return object;
+  return object
 }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Order',
   description: 'This action used to track orders. They are designed specifically for E-Commerce Solutions.',
-  defaultSubscription: 'event = "Place Order"',
+  defaultSubscription: 'event = "Order Completed"',
   fields: {
     ...playerProperties,
     orderId: {
       label: 'Order Id',
-      description: 'Unique order ID which identifies the underlying order in your system, e.g. order number, invoice number. It will be used for reversing any reward or redemption transaction on Gameball.',
+      description:
+        'Unique order ID which identifies the underlying order in your system, e.g. order number, invoice number. It will be used for reversing any reward or redemption transaction on Gameball.',
       type: 'string',
       required: true,
       default: {
-        '@path': '$.properties.orderId'
+        '@path': '$.properties.order_id'
       }
     },
     orderDate: {
@@ -44,16 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'datetime',
       required: true,
       default: {
-        '@path': '$.properties.orderDate'
-      }
-    },
-    totalPaid: {
-      label: 'Total Paid',
-      description: 'The actual paid amount to the store. (Based on this amount, the player will be rewarded. Also, According to the Cashback Configuration). Must be positive.',
-      type: 'number',
-      required: true,
-      default: {
-        '@path': '$.properties.totalPaid'
+        '@path': '$.timestamp'
       }
     },
     totalPrice: {
@@ -62,7 +54,17 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       type: 'number',
       default: {
-        '@path': '$.properties.totalPrice'
+        '@path': '$.properties.total'
+      }
+    },
+    totalPaid: {
+      label: 'Total Paid',
+      description:
+        'The actual paid amount to the store. (Based on this amount, the player will be rewarded. Also, According to the Cashback Configuration). Must be positive.',
+      type: 'number',
+      required: true,
+      default: {
+        '@path': '$.properties.subtotal'
       }
     },
     totalShipping: {
@@ -70,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The total shipping price of the order. Must be positive.',
       type: 'number',
       default: {
-        '@path': '$.properties.totalShipping'
+        '@path': '$.properties.shipping'
       }
     },
     totalTax: {
@@ -78,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The sum of all the taxes applied to the order in the shop currency. Must be positive.',
       type: 'number',
       default: {
-        '@path': '$.properties.totalTax'
+        '@path': '$.properties.tax'
       }
     },
     totalDiscount: {
@@ -86,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Total discount applied on this order. Must be positive.',
       type: 'number',
       default: {
-        '@path': '$.properties.totalDiscount'
+        '@path': '$.properties.discount'
       }
     },
     lineItems: {
@@ -120,7 +122,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Collection',
           type: 'string',
           multiple: true,
-          description: 'Collection ID(s) to which the product belongs. It can be one collection or multiple collections. This will be also based on the available collections in your store.'
+          description:
+            'Collection ID(s) to which the product belongs. It can be one collection or multiple collections. This will be also based on the available collections in your store.'
         },
         tags: {
           label: 'Tags',
@@ -147,27 +150,30 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Price',
           type: 'number',
           required: true,
-          description: 'The original price of the product before adding tax or discount. Note that: it should reflect the price of a single product ignoring quantity'
+          description:
+            'The original price of the product before adding tax or discount. Note that: it should reflect the price of a single product ignoring quantity'
         },
         taxes: {
           label: 'Taxes',
           type: 'number',
           required: true,
-          description: 'The sum of all the taxes applied to the line item in the shop currency. Must be positive. Note that: It should reflect total taxes for line item considering quantity'
+          description:
+            'The sum of all the taxes applied to the line item in the shop currency. Must be positive. Note that: It should reflect total taxes for line item considering quantity'
         },
         discount: {
           label: 'Discount',
           type: 'number',
           required: true,
-          description: 'Total discount applied on this line item. Must be positive. Note that: This value should reflect total discounts for line item considering quantity'
+          description:
+            'Total discount applied on this line item. Must be positive. Note that: This value should reflect total discounts for line item considering quantity'
         }
       },
       default: {
         '@arrayPath': [
-          '$.properties.lineItems',
+          '$.properties.products',
           {
             productId: {
-              '@path': 'productId'
+              '@path': 'product_id'
             },
             sku: {
               '@path': 'sku'
@@ -201,7 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             discount: {
               '@path': 'discount'
-            },
+            }
           }
         ]
       }
@@ -212,12 +218,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       multiple: true,
       default: {
-        '@path': '$.properties.discountCodes'
+        '@path': '$.properties.coupon'
       }
     },
     redeemedAmount: {
       label: 'Redeemed Amount',
-      description: 'Monetary value of the redeemed points to be used by that player while placing his order. Note:  If this field is set, then the holdReference value should be null. Also, both fields could be null.',
+      description:
+        'Monetary value of the redeemed points to be used by that player while placing his order. Note:  If this field is set, then the holdReference value should be null. Also, both fields could be null.',
       type: 'number',
       default: {
         '@path': '$.properties.redeemedAmount'
@@ -225,7 +232,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     holdReference: {
       label: 'Hold Reference',
-      description: 'Hold reference ID received after calling Hold Points API. This is used in case you want to use already held points. Note:  If this field is set, then the redeemedAmount value should be null. Also, both fields could be null.',
+      description:
+        'Hold reference ID received after calling Hold Points API. This is used in case you want to use already held points. Note:  If this field is set, then the redeemedAmount value should be null. Also, both fields could be null.',
       type: 'string',
       default: {
         '@path': '$.properties.holdReference'
@@ -237,15 +245,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.guest' },
-          then: { '@path': '$.properties.guest' },
+          exists: { '@path': '$.properties.is_guest' },
+          then: { '@path': '$.properties.is_guest' },
           else: false
         }
       }
     },
     extra: {
       label: 'Extra',
-      description: 'Key value pair(s) of any extra information about the order. The key values must be of type string or number',
+      description:
+        'Key value pair(s) of any extra information about the order. The key values must be of type string or number',
       type: 'object',
       additionalProperties: true,
       default: {
@@ -256,7 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Merchant Id',
       type: 'string',
       description: 'Merchant unique id or code',
-      default: { '@path': '$.properties.merchantId' },
+      default: { '@path': '$.properties.merchantId' }
     },
     merchantName: {
       label: 'Merchant Name',
@@ -278,9 +287,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, settings }) => {
-    const endpoint = `${endpoints.baseApiUrl}${endpoints.trackOrder}`;
-    return await sendRequest(request, endpoint, settings, mapPayload(payload), true);
+  perform: (request, { payload, settings }) => {
+    const endpoint = `${endpoints.baseApiUrl}${endpoints.trackOrder}`
+    return sendRequest(request, endpoint, settings, mapPayload(payload), true)
   }
 }
 

@@ -4,7 +4,7 @@ import { endpoints, playerProperties, sendRequest } from '../util'
 import type { Payload } from './generated-types'
 
 const mapPayload = (payload: Payload) => {
-  let object = {
+  const object = {
     playerUniqueId: payload.playerUniqueId,
     mobile: payload.mobile,
     email: payload.email,
@@ -13,26 +13,27 @@ const mapPayload = (payload: Payload) => {
     levelOrder: payload.levelOrder,
     deviceToken: payload.deviceToken,
     playerAttributes: { ...payload }
-  };
+  }
 
   if (object.playerAttributes.preferredLanguage) {
-    object.playerAttributes.preferredLanguage = object.playerAttributes.preferredLanguage.split('-')[0];
+    object.playerAttributes.preferredLanguage = object.playerAttributes.preferredLanguage.split('-')[0]
   }
   if (object.playerAttributes.displayName) {
-    let display = object.playerAttributes.displayName.split(" ");
+    const display = object.playerAttributes.displayName.split(' ')
     if (display.length > 1) {
-      object.playerAttributes.firstName = display.slice(0, -1).join(' ');;
-      object.playerAttributes.lastName = display.slice(-1).join(' ');
+      object.playerAttributes.firstName = display.slice(0, -1).join(' ')
+      object.playerAttributes.lastName = display.slice(-1).join(' ')
     } else {
-      object.playerAttributes.firstName = display[0];
+      object.playerAttributes.firstName = display[0]
     }
   } else if (object.playerAttributes.firstName || object.playerAttributes.lastName) {
-    object.playerAttributes.firstName ??= "";
-    object.playerAttributes.lastName ??= "";
-    object.playerAttributes.displayName = `${object.playerAttributes.firstName} ${object.playerAttributes.lastName}`.trim();
+    object.playerAttributes.firstName ??= ''
+    object.playerAttributes.lastName ??= ''
+    object.playerAttributes.displayName =
+      `${object.playerAttributes.firstName} ${object.playerAttributes.lastName}`.trim()
   }
 
-  return object;
+  return object
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -55,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: `Player's first name`,
       default: {
-        '@path': '$.traits.firstName'
+        '@path': '$.traits.first_name'
       }
     },
     lastName: {
@@ -63,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: `Player's last name`,
       default: {
-        '@path': '$.traits.lastName'
+        '@path': '$.traits.last_name'
       }
     },
     gender: {
@@ -79,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'datetime',
       description: `Player's date of birth`,
       default: {
-        '@path': '$.traits.dateOfBirth'
+        '@path': '$.traits.birthday'
       }
     },
     joinDate: {
@@ -95,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: `Player's country.`,
       default: {
-        '@path': '$.context.location.country'
+        '@path': '$.traits.address.country'
       }
     },
     city: {
@@ -103,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: `Player's city`,
       default: {
-        '@path': '$.context.location.city'
+        '@path': '$.traits.address.city'
       }
     },
     zip: {
@@ -111,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: `Player's zip code`,
       default: {
-        '@path': '$.traits.zip'
+        '@path': '$.traits.location.postalCode'
       }
     },
     preferredLanguage: {
@@ -128,8 +129,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `A boolean value indicating if the customer who placed this order is a guest. The default is false.`,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.guest' },
-          then: { '@path': '$.traits.guest' },
+          exists: { '@path': '$.traits.is_guest' },
+          then: { '@path': '$.traits.is_guest' },
           else: false
         }
       }
@@ -143,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
         campaign: {
           label: 'Campaign',
           type: 'string',
-          description: `UTM campaign name`,
+          description: `UTM campaign name`
         },
         source: {
           label: 'Source',
@@ -168,7 +169,8 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         '@arrayPath': [
-          '$.context.campaign', {
+          '$.context.campaign',
+          {
             campaign: {
               '@path': '$.name'
             },
@@ -218,14 +220,14 @@ const action: ActionDefinition<Settings, Payload> = {
               '@path': '$.userAgent'
             },
             os: {
-              "@path": '$.os.name'
+              '@path': '$.os.name'
             },
             device: {
               '@path': '$.device.name'
             }
           }
         ]
-      },
+      }
     },
     totalSpent: {
       label: 'Total Spent',
@@ -303,7 +305,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const endpoint = `${endpoints.baseApiUrl}${endpoints.identifyPlayer}`;
+    const endpoint = `${endpoints.baseApiUrl}${endpoints.identifyPlayer}`
     return await sendRequest(request, endpoint, settings, mapPayload(payload))
   }
 }

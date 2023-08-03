@@ -1,4 +1,4 @@
-import { defaultValues, DestinationDefinition, ErrorCodes, IntegrationError } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
@@ -20,52 +20,50 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description:
           'Go to [help center](https://help.gameball.co/en/articles/3467114-get-your-account-integration-details-api-key-and-transaction-key) to learn how to find your API Key.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       secretKey: {
         label: 'Secret Key',
         description:
           'Go to [help center](https://help.gameball.co/en/articles/3467114-get-your-account-integration-details-api-key-and-transaction-key) to learn how to find your API Key.',
-        type: 'string',
-        required: true,
+        type: 'password',
+        required: true
       }
     },
 
-    testAuthentication: async (request, { settings }) => {
-      const endpoint = `${endpoints.baseAuthUrl}${endpoints.testAuthentication}`;
-      const response = await sendRequest(request, endpoint, settings, {
-        apiKey: settings.apiKey
+    testAuthentication: (request, { settings }) => {
+      const endpoint = `${endpoints.baseAuthUrl}${endpoints.testAuthentication}`
+      return sendRequest(request, endpoint, settings, {
+        apiKey: settings.apiKey,
+        secretKey: settings.secretKey
       })
-
-      // An empty post body will return a 400 response whereas a bad token will return a 401.
-      if (response.status === 400) {
-        throw new IntegrationError('Invalid Request', ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
-      } else if (response.status === 400) {
-        throw new IntegrationError('Invalid API key', ErrorCodes.INVALID_AUTHENTICATION, 401)
-      }
-      return true
     }
   },
 
-  presets: [{
-    name: 'Track Events',
-    subscribe: 'type = "track" and event != "Place Order"',
-    partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
-  },
-  {
-    name: 'Track Orders',
-    subscribe: 'type = "track" and event = "Place Order"',
-    partnerAction: 'trackOrder',
-    mapping: defaultValues(trackOrder.fields)
-  },
-  {
-    name: 'Create Players',
-    subscribe: 'type = "identify"',
-    partnerAction: 'identifyPlayer',
-    mapping: defaultValues(identifyPlayer.fields)
-  }],
+  presets: [
+    {
+      name: 'Track Events',
+      subscribe: 'type = "track" and event != "Order Completed"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Track Orders',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'trackOrder',
+      mapping: defaultValues(trackOrder.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Create Or Update Players',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyPlayer',
+      mapping: defaultValues(identifyPlayer.fields),
+      type: 'automatic'
+    }
+  ],
 
   actions: {
     trackEvent,
