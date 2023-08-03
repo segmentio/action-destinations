@@ -25,13 +25,15 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Identify Calls',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
-    mapping: defaultValues(updateUserProfile.fields)
+    mapping: defaultValues(updateUserProfile.fields),
+    type: 'automatic'
   },
   {
     name: 'Order Completed calls',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchase.fields)
+    mapping: defaultValues(trackPurchase.fields),
+    type: 'automatic'
   },
   {
     name: 'Track Calls',
@@ -45,7 +47,8 @@ const presets: DestinationDefinition['presets'] = [
       eventProperties: {
         '@path': '$.properties'
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 

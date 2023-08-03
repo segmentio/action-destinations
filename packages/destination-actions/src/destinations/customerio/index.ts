@@ -66,43 +66,50 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Create or Update Person',
       subscribe: 'type = "identify"',
       partnerAction: 'createUpdatePerson',
-      mapping: defaultValues(createUpdatePerson.fields)
+      mapping: defaultValues(createUpdatePerson.fields),
+      type: 'automatic'
     },
     {
       name: 'Create or Update Device',
       subscribe: 'event = "Application Installed" or event = "Application Opened"',
       partnerAction: 'createUpdateDevice',
-      mapping: defaultValues(createUpdateDevice.fields)
+      mapping: defaultValues(createUpdateDevice.fields),
+      type: 'automatic'
     },
     {
       name: 'Delete Device',
       subscribe: 'event = "Application Uninstalled"',
       partnerAction: 'deleteDevice',
-      mapping: defaultValues(deleteDevice.fields)
+      mapping: defaultValues(deleteDevice.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Page View',
       subscribe: 'type = "page"',
       partnerAction: 'trackPageView',
-      mapping: defaultValues(trackPageView.fields)
+      mapping: defaultValues(trackPageView.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Screen View',
       subscribe: 'type = "screen"',
       partnerAction: 'trackScreenView',
-      mapping: defaultValues(trackScreenView.fields)
+      mapping: defaultValues(trackScreenView.fields),
+      type: 'automatic'
     },
     {
       name: 'Create or Update Object',
       subscribe: 'type = "group"',
       partnerAction: 'createUpdateObject',
-      mapping: defaultValues(createUpdateObject.fields)
+      mapping: defaultValues(createUpdateObject.fields),
+      type: 'automatic'
     }
   ],
 
