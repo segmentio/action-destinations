@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
   description: "Action used to update a User's attribute in Insider InOne.",
@@ -140,4 +141,5 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   }
 }
+
 export default action
