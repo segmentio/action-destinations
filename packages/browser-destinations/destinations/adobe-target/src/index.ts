@@ -68,10 +68,7 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
   initialize: async ({ settings }, deps) => {
     initScript(settings)
 
-    const targetUrl = 'testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download'
-    const atjsUrl = `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
-
-    await deps.loadScript(atjsUrl)
+    await deps.loadScript('https://www.twilio.com/content/dam/twilio-com/core-assets/at.js')
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'adobe'), 100)
     return window.adobe
   },

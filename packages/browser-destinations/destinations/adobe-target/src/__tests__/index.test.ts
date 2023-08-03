@@ -31,7 +31,7 @@ describe('Adobe Target Web', () => {
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [
         <script
-          src="https://admin10.testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download?client=segmentexchangepartn&version=2.8.0"
+          src="https://www.twilio.com/content/dam/twilio-com/core-assets/at.js"
           status="loaded"
           type="text/javascript"
         />,
