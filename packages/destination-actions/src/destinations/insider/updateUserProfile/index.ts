@@ -2,7 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
   description: "Action used to update a User's attribute in Insider InOne.",
@@ -110,39 +109,28 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.address.country'
       }
     },
-    gdprOptin: {
-      label: 'GDPR Opt-in',
-      type: 'boolean',
-      default: undefined,
-      description: 'GDPR opt-in.'
-    },
     emailOptin: {
-      label: 'Email Opt-in',
+      label: 'Email Optin',
       type: 'boolean',
       default: undefined,
-      description: 'Email opt-in.'
+      description: 'Email optin.'
     },
     smsOptin: {
-      label: 'SMS Opt-in',
+      label: 'SMS Optin',
       type: 'boolean',
       default: undefined,
-      description: 'SMS opt-in.'
+      description: 'SMS optin.'
     },
     whatsappOptin: {
-      label: 'Whatsapp Opt-in',
+      label: 'Whatsapp Optin',
       type: 'boolean',
       default: undefined,
-      description: 'Whatsapp opt-in.'
+      description: 'Whatsapp optin.'
     },
     language: {
       label: 'Language',
       description: "The user's preferred language.",
       type: 'string'
-    },
-    custom: {
-      label: 'Other Properties',
-      description: "The user's additional information.",
-      type: 'object'
     }
   },
   perform: (request, data) => {
@@ -152,5 +140,4 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   }
 }
-
 export default action
