@@ -126,6 +126,8 @@ export interface InputField {
       }>
   /** Whether or not the field is required */
   required?: boolean
+  /** Whether this field should be hidden from users. This should only be used for fields which do not map a value from the incoming event, for example a boolean field users shouldn't interact with. */
+  hidden?: boolean
   /**
    * Optional definition for the properties of `type: 'object'` fields
    * (also arrays of objects when using `multiple: true`)
