@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import syncAudience from './syncAudience'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'The Trade Desk CRM',
+  name: 'The Trade Desk Crm',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
 
