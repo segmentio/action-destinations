@@ -4,6 +4,7 @@ import { createMessagingTestEvent } from '../../../../lib/engage-test-data/creat
 import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
+import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
@@ -319,7 +320,8 @@ describe.each([
         content: [
           {
             type: 'text/html',
-            value: '<html><head></head><body>Welcome to segment</body></html>'
+            value:
+              '<html><head></head><body>\n    <div style="display: none; max-height: 0px; overflow: hidden;">\n      unused\n    </div>\n\n    <div style="display: none; max-height: 0px; overflow: hidden;">\n      ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­ ͏ ‌ &nbsp;   ­\n    </div>\n  Welcome to segment</body></html>'
           }
         ],
         tracking_settings: {
@@ -581,9 +583,10 @@ describe.each([
       expect(unlayerRequest.isDone()).toEqual(true)
     })
 
-    it('inserts preview text', async () => {
-      const bodyHtml = '<p>Hi First Name, welcome to Segment</p>'
-
+    it('inserts preview text in html body', async () => {
+      const previewText = 'Preview text {{profile.traits.first_name | default: "customer"}}'
+      const renderedPreviewText = 'Preview text customer'
+      const bodyHtml = `<html><head></head><body><p>Hi First Name, welcome to Segment</p></body></html>`
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -619,19 +622,7 @@ describe.each([
         content: [
           {
             type: 'text/html',
-            value: [
-              '<html><head></head><body>',
-              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              '      Preview text customer',
-              '    </div>',
-              '',
-              '    <div style="display: none; max-height: 0px; overflow: hidden;">',
-              '      &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;',
-              '    </div>',
-              '  ',
-              bodyHtml,
-              '</body></html>'
-            ].join('\n')
+            value: insertEmailPreviewText(bodyHtml, renderedPreviewText)
           }
         ],
         tracking_settings: {
@@ -641,7 +632,87 @@ describe.each([
           }
         }
       }
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
 
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          previewText,
+          bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+    it('inserts preview text in design template', async () => {
+      const previewText = 'Preview text {{profile.traits.first_name | default: "customer"}}'
+      const renderedPreviewText = 'Preview text customer'
+      const bodyHtml = '<p>Hi First Name, welcome to Segment</p>'
+
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: insertEmailPreviewText(`<html><head></head><body>${bodyHtml}</body></html>`, renderedPreviewText)
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
       const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
       const unlayerRequest = nock('https://api.unlayer.com')
@@ -653,7 +724,7 @@ describe.each([
         })
         .reply(200, {
           data: {
-            html: ['<html><head></head><body>', bodyHtml, '</body></html>'].join('\n')
+            html: `<html><head></head><body>${bodyHtml}</body></html>`
           }
         })
 
@@ -678,7 +749,7 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping({
-          previewText: 'Preview text {{profile.traits.first_name | default: "customer"}}',
+          previewText,
           body: undefined,
           bodyUrl: 'https://s3.com/body.txt',
           bodyHtml: undefined,
