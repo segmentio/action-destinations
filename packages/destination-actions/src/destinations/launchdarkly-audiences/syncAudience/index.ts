@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.userId' },
           then: { '@path': '$.userId' },
-          else: { '@path': '$.email' }
+          else: { '@path': '$.anonymousId' }
         }
       }
     },
