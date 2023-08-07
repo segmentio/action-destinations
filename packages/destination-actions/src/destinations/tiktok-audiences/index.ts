@@ -114,10 +114,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         )
       }
 
-      url.searchParams.append('advertiser_id', advertiserId)
-      url.searchParams.append('custom_audience_ids', audienceIds.toString())
+      const params = new URLSearchParams()
+      params.append('advertiser_id', advertiserId)
+      params.append('custom_audience_ids', JSON.stringify(audienceIds))
 
-      const response = await request(url.toString(), {
+      const response = await request(`${url.toString()}?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

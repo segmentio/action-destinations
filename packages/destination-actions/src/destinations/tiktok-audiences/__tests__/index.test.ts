@@ -31,8 +31,8 @@ const mockGetAudienceResponse = (replyObject: any) => {
   nock(GET_AUDIENCE_URL)
     .get('')
     .query({
-      advertiser_id: getAudienceInput.audienceSettings.advertiserId,
-      custom_audience_ids: encodeURIComponent([getAudienceInput.externalId].toString())
+      advertiser_id: advertiserId,
+      custom_audience_ids: JSON.stringify([audienceId])
     })
     .reply(200, replyObject)
 }
