@@ -183,10 +183,7 @@ const recursivelyTransformPropertyNames = (
  * @param options Extended normalization options, including whether to camel case property names.
  * @returns A new object with property names normalized.
  */
-export const normalizePropertyNames = (
-  obj?: any,
-  options?: { camelCase?: boolean; typeSuffix?: boolean }
-): Record<string, unknown> => {
+export const normalizePropertyNames = (obj?: any, options?: { camelCase?: boolean }): Record<string, unknown> => {
   if (!obj) {
     return {}
   }
@@ -199,7 +196,7 @@ export const normalizePropertyNames = (
 
   const normalizePropertyName = (name: string, value: unknown) => {
     const transformedName = transformPropertyName(name, transformations)
-    return options?.typeSuffix ? typeSuffixPropertyName(transformedName, value) : transformedName
+    return typeSuffixPropertyName(transformedName, value)
   }
 
   return recursivelyTransformPropertyNames(obj, normalizePropertyName, 1)

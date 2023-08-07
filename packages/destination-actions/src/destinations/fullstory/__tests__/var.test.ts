@@ -22,7 +22,7 @@ describe('normalizePropertyNames', () => {
     const obj = {
       someProp: undefined
     }
-    const normalizedObj = normalizePropertyNames(obj, { typeSuffix: true })
+    const normalizedObj = normalizePropertyNames(obj)
     expect(normalizedObj).toEqual(obj)
   })
 
@@ -35,18 +35,8 @@ describe('normalizePropertyNames', () => {
     Object.entries(suffixToExampleValuesMap).forEach(([suffix, value]) => {
       obj[`${suffix}_prop_${suffix}`] = value
     })
-    const normalizedObj = normalizePropertyNames(obj, { typeSuffix: true })
+    const normalizedObj = normalizePropertyNames(obj)
     expect(normalizedObj).toEqual(obj)
-  })
-
-  it('does not add type suffix if parameter is undefined/false', () => {
-    const originalPayload = {
-      str_prop: suffixToExampleValuesMap.str
-    }
-    const normalizedObj = normalizePropertyNames(originalPayload)
-    expect(normalizedObj).toEqual(originalPayload)
-    const normalizedObj2 = normalizePropertyNames(originalPayload, { typeSuffix: false })
-    expect(normalizedObj2).toEqual(originalPayload)
   })
 
   it('adds type suffixes when type can be inferred and known type suffix is absent', () => {
@@ -85,7 +75,7 @@ describe('normalizePropertyNames', () => {
       objs_prop_objs: originalPayload.objs_prop
     }
 
-    const transformedPayload = normalizePropertyNames(originalPayload, { typeSuffix: true })
+    const transformedPayload = normalizePropertyNames(originalPayload)
     expect(transformedPayload).toEqual(expectedPayload)
   })
 
@@ -106,7 +96,7 @@ describe('normalizePropertyNames', () => {
       dottedDate_date: obj['dotted.date'],
       spacedReal_real: obj['spaced real']
     }
-    const actual = normalizePropertyNames(obj, { camelCase: true, typeSuffix: true })
+    const actual = normalizePropertyNames(obj, { camelCase: true })
     expect(actual).toEqual(expected)
   })
 
@@ -139,7 +129,7 @@ describe('normalizePropertyNames', () => {
         }
       }
     }
-    const transformedPayload = normalizePropertyNames(originalPayload, { camelCase: true, typeSuffix: true })
+    const transformedPayload = normalizePropertyNames(originalPayload, { camelCase: true })
     expect(transformedPayload).toEqual(expectedPayload)
   })
 
@@ -163,7 +153,7 @@ describe('normalizePropertyNames', () => {
         [expectedNameAddingTypeSuffix]: obj[originalNameExcludingTypeSuffix]
       }
 
-      const actual = normalizePropertyNames(obj, { typeSuffix: true })
+      const actual = normalizePropertyNames(obj)
       expect(actual).toEqual(expected)
     })
   })
@@ -180,7 +170,7 @@ describe('normalizePropertyNames', () => {
       [expectedNamePreservingTypeSuffix]: obj[originalNameIncludingTypeSuffix]
     }
 
-    const actual = normalizePropertyNames(obj, { camelCase: true, typeSuffix: true })
+    const actual = normalizePropertyNames(obj, { camelCase: true })
     expect(actual).toEqual(expected)
   })
 })

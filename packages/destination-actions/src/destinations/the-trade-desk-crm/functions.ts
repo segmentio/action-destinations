@@ -3,8 +3,6 @@ import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
 
-import { sendEventToAWS } from './awsClient'
-
 const API_VERSION = 'v3'
 const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
@@ -43,25 +41,16 @@ export async function processPayload(request: RequestClient, settings: Settings,
       `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${payloads.length}`
     )
   }
-  const crmID = await getCRMInfo(request, settings, payloads[0])
+  const crmID = await getCRMID(request, settings, payloads[0])
 
   // Get user emails from the payloads
-  const usersFormatted = extractUsers(payloads)
+  const users = extractUsers(payloads)
 
-  // Send request to AWS to be processed
-  const AWSOperationStatus = await sendEventToAWS({
-    TDDAuthToken: settings.auth_token,
-    AdvertiserId: settings.advertiser_id,
-    CrmDataId: crmID,
-    SegmentName: payloads[0].name,
-    UsersFormatted: usersFormatted,
-    DropOptions: {
-      PiiType: payloads[0].pii_type,
-      MergeMode: 'Replace'
-    }
-  })
+  // Generate a Data Drop Endpoint
+  const dataDropEndpoint = await getDropEndpoint(request, settings, payloads[0], crmID)
 
-  return AWSOperationStatus
+  // Send users to the Data Drop Endpoint
+  return sendCRMData(request, dataDropEndpoint, users)
 }
 
 async function getAllDataSegments(request: RequestClient, settings: Settings) {
@@ -97,8 +86,8 @@ async function getAllDataSegments(request: RequestClient, settings: Settings) {
   return allDataSegments
 }
 
-async function getCRMInfo(request: RequestClient, settings: Settings, payload: Payload): Promise<string> {
-  let segmentId: string
+async function getCRMID(request: RequestClient, settings: Settings, payload: Payload) {
+  let segmentId
   const segments = await getAllDataSegments(request, settings)
   const segmentExists = segments.filter(function (segment) {
     if (segment.SegmentName == payload.name) {
@@ -109,11 +98,14 @@ async function getCRMInfo(request: RequestClient, settings: Settings, payload: P
   // More than 1 audience returned matches name
   if (segmentExists.length > 1) {
     throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
-  } else if (segmentExists.length == 1) {
+  }
+
+  if (segmentExists.length == 1) {
     segmentId = segmentExists[0].CrmDataId
-  } else {
-    // If an audience does not exist, we will create it. In V1, we will send a single batch
-    // of full audience syncs every 24 hours to eliminate the risk of a race condition.
+  }
+  // If an audience does not exist, we will create it. In V1, we will send a single batch
+  // of full audience syncs every 24 hours to eliminate the risk of a race condition.
+  else {
     const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
       method: 'POST',
       headers: {
@@ -130,6 +122,25 @@ async function getCRMInfo(request: RequestClient, settings: Settings, payload: P
   }
 
   return segmentId
+}
+
+async function getDropEndpoint(request: RequestClient, settings: Settings, payload: Payload, crmId: string) {
+  const response: ModifiedResponse<DROP_ENDPOINT_API_RESPONSE> = await request(
+    `${BASE_URL}/crmdata/segment/${settings.advertiser_id}/${crmId}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      },
+      json: {
+        PiiType: payload.pii_type,
+        MergeMode: 'Replace'
+      }
+    }
+  )
+
+  return response.data.Url
 }
 
 function extractUsers(payloads: Payload[]): string {
@@ -150,6 +161,16 @@ function extractUsers(payloads: Payload[]): string {
     }
   })
   return users
+}
+
+async function sendCRMData(request: RequestClient, endpoint: string, users: string) {
+  return await request(endpoint, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: users
+  })
 }
 
 // More info about email normalization: https://api.thetradedesk.com/v3/portal/data/doc/DataPiiNormalization#email-normalize
