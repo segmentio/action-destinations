@@ -64,7 +64,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...singleProductContents,
         event: 'ViewContent'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Search',
@@ -73,7 +74,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...singleProductContents,
         event: 'Search'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Add to Wishlist',
@@ -82,7 +84,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...singleProductContents,
         event: 'AddToWishlist'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Add to Cart',
@@ -91,7 +94,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...singleProductContents,
         event: 'AddToCart'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Initiate Checkout',
@@ -100,7 +104,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...multiProductContents,
         event: 'InitiateCheckout'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Add Payment Info',
@@ -109,7 +114,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...multiProductContents,
         event: 'AddPaymentInfo'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Place an Order',
@@ -118,7 +124,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       mapping: {
         ...multiProductContents,
         event: 'PlaceAnOrder'
-      }
+      },
+      type: 'automatic'
     }
   ],
   settings: {

@@ -21,7 +21,8 @@ const valid_attributes_payload: AttributesPayload = {
   attributes: {
     trait1: 1,
     trait2: 'test',
-    trait3: true
+    trait3: true,
+    birthdate: '1965-01-25T00:47:43.378Z'
   }
 }
 
@@ -68,6 +69,12 @@ const airship_attributes_payload = [
     key: 'trait3',
     timestamp: '2023-05-09T00:47:43',
     value: true
+  },
+  {
+    action: 'set',
+    key: 'birthdate',
+    timestamp: '2023-05-09T00:47:43',
+    value: '1965-01-25T00:47:43'
   }
 ]
 
@@ -101,5 +108,11 @@ describe('Testing _build_tags_object', () => {
 describe('Testing _validate_timestamp', () => {
   it('should correctly format a timestamo', () => {
     expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual('2023-05-06T20:45:12')
+  })
+})
+
+describe('Testing parse_date', () => {
+  it('should parse a date into a date object', () => {
+    expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
   })
 })

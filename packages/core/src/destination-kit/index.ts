@@ -1,4 +1,5 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
+import { EventEmitterSlug } from '@segment/action-emitters'
 import type { JSONSchema4 } from 'json-schema'
 import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
 import { time, duration } from '../time'
@@ -58,7 +59,7 @@ export interface BaseDefinition {
   actions: Record<string, BaseActionDefinition>
 
   /** Subscription presets automatically applied in quick setup */
-  presets?: Subscription[]
+  presets?: Preset[]
 }
 
 export type AudienceResult = {
@@ -137,6 +138,15 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   onDelete?: Deletion<Settings>
 }
+
+interface AutomaticPreset extends Subscription {
+  type: 'automatic'
+}
+interface SpecificEventPreset extends Omit<Subscription, 'subscribe'> {
+  type: 'specificEvent'
+  eventSlug: EventEmitterSlug
+}
+export type Preset = AutomaticPreset | SpecificEventPreset
 
 export interface Subscription {
   name?: string
