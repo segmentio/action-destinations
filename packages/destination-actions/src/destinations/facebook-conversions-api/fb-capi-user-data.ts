@@ -17,7 +17,7 @@ export const user_data_field: InputField = {
       description:
         'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
       type: 'string',
-      multiple: true
+      multiple: true // changed the type from string to array of strings.
     },
     email: {
       label: 'Email',
@@ -234,6 +234,7 @@ export const normalize_user_data = (payload: UserData) => {
 
 export const hash_user_data = (payload: UserData): Object => {
   normalize_user_data(payload)
+  // Hashing this is recommended but not required
   return {
     em: hash(payload.user_data?.email),
     ph: hash(payload.user_data?.phone),
@@ -245,7 +246,10 @@ export const hash_user_data = (payload: UserData): Object => {
     st: hash(payload.user_data?.state),
     zp: hash(payload.user_data?.zip),
     country: hash(payload.user_data?.country),
-    external_id: hash_and_normalised(payload.user_data?.externalId), // Hashing this is recommended but not required
+    external_id:
+      typeof payload.user_data.externalId == 'string'
+        ? hash(payload.user_data.externalId)
+        : hash_and_normalised(payload.user_data?.externalId), //to provide support for externalId as string and array both
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
