@@ -1,15 +1,10 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import trackEvent from './trackEvent'
-
-import identify from './identify'
-
-import group from './group'
-
-import page from './page'
-
-import screen from './screen'
+import sendTrackEvent from './sendTrackEvent'
+import sendIdentifyEvent from './sendIdentifyEvent'
+import sendGroupEvent from './sendGroupEvent'
+import sendPageEvent from './sendPageEvent'
+import sendScreenEvent from './sendScreenEvent'
 import { getAuthUrl } from './api'
 
 const destination: DestinationDefinition<Settings> = {
@@ -38,12 +33,50 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  presets: [
+    {
+      name: sendTrackEvent.title,
+      subscribe: 'type = "track"',
+      partnerAction: 'sendTrackEvent',
+      mapping: defaultValues(sendTrackEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: sendIdentifyEvent.title,
+      subscribe: 'type = "identify"',
+      partnerAction: 'sendIdentifyEvent',
+      mapping: defaultValues(sendIdentifyEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: sendGroupEvent.title,
+      subscribe: 'type = "group"',
+      partnerAction: 'sendGroupEvent',
+      mapping: defaultValues(sendGroupEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: sendPageEvent.title,
+      subscribe: 'type = "page"',
+      partnerAction: 'sendPageEvent',
+      mapping: defaultValues(sendPageEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: sendScreenEvent.title,
+      subscribe: 'type = "screen"',
+      partnerAction: 'sendScreenEvent',
+      mapping: defaultValues(sendScreenEvent.fields),
+      type: 'automatic'
+    }
+  ],
+
   actions: {
-    trackEvent,
-    identify,
-    group,
-    page,
-    screen
+    sendTrackEvent,
+    sendIdentifyEvent,
+    sendGroupEvent,
+    sendPageEvent,
+    sendScreenEvent
   }
 }
 
