@@ -3,6 +3,8 @@
 import { TwilioMessageSender, TwilioPayloadBase } from './TwilioMessageSender'
 import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../../utils'
 
+export const FLAGON_EVENT_STREAMS_ONBOARDING = 'event-streams-onboarding'
+
 /**
  * Base class for sending sms/mms
  */
@@ -40,7 +42,25 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       this.DEFAULT_CONNECTION_OVERRIDES
     )
 
-    if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
+    if (
+      this.executeInput &&
+      this.executeInput.features &&
+      this.executeInput.features[FLAGON_EVENT_STREAMS_ONBOARDING]
+    ) {
+      const tags = {
+        audience_id: this.payload.customArgs ? String(this.payload.customArgs['audience_id']) : '',
+        correlation_id: this.payload.customArgs ? String(this.payload.customArgs['correlation_id']) : '',
+        journey_name: this.payload.customArgs ? String(this.payload.customArgs['journey_name']) : '',
+        step_name: this.payload.customArgs ? String(this.payload.customArgs['step_name']) : '',
+        campaign_name: this.payload.customArgs ? String(this.payload.customArgs['campaign_name']) : '',
+        campaign_key: this.payload.customArgs ? String(this.payload.customArgs['campaign_key']) : '',
+        user_id: this.payload.customArgs ? String(this.payload.customArgs['user_id']) : '',
+        message_id: this.payload.customArgs ? String(this.payload.customArgs['message_id']) : ''
+      }
+      body.append('tags', JSON.stringify(tags))
+    } else {
+      if (webhookUrlWithParams) body.append('StatusCallback', webhookUrlWithParams)
+    }
 
     this.statsSet('message_body_size', body?.toString().length)
 
