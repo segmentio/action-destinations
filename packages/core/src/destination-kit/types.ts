@@ -14,11 +14,13 @@ export interface Result {
   error?: JSONObject | null
 }
 
-export interface ExecuteInput<Settings, Payload> {
+export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
   readonly settings: Settings
+  /** The audience-specific destination settings */
+  readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
   /** The page used in dynamic field requests */

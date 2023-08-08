@@ -74,7 +74,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Add Custom Event (Track Event)',
       subscribe: 'type = "track"',
       partnerAction: 'addCustomEvent',
-      mapping: defaultValues(addCustomEvent.fields)
+      mapping: defaultValues(addCustomEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Add Custom Event (Page Event)',
@@ -85,7 +86,8 @@ const destination: DestinationDefinition<Settings> = {
         event: {
           '@template': 'Viewed {{name}} Page'
         }
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Add Custom Event (Screen Event)',
@@ -96,19 +98,22 @@ const destination: DestinationDefinition<Settings> = {
         event: {
           '@template': 'Viewed {{name}} Screen'
         }
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Create Or Update Customer',
       subscribe: 'type = "identify"',
       partnerAction: 'upsertCustomer',
-      mapping: defaultValues(upsertCustomer.fields)
+      mapping: defaultValues(upsertCustomer.fields),
+      type: 'automatic'
     },
     {
       name: 'Assign Customer To Group',
       subscribe: 'type = "group"',
       partnerAction: 'assignCustomerToGroup',
-      mapping: defaultValues(assignCustomerToGroup.fields)
+      mapping: defaultValues(assignCustomerToGroup.fields),
+      type: 'automatic'
     }
   ]
 }

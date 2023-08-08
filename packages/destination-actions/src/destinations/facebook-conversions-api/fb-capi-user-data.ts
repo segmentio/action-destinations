@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { createHash } from 'crypto'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'

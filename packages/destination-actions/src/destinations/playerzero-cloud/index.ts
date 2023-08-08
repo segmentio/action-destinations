@@ -9,13 +9,15 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Event',
     subscribe: 'type = "track" or type = "page" or type = "screen"',
     partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
+    mapping: defaultValues(trackEvent.fields),
+    type: 'automatic'
   },
   {
     name: 'Identify User',
     subscribe: 'type = "identify" or type = "group" or type = "alias"',
     partnerAction: 'identifyUser',
-    mapping: defaultValues(identifyUser.fields)
+    mapping: defaultValues(identifyUser.fields),
+    type: 'automatic'
   }
 ]
 

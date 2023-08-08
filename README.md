@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://library.twilio.com/m/75a81eb2857bfd02/webimage-logo-segment-icon-clearspace-rgb.png" width="100"/></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://github-production-user-asset-6210df.s3.amazonaws.com/316711/254403783-df7b9cdd-1e45-48a8-a255-e1cc087e2196.svg" width="100"/></a></p>
 
 # Action Destinations
 
@@ -28,6 +28,7 @@ For more detailed instruction, see the following READMEs:
 - [Example Destination](#example-destination)
 - [Input Fields](#input-fields)
 - [Default Values](#default-values)
+- [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
@@ -383,6 +384,40 @@ const destination = {
 }
 ```
 
+## Presets
+
+Presets are pre-built use cases to enable customers to get started quickly with an action destination. They include everything needed to generate a valid subscription.
+
+There are two types of Presets: `automatic` and `specificEvent`.
+
+Automatic presets generate subscriptions automatically when an action destination is connected to a _non-Engage_ source. Automatic presets are also available for the customer to choose to generate a subscription at any point in the destination's lifecycle. If you are not sure which type of preset to choose, this is probably the right type.
+
+[Experimental] SpecificEvent presets are meant to be used with destinations connected to Segment Engage Sources. A subscription will be created from the preset when a _specific action_ is taken by the customer, as specified by the `eventSlug`. If you think your destination should include a specific event preset, please reach out to us.
+
+```js
+const destination = {
+  // ...other properties
+  presets: [
+    // automatic preset
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    // specific event preset
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'specificEvent'
+      slug: 'warehouse_entity_added_track'
+    },
+  ],
+}
+```
+
 ## The `perform` function
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
@@ -536,6 +571,64 @@ const response = await request('https://example.com', {
   throwHttpErrors: true
 })
 ```
+
+### Audience Support (Alpha)
+
+In order to support audience destinations, we've introduced a type that extends regular destinations:
+
+```js
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+  // ...other properties
+  audienceFields: {
+    audienceId: {
+      label: 'An audience id required by the destination',
+      description: 'An audience id required by the destination',
+      type: 'string',
+      required: true
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule
+      full_audience_sync: true // If true, we send the entire audience. If false, we just send the delta.
+    }
+  },
+  // These are optional and only needed if you need to create an audience before sending events/users.
+  // Create an audience on the destination side
+  async createAudience(request, { settings, audienceSettings, audienceName }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        new_audience_name: audienceName,
+        some_audience_specific_id: audienceSettings.audienceId // As defined in audienceFields
+      }
+    })
+    const jsonOutput = await response.json()
+    // Segment will save this externalId for subsequent calls
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  },
+  // Right now, this serves mostly as a check to ensure the audience still exists in the destination
+  async getAudience(request, { settings, audienceSettings, externalId }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        my_audience_id: externalId
+      }
+    })
+    const jsonOutput = await response.json()
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  }
+}
+```
+
+**Other considerations for audience support:**
+
+- It is highly recommended to implement a `performBatch` function in your actions implementation.
+- You should implement actions specific to audiences such as adding and removing a user
 
 ### Differences from the Fetch API
 

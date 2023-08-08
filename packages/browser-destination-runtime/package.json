@@ -1,0 +1,67 @@
+{
+  "name": "@segment/browser-destination-runtime",
+  "version": "1.7.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc --outDir ./dist/esm",
+    "build:cjs": "tsc  --module commonjs --outDir ./dist/cjs"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./load-script": {
+      "require": "./dist/cjs/load-script.js",
+      "default": "./dist/esm/load-script.js"
+    },
+    "./plugin": {
+      "require": "./dist/cjs/plugin.js",
+      "default": "./dist/esm/plugin.js"
+    },
+    "./resolve-when": {
+      "require": "./dist/cjs/resolve-when.js",
+      "default": "./dist/esm/resolve-when.js"
+    },
+    "./shim": {
+      "require": "./dist/cjs/shim.js",
+      "default": "./dist/esm/shim.js"
+    },
+    "./types": {
+      "require": "./dist/cjs/types.js",
+      "default": "./dist/esm/types.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/esm/index.d.ts"
+      ],
+      "load-script": [
+        "dist/esm/load-script.d.ts"
+      ],
+      "plugin": [
+        "dist/esm/plugin.d.ts"
+      ],
+      "resolve-when": [
+        "dist/esm/resolve-when.d.ts"
+      ],
+      "shim": [
+        "dist/esm/shim.d.ts"
+      ],
+      "types": [
+        "dist/esm/types.d.ts"
+      ]
+    }
+  },
+  "dependencies": {
+    "@segment/actions-core": "^3.77.0"
+  },
+  "devDependencies": {
+    "@segment/analytics-next": "*"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  }
+}

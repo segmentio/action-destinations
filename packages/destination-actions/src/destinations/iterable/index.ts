@@ -5,6 +5,8 @@ import updateUser from './updateUser'
 import trackEvent from './trackEvent'
 import updateCart from './updateCart'
 import trackPurchase from './trackPurchase'
+import { DataCenterLocation } from './shared-fields'
+import { getRegionalEndpoint } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Iterable (Actions)',
@@ -20,10 +22,28 @@ const destination: DestinationDefinition<Settings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
+      },
+      dataCenterLocation: {
+        label: 'Data Center Location',
+        description: 'The location where your Iterable data is hosted.',
+        type: 'string',
+        format: 'text',
+        choices: [
+          {
+            label: 'United States',
+            value: 'united_states'
+          },
+          {
+            label: 'Europe',
+            value: 'europe'
+          }
+        ],
+        default: 'united_states'
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://api.iterable.com/api/webhooks', {
+      const endpoint = getRegionalEndpoint('getWebhooks', settings.dataCenterLocation as DataCenterLocation)
+      return request(endpoint, {
         method: 'get',
         headers: { 'Api-Key': settings.apiKey }
       })
@@ -45,25 +65,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Calls',
       subscribe: 'type = "track" and event != "Order Completed" and event != "Cart Updated"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUser',
-      mapping: defaultValues(updateUser.fields)
+      mapping: defaultValues(updateUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Update Cart Calls',
       subscribe: 'type = "track" and event = "Cart Updated"',
       partnerAction: 'updateCart',
-      mapping: defaultValues(updateCart.fields)
+      mapping: defaultValues(updateCart.fields),
+      type: 'automatic'
     },
     {
       name: 'Order Completed Calls',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields)
+      mapping: defaultValues(trackPurchase.fields),
+      type: 'automatic'
     }
   ]
 }
