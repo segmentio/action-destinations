@@ -446,5 +446,95 @@ describe('Braze Cloud Mode (Actions)', () => {
         expect(resp.data).toMatchObject({})
       }
     })
+    it('should work with default mappings', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Entity Added',
+        type: 'track',
+        receivedAt,
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+
+      const responses = await testDestination.testAction('trackPurchase', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.headers).toMatchSnapshot()
+      expect(responses[0].options.json).toMatchObject({
+        purchases: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            time: '2021-08-03T17:40:04.055Z',
+            properties: {},
+            _update_existing_only: false,
+            product_id: 'test-product-id',
+            currency: 'USD',
+            price: 99.99,
+            quantity: 1
+          }
+        ]
+      })
+    })
+    it('should work with default mappings', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Audience Membership Changed',
+        type: 'track',
+        receivedAt,
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+
+      const responses = await testDestination.testAction('trackPurchase', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.headers).toMatchSnapshot()
+      expect(responses[0].options.json).toMatchObject({
+        purchases: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            time: '2021-08-03T17:40:04.055Z',
+            properties: {},
+            _update_existing_only: false,
+            product_id: 'test-product-id',
+            currency: 'USD',
+            price: 99.99,
+            quantity: 1
+          }
+        ]
+      })
+    })
   })
 })

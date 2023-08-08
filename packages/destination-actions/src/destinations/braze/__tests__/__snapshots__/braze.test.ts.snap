@@ -1,5 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Braze Cloud Mode (Actions) onDelete should work with default mappings 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Braze Cloud Mode (Actions) onDelete should work with default mappings 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Braze Cloud Mode (Actions) trackEvent should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`;
 
 exports[`Braze Cloud Mode (Actions) trackEvent should work with batched events 1`] = `
