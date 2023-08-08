@@ -11,6 +11,58 @@ import {
 } from './__helpers__/test-utils'
 
 let testDestination = createTestIntegration(Destination)
+// const batchContactList: BatchContactListItem[] = [
+//   {
+//     id: '101',
+//     email: 'userone@somecompany.com',
+//     firstname: 'User',
+//     lastname: 'One'
+//   },
+//   {
+//     id: '102',
+//     email: 'usertwo@somecompany.com',
+//     firstname: 'User',
+//     lastname: 'Two'
+//   },
+//   {
+//     id: '103',
+//     email: 'userthree@somecompany.com',
+//     firstname: 'User',
+//     lastname: 'Three'
+//   }
+// ]
+
+const createContactList: BatchContactListItem[] = [
+  {
+    email: 'userone@somecompany.com',
+    firstname: 'User',
+    lastname: 'One',
+    lifecyclestage: 'lead'
+  },
+  {
+    email: 'usertwo@somecompany.com',
+    firstname: 'User',
+    lastname: 'Two',
+    lifecyclestage: 'subscriber'
+  }
+]
+
+const updateContactList: BatchContactListItem[] = [
+  {
+    id: '103',
+    email: 'userthree@somecompany.com',
+    firstname: 'User',
+    lastname: 'Three',
+    lifecyclestage: 'subscriber'
+  },
+  {
+    id: '104',
+    email: 'userfour@somecompany.com',
+    firstname: 'User',
+    lastname: 'Four',
+    lifecyclestage: 'lead'
+  }
+]
 
 beforeEach((done) => {
   // Re-Initialize the destination before each test
@@ -394,35 +446,17 @@ describe('HubSpot.upsertContact', () => {
 
 describe('HubSpot.upsertContactBatch', () => {
   test('should create contact successfully', async () => {
-    const batchContactList: BatchContactListItem[] = [
-      {
-        email: 'userone@somecompany.com',
-        firstname: 'User',
-        lastname: 'One'
-      },
-      {
-        email: 'usertwo@somecompany.com',
-        firstname: 'User',
-        lastname: 'Two'
-      },
-      {
-        email: 'userthree@somecompany.com',
-        firstname: 'User',
-        lastname: 'Three'
-      }
-    ]
-
-    const events = createBatchTestEvents(batchContactList)
+    const events = createBatchTestEvents(createContactList)
 
     // Mock: Read Contact Using Email
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/read`)
-      .reply(207, generateBatchReadResponse(batchContactList))
+      .reply(207, generateBatchReadResponse(createContactList))
 
     // Mock: Create Contact
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/create`)
-      .reply(201, generateBatchCreateResponse(batchContactList))
+      .reply(201, generateBatchCreateResponse(createContactList))
 
     const mapping = {
       properties: {
@@ -438,105 +472,167 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].headers).toMatchSnapshot()
     expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].data).toMatchSnapshot()
+    expect(testBatchResponses[1].data).toMatchSnapshot()
   })
 
-  // test('should update contact successfully', async () => {
-  //   const batchContactList: BatchContactListItem[] = [
-  //     {
-  //       id: '101',
-  //       email: 'userone@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'One'
-  //     },
-  //     {
-  //       id: '102',
-  //       email: 'usertwo@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'Two'
-  //     },
-  //     {
-  //       id: '103',
-  //       email: 'userthree@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'Three'
-  //     }
-  //   ]
+  test('should update contact successfully', async () => {
+    const events = createBatchTestEvents(updateContactList)
 
-  //   const events = createBatchTestEvents(batchContactList)
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(200, generateBatchReadResponse(updateContactList))
 
-  //   // Mock: Read Contact Using Email
-  //   nock(HUBSPOT_BASE_URL)
-  //     .post(`/crm/v3/objects/contacts/batch/read`)
-  //     .reply(200, createBatchReadResponse(batchContactList))
+    // Mock: Update Contact
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/contacts/batch/update`)
+      .reply(200, generateBatchCreateResponse(updateContactList))
 
-  //   const mapping = {
-  //     properties: {
-  //       graduation_date: {
-  //         '@path': '$.traits.graduation_date'
-  //       }
-  //     }
-  //   }
+    const mapping = {
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
 
-  //   const transactionContext: Record<string, string> = {}
-  //   const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+    const testBatchResponses = await testDestination.testBatchAction('upsertContact', {
+      mapping,
+      useDefaultMappings: true,
+      events
+    })
 
-  //   await expect(
-  //     testDestination.testBatchAction('upsertContact', {
-  //       mapping,
-  //       useDefaultMappings: true,
-  //       events,
-  //       transactionContext: { transaction: {}, setTransaction: setTransactionContext }
-  //     })
-  //   ).resolves.not.toThrowError()
-  // })
+    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].data).toMatchSnapshot()
+    expect(testBatchResponses[1].data).toMatchSnapshot()
+  })
 
-  // test('should create and update contact successfully', async () => {
-  //   const batchContactList: BatchContactListItem[] = [
-  //     {
-  //       id: '101',
-  //       email: 'userone@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'One'
-  //     },
-  //     {
-  //       email: 'usertwo@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'Two'
-  //     },
-  //     {
-  //       email: 'userthree@somecompany.com',
-  //       first_name: 'User',
-  //       last_name: 'Three'
-  //     }
-  //   ]
+  test('should create and update contact successfully', async () => {
+    const events = createBatchTestEvents([...createContactList, ...updateContactList])
 
-  //   const events = createBatchTestEvents(batchContactList)
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(200, generateBatchReadResponse([...createContactList, ...updateContactList]))
 
-  //   // Mock: Read Contact Using Email
-  //   nock(HUBSPOT_BASE_URL)
-  //     .post(`/crm/v3/objects/contacts/batch/read`)
-  //     .reply(200, createBatchReadResponse(batchContactList))
+    // Mock: Update Contact
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/contacts/batch/update`)
+      .reply(200, generateBatchCreateResponse(updateContactList))
 
-  //   const mapping = {
-  //     properties: {
-  //       graduation_date: {
-  //         '@path': '$.traits.graduation_date'
-  //       }
-  //     }
-  //   }
+    // Mock: Create Contact
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/create`)
+      .reply(201, generateBatchCreateResponse(createContactList))
 
-  //   const transactionContext: Record<string, string> = {}
-  //   const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+    const mapping = {
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
 
-  //   await expect(
-  //     testDestination.testBatchAction('upsertContact', {
-  //       mapping,
-  //       useDefaultMappings: true,
-  //       events,
-  //       transactionContext: { transaction: {}, setTransaction: setTransactionContext }
-  //     })
-  //   ).resolves.not.toThrowError()
-  // })
+    const testBatchResponses = await testDestination.testBatchAction('upsertContact', {
+      mapping,
+      useDefaultMappings: true,
+      events
+    })
+
+    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].data).toMatchSnapshot()
+    expect(testBatchResponses[1].data).toMatchSnapshot()
+    expect(testBatchResponses[2].data).toMatchSnapshot()
+  })
+
+  test('should reset lifecyclestage and update if lifecyclestage is to be moved backwards', async () => {
+    const events = createBatchTestEvents([
+      {
+        email: 'userone@somecompany.com',
+        firstname: 'User',
+        lastname: 'One'
+      }
+    ])
+
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(
+        200,
+        generateBatchReadResponse([
+          {
+            id: '103',
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One'
+          }
+        ])
+      )
+
+    // Mock: Update Contact
+    nock(HUBSPOT_BASE_URL)
+      .patch(
+        `/crm/v3/objects/contacts/batch/update`,
+        '{"inputs":[{"id":"103","properties":{"company":"Some Company","phone":"+13134561129","address":"Vancover st","city":"San Francisco","state":"California","country":"USA","zip":"600001","email":"userone@somecompany.com","website":"somecompany.com","lifecyclestage":"subscriber","graduation_date":1664533942262}}]}'
+      )
+      .reply(
+        200,
+        generateBatchCreateResponse([
+          {
+            id: '103',
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One',
+            lifecyclestage: 'lead'
+          }
+        ])
+      )
+
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/contacts/batch/update`, '{"inputs":[{"id":"103","properties":{"lifecyclestage":""}}]}')
+      .reply(
+        200,
+        generateBatchCreateResponse([
+          {
+            id: '103',
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One',
+            lifecyclestage: ''
+          }
+        ])
+      )
+
+    nock(HUBSPOT_BASE_URL)
+      .patch(
+        `/crm/v3/objects/contacts/batch/update`,
+        '{"inputs":[{"id":"103","properties":{"lifecyclestage":"subscriber"}}]}'
+      )
+      .reply(
+        200,
+        generateBatchCreateResponse([
+          {
+            id: '103',
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One',
+            lifecyclestage: 'subscriber'
+          }
+        ])
+      )
+
+    const testBatchResponses = await testDestination.testBatchAction('upsertContact', {
+      mapping,
+      useDefaultMappings: true,
+      events
+    })
+
+    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].data).toMatchSnapshot()
+    expect(testBatchResponses[1].data).toMatchSnapshot()
+    expect(testBatchResponses[2].data).toMatchSnapshot()
+    expect(testBatchResponses[3].data).toMatchSnapshot()
+  })
 })
