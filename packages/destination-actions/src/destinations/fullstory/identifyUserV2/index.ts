@@ -1,15 +1,15 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { setUserPropertiesRequestParams } from '../request-params'
+import { createUserRequestParams } from '../request-params'
 import { normalizePropertyNames } from '../vars'
 
 const action: ActionDefinition<Settings> = {
-  title: 'Identify User',
-  description: 'Sets user identity variables',
+  title: 'Identify User V2',
+  description: 'Sets user identity variables. Creates a new FullStory user if no user matching the given uid is found.',
   platform: 'cloud',
   defaultSubscription: 'type = "identify"',
   fields: {
-    userId: {
+    uid: {
       type: 'string',
       required: true,
       description: "The user's id",
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings> = {
         '@path': '$.traits.email'
       }
     },
-    traits: {
+    properties: {
       type: 'object',
       required: false,
       description: 'The Segment traits to be forwarded to FullStory',
@@ -56,21 +56,24 @@ const action: ActionDefinition<Settings> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    const { traits, anonymousId, userId, email, displayName } = payload
+    const { properties, anonymousId, uid, email, displayName } = payload
 
-    const normalizedTraits = normalizePropertyNames(traits, { camelCase: true, typeSuffix: true })
+    const normalizedProperties = normalizePropertyNames(properties)
 
     if (anonymousId) {
-      normalizedTraits.segmentAnonymousId_str = anonymousId
+      normalizedProperties.segmentAnonymousId = anonymousId
     }
 
     const requestBody = {
-      ...normalizedTraits,
+      uid,
       ...(email !== undefined && { email }),
-      ...(displayName !== undefined && { displayName })
+      ...(displayName !== undefined && { display_name: displayName }),
+      properties: {
+        ...normalizedProperties
+      }
     }
 
-    const { url, options } = setUserPropertiesRequestParams(settings, userId, requestBody)
+    const { url, options } = createUserRequestParams(settings, requestBody)
     return request(url, options)
   }
 }
