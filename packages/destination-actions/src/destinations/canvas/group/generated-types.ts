@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * The unique identifier of the group.
    */
-  event: string
+  group_id: string
   /**
-   * A JSON object containing the properties of the event.
+   * The properties of the group.
    */
-  properties?: {
+  traits?: {
     [k: string]: unknown
   }
   /**

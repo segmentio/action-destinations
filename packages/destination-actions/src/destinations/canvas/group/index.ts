@@ -5,32 +5,31 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track events',
-  defaultSubscription: 'type = "track"',
+  title: 'Identify Group',
+  description: 'Inserts or updates a group record',
+  defaultSubscription: 'type = "group"',
   fields: {
-    event: {
-      description: 'The name of the event.',
-      label: 'Event name',
-      required: true,
+    group_id: {
+      label: 'Group ID',
       type: 'string',
+      description: 'The unique identifier of the group.',
+      required: true,
       default: {
-        '@path': '$.event'
+        '@path': '$.groupId'
       }
     },
-    properties: {
-      label: 'Event Properties',
-      description: 'A JSON object containing the properties of the event.',
-      required: false,
+    traits: {
+      label: 'Group Properties',
       type: 'object',
+      description: 'The properties of the group.',
       default: {
-        '@path': '$.properties'
+        '@path': '$.traits'
       }
     },
     ...commonFields
   },
-  perform: perform('track'),
-  performBatch: performBatch('track')
+  perform: perform('group'),
+  performBatch: performBatch('group')
 }
 
 export default action

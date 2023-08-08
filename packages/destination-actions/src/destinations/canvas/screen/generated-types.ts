@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * Screen name
    */
-  event: string
+  name?: string
   /**
-   * A JSON object containing the properties of the event.
+   * Properties to associate with the screen
    */
   properties?: {
     [k: string]: unknown

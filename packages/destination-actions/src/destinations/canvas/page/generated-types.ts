@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * Page name
    */
-  event: string
+  name?: string
   /**
-   * A JSON object containing the properties of the event.
+   * Properties to associate with the page view
    */
   properties?: {
     [k: string]: unknown
