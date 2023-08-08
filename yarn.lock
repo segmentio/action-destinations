@@ -2189,7 +2189,6 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-<<<<<<< HEAD
 "@segment/action-emitters@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.1.2.tgz#962527ecc014a1123ac5614ef10419b7d9371730"
@@ -2197,8 +2196,6 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-=======
->>>>>>> e802f1af (extracting attempt and replay from execute input)
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
