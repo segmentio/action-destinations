@@ -228,11 +228,7 @@ export abstract class MessageSendPerformer<
         }
       }
     }
-    // if ('deliveryAttempt' in (this.executeInput as any)['rawData']) {
-    //   const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
-    //   this.currentOperation?.tags.push(`delivery_attempt:${delivery_attempt}`)
-    //   this.logDetails['delivery_attempt'] = delivery_attempt
-    // }
+
     for (const item of (this.executeInput as any)['statsContext']['tags']) {
       if (item.includes('replay')) {
         const parts: string[] = item.split(':')
@@ -242,11 +238,6 @@ export abstract class MessageSendPerformer<
         }
       }
     }
-    // if ('replay' in (this.executeInput as any)['rawData']) {
-    //   const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
-    //   this.currentOperation?.tags.push(`replay:${delivery_attempt}`)
-    //   this.logDetails['replay'] = delivery_attempt
-    // }
   }
 
   /**
