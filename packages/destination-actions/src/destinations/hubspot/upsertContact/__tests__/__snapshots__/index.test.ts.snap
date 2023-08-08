@@ -1,0 +1,465 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubSpot.upsertContactBatch should create and update contact successfully 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"},{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "userone@somecompany.com",
+      },
+      Object {
+        "id": "usertwo@somecompany.com",
+      },
+      Object {
+        "id": "userthree@somecompany.com",
+      },
+      Object {
+        "id": "userfour@somecompany.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create and update contact successfully 2`] = `
+Object {
+  "errors": Array [
+    Object {
+      "category": "OBJECT_NOT_FOUND",
+      "context": Object {
+        "ids": Array [
+          "userone@somecompany.com",
+          "usertwo@somecompany.com",
+        ],
+      },
+      "message": "Could not get some CONTACT objects, they may be deleted or not exist. Check that ids are valid.",
+      "status": "error",
+    },
+  ],
+  "numErrors": 1,
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userthree@somecompany.com",
+        "hs_object_id": "103",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+    Object {
+      "id": "104",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userfour@somecompany.com",
+        "hs_object_id": "104",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create and update contact successfully 3`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "101",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "One",
+        "lifecyclestage": "lead",
+      },
+    },
+    Object {
+      "id": "102",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "usertwo@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Two",
+        "lifecyclestage": "subscriber",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create and update contact successfully 4`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userthree@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Three",
+        "lifecyclestage": "subscriber",
+      },
+    },
+    Object {
+      "id": "104",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userfour@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Four",
+        "lifecyclestage": "lead",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create contact successfully 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "userone@somecompany.com",
+      },
+      Object {
+        "id": "usertwo@somecompany.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create contact successfully 2`] = `
+Object {
+  "errors": Array [
+    Object {
+      "category": "OBJECT_NOT_FOUND",
+      "context": Object {
+        "ids": Array [
+          "userone@somecompany.com",
+          "usertwo@somecompany.com",
+        ],
+      },
+      "message": "Could not get some CONTACT objects, they may be deleted or not exist. Check that ids are valid.",
+      "status": "error",
+    },
+  ],
+  "numErrors": 1,
+  "results": Array [],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create contact successfully 3`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "101",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "One",
+        "lifecyclestage": "lead",
+      },
+    },
+    Object {
+      "id": "102",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "usertwo@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Two",
+        "lifecyclestage": "subscriber",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should reset lifecyclestage and update if lifecyclestage is to be moved backwards 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "userone@somecompany.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should reset lifecyclestage and update if lifecyclestage is to be moved backwards 2`] = `
+Object {
+  "errors": Array [],
+  "numErrors": 0,
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "hs_object_id": "103",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should reset lifecyclestage and update if lifecyclestage is to be moved backwards 3`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "One",
+        "lifecyclestage": "lead",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should reset lifecyclestage and update if lifecyclestage is to be moved backwards 4`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "One",
+        "lifecyclestage": "",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should reset lifecyclestage and update if lifecyclestage is to be moved backwards 5`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userone@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "One",
+        "lifecyclestage": "subscriber",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should update contact successfully 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "userthree@somecompany.com",
+      },
+      Object {
+        "id": "userfour@somecompany.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should update contact successfully 2`] = `
+Object {
+  "errors": Array [],
+  "numErrors": 0,
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userthree@somecompany.com",
+        "hs_object_id": "103",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+    Object {
+      "id": "104",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userfour@somecompany.com",
+        "hs_object_id": "104",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should update contact successfully 3`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "103",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userthree@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Three",
+        "lifecyclestage": "subscriber",
+      },
+    },
+    Object {
+      "id": "104",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userfour@somecompany.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Four",
+        "lifecyclestage": "lead",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
