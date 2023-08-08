@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
 
+import identify from './identify'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Canvas',
   slug: 'actions-canvas',
@@ -33,7 +35,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    trackEvent
+    trackEvent,
+    identify
   }
 }
 

@@ -4,26 +4,16 @@ import type { Payload } from './generated-types'
 import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track events',
-  defaultSubscription: 'type = "track"',
+  title: 'Identify User',
+  description: 'Sets the user identity',
+  defaultSubscription: 'type = "identify"',
   fields: {
-    event: {
-      description: 'The name of the event.',
-      label: 'Event name',
-      required: true,
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      }
-    },
-    properties: {
-      label: 'Event Properties',
-      description: 'A JSON object containing the properties of the event.',
-      required: false,
+    traits: {
+      label: 'Group Properties',
       type: 'object',
+      description: 'The properties to set on the group profile.',
       default: {
-        '@path': '$.properties'
+        '@path': '$.traits'
       }
     },
     ...commonFields
