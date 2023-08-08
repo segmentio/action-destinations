@@ -9,6 +9,8 @@ import manageTags from './manageTags'
 
 import { map_endpoint } from './utilities'
 
+import registerAndAssociate from './registerAndAssociate'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Airship (Actions)',
   slug: 'actions-airship',
@@ -22,14 +24,14 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Access Token',
         description: 'Create in the Airship Go dashboard in Settings->Partner Integrations->Segment',
         type: 'password',
-        // default: process.env.DEFAULT_ACCESS_TOKEN,
+        default: process.env.DEFAULT_ACCESS_TOKEN,
         required: true
       },
       app_key: {
         label: 'App Key',
         description: 'The App Key identifies the Airship Project to which API requests are made.',
         type: 'string',
-        // default: process.env.DEFAULT_APP_KEY,
+        default: process.env.DEFAULT_APP_KEY,
         required: true
       },
       endpoint: {
@@ -71,6 +73,12 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
       mapping: defaultValues(setAttributes.fields)
+    },
+    {
+      name: 'Register and Associate',
+      subscribe: 'type = "identify"',
+      partnerAction: 'register_and_associate',
+      mapping: defaultValues(setAttributes.fields)
     }
   ],
   onDelete: async (request, { settings, payload }) => {
@@ -95,7 +103,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     customEvents,
     setAttributes,
-    manageTags
+    manageTags,
+    registerAndAssociate
   }
 }
 export default destination
