@@ -16,10 +16,10 @@ describe('actions-gameball.trackOrder', () => {
       properties: {
         mobile: '+20100000000',
         email: "example@example.com",
-        orderId: "ABCD1234",
+        order_id: "ABCD1234",
         orderDate: "2023-07-27T12:00:00Z",
-        totalPaid: 50.99,
-        totalPrice: 55.99,
+        subtotal: 50.99,
+        total: 55.99,
         totalShipping: 5,
         totalTax: 0.5,
         totalDiscount: 10,
