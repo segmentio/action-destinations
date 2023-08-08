@@ -53,6 +53,19 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-airship destination: registerAndAssociate action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-airship destination: registerAndAssociate action - required fields 1`] = `
+Object {
+  "channel": Object {
+    "address": "$D%LNw)2",
+    "locale_language": "$D%LNw)2",
+    "timezone": "$D%LNw)2",
+    "type": "email",
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-airship destination: setAttributes action - all fields 1`] = `
 Object {
   "attributes": Array [

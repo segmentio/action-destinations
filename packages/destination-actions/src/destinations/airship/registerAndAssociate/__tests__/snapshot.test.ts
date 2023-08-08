@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'register'
+const actionSlug = 'registerAndAssociate'
 const destinationSlug = 'Airship'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -14,7 +14,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/)
+      .persist()
+      .post('/api/channels/email')
+      .reply(200, { ok: true, channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06' })
+    nock(/.*/).persist().post('/api/named_users/associate').reply(200, { ok: true })
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
@@ -46,7 +50,21 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/)
+      .persist()
+      .get(/.*/)
+      .reply(200, {
+        // content: {
+        ok: true,
+        channel: {
+          channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06'
+        }
+        // }
+      })
+    nock(/.*/)
+      .persist()
+      .post('/api/channels/email')
+      .reply(200, { ok: true, channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06' })
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
