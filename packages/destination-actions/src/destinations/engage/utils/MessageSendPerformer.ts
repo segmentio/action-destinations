@@ -235,7 +235,7 @@ export abstract class MessageSendPerformer<
     // }
     for (const item of (this.executeInput as any)['statsContext']['tags']) {
       if (item.includes('replay')) {
-        const parts = item.split(':')
+        const parts: string[] = item.split(':')
         const index = parts.findIndex((part) => part === 'replay')
         if (index !== -1 && index < parts.length - 1) {
           this.logDetails['replay'] = parts[index + 1]
