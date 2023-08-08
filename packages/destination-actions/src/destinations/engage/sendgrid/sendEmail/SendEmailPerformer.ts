@@ -58,18 +58,20 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
   getRecepients(): ExtId<Payload>[] {
     //if toEmail specified => send test email requested
-    if (this.payload.toEmail)
+    if (this.payload.toEmail) {
+      // Get the externalIdContext from the first elemet of the array, for test emails we only send one externalid (i.e email)
+      const externalIdContext = this.payload?.externalIds && this.payload?.externalIds[0]
       return [
         {
           id: this.payload.toEmail,
           type: 'email',
-          groups: [
-            {
-              id: this.payload.groupId
-            }
-          ]
+          subscriptionStatus: externalIdContext?.subscriptionStatus,
+          unsubscribeLink: externalIdContext?.unsubscribeLink,
+          preferencesLink: externalIdContext?.preferencesLink,
+          groups: externalIdContext?.groups
         }
       ]
+    }
     // only email to the first found subscribed email id
     const res = super.getRecepients()
     if (res.length > 0) return [res[0]]
@@ -114,17 +116,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    let name
-    if (traits.first_name && traits.last_name) {
-      name = `${traits.first_name} ${traits.last_name}`
-    } else if (traits.firstName && traits.lastName) {
-      name = `${traits.firstName} ${traits.lastName}`
-    } else if (traits.name) {
-      name = traits.name
-    } else {
-      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || toEmail
-    }
-
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
     const [parsedSubject, apiLookupData] = await Promise.all([
       this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
@@ -138,8 +129,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         {
           to: [
             {
-              email: toEmail,
-              name: name
+              email: toEmail
             }
           ],
           bcc: bcc.length > 0 ? bcc : undefined,

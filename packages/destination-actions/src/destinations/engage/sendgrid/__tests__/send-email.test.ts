@@ -69,8 +69,7 @@ describe.each([
       {
         to: [
           {
-            email: userData.email,
-            name: `${userData.firstName} ${userData.lastName}`
+            email: userData.email
           }
         ],
         bcc: [
@@ -287,8 +286,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -410,8 +408,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -493,8 +490,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -592,8 +588,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -773,8 +768,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -857,8 +851,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -941,8 +934,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -1025,8 +1017,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
@@ -1614,8 +1605,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
