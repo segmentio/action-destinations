@@ -719,7 +719,6 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      console.log(responses[0].options.body)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
       expect(responses[0].options.body).toMatchInlineSnapshot(

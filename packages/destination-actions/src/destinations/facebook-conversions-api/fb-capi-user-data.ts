@@ -2,6 +2,7 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 import { createHash } from 'crypto'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'
+import isEmpty from 'lodash/isEmpty'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -166,11 +167,18 @@ export const user_data_field: InputField = {
 
 type UserData = Pick<Payload, 'user_data'>
 
-const hash = (value: string | undefined): string | undefined => {
+const hash = (value: string | string[] | undefined): string | string[] | undefined => {
   if (value === undefined) return
 
+  if (typeof value == 'string') {
+    return hashValue(value)
+  } else {
+    return value.map((el: string) => hashValue(el))
+  }
+}
+const hashValue = (val: string): string => {
   const hash = createHash('sha256')
-  hash.update(value)
+  hash.update(val)
   return hash.digest('hex')
 }
 
@@ -230,6 +238,16 @@ export const normalize_user_data = (payload: UserData) => {
       payload.user_data.country = COUNTRY_CODES.get(payload.user_data.country)
     }
   }
+
+  if (!isEmpty(payload.user_data?.externalId)) {
+    // TO handle the backward compatibility where externalId can be string
+    if (typeof payload.user_data?.externalId === 'string') {
+      payload.user_data.externalId = [payload.user_data?.externalId]
+    }
+    payload.user_data.externalId = payload.user_data.externalId?.map((el: string) =>
+      el.replace(/\s/g, '').toLowerCase()
+    )
+  }
 }
 
 export const hash_user_data = (payload: UserData): Object => {
@@ -246,10 +264,7 @@ export const hash_user_data = (payload: UserData): Object => {
     st: hash(payload.user_data?.state),
     zp: hash(payload.user_data?.zip),
     country: hash(payload.user_data?.country),
-    external_id:
-      typeof payload.user_data.externalId == 'string'
-        ? hash(payload.user_data.externalId)
-        : hash_and_normalised(payload.user_data?.externalId), //to provide support for externalId as string and array both
+    external_id: hash(payload.user_data?.externalId), //to provide support for externalId as string and array both
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
@@ -260,9 +275,4 @@ export const hash_user_data = (payload: UserData): Object => {
     partner_id: payload.user_data?.partner_id,
     partner_name: payload.user_data?.partner_name
   }
-}
-
-export const hash_and_normalised = (value: string[] | undefined) => {
-  if (value == undefined) return
-  return value.map((el: string) => hash(el.replace(/\s/g, '').toLowerCase()))
 }
