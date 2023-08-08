@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import trackEvent from './trackEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Canvas',
   slug: 'actions-canvas',
@@ -30,7 +32,9 @@ const destination: DestinationDefinition<Settings> = {
     return {}
   },
 
-  actions: {}
+  actions: {
+    trackEvent
+  }
 }
 
 export default destination
