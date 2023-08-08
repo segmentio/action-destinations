@@ -89,6 +89,16 @@ export default class Init extends Command {
             value: 'oauth2-auth'
           },
           {
+            title: 'Audiences with OAuth2',
+            description: 'Creates an OAuth2 integration with Get/Create Audience methods',
+            value: 'audience-oauth2'
+          },
+          {
+            title: 'Audiences with Custom Auth',
+            description: 'Creates a Custom Auth integration with Get/Create Audience methods',
+            value: 'audience-custom-auth'
+          },
+          {
             title: 'Minimal',
             value: 'minimal'
           }
