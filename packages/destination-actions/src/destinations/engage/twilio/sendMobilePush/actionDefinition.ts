@@ -40,15 +40,14 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
         },
         media: {
           label: 'Media urls',
-          description: 'Media to display to notification',
+          description: 'Media to display in notification',
           type: 'string',
           required: false,
           multiple: true
         },
         tapAction: {
           label: 'Notification open action',
-          description:
-            'Sets the notification click action/category: open_app, open_url, deep_link, dismiss, or a custom string',
+          description: 'Sets the notification click action/category: open_app, open_url, deep_link, or a custom string',
           type: 'string',
           required: false
         },
@@ -130,7 +129,7 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
             onTap: {
               label: 'Tap action',
               description:
-                'The action to perform when this button is tapped: open_app, open_url, deep_link, dismiss, or a custom string',
+                'The action to perform when this button is tapped: open_app, open_url, deep_link, or a custom string',
               type: 'string',
               required: true
             },

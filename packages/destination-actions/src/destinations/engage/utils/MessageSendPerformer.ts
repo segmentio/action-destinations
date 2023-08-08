@@ -281,7 +281,7 @@ export abstract class MessageSendPerformer<
       return fulfilled.map((sr) => sr.result)
     }
 
-    // if we are here, then all failed
+    // if we are here, then some failed
     const rejected = sendResults.filter((sr) => sr.status === 'rejected')
 
     // if all retriable, throw aggregated with first code and status
