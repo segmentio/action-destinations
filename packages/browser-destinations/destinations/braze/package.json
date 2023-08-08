@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze",
-  "version": "1.7.1-staging.1",
+  "version": "1.7.1-staging.2",
   "license": "MIT",
   "exports": {
     ".": {
@@ -31,8 +31,8 @@
   "dependencies": {
     "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@segment/actions-core": "^3.77.1-staging.1",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.1"
+    "@segment/actions-core": "^3.77.1-staging.2",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.2"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
