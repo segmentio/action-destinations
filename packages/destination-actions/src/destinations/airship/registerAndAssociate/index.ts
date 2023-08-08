@@ -147,7 +147,6 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.channel_object.new_address) {
       const old_email_channel_response = await getChannelId(request, settings, payload.channel_object.address)
       const old_email_response_content: any = JSON.parse(old_email_channel_response.content)
-      console.log(old_email_response_content.channel.channel_id)
       if (old_email_response_content.channel.channel_id) {
         return await register(request, settings, payload, old_email_response_content.channel.channel_id)
       }
