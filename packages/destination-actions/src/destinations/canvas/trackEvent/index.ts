@@ -39,8 +39,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.anonymousId' }
     },
-    message_d: {
-      label: 'Message Id',
+    message_id: {
+      label: 'Message ID',
       description: 'The Segment messageId',
       type: 'string',
       required: false,
