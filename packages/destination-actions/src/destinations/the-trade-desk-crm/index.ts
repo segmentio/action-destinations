@@ -1,9 +1,17 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
+import { IntegrationError } from '@segment/actions-core'
 
 import syncAudience from './syncAudience'
+const API_VERSION = 'v3'
+const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
-const destination: DestinationDefinition<Settings> = {
+export interface CREATE_API_RESPONSE {
+  CrmDataId: string
+  FirstPartyDataId: number
+}
+
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'The Trade Desk CRM',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
@@ -38,6 +46,43 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         required: true,
         default: true
+      }
+    }
+  },
+  audienceFields: {
+    region: {
+      type: 'string',
+      label: 'Region',
+      description: 'Region of your audience.'
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced',
+      full_audience_sync: false
+    },
+    async createAudience(request, createAudienceInput) {
+      const audienceName = createAudienceInput.audienceName
+
+      if (audienceName?.length == 0) {
+        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'TTD-Auth': createAudienceInput.settings.auth_token
+        },
+        json: {
+          AdvertiserId: createAudienceInput.settings.advertiser_id,
+          SegmentName: createAudienceInput.audienceName,
+          Region: createAudienceInput.audienceSettings?.region
+        }
+      })
+
+      return {
+        externalId: response.data.CrmDataId
       }
     }
   },
