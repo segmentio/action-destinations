@@ -117,7 +117,8 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 }
 
 function validate(settings: Settings, payloads: Payload[]): void {
-  if (payloads[0]?.dmp_user_action === 'AUTO' && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
+  const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
+  if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `source_segment_id` and `personas_audience_key` must match.',
       'INVALID_SETTINGS',
