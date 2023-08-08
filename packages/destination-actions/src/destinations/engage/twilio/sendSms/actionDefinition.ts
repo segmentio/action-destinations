@@ -141,13 +141,6 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }
-    },
-    deliveryAttempt: {
-      type: 'string',
-      required: false,
-      description: 'Delivery Attempt of a message',
-      label: 'deliveryAttempt',
-      default: { '@path': '$.deliveryAttemp' }
     }
   },
   perform: async (request, data) => {
