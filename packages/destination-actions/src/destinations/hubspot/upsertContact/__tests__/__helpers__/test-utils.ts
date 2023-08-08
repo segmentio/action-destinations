@@ -6,6 +6,7 @@ export type BatchContactListItem = {
   email: string
   firstname: string
   lastname: string
+  lifecyclestage?: string | undefined
 }
 
 export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) =>
@@ -24,7 +25,7 @@ export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) 
           street: 'Vancover st'
         },
         graduation_date: 1664533942262,
-        lifecyclestage: 'subscriber',
+        lifecyclestage: contact?.lifecyclestage ?? 'subscriber',
         company: 'Some Company',
         phone: '+13134561129',
         website: 'somecompany.com'
@@ -86,18 +87,23 @@ export const generateBatchCreateResponse = (batchContactList: BatchContactListIt
 
   batchContactList.forEach((contact, index) => {
     // Set success response
-    if (!contact.id) {
-      batchCreateResponse.results.push({
-        id: (101 + index).toString(),
-        properties: {
-          email: contact.email,
-          firstname: contact.firstname,
-          lastname: contact.lastname,
-          createdate: '2023-07-06T12:47:47.626Z',
-          lastmodifieddate: '2023-07-06T12:48:02.784Z'
-        }
-      })
+    // if (!contact.id) {
+    const contactResponse: any = {
+      id: contact.id ? contact.id : (101 + index).toString(),
+      properties: {
+        email: contact.email,
+        firstname: contact.firstname,
+        lastname: contact.lastname,
+        createdate: '2023-07-06T12:47:47.626Z',
+        lastmodifieddate: '2023-07-06T12:48:02.784Z'
+      }
     }
+    if (Object.prototype.hasOwnProperty.call(contact, 'lifecyclestage')) {
+      contactResponse.properties.lifecyclestage = contact.lifecyclestage
+    }
+
+    batchCreateResponse.results.push(contactResponse)
+    // }
   })
 
   return batchCreateResponse
