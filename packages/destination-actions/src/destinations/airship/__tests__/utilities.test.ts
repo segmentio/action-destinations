@@ -21,7 +21,8 @@ const valid_attributes_payload: AttributesPayload = {
   attributes: {
     trait1: 1,
     trait2: 'test',
-    trait3: true
+    trait3: true,
+    birthdate: '1965-01-25T00:47:43.378Z'
   }
 }
 
@@ -36,7 +37,7 @@ const valid_tags_payload: ManageTagsPayload = {
 }
 
 const airship_custom_event_payload = {
-  occurred: '2023-05-06T20:45:12',
+  occurred: false,
   user: { named_user_id: 'test-user-d7h0ysir6l' },
   body: {
     name: 'segment test event name',
@@ -54,20 +55,26 @@ const airship_attributes_payload = [
   {
     action: 'set',
     key: 'trait1',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: false,
     value: 1
   },
   {
     action: 'set',
     key: 'trait2',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: false,
     value: 'test'
   },
   {
     action: 'set',
     key: 'trait3',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: false,
     value: true
+  },
+  {
+    action: 'set',
+    key: 'birthdate',
+    timestamp: false,
+    value: '1965-01-25T00:47:43'
   }
 ]
 
@@ -100,6 +107,12 @@ describe('Testing _build_tags_object', () => {
 
 describe('Testing _validate_timestamp', () => {
   it('should correctly format a timestamo', () => {
-    expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual('2023-05-06T20:45:12')
+    expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual(false)
+  })
+})
+
+describe('Testing parse_date', () => {
+  it('should parse a date into a date object', () => {
+    expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
   })
 })

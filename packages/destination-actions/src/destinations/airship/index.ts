@@ -76,7 +76,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   ],
   onDelete: async (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/api/named_users/uninstall`, {
+    const endpoint = map_endpoint(settings.endpoint)
+    return request(`${endpoint}/api/named_users/uninstall`, {
       method: 'post',
       json: {
         named_user_id: [payload.userId]
