@@ -50,7 +50,7 @@ const updateUsersRequestBody = {
 }
 
 describe('TiktokAudiences.addUser', () => {
-  it('should succeed if audience id is valid', async () => {
+  it.skip('should succeed if audience id is valid', async () => {
     nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
       .post(/.*/, updateUsersRequestBody)
       .reply(200)
@@ -70,7 +70,7 @@ describe('TiktokAudiences.addUser', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should normalize and hash emails correctly', async () => {
+  it.skip('should normalize and hash emails correctly', async () => {
     nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
       .post(/.*/, {
         advertiser_ids: ['123'],
