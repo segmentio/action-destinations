@@ -1,12 +1,12 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 import { Payload } from '../sendMobilePush/generated-types'
-import { PushSender } from '../sendMobilePush/PushSender'
 import { SendabilityStatus } from '../../utils'
 
 const spaceId = 'spaceid'
 const contentSid = 'HX1234'
 const pushServiceSid = 'ISXXX'
+const devices = ['android', 'ios']
 
 const defaultTemplate = {
   types: {
@@ -84,92 +84,26 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
 
 describe('sendMobilePush action', () => {
   describe('sending', () => {
-    it('should send notification', async () => {
-      const externalId = defaultExternalId
+    it.each(devices)('should send %s notification', async (deviceOS: string) => {
+      const externalId = {
+        type: `${deviceOS}.push_token`,
+        id: `${deviceOS}-token`,
+        channelType: `${deviceOS.toUpperCase()}_PUSH`,
+        subscriptionStatus: 'subscribed'
+      }
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
 
-      const responses = await testAction()
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [externalId]
+        }
+      })
       expect(responses[1].url).toStrictEqual(notifyReqUrl)
       expect(responses[1].status).toEqual(201)
       expect(responses[1].data).toMatchObject(externalId)
-    })
-
-    it('should send notification to all subscribed devices', async () => {
-      const externalIds = [
-        { type: 'phone', id: '6161116611', channelType: 'SMS', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '6161116611', channelType: 'WHATSAPP', subscriptionStatus: 'subscribed' },
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' },
-        { type: 'ios.push_token', id: 'ios-token-2', channelType: 'IOS_PUSH', subscriptionStatus: 'unsubscribed' },
-        {
-          type: 'android.push_token',
-          id: 'android-token-1',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'subscribed'
-        },
-        { type: 'email', id: 'me@mail.com', subscriptionStatus: 'subscribed' },
-        {
-          type: 'ios.push_token',
-          id: 'ios-token-3',
-          channelType: 'IOS_PUSH',
-          subscriptionStatus: 'did-not-subscribe'
-        },
-        {
-          type: 'android.push_token',
-          id: 'android-token-2',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'did-not-subscribe'
-        },
-        { type: 'ios.push_token', id: 'ios-token-4', channelType: 'IOS_PUSH', subscriptionStatus: 'false' },
-        {
-          type: 'android.push_token',
-          id: 'android-token-4',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'false'
-        },
-        {
-          type: 'ios.push_token',
-          id: 'ios-token-5',
-          channelType: 'IOS_PUSH',
-          subscriptionStatus: 'false'
-        },
-        {
-          type: 'android.push_token',
-          id: 'android-token-5',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'true'
-        },
-        {
-          type: 'ios.push_token',
-          id: 'ios-token-6',
-          channelType: 'IOS_PUSH',
-          subscriptionStatus: 'true'
-        }
-      ]
-
-      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
-      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
-      const eligibleExtIds = externalIds.filter(
-        (extId: any) =>
-          PushSender.externalIdTypes.includes(extId.type) &&
-          PushSender.sendableStatuses.includes(extId.subscriptionStatus.toLowerCase())
-      )
-
-      for (const externalId of eligibleExtIds) {
-        const body = getDefaultExpectedNotifyApiReq(externalId)
-        nock(notifyReqUrl).post('', body.toString()).reply(201, externalId)
-      }
-
-      const responses = await testAction({ mappingOverrides: { externalIds } })
-      expect(responses.length).toEqual(eligibleExtIds.length + 1)
-
-      for (let i = 1; i < responses.length; i++) {
-        expect(responses[i].url).toStrictEqual(notifyReqUrl)
-        expect(responses[i].status).toEqual(201)
-        expect(responses[i].data).toMatchObject(eligibleExtIds[i - 1])
-      }
     })
 
     it('should send notification with a delivery webhook', async () => {
@@ -231,6 +165,23 @@ describe('sendMobilePush action', () => {
       expectInfoLogged(`Not sending message because`, SendabilityStatus.SendDisabled.toUpperCase())
     })
 
+    it.each(devices)('should abort when %s device is unsubscribed', async (deviceOS: string) => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [
+            {
+              type: `${deviceOS}.push_token`,
+              id: `${deviceOS}-token`,
+              channelType: `${deviceOS.toUpperCase()}_PUSH`,
+              subscriptionStatus: 'unsubscribed'
+            }
+          ]
+        }
+      })
+      expect(responses.length).toEqual(0)
+      expectInfoLogged(`Not sending message because`, SendabilityStatus.NotSubscribed.toUpperCase())
+    })
+
     it('should fail on invalid webhook url', async () => {
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
 
@@ -243,17 +194,7 @@ describe('sendMobilePush action', () => {
       expectErrorLogged('Invalid webhook url arguments')
     })
 
-    it('throws retryable error when all sends fail for retryable reasons', async () => {
-      const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' },
-        {
-          type: 'android.push_token',
-          id: 'android-token-2',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'subscribed'
-        }
-      ]
-
+    it('throws retryable error when send fails for retryable reasons', async () => {
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
 
@@ -262,58 +203,29 @@ describe('sendMobilePush action', () => {
         code: 30002,
         message: 'bad stuff'
       }
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(500, errorResponse)
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, errorResponse)
+      nock(notifyReqUrl)
+        .post('', getDefaultExpectedNotifyApiReq(defaultExternalId).toString())
+        .reply(500, errorResponse)
 
-      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', errorResponse.code)
-      expectErrorLogged('Failed to send to all subscribed recepients \\(retryable\\)')
+      await expect(testAction()).rejects.toThrowError('Internal Server Error')
+      expectErrorLogged('bad stuff')
     })
 
-    it('throws non-retryable error when all sends fail for non-retryable reasons', async () => {
-      const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' },
-        {
-          type: 'android.push_token',
-          id: 'android-token-2',
-          channelType: 'ANDROID_PUSH',
-          subscriptionStatus: 'subscribed'
-        }
-      ]
+    it('throws non-retryable error when send fails for non-retryable reasons', async () => {
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
 
       const errorResponse = {
         code: '20004',
         statusCode: 400,
-        message: 'bad stuff'
+        message: 'bad data'
       }
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(400, errorResponse)
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(400, errorResponse)
+      nock(notifyReqUrl)
+        .post('', getDefaultExpectedNotifyApiReq(defaultExternalId).toString())
+        .reply(400, errorResponse)
 
-      await expect(testAction({ mappingOverrides: { externalIds } })).rejects.toHaveProperty('code', errorResponse.code)
-      expectErrorLogged('Failed to send to all subscribed recepients \\(non-retryable\\)')
-    })
-
-    it('does not throw retryable error when at least one send succeeds', async () => {
-      const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' },
-        { type: 'ios.push_token', id: 'ios-token-2', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
-      ]
-      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
-      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
-
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[0]).toString()).reply(201, externalIds[0])
-      nock(notifyReqUrl).post('', getDefaultExpectedNotifyApiReq(externalIds[1]).toString()).reply(500, externalIds[1])
-
-      const responses = await testAction({ mappingOverrides: { externalIds } })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[1].url).toStrictEqual(notifyReqUrl)
-      expect(responses[1].status).toEqual(201)
-      expect(responses[1].data).toMatchObject(externalIds[0])
-      expect(responses[2].url).toStrictEqual(notifyReqUrl)
-      expect(responses[2].status).toEqual(500)
-      expect(responses[2].data).toMatchObject(externalIds[1])
+      await expect(testAction()).rejects.toThrowError('Bad Request')
+      expectErrorLogged('bad data')
     })
 
     it('throws an error when liquid template parsing fails', async () => {
@@ -540,7 +452,7 @@ describe('sendMobilePush action', () => {
   describe('fields', () => {
     const title = 'buy'
     const body = 'now'
-    const tapAction = 'OPEN_DEEP_LINK'
+    const tapAction = 'MY_OWN_ACTION'
     const sound = 'app://mysound.aif'
     const ttl = 1234
     const priority = 'low'
@@ -567,6 +479,124 @@ describe('sendMobilePush action', () => {
     const externalIds = [
       { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
     ]
+
+    it('sets deep link tap action preset', async () => {
+      const notificationReq = new URLSearchParams({
+        Body: body,
+        Action: 'deep_link',
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          ...customizations,
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid: undefined,
+          customizations: { title, body, sound, ttl, priority, tapAction: 'open_app', ...customizations },
+          externalIds
+        }
+      })
+      expect(responses[0].url).toEqual(notifyReqUrl)
+      expect(responses[0].data).toMatchObject(externalIds[0])
+    })
+
+    it('sets deep link tap action preset on tap action buttons', async () => {
+      const notificationReq = new URLSearchParams({
+        Body: body,
+        Action: tapAction,
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          ...{
+            ...customizations,
+            tapActionButtons: [
+              {
+                id: '1',
+                text: 'open',
+                onTap: 'deep_link',
+                link: 'app://buy-now'
+              }
+            ]
+          },
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid: undefined,
+          customizations: {
+            title,
+            body,
+            sound,
+            ttl,
+            priority,
+            tapAction,
+            ...{
+              ...customizations,
+              tapActionButtons: [
+                {
+                  id: '1',
+                  text: 'open',
+                  onTap: 'open_app',
+                  link: 'app://buy-now'
+                }
+              ]
+            }
+          },
+          externalIds
+        }
+      })
+      expect(responses[0].url).toEqual(notifyReqUrl)
+      expect(responses[0].data).toMatchObject(externalIds[0])
+    })
 
     it('displays all fields without content sid', async () => {
       const notificationReq = new URLSearchParams({
