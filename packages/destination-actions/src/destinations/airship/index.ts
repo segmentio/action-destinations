@@ -64,18 +64,21 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Custom Events',
+      type: 'automatic',
       subscribe: 'type = "track"',
       partnerAction: 'customEvents',
       mapping: defaultValues(customEvents.fields)
     },
     {
       name: 'Set Attributes',
+      type: 'automatic',
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
       mapping: defaultValues(setAttributes.fields)
     },
     {
       name: 'Register and Associate',
+      type: 'automatic',
       subscribe: 'type = "identify"',
       partnerAction: 'register_and_associate',
       mapping: defaultValues(setAttributes.fields)
