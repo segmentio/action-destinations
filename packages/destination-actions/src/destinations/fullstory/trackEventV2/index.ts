@@ -2,12 +2,12 @@ import type { ActionDefinition } from '@segment/actions-core'
 import dayjs from '../../../lib/dayjs'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customEventRequestParams } from '../request-params'
+import { createEventRequestParams } from '../request-params'
 import { normalizePropertyNames } from '../vars'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track events',
+  title: 'Track Event V2',
+  description: 'Track events V2.',
   platform: 'cloud',
   defaultSubscription: 'type = "track"',
   fields: {
@@ -67,10 +67,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const { userId, name, properties, timestamp, useRecentSession, sessionUrl } = payload
     const utcTimestamp = timestamp ? dayjs.utc(timestamp) : undefined
 
-    const { url, options } = customEventRequestParams(settings, {
+    const { url, options } = createEventRequestParams(settings, {
       userId,
       eventName: name,
-      eventData: normalizePropertyNames(properties, { typeSuffix: true }),
+      properties: normalizePropertyNames(properties),
       timestamp: utcTimestamp && utcTimestamp.isValid() ? utcTimestamp.toISOString() : undefined,
       useRecentSession,
       sessionUrl
