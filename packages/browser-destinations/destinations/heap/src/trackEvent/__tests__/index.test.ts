@@ -9,6 +9,7 @@ import {
 import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../../constants'
 
 describe('#trackEvent', () => {
+  let eventWithUnrolling: Plugin
   let event: Plugin
   let heapTrackSpy: jest.SpyInstance
   let addUserPropertiesSpy: jest.SpyInstance
@@ -18,11 +19,14 @@ describe('#trackEvent', () => {
     mockHeapJsHttpRequest()
     window.heap = createMockedHeapJsSdk()
 
-    event = (
+    eventWithUnrolling = (
       await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [trackEventSubscription], browserArrayLimit: 5 })
     )[0]
+    await eventWithUnrolling.load(Context.system(), {} as Analytics)
 
+    event = (await heapDestination({ appId: HEAP_TEST_ENV_ID, subscriptions: [trackEventSubscription] }))[0]
     await event.load(Context.system(), {} as Analytics)
+
     heapTrackSpy = jest.spyOn(window.heap, 'track')
     addUserPropertiesSpy = jest.spyOn(window.heap, 'addUserProperties')
     identifySpy = jest.spyOn(window.heap, 'identify')
@@ -33,7 +37,7 @@ describe('#trackEvent', () => {
   })
 
   it('sends events to heap', async () => {
-    await event.track?.(
+    await eventWithUnrolling.track?.(
       new Context({
         type: 'track',
         name: 'hello!',
@@ -114,7 +118,7 @@ describe('#trackEvent', () => {
   })
 
   it('limits number of properties in array', async () => {
-    await event.track?.(
+    await eventWithUnrolling.track?.(
       new Context({
         type: 'track',
         name: 'hello!',
@@ -146,6 +150,26 @@ describe('#trackEvent', () => {
       'testArray2.0.val': '4',
       'testArray2.1.val': '5',
       'testArray2.2.val': 'N/A'
+    })
+  })
+
+  it('does not limit number of properties if browserArrayLimit is 0', async () => {
+    await event.track?.(
+      new Context({
+        type: 'track',
+        name: 'hello!',
+        properties: {
+          testArray1: [{ val: 1 }, { val: 2 }, { val: 3 }],
+          testArray2: [{ val: 4 }, { val: 5 }, { val: 'N/A' }]
+        }
+      })
+    )
+    expect(heapTrackSpy).toHaveBeenCalledTimes(1)
+
+    expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
+      testArray1: [{ val: 1 }, { val: 2 }, { val: 3 }],
+      testArray2: [{ val: 4 }, { val: 5 }, { val: 'N/A' }],
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     })
   })
 

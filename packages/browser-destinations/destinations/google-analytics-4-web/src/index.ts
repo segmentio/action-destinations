@@ -35,7 +35,8 @@ const presets: DestinationDefinition['presets'] = [
     name: `Set Configuration Fields`,
     subscribe: 'type = "page" or type = "identify"',
     partnerAction: 'setConfigurationFields',
-    mapping: defaultValues(setConfigurationFields.fields)
+    mapping: defaultValues(setConfigurationFields.fields),
+    type: 'automatic'
   }
 ]
 

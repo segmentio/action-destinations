@@ -28,13 +28,15 @@ export const destination: BrowserDestinationDefinition<Settings, LR> = {
       name: 'Track',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     }
   ],
 
