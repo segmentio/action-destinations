@@ -281,7 +281,8 @@ const action: ActionDefinition<Settings, Payload> = {
         contactsUpsertMap[result.properties.email].payload.id = result.id
 
         // Re-index the payload with ID
-        contactsUpsertMap[result.id] = contactsUpsertMap[result.properties.email]
+        contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
+        delete contactsUpsertMap[result.properties.email]
       }
     }
 
