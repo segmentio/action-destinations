@@ -183,6 +183,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Any other default or custom contact properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).',
       defaultObjectUI: 'keyvalue:only'
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Send Batch Data to HubSpot',
+      description:
+        'If true, Segment will batch events before sending to HubSpot’s API endpoint. HubSpot accepts batches of up to 100 events. Note: Contacts created with batch endpoint can’t be associated to a Company from the UpsertCompany Action.',
+      default: false
     }
   },
   perform: async (request, { payload, transactionContext }) => {
