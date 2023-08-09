@@ -222,7 +222,7 @@ export abstract class MessageSendPerformer<
 
     // grab the delivery attempt and replay from statsContext
     if ((this.executeInput as any)['statsContext']['tags']) {
-      const deliveryAttemptRegExp = /deliveryAttempt:(\d+)/
+      const deliveryAttemptRegExp = /delivery_attempt:(\d+)/
       const replayRegExp = /replay:(\w+)/
 
       for (const item of (this.executeInput as any)['statsContext']['tags']) {
