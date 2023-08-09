@@ -219,13 +219,15 @@ export abstract class MessageSendPerformer<
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
+
+    // grab the delivery attempt and replay from statsContext
     if ((this.executeInput as any)['statsContext']['tags']) {
-      const deliveryAttemptRegex = /deliveryAttempt:(\d+)/
-      const replayRegex = /replay:(\w+)/
+      const deliveryAttemptRegExp = /deliveryAttempt:(\d+)/
+      const replayRegExp = /replay:(\w+)/
 
       for (const item of (this.executeInput as any)['statsContext']['tags']) {
-        const deliveryMatch = item.match(deliveryAttemptRegex)
-        const replayMatch = item.match(replayRegex)
+        const deliveryMatch = item.match(deliveryAttemptRegExp)
+        const replayMatch = item.match(replayRegExp)
         if (deliveryMatch) {
           this.logDetails['delivery_attempt'] = deliveryMatch[1]
         }
