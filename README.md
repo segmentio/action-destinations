@@ -512,7 +512,7 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
-## Audience Support (Alpha)
+## Audience Support (Pilot)
 
 In order to support audience destinations, we've introduced a type that extends regular destinations:
 
