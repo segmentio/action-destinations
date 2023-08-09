@@ -223,7 +223,7 @@ export abstract class MessageSendPerformer<
     // grab the delivery attempt and replay from statsContext
     if (this.executeInput.statsContext?.tags) {
       for (const item of this.executeInput.statsContext?.tags) {
-        if (item.includes('deliveryAttempt') || item.includes('replay')) {
+        if (item.includes('delivery_attempt') || item.includes('replay')) {
           this.logDetails[item.split(':')[0]] = item.split(':')[1]
         }
       }
