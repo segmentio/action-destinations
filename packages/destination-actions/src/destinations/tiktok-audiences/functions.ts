@@ -3,30 +3,27 @@ import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as RemoveUserPayload } from './removeUser/generated-types'
-import { Settings } from './generated-types'
+import { AudienceSettings } from './generated-types'
 
 type GenericPayload = AddUserPayload | RemoveUserPayload
 
 export async function processPayload(
   request: RequestClient,
-  _settings: Settings,
+  audienceSettings: AudienceSettings,
   payloads: GenericPayload[],
   action: string
 ) {
   validate(payloads)
-
   const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request)
-
-  const id_schema = getIDSchema(payloads[0])
 
   const users = extractUsers(payloads)
 
   let res
   if (users.length > 0) {
     const elements = {
-      // advertiser_ids: settings.advertiser_ids, TODO: rewrite this
+      id_schema: audienceSettings.idType,
+      advertiser_ids: audienceSettings.advertiserId,
       action: action,
-      id_schema: id_schema,
       batch_data: users
     }
     res = await TikTokApiClient.batchUpdate(elements)
@@ -45,18 +42,6 @@ export function validate(payloads: GenericPayload[]): void {
       400
     )
   }
-}
-
-export function getIDSchema(payload: GenericPayload): string[] {
-  const id_schema = []
-  if (payload.send_email === true) {
-    id_schema.push('EMAIL_SHA256')
-  }
-  if (payload.send_advertising_id === true) {
-    id_schema.push('IDFA_SHA256')
-  }
-
-  return id_schema
 }
 
 export function extractUsers(payloads: GenericPayload[]): {}[][] {
