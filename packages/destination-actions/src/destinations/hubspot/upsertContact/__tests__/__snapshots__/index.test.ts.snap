@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubSpot.upsertContactBatch should create contact successfully 1`] = `
+Object {
+  "content-type": "application/json",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch should create contact successfully 2`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"},{\\"id\\":\\"userthree@somecompany.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "userone@somecompany.com",
+      },
+      Object {
+        "id": "usertwo@somecompany.com",
+      },
+      Object {
+        "id": "userthree@somecompany.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;

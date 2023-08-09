@@ -3,6 +3,13 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { HUBSPOT_BASE_URL } from '../../properties'
 
+import {
+  BatchContactListItem,
+  generateBatchReadResponse,
+  generateBatchCreateResponse,
+  createBatchTestEvents
+} from './__helpers__/test-utils'
+
 let testDestination = createTestIntegration(Destination)
 
 beforeEach((done) => {
@@ -14,6 +21,7 @@ beforeEach((done) => {
 })
 
 const testEmail = 'vep@beri.dz'
+
 const event = createTestEvent({
   type: 'identify',
   traits: {
@@ -34,6 +42,7 @@ const event = createTestEvent({
     website: 'segment.inc1'
   }
 })
+
 const mapping = {
   lifecyclestage: {
     '@path': '$.traits.lifecyclestage'
@@ -381,4 +390,153 @@ describe('HubSpot.upsertContact', () => {
       }
     })
   })
+})
+
+describe('HubSpot.upsertContactBatch', () => {
+  test('should create contact successfully', async () => {
+    const batchContactList: BatchContactListItem[] = [
+      {
+        email: 'userone@somecompany.com',
+        firstname: 'User',
+        lastname: 'One'
+      },
+      {
+        email: 'usertwo@somecompany.com',
+        firstname: 'User',
+        lastname: 'Two'
+      },
+      {
+        email: 'userthree@somecompany.com',
+        firstname: 'User',
+        lastname: 'Three'
+      }
+    ]
+
+    const events = createBatchTestEvents(batchContactList)
+
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(207, generateBatchReadResponse(batchContactList))
+
+    // Mock: Create Contact
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/create`)
+      .reply(201, generateBatchCreateResponse(batchContactList))
+
+    const mapping = {
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
+
+    const testBatchResponses = await testDestination.testBatchAction('upsertContact', {
+      mapping,
+      useDefaultMappings: true,
+      events
+    })
+
+    expect(testBatchResponses[0].headers).toMatchSnapshot()
+    expect(testBatchResponses[0].options).toMatchSnapshot()
+  })
+
+  // test('should update contact successfully', async () => {
+  //   const batchContactList: BatchContactListItem[] = [
+  //     {
+  //       id: '101',
+  //       email: 'userone@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'One'
+  //     },
+  //     {
+  //       id: '102',
+  //       email: 'usertwo@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'Two'
+  //     },
+  //     {
+  //       id: '103',
+  //       email: 'userthree@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'Three'
+  //     }
+  //   ]
+
+  //   const events = createBatchTestEvents(batchContactList)
+
+  //   // Mock: Read Contact Using Email
+  //   nock(HUBSPOT_BASE_URL)
+  //     .post(`/crm/v3/objects/contacts/batch/read`)
+  //     .reply(200, createBatchReadResponse(batchContactList))
+
+  //   const mapping = {
+  //     properties: {
+  //       graduation_date: {
+  //         '@path': '$.traits.graduation_date'
+  //       }
+  //     }
+  //   }
+
+  //   const transactionContext: Record<string, string> = {}
+  //   const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+
+  //   await expect(
+  //     testDestination.testBatchAction('upsertContact', {
+  //       mapping,
+  //       useDefaultMappings: true,
+  //       events,
+  //       transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+  //     })
+  //   ).resolves.not.toThrowError()
+  // })
+
+  // test('should create and update contact successfully', async () => {
+  //   const batchContactList: BatchContactListItem[] = [
+  //     {
+  //       id: '101',
+  //       email: 'userone@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'One'
+  //     },
+  //     {
+  //       email: 'usertwo@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'Two'
+  //     },
+  //     {
+  //       email: 'userthree@somecompany.com',
+  //       first_name: 'User',
+  //       last_name: 'Three'
+  //     }
+  //   ]
+
+  //   const events = createBatchTestEvents(batchContactList)
+
+  //   // Mock: Read Contact Using Email
+  //   nock(HUBSPOT_BASE_URL)
+  //     .post(`/crm/v3/objects/contacts/batch/read`)
+  //     .reply(200, createBatchReadResponse(batchContactList))
+
+  //   const mapping = {
+  //     properties: {
+  //       graduation_date: {
+  //         '@path': '$.traits.graduation_date'
+  //       }
+  //     }
+  //   }
+
+  //   const transactionContext: Record<string, string> = {}
+  //   const setTransactionContext = (key: string, value: string) => (transactionContext[key] = value)
+
+  //   await expect(
+  //     testDestination.testBatchAction('upsertContact', {
+  //       mapping,
+  //       useDefaultMappings: true,
+  //       events,
+  //       transactionContext: { transaction: {}, setTransaction: setTransactionContext }
+  //     })
+  //   ).resolves.not.toThrowError()
+  // })
 })
