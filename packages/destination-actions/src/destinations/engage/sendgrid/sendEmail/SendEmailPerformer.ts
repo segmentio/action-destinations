@@ -116,17 +116,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    let name
-    if (traits.first_name && traits.last_name) {
-      name = `${traits.first_name} ${traits.last_name}`
-    } else if (traits.firstName && traits.lastName) {
-      name = `${traits.firstName} ${traits.lastName}`
-    } else if (traits.name) {
-      name = traits.name
-    } else {
-      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || toEmail
-    }
-
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
     const [parsedSubject, apiLookupData] = await Promise.all([
       this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
@@ -140,8 +129,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         {
           to: [
             {
-              email: toEmail,
-              name: name
+              email: toEmail
             }
           ],
           bcc: bcc.length > 0 ? bcc : undefined,
