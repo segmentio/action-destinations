@@ -220,23 +220,17 @@ export abstract class MessageSendPerformer<
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
     if ((this.executeInput as any)['statsContext']['tags']) {
-      for (const item of (this.executeInput as any)['statsContext']['tags']) {
-        if (item.includes('delivery_attempt')) {
-          const parts: string[] = item.split(':')
-          const index = parts.findIndex((part) => part === 'delivery_attempt')
-          if (index !== -1 && index < parts.length - 1) {
-            this.logDetails['delivery_attempt'] = parts[index + 1]
-          }
-        }
-      }
+      const deliveryAttemptRegex = /deliveryAttempt:(\d+)/
+      const replayRegex = /replay:(\w+)/
 
-      for (const item of (this.executeInput as any)?.statsContext?.tags) {
-        if (item.includes('replay')) {
-          const parts: string[] = item.split(':')
-          const index = parts.findIndex((part) => part === 'replay')
-          if (index !== -1 && index < parts.length - 1) {
-            this.logDetails['replay'] = parts[index + 1]
-          }
+      for (const item of (this.executeInput as any)['statsContext']['tags']) {
+        const deliveryMatch = item.match(deliveryAttemptRegex)
+        const replayMatch = item.match(replayRegex)
+        if (deliveryMatch) {
+          this.logDetails['delivery_attempt'] = deliveryMatch[1]
+        }
+        if (replayMatch) {
+          this.logDetails['replay'] = replayMatch[1]
         }
       }
     }
