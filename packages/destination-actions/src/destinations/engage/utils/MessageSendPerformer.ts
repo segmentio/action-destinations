@@ -219,10 +219,26 @@ export abstract class MessageSendPerformer<
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
-    if ('deliveryAttempt' in (this.executeInput as any)['rawData']) {
-      const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
-      this.currentOperation?.tags.push(`delivery_attempt:${delivery_attempt}`)
-      this.logDetails['delivery_attempt'] = delivery_attempt
+    if ((this.executeInput as any)['statsContext']['tags']) {
+      for (const item of (this.executeInput as any)['statsContext']['tags']) {
+        if (item.includes('delivery_attempt')) {
+          const parts: string[] = item.split(':')
+          const index = parts.findIndex((part) => part === 'delivery_attempt')
+          if (index !== -1 && index < parts.length - 1) {
+            this.logDetails['delivery_attempt'] = parts[index + 1]
+          }
+        }
+      }
+
+      for (const item of (this.executeInput as any)?.statsContext?.tags) {
+        if (item.includes('replay')) {
+          const parts: string[] = item.split(':')
+          const index = parts.findIndex((part) => part === 'replay')
+          if (index !== -1 && index < parts.length - 1) {
+            this.logDetails['replay'] = parts[index + 1]
+          }
+        }
+      }
     }
   }
 
