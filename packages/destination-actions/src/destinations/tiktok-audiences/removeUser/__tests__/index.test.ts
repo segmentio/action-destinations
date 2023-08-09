@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { CREATE_AUDIENCE_BASE_URL, TIKTOK_API_VERSION } from '../../constants'
+import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -15,45 +15,53 @@ const auth: AuthTokens = {
   refreshToken: 'test'
 }
 
+const EXTERNAL_AUDIENCE_ID = '12345'
+const ADVERTISER_ID = '123' // References audienceSettings.advertiserId
+const ADVERTISING_ID = '4242' // References device.advertisingId
+const ID_TYPE = 'EMAIL_SHA256' // References audienceSettings.idType
+
 const event = createTestEvent({
   event: 'Audience Exited',
   type: 'track',
-  properties: {
-    audience_key: 'personas_test_audience'
-  },
+  properties: {},
   context: {
     device: {
-      advertisingId: '123'
+      advertisingId: ADVERTISING_ID
     },
     traits: {
       email: 'testing@testing.com'
+    },
+    personas: {
+      audience_settings: {
+        advertiserId: ADVERTISER_ID,
+        idType: ID_TYPE
+      },
+      external_audience_id: EXTERNAL_AUDIENCE_ID
     }
   }
 })
 
 const updateUsersRequestBody = {
-  advertiser_ids: ['123'],
-  action: 'delete',
   id_schema: ['EMAIL_SHA256', 'IDFA_SHA256'],
+  advertiser_ids: [ADVERTISER_ID],
+  action: 'delete',
   batch_data: [
     [
       {
         id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
-        audience_ids: ['1234345']
+        audience_ids: [EXTERNAL_AUDIENCE_ID]
       },
       {
-        id: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
-        audience_ids: ['1234345']
+        id: '0315b4020af3eccab7706679580ac87a710d82970733b8719e70af9b57e7b9e6',
+        audience_ids: [EXTERNAL_AUDIENCE_ID]
       }
     ]
   ]
 }
 
 describe('TiktokAudiences.removeUser', () => {
-  it.skip('should succeed if audience id is valid', async () => {
-    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
-      .post(/.*/, updateUsersRequestBody)
-      .reply(200)
+  it('should succeed if audience id is valid', async () => {
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('removeUser', {
@@ -72,13 +80,52 @@ describe('TiktokAudiences.removeUser', () => {
   })
 
   it('should fail if audienceid is invalid', async () => {
-    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
-      .post(/.*/, updateUsersRequestBody)
+    const anotherEvent = createTestEvent({
+      event: 'Audience Entered',
+      type: 'track',
+      properties: {
+        audience_key: 'personas_test_audience'
+      },
+      context: {
+        device: {
+          advertisingId: ADVERTISING_ID
+        },
+        traits: {
+          email: 'testing@testing.com'
+        },
+        personas: {
+          audience_settings: {
+            advertiserId: ADVERTISER_ID,
+            idType: ID_TYPE
+          },
+          external_audience_id: 'THIS_ISNT_REAL'
+        }
+      }
+    })
+
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, {
+        id_schema: ['EMAIL_SHA256', 'IDFA_SHA256'],
+        advertiser_ids: [ADVERTISER_ID],
+        action: 'add',
+        batch_data: [
+          [
+            {
+              id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+              audience_ids: ['THIS_ISNT_REAL']
+            },
+            {
+              id: '0315b4020af3eccab7706679580ac87a710d82970733b8719e70af9b57e7b9e6',
+              audience_ids: ['THIS_ISNT_REAL']
+            }
+          ]
+        ]
+      })
       .reply(400)
 
     await expect(
       testDestination.testAction('removeUser', {
-        event,
+        event: anotherEvent,
         settings: {
           advertiser_ids: ['123']
         },
@@ -93,9 +140,7 @@ describe('TiktokAudiences.removeUser', () => {
   })
 
   it('should fail if all the send fields are false', async () => {
-    nock(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
-      .post(/.*/, updateUsersRequestBody)
-      .reply(200)
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('removeUser', {

@@ -1,37 +1,43 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processPayload } from '../functions'
 import {
-  selected_advertiser_id,
-  audience_id,
   email,
   send_email,
   send_advertising_id,
   advertising_id,
   event_name,
-  enable_batching
+  enable_batching,
+  external_audience_id
 } from '../properties'
+import { IntegrationError } from '@segment/actions-core'
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Remove Users',
   description: 'Remove contacts from an Engage Audience to a TikTok Audience Segment.',
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
-    selected_advertiser_id: { ...selected_advertiser_id },
-    audience_id: { ...audience_id },
     email: { ...email },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
-    enable_batching: { ...enable_batching }
+    enable_batching: { ...enable_batching },
+    external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload], 'delete')
+  perform: async (request, { audienceSettings, payload }) => {
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+    return processPayload(request, audienceSettings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload, 'delete')
+  performBatch: async (request, { audienceSettings, payload }) => {
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+
+    return processPayload(request, audienceSettings, payload, 'delete')
   }
 }
 
