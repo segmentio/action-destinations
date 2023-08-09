@@ -327,5 +327,6 @@ export const _private = {
   _build_attribute,
   _build_tags_object,
   _parse_date,
+  _parse_and_format_date,
   _validate_timestamp
 }

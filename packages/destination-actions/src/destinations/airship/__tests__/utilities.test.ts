@@ -120,3 +120,15 @@ describe('Testing _parse_date', () => {
     expect(_private._parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
   })
 })
+
+describe('Testing _parse_and_format_date', () => {
+  it('should modify a valid date string', () => {
+    expect(_private._parse_and_format_date('2023-05-09T00:47:43.378Z')).toEqual('2023-05-09T00:47:43')
+  })
+})
+
+describe('Testing _parse_and_format_date', () => {
+  it('should return the original string', () => {
+    expect(_private._parse_and_format_date('foo')).toEqual('foo')
+  })
+})
