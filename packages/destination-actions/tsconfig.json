@@ -11,5 +11,5 @@
     }
   },
   "exclude": ["dist"],
-  "include": ["src", "test"]
+  "include": ["src"]
 }
