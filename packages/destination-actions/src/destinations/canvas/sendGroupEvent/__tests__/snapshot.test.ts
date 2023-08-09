@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'group'
+const actionSlug = 'sendGroupEvent'
 const destinationSlug = 'Canvas'
 const seedName = `${destinationSlug}#${actionSlug}`
 

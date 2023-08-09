@@ -5,7 +5,7 @@ export type EventType = 'track' | 'identify' | 'group' | 'page' | 'screen'
 
 export const getAuthUrl = (): string => `https://z17lngdoxi.execute-api.us-west-2.amazonaws.com/Prod/auth`
 export const getEventUrl = (eventType: EventType): string =>
-  `https://z17lngdoxi.execute-api.us-west-2.amazonaws.com/Prod/event?event_type=${eventType}`
+  `https://z17lngdoxi.execute-api.us-west-2.amazonaws.com/Prod/event/${eventType}`
 
 export function perform<Payload>(eventType: EventType): RequestFn<Settings, Payload> {
   return (request, data) => {

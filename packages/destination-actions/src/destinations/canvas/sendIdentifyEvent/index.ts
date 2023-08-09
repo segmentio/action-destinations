@@ -5,7 +5,7 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify User',
+  title: 'Send Identify User Event',
   description: 'Inserts or updates an Identify record',
   defaultSubscription: 'type = "identify"',
   fields: {

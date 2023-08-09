@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-canvas destination: sendGroupEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "^FXfxg",
+    "context": Object {
+      "testType": "^FXfxg",
+    },
+    "enable_batching": true,
+    "group_id": "^FXfxg",
+    "message_id": "^FXfxg",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "^FXfxg",
+    "traits": Object {
+      "testType": "^FXfxg",
+    },
+    "user_id": "^FXfxg",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendGroupEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "^FXfxg",
+    "enable_batching": true,
+    "group_id": "^FXfxg",
+    "message_id": "^FXfxg",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "^FXfxg",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendIdentifyEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]HP4@pqD",
+    "context": Object {
+      "testType": "]HP4@pqD",
+    },
+    "enable_batching": true,
+    "message_id": "]HP4@pqD",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "]HP4@pqD",
+    "traits": Object {
+      "testType": "]HP4@pqD",
+    },
+    "user_id": "]HP4@pqD",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendIdentifyEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]HP4@pqD",
+    "enable_batching": true,
+    "message_id": "]HP4@pqD",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "]HP4@pqD",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendPageEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "QwNSz0x",
+    "context": Object {
+      "testType": "QwNSz0x",
+    },
+    "enable_batching": true,
+    "message_id": "QwNSz0x",
+    "name": "QwNSz0x",
+    "properties": Object {
+      "testType": "QwNSz0x",
+    },
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "QwNSz0x",
+    "user_id": "QwNSz0x",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendPageEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "QwNSz0x",
+    "enable_batching": true,
+    "message_id": "QwNSz0x",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "QwNSz0x",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendScreenEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "cR7bY%SZFAWJihA*",
+    "context": Object {
+      "testType": "cR7bY%SZFAWJihA*",
+    },
+    "enable_batching": false,
+    "message_id": "cR7bY%SZFAWJihA*",
+    "name": "cR7bY%SZFAWJihA*",
+    "properties": Object {
+      "testType": "cR7bY%SZFAWJihA*",
+    },
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "cR7bY%SZFAWJihA*",
+    "user_id": "cR7bY%SZFAWJihA*",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendScreenEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "cR7bY%SZFAWJihA*",
+    "enable_batching": false,
+    "message_id": "cR7bY%SZFAWJihA*",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "cR7bY%SZFAWJihA*",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendTrackEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "y*U)R@s[@",
+    "context": Object {
+      "testType": "y*U)R@s[@",
+    },
+    "enable_batching": true,
+    "event": "y*U)R@s[@",
+    "message_id": "y*U)R@s[@",
+    "properties": Object {
+      "testType": "y*U)R@s[@",
+    },
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "y*U)R@s[@",
+    "user_id": "y*U)R@s[@",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-canvas destination: sendTrackEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "y*U)R@s[@",
+    "enable_batching": true,
+    "event": "y*U)R@s[@",
+    "message_id": "y*U)R@s[@",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "y*U)R@s[@",
+  },
+]
+`;

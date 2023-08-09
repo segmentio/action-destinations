@@ -5,8 +5,8 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track events',
+  title: 'Send Track Event',
+  description: 'Adds a track event in Canvas',
   defaultSubscription: 'type = "track"',
   fields: {
     event: {

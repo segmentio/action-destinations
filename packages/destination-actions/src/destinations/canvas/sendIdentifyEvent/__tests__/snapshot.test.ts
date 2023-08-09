@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'identify'
+const actionSlug = 'sendIdentifyEvent'
 const destinationSlug = 'Canvas'
 const seedName = `${destinationSlug}#${actionSlug}`
 

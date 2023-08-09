@@ -1,18 +1,21 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { getAuthUrl } from '../api'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Canvas', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock(getAuthUrl()).get('').matchHeader('authorization', 'Bearer myApiToken').reply(200, {})
+      await expect(testDestination.testAuthentication({ apiToken: 'myApiToken' })).resolves.not.toThrowError()
+    })
 
-      // This should match your authentication.fields
-      const authData = {}
-
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+    it('should reject invalid API key', async () => {
+      nock(getAuthUrl()).get('').matchHeader('authorization', 'Bearer myApiToken').reply(200, {})
+      nock(getAuthUrl()).get('').reply(401, {})
+      await expect(testDestination.testAuthentication({ apiToken: 'invalidApiToken' })).rejects.toThrowError()
     })
   })
 })

@@ -5,8 +5,8 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Page',
-  description: 'Adds a page view record',
+  title: 'Send Page Event',
+  description: 'Adds a page event record in Canvas',
   defaultSubscription: 'type = "page"',
   fields: {
     name: {

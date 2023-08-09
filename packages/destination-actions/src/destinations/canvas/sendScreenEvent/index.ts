@@ -5,8 +5,8 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Screen',
-  description: 'Adds a screen record',
+  title: 'Send Screen Event',
+  description: 'Adds a screen event record in Canvas',
   defaultSubscription: 'type = "screen"',
   fields: {
     name: {

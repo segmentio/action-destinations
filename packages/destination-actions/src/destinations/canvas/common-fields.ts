@@ -2,6 +2,13 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
+  enable_batching: {
+    required: true,
+    type: 'boolean',
+    label: 'Send data in batch to Canvas',
+    description: 'Sends events in bulk to Canvas. Highly recommended.',
+    default: true
+  },
   context: {
     label: 'Event context',
     description: 'Event context as it appears in Segment',
@@ -51,7 +58,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   },
   user_id: {
     type: 'string',
-    required: true,
+    required: false,
     description: "The user's id",
     label: 'User ID',
     default: {

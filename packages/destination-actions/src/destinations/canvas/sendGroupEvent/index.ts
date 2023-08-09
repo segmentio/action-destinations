@@ -5,8 +5,8 @@ import { commonFields } from '../common-fields'
 import { perform, performBatch } from '../api'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify Group',
-  description: 'Inserts or updates a group record',
+  title: 'Send Identify Group Event',
+  description: 'Inserts or updates a group record in Canvas',
   defaultSubscription: 'type = "group"',
   fields: {
     group_id: {
