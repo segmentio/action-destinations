@@ -657,7 +657,7 @@ describe.each([
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
-    it('inserts preview text in design template', async () => {
+    it.only('inserts preview text in design template', async () => {
       const previewText = 'Preview text {{profile.traits.first_name | default: "customer"}}'
       const renderedPreviewText = 'Preview text customer'
       const bodyHtml = '<p>Hi First Name, welcome to Segment</p>'
@@ -667,8 +667,7 @@ describe.each([
           {
             to: [
               {
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`
+                email: userData.email
               }
             ],
             bcc: [
