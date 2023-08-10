@@ -166,7 +166,7 @@ export const user_data_field: InputField = {
 type UserData = Pick<Payload, 'user_data'>
 
 const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
+  if (value === undefined || !value.length) return
 
   const hash = createHash('sha256')
   hash.update(value)
