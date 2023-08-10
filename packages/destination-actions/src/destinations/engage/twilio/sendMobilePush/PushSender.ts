@@ -119,6 +119,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
       tapActionButtons.map(async (button) => {
         return {
           ...button,
+          onTap: this.getTapActionPreset(button.onTap, button.link),
           ...(await this.parseContent({ link: button.link }, profile))
         }
       })
@@ -140,17 +141,17 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
 
       const body = this.removeEmpties({
         Body: parsedTemplateContent.body,
-        Action: this.payload.customizations?.tapAction,
+        Action: this.getTapActionPreset(this.payload.customizations?.tapAction, this.payload.customizations?.link),
         Title: parsedTemplateContent.title,
         Sound: this.payload.customizations?.sound,
         Priority: this.payload.customizations?.priority,
         TimeToLive: this.payload.customizations?.ttl,
-        FcmPayload: this.removeEmpties({
+        FcmPayload: {
           mutable_content: true,
           notification: {
             badge: badgeAmount
           }
-        }),
+        },
         ApnPayload: {
           aps: {
             'mutable-content': 1,
@@ -172,6 +173,16 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         () => new PayloadValidationError('Unable to construct Notify API request body')
       )
     }
+  }
+
+  // transforms open_app + url, to deep_link tap action preset
+  // when the tap action is open_app and there is a link, it is supposed to be "deep_link"
+  // any other conditions return the tap action as is
+  private getTapActionPreset(tapAction?: string, link?: string) {
+    if (link?.length && tapAction === 'open_app') {
+      return 'deep_link'
+    }
+    return tapAction
   }
 
   /*
