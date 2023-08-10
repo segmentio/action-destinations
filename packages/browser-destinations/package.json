@@ -1,7 +1,7 @@
 {
   "name": "@segment/browser-destinations",
   "private": true,
-  "version": "0.0.1-staging.3",
+  "version": "0.0.1-staging.2",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "license": "MIT",
