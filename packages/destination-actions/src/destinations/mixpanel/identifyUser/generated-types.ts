@@ -19,4 +19,10 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).
+   */
+  $add?: {
+    [k: string]: unknown
+  }
 }

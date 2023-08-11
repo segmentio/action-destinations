@@ -44,6 +44,17 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    $add: {
+      label: 'Increment Numerical Properties',
+      type: 'object',
+      description:
+        'Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).',
+      multiple: false,
+      defaultObjectUI: 'keyvalue',
+      default: {
+        '@path': '$.traits.$add'
+      }
     }
   },
 
@@ -89,7 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
           'lastName',
           'name',
           'username',
-          'phone'
+          'phone',
+          '$add'
         ]),
         // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
         $created: payload.traits.created ?? payload.traits.createdAt ?? payload.traits.created_at,
@@ -106,6 +118,18 @@ const action: ActionDefinition<Settings, Payload> = {
         $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
+      }
+
+      if (payload.$add) {
+        data.$add = {}
+        for (const key of Object.keys(payload.$add)) {
+          const value = payload.$add[key]
+          if (typeof value === 'string' || typeof value === 'number') {
+            if (!isNaN(+value)) {
+              data.$add[key] = +value
+            }
+          }
+        }
       }
 
       const engageResponse = request(`${apiServerUrl}/engage`, {

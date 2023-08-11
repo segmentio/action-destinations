@@ -11,8 +11,6 @@ import { ApiRegions, StrictMode } from './utils'
 
 import trackPurchase from './trackPurchase'
 
-import incrementProperty from './incrementProperty'
-
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
@@ -128,8 +126,7 @@ const destination: DestinationDefinition<Settings> = {
     identifyUser,
     groupIdentifyUser,
     alias,
-    trackPurchase,
-    incrementProperty
+    trackPurchase
   }
 }
 
