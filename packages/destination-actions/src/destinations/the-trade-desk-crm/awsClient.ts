@@ -4,14 +4,6 @@ import { SQSClient, SendMessageCommand, SendMessageRequest } from '@aws-sdk/clie
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import { Readable } from 'stream'
 
-import { createHash } from 'node:crypto'
-
-interface AWSResourcesItem {
-  S3_BUCKET_NAME: string
-  SQS_QUEUE_NAME: string
-  SQS_QUEUE_URL: string
-}
-
 interface ControlledBatchOutboundEventPayload {
   audienceId: string
   request: {
@@ -22,29 +14,18 @@ interface ControlledBatchOutboundEventPayload {
 
 const NODE_ENV = process.env['NODE_ENV'] || `stage`
 const AWS_REGION = process.env['AWS_REGION'] || `us-west-2`
+const AWS_ACCOUNT_ID = parseARN(process.env['AWS_ROLE_ARN'])
 
 const ACTION_SLUG = `actions-the-trade-desk-crm`
-const INTEGRATIONS_ENV_KEY = `${NODE_ENV}.${AWS_REGION}`
-
-const AWS_RESOURCES: Record<string, AWSResourcesItem> = {
-  'stage.us-west-2': {
-    S3_BUCKET_NAME: 'integrations-outbound-event-store-stage-us-west-2',
-    SQS_QUEUE_NAME: 'integrations-outbound-event-queue-stage-us-west-2.fifo',
-    SQS_QUEUE_URL:
-      'https://sqs.us-west-2.amazonaws.com/355207333203/integrations-outbound-event-queue-stage-us-west-2.fifo'
-  },
-  'test.us-west-2': {
-    S3_BUCKET_NAME: 'test-bucket',
-    SQS_QUEUE_NAME: 'test-queue.fifo',
-    SQS_QUEUE_URL:
-      'https://sqs.us-west-2.amazonaws.com/355207333203/integrations-outbound-event-queue-stage-us-west-2.fifo'
-  }
-}
 
 // Note: Clients are created in global scope to prevent client creation on every request
 // Region and Segment Environment values are unique per Integrations Monoservice instance and will never change
 const S3ClientInstance = new S3Client({ region: AWS_REGION })
 const SQSClientInstance = new SQSClient({ region: AWS_REGION, logger: console })
+
+const S3_BUCKET_NAME = `integrations-outbound-event-store-${NODE_ENV}-${AWS_REGION}`
+const SQS_QUEUE_NAME = `integrations-outbound-event-queue-${NODE_ENV}-${AWS_REGION}.fifo`
+const SQS_QUEUE_URL = `https://sqs.${AWS_REGION}.amazonaws.com/3${AWS_ACCOUNT_ID}/${SQS_QUEUE_NAME}`
 
 export const sendEventToAWS = async (endpoint: string, users: string, audienceId: string) => {
   // Compute file path and message dedupe id
@@ -67,8 +48,6 @@ export const sendEventToAWS = async (endpoint: string, users: string, audienceId
     }
   }
 
-  console.log('S3Payload', createHash('md5').update(JSON.stringify(S3Payload)).digest('hex'))
-
   // Create Queue Message Payload
   const SQSPayload = {
     audienceId,
@@ -82,24 +61,44 @@ export const sendEventToAWS = async (endpoint: string, users: string, audienceId
 
   // Construct a PUT request for S3
   const S3PutObjectRequest: PutObjectRequest = {
-    Bucket: AWS_RESOURCES[INTEGRATIONS_ENV_KEY].S3_BUCKET_NAME,
+    Bucket: S3_BUCKET_NAME,
     Key: s3FilePath,
     Body: S3PayloadData,
     ContentType: 'application/json',
-    ContentEncoding: 'gzip'
+    // ContentLength Issue: https://stackoverflow.com/questions/68332633/aws-s3-node-js-sdk-notimplemented-error-with-multer
+    ContentLength: S3PayloadData.readableLength
   }
 
   // Construct Send Message request for SQS
   const SQSSendMessageRequest: SendMessageRequest = {
-    QueueUrl: AWS_RESOURCES[INTEGRATIONS_ENV_KEY].SQS_QUEUE_URL,
+    QueueUrl: SQS_QUEUE_URL,
     MessageBody: JSON.stringify(SQSPayload),
     MessageDeduplicationId: messageDedupeId,
     MessageGroupId: audienceId
   }
 
   // Upload the file to the S3 bucket
-  await S3ClientInstance.send(new PutObjectCommand(S3PutObjectRequest))
+  const S3Response = await S3ClientInstance.send(new PutObjectCommand(S3PutObjectRequest))
 
   // Queue the file in SQS
-  await SQSClientInstance.send(new SendMessageCommand(SQSSendMessageRequest))
+  const SQSResponse = await SQSClientInstance.send(new SendMessageCommand(SQSSendMessageRequest))
+
+  return {
+    S3Response,
+    SQSResponse
+  }
+}
+
+function parseARN(awsARN: string | undefined) {
+  if (awsARN === undefined) {
+    throw new Error(`AWS_ROLE_ARN environment variable is possibly undefined`)
+  }
+
+  const regexParse = /arn:aws:iam[:]+(\d+):role\/[\da-z-.]+/.exec(awsARN)
+
+  if (regexParse && regexParse[1]) {
+    return regexParse[1]
+  } else {
+    throw new Error(`AWS_ROLE_ARN environment variable is possibly malformed`)
+  }
 }

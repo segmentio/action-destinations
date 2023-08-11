@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
@@ -37,13 +37,13 @@ export interface CREATE_API_RESPONSE {
 }
 
 export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  const TTD_MIN_RECORD_COUNT = 1500
-  if (payloads.length < TTD_MIN_RECORD_COUNT) {
-    throw new PayloadValidationError(
-      `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${payloads.length}`
-    )
-  }
-  const crmID = await getCRMID(request, settings, payloads[0])
+  // const TTD_MIN_RECORD_COUNT = 1500
+  // if (payloads.length < TTD_MIN_RECORD_COUNT) {
+  //   throw new PayloadValidationError(
+  //     `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${payloads.length}`
+  //   )
+  // }
+  const crmID = await getCRMInfo(request, settings, payloads[0])
 
   // Get user emails from the payloads
   const users = extractUsers(payloads)
@@ -55,7 +55,9 @@ export async function processPayload(request: RequestClient, settings: Settings,
   // return sendCRMData(request, dataDropEndpoint, users)
 
   // Send request to AWS to be processed
-  return sendEventToAWS(dataDropEndpoint, users, 'test-audience-id')
+  const AWSOperationStatus = await sendEventToAWS(dataDropEndpoint, users, 'test-audience-id')
+
+  return AWSOperationStatus
 }
 
 async function getAllDataSegments(request: RequestClient, settings: Settings) {
@@ -91,7 +93,7 @@ async function getAllDataSegments(request: RequestClient, settings: Settings) {
   return allDataSegments
 }
 
-async function getCRMID(request: RequestClient, settings: Settings, payload: Payload) {
+async function getCRMInfo(request: RequestClient, settings: Settings, payload: Payload) {
   let segmentId
   const segments = await getAllDataSegments(request, settings)
   const segmentExists = segments.filter(function (segment) {
