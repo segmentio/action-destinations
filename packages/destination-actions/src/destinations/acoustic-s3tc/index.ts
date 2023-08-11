@@ -1,16 +1,13 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
-import { testAuthenticationSFTP, Client as ClientSFTP } from './Utility/sendSFTP'
+import { Client, Client as ClientSFTP, testAuthSFTP } from './Utility/sftpCache'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 
-// import { getAccessToken } from './Utility/tablemaintutilities'
-// import acousticS3TC from './receiveEvents/index_s3tc'
-
-// import audienceEntered from './audienceEntered'
+Client
 
 const mod = `
-Last-Modified: 08.09.2023 16.22.49
+Last-Modified: 08.11.2023 11.39.21
 `
 //August 2023, refactor for S3Cache
 
@@ -58,79 +55,9 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      pod: {
-        label: 'Pod',
-        description: 'Pod Number for API Endpoint',
-        default: '2',
-        type: 'string',
-        required: true
-      },
-      region: {
-        label: 'Region',
-        description: 'Region for API Endpoint, either US, EU, AP, or CA',
-        choices: [
-          { label: 'US', value: 'US' },
-          { label: 'EU', value: 'EU' },
-          { label: 'AP', value: 'AP' },
-          { label: 'CA', value: 'CA' }
-        ],
-        default: 'US',
-        type: 'string',
-        required: true
-      },
-      tableName: {
-        label: 'Acoustic Segment Table Name',
-        description: `The Segment Table Name in Acoustic Campaign Data dialog.`,
-        default: 'Segment Events Table Name',
-        type: 'string',
-        required: true
-      },
-      tableListId: {
-        label: 'Acoustic Segment Table List Id',
-        description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
-        default: '',
-        type: 'string',
-        required: true
-      },
-      a_clientId: {
-        label: 'Acoustic App Definition ClientId',
-        description: 'The Client Id from the App definition dialog in Acoustic Campaign',
-        default: '',
-        type: 'string',
-        required: true
-      },
-      a_clientSecret: {
-        label: 'Acoustic App Definition ClientSecret',
-        description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
-        default: '',
-        type: 'password',
-        required: true
-      },
-      a_refreshToken: {
-        label: 'Acoustic App Access Definition RefreshToken',
-        description: 'The RefreshToken provided when defining access for the App in Acoustic Campaign',
-        default: '',
-        type: 'password',
-        required: true
-      },
-      attributesMax: {
-        label: 'Properties Max',
-        description:
-          'A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 15,
-        type: 'number',
-        required: false
-      },
-      version: {
-        label: `Version:`,
-        description: `${mod}`,
-        default: 'Version 1.3',
-        type: 'string',
-        required: false
-      },
-      tcSend: {
-        label: 'Transport',
-        description: 'Choose transport option(default S3)',
+      cacheType: {
+        label: 'Use the S3 or SFTP Cache',
+        description: 'Choose transport option, S3 is the default',
         type: 'string',
         required: true,
         default: 'S3',
@@ -139,27 +66,32 @@ const destination: DestinationDefinition<Settings> = {
           { value: 'SFTP', label: 'SFTP' }
         ]
       },
+      fileNamePrefix: {
+        label: 'File Name Prefix',
+        description: `Prefix to all Stored File Names`,
+        type: 'string',
+        required: false,
+        default: 'customer_org_'
+      },
       s3_access_key: {
         label: 'S3 Access Key',
         description: 'Write permission to the S3 bucket.',
-
         type: 'string'
       },
       s3_secret: {
         label: 'S3 Secret',
         description: 'Write permission to the S3 bucket.',
-
         type: 'password'
       },
-      s3_bucket_name: {
-        label: 'S3 Bucket Name',
-        description: 'Name of the S3 bucket where the files will be uploaded to.',
-        default: 'tricklercache',
+      s3_bucket: {
+        label: 'S3 Bucket Access Point',
+        description: 'An Access Point created as access to the S3 bucket.',
+        default: 's3://arn:aws:s3:us-east-1:777957353822:accesspoint/tricklercache-access',
         type: 'string'
       },
       s3_region: {
         label: 'S3 Region',
-        description: 'eg: us-east-1, us-east-2',
+        description: 'See S3 definition, should be eg: us-east-1, us-east-2',
         default: 'us-east-1',
         type: 'string'
       },
@@ -180,24 +112,24 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri-reference'
       },
-      storedFile: {
-        label: 'Stored File Name',
-        description: `Stored File Name`,
+      version: {
+        label: `Version:`,
+        description: `\n${mod}\n`,
+        default: 'Version 1.3',
         type: 'string',
-        required: false,
-        default: 'customerid.json'
+        required: false
       },
       //Explore these intriguing options:
       __segment_internal_engage_force_full_sync: {
         label: 'Force Full Sync',
-        description: '',
+        description: 'Force full sync of an Audience versus receiving Audience updates as they occur.',
         type: 'boolean',
         required: true,
         default: true
       },
       __segment_internal_engage_batch_sync: {
         label: 'Batch sync via ADS',
-        description: '',
+        description: 'Force Batch mode Event updates versus singular Event updates as they occur.',
         type: 'boolean',
         required: true,
         default: true
@@ -210,10 +142,16 @@ const destination: DestinationDefinition<Settings> = {
       // you can remove the `testAuthentication` function, though discouraged.
 
       // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
-      if (settings.tcSend == 'SFTP') {
+      if (settings.cacheType == 'SFTP') {
         const sftpClient = new ClientSFTP()
         InvalidAuthenticationError
-        return await testAuthenticationSFTP(sftpClient, settings)
+        return await testAuthSFTP(sftpClient, settings)
+      }
+
+      if (settings.cacheType == 'S3') {
+        const sftpClient = new ClientSFTP()
+        InvalidAuthenticationError
+        return await testAuthSFTP(sftpClient, settings)
       }
     }
   },

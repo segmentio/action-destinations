@@ -2,43 +2,47 @@
 
 export interface Payload {
   /**
-   * At a minimum Email is required, see mapping presets for more info.
+   * Do Not Modify - Email is required
    */
   email: string
   /**
-   * The Event Type, will be either Track or Identify
+   * Do Not Modify - Event Type is required
    */
   type?: string
   /**
-   * The Timestamp of the Event
+   * Do Not Modify - Timestamp of the Event is required
    */
   timestamp?: string | number
   /**
-   * Map simple Key-Value pairs of Event data here.
+   * Use at least one to Map data to Acoustic
+   */
+  explanatory?: string
+  /**
+   * As an aide you can use this section to Map simple Key-Value pairs from the Event
    */
   key_value_pairs?: {
     [k: string]: unknown
   }
   /**
-   * Map Arrays of data into flattened data attributes here.
+   * If the data needed is in an array, use this section to Map Array data into useable attributes
    */
   array_data?: {
     [k: string]: unknown
   }[]
   /**
-   * All properties provided via a Context Section
+   * If the data is present in a Context section, use this to pick all attributes of a Context Section
    */
   context?: {
     [k: string]: unknown
   }
   /**
-   * All properties provided via a Properties Section
+   * If the data is present in a Properties section, use this to pick all attributes in the Properties Section
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * All properties provided via a Traits Section
+   * If the data is present in a Traits section, use this to pick all attributes in the Traits Section
    */
   traits?: {
     [k: string]: unknown

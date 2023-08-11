@@ -2,47 +2,13 @@
 
 export interface Settings {
   /**
-   * Pod Number for API Endpoint
+   * Choose transport option, S3 is the default
    */
-  pod: string
+  cacheType: string
   /**
-   * Region for API Endpoint, either US, EU, AP, or CA
+   * Prefix to all Stored File Names
    */
-  region: string
-  /**
-   * The Segment Table Name in Acoustic Campaign Data dialog.
-   */
-  tableName: string
-  /**
-   * The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign
-   */
-  tableListId: string
-  /**
-   * The Client Id from the App definition dialog in Acoustic Campaign
-   */
-  a_clientId: string
-  /**
-   * The Client Secret from the App definition dialog in Acoustic Campaign
-   */
-  a_clientSecret: string
-  /**
-   * The RefreshToken provided when defining access for the App in Acoustic Campaign
-   */
-  a_refreshToken: string
-  /**
-   * A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
-   */
-  attributesMax?: number
-  /**
-   *
-   * Last-Modified: 08.09.2023 16.22.49
-   *
-   */
-  version?: string
-  /**
-   * Choose transport option(default S3)
-   */
-  tcSend: string
+  fileNamePrefix?: string
   /**
    * Write permission to the S3 bucket.
    */
@@ -52,11 +18,11 @@ export interface Settings {
    */
   s3_secret?: string
   /**
-   * Name of the S3 bucket where the files will be uploaded to.
+   * An Access Point created as access to the S3 bucket.
    */
-  s3_bucket_name?: string
+  s3_bucket?: string
   /**
-   * eg: us-east-1, us-east-2
+   * See S3 definition, should be eg: us-east-1, us-east-2
    */
   s3_region?: string
   /**
@@ -72,9 +38,19 @@ export interface Settings {
    */
   sftp_folder?: string
   /**
-   * Stored File Name
+   *
+   *
+   * Last-Modified: 08.11.2023 11.39.21
+   *
+   *
    */
-  storedFile?: string
+  version?: string
+  /**
+   * Force full sync of an Audience versus receiving Audience updates as they occur.
+   */
   __segment_internal_engage_force_full_sync: boolean
+  /**
+   * Force Batch mode Event updates versus singular Event updates as they occur.
+   */
   __segment_internal_engage_batch_sync: boolean
 }

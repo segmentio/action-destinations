@@ -1,35 +1,22 @@
-// import type { ActionDefinition } from '@segment/actions-core'
-
-// import { ActionDefinition } from '@segment/actions-core'
-import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
-
-/* 
-
-ReceiveEvents
-
-*/
-
-// import type { Settings } from '../SetAside/generated-types'
-// import type { Payload } from '../SetAside/receiveEvents/generated-types'
-
+import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
-import { uploadS3, validateS3 } from '../Utility/sendS3'
-import { uploadSFTP, validateSFTP, Client as ClientSFTP } from '../Utility/sendSFTP'
-import { buildFile } from '../SetAside/operations'
+import get from 'lodash/get'
+import { addUpdateEvents } from '../Utility/eventprocessing'
+import generateS3RequestOptions from '../../../lib/AWS/s3'
+import { validateSettings } from '../Utility/preCheck'
 
-// import { doPOST } from '../Utility/tablemaintutilities'
-// import get from 'lodash/get'
-// import { addUpdateEvents } from '../Utility/eventprocessing'
-// import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+/* 
+ReceiveEvents
+*/
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Receive Track and Identify Events',
+  title: 'Receive Events',
   description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign',
   fields: {
     email: {
       label: 'Email',
-      description: 'At a minimum Email is required, see mapping presets for more info.',
+      description: 'Do Not Modify - Email is required',
       type: 'string',
       format: 'email',
       required: true,
@@ -39,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Type',
-      description: 'The Event Type, will be either Track or Identify',
+      description: 'Do Not Modify - Event Type is required',
       type: 'string',
       default: {
         '@path': '$.type'
@@ -47,48 +34,51 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Timestamp',
-      description: 'The Timestamp of the Event',
+      description: 'Do Not Modify - Timestamp of the Event is required',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
       }
     },
-    // audience: {
-    //   label: 'Audience identification attributes (Optional)',
-    //   description: 'Map Audience identification attributes here. For Identify Events, mapping must provide at least "computation_class" and "computation_key" attributes, for Track events, mapping must provide "audience_key"',
-    //   type: 'object'
-    // },
+    explanatory: {
+      label: 'Mapping Aides: ',
+      description: 'Use at least one to Map data to Acoustic',
+      type: 'text',
+      default:
+        'The following Mapping options are provided as an aide to Mapping Data. \nAlthough all are optional, use at least one to map data that you want to send to Acoustic.'
+    },
     key_value_pairs: {
-      label: 'Key-Value pairs',
-      description: 'Map simple Key-Value pairs of Event data here.',
+      label: 'Optional - Key-Value pairs',
+      description: 'As an aide you can use this section to Map simple Key-Value pairs from the Event',
       type: 'object'
     },
     array_data: {
-      label: 'Arrays',
-      description: 'Map Arrays of data into flattened data attributes here.',
+      label: 'Optional - Arrays',
+      description: 'If the data needed is in an array, use this section to Map Array data into useable attributes',
       type: 'object',
       multiple: true,
       additionalProperties: true
     },
     context: {
-      label: 'Context',
-      description: 'All properties provided via a Context Section ',
+      label: 'Optional - Context',
+      description: 'If the data is present in a Context section, use this to pick all attributes of a Context Section',
       type: 'object'
       // default: {
       //   '@path': '$.context'
       // }
     },
     properties: {
-      label: 'Properties',
-      description: 'All properties provided via a Properties Section',
+      label: 'Optional - Properties',
+      description:
+        'If the data is present in a Properties section, use this to pick all attributes in the Properties Section',
       type: 'object'
       // // default: {
       //   '@path': '$.properties'
       // }
     },
     traits: {
-      label: 'Traits',
-      description: 'All properties provided via a Traits Section',
+      label: 'Optional - Traits',
+      description: 'If the data is present in a Traits section, use this to pick all attributes in the Traits Section',
       type: 'object'
       // default: {
       //   '@path': '$.traits'
@@ -112,26 +102,64 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    PayloadValidationError
+    const email = get(payload, 'email', '')
 
-    return processData(request, settings, [payload])
-  },
-  performBatch: (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+    if (!email) {
+      throw new IntegrationError('Email Not Found, invalid Event received.', 'INVALID_EVENT_HAS_NO_EMAIL', 400)
+    }
+
+    validateSettings(settings)
+
+    //Parse Event-Payload into an Update
+    const csvRows = addUpdateEvents(payload, email)
+
+    //Set File Store Name
+    const fileName = settings.fileNamePrefix + `${new Date().toISOString()}` + '.csv'
+
+    // return await putS3(settings, "", Buffer.from(csvRows), request)
+
+    // async function putS3(
+    //   settings: Settings,
+    //   filename: string,
+    //   fileContent: string,
+    // const p =  (url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
+    // ) {
+    const method = 'PUT'
+    const opts = await generateS3RequestOptions(
+      settings.s3_bucket as string,
+      settings.s3_region as string,
+      fileName,
+      method,
+      csvRows,
+      settings.s3_access_key as string,
+      settings.s3_secret as string
+    )
+    if (!opts.headers || !opts.method || !opts.host || !opts.path) {
+      throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
+    }
+
+    console.log(
+      method,
+      '\n',
+      `https://${opts.host}/${opts.path}`,
+      '\n',
+      fileName,
+      '\n',
+      settings.s3_bucket,
+      '\n',
+      settings.s3_access_key,
+      '\n',
+      settings.s3_secret
+    )
+
+    //https://AccessPointName-AccountId.s3-accesspoint.region.amazonaws.com
+
+    return await request(`https://${opts.host}/${opts.path}`, {
+      headers: opts.headers as Record<string, string>,
+      method,
+      body: opts.body
+    })
+    // }
   }
 }
-
-async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  const { filename, fileContent } = buildFile(payloads)
-  if (settings.tcSend === 'S3') {
-    validateS3(settings)
-    return uploadS3(settings, filename, fileContent, request)
-  }
-  if (settings.tcSend === 'SFTP') {
-    validateSFTP(settings)
-    const sftpClient = new ClientSFTP()
-    return uploadSFTP(sftpClient, settings, filename, fileContent)
-  }
-}
-
 export default action

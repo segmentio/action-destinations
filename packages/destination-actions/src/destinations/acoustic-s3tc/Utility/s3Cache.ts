@@ -2,33 +2,15 @@ import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 
-function validateS3(settings: Settings) {
-  if (!settings.s3_access_key) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Access Key')
-  }
-
-  if (!settings.s3_secret) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Secret Key')
-  }
-
-  if (!settings.s3_bucket_name) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS S3 bucket name')
-  }
-
-  if (!settings.s3_region) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Region')
-  }
-}
-
-async function uploadS3(
+async function putS3(
   settings: Settings,
   filename: string,
-  fileContent: Buffer,
+  fileContent: string,
   request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
 ) {
   const method = 'PUT'
   const opts = await generateS3RequestOptions(
-    settings.s3_bucket_name as string,
+    settings.s3_bucket as string,
     settings.s3_region as string,
     filename,
     method,
@@ -47,4 +29,4 @@ async function uploadS3(
   })
 }
 
-export { validateS3, uploadS3 }
+export { putS3 }
