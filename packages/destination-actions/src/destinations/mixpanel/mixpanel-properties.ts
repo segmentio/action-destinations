@@ -325,7 +325,11 @@ export const eventProperties: Record<string, InputField> = {
     description: 'The Event Original Name, if applicable',
     required: false,
     default: {
-      '@path': '$.name'
+      '@if': {
+        exists: { '@path': '$.event' },
+        then: { '@path': '$.event' },
+        else: { '@path': '$.name' }
+      }
     }
   },
   event_properties: {
