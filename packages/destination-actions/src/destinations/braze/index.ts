@@ -95,35 +95,60 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Associated Entity Added',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields),
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_added_track'
     },
     {
       name: 'Associated Entity Removed',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields),
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_removed_track'
     },
     {
       name: 'Entities Audience Entered',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields),
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
     },
     {
       name: 'Entities Exited',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields),
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
     },
     {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'updateUserProfile',
-      mapping: defaultValues(updateUserProfile.fields),
+      mapping: {
+        ...defaultValues(updateUserProfile.fields),
+        custom_attributes: {
+          '@path': '$.traits'
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
     }
