@@ -2,11 +2,19 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 
+import { getAWSCredentialsFromEKS, AWSCredentials } from '../../../../lib/AWS/sts'
+jest.mock('../../../../lib/AWS/sts')
+
 // Backup and restore environment variables with each test
 const OLD_ENV = process.env
 
 beforeEach(() => {
-  jest.resetModules()
+  ;(getAWSCredentialsFromEKS as jest.Mock).mockResolvedValue({
+    accessKeyId: 'TESTACCESSKEY',
+    secretAccessKey: 'mySuperSecretAccessKey',
+    sessionToken: 'This is a super secret session token'
+  } as AWSCredentials)
+
   process.env = {
     ...OLD_ENV,
 
@@ -21,6 +29,7 @@ beforeEach(() => {
 
 afterAll(() => {
   process.env = OLD_ENV
+  jest.resetModules()
 })
 
 const testDestination = createTestIntegration(Destination)

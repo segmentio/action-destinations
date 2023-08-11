@@ -49,7 +49,7 @@ export async function processPayload(request: RequestClient, settings: Settings,
   const usersFormatted = extractUsers(payloads)
 
   // Send request to AWS to be processed
-  const AWSOperationStatus = await sendEventToAWS({
+  const AWSOperationStatus = await sendEventToAWS(request, {
     TDDAuthToken: settings.auth_token,
     AdvertiserId: settings.advertiser_id,
     CrmDataId: crmID,
