@@ -63,65 +63,52 @@ const event = createTestEvent({
 })
 
 describe('TheTradeDeskCrm.syncAudience', () => {
-  // it('should succeed and create a Segment if an exisitng CRM Segment is not found', async () => {
-  //   // get all CRMS
-  //   nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
-  //     .get(/.*/)
-  //     .reply(200, {
-  //       Segments: [{ SegmentName: 'test_audience', CrmDataId: 'crm_data_id' }],
-  //       PagingToken: 'paging_token'
-  //     })
-  //   nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
-  //     .get(/.*/)
-  //     .reply(200, { Segments: [], PagingToken: null })
+  it('should succeed and create a Segment if an exisitng CRM Segment is not found', async () => {
+    // get all CRMS
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
+      .get(/.*/)
+      .reply(200, {
+        Segments: [{ SegmentName: 'test_audience', CrmDataId: 'crm_data_id' }],
+        PagingToken: 'paging_token'
+      })
 
-  //   // create drop endpoint
-  //   nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
-  //     .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
-  //     .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      .get(/.*/)
+      .reply(200, { Segments: [], PagingToken: null })
 
-  //   nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
-  //     .put(/.*/)
-  //     .reply(200)
+    // create drop endpoint
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
+      .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
+      .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
 
-  //   nock(/https?:\/\/sqs\.([a-z0-9-]+)\.amazonaws\.com:.*/)
-  //     .post(/.*/)
-  //     .reply(
-  //       200,
-  //       `
-  //     <?xml version="1.0"?>
-  //     <SendMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
-  //         <SendMessageResult>
-  //             <MessageId>85b4fd48-be30-483a-bd22-a91b393b0bfe</MessageId>
-  //             <MD5OfMessageBody>79a831c35f460c8f0e6f09730c67dc92</MD5OfMessageBody>
-  //             <SequenceNumber>37326220843981279488</SequenceNumber>
-  //         </SendMessageResult>
-  //         <ResponseMetadata>
-  //             <RequestId>1d00ba86-60f8-5e35-82e4-e7bc84c50244</RequestId>
-  //         </ResponseMetadata>
-  //     </SendMessageResponse>
-  //     `
-  //     )
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
+      .persist()
 
-  //   // // drop users in the endpoint
-  //   // nock(`https://api.thetradedesk.com/drop`).put(/.*/).reply(200)
+    // drop users in the endpoint
+    // nock(`https://api.thetradedesk.com/drop`).put(/.*/).reply(200)
 
-  //   const responses = await testDestination.testBatchAction('syncAudience', {
-  //     events,
-  //     settings: {
-  //       advertiser_id: 'advertiser_id',
-  //       auth_token: 'test_token',
-  //       __segment_internal_engage_force_full_sync: true,
-  //       __segment_internal_engage_batch_sync: true
-  //     },
-  //     useDefaultMappings: true,
-  //     mapping: {
-  //       name: 'test_audience',
-  //       region: 'US',
-  //       pii_type: 'Email'
-  //     }
-  //   })
-  // })
+    //
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'Email'
+      }
+    })
+
+    expect(responses.length).toBeTruthy()
+  })
 
   it('should fail if multiple CRM Segments found with same name', async () => {
     // get all CRMS
