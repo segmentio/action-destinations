@@ -15,49 +15,47 @@ describe('actions-gameball.trackOrder', () => {
       event: 'Place Order',
       properties: {
         mobile: '+20100000000',
-        email: 'example@example.com',
-        order_id: 'ABCD1234',
-        orderDate: '2023-07-27T12:00:00Z',
+        email: "example@example.com",
+        order_id: "ABCD1234",
+        orderDate: "2023-07-27T12:00:00Z",
         subtotal: 50.99,
         total: 55.99,
         totalShipping: 5,
         totalTax: 0.5,
         totalDiscount: 10,
-        lineItems: [
-          {
-            productId: 'P123',
-            sku: 'SKU123',
-            title: 'Product 1',
-            category: ['Fashion', 'Accessories'],
-            collection: ['Summer Collection'],
-            tags: ['Sale'],
-            weight: 0.5,
-            vendor: 'Vendor 1',
-            quantity: 1,
-            price: 45.99,
-            taxes: 0.49,
-            discount: 10
-          }
-        ],
-        discountCodes: ['DISCOUNT123'],
+        lineItems: [{
+          productId: "P123",
+          sku: "SKU123",
+          title: "Product 1",
+          category: ["Fashion", "Accessories"],
+          collection: ["Summer Collection"],
+          tags: ["Sale"],
+          weight: 0.5,
+          vendor: "Vendor 1",
+          quantity: 1,
+          price: 45.99,
+          taxes: 0.49,
+          discount: 10
+        }],
+        discountCodes: ["DISCOUNT123"],
         redeemedAmount: 5,
         holdReference: null,
         guest: false,
         extra: {
-          notes: 'Special instructions for shipping'
+          notes: "Special instructions for shipping"
         },
         merchant: {
-          uniqueId: 'M123',
-          name: 'Example Merchant'
+          uniqueId: "M123",
+          name: "Example Merchant"
         },
         branch: {
-          uniqueId: 'B123',
-          name: 'Example Branch'
+          uniqueId: "B123",
+          name: "Example Branch"
         }
       }
-    })
+    });
 
-    nock(endpoints.baseApiUrl).post(endpoints.trackOrder).reply(200, {})
+    nock(endpoints.baseApiUrl).post(endpoints.trackOrder).reply(200, {});
 
     const responses = await testDestination.testAction('trackOrder', {
       event,
@@ -66,9 +64,9 @@ describe('actions-gameball.trackOrder', () => {
         apiKey: GAMEBALL_API_KEY,
         secretKey: GAMEBALL_SECRET_KEY
       }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toMatchObject({})
-  })
+    });
+    expect(responses.length).toBe(1);
+    expect(responses[0].status).toBe(200);
+    expect(responses[0].data).toMatchObject({});
+  });
 })
