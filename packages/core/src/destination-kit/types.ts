@@ -172,7 +172,8 @@ export interface InputField {
 
   /**
    * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
-   * value is always known.
+   * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
+   * locked out from editing an empty field.
    */
   readOnly?: boolean
 }
