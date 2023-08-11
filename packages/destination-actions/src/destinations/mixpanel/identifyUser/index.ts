@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
         $set: traits
       }
 
-      if (payload.$add) {
+      if (payload.$add && Object.keys(payload.$add).length) {
         data.$add = {}
         for (const key of Object.keys(payload.$add)) {
           const value = payload.$add[key]
