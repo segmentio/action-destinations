@@ -180,7 +180,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     }
 
     // TODO - addAlias / addToCustomAttributeArray?
-    if (payload.external_id && typeof payload.external_id === 'string') {
+    if (payload.external_id) {
       client.instance.changeUser(payload.external_id)
     }
 
@@ -207,7 +207,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
 
     // Adding `firstName` and `lastName` here as these fields are mapped using cammel_case.
     const reservedFields = [...Object.keys(action.fields), 'firstName', 'lastName', 'braze_subscription_groups']
-    if (payload.custom_attributes && typeof payload.custom_attributes === 'object') {
+    if (payload.custom_attributes) {
       Object.entries(payload.custom_attributes).forEach(([key, value]) => {
         if (!reservedFields.includes(key)) {
           user.setCustomUserAttribute(key, value as string | number | boolean | Date | string[] | null)
