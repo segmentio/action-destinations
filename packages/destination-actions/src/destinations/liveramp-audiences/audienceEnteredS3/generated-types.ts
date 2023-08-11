@@ -2,6 +2,22 @@
 
 export interface Payload {
   /**
+   * IAM user credentials with write permissions to the S3 bucket.
+   */
+  s3_aws_access_key?: string
+  /**
+   * IAM user credentials with write permissions to the S3 bucket.
+   */
+  s3_aws_secret_key?: string
+  /**
+   * Name of the S3 bucket where the files will be uploaded to.
+   */
+  s3_aws_bucket_name?: string
+  /**
+   * Region where the S3 bucket is hosted.
+   */
+  s3_aws_region?: string
+  /**
    * Identifies the user within the entered audience.
    */
   audience_key: string

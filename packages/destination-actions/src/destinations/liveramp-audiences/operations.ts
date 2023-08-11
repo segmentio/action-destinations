@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import type { Payload } from './audienceEntered/generated-types'
+import type { Payload } from './audienceEnteredS3/generated-types'
 
 /*
 Generates the LiveRamp ingestion file. Expected format:
