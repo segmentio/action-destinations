@@ -46,6 +46,25 @@ for (let index = 1; index <= 1500; index++) {
   )
 }
 
+// Push Gmail addresses
+events.push(
+  createTestEvent({
+    event: 'Audience Entered',
+    type: 'track',
+    properties: {
+      audience_key: 'personas_test_audience'
+    },
+    context: {
+      device: {
+        advertisingId: '123'
+      },
+      traits: {
+        email: `some.id+testing@gmail.com`
+      }
+    }
+  })
+)
+
 const event = createTestEvent({
   event: 'Audience Entered',
   type: 'track',
@@ -63,8 +82,59 @@ const event = createTestEvent({
 })
 
 describe('TheTradeDeskCrm.syncAudience', () => {
-  it('should succeed and create a Segment if an exisitng CRM Segment is not found', async () => {
-    // get all CRMS
+  it('should succeed and create a Segment if an existing CRM Segment is not found', async () => {
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
+      .get(/.*/)
+      .reply(200, {
+        Segments: [{ SegmentName: 'not_test_audience', CrmDataId: 'crm_data_id' }],
+        PagingToken: 'paging_token'
+      })
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment`)
+      .post(/.*/)
+      .reply(200, {
+        data: {
+          CrmDataId: 'test_audience'
+        }
+      })
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      .get(/.*/)
+      .reply(200, { Segments: [], PagingToken: null })
+
+    // // create drop endpoint
+    // nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
+    //   .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
+    //   .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
+
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
+
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'Email'
+      }
+    })
+
+    expect(responses).toBeTruthy()
+  })
+
+  it('should succeed and update a Segment with Email if an existing CRM Segment is not found', async () => {
     nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
       .get(/.*/)
       .reply(200, {
@@ -84,12 +154,10 @@ describe('TheTradeDeskCrm.syncAudience', () => {
     nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
       .put(/.*/)
       .reply(200)
-      .persist()
 
-    // drop users in the endpoint
-    // nock(`https://api.thetradedesk.com/drop`).put(/.*/).reply(200)
-
-    //
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
 
     const responses = await testDestination.testBatchAction('syncAudience', {
       events,
@@ -107,11 +175,54 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       }
     })
 
+    expect(responses).toBeTruthy()
+  })
+
+  it('should succeed and update a Segment with EmailHashedUnifiedId2 if an existing CRM Segment is not found', async () => {
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
+      .get(/.*/)
+      .reply(200, {
+        Segments: [{ SegmentName: 'test_audience', CrmDataId: 'crm_data_id' }],
+        PagingToken: 'paging_token'
+      })
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      .get(/.*/)
+      .reply(200, { Segments: [], PagingToken: null })
+
+    // create drop endpoint
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
+      .post(/.*/, { PiiType: 'EmailHashedUnifiedId2', MergeMode: 'Replace' })
+      .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
+
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
+
+    nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
+      .put(/.*/)
+      .reply(200)
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'EmailHashedUnifiedId2'
+      }
+    })
+
     expect(responses.length).toBeTruthy()
   })
 
   it('should fail if multiple CRM Segments found with same name', async () => {
-    // get all CRMS
     nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
       .get(/.*/)
       .reply(200, {
@@ -145,7 +256,6 @@ describe('TheTradeDeskCrm.syncAudience', () => {
   })
 
   it('should fail if batch has less than 1500', async () => {
-    // get all CRMS
     nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
       .get(/.*/)
       .reply(200, {
