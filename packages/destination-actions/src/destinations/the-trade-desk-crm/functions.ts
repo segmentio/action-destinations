@@ -3,6 +3,8 @@ import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
 
+import { sendEventToAWS } from './awsClient'
+
 const API_VERSION = 'v3'
 const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
@@ -50,7 +52,10 @@ export async function processPayload(request: RequestClient, settings: Settings,
   const dataDropEndpoint = await getDropEndpoint(request, settings, payloads[0], crmID)
 
   // Send users to the Data Drop Endpoint
-  return sendCRMData(request, dataDropEndpoint, users)
+  // return sendCRMData(request, dataDropEndpoint, users)
+
+  // Send request to AWS to be processed
+  return sendEventToAWS(dataDropEndpoint, users, 'test-audience-id')
 }
 
 async function getAllDataSegments(request: RequestClient, settings: Settings) {
@@ -163,18 +168,18 @@ function extractUsers(payloads: Payload[]): string {
   return users
 }
 
-async function sendCRMData(request: RequestClient, endpoint: string, users: string) {
-  return await request(endpoint, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'text/plain'
-    },
-    body: users
-  })
-}
+// async function sendCRMData(request: RequestClient, endpoint: string, users: string) {
+//   return await request(endpoint, {
+//     method: 'PUT',
+//     headers: {
+//       'Content-Type': 'text/plain'
+//     },
+//     body: users
+//   })
+// }
 
 // More info about email normalization: https://api.thetradedesk.com/v3/portal/data/doc/DataPiiNormalization#email-normalize
-function normalizeEmail(email: string) {
+const normalizeEmail = (email: string) => {
   // Remove all of the leading and trailing whitespace and convert to lowercase
   email = email.trim().toLowerCase()
 
