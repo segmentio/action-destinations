@@ -1,6 +1,6 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../../lib/test-data'
-import destination from '../index'
+import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)

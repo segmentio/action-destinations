@@ -193,6 +193,7 @@ describe('addUpdateEvents', () => {
     const payload = {
       email: 'acmeTest99@gmail.com',
       type: 'track',
+      enable_batching: false,
       timestamp: '2023-02-12T15:07:21.381Z',
       context: {
         integration: {
