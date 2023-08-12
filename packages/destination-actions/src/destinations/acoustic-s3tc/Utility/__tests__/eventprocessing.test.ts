@@ -1,4 +1,5 @@
 import { parseSections, addUpdateEvents } from '../eventprocessing'
+import '@types/jest'
 
 //import { IntegrationError } from '@segment/actions-core'
 //import get from 'lodash/get'
@@ -9,7 +10,6 @@ jest.mock('lodash/flatten')
 jest.mock('lodash/get')
 jest.mock('../../generated-types')
 jest.mock('../../receiveEvents/generated-types')
-jest.mock('../tablemaintutilities')
 
 describe('parseSections', () => {
   it('parseSections should be present', () => {

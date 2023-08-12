@@ -34,6 +34,22 @@ Headers {
 }
 `;
 
+exports[`Testing snapshot for actions-talon-one destination: deleteAudience action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "ApiKey-v1 some_api_key",
+    ],
+    "destination-hostname": Array [
+      "%(D1Zib7U(",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-talon-one destination: trackEvent action - all fields 1`] = `
 Object {
   "attributesInfo": Array [
