@@ -1,13 +1,13 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
-import { Client, Client as ClientSFTP, testAuthSFTP } from './Utility/sftpCache'
+import { Client, Client as ClientSFTP, testAuthSFTP } from './receiveEvents/sftpCache'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 
 Client
 
 const mod = `
-Last-Modified: 08.11.2023 11.39.21
+Last-Modified: 08.12.2023 13.18.41
 `
 //August 2023, refactor for S3Cache
 

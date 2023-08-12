@@ -2,9 +2,9 @@ import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '
 import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import get from 'lodash/get'
-import { addUpdateEvents } from '../Utility/eventprocessing'
+import { addUpdateEvents } from './eventprocessing'
 import generateS3RequestOptions from '../../../lib/AWS/s3'
-import { validateSettings } from '../Utility/preCheck'
+import { validateSettings } from './preCheck'
 
 /* 
 ReceiveEvents

@@ -1,6 +1,6 @@
 // import { IntegrationError, RequestClient, RetryableError } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
-import type { Payload } from '../receiveEvents/generated-types'
+import type { Payload } from './generated-types'
 import get from 'lodash/get'
 
 export function parseSections(section: { [key: string]: string }, nestDepth: number) {

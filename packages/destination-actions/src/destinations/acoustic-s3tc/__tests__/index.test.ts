@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import '@types/jest'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -10,8 +11,9 @@ describe('Acoustic S3TC', () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
       const settings = {
-        username: '<test username>',
-        password: '<test password>'
+        cacheType: '',
+        __segment_internal_engage_force_full_sync: false,
+        __segment_internal_engage_batch_sync: false
       }
 
       createTestEvent.length
