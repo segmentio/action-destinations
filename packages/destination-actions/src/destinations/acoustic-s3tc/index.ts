@@ -7,7 +7,7 @@ import { InvalidAuthenticationError } from '@segment/actions-core'
 Client
 
 const mod = `
-Last-Modified: 08.12.2023 13.18.41
+Last-Modified: 08.12.2023 16.27.15
 `
 //August 2023, refactor for S3Cache
 
@@ -145,12 +145,14 @@ const destination: DestinationDefinition<Settings> = {
       if (settings.cacheType == 'SFTP') {
         const sftpClient = new ClientSFTP()
         InvalidAuthenticationError
+
         return await testAuthSFTP(sftpClient, settings)
       }
 
       if (settings.cacheType == 'S3') {
         const sftpClient = new ClientSFTP()
         InvalidAuthenticationError
+
         return await testAuthSFTP(sftpClient, settings)
       }
     }

@@ -1,9 +1,4 @@
 import { parseSections, addUpdateEvents } from '../eventprocessing'
-import '@types/jest'
-
-//import { IntegrationError } from '@segment/actions-core'
-//import get from 'lodash/get'
-//import { Payload } from '../receiveEvents/generated-types'
 
 jest.mock('@segment/actions-core')
 jest.mock('lodash/flatten')
@@ -271,5 +266,46 @@ describe('addUpdateEvents', () => {
     }
 
     expect(addUpdateEvents(payload, 'acmeTest@gmail.com')).toMatchSnapshot()
+  })
+})
+
+describe('parseSections', () => {
+  test('parses sections with nesting', () => {
+    const section = {
+      key1: 'value1',
+      key2: {
+        subkey1: 'subvalue1',
+        subkey2: {
+          subsubkey1: 'subsubvalue1'
+        }
+      }
+    }
+
+    const result = parseSections(section, 0)
+
+    expect(result).toEqual({
+      key1: 'value1',
+      'key2.subkey1': 'subvalue1',
+      'key2.subkey2.subsubkey1': 'subsubvalue1'
+    })
+  })
+
+  // Add more test cases for different scenarios and edge cases
+})
+
+describe('addUpdateEvents', () => {
+  test('adds update events to CSV rows', () => {
+    const mockPayload = {
+      email: 'example@example.com',
+      type: 'track',
+      timestamp: '2023-02-07T02:19:23.469Z',
+      key_value_pairs: {
+        key1: 'value1'
+      },
+      enable_batching: false
+    }
+
+    const csvRows = addUpdateEvents(mockPayload, 'example@example.com')
+    expect(csvRows).toMatchSnapshot()
   })
 })

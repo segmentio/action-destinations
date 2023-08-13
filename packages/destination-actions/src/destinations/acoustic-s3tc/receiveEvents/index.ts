@@ -7,7 +7,7 @@ import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { validateSettings } from './preCheck'
 
 /* 
-ReceiveEvents
+ReceiveEvents 
 */
 
 const action: ActionDefinition<Settings, Payload> = {
