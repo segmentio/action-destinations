@@ -15,23 +15,9 @@ const validS3Settings = {
   __segment_internal_engage_batch_sync: false
 }
 
-const validSFTPSettings = {
-  cacheType: 'SFTP',
-  sftp_user: 'username',
-  sftp_password: 'password',
-  sftp_folder: '/path/to/folder',
-  fileNamePrefix: 'prefix',
-  __segment_internal_engage_force_full_sync: false,
-  __segment_internal_engage_batch_sync: false
-}
-
 describe('validateSettings', () => {
   test('valid S3 settings', () => {
     expect(() => validateSettings(validS3Settings)).not.toThrow()
-  })
-
-  test('valid SFTP settings', () => {
-    expect(() => validateSettings(validSFTPSettings)).not.toThrow()
   })
 
   test('missing cacheType', () => {
@@ -51,15 +37,6 @@ describe('validateSettings', () => {
   test('missing S3 settings', () => {
     const settings = {
       cacheType: 'S3',
-      fileNamePrefix: 'prefix'
-    }
-
-    expect(() => validateSettings(settings)).toThrow(IntegrationError)
-  })
-
-  test('missing SFTP settings', () => {
-    const settings = {
-      cacheType: 'SFTP',
       fileNamePrefix: 'prefix'
     }
 

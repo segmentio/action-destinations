@@ -1,13 +1,9 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
-import { Client, Client as ClientSFTP, testAuthSFTP } from './receiveEvents/sftpCache'
-import { InvalidAuthenticationError } from '@segment/actions-core'
-
-Client
 
 const mod = `
-Last-Modified: 08.12.2023 16.27.15
+Last-Modified: 08.12.2023 22.38.58
 `
 //August 2023, refactor for S3Cache
 
@@ -134,36 +130,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         default: true
       }
-    },
-
-    testAuthentication: async (_, { settings }) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-
-      // S3 authentication is skipped to avoid requiring a GetObject permission on the IAM role.
-      if (settings.cacheType == 'SFTP') {
-        const sftpClient = new ClientSFTP()
-        InvalidAuthenticationError
-
-        return await testAuthSFTP(sftpClient, settings)
-      }
-
-      if (settings.cacheType == 'S3') {
-        const sftpClient = new ClientSFTP()
-        InvalidAuthenticationError
-
-        return await testAuthSFTP(sftpClient, settings)
-      }
     }
-  },
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-    request
-    settings
-    payload
   },
   presets,
   actions: {

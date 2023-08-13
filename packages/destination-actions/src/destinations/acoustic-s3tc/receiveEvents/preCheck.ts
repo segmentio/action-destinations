@@ -17,13 +17,6 @@ function validateSettings(settings: Settings) {
 
     if (!settings.s3_bucket) throw new IntegrationError('Missing S3 Bucket.', 'MISSING_S3_BUCKET', 400)
   }
-  if (settings.cacheType === 'SFTP') {
-    if (!settings.sftp_user) throw new IntegrationError('Missing SFTP User.', 'MISSING_SFTP_USER', 400)
-
-    if (!settings.sftp_password) throw new IntegrationError('Missing SFTP Password.', 'MISSING_SFTP_PASSWORD', 400)
-
-    if (!settings.sftp_folder) throw new IntegrationError('Missing SFTP Folder.', 'MISSING_SFTP_FOLDER', 400)
-  }
 
   if (!settings.fileNamePrefix) throw new IntegrationError('Missing File Name Prefix', 'MISSING_FILE_NAME_PREFIX', 400)
 }

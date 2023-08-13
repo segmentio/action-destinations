@@ -116,14 +116,6 @@ const action: ActionDefinition<Settings, Payload> = {
     //Set File Store Name
     const fileName = settings.fileNamePrefix + `${new Date().toISOString()}` + '.csv'
 
-    // return await putS3(settings, "", Buffer.from(csvRows), request)
-
-    // async function putS3(
-    //   settings: Settings,
-    //   filename: string,
-    //   fileContent: string,
-    // const p =  (url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
-    // ) {
     const method = 'PUT'
     const opts = await generateS3RequestOptions(
       settings.s3_bucket as string,
@@ -138,21 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
     }
 
-    console.log(
-      method,
-      '\n',
-      `https://${opts.host}/${opts.path}`,
-      '\n',
-      fileName,
-      '\n',
-      settings.s3_bucket,
-      '\n',
-      settings.s3_access_key,
-      '\n',
-      settings.s3_secret
-    )
-
-    //https://AccessPointName-AccountId.s3-accesspoint.region.amazonaws.com
+    // console.log(method, '\n', `https://${opts.host}/${opts.path}`, '\n', fileName, '\n', settings.s3_bucket, '\n', settings.s3_access_key, '\n', settings.s3_secret)
 
     return await request(`https://${opts.host}/${opts.path}`, {
       headers: opts.headers as Record<string, string>,
