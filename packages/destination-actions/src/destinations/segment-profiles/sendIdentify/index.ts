@@ -18,11 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     traits
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
-    const groupPayload: Object = {
+    const identityPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       groupId: payload?.group_id,
@@ -41,10 +41,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
+    if (features && features['actions-segment-profiles-tapi-internal']) {
+      return { batch: [identityPayload] }
+    }
+
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
-      json: groupPayload,
+      json: identityPayload,
       headers: {
         authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
       }

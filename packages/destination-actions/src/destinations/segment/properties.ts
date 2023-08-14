@@ -7,13 +7,13 @@ interface SegmentEndpoint {
 export const SEGMENT_ENDPOINTS: { [key: string]: SegmentEndpoint } = {
   north_america: {
     label: 'North America',
-    url: 'https://api.segment.io/v1',
-    cdn: 'https://cdn.segment.com/v1'
+    url: 'https://api.segment.build/v1',
+    cdn: 'https://cdn.segment.build/v1'
   },
   europe: {
     label: 'Europe',
-    url: 'https://events.eu1.segmentapis.com/v1',
-    cdn: 'https://cdn.segment.com/v1'
+    url: 'https://events.eu1.segmentapis.build/v1',
+    cdn: 'https://cdn.segment.build/v1'
   }
 }
 

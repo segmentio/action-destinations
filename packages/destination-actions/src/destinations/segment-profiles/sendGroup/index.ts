@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id: { ...group_id, required: true },
     traits
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -38,6 +38,10 @@ const action: ActionDefinition<Settings, Payload> = {
     // Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
       throw InvalidEndpointSelectedThrowableError
+    }
+
+    if (features && features['actions-segment-profiles-tapi-internal']) {
+      return { batch: [groupPayload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url

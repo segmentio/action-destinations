@@ -126,7 +126,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Resolve/transform the mapping with the input data
     let payload = transform(bundle.mapping, bundle.data) as Payload
-    results.push({ output: 'Mappings resolved' })
+    // results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
@@ -135,7 +135,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
       validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
-      results.push({ output: 'Payload validated' })
+      // results.push({ output: 'Payload validated' })
     }
 
     // Construct the data bundle to send to an action
