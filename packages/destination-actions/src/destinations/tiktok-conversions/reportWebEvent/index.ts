@@ -217,7 +217,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
     // Request to tiktok Events Web API
-    return request('https://business-api.tiktok.com/open_api/v1.2/pixel/track/', {
+    return request('https://business-api.tiktok.com/open_api/v1.3/pixel/track/', {
       method: 'post',
       json: {
         pixel_code: settings.pixelCode,
