@@ -2,37 +2,29 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 
+import { TTD_LEGACY_FLOW_FLAG_NAME } from '../../functions'
+
 import { getAWSCredentialsFromEKS, AWSCredentials } from '../../../../lib/AWS/sts'
 jest.mock('../../../../lib/AWS/sts')
 
-// Backup and restore environment variables with each test
-const OLD_ENV = process.env
+let testDestination = createTestIntegration(Destination)
 
 beforeEach(() => {
+  // Re-Initialize the destination before each test
+  // This is done to mitigate a bug where action responses persist into other tests
+  testDestination = createTestIntegration(Destination)
+
+  // Mock function to fetch AWS Credentials from STS
   ;(getAWSCredentialsFromEKS as jest.Mock).mockResolvedValue({
     accessKeyId: 'TESTACCESSKEY',
     secretAccessKey: 'mySuperSecretAccessKey',
     sessionToken: 'This is a super secret session token'
   } as AWSCredentials)
-
-  process.env = {
-    ...OLD_ENV,
-
-    // Hardcode dummy AWS credentials for testing
-    AWS_REGION: 'us-west-2',
-    NODE_ENV: 'stage',
-    AWS_ACCESS_KEY_ID: 'test',
-    AWS_SECRET_ACCESS_KEY: 'test',
-    AWS_SESSION_TOKEN: 'test'
-  }
 })
 
 afterAll(() => {
-  process.env = OLD_ENV
   jest.resetModules()
 })
-
-const testDestination = createTestIntegration(Destination)
 
 const events: SegmentEvent[] = []
 for (let index = 1; index <= 1500; index++) {
@@ -111,11 +103,6 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       .get(/.*/)
       .reply(200, { Segments: [], PagingToken: null })
 
-    // // create drop endpoint
-    // nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
-    //   .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
-    //   .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
-
     nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
       .put(/.*/)
       .reply(200)
@@ -140,7 +127,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       }
     })
 
-    expect(responses).toBeTruthy()
+    expect(responses.length).toBe(5)
   })
 
   it('should succeed and update a Segment with Email if an existing CRM Segment is not found', async () => {
@@ -155,11 +142,6 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       .get(/.*/)
       .reply(200, { Segments: [], PagingToken: null })
 
-    // create drop endpoint
-    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
-      .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
-      .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
-
     nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
       .put(/.*/)
       .reply(200)
@@ -184,7 +166,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       }
     })
 
-    expect(responses).toBeTruthy()
+    expect(responses.length).toBe(4)
   })
 
   it('should succeed and update a Segment with EmailHashedUnifiedId2 if an existing CRM Segment is not found', async () => {
@@ -198,11 +180,6 @@ describe('TheTradeDeskCrm.syncAudience', () => {
     nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
       .get(/.*/)
       .reply(200, { Segments: [], PagingToken: null })
-
-    // create drop endpoint
-    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
-      .post(/.*/, { PiiType: 'EmailHashedUnifiedId2', MergeMode: 'Replace' })
-      .reply(200, { Url: 'https://api.thetradedesk.com/drop' })
 
     nock(/https?:\/\/([a-z0-9-]+)\.s3\.([a-z0-9-]+)\.amazonaws\.com:.*/)
       .put(/.*/)
@@ -228,7 +205,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       }
     })
 
-    expect(responses.length).toBeTruthy()
+    expect(responses.length).toBe(4)
   })
 
   it('should fail if multiple CRM Segments found with same name', async () => {
@@ -292,5 +269,48 @@ describe('TheTradeDeskCrm.syncAudience', () => {
         }
       })
     ).rejects.toThrow(`received payload count below The Trade Desk's ingestion limits. Expected: >=1500 actual: 1`)
+  })
+
+  it('should execute legacy flow if flagon override is defined', async () => {
+    const dropReferenceId = 'aabbcc5b01-c9c7-4000-9191-000000000000'
+    const dropEndpoint = `https://thetradedesk-crm-data.s3.us-east-1.amazonaws.com/data/advertiser/advertiser-id/drop/${dropReferenceId}/pii?X-Amz-Security-Token=token&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=date&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=credentials&X-Amz-Signature=signature&`
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
+      .get(/.*/)
+      .reply(200, {
+        Segments: [{ SegmentName: 'test_audience', CrmDataId: 'crm_data_id' }],
+        PagingToken: 'paging_token'
+      })
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      .get(/.*/)
+      .reply(200, { Segments: [], PagingToken: null })
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/crm_data_id`)
+      .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace' })
+      .reply(200, { ReferenceId: dropReferenceId, Url: dropEndpoint })
+
+    nock(dropEndpoint).put(/.*/).reply(200)
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      features: {
+        [TTD_LEGACY_FLOW_FLAG_NAME]: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'Email'
+      }
+    })
+
+    expect(responses.length).toBe(4)
   })
 })

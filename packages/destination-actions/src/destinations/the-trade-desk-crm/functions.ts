@@ -5,9 +5,6 @@ import { createHash } from 'crypto'
 
 import { sendEventToAWS } from './awsClient'
 
-const API_VERSION = 'v3'
-const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
-
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string
   Url: string
@@ -36,32 +33,60 @@ export interface CREATE_API_RESPONSE {
   FirstPartyDataId: number
 }
 
-export async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
-  const TTD_MIN_RECORD_COUNT = 1500
-  if (payloads.length < TTD_MIN_RECORD_COUNT) {
+interface ProcessPayloadInput {
+  request: RequestClient
+  settings: Settings
+  payloads: Payload[]
+  features?: Record<string, boolean>
+}
+
+// Define constants
+const API_VERSION = 'v3'
+const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+const TTD_MIN_RECORD_COUNT = 1500
+
+export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'
+
+export async function processPayload(input: ProcessPayloadInput) {
+  if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
-      `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${payloads.length}`
+      `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
     )
   }
-  const crmID = await getCRMInfo(request, settings, payloads[0])
+  const crmID = await getCRMInfo(input.request, input.settings, input.payloads[0])
 
   // Get user emails from the payloads
-  const usersFormatted = extractUsers(payloads)
+  const usersFormatted = extractUsers(input.payloads)
 
-  // Send request to AWS to be processed
-  const AWSOperationStatus = await sendEventToAWS(request, {
-    TDDAuthToken: settings.auth_token,
-    AdvertiserId: settings.advertiser_id,
-    CrmDataId: crmID,
-    SegmentName: payloads[0].name,
-    UsersFormatted: usersFormatted,
-    DropOptions: {
-      PiiType: payloads[0].pii_type,
-      MergeMode: 'Replace'
-    }
-  })
+  // Overwrite to Legacy Flow if feature flag is enabled
+  if (input.features && input.features[TTD_LEGACY_FLOW_FLAG_NAME]) {
+    //------------
+    // LEGACY FLOW
+    // -----------
 
-  return AWSOperationStatus
+    // Create a new TTD Drop Endpoint
+    const dropEndpoint = await getCRMDataDropEndpoint(input.request, input.settings, input.payloads[0], crmID)
+
+    // Upload CRM Data to Drop Endpoint
+    return uploadCRMDataToDropEndpoint(input.request, dropEndpoint, usersFormatted)
+  } else {
+    //------------
+    // AWS FLOW
+    // -----------
+
+    // Send request to AWS to be processed
+    return sendEventToAWS(input.request, {
+      TDDAuthToken: input.settings.auth_token,
+      AdvertiserId: input.settings.advertiser_id,
+      CrmDataId: crmID,
+      SegmentName: input.payloads[0].name,
+      UsersFormatted: usersFormatted,
+      DropOptions: {
+        PiiType: input.payloads[0].pii_type,
+        MergeMode: input.payloads[0].merge_mode || 'Replace'
+      }
+    })
+  }
 }
 
 async function getAllDataSegments(request: RequestClient, settings: Settings) {
@@ -177,4 +202,35 @@ export const hash = (value: string): string => {
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('base64')
+}
+
+// Generates a Drop Endpoint URL to upload CRM Data (Legacy Flow)
+async function getCRMDataDropEndpoint(request: RequestClient, settings: Settings, payload: Payload, crmId: string) {
+  const response: ModifiedResponse<DROP_ENDPOINT_API_RESPONSE> = await request(
+    `${BASE_URL}/crmdata/segment/${settings.advertiser_id}/${crmId}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      },
+      json: {
+        PiiType: payload.pii_type,
+        MergeMode: payload.merge_mode || 'Replace'
+      }
+    }
+  )
+
+  return response.data.Url
+}
+
+// Uploads CRM Data to Drop Endpoint (Legacy Flow)
+async function uploadCRMDataToDropEndpoint(request: RequestClient, endpoint: string, users: string) {
+  return await request(endpoint, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: users
+  })
 }
