@@ -346,7 +346,7 @@ describe('Mixpanel.identifyUser', () => {
       timestamp,
       traits: {
         abc: '123',
-        $add: {
+        increment: {
           positive: 2,
           negative: -2
         }
@@ -361,10 +361,12 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
-        apiRegion: ApiRegions.US
+        apiSecret: MIXPANEL_API_SECRET
       }
     })
+
+    // $add and $set require separate API calls
+    expect(responses).toHaveLength(3)
 
     expect(responses[1].status).toBe(200)
     expect(responses[1].data).toMatchObject({})
@@ -376,7 +378,19 @@ describe('Mixpanel.identifyUser', () => {
           $ip: '8.8.8.8',
           $set: {
             abc: '123'
-          },
+          }
+        })
+      })
+    )
+
+    expect(responses[2].status).toBe(200)
+    expect(responses[2].data).toMatchObject({})
+    expect(responses[2].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
           $add: {
             positive: 2,
             negative: -2

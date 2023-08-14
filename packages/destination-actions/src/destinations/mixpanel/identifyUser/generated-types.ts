@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).
    */
-  $add?: {
+  increment?: {
     [k: string]: unknown
   }
 }
