@@ -97,7 +97,7 @@ export abstract class MessageSendPerformer<
   static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
   static readonly sendableStatuses = ['subscribed', 'true']
   static readonly nonSendableStatusesOptOut = ['unsubscribed', 'false'] // do we need that??
-  static readonly sendableStatusesOptOut = ['subscribed', 'true', 'did not subscribed']
+  static readonly sendableStatusesOptOut = ['subscribed', 'true', 'did not subscribed', 'null']
 
   /**
    * allows access to static members of the current class that can be overriden in subclasses
@@ -127,6 +127,7 @@ export abstract class MessageSendPerformer<
   isExternalIdSubscribedOptOutModel(extId: ExtId<TPayload>): boolean | undefined {
     const staticMems = this.getStaticMembersOfThisClass()
     const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
+    if (subStatus === null) return true
     if (!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
     // if subStatus is not in any of the lists of valid statuses, then return true
     if (staticMems.sendableStatusesOptOut.includes(subStatus)) return true
