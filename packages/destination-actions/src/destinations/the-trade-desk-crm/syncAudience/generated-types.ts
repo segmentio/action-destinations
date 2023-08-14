@@ -18,6 +18,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * The merge mode to use when syncing data to The Trade Desk CRM Segment.
+   */
+  merge_mode?: string
+  /**
    * Enable batching of requests to The Trade Desk CRM Segment.
    */
   enable_batching?: boolean
