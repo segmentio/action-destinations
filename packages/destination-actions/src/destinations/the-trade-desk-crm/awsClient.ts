@@ -8,7 +8,6 @@ interface SendToAWSRequest {
   TDDAuthToken: string
   AdvertiserId: string
   CrmDataId: string
-  SegmentName: string
   UsersFormatted: string
   DropOptions: {
     PiiType: string
@@ -59,7 +58,6 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   const metadata = JSON.stringify({
     TDDAuthToken: input.TDDAuthToken,
     AdvertiserId: input.AdvertiserId,
-    SegmentName: input.SegmentName,
     CrmDataId: input.CrmDataId,
     DropOptions: input.DropOptions,
     RequeueCount: 0
