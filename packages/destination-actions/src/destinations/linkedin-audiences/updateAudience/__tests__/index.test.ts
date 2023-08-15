@@ -83,7 +83,8 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          personas_audience_key: 'mismatched_audience'
+          personas_audience_key: 'mismatched_audience',
+          dmp_user_action: null
         }
       })
     ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
