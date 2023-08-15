@@ -85,6 +85,19 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    ttp: {
+      label: 'TikTok Cookie ID',
+      description:
+        'TikTok Cookie ID. If you also use Pixel SDK and have enabled cookies, Pixel SDK automatically saves a unique identifier in the `_ttp` cookie. The value of `_ttp` is used to match website visitor events with TikTok ads. You can extract the value of `_ttp` and attach the value here. To learn more about the `ttp` parameter, refer to [Events API 2.0 - Send TikTok Cookie](https://ads.tiktok.com/marketing_api/docs?id=%201771100936446977) (`_ttp`).',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.ttp' },
+          then: { '@path': '$.properties.ttp' },
+          else: { '@path': '$.traits.ttp' }
+        }
+      }
+    },
     lead_id: {
       label: 'TikTok Lead ID',
       description:
@@ -95,6 +108,19 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: { '@path': '$.properties.lead_id' },
           then: { '@path': '$.properties.lead_id' },
           else: { '@path': '$.traits.lead_id' }
+        }
+      }
+    },
+    locale: {
+      label: 'Locale',
+      description:
+        'The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.locale' },
+          then: { '@path': '$.properties.locale' },
+          else: { '@path': '$.traits.locale' }
         }
       }
     },
@@ -146,17 +172,34 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Number of items.',
           type: 'number'
         },
-        content_type: {
-          label: 'Content Type',
-          description: 'Type of the product item.',
+        content_category: {
+          label: 'Content Category',
+          description: 'Category of the product item.',
           type: 'string'
         },
         content_id: {
           label: 'Content ID',
           description: 'ID of the product item.',
           type: 'string'
+        },
+        content_name: {
+          label: 'Content Name',
+          description: 'Name of the product item.',
+          type: 'string'
+        },
+        brand: {
+          label: 'Brand',
+          description: 'Brand name of the product item.',
+          type: 'string'
         }
       }
+    },
+    content_type: {
+      label: 'Content Type',
+      description:
+        'Type of the product item. When the `content_id` in the `contents` parameter is specified as `sku_id`, set this field to `product`. When the `content_id` in the `contents` parameter is specified as `item_group_id`, set this field to `product_group`.',
+      type: 'string',
+      choices: ['product', 'product_group']
     },
     currency: {
       label: 'Currency',
@@ -191,6 +234,31 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.query'
       }
     },
+    order_id: {
+      label: 'Order ID',
+      type: 'string',
+      description: 'Order ID of the transaction.',
+      default: {
+        '@path': '$.properties.order_id'
+      }
+    },
+    shop_id: {
+      label: 'Shop ID',
+      type: 'string',
+      description: 'Shop ID of the transaction.',
+      default: {
+        '@path': '$.properties.shop_id'
+      }
+    },
+    limited_data_use: {
+      label: 'Limited Data Use',
+      type: 'string',
+      description:
+        'Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).',
+      default: {
+        '@path': '$.properties.limited_data_use'
+      }
+    },
     test_event_code: {
       label: 'Test Event Code',
       type: 'string',
@@ -217,39 +285,48 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
     // Request to tiktok Events Web API
-    return request('https://business-api.tiktok.com/open_api/v1.3/pixel/track/', {
+    return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'post',
       json: {
-        pixel_code: settings.pixelCode,
-        event: payload.event,
-        event_id: payload.event_id ? `${payload.event_id}` : undefined,
-        timestamp: payload.timestamp,
-        test_event_code: payload.test_event_code,
-        context: {
-          user: {
-            external_id: userData.hashedExternalId,
-            phone_number: userData.hashedPhoneNumber,
-            email: userData.hashedEmail,
-            lead_id: payload.lead_id
-          },
-          ad: {
-            callback: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined
-          },
-          page: {
-            url: payload.url,
-            referrer: payload.referrer
-          },
-          ip: payload.ip,
-          user_agent: payload.user_agent
-        },
-        properties: {
-          contents: payload.contents,
-          currency: payload.currency,
-          value: payload.value,
-          description: payload.description,
-          query: payload.query
-        },
-        partner_name: 'Segment'
+        event_source: 'web',
+        event_source_id: settings.pixelCode,
+        partner_name: 'Segment',
+        data: [
+          {
+            event: payload.event,
+            event_time: payload.timestamp
+              ? Math.floor(new Date(payload.timestamp).getTime() / 1000)
+              : Math.floor(new Date().getTime() / 1000),
+            event_id: payload.event_id ? `${payload.event_id}` : undefined,
+            user: {
+              ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
+              external_id: userData.hashedExternalId,
+              phone_number: userData.hashedPhoneNumber,
+              email: userData.hashedEmail,
+              lead_id: payload.lead_id ? payload.lead_id : undefined,
+              ttp: payload.ttp ? payload.ttp : undefined,
+              ip: payload.ip ? payload.ip : undefined,
+              user_agent: payload.user_agent ? payload.user_agent : undefined,
+              locale: payload.locale ? payload.locale : undefined
+            },
+            properties: {
+              contents: payload.contents ? payload.contents : [],
+              content_type: payload.content_type ? payload.content_type : undefined,
+              currency: payload.currency ? payload.currency : undefined,
+              value: payload.value ? payload.value : undefined,
+              query: payload.query ? payload.query : undefined,
+              description: payload.description ? payload.description : undefined,
+              order_id: payload.order_id ? payload.order_id : undefined,
+              shop_id: payload.shop_id ? payload.shop_id : undefined
+            },
+            page: {
+              url: payload.url ? payload.url : undefined,
+              referrer: payload.referrer ? payload.referrer : undefined
+            },
+            limited_data_use: payload.limited_data_use ? payload.limited_data_use : false,
+            test_event_code: payload.test_event_code ? payload.test_event_code : undefined
+          }
+        ]
       }
     })
   }

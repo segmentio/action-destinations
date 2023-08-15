@@ -11,11 +11,14 @@ const productProperties = {
   quantity: {
     '@path': '$.quantity'
   },
-  content_type: {
+  content_category: {
     '@path': '$.category'
   },
   content_id: {
     '@path': '$.product_id'
+  },
+  brand: {
+    '@path': '$.brand'
   }
 }
 
@@ -159,7 +162,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings }) {
     return {
-      headers: { 'Access-Token': settings.accessToken }
+      headers: {
+        'Access-Token': settings.accessToken,
+        'Content-Type': 'application/json'
+      }
     }
   },
   presets,
