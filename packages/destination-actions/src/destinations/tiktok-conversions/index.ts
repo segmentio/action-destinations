@@ -59,6 +59,16 @@ const presets: DestinationDefinition['presets'] = [
     type: 'automatic'
   },
   {
+    name: 'Click Button',
+    subscribe: 'event = "Product Clicked"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...singleProductContents,
+      event: 'ClickButton'
+    },
+    type: 'automatic'
+  },
+  {
     name: 'Search',
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportWebEvent',
@@ -115,6 +125,61 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...multiProductContents,
       event: 'PlaceAnOrder'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Complete Payment',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...multiProductContents,
+      event: 'CompletePayment'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Contact',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      event: 'Contact'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Download',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      event: 'Download'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Submit Form',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      event: 'SubmitForm'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Complete Registration',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      event: 'CompleteRegistration'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Subscribe',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      event: 'Subscribe'
     },
     type: 'automatic'
   }
