@@ -4,8 +4,6 @@ exports[`Testing snapshot for Airship's registerAndAssociate destination action:
 Object {
   "channel": Object {
     "address": "f%VfPi0]O9eIkSaU",
-    "locale_language": "f%VfPi0]O9eIkSaU",
-    "timezone": "f%VfPi0]O9eIkSaU",
     "type": "email",
   },
 }

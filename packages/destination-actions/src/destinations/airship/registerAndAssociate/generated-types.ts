@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * Locale includes country and language
    */
-  locale: string
+  locale?: string
   /**
    * Timezone
    */
-  timezone: string
+  timezone?: string
   /**
    * Classic or Double
    */

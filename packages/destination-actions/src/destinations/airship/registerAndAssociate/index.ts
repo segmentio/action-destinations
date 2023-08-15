@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { register, associate_named_user, getChannelId } from '../utilities'
@@ -6,7 +6,7 @@ import { register, associate_named_user, getChannelId } from '../utilities'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Register And Associate',
   description: 'Register an Email address and associate it with a Named User ID.',
-  defaultSubscription: 'type = "track" and event="Address Registered"',
+  defaultSubscription: 'type = "track" and event="Email Address Registered"',
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Locale',
       description: 'Locale includes country and language',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.context.locale'
       }
@@ -30,7 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Timezone',
       description: 'Timezone',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.context.timezone'
       }
@@ -129,7 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        address: { '@path': '$.email' },
+        address: { '@path': '$.properties.email' },
         new_address: { '@path': '$.properties.new_email' },
         commercial_opted_in: { '@path': '$.properties.commercial_opted_in' },
         commercial_opted_out: { '@path': '$.properties.commercial_opted_out' },
@@ -156,13 +156,21 @@ const action: ActionDefinition<Settings, Payload> = {
     const data = JSON.parse(response_content)
 
     if (!data.ok || !data.channel_id) {
-      throw new Error(`Registration Failed, didn't create channel_id for ${payload.channel_object.address}`)
+      throw new IntegrationError(
+        `Registration Failed, didn't create channel_id for ${payload.channel_object.address}`,
+        'Unsuccessful Registration',
+        400
+      )
     }
     const channel_id = data.channel_id
     if (payload.named_user_id && payload.named_user_id.length > 0) {
       const associate_response = await associate_named_user(request, settings, channel_id, payload.named_user_id)
       if (!associate_response.ok) {
-        throw new Error(`Associate Failed for named user ${payload.named_user_id}`)
+        throw new IntegrationError(
+          `Associate Failed for named user ${payload.named_user_id}`,
+          'Could not associate email address with named user id',
+          400
+        )
       }
       return associate_response
     } else {

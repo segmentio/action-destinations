@@ -4,6 +4,7 @@ import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 import { Payload as RegisterPayload } from './registerAndAssociate/generated-types'
+import { timezone } from '../segment/segment-properties'
 
 // exported Action function
 export function register(
@@ -19,7 +20,10 @@ export function register(
     register_uri = `${endpoint}/api/channels/email/replace/${old_channel}`
     address_to_use = payload.channel_object.new_address
   }
-  const country_language = _extract_country_language(payload.locale)
+  let country_language = null
+  if (payload.locale && payload.locale.length > 0) {
+    country_language = _extract_country_language(payload.locale)
+  }
   const register_payload: {
     channel: {
       commercial_opted_in?: string
@@ -33,18 +37,22 @@ export function register(
       suppression_state?: string
       type: string
       address: string
-      timezone: string
-      locale_language: string
-      locale_country: string
+      timezone?: string
+      locale_language?: string
+      locale_country?: string
     }
   } = {
     channel: {
       type: 'email',
-      address: address_to_use,
-      timezone: payload.timezone,
-      locale_language: country_language[0],
-      locale_country: country_language[1]
+      address: address_to_use
     }
+  }
+  if (country_language) {
+    payload.channel_object.locale_language = country_language[0]
+    payload.channel_object.locale_country = country_language[1]
+  }
+  if (timezone) {
+    payload.channel_object.timezone = payload.timezone
   }
   // handle and format all optional date params
   if (payload.channel_object.commercial_opted_in) {

@@ -75,13 +75,6 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
       mapping: defaultValues(setAttributes.fields)
-    },
-    {
-      name: 'Register and Associate',
-      type: 'automatic',
-      subscribe: 'type = "identify"',
-      partnerAction: 'register_and_associate',
-      mapping: defaultValues(setAttributes.fields)
     }
   ],
   onDelete: async (request, { settings, payload }) => {
