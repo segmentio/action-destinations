@@ -1,20 +1,34 @@
-import {
-  ActionDefinition,
-  InvalidAuthenticationError,
-  PayloadValidationError,
-  RequestClient
-} from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
-import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Audience Entered',
-  description: 'Uploads audience membership data to a file for LiveRamp ingestion.',
+  title: 'Audience Entered (S3)',
+  description: 'Uploads audience membership data to a file in S3 for LiveRamp ingestion.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
+    s3_aws_access_key: {
+      label: 'AWS Access Key ID',
+      description: 'IAM user credentials with write permissions to the S3 bucket.',
+      type: 'string'
+    },
+    s3_aws_secret_key: {
+      label: 'AWS Secret Access Key',
+      description: 'IAM user credentials with write permissions to the S3 bucket.',
+      type: 'password'
+    },
+    s3_aws_bucket_name: {
+      label: 'AWS Bucket Name',
+      description: 'Name of the S3 bucket where the files will be uploaded to.',
+      type: 'string'
+    },
+    s3_aws_region: {
+      label: 'AWS Region (S3 only)',
+      description: 'Region where the S3 bucket is hosted.',
+      type: 'string'
+    },
     audience_key: {
       label: 'Audience Key',
       description: 'Identifies the user within the entered audience.',
@@ -62,18 +76,18 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 1000000
+      default: 170000
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (request, { payload }) => {
+    return processData(request, [payload])
   },
-  performBatch: (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: (request, { payload }) => {
+    return processData(request, payload)
   }
 }
 
-async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+async function processData(request: RequestClient, payloads: Payload[]) {
   const LIVERAMP_MIN_RECORD_COUNT = 25
   if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
@@ -81,27 +95,11 @@ async function processData(request: RequestClient, settings: Settings, payloads:
     )
   }
 
-  switch (settings.upload_mode) {
-    case 'S3':
-      validateS3(settings)
-      break
-    case 'SFTP':
-      validateSFTP(settings)
-      break
-    default:
-      throw new InvalidAuthenticationError(`Unexpected upload mode: ${settings.upload_mode}`)
-  }
+  validateS3(payloads[0])
 
   const { filename, fileContent } = generateFile(payloads)
 
-  switch (settings.upload_mode) {
-    case 'S3':
-      return uploadS3(settings, filename, fileContent, request)
-    case 'SFTP': {
-      const sftpClient = new ClientSFTP()
-      return uploadSFTP(sftpClient, settings, filename, fileContent)
-    }
-  }
+  return uploadS3(payloads[0], filename, fileContent, request)
 }
 
 export default action
