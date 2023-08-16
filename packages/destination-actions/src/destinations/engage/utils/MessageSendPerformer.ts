@@ -21,6 +21,7 @@ export enum SendabilityStatus {
 }
 
 export interface MessagePayloadBase {
+  sendBasedOnOptOut?: boolean
   send?: boolean
   userId?: string
   customArgs?: {
@@ -122,12 +123,12 @@ export abstract class MessageSendPerformer<
   }
 
   /**
-   * check if extId is (un)subscribed (returns true|false) or if subscription status is invalid (returns undefined)
+   * check if extId is unsubscribed returns false or retuns true for all other status
    */
   isExternalIdSubscribedOptOutModel(extId: ExtId<TPayload>): boolean | undefined {
     const staticMems = this.getStaticMembersOfThisClass()
     const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
-    if (subStatus === null) return true
+    if (subStatus === null || subStatus === '') return true
     if (!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
     // if subStatus is not in any of the lists of valid statuses, then return true
     if (staticMems.sendableStatusesOptOut.includes(subStatus)) return true
@@ -147,7 +148,12 @@ export abstract class MessageSendPerformer<
     // list of extenalIds that are supported by this Channel, if none - exit
     const supportedExtIdsWithSub = this.payload.externalIds
       ?.filter((extId) => this.isSupportedExternalId(extId))
-      .map((extId) => ({ extId, isSubscribed: this.isExternalIdSubscribed(extId) }))
+      .map((extId) => ({
+        extId,
+        isSubscribed: this.payload.sendBasedOnOptOut
+          ? this.isExternalIdSubscribedOptOutModel(extId)
+          : this.isExternalIdSubscribed(extId)
+      }))
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
         sendabilityStatus: SendabilityStatus.NoSupportedExternalIds

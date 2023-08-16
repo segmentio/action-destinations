@@ -391,8 +391,58 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
+    it.each(['subscribed', true, null])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: true
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
     it.each(['unsubscribed', 'did not subscribed', false, null])(
       'does NOT send an SMS when subscriptonStatus ="%s"',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+          }
+        })
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
+    it.each(['unsubscribed', false])(
+      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',

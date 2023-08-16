@@ -130,6 +130,7 @@ describe.each([
       traitEnrichment: true,
       groupId: '',
       byPassSubscription: false,
+      sendBasedOnOptOut: false,
       toEmail: '',
       externalIds: {
         '@arrayPath': [
@@ -1176,11 +1177,88 @@ describe.each([
           event: 'Audience Entered',
           userId: userData.userId,
           external_ids: [
-            { id: userData.phone, type: 'email', isSubscribed: true, collection: 'users', encoding: 'none' }
+            { id: userData.email, type: 'email', isSubscribed: false, collection: 'users', encoding: 'none' }
           ]
         }),
         settings,
         mapping: getDefaultMapping({ byPassSubscription: true }),
+        ...defaultActionProps
+      })
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Should not send email when email is not present in external id sendBasedOnOptOut is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const status = true
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.phone, type: 'phone', isSubscribed: status, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: true }),
+        ...defaultActionProps
+      })
+      expect(sendGridRequest.isDone()).toBe(false)
+      expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
+    })
+
+    it('Should not send the email when subscriptionStatus is false and sendBasedOnOptOut is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: false, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: true }),
+        ...defaultActionProps
+      })
+      expect(sendGridRequest.isDone()).toBe(false)
+      // expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
+    })
+
+    it('sends the email when subscriptionStatus is true and sendBasedOnOptOut is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: true, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: true }),
+        ...defaultActionProps
+      })
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email when subscriptionStatus is null and sendBasedOnOptOut is true', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: null, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: true }),
         ...defaultActionProps
       })
       expect(responses.length).toBeGreaterThan(0)
