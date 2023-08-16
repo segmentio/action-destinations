@@ -103,9 +103,13 @@ export interface Payload {
      */
     content_ids?: string[]
     /**
-     * Gender in lowercase. Either f or m.
+     * A list of objects containing information about products.
      */
     contents?: {
+      /**
+       * The id of the Item
+       */
+      id?: number
       /**
        * The price of the Item
        */
