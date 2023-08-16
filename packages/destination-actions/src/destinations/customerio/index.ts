@@ -161,7 +161,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Entities Audience Membership Changed',
-      partnerAction: 'updateUserProfile',
+      partnerAction: 'createUpdatePerson',
       mapping: {
         ...defaultValues(createUpdatePerson.fields),
         custom_attributes: {
