@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Liquid as LiquidJs } from 'liquidjs'
+import { Liquid as LiquidJs } from '@segment/content-personalization-utils/node_modules/liquidjs'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'

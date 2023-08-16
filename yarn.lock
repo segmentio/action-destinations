@@ -2236,6 +2236,13 @@
   dependencies:
     unfetch "^3.1.1"
 
+"@segment/content-personalization-utils@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@segment/content-personalization-utils/-/content-personalization-utils-1.2.1.tgz#feb01a9510fd735469091850dc531d162715524c"
+  integrity sha512-2KLQXZeLaNzlDOB6yO1yvLWk5W4ple6Otc00v4EGuHBylJJHUELOQbjwpXZ/J8/fSTIK6xOqG3mTpUAaxAXZjw==
+  dependencies:
+    liquidjs "^10.8.4"
+
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
   resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#e5cd6e7cd335cf00640e43a5ece17a290e003ddd"
@@ -6230,7 +6237,7 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^10.0.1:
+commander@^10.0.0, commander@^10.0.1:
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-10.0.1.tgz#881ee46b4f77d1c1dccc5823433aa39b022cbe06"
   integrity sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==
@@ -11432,6 +11439,13 @@ lint-staged@^10.5.3:
     please-upgrade-node "^3.2.0"
     string-argv "0.3.1"
     stringify-object "^3.3.0"
+
+liquidjs@^10.8.4:
+  version "10.8.4"
+  resolved "https://registry.yarnpkg.com/liquidjs/-/liquidjs-10.8.4.tgz#32596e189e264f60794af8f41cd26c0c66f6da49"
+  integrity sha512-HSpYAFBVWxhwWsTKPBJgPm3bnwwIzAZjy17XhX7uJCKJ8H6A1YstZSFmPqMmWfSuJOg43RSx+qWVSA1Fu3+B2w==
+  dependencies:
+    commander "^10.0.0"
 
 liquidjs@^9.37.0:
   version "9.37.0"

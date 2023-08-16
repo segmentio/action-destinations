@@ -42,6 +42,7 @@
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "^3.77.0",
     "@segment/actions-shared": "^1.59.0",
+    "@segment/content-personalization-utils": "^1.2.1",
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
@@ -49,7 +50,6 @@
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
-    "liquidjs": "^9.37.0",
     "lodash": "^4.17.21",
     "ssh2-sftp-client": "^9.1.0"
   },

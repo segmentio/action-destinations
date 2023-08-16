@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Liquid as LiquidJs } from 'liquidjs'
+import { Liquid as LiquidJs } from '@segment/content-personalization-utils/node_modules/liquidjs'
 import type { Settings } from '../generated-types'
 // import type { Payload as SmsPayload } from '../sendSms/generated-types'
 // import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
