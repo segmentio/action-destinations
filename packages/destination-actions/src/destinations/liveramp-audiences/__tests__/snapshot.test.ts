@@ -257,7 +257,13 @@ describe(`Testing snapshot for ${destinationSlug}'s generic functions:`, () => {
     const normalizedNumbers = phoneNumbers.map((value) => normalize('phone_number', value))
     expect(normalizedNumbers).toMatchSnapshot()
 
-    const emails = ['TestEmail@domain.com', 'test@test.com ', 'valid@domain.com']
+    const emails = [
+      'TestEmail@domain.com',
+      'test@test.com ',
+      'valid@domain.com',
+      'first+last@names.com',
+      'first.last@names.com'
+    ]
     const normalizedEmails = emails.map((value) => normalize('email', value))
     expect(normalizedEmails).toMatchSnapshot()
   })

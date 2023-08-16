@@ -7363,5 +7363,7 @@ Array [
   "testemail@domain.com",
   "test@test.com",
   "valid@domain.com",
+  "first+last@names.com",
+  "first.last@names.com",
 ]
 `;
