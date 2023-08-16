@@ -219,10 +219,14 @@ export abstract class MessageSendPerformer<
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId
-    if ('deliveryAttempt' in (this.executeInput as any)['rawData']) {
-      const delivery_attempt = (this.executeInput as any)['rawData'].deliveryAttempt
-      this.currentOperation?.tags.push(`delivery_attempt:${delivery_attempt}`)
-      this.logDetails['delivery_attempt'] = delivery_attempt
+
+    // grab the delivery attempt and replay from statsContext
+    if (this.executeInput.statsContext?.tags) {
+      for (const item of this.executeInput.statsContext?.tags) {
+        if (item.includes('delivery_attempt') || item.includes('replay')) {
+          this.logDetails[item.split(':')[0]] = item.split(':')[1]
+        }
+      }
     }
   }
 
@@ -281,7 +285,7 @@ export abstract class MessageSendPerformer<
       return fulfilled.map((sr) => sr.result)
     }
 
-    // if we are here, then all failed
+    // if we are here, then some failed
     const rejected = sendResults.filter((sr) => sr.status === 'rejected')
 
     // if all retriable, throw aggregated with first code and status

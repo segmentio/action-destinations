@@ -3,10 +3,12 @@ import { Payload as CustomEventsPayload } from '../customEvents/generated-types'
 import { Payload as AttributesPayload } from '../setAttributes/generated-types'
 import { Payload as ManageTagsPayload } from '../manageTags/generated-types'
 
+const occurred = new Date()
+
 const valid_custom_event_payload: CustomEventsPayload = {
   named_user_id: 'test-user-d7h0ysir6l',
   name: 'Segment Test Event Name',
-  occurred: '2023-05-06T20:45:12.523Z',
+  occurred: occurred.toISOString(),
   properties: {
     property1: 1,
     property2: 'test',
@@ -17,7 +19,7 @@ const valid_custom_event_payload: CustomEventsPayload = {
 
 const valid_attributes_payload: AttributesPayload = {
   named_user_id: 'test-user-rzoj4u7gqw',
-  occurred: '2023-05-09T00:47:43.378Z',
+  occurred: occurred.toISOString(),
   attributes: {
     trait1: 1,
     trait2: 'test',
@@ -37,7 +39,7 @@ const valid_tags_payload: ManageTagsPayload = {
 }
 
 const airship_custom_event_payload = {
-  occurred: '2023-05-06T20:45:12',
+  occurred: occurred.toISOString().split('.')[0],
   user: { named_user_id: 'test-user-d7h0ysir6l' },
   body: {
     name: 'segment test event name',
@@ -55,25 +57,25 @@ const airship_attributes_payload = [
   {
     action: 'set',
     key: 'trait1',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: occurred.toISOString().split('.')[0],
     value: 1
   },
   {
     action: 'set',
     key: 'trait2',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: occurred.toISOString().split('.')[0],
     value: 'test'
   },
   {
     action: 'set',
     key: 'trait3',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: occurred.toISOString().split('.')[0],
     value: true
   },
   {
     action: 'set',
     key: 'birthdate',
-    timestamp: '2023-05-09T00:47:43',
+    timestamp: occurred.toISOString().split('.')[0],
     value: '1965-01-25T00:47:43'
   }
 ]
@@ -105,9 +107,11 @@ describe('Testing _build_tags_object', () => {
   })
 })
 
-describe('Testing _validate_timestamp', () => {
+describe('Testing validate_timestamp', () => {
   it('should correctly format a timestamo', () => {
-    expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual('2023-05-06T20:45:12')
+    expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual(
+      occurred.toISOString().split('.')[0]
+    )
   })
 })
 
