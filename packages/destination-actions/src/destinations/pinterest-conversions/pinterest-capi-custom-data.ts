@@ -23,11 +23,16 @@ export const custom_data_field: InputField = {
       multiple: true
     },
     contents: {
-      label: 'Gender',
-      description: 'Gender in lowercase. Either f or m.',
+      label: 'Product Info',
+      description: 'A list of objects containing information about products.',
       type: 'object',
       multiple: true,
       properties: {
+        id: {
+          label: 'Id',
+          type: 'number',
+          description: 'The id of the Item'
+        },
         item_price: {
           label: 'Price',
           type: 'number',

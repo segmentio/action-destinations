@@ -283,6 +283,55 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.context.userAgent'
     }
   },
+  advertising_id: {
+    label: 'Advertising ID',
+    type: 'string',
+    description: 'Advertising ID',
+    required: false,
+    default: {
+      '@path': '$.context.device.advertisingId'
+    }
+  },
+  ad_tracking_enabled: {
+    label: 'Ad Tracking Enabled',
+    type: 'string',
+    description: 'Ad Tracking Enabled (true or false)',
+    required: false,
+    default: {
+      '@path': '$.context.device.adTrackingEnabled'
+    }
+  },
+  timezone: {
+    label: 'Timezone',
+    type: 'string',
+    description: 'The event timezone',
+    required: false,
+    default: {
+      '@path': '$.context.timezone'
+    }
+  },
+  app_platform: {
+    label: 'App Platform',
+    type: 'string',
+    description: 'The App Platform, if applicable',
+    required: false,
+    default: {
+      '@path': '$.context.app.platform'
+    }
+  },
+  name: {
+    label: 'Event Original Name',
+    type: 'string',
+    description: 'The Event Original Name, if applicable',
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.event' },
+        then: { '@path': '$.event' },
+        else: { '@path': '$.name' }
+      }
+    }
+  },
   event_properties: {
     label: 'Event Properties',
     type: 'object',
