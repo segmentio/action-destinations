@@ -42,7 +42,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send Data to Blend',
       subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
       partnerAction: 'sendData',
-      mapping: defaultValues(sendData.fields)
+      mapping: defaultValues(sendData.fields),
+      type: 'automatic'
     }
   ],
   actions: {

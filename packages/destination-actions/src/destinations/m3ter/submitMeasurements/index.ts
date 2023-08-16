@@ -12,25 +12,29 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'm3ter UUID',
       type: 'string',
       description: 'Unique ID for this measurement',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.uid' }
     },
     meter: {
       label: 'Meter',
       type: 'string',
       description: 'Short code identifying the Meter the measurement is for',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.meter' }
     },
     account: {
       label: 'Account',
       type: 'string',
       description: 'Code of the Account the measurement is for',
-      required: true
+      required: true,
+      default: { '@path': '$.properties.account' }
     },
     ts: {
       label: 'Timestamp',
       type: 'datetime',
       description: 'Timestamp for the measurement',
-      required: true
+      required: true,
+      default: { '@path': '$.timestamp' }
     },
     ets: {
       label: 'End timestamp',

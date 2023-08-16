@@ -114,7 +114,7 @@ Object {
       "action": "set",
       "key": "birthdate",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",
@@ -162,7 +162,7 @@ Object {
       "action": "set",
       "key": "account_creation",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",
