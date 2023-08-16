@@ -554,7 +554,7 @@ describe('CustomerIO', () => {
         traits
       })
 
-      const responses = await testDestination.testAction('updateUser', {
+      const responses = await testDestination.testAction('createUpdatePerson', {
         event,
         settings,
         // Using the mapping of presets with event type 'track'
