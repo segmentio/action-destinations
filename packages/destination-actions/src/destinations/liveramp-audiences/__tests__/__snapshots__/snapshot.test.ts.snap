@@ -7346,3 +7346,22 @@ Array [
   "\\"5'8\\"\\"\\"",
 ]
 `;
+
+exports[`Testing snapshot for LiverampAudiences's generic functions: normalizes identifiers correctly 1`] = `
+Array [
+  "5551234567",
+  "5551234567",
+  "5551234567",
+  "5551234567",
+  "5551234567",
+  "5551234567",
+]
+`;
+
+exports[`Testing snapshot for LiverampAudiences's generic functions: normalizes identifiers correctly 2`] = `
+Array [
+  "testemail@domain.com",
+  "test@test.com",
+  "valid@domain.com",
+]
+`;

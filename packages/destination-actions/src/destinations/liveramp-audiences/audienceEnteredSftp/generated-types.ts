@@ -24,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional data pertaining to the user to be hashed before written to the file
+   * Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.
    */
   unhashed_identifier_data?: {
     [k: string]: unknown
