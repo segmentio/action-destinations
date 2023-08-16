@@ -52,13 +52,15 @@ export const destination: BrowserDestinationDefinition<Settings, Koala> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Visitor',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyVisitor',
-      mapping: defaultValues(identifyVisitor.fields)
+      mapping: defaultValues(identifyVisitor.fields),
+      type: 'automatic'
     }
   ]
 }

@@ -22,13 +22,15 @@ export const destination: BrowserDestinationDefinition<Settings, StackAdaptSDK> 
       name: 'Track Event',
       subscribe: trackEventDefaultSubscription,
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Page',
       subscribe: trackPageDefaultSubscription,
       partnerAction: 'trackPage',
-      mapping: defaultValues(trackPage.fields)
+      mapping: defaultValues(trackPage.fields),
+      type: 'automatic'
     }
   ],
   settings: {
