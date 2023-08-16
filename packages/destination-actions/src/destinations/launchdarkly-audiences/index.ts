@@ -62,7 +62,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Sync Engage Audience to LaunchDarkly',
       subscribe: 'type = "identify" or type = "track"',
       partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields)
+      mapping: defaultValues(syncAudience.fields),
+      type: 'automatic'
     }
   ]
 }

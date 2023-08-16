@@ -4,9 +4,9 @@ export interface Payload {
   /**
    * Segment Audience key to which user identifier should be added or removed
    */
-  custom_audience_name: string
+  segment_audience_key: string
   /**
-   * Segment computation class used to determine if action is an 'Engage-Audience'
+   * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
    */
   segment_computation_action: string
   /**
@@ -14,7 +14,19 @@ export interface Payload {
    */
   context_kind: string
   /**
-   * The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.
+   * The Segment userId value.
+   */
+  segment_user_id?: string
+  /**
+   * The Segment anonymousId value.
+   */
+  segment_anonymous_id?: string
+  /**
+   * The user's email address
+   */
+  user_email?: string
+  /**
+   * The unique LaunchDarkly context key. In most cases the Segment UserId should be used.
    */
   context_key: string
   /**
@@ -23,4 +35,8 @@ export interface Payload {
   traits_or_props: {
     [k: string]: unknown
   }
+  /**
+   * Indicates if the user will be added or removed from the Audience
+   */
+  audience_action?: string
 }

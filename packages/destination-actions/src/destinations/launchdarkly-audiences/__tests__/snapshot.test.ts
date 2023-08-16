@@ -12,12 +12,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-      eventData['custom_audience_name'] = 'test_audience'
+      eventData['segment_audience_key'] = 'test_audience'
       eventData['segment_computation_action'] = 'audience'
-      eventData['traits_or_props'] = { [eventData['custom_audience_name']]: true }
+      eventData['traits_or_props'] = { [eventData['segment_audience_key']]: true }
 
       setStaticDataForSnapshot(eventData, 'context_kind', 'customContextKind')
-      setStaticDataForSnapshot(eventData, 'context_key', 'user-id')
+      setStaticDataForSnapshot(eventData, 'context_key', 'user_id_only')
 
       setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
       setStaticDataForSnapshot(settingsData, 'apiKey', 'api-key')

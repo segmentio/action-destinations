@@ -1,8 +1,8 @@
-import type { RequestClient } from '@segment/actions-core'
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-
 import { CONSTANTS } from '../constants'
 import { Settings } from '../generated-types'
+import { AudienceAction, Priority } from '../types'
 
 type AudienceBatch = {
   environmentId: string
@@ -34,11 +34,11 @@ const snakeCaseToSentenceCase = (key: string) => {
  * @param audienceId audience ID
  * @param include include or exclude the context from LaunchDarkly's segment
  */
-const createContextForBatch = (contextKey: string, audienceId: string, include: boolean) => ({
+const createContextForBatch = (contextKey: string, audienceId: string, audienceAction: AudienceAction) => ({
   userId: contextKey,
   cohortName: snakeCaseToSentenceCase(audienceId),
   cohortId: audienceId,
-  value: include
+  value: audienceAction === CONSTANTS.ADD ? true : false
 })
 
 /**
@@ -47,25 +47,43 @@ const createContextForBatch = (contextKey: string, audienceId: string, include: 
  * @param settings user configured settings
  */
 
+const getContextKey = (payload: Payload): string => {
+  let contextKey = null
+  switch (payload.context_key) {
+    case Priority.UserIdThenEmail:
+      contextKey = payload.segment_user_id || payload.user_email
+      break
+    case Priority.UserIdThenAnonymousId:
+      contextKey = payload.segment_user_id || payload.segment_anonymous_id
+      break
+    case Priority.UserIdThenEmailThenAnonymousId:
+      contextKey = payload.segment_user_id || payload.user_email || payload.segment_anonymous_id
+      break
+    case Priority.UserIdOnly:
+      contextKey = payload.segment_user_id
+      break
+    case Priority.EmailOnly:
+      contextKey = payload.user_email
+      break
+    default:
+      throw new PayloadValidationError('Invalid Context Key priority')
+  }
+  if (contextKey === null) throw new PayloadValidationError('Context Key cannot be null')
+
+  return contextKey as string
+}
+
 const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): AudienceBatch[] => {
   // map to handle different audiences in the batch
   const audienceMap = new Map<AudienceName, AudienceBatch>()
 
   for (const p of payload) {
-    if (p.segment_computation_action !== CONSTANTS.SUPPORTED_SEGMENT_COMPUTATION_ACTION) {
-      // ignore event
-      continue
-    }
-
-    const contextKey = p.context_key
-    const contextKind = p.context_kind
-    const audienceId = p.custom_audience_name
-    const traitsOrProps = p.traits_or_props
-    const environmentId = settings.clientId
+    const audienceId = p.segment_audience_key
+    const contextKey = getContextKey(p)
 
     let audienceBatch: AudienceBatch = {
-      environmentId,
-      contextKind,
+      environmentId: settings.clientId,
+      contextKind: p.context_kind,
       batch: []
     }
 
@@ -79,13 +97,7 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
       audienceMap.set(audienceId, audienceBatch)
     }
 
-    if (traitsOrProps[audienceId] === true) {
-      // audience entered 'true', include email to list
-      audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, true))
-    } else if (traitsOrProps[audienceId] === false) {
-      // audience entered 'false', exclude email from list
-      audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, false))
-    }
+    audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, p.audience_action as AudienceAction))
   }
 
   return Array.from(audienceMap.values())
@@ -100,6 +112,7 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
  */
 async function processPayload(request: RequestClient, settings: Settings, events: Payload[]) {
   const audienceBatches: AudienceBatch[] = parseCustomAudienceBatches(events, settings)
+
   const promises = []
 
   for (const batch of audienceBatches) {
