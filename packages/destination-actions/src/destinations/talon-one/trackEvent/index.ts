@@ -6,8 +6,10 @@ import { attribute, customerProfileId } from '../t1-properties'
 const TARGET_EVENT_TYPE = 'string'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'This records a custom event in Talon.One.',
+  title: '[Deprecated] Track Event',
+  description: `This records a custom event in Talon.One.
+  
+  This endpoint is deprecated. Please use the new **Track Event** endpoint.`,
   fields: {
     customerProfileId: {
       ...customerProfileId,

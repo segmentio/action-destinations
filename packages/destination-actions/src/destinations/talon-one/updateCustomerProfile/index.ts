@@ -4,8 +4,10 @@ import type { Payload } from './generated-types'
 import { addAudienceId, attribute, customerProfileId, deleteAudienceId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Customer Profile',
-  description: 'This updates attributes and audiences for a single customer profile.',
+  title: '[Deprecated] Update Customer Profile',
+  description: `This updates attributes and audiences for a single customer profile.
+
+  This endpoint is deprecated. Please use the new **Update Customer Profile** endpoint.`,
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },

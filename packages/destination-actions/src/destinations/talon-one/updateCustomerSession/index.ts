@@ -4,8 +4,10 @@ import type { Payload } from './generated-types'
 import { attribute, attributesInfo, cartItems, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Customer Sessions',
-  description: 'This updates a customer session.',
+  title: '[Deprecated] Update Customer Sessions',
+  description: `This updates a customer session.
+  
+  This endpoint is deprecated. Please use the new **Update Customer Session** endpoint.`,
   fields: {
     customerSessionId: {
       label: 'Customer Session ID',
