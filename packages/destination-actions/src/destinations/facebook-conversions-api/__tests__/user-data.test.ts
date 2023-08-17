@@ -1,15 +1,5 @@
 import { normalize_user_data, hash_user_data } from '../fb-capi-user-data'
 
-interface HashedData {
-  em: string
-  ph: string
-  db: string
-  ge: string
-  zp: string
-  ct: string
-  st: string
-}
-
 describe('FacebookConversionsApi', () => {
   describe('UserData', () => {
     describe('Should Normalize', () => {
@@ -122,7 +112,7 @@ describe('FacebookConversionsApi', () => {
             externalId: ['ABC12345']
           }
         }
-        const hashed_data = <HashedData>hash_user_data(test_payload)
+        const hashed_data = <Record<string, string>>hash_user_data(test_payload)
 
         expect(hashed_data.em).toEqual(undefined)
         expect(hashed_data.ph).toEqual('cf9b0227ee02d8f8f9dbb6060fa2941bb667efc71f6ee2e6ee17b40121a5f4a6')
