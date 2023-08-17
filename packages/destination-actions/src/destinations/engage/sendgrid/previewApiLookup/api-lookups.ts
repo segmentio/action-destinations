@@ -2,7 +2,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient } from '@segment/actions-core/destination-kit'
-import { Liquid as LiquidJs } from '@segment/content-personalization-utils/node_modules/liquidjs'
+import { Liquid as LiquidJs } from '@segment/content-personalization-utils/dist/liquid'
 import type { Settings } from '../generated-types'
 import { Profile } from '../Profile'
 

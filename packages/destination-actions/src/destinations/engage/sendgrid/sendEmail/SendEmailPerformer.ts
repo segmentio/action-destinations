@@ -2,7 +2,7 @@ import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } f
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Profile } from '../Profile'
-import { Liquid as LiquidJs } from '@segment/content-personalization-utils/node_modules/liquidjs'
+import { Liquid as LiquidJs } from '@segment/content-personalization-utils/dist/liquid'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
 import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
