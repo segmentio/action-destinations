@@ -49,13 +49,15 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Events',
       subscribe: 'type = "track" or type = "page" or type = "screen"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Create or Update User Profile',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUserProfile',
-      mapping: defaultValues(updateUserProfile.fields)
+      mapping: defaultValues(updateUserProfile.fields),
+      type: 'automatic'
     }
   ],
 
