@@ -17,6 +17,9 @@ const productProperties = {
   content_id: {
     '@path': '$.product_id'
   },
+  content_name: {
+    '@path': '$.content_name'
+  },
   brand: {
     '@path': '$.brand'
   }
@@ -49,8 +52,18 @@ const multiProductContents = {
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'View Content',
+    name: 'Page View', // is it ok to change preset name that is used by live version?
     subscribe: 'type="page"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...singleProductContents,
+      event: 'ViewContent'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'View Content',
+    subscribe: 'event = "Product Viewed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...singleProductContents,
@@ -130,7 +143,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Complete Payment',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Payment Completed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...multiProductContents,
@@ -140,7 +153,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Contact',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Callback Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
       event: 'Contact'
@@ -149,7 +162,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Download',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Download Link Clicked"',
     partnerAction: 'reportWebEvent',
     mapping: {
       event: 'Download'
@@ -158,7 +171,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Submit Form',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Form Submitted"',
     partnerAction: 'reportWebEvent',
     mapping: {
       event: 'SubmitForm'
@@ -167,7 +180,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Complete Registration',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Signed Up"',
     partnerAction: 'reportWebEvent',
     mapping: {
       event: 'CompleteRegistration'
@@ -176,7 +189,7 @@ const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Subscribe',
-    subscribe: 'event = "Order Completed"',
+    subscribe: 'event = "Subscription Created"',
     partnerAction: 'reportWebEvent',
     mapping: {
       event: 'Subscribe'
