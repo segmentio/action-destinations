@@ -18,6 +18,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * The merge mode to use when syncing data to The Trade Desk CRM Segment.
+   */
+  merge_mode?: string
+  /**
    * Enable batching of requests to The Trade Desk CRM Segment.
    */
   enable_batching?: boolean
@@ -25,4 +29,8 @@ export interface Payload {
    * The name of the current Segment event.
    */
   event_name?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

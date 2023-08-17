@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const name: InputField = {
   label: 'Segment Name',
@@ -50,4 +50,30 @@ export const enable_batching: InputField = {
   description: 'Enable batching of requests to The Trade Desk CRM Segment.',
   type: 'boolean',
   default: true
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+  type: 'number',
+  required: false,
+  default: 100000
+}
+
+export const merge_mode: InputField = {
+  label: 'Merge Mode',
+  description: 'The merge mode to use when syncing data to The Trade Desk CRM Segment.',
+  type: 'string',
+  choices: [
+    {
+      label: 'Add',
+      value: 'Add'
+    },
+    {
+      label: 'Replace',
+      value: 'Replace'
+    }
+  ],
+  default: 'Replace',
+  required: false
 }

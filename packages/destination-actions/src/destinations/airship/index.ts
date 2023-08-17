@@ -64,17 +64,20 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Custom Events',
       subscribe: 'type = "track"',
       partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields)
+      mapping: defaultValues(customEvents.fields),
+      type: 'automatic'
     },
     {
       name: 'Set Attributes',
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
-      mapping: defaultValues(setAttributes.fields)
+      mapping: defaultValues(setAttributes.fields),
+      type: 'automatic'
     }
   ],
   onDelete: async (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/api/named_users/uninstall`, {
+    const endpoint = map_endpoint(settings.endpoint)
+    return request(`${endpoint}/api/named_users/uninstall`, {
       method: 'post',
       json: {
         named_user_id: [payload.userId]

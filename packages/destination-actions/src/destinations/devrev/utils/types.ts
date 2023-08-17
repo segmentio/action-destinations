@@ -103,8 +103,8 @@ export interface AccountGet {
 }
 
 export interface Comment {
-  id: string,
-  body: string,
+  id: string
+  body: string
 }
 export interface TimelineResponse {
   data: {
@@ -115,6 +115,16 @@ export interface TimelineResponse {
 export interface CreateAccountBody {
   display_name: string
   domains?: string[]
-  tags?: {id: string}[]
+  tags?: { id: string }[]
   external_refs: string[]
+}
+
+export interface TraceEvent {
+  event_time: string
+  name: string
+  payload: object
+}
+
+export interface TrackEventsPublishBody {
+  events_list: TraceEvent[]
 }

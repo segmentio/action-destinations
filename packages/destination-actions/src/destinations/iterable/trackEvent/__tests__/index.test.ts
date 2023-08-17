@@ -62,4 +62,30 @@ describe('Iterable.trackEvent', () => {
       }
     })
   })
+
+  it('should success with mapping of preset and Entity Added event(presets) ', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Entity Added',
+      properties: {
+        email: 'test@iterable.com'
+      }
+    })
+
+    nock('https://api.iterable.com/api').post('/events/track').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      // Using the mapping of presets with event type 'track'
+      mapping: {
+        dataFields: {
+          '@path': '$.properties'
+        }
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
 })

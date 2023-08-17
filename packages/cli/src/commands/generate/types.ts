@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
 import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
 import globby from 'globby'
@@ -11,6 +11,7 @@ import path from 'path'
 import prettier from 'prettier'
 import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
 import { RESERVED_FIELD_NAMES } from '../../constants'
+import { AudienceDestinationDefinition } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
 
@@ -41,7 +42,10 @@ export default class GenerateTypes extends Command {
   async run() {
     const { flags } = this.parse(GenerateTypes)
 
-    const globs = flags.path || ['./packages/*/src/destinations/*/index.ts']
+    const globs = flags.path || [
+      './packages/*/src/destinations/*/index.ts',
+      './packages/browser-destinations/destinations/*/src/index.ts'
+    ]
     const files = await globby(globs, {
       expandDirectories: false,
       gitignore: true,
@@ -113,7 +117,16 @@ export default class GenerateTypes extends Command {
       }
     }
 
-    const types = await generateTypes(settings, 'Settings')
+    let types = await generateTypes(settings, 'Settings')
+
+    const audienceSettings = {
+      ...(destination as AudienceDestinationDefinition)?.audienceFields
+    }
+    if (Object.keys(audienceSettings).length > 0) {
+      const audienceTypes = await generateTypes(audienceSettings, 'AudienceSettings')
+      types += audienceTypes
+    }
+
     fs.writeFileSync(path.join(parentDir, './generated-types.ts'), types)
 
     // TODO how to load directory structure consistently?
