@@ -487,7 +487,7 @@ describe('HubSpot.upsertContactBatch', () => {
 
     // Mock: Update Contact
     nock(HUBSPOT_BASE_URL)
-      .patch(`/crm/v3/objects/contacts/batch/update`)
+      .post(`/crm/v3/objects/contacts/batch/update`)
       .reply(200, generateBatchCreateResponse(updateContactList))
 
     const mapping = {
@@ -519,7 +519,7 @@ describe('HubSpot.upsertContactBatch', () => {
 
     // Mock: Update Contact
     nock(HUBSPOT_BASE_URL)
-      .patch(`/crm/v3/objects/contacts/batch/update`)
+      .post(`/crm/v3/objects/contacts/batch/update`)
       .reply(200, generateBatchCreateResponse(updateContactList))
 
     // Mock: Create Contact
@@ -573,7 +573,7 @@ describe('HubSpot.upsertContactBatch', () => {
 
     // Mock: Update Contact
     nock(HUBSPOT_BASE_URL)
-      .patch(
+      .post(
         `/crm/v3/objects/contacts/batch/update`,
         '{"inputs":[{"id":"103","properties":{"company":"Some Company","phone":"+13134561129","address":"Vancover st","city":"San Francisco","state":"California","country":"USA","zip":"600001","email":"userone@somecompany.com","website":"somecompany.com","lifecyclestage":"subscriber","graduation_date":1664533942262}}]}'
       )
@@ -591,7 +591,7 @@ describe('HubSpot.upsertContactBatch', () => {
       )
 
     nock(HUBSPOT_BASE_URL)
-      .patch(`/crm/v3/objects/contacts/batch/update`, '{"inputs":[{"id":"103","properties":{"lifecyclestage":""}}]}')
+      .post(`/crm/v3/objects/contacts/batch/update`, '{"inputs":[{"id":"103","properties":{"lifecyclestage":""}}]}')
       .reply(
         200,
         generateBatchCreateResponse([
@@ -606,7 +606,7 @@ describe('HubSpot.upsertContactBatch', () => {
       )
 
     nock(HUBSPOT_BASE_URL)
-      .patch(
+      .post(
         `/crm/v3/objects/contacts/batch/update`,
         '{"inputs":[{"id":"103","properties":{"lifecyclestage":"subscriber"}}]}'
       )
