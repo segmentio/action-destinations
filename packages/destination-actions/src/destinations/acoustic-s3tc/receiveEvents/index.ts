@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const csvRows = addUpdateEvents(payload, email)
 
     //Set File Store Name
-    const fileName = settings.fileNamePrefix + `${new Date().toISOString()}` + '.csv'
+    const fileName = settings.fileNamePrefix + `${new Date().toISOString().replace(/(\.|-|:)/g, '_')}` + '.csv'
 
     const method = 'PUT'
     const opts = await generateS3RequestOptions(
