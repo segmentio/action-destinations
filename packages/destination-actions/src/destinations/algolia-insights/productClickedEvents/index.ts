@@ -1,5 +1,5 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import { Subscription, defaultValues } from '@segment/actions-core'
+import type { ActionDefinition, Preset } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -39,7 +39,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       label: 'Position',
       description: 'Position of the click in the list of Algolia search results.',
       type: 'integer',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.position'
       }
@@ -73,7 +73,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       eventType: 'click',
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
-      positions: [data.payload.position],
+      positions: data.payload.position ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
@@ -86,9 +86,10 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const productClickPresets: Subscription = {
+export const productClickPresets: Preset = {
   name: 'Send product clicked events to Algolia',
   subscribe: productClickedEvents.defaultSubscription as string,
   partnerAction: 'productClickedEvents',
-  mapping: defaultValues(productClickedEvents.fields)
+  mapping: defaultValues(productClickedEvents.fields),
+  type: 'automatic'
 }

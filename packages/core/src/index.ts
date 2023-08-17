@@ -30,6 +30,7 @@ export type {
   ActionDefinition,
   BaseDefinition,
   DestinationDefinition,
+  AudienceDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
@@ -44,7 +45,8 @@ export type {
   DecoratedResponse,
   MinimalInputField,
   StateContext,
-  StatsContext
+  StatsContext,
+  Preset
 } from './destination-kit'
 
 export type {

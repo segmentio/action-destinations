@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.68.0",
+  "version": "3.77.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
@@ -14,12 +14,38 @@
       "require": "./dist/cjs/index.js",
       "default": "./dist/esm/index.js"
     },
+    "./destination-kit": {
+      "require": "./dist/cjs/destination-kit/index.js",
+      "default": "./dist/esm/destination-kit/index.js"
+    },
+    "./destination-kit/*": {
+      "require": "./dist/cjs/destination-kit/*.js",
+      "default": "./dist/esm/destination-kit/*.js"
+    },
     "./mapping-kit": {
       "require": "./dist/cjs/mapping-kit/index.js",
       "default": "./dist/esm/mapping-kit/index.js"
+    },
+    "./mapping-kit/*": {
+      "require": "./dist/cjs/mapping-kit/*.js",
+      "default": "./dist/esm/mapping-kit/*.js"
     }
   },
-  "types": "dist/esm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/esm/index.d.ts"
+      ],
+      "destination-kit*": [
+        "dist/esm/destination-kit/*.d.ts",
+        "dist/esm/destination-kit/index.d.ts"
+      ],
+      "mapping-kit*": [
+        "dist/esm/mapping-kit/*.d.ts",
+        "dist/esm/mapping-kit/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist",
     "package.json"
@@ -54,8 +80,9 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@segment/ajv-human-errors": "^2.7.0",
-    "@segment/destination-subscriptions": "^3.22.0",
+    "@segment/action-emitters": "^1.1.2",
+    "@segment/ajv-human-errors": "^2.11.0",
+    "@segment/destination-subscriptions": "^3.28.0",
     "@types/node": "^18.11.15",
     "abort-controller": "^3.0.0",
     "aggregate-error": "^3.1.0",

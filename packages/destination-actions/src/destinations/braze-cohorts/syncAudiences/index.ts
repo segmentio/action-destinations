@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../braze-cohorts-types'
-import { StateContext } from '@segment/actions-core/src/destination-kit'
+import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {

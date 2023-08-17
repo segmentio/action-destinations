@@ -4,7 +4,7 @@ import { Payload } from './generated-types'
 import { doPOST, getAuthCreds } from '../Utility/tablemaintutilities'
 import get from 'lodash/get'
 import { addUpdateEvents } from '../Utility/eventprocessing'
-import { AuthTokens } from '@segment/actions-core/src/destination-kit/parse-settings'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',

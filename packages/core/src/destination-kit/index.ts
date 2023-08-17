@@ -1,4 +1,5 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
+import { EventEmitterSlug } from '@segment/action-emitters'
 import type { JSONSchema4 } from 'json-schema'
 import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
 import { time, duration } from '../time'
@@ -29,8 +30,8 @@ export interface SubscriptionStats {
   output: Result[] | null
 }
 
-interface PartnerActions<Settings, Payload extends JSONLikeObject> {
-  [key: string]: Action<Settings, Payload>
+interface PartnerActions<Settings, Payload extends JSONLikeObject, AudienceSettings = any> {
+  [key: string]: Action<Settings, Payload, AudienceSettings>
 }
 
 export interface BaseDefinition {
@@ -58,7 +59,63 @@ export interface BaseDefinition {
   actions: Record<string, BaseActionDefinition>
 
   /** Subscription presets automatically applied in quick setup */
-  presets?: Subscription[]
+  presets?: Preset[]
+}
+
+export type AudienceResult = {
+  externalId: string
+}
+
+export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+
+export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
+  settings: Settings
+
+  audienceSettings?: AudienceSettings
+
+  audienceName: string
+}
+
+export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
+  settings: Settings
+
+  audienceSettings?: AudienceSettings
+
+  externalId: string
+}
+
+export interface AudienceDestinationConfiguration {
+  mode: AudienceMode
+}
+
+export interface AudienceDestinationConfigurationWithCreateGet<Settings = unknown, AudienceSettings = unknown>
+  extends AudienceDestinationConfiguration {
+  createAudience(
+    request: RequestClient,
+    createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>
+  ): Promise<AudienceResult>
+
+  getAudience(
+    request: RequestClient,
+    getAudienceInput: GetAudienceInput<Settings, AudienceSettings>
+  ): Promise<AudienceResult>
+}
+
+const instanceOfAudienceDestinationSettingsWithCreateGet = (
+  object: any
+): object is AudienceDestinationConfigurationWithCreateGet => {
+  return 'createAudience' in object && 'getAudience' in object
+}
+
+export interface AudienceDestinationDefinition<Settings = unknown, AudienceSettings = unknown>
+  extends DestinationDefinition<Settings> {
+  audienceConfig:
+    | AudienceDestinationConfiguration
+    | AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
+
+  audienceFields: Record<string, GlobalSetting>
+
+  actions: Record<string, ActionDefinition<Settings, any, AudienceSettings>>
 }
 
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
@@ -81,6 +138,15 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   onDelete?: Deletion<Settings>
 }
+
+interface AutomaticPreset extends Subscription {
+  type: 'automatic'
+}
+interface SpecificEventPreset extends Omit<Subscription, 'subscribe'> {
+  type: 'specificEvent'
+  eventSlug: EventEmitterSlug
+}
+export type Preset = AutomaticPreset | SpecificEventPreset
 
 export interface Subscription {
   name?: string
@@ -264,7 +330,7 @@ export interface Logger {
   withTags(extraTags: any): void
 }
 
-export class Destination<Settings = JSONObject> {
+export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
   readonly authentication?: AuthenticationScheme<Settings>
@@ -272,7 +338,7 @@ export class Destination<Settings = JSONObject> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly actions: PartnerActions<Settings, any>
+  readonly actions: PartnerActions<Settings, any, AudienceSettings>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
   onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
@@ -314,12 +380,54 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
+  async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
+    const audienceDefinition = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+      throw new Error('Unexpected call to createAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any, AudienceSettings> = {
+      audienceSettings: createAudienceInput.audienceSettings,
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+  }
+
+  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
+    const audienceDefinition = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+      throw new Error('Unexpected call to getAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any, AudienceSettings> = {
+      audienceSettings: getAudienceInput.audienceSettings,
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+  }
+
   async testAuthentication(settings: Settings): Promise<void> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     const auth = getAuthData(settings as unknown as JSONObject)
     const data = { settings: destinationSettings, auth }
 
-    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = {
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
 
     // Validate settings according to the destination's `authentication.fields` schema
     this.validateSettings(destinationSettings)
@@ -371,8 +479,11 @@ export class Destination<Settings = JSONObject> {
     return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
-  private partnerAction(slug: string, definition: ActionDefinition<Settings>): Destination<Settings> {
-    const action = new Action<Settings, {}>(this.name, definition, this.extendRequest)
+  private partnerAction(
+    slug: string,
+    definition: ActionDefinition<Settings, any, AudienceSettings>
+  ): Destination<Settings, AudienceSettings> {
+    const action = new Action<Settings, {}, AudienceSettings>(this.name, definition, this.extendRequest)
 
     action.on('response', (response) => {
       if (response) {
@@ -404,10 +515,16 @@ export class Destination<Settings = JSONObject> {
       return []
     }
 
+    let audienceSettings = {} as AudienceSettings
+    if (event.context?.personas) {
+      audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
+    }
+
     return action.execute({
       mapping,
       data: event as unknown as InputData,
       settings,
+      audienceSettings,
       auth,
       features,
       statsContext,
@@ -436,10 +553,17 @@ export class Destination<Settings = JSONObject> {
       return []
     }
 
+    let audienceSettings = {} as AudienceSettings
+    // All events should be batched on the same audience
+    if (events[0].context?.personas) {
+      audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
+    }
+
     await action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
+      audienceSettings,
       auth,
       features,
       statsContext,
@@ -559,8 +683,16 @@ export class Destination<Settings = JSONObject> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     this.validateSettings(destinationSettings)
     const auth = getAuthData(settings as unknown as JSONObject)
-    const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
-    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
+    const data: ExecuteInput<Settings, DeletionPayload> = {
+      payload,
+      settings: destinationSettings,
+      auth
+    }
+    const context: ExecuteInput<Settings, any> = {
+      settings: destinationSettings,
+      payload,
+      auth
+    }
 
     const opts = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })

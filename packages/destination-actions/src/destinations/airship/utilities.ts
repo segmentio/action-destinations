@@ -105,13 +105,27 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   /*
   This function builds a single attribute from a key/value.
   */
-  const attribute: { action: string; key: string; value?: string | number | boolean; timestamp: string | boolean } = {
+  let adjustedDate = null
+  if (typeof attribute_value == 'string') {
+    adjustedDate = parse_date(attribute_value)
+  }
+
+  const attribute: {
+    action: string
+    key: string
+    value?: string | number | boolean
+    timestamp: string | boolean
+  } = {
     action: 'set',
     key: attribute_key,
     timestamp: validate_timestamp(occurred)
   }
+
   if (attribute_value == null || (typeof attribute_value == 'string' && attribute_value.length === 0)) {
     attribute.action = 'remove'
+  } else if (adjustedDate !== null) {
+    attribute.action = 'set'
+    attribute.value = adjustedDate.toISOString().split('.')[0]
   } else {
     attribute.action = 'set'
     attribute.value = attribute_value
@@ -162,10 +176,23 @@ function validate_timestamp(timestamp: string | number | Date) {
   }
 }
 
+function parse_date(attribute_value: any): Date | null {
+  // Attempt to parse the attribute_value as a Date
+  const date = new Date(attribute_value)
+
+  // Check if the parsing was successful and the result is a valid date
+  if (!isNaN(date.getTime())) {
+    return date // Return the parsed Date
+  }
+
+  return null // Return null for invalid dates
+}
+
 export const _private = {
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,
   _build_tags_object,
+  parse_date,
   validate_timestamp
 }

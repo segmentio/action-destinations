@@ -10,7 +10,7 @@ jobs:
   test-and-build:
     runs-on: ubuntu-20.04
 
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     strategy:
       matrix:
@@ -105,7 +105,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
-        run: NODE_ENV=production yarn lerna run build --scope=@segment/browser-destinations --include-dependencies --stream
+        run: NODE_ENV=production yarn build:browser-destinations && yarn browser build-web
 
       - name: Run Saucelabs Tests
         working-directory: packages/browser-destinations-integration-tests
