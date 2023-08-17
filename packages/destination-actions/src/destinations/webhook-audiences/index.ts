@@ -45,6 +45,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async getAudience(request, getAudienceInput) {
+      const statsClient = getAudienceInput?.statsContext?.statsClient
+      if (statsClient) {
+        statsClient.incr('actions-webhook-audiences.getAudience', 1, getAudienceInput.statsContext?.tags)
+      }
+
       const getAudienceUrl = getAudienceInput.settings.getAudienceUrl
       if (!getAudienceUrl) {
         throw new IntegrationError('Missing get audience url value', 'MISSING_REQUIRED_FIELD', 400)
@@ -71,6 +76,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
+      const statsClient = createAudienceInput?.statsContext?.statsClient
+      if (statsClient) {
+        statsClient.incr('actions-webhook-audiences.createAudience', 1, createAudienceInput.statsContext?.tags)
+      }
+
       if (audienceName?.length == 0) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -115,7 +125,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   actions: {
     send: {
       ...send,
-      perform: (request, { payload, settings, audienceSettings }) => {
+      perform: (request, { payload, settings, audienceSettings, statsContext }) => {
+        const statsClient = statsContext?.statsClient
+        if (statsClient) {
+          statsClient.incr('actions-webhook-audiences.send', 1, statsContext?.tags)
+        }
+
         const extras = parseExtraSettingsJson(audienceSettings?.extras)
         // Call the same perform function from the regular webhook destination
         // and add in our extraSettings
