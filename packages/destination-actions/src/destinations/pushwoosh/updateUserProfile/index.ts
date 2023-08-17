@@ -64,8 +64,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     device_token: {
-      label: 'Device Token. This is not automatically collected by Segment Mobile Sdks. Add it into the Segment payload if needed',
-      description: 'Device Token',
+      label: 'Device Token',
+      description: 'Device Token. This is not automatically collected by Segment Mobile SDKs. Add it into the Segment payload if needed',
       type: 'string',
       allowNull: true,
       default: {
