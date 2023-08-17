@@ -25,11 +25,10 @@ describe('FacebookConversionsApi', () => {
             state: 'CA ',
             zip: '12345 9876',
             country: 'U S ',
-            externalId: ' ABC12345 '
+            externalId: [' ABC12345 ', ' Xyz123 ']
           }
         }
         normalize_user_data(test_payload)
-
         expect(test_payload.user_data.email).toEqual('nick@test.com')
         expect(test_payload.user_data.phone).toEqual('5105550011')
         expect(test_payload.user_data.city).toEqual('sanfrancisco')
@@ -39,7 +38,7 @@ describe('FacebookConversionsApi', () => {
         expect(test_payload.user_data.state).toEqual('ca')
         expect(test_payload.user_data.zip).toEqual('123459876')
         expect(test_payload.user_data.country).toEqual('us')
-        expect(test_payload.user_data.externalId).toEqual('abc12345')
+        expect(test_payload.user_data.externalId).toEqual(['abc12345', 'xyz123'])
       })
 
       it('fields by converting state names to state codes', async () => {
