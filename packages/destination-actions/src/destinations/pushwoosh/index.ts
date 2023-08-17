@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
       mapping: defaultValues(trackEvent.fields)
     },
     {
-      name: 'Update User Profile',
+      name: 'Create or Update User Profile',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUserProfile',
       mapping: defaultValues(updateUserProfile.fields)
