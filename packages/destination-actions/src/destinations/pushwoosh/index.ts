@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Track Events',
-      subscribe: 'type = "track"',
+      subscribe: 'type = "track" or type = "page" or type = "screen"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields)
     },
