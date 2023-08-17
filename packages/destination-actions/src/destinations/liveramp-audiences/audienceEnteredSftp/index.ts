@@ -1,20 +1,32 @@
-import {
-  ActionDefinition,
-  InvalidAuthenticationError,
-  PayloadValidationError,
-  RequestClient
-} from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { uploadS3, validateS3 } from './s3'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Audience Entered',
-  description: 'Uploads audience membership data to a file for LiveRamp ingestion.',
+  title: 'Audience Entered (SFTP)',
+  description: 'Uploads audience membership data to a file through SFTP for LiveRamp ingestion.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
+    sftp_username: {
+      label: 'Username',
+      description: 'User credentials for establishing an SFTP connection with LiveRamp.',
+      type: 'string'
+    },
+    sftp_password: {
+      label: 'Password',
+      description: 'User credentials for establishing an SFTP connection with LiveRamp.',
+      type: 'password'
+    },
+    sftp_folder_path: {
+      label: 'Folder Path',
+      description:
+        'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
+      type: 'string',
+      default: '/uploads/audience_name/',
+      format: 'uri-reference'
+    },
     audience_key: {
       label: 'Audience Key',
       description: 'Identifies the user within the entered audience.',
@@ -31,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     unhashed_identifier_data: {
       label: 'Hashable Identifier Data',
-      description: `Additional data pertaining to the user to be hashed before written to the file`,
+      description: `Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.`,
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue:only'
@@ -62,18 +74,18 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 1000000
+      default: 100000
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (_, { payload }) => {
+    return processData([payload])
   },
-  performBatch: (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: (_, { payload }) => {
+    return processData(payload)
   }
 }
 
-async function processData(request: RequestClient, settings: Settings, payloads: Payload[]) {
+async function processData(payloads: Payload[]) {
   const LIVERAMP_MIN_RECORD_COUNT = 25
   if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
@@ -81,27 +93,12 @@ async function processData(request: RequestClient, settings: Settings, payloads:
     )
   }
 
-  switch (settings.upload_mode) {
-    case 'S3':
-      validateS3(settings)
-      break
-    case 'SFTP':
-      validateSFTP(settings)
-      break
-    default:
-      throw new InvalidAuthenticationError(`Unexpected upload mode: ${settings.upload_mode}`)
-  }
+  validateSFTP(payloads[0])
 
   const { filename, fileContent } = generateFile(payloads)
 
-  switch (settings.upload_mode) {
-    case 'S3':
-      return uploadS3(settings, filename, fileContent, request)
-    case 'SFTP': {
-      const sftpClient = new ClientSFTP()
-      return uploadSFTP(sftpClient, settings, filename, fileContent)
-    }
-  }
+  const sftpClient = new ClientSFTP()
+  return uploadSFTP(sftpClient, payloads[0], filename, fileContent)
 }
 
 export default action

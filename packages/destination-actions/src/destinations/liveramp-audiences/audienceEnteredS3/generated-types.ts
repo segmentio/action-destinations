@@ -2,6 +2,22 @@
 
 export interface Payload {
   /**
+   * IAM user credentials with write permissions to the S3 bucket.
+   */
+  s3_aws_access_key?: string
+  /**
+   * IAM user credentials with write permissions to the S3 bucket.
+   */
+  s3_aws_secret_key?: string
+  /**
+   * Name of the S3 bucket where the files will be uploaded to.
+   */
+  s3_aws_bucket_name?: string
+  /**
+   * Region where the S3 bucket is hosted.
+   */
+  s3_aws_region?: string
+  /**
    * Identifies the user within the entered audience.
    */
   audience_key: string
@@ -12,7 +28,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional data pertaining to the user to be hashed before written to the file
+   * Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.
    */
   unhashed_identifier_data?: {
     [k: string]: unknown
