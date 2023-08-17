@@ -75,19 +75,82 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Calls',
       subscribe: 'type = "track" and event != "Order Completed"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Order Completed Calls',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields)
+      mapping: defaultValues(trackPurchase.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUserProfile',
-      mapping: defaultValues(updateUserProfile.fields)
+      mapping: defaultValues(updateUserProfile.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Exited',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateUserProfile',
+      mapping: {
+        ...defaultValues(updateUserProfile.fields),
+        custom_attributes: {
+          '@path': '$.traits'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
     }
   ]
 }

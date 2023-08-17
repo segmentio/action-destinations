@@ -10,7 +10,9 @@ const isSettingsKey = new Set<string>([
   'enable_batching',
   'customFields',
   'bulkUpsertExternalId',
-  'bulkUpdateRecordId'
+  'bulkUpdateRecordId',
+  'recordMatcherOperator',
+  'customObjectName'
 ])
 
 const NO_VALUE = `#N/A`

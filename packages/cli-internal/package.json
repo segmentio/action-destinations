@@ -53,8 +53,9 @@
     "@oclif/config": "^1.18.8",
     "@oclif/errors": "^1.3.6",
     "@oclif/plugin-help": "^3.3",
-    "@segment/action-destinations": "^3.155.1",
-    "@segment/actions-core": "^3.62.1",
+    "@segment/action-destinations": "^3.190.0",
+    "@segment/actions-core": "^3.76.0",
+    "@segment/destinations-manifest": "^1.6.0",
     "@types/node": "^18.11.15",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
@@ -78,7 +79,6 @@
     "tslib": "^2.3.1"
   },
   "optionalDependencies": {
-    "@segment/browser-destinations": "^3.88.1",
     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
   },
   "oclif": {

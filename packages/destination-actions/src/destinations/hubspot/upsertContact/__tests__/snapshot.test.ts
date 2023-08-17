@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { TransactionContext } from '@segment/actions-core/src/destination-kit'
+import { TransactionContext } from '@segment/actions-core/destination-kit'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertContact'

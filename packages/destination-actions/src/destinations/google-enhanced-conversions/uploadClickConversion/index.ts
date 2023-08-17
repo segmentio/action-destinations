@@ -9,7 +9,7 @@ import {
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  isHashedEmail
+  commonHashedEmailValidation
 } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
 
@@ -56,7 +56,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
       type: 'string',
-      format: 'email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -240,8 +239,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
+      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+
       request_object.userIdentifiers.push({
-        hashedEmail: isHashedEmail(payload.email_address) ? payload.email_address : hash(payload.email_address)
+        hashedEmail: validatedEmail
       })
     }
 

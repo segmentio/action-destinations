@@ -446,5 +446,61 @@ describe('Braze Cloud Mode (Actions)', () => {
         expect(resp.data).toMatchObject({})
       }
     })
+    it('should success with mapping of preset and Entity Added event(presets) ', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Entity Added',
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          properties: {
+            '@path': '$.properties'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+    it('should success with mapping of preset and `identify` call', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        receivedAt
+      })
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          custom_attributes: {
+            '@path': '$.traits'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
   })
 })
