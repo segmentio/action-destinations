@@ -119,7 +119,7 @@ describe('FacebookConversionsApi', () => {
             state: 'CA',
             zip: '123459876',
             country: 'US',
-            externalId: 'ABC12345'
+            externalId: ['ABC12345']
           }
         }
         const hashed_data = <HashedData>hash_user_data(test_payload)
