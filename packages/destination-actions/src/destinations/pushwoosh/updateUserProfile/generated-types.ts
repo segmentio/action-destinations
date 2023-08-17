@@ -26,7 +26,7 @@ export interface Payload {
    */
   device_platform?: string | null
   /**
-   * Device Token
+   * Device Token. This is not automatically collected by Segment Mobile SDKs. Add it into the Segment payload if needed
    */
   device_token?: string | null
   /**
