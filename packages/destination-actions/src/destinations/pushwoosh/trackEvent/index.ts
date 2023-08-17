@@ -7,7 +7,7 @@ import { sendBatchedPostEvent, sendPostEvent } from '../utilities'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Record custom events in Pushwoosh',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     external_id: {
       label: 'External User ID',
@@ -42,7 +42,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@path': '$.event'
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
       }
     },
     timestamp: {

@@ -6,8 +6,8 @@ import { omit } from '@segment/actions-core'
 import { getEndpoint, removeEmpty } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update User Profile',
-  description: "Update a user's profile attributes in Pushwoosh.",
+  title: 'Create or Update User Profiles',
+  description: "Create or Update a user's profile attributes in Pushwoosh.",
   defaultSubscription: 'type = "identify"',
   fields: {
     external_id: {
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       default: {
-        '@path': '$.email'
+        '@path': '$.traits.email'
       }
     },
     app_version: {
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     device_token: {
-      label: 'Device Token',
+      label: 'Device Token. This is not automatically collected by Segment Mobile Sdks. Add it into the Segment payload if needed',
       description: 'Device Token',
       type: 'string',
       allowNull: true,
