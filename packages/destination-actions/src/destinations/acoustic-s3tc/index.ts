@@ -3,7 +3,7 @@ import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
 
 const mod = `
-Last-Modified: 08.12.2023 22.38.58
+Last-Modified: 08.17.2023 20.41.37
 `
 //August 2023, refactor for S3Cache
 
@@ -47,21 +47,10 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Acoustic S3TC',
   slug: 'actions-acoustic-s3tc',
   mode: 'cloud',
-
+  description: 'Acoustic S3TC - Provide Segment Track and Identify Event Data to Acoustic Connect (Campaign)',
   authentication: {
     scheme: 'custom',
     fields: {
-      cacheType: {
-        label: 'Use the S3 or SFTP Cache',
-        description: 'Choose transport option, S3 is the default',
-        type: 'string',
-        required: true,
-        default: 'S3',
-        choices: [
-          { value: 'S3', label: 'S3' },
-          { value: 'SFTP', label: 'SFTP' }
-        ]
-      },
       fileNamePrefix: {
         label: 'File Name Prefix',
         description: `Prefix to all Stored File Names`,
@@ -91,44 +80,12 @@ const destination: DestinationDefinition<Settings> = {
         default: 'us-east-1',
         type: 'string'
       },
-      sftp_user: {
-        label: 'SFTP Userid credential',
-        description: 'Acoustic credentials for the SFTP connection',
-        type: 'string'
-      },
-      sftp_password: {
-        label: 'SFTP Password credential',
-        description: 'Acoustic credentials for the SFTP connection',
-        type: 'password'
-      },
-      // Always a fixed path for Acoustic SFTP connections but future-proofing
-      sftp_folder: {
-        label: 'SFTP Folder Path',
-        description: 'Acoustic Campaign SFTP folder path.',
-        type: 'string',
-        format: 'uri-reference'
-      },
       version: {
         label: `Version:`,
         description: `\n${mod}\n`,
         default: 'Version 1.3',
         type: 'string',
         required: false
-      },
-      //Explore these intriguing options:
-      __segment_internal_engage_force_full_sync: {
-        label: 'Force Full Sync',
-        description: 'Force full sync of an Audience versus receiving Audience updates as they occur.',
-        type: 'boolean',
-        required: true,
-        default: true
-      },
-      __segment_internal_engage_batch_sync: {
-        label: 'Batch sync via ADS',
-        description: 'Force Batch mode Event updates versus singular Event updates as they occur.',
-        type: 'boolean',
-        required: true,
-        default: true
       }
     }
   },

@@ -130,14 +130,11 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
     }
 
-    // console.log(method, '\n', `https://${opts.host}/${opts.path}`, '\n', fileName, '\n', settings.s3_bucket, '\n', settings.s3_access_key, '\n', settings.s3_secret)
-
     return await request(`https://${opts.host}/${opts.path}`, {
       headers: opts.headers as Record<string, string>,
       method,
       body: opts.body
     })
-    // }
   }
 }
 export default action
