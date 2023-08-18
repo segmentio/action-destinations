@@ -115,7 +115,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.language) {
       gtag('set', { language: payload.language })
     }
-    if (payload.content_group) {
+    if (payload.content_group && settings.streamID) {
+      gtag('config', settings.streamID, { content_group: payload.content_group })
+    } else if (payload.content_group) {
       gtag('set', { content_group: payload.content_group })
     }
     if (payload.campaign_term) {
