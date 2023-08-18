@@ -243,7 +243,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const contactsUpsertMap: Record<string, ContactsUpsertMapItem> = {}
 
     for (const contact of payload) {
-      contactsUpsertMap[contact.email] = {
+      contactsUpsertMap[contact.email.toLowerCase()] = {
         // Setting initial state to undefined as we don't know if the contact exists in HubSpot
         action: 'undefined',
 
@@ -259,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
             state: contact.state,
             country: contact.country,
             zip: contact.zip,
-            email: contact.email,
+            email: contact.email.toLowerCase(),
             website: contact.website,
             lifecyclestage: contact.lifecyclestage?.toLowerCase(),
             ...flattenObject(contact.properties)
