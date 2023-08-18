@@ -10,14 +10,26 @@ import { track } from './track'
 import { PayloadValidationError } from '@segment/actions-core'
 
 export enum SendabilityStatus {
+  /**
+   * No. of externalIds for which the message send is triggered based on the customer chosen send type (bypass, opt-out, opt-in)
+   */
   ShouldSend = 'should_send',
   /**
-   * No externalIds that supported by this Channel exist in the payload
+   * No. of externalIds for which the message send is not triggered based on the customer chosen send type (bypass, opt-out, opt-in)
+   */
+  ShouldNotSend = 'should_not_send',
+  /**
+   * This is set if there are no supported ids for this channel in the payload
    */
   NoSupportedExternalIds = 'no_supported_ids',
-  NotSubscribed = 'not_subscribed',
-  SendDisabled = 'send_disabled',
-  InvalidSubscriptionStatus = 'invalid_subscription_status'
+  /**
+   * No. of externalIds that have iSubscribed field missing from PSS (This should never happen as PSS always return either true, false or null)
+   */
+  InvalidSubscriptionStatus = 'invalid_subscription_status',
+  /**
+   * This is set if 'send' is false in the payload, this is not what customer can choose. It is based of a feature flag and acts liks a kill switch for the messaging product
+   */
+  SendDisabled = 'send_disabled'
 }
 
 export interface MessagePayloadBase {
@@ -136,6 +148,36 @@ export abstract class MessageSendPerformer<
     return undefined //Invalid subscriptionStatus
   }
 
+  logPssSubscriptionStatesForExternalIds(): void {
+    const unknownSubStateExtIds = this.payload.externalIds?.filter(
+      (e) => this.isSupportedExternalId(e) && e.subscriptionStatus === undefined
+    )
+
+    const unsubscribedExtIds = this.payload.externalIds?.filter(
+      (e) => this.isSupportedExternalId(e) && e.subscriptionStatus?.toString()?.toLowerCase() === 'false'
+    )
+
+    const subscribedExtIds = this.payload.externalIds?.filter(
+      (e) => this.isSupportedExternalId(e) && e.subscriptionStatus?.toString()?.toLowerCase() === 'true'
+    )
+
+    const didNotSubscribeExtIds = this.payload.externalIds?.filter(
+      (e) => this.isSupportedExternalId(e) && e.subscriptionStatus?.toString()?.toLowerCase() === ''
+    )
+
+    // No. of externalIds that have an explicit status: "subscribed" (i.e PSS returned 'isSubscribed: true')
+    this.currentOperation?.tags.push('subscribed:' + subscribedExtIds?.length)
+
+    // No. of externalIds that have an explicit status: "unsubscribed" (i.e PSS returned 'isSubscribed: false')
+    this.currentOperation?.tags.push('unsubscribed:' + unsubscribedExtIds?.length)
+
+    // No. of externalIds that have an explicit status: "did-not-subscribe" or does not have an entry in PSS (i.e PSS returned 'isSubscribed: null')
+    this.currentOperation?.tags.push('did_not_subscribe:' + didNotSubscribeExtIds?.length)
+
+    // No. of externalIds that have an explicit status: "did-not-subscribe" or does not have an entry in PSS (i.e PSS returned 'isSubscribed: null')
+    this.currentOperation?.tags.push('unknown_subscription_state:' + unknownSubStateExtIds?.length)
+  }
+
   /**
    * Gets all sendable recepients for the current payload or a reason why it is not sendable
    * @returns
@@ -145,8 +187,10 @@ export abstract class MessageSendPerformer<
       return { sendabilityStatus: SendabilityStatus.SendDisabled }
     }
 
-    // list of extenalIds that are supported by this Channel, if none - exit
-    const supportedExtIdsWithSub = this.payload.externalIds
+    this.logPssSubscriptionStatesForExternalIds()
+
+    // list of extenalIds that are supported by this Channel, if none - exit based on customer chosen send type (bypass, opt-out, opt-in)
+    const supportedExtIdsBasedOnSendType = this.payload.externalIds
       ?.filter((extId) => this.isSupportedExternalId(extId))
       .map((extId) => ({
         extId,
@@ -154,19 +198,22 @@ export abstract class MessageSendPerformer<
           ? this.isExternalIdSubscribedOptOutModel(extId)
           : this.isExternalIdSubscribed(extId)
       }))
-    if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
+
+    if (!supportedExtIdsBasedOnSendType || !supportedExtIdsBasedOnSendType.length)
       return {
         sendabilityStatus: SendabilityStatus.NoSupportedExternalIds
       }
 
-    const invalidSubStatuses = supportedExtIdsWithSub.filter((e) => e.isSubscribed === undefined).map((e) => e.extId)
+    const invalidSubStatuses = supportedExtIdsBasedOnSendType
+      .filter((e) => e.isSubscribed === undefined)
+      .map((e) => e.extId)
 
-    const subscribedExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)
+    const shouldSendExtIds = supportedExtIdsBasedOnSendType.filter((e) => e.isSubscribed === true).map((e) => e.extId)
 
-    if (!subscribedExtIds.length) {
+    if (!shouldSendExtIds.length) {
       return invalidSubStatuses.length == 0
         ? {
-            sendabilityStatus: SendabilityStatus.NotSubscribed
+            sendabilityStatus: SendabilityStatus.ShouldNotSend
           }
         : {
             sendabilityStatus: SendabilityStatus.InvalidSubscriptionStatus,
@@ -175,13 +222,13 @@ export abstract class MessageSendPerformer<
     }
 
     // if have subscribed, then return them IF they have id values (e.g. phone numbers)
-    if (subscribedExtIds.length) {
+    if (shouldSendExtIds.length) {
       // making sure subscribed have id value
-      const subWithIds = subscribedExtIds.filter((extId) => extId.id)
+      const subWithIds = shouldSendExtIds.filter((extId) => extId.id)
       return {
         sendabilityStatus:
           subWithIds.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSupportedExternalIds,
-        recepients: subWithIds.length > 0 ? subWithIds : subscribedExtIds,
+        recepients: subWithIds.length > 0 ? subWithIds : shouldSendExtIds,
         invalid: invalidSubStatuses
       }
     }
@@ -196,7 +243,7 @@ export abstract class MessageSendPerformer<
     // should not get here, but if we did - return no phones
     return {
       sendabilityStatus: SendabilityStatus.NoSupportedExternalIds,
-      recepients: supportedExtIdsWithSub.map((e) => e.extId)
+      recepients: supportedExtIdsBasedOnSendType.map((e) => e.extId)
     }
   }
 
