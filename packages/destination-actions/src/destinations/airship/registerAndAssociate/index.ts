@@ -1,4 +1,4 @@
-import { IntegrationError, ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { register, associate_named_user, getChannelId } from '../utilities'
@@ -144,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    if (payload.channel_object.new_address) {
+    if (payload.channel_object.new_address && payload.channel_object.address) {
       const old_email_channel_response = await getChannelId(request, settings, payload.channel_object.address)
       const old_email_response_content: any = JSON.parse(old_email_channel_response.content)
       if (old_email_response_content.channel.channel_id) {
@@ -155,23 +155,9 @@ const action: ActionDefinition<Settings, Payload> = {
     const response_content = register_response.content
     const data = JSON.parse(response_content)
 
-    if (!data.ok || !data.channel_id) {
-      throw new IntegrationError(
-        `Registration Failed, didn't create channel_id for ${payload.channel_object.address}`,
-        'Unsuccessful Registration',
-        400
-      )
-    }
     const channel_id = data.channel_id
     if (payload.named_user_id && payload.named_user_id.length > 0) {
       const associate_response = await associate_named_user(request, settings, channel_id, payload.named_user_id)
-      if (!associate_response.ok) {
-        throw new IntegrationError(
-          `Associate Failed for named user ${payload.named_user_id}`,
-          'Could not associate email address with named user id',
-          400
-        )
-      }
       return associate_response
     } else {
       return data
