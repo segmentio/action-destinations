@@ -7,6 +7,7 @@ import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
 import { ExecuteDynamicFieldInput } from './destination-kit/action'
+import { Result } from './destination-kit/types'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {}
@@ -73,6 +74,38 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext
     }: InputData<T>
   ): Promise<Destination['responses']> {
+    const { responses } = await this.testAction2(action, {
+      event,
+      mapping,
+      settings,
+      useDefaultMappings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    })
+
+    return responses
+  }
+
+  /** Same as testAction but returns responses and results */
+  async testAction2(
+    action: string,
+    {
+      event,
+      mapping,
+      settings,
+      useDefaultMappings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext
+    }: InputData<T>
+  ): Promise<{ results: Result[]; responses: Destination['responses'] }> {
     mapping = mapping ?? {}
 
     if (useDefaultMappings) {
@@ -81,7 +114,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       mapping = { ...defaultMappings, ...mapping } as JSONObject
     }
 
-    await super.executeAction(action, {
+    const results = await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
       settings: settings ?? ({} as T),
@@ -96,7 +129,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     const responses = this.responses
     this.responses = []
 
-    return responses
+    return { responses, results }
   }
 
   async testBatchAction(

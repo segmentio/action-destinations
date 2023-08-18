@@ -1,5 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Segment.sendIdentify Should not send event if actions-segment-profiles-tapi-internal flag is enabled 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "anonymousId": "arky4h2sh7k",
+      "groupId": undefined,
+      "integrations": Object {
+        "All": false,
+      },
+      "traits": Object {
+        "email": "test-user@test-company.com",
+        "name": "Test User",
+      },
+      "userId": "test-user-ufi5bgkko5",
+    },
+  ],
+}
+`;
+
 exports[`Segment.sendIdentify Should send an identify event to Segment 1`] = `
 Headers {
   Symbol(map): Object {
