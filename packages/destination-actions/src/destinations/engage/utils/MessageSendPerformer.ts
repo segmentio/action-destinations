@@ -27,7 +27,7 @@ export enum SendabilityStatus {
    */
   InvalidSubscriptionStatus = 'invalid_subscription_status',
   /**
-   * This is set if 'send' is false in the payload, this is not what customer can choose. It is based of a feature flag and acts liks a kill switch for the messaging product
+   * This is set if 'send' is false in the payload.
    */
   SendDisabled = 'send_disabled'
 }
