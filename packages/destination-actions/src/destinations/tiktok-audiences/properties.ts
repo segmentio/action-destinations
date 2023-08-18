@@ -87,12 +87,3 @@ export const enable_batching: InputField = {
   type: 'boolean',
   default: true
 }
-
-export const external_audience_id: InputField = {
-  label: 'External Audience ID',
-  description: "The Audience ID in TikTok's DB.",
-  type: 'hidden',
-  default: {
-    '@path': '$.context.personas.external_audience_id'
-  }
-}

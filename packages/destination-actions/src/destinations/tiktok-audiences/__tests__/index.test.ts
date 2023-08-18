@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
-import { BASE_URL, GET_AUDIENCE_URL, TIKTOK_API_VERSION } from '../constants'
+import { CREATE_AUDIENCE_BASE_URL, GET_AUDIENCE_URL, TIKTOK_API_VERSION } from '../constants'
 import Destination from '../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -89,7 +89,7 @@ describe('Tik Tok Audiences', () => {
     })
 
     it('should create a new TikTok Audience', async () => {
-      nock(BASE_URL)
+      nock(CREATE_AUDIENCE_BASE_URL)
         .post(`/${TIKTOK_API_VERSION}/segment/audience/`, {
           custom_audience_name: 'The Super Mario Brothers Fans',
           advertiser_id: '42884288',

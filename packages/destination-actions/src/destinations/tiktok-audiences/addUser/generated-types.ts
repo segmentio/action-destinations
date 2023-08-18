@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * The advertiser ID to use when syncing audiences.
+   */
+  selected_advertiser_id: string
+  /**
+   * Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.
+   */
+  audience_id: string
+  /**
    * The user's email address to send to TikTok.
    */
   email?: string
@@ -25,8 +33,4 @@ export interface Payload {
    * Enable batching of requests to the TikTok Audiences.
    */
   enable_batching?: boolean
-  /**
-   * The Audience ID in TikTok's DB.
-   */
-  external_audience_id?: string
 }
