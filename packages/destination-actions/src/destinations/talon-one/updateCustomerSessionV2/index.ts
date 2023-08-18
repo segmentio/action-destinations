@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { attribute, cartItems, customerProfileId, identifier } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Customer Session',
+  title: 'Update customer session',
   description: 'This updates a customer session. Create all the required attributes before using this endpoint.',
   fields: {
     customerSessionId: {

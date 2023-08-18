@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { attribute, addAudienceId, deleteAudienceId, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Customer Profile',
+  title: 'Update customer profile',
   description:
     'This updates attributes and audiences for a single customer profile. Create all the required attributes and audiences before using this endpoint.',
   fields: {
