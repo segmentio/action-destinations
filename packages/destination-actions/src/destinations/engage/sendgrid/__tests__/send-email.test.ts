@@ -1294,7 +1294,7 @@ describe.each([
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toBe(false)
-        expectInfoLogged(SendabilityStatus.NotSubscribed.toUpperCase())
+        expectInfoLogged(SendabilityStatus.ShouldNotSend.toUpperCase())
       }
     )
 
@@ -1318,7 +1318,7 @@ describe.each([
           .reply(200, {})
 
         expect(sendGridRequest.isDone()).toEqual(false)
-        expectInfoLogged(`${SendabilityStatus.NotSubscribed.toUpperCase()}`)
+        expectInfoLogged(`${SendabilityStatus.ShouldNotSend.toUpperCase()}`)
       }
     )
 
