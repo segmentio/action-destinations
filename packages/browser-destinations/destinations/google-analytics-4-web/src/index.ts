@@ -53,6 +53,13 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       type: 'string',
       required: true
     },
+    streamID: {
+      description:
+        'The stream ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Stream ID.',
+      label: 'Stream ID',
+      type: 'string',
+      required: false
+    },
     allowGoogleSignals: {
       description: 'Set to false to disable all advertising features. Set to true by default.',
       label: 'Allow Google Signals',
