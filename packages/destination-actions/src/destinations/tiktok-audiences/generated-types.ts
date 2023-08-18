@@ -1,15 +1,8 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface Settings {}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface AudienceSettings {
+export interface Settings {
   /**
-   * The advertiser ID to use when syncing audiences.
+   * The Advertiser IDs where audiences should be synced. Hidden in production and should not be altered by users.
    */
-  advertiserId: string
-  /**
-   * Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.
-   */
-  idType: string
+  advertiser_ids: string[]
 }

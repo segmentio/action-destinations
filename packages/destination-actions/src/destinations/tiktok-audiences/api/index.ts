@@ -1,7 +1,8 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import { CREATE_AUDIENCE_BASE_URL, TIKTOK_API_VERSION } from '../constants'
-import type { GetAudienceAPIResponse, APIResponse, AudienceInfoError } from '../types'
+import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
+import type { GetAudienceAPIResponse, APIResponse, CreateAudienceAPIResponse, AudienceInfoError } from '../types'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import type { Payload } from '../createAudience/generated-types'
 import type { Audiences } from '../types'
 
 interface AdvertiserInfoItem {
@@ -28,13 +29,15 @@ interface AdvertiserInfoError {
 
 export class TikTokAudiences {
   request: RequestClient
+  selectedAdvertiserID?: string
 
-  constructor(request: RequestClient) {
+  constructor(request: RequestClient, selectedAdvertiserID?: string) {
     this.request = request
+    this.selectedAdvertiserID = selectedAdvertiserID
   }
 
   async getUserInfo(): Promise<ModifiedResponse<APIResponse>> {
-    return this.request(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/user/info/`, {
+    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/user/info/`, {
       method: 'GET'
     })
   }
@@ -55,7 +58,7 @@ export class TikTokAudiences {
       let total_page = 1
       while (page_number <= total_page) {
         const result = await this.request<GetAudienceAPIResponse>(
-          `${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
+          `${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`,
           {
             method: 'GET',
             searchParams: {
@@ -101,8 +104,20 @@ export class TikTokAudiences {
     }
   }
 
+  async createAudience(payload: Payload): Promise<ModifiedResponse<CreateAudienceAPIResponse>> {
+    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`, {
+      method: 'POST',
+      json: {
+        custom_audience_name: payload.custom_audience_name,
+        advertiser_id: this.selectedAdvertiserID,
+        id_type: payload.id_type,
+        action: 'create'
+      }
+    })
+  }
+
   async batchUpdate(elements: {}): Promise<ModifiedResponse> {
-    return this.request(`${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`, {
+    return this.request(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`, {
       method: 'POST',
       json: elements,
       throwHttpErrors: false
@@ -120,15 +135,12 @@ export class TikTokAudiences {
       }
     }
     try {
-      const result = await this.request<AdvertiserInfoResponse>(
-        `${CREATE_AUDIENCE_BASE_URL}${TIKTOK_API_VERSION}/advertiser/info/`,
-        {
-          method: 'GET',
-          searchParams: {
-            advertiser_ids: JSON.stringify(advertiser_ids)
-          }
+      const result = await this.request<AdvertiserInfoResponse>(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info/`, {
+        method: 'GET',
+        searchParams: {
+          advertiser_ids: JSON.stringify(advertiser_ids)
         }
-      )
+      })
 
       if (result.data.code !== 0) {
         throw {
