@@ -75,22 +75,21 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
       newTraits.segmentAnonymousId_str = event.payload.anonymousId
     }
 
+    const usersVars = {
+      ...newTraits,
+      ...(event.payload.email !== undefined && { email: event.payload.email }),
+      ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
+    }
+
     if (event.payload.userId) {
       //Will remove after testing the event in stage
       console.log('identify call: ', event.payload, { newTraits })
 
-      FS.identify(event.payload.userId, newTraits, segmentEventSource)
+      FS.identify(event.payload.userId, usersVars, segmentEventSource)
     } else {
       //Will remove after testing the event in stage
       console.log('setUserVars call: ', event.payload, { newTraits })
-      FS.setUserVars(
-        {
-          ...newTraits,
-          ...(event.payload.email !== undefined && { email: event.payload.email }),
-          ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
-        },
-        segmentEventSource
-      )
+      FS.setUserVars(usersVars, segmentEventSource)
     }
   }
 }
