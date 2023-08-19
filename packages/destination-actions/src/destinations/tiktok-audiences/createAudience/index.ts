@@ -5,6 +5,10 @@ import { createAudience } from '../functions'
 import { selected_advertiser_id, custom_audience_name, id_type } from '../properties'
 import { TikTokAudiences } from '../api'
 
+// === NOTE ===
+// This createAudience is independent of the native createAudience that is implemented in ../index.ts.
+// Consider it deprecated and do not emulate its behavior.
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Audience',
   description: 'Creates a new audience in TikTok Audience Segment.',
@@ -31,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, statsContext }) => {
+    statsContext?.statsClient?.incr('actions-tiktok-audiences.createAudience.legacy', 1, statsContext?.tags)
     return createAudience(request, payload)
   }
 }
