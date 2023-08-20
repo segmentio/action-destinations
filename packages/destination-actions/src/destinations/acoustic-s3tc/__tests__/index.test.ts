@@ -20,7 +20,6 @@ describe('destination', () => {
   })
 
   test('has valid fields', () => {
-    expect(destination.authentication?.fields.cacheType).toBeDefined()
     expect(destination.authentication?.fields.fileNamePrefix).toBeDefined()
     expect(destination.authentication?.fields.s3_access_key).toBeDefined()
     expect(destination.authentication?.fields.s3_secret).toBeDefined()
