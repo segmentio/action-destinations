@@ -3,7 +3,7 @@ import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
 
 const mod = `
-Last-Modified: 08.17.2023 20.41.37
+Last-Modified: 08.20.2023 09.53.59
 `
 //August 2023, refactor for S3Cache
 
@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Acoustic S3TC',
   slug: 'actions-acoustic-s3tc',
   mode: 'cloud',
-  description: 'Acoustic S3TC - Provide Segment Track and Identify Event Data to Acoustic Connect (Campaign)',
+  description: 'Acoustic S3TC - Provide Segment Track and Identify Event Data to Acoustic Connect',
   authentication: {
     scheme: 'custom',
     fields: {

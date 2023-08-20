@@ -83,22 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
       // default: {
       //   '@path': '$.traits'
       // }
-    },
-
-    //Explore these interesting settings
-    enable_batching: {
-      type: 'boolean',
-      label: 'Batch data',
-      description: 'Receive events in bulk payload',
-      required: true,
-      default: true
-    },
-    batch_size: {
-      label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch.',
-      type: 'number',
-      required: false,
-      default: 100
     }
   },
   perform: async (request, { settings, payload }) => {

@@ -47,12 +47,4 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
-  /**
-   * Receive events in bulk payload
-   */
-  enable_batching: boolean
-  /**
-   * Maximum number of events to include in each batch.
-   */
-  batch_size?: number
 }

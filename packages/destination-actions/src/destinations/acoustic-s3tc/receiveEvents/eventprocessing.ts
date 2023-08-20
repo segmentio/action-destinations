@@ -9,7 +9,7 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
     //if (nestDepth > 5) return parseResults
     if (nestDepth > 10)
       throw new IntegrationError(
-        'Event data exceeds nesting depth. Use Mapping to avoid nesting data attributes more than 3 levels deep',
+        'Event data exceeds nesting depth. Use Mapping to avoid nesting data attributes more than 10 levels deep',
         'NESTING_DEPTH_EXCEEDED',
         400
       )
@@ -88,16 +88,6 @@ export function addUpdateEvents(payload: Payload, email: string) {
     )
   }
 
-  // //Check Size - Number of Attributes
-  // const l = Object.keys(propertiesTraitsKV).length
-  // if (l > limit) {
-  //   throw new IntegrationError(
-  //     `There are ${l} Attributes in this Event. This exceeds the max of ${limit}. Use Mapping to limit the number of Attributes and thereby reduce the Campaign Relational Table Rows consumed.`,
-  //     'EXCEEDS_MAX_PROPERTIES_MAX',
-  //     400
-  //   )
-  // }
-
   let ak = ''
   let av = ''
 
@@ -108,7 +98,7 @@ export function addUpdateEvents(payload: Payload, email: string) {
     ak = getValue(propertiesTraitsKV, 'computation_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
 
-    //Audience determined, clean out parsed attributes, reduce redundant attributes
+    //Clean out already parsed attributes, reduce redundant attributes
     let x = getKey(propertiesTraitsKV, 'computation_class')
     delete propertiesTraitsKV[`${x}`]
     x = getKey(propertiesTraitsKV, 'computation_key')
@@ -120,7 +110,7 @@ export function addUpdateEvents(payload: Payload, email: string) {
     ak = getValue(propertiesTraitsKV, 'audience_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
 
-    //Audience determined, clean out parsed attributes, reduce redundant attributes
+    //Clean out already parsed attributes, reduce redundant attributes
     const x = getKey(propertiesTraitsKV, 'audience_key')
     delete propertiesTraitsKV[`${x}`]
     delete propertiesTraitsKV[`${ak}`]
@@ -149,38 +139,3 @@ export function addUpdateEvents(payload: Payload, email: string) {
   }
   return csvRows
 }
-
-// export async function doPOST(request: RequestClient, settings: Settings, body: string) {
-//   let resultTxt = ''
-//   let res = ''
-
-//   const postResults = await request(`https://api-campaign-${settings.region}-${settings.pod}.goacoustic.com/XMLAPI`, {
-//     method: 'POST',
-//     headers: {
-//       // Authorization: `Bearer ${auth?.accessToken}`,
-//       'Content-Type': 'text/xml',
-//       'user-agent': `Segment Action (Acoustic Destination) }`,
-//       Connection: 'keep-alive',
-//       'Accept-Encoding': 'gzip, deflate, br',
-//       Accept: '*/*'
-//     },
-//     body: `${body}`
-//   })
-
-//   res = (await postResults.data) as string
-
-//   //check for success, hard fails throw error, soft fails throw retryable error
-//   resultTxt = res
-
-//   if (resultTxt.toLowerCase().indexOf('<success>false</success>') > -1) {
-//     const rx = /<FaultString>(.*)<\/FaultString>/gm
-//     const r = rx.exec(resultTxt) as RegExpExecArray
-
-//     const faultMsg = r[1].toLowerCase()
-
-//     if (faultMsg.indexOf('max number of concurrent') > -1)
-//       throw new RetryableError('Currently exceeding Max number of concurrent API authenticated requests, retrying...', 429)
-//   }
-
-//   return resultTxt
-// }
