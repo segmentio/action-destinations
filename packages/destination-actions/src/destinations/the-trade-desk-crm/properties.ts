@@ -59,3 +59,21 @@ export const batch_size: InputField = {
   required: false,
   default: 100000
 }
+
+export const merge_mode: InputField = {
+  label: 'Merge Mode',
+  description: 'The merge mode to use when syncing data to The Trade Desk CRM Segment.',
+  type: 'string',
+  choices: [
+    {
+      label: 'Add',
+      value: 'Add'
+    },
+    {
+      label: 'Replace',
+      value: 'Replace'
+    }
+  ],
+  default: 'Replace',
+  required: false
+}

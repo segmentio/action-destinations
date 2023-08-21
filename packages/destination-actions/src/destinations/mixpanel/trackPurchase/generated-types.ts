@@ -142,6 +142,26 @@ export interface Payload {
    */
   userAgent?: string
   /**
+   * Advertising ID
+   */
+  advertising_id?: string
+  /**
+   * Ad Tracking Enabled (true or false)
+   */
+  ad_tracking_enabled?: string
+  /**
+   * The event timezone
+   */
+  timezone?: string
+  /**
+   * The App Platform, if applicable
+   */
+  app_platform?: string
+  /**
+   * The Event Original Name, if applicable
+   */
+  name?: string
+  /**
    * An object of key-value pairs that represent additional data to be sent along with the event.
    */
   event_properties?: {

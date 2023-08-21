@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-logrocket",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -12,7 +12,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "^3.77.0",
-    "@segment/browser-destination-runtime": "^1.7.0",
+    "@segment/browser-destination-runtime": "^1.8.0",
     "logrocket": "^3.0.1"
   },
   "peerDependencies": {

@@ -273,7 +273,7 @@ describe('CustomerIO', () => {
     it('should map messageId to id in the payload', async () => {
       const settings: Settings = {
         siteId: '12345',
-        apiKey: 'abcde',
+        apiKey: 'abcde'
       }
       const messageId = 'message123'
       const userId = 'abc123'
@@ -304,5 +304,48 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should success with mapping of preset and Entity Added event(presets) ', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const name = 'Entity Added'
+      const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+      const data = {
+        property1: 'this is a test',
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
+      }
+
+      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+
+      const event = createTestEvent({
+        event: name,
+        userId,
+        properties: data,
+        timestamp
+      })
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          data: {
+            '@path': '$.properties'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
   })
 })
