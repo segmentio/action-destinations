@@ -119,9 +119,9 @@ export abstract class MessageSendPerformer<
     return this.constructor as ThisStaticClass
   }
 
-  // /**
-  //  * check if extId is (un)subscribed (returns true|false) or if subscription status is invalid (returns undefined)
-  //  */
+  /**
+   * check if extId is (un)subscribed (returns true|false) or if subscription status is invalid (returns undefined)
+   */
   isExternalIdSubscribed(extId: ExtId<TPayload>): boolean | undefined {
     const staticMems = this.getStaticMembersOfThisClass()
     const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
