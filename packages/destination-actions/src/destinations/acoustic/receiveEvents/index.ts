@@ -8,7 +8,7 @@ import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Receive Track and Identify Events',
-  description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign.',
+  description: 'Provide Segment Track and Identify Event Data to Acoustic Campaign',
   fields: {
     email: {
       label: 'Email',
