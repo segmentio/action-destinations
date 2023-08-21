@@ -368,7 +368,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('subscription handling', () => {
-    it.each([true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+    it.each(['subscribed', 'true', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
@@ -391,7 +391,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each([true, null])(
+    it.each(['subscribed', 'true', true, null, ''])(
       'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({

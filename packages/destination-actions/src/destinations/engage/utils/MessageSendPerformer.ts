@@ -100,15 +100,15 @@ export abstract class MessageSendPerformer<
     return res
   }
 
-  /**
+  /*
    * check if the externalId object is supported for sending a message by current class of message sender
    * @param externalId
    * @returns
    */
   abstract isSupportedExternalId(externalId: NonNullable<TPayload['externalIds']>[number]): boolean
 
-  static readonly nonSendableStatuses = ['false']
-  static readonly sendableStatuses = ['true']
+  static readonly nonSendableStatuses = ['unsubscribed', 'false']
+  static readonly sendableStatuses = ['subscribed', 'true']
 
   /**
    * allows access to static members of the current class that can be overriden in subclasses
