@@ -6,8 +6,8 @@ import { attribute, customerProfileId } from '../t1-properties'
 const TARGET_EVENT_TYPE = 'string'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'This records a custom event in Talon.One.',
+  title: 'Track Event Test 4',
+  description: 'This records a custom event in Talon.One. Test 4',
   fields: {
     customerProfileId: {
       ...customerProfileId,

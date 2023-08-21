@@ -35,7 +35,7 @@ export interface Settings {
   attributesMax?: number
   /**
    *
-   * Last-Modified: 06.28.2023 16.15.37
+   * Last-Modified: 06.28.2023 16.15.59
    *
    */
   version?: string
