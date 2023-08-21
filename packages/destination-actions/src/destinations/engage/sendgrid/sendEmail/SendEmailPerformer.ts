@@ -37,14 +37,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       this.currentOperation?.logs.push('Bypassing subscription')
       return true
     }
-    const send_opt_out = this.payload.sendBasedOnOptOut !== undefined && this.payload.sendBasedOnOptOut
-    let isSubscribed
-    if (send_opt_out) {
-      this.currentOperation?.logs.push('OptOut subscription')
-      isSubscribed = super.isExternalIdSubscribedOptOutModel(extId)
-    } else {
-      isSubscribed = super.isExternalIdSubscribed(extId)
-    }
+
+    const isSubscribed = super.isExternalIdSubscribed(extId)
     if (!isSubscribed) return isSubscribed // may be undefined => as invalid
 
     if (!this.payload.groupId) return isSubscribed
@@ -233,11 +227,17 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    // only include preview text in design editor templates
-    if (this.payload.bodyType === 'design' && this.payload.previewText) {
-      const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+    if (this.payload.previewText) {
+      try {
+        const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
+
+        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+      } catch (ex) {
+        this.logger?.error('Error inserting preview text, using original html', {
+          ex
+        })
+        this.statsClient.incr('insert_preview_fail', 1)
+      }
     }
 
     parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)

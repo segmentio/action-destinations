@@ -179,7 +179,7 @@ describe('sendMobilePush action', () => {
         }
       })
       expect(responses.length).toEqual(0)
-      expectInfoLogged(`Not sending message because`, SendabilityStatus.ShouldNotSend.toUpperCase())
+      expectInfoLogged(`Not sending message because`, SendabilityStatus.NotSubscribed.toUpperCase())
     })
 
     it('should fail on invalid webhook url', async () => {
