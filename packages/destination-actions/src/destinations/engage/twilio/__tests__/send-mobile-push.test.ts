@@ -21,7 +21,7 @@ const defaultExternalId = {
   type: 'ios.push_token',
   id: 'ios-token-1',
   channelType: 'IOS_PUSH',
-  subscriptionStatus: 'subscribed'
+  subscriptionStatus: 'true'
 }
 
 const testAction = createTestAction({
@@ -89,7 +89,7 @@ describe('sendMobilePush action', () => {
         type: `${deviceOS}.push_token`,
         id: `${deviceOS}-token`,
         channelType: `${deviceOS.toUpperCase()}_PUSH`,
-        subscriptionStatus: 'subscribed'
+        subscriptionStatus: 'true'
       }
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
@@ -152,7 +152,7 @@ describe('sendMobilePush action', () => {
     it('should abort when there is no push notification external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '6146369272', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'phone', id: '6146369272', subscriptionStatus: 'true' }]
         }
       })
       expect(responses.length).toEqual(0)
@@ -173,7 +173,7 @@ describe('sendMobilePush action', () => {
               type: `${deviceOS}.push_token`,
               id: `${deviceOS}-token`,
               channelType: `${deviceOS.toUpperCase()}_PUSH`,
-              subscriptionStatus: 'unsubscribed'
+              subscriptionStatus: 'false'
             }
           ]
         }
@@ -254,7 +254,7 @@ describe('sendMobilePush action', () => {
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, template)
 
       const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'true' }
       ]
       const notifyReqBody = new URLSearchParams({
         Body: 'Welcome to Wadiya General Aladeen!',
@@ -304,7 +304,7 @@ describe('sendMobilePush action', () => {
       const media = ['http://myimg.com/&color={{profile.traits.fav_color}}']
 
       const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'true' }
       ]
 
       const notifyReqBody = new URLSearchParams({
@@ -378,7 +378,7 @@ describe('sendMobilePush action', () => {
       }
 
       const externalIds = [
-        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+        { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'true' }
       ]
 
       const traits = { first_name: 'Aladeen', fav_color: 'mantis_green' }
@@ -477,7 +477,7 @@ describe('sendMobilePush action', () => {
     }
 
     const externalIds = [
-      { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'subscribed' }
+      { type: 'ios.push_token', id: 'ios-token-1', channelType: 'IOS_PUSH', subscriptionStatus: 'true' }
     ]
 
     it('sets deep link tap action preset', async () => {

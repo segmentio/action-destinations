@@ -17,8 +17,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       send: true,
       traitEnrichment: true,
       externalIds: [
-        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'true', channelType: 'whatsapp' }
       ]
     })
   })
@@ -27,7 +27,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' }]
         }
       })
 
@@ -37,7 +37,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `channelType` in the external ID payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'true' }]
         }
       })
 
@@ -119,7 +119,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
   })
   describe('subscription handling', () => {
-    it.each(['subscribed', true])('sends an WhatsApp when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+    it.each([true])('sends an WhatsApp when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
@@ -141,28 +141,25 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', false, null])(
-      'does NOT send an WhatsApp when subscriptonStatus ="%s"',
-      async (subscriptionStatus) => {
-        const expectedTwilioRequest = new URLSearchParams({
-          ContentSid: defaultTemplateSid,
-          From: 'MG1111222233334444',
-          To: defaultTo
-        })
+    it.each([false, null])('does NOT send an WhatsApp when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: defaultTo
+      })
 
-        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-          .post('/Messages.json', expectedTwilioRequest.toString())
-          .reply(201, {})
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
 
-        const responses = await testAction({
-          mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
-          }
-        })
-        expect(responses).toHaveLength(0)
-        expect(twilioRequest.isDone()).toEqual(false)
-      }
-    )
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+        }
+      })
+      expect(responses).toHaveLength(0)
+      expect(twilioRequest.isDone()).toEqual(false)
+    })
 
     it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
       const randomSubscriptionStatusPhrase = 'some-subscription-enum'
@@ -209,7 +206,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         mappingOverrides: {
           from: from,
           contentSid: defaultTemplateSid,
-          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: true, channelType: 'whatsapp' }]
+          externalIds: [{ type: 'phone', id: '(919) 555 1234', subscriptionStatus: 'true', channelType: 'whatsapp' }]
         }
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -221,7 +218,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('throws an error when whatsapp number cannot be formatted', async () => {
       const response = testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: true, channelType: 'whatsapp' }]
+          externalIds: [{ type: 'phone', id: 'abcd', subscriptionStatus: 'true', channelType: 'whatsapp' }]
         }
       })
       await expect(response).rejects.toThrowError('Phone number must be able to be formatted to e164 for whatsapp')
