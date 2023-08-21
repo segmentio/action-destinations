@@ -203,7 +203,6 @@ const action: ActionDefinition<Settings, Payload> = {
      * An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
      * the contact is not found, an attempt will be made to create contact with the given properties
      */
-    console.log('PERFORM=====>>>>', JSON.stringify(payload))
 
     try {
       const response = await updateContact(request, payload.email, contactProperties)
@@ -271,7 +270,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
-    console.log('PERFORM BATCH ===>', JSON.stringify(readResponse), JSON.stringify(payload))
 
     // Case 1: Loop over results if there are any
     if (readResponse.data?.results && readResponse.data.results.length > 0) {

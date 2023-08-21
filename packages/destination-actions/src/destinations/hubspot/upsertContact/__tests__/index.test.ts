@@ -11,26 +11,6 @@ import {
 } from './__helpers__/test-utils'
 
 let testDestination = createTestIntegration(Destination)
-// const batchContactList: BatchContactListItem[] = [
-//   {
-//     id: '101',
-//     email: 'userone@somecompany.com',
-//     firstname: 'User',
-//     lastname: 'One'
-//   },
-//   {
-//     id: '102',
-//     email: 'usertwo@somecompany.com',
-//     firstname: 'User',
-//     lastname: 'Two'
-//   },
-//   {
-//     id: '103',
-//     email: 'userthree@somecompany.com',
-//     firstname: 'User',
-//     lastname: 'Three'
-//   }
-// ]
 
 const createContactList: BatchContactListItem[] = [
   {
