@@ -101,40 +101,40 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       })
     }
     if (payload.screen_resolution) {
-      gtag('set', { screen_resolution: payload.screen_resolution })
+      gtag('config', settings.streamID, { screen_resolution: payload.screen_resolution })
     }
     if (payload.page_title) {
-      gtag('set', { page_title: payload.page_title })
+      gtag('config', settings.streamID, { page_title: payload.page_title })
     }
     if (payload.page_referrer) {
-      gtag('set', { page_referrer: payload.page_referrer })
+      gtag('config', settings.streamID, { page_referrer: payload.page_referrer })
     }
     if (payload.page_location) {
-      gtag('set', { page_location: payload.page_location })
+      gtag('config', settings.streamID, { page_location: payload.page_location })
     }
     if (payload.language) {
-      gtag('set', { language: payload.language })
+      gtag('config', settings.streamID, { language: payload.language })
     }
     if (payload.content_group) {
-      gtag('set', { content_group: payload.content_group })
+      gtag('config', settings.streamID, { content_group: payload.content_group })
     }
     if (payload.campaign_term) {
-      gtag('set', { campaign_term: payload.campaign_term })
+      gtag('config', settings.streamID, { campaign_term: payload.campaign_term })
     }
     if (payload.campaign_source) {
-      gtag('set', { campaign_source: payload.campaign_source })
+      gtag('config', settings.streamID, { campaign_source: payload.campaign_source })
     }
     if (payload.campaign_name) {
-      gtag('set', { campaign_name: payload.campaign_name })
+      gtag('config', settings.streamID, { campaign_name: payload.campaign_name })
     }
     if (payload.campaign_medium) {
-      gtag('set', { campaign_medium: payload.campaign_medium })
+      gtag('config', settings.streamID, { campaign_medium: payload.campaign_medium })
     }
     if (payload.campaign_id) {
-      gtag('set', { campaign_id: payload.campaign_id })
+      gtag('config', settings.streamID, { campaign_id: payload.campaign_id })
     }
     if (payload.campaign_content) {
-      gtag('set', { campaign_content: payload.campaign_content })
+      gtag('config', settings.streamID, { campaign_content: payload.campaign_content })
     }
     gtag('event', 'page_view')
   }
