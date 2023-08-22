@@ -136,6 +136,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       gtag('config', settings.streamID, { campaign_content: payload.campaign_content })
     }
+
+    console.log('Testing latest code changes')
     gtag('event', 'page_view')
   }
 }
