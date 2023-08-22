@@ -56,5 +56,5 @@ export interface Settings {
   /**
    * The stream ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Stream ID.
    */
-  streamID: string
+  streamID?: string
 }
