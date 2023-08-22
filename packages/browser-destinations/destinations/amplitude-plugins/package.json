@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-amplitude-plugins",
-  "version": "1.7.1-staging.10",
+  "version": "1.7.1-staging.11",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,7 +11,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.7.1-staging.10"
+    "@segment/browser-destination-runtime": "^1.7.1-staging.11"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
