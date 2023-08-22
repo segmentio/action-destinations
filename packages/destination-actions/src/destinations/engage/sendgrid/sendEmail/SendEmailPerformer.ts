@@ -35,6 +35,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const bypass_subscription = this.payload.byPassSubscription !== undefined && this.payload.byPassSubscription
     if (bypass_subscription) {
       this.currentOperation?.logs.push('Bypassing subscription')
+      this.currentOperation?.tags.push('bypass_subscription:' + true)
       return true
     }
 

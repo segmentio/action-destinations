@@ -134,6 +134,22 @@ export abstract class MessageSendPerformer<
     return undefined //Invalid subscriptionStatus
   }
 
+  // These are used for tags in datadog for Subscription Team
+  convertSubscriptionStatusText(subVal: string | undefined): string {
+    if (subVal == undefined) {
+      return 'unknown'
+    }
+    if (subVal == 'true') {
+      return 'subscribed'
+    }
+    if (subVal == 'false') {
+      return 'unsubscribed'
+    }
+    if (subVal == '') {
+      return 'did_not_subscribe'
+    }
+    return 'unknown'
+  }
   /**
    * Gets all sendable recepients for the current payload or a reason why it is not sendable
    * @returns
@@ -151,16 +167,18 @@ export abstract class MessageSendPerformer<
         isSubscribed: this.isExternalIdSubscribed(extId)
       }))
 
-    const didNotSubTag = supportedExtIdsWithSub?.some((e) => e.extId.subscriptionStatus == '')
-    this.currentOperation?.tags.push('did_not_subscribe:' + didNotSubTag)
     this.payload.sendBasedOnOptOut
       ? this.currentOperation?.tags.push('SubscriptionOptOutType:' + true)
       : this.currentOperation?.tags.push('SubscriptionOptOutType:' + false)
+
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
         sendabilityStatus: SendabilityStatus.NoSupportedExternalIds
       }
 
+    this.currentOperation?.tags.push(
+      'subscription_status:' + this.convertSubscriptionStatusText(supportedExtIdsWithSub[0]?.extId?.subscriptionStatus)
+    )
     const invalidSubStatuses = supportedExtIdsWithSub.filter((e) => e.isSubscribed === undefined).map((e) => e.extId)
 
     const shouldSendExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)

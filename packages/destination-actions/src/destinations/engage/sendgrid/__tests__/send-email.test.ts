@@ -1294,7 +1294,6 @@ describe.each([
         ...defaultActionProps
       })
       expect(sendGridRequest.isDone()).toBe(false)
-      // expectInfoLogged(SendabilityStatus.NoSupportedExternalIds.toUpperCase())
     })
 
     it('sends the email when subscriptionStatus is true and sendBasedOnOptOut is true', async () => {
@@ -1333,6 +1332,61 @@ describe.each([
       })
       expect(responses.length).toBeGreaterThan(0)
       expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email when subscriptionStatus is true and sendBasedOnOptOut is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: true, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: undefined }),
+        ...defaultActionProps
+      })
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Should not send the email when subscriptionStatus is false and sendBasedOnOptOut is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: false, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: undefined }),
+        ...defaultActionProps
+      })
+      expect(sendGridRequest.isDone()).toBe(false)
+    })
+
+    it('Should not send the email when subscriptionStatus is null and sendBasedOnOptOut is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', isSubscribed: null, collection: 'users', encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ sendBasedOnOptOut: undefined }),
+        ...defaultActionProps
+      })
+      expect(sendGridRequest.isDone()).toBe(false)
     })
 
     it.each([null, false])(
