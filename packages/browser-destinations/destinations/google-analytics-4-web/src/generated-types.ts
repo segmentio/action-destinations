@@ -53,8 +53,4 @@ export interface Settings {
    * If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.
    */
   waitTimeToUpdateConsentStage?: number
-  /**
-   * The stream ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Stream ID.
-   */
-  streamID?: string
 }

@@ -134,13 +134,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
       label: 'Wait Time to Update Consent State',
       type: 'number'
-    },
-    streamID: {
-      description:
-        'The stream ID associated with the web stream. Found in the Google Analytics UI under: Admin > Data Streams > Web > Stream ID.',
-      label: 'Stream ID',
-      type: 'string',
-      required: false
     }
   },
 
