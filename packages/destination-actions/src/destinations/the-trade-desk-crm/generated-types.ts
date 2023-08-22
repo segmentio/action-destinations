@@ -18,11 +18,3 @@ export interface Settings {
    */
   __segment_internal_engage_batch_sync: boolean
 }
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface AudienceSettings {
-  /**
-   * Region of your audience.
-   */
-  region?: string
-}
