@@ -2189,26 +2189,6 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.192.1-staging.1":
-  version "3.193.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.193.0.tgz#b404da5f6b2579cfd3fa39acccef2a1348b8b5df"
-  integrity sha512-nBzcSy0DFl7+CFxIQFEV/HGjeAhjLIhtW+CdDj7mE01y6j3tXbi+dbwUnMFJgsUPkSNCLRqeHfP/AZs0Uzicwg==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.77.0"
-    "@segment/actions-shared" "^1.59.0"
-    "@types/node" "^18.11.15"
-    ajv-formats "^2.1.1"
-    aws4 "^1.12.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    google-libphonenumber "^3.2.31"
-    liquidjs "^9.37.0"
-    lodash "^4.17.21"
-    ssh2-sftp-client "^9.1.0"
-
 "@segment/action-emitters@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.1.2.tgz#962527ecc014a1123ac5614ef10419b7d9371730"
@@ -2216,7 +2196,7 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-"@segment/actions-core@^3.76.0", "@segment/actions-core@^3.77.0":
+"@segment/actions-core@^3.76.0":
   version "3.77.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.77.0.tgz#ba604334cff89261609373c0b230b3e4cfdf8f4a"
   integrity sha512-brQ1pZYfCaKZeyHKXBd85Unah1a70f3bwiu0tylGyo9Pjj9mJT+jWKt55DqgSBqwBK++I00tK7Ef6oFxF5kgTw==
@@ -2234,19 +2214,6 @@
     cross-fetch "^3.1.4"
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
-
-"@segment/actions-shared@^1.59.0":
-  version "1.59.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.59.0.tgz#e26b8a0a426528b5a7459a00f48345133b227243"
-  integrity sha512-OGRQ+kr+gEGSZ5NeX2kcvFbBmMxU26IocC7tbfrl5FATh8erFx7/4Mydse7QC+9FfTzWpkFJkUq24sT2rtwSAw==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/actions-core" "^3.77.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    liquidjs "^9.37.0"
-    lodash "^4.17.21"
 
 "@segment/ajv-human-errors@^2.11.0":
   version "2.11.0"
