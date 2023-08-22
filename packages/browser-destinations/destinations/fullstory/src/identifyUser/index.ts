@@ -75,6 +75,9 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
       newTraits.segmentAnonymousId_str = event.payload.anonymousId
     }
 
+    //Will remove after testing the event in stage
+    ;(event.payload.email = 'testMail@gmail.com'), (event.payload.displayName = 'testNamePartner')
+
     const usersVars = {
       ...newTraits,
       ...(event.payload.email !== undefined && { email: event.payload.email }),
