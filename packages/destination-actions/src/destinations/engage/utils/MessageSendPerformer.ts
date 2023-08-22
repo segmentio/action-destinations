@@ -151,26 +151,8 @@ export abstract class MessageSendPerformer<
         isSubscribed: this.isExternalIdSubscribed(extId)
       }))
 
-    supportedExtIdsWithSub?.forEach((e) => {
-      switch (e.extId?.subscriptionStatus) {
-        // No. of externalIds that have an explicit status: "unsubscribed" (i.e PSS returned 'isSubscribed: false')
-        case 'false':
-          this.currentOperation?.tags.push('unsubscribed:')
-          break
-        // No. of externalIds that have an explicit status: "subscribed" (i.e PSS returned 'isSubscribed: true')
-        case 'true':
-          this.currentOperation?.tags.push('subscribed:')
-          break
-        // No. of externalIds that have an explicit status: "did-not-subscribe" or does not have an entry in PSS (i.e PSS returned 'isSubscribed: null')
-        case '':
-          this.currentOperation?.tags.push('did_not_subscribe:')
-          break
-        // Not a valid subscription status
-        default:
-          this.currentOperation?.tags.push('unknown_subscription_state:')
-          break
-      }
-    })
+    const didNotSubTag = supportedExtIdsWithSub?.some((e) => e.extId.subscriptionStatus == '')
+    this.currentOperation?.tags.push('did_not_subscribe:' + didNotSubTag)
 
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
