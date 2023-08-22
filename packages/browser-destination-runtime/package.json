@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.7.1-staging.11",
+  "version": "1.7.1-staging.12",
   "license": "MIT",
   "scripts": {
     "build": "yarn build:esm && yarn build:cjs",
@@ -56,7 +56,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.77.1-staging.179"
+    "@segment/actions-core": "^3.77.1-staging.180"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"

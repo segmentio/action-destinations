@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze-cloud-plugins",
-  "version": "1.7.1-staging.11",
+  "version": "1.7.1-staging.12",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/analytics-browser-actions-braze": "^1.7.1-staging.11",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.11"
+    "@segment/analytics-browser-actions-braze": "^1.7.1-staging.12",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.12"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
