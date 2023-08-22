@@ -37,14 +37,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       this.currentOperation?.logs.push('Bypassing subscription')
       return true
     }
-    const send_opt_out = this.payload.sendBasedOnOptOut !== undefined && this.payload.sendBasedOnOptOut
-    let isSubscribed
-    if (send_opt_out) {
-      this.currentOperation?.logs.push('OptOut subscription')
-      isSubscribed = super.isExternalIdSubscribedOptOutModel(extId)
-    } else {
-      isSubscribed = super.isExternalIdSubscribed(extId)
-    }
+
+    const isSubscribed = super.isExternalIdSubscribed(extId)
     if (!isSubscribed) return isSubscribed // may be undefined => as invalid
 
     if (!this.payload.groupId) return isSubscribed

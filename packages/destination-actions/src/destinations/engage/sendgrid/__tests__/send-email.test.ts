@@ -367,8 +367,8 @@ describe.each([
           send: true,
           traitEnrichment: true,
           externalIds: [
-            { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
-            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed', channelType: 'sms' }
+            { id: userData.email, type: 'email', subscriptionStatus: 'true' },
+            { id: userData.phone, type: 'phone', subscriptionStatus: 'true', channelType: 'sms' }
           ],
           traits: { '@path': '$.properties' },
           eventOccurredTS: { '@path': '$.timestamp' }
@@ -1368,7 +1368,7 @@ describe.each([
       }
     )
 
-    it.each(['unsubscribed', 'did not subscribed'])(
+    it.each(['false', ''])(
       'does NOT send the email when subscriptionStatus = "%s"',
       async (subscriptionStatus: string) => {
         await sendgrid.testAction('sendEmail', {
@@ -1416,9 +1416,9 @@ describe.each([
       }
     )
 
-    it.each(['unsubscribed', 'did not subscribed'])(
+    it.each([false, null])(
       'send the email when subscriptionStatus = "%s" but byPassSubscription is true',
-      async (subscriptionStatus: string) => {
+      async (subscriptionStatus: boolean | null) => {
         const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
 
         await sendgrid.testAction('sendEmail', {
