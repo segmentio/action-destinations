@@ -18,7 +18,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
         { type: 'phone', id: '+1234567891', subscriptionStatus: 'true', channelType: 'sms' }
-      ]
+      ],
+      sendBasedOnOptOut: false
     })
   })
 
@@ -418,28 +419,35 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       }
     )
 
-    it.each([false, null])('does NOT send an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
-      })
+    it.each(['subscribed', 'true', true])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
 
-      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
 
-      const responses = await testAction({
-        mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
-        }
-      })
-      expect(responses).toHaveLength(0)
-      expect(twilioRequest.isDone()).toEqual(false)
-    })
-    it.each([false])(
-      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s"',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
@@ -461,7 +469,57 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         expect(twilioRequest.isDone()).toEqual(false)
       }
     )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
   })
+
+  it.each([false, 'unsubscribed'])(
+    'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+    async (subscriptionStatus) => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true'
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+          sendBasedOnOptOut: true
+        }
+      })
+      expect(responses).toHaveLength(0)
+      expect(twilioRequest.isDone()).toEqual(false)
+    }
+  )
 
   it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
