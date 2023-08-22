@@ -53,8 +53,8 @@ Once you have made a successful api call, we show both the request and response 
 
 #### Testing Refresh Token
 
-For Oauth2 destination, action tester has a section to test the refresh token. It takes data from the fields in `Test Refresh Token` and calls the refreshAccessToken function. Results are displayed in the output panel.
+For OAuth2 destination, you can test refreshAccessToken handler from the `Test Refresh Token` pane. You can fill in the fields in the section, click on `Test Refresh Token` and results will be displayed in the output panel.
 
 #### Testing Authentication
 
-Action tester allows the testing of testAuthentication method. The button to test it shows up on bottom right when the `settings` tab is open. It takes all the fields from `settings` and calls the testAuthentication function. On clicking the button, results show up in the Output panel.
+For validating `testAuthentication` handler from actions tester, navigate to the `Settings` pane and fill in all the required settings. You should see `Test Authentication` button below the output panel on the right. On clicking the button, results will be displayed in the output panel.
