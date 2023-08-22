@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-adobe-target",
-  "version": "1.7.1-staging.8",
+  "version": "1.7.1-staging.9",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -12,7 +12,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.7.1-staging.8"
+    "@segment/browser-destination-runtime": "^1.7.1-staging.9"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"

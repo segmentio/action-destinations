@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-google-analytics-4",
-  "version": "1.7.1-staging.8",
+  "version": "1.7.1-staging.9",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.1-staging.176",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.8"
+    "@segment/actions-core": "^3.77.1-staging.177",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.9"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
