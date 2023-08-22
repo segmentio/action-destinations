@@ -76,7 +76,8 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     }
 
     //Will remove after testing the event in stage
-    ;(event.payload.email = 'testMail@gmail.com'), (event.payload.displayName = 'testNamePartner')
+    event.payload.email = 'testMail@gmail.com'
+    event.payload.displayName = 'testNamePartner'
 
     const usersVars = {
       email: event.payload.email ? event.payload.email : '',
