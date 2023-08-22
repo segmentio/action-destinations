@@ -6,7 +6,7 @@ import { attribute, addAudienceId, deleteAudienceId, customerProfileId } from '.
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update customer profile',
   description:
-    'This updates attributes and audiences for a single customer profile. Create all the required attributes and audiences before using this endpoint.',
+    'This updates attributes and audiences for a single customer profile. Create all the required attributes and audiences before using this Action.',
   fields: {
     customerProfileId: { ...customerProfileId },
     skipNonExistingAttributes: {

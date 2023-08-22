@@ -6,7 +6,7 @@ import { attribute, customerProfileId } from '../t1-properties'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track event',
   description:
-    'This records a custom event in Talon.One. Create the event and all the required attributes before using this endpoint.',
+    'This records a custom event in Talon.One. Create the event and all the required attributes before using this Action.',
   fields: {
     skipNonExistingAttributes: {
       type: 'boolean',

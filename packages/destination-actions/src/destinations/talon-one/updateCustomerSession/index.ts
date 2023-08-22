@@ -5,9 +5,7 @@ import { attribute, attributesInfo, cartItems, customerProfileId } from '../t1-p
 
 const action: ActionDefinition<Settings, Payload> = {
   title: '[Deprecated] Update customer session',
-  description: `This updates a customer session.
-  
-  **Important:** This endpoint is deprecated. Use the current **Update customer session** endpoint instead.`,
+  description: `This updates a customer session. **Important:** This Action is deprecated. Use the **Update customer session** Action instead.`,
   fields: {
     customerSessionId: {
       label: 'Customer Session ID',

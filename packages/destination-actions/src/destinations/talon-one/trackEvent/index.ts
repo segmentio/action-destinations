@@ -7,9 +7,7 @@ const TARGET_EVENT_TYPE = 'string'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: '[Deprecated] Track event',
-  description: `This records a custom event in Talon.One.
-  
-  **Important:** This endpoint is deprecated. Use the current **Track event** endpoint instead.`,
+  description: `This records a custom event in Talon.One. **Important:** This Action is deprecated. Use the **Track event** Action instead.`,
   fields: {
     customerProfileId: {
       ...customerProfileId,

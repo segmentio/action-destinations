@@ -5,9 +5,7 @@ import { addAudienceId, attribute, customerProfileId, deleteAudienceId } from '.
 
 const action: ActionDefinition<Settings, Payload> = {
   title: '[Deprecated] Upsert customer profile',
-  description: `This updates attributes and audiences for a single customer profile.
-
-  **Important:** This endpoint is deprecated. Use the current **Update customer profile** endpoint instead.`,
+  description: `This updates attributes and audiences for a single customer profile. **Important:** This Action is deprecated. Use the **Update customer profile** Action instead.`,
   fields: {
     attributes: { ...attribute },
     customerProfileId: { ...customerProfileId },

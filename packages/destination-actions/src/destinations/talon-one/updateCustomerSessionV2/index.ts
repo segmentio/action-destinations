@@ -5,7 +5,7 @@ import { attribute, cartItems, customerProfileId, identifier } from '../t1-prope
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update customer session',
-  description: 'This updates a customer session. Create all the required attributes before using this endpoint.',
+  description: 'This updates a customer session. Create all the required attributes before using this Action.',
   fields: {
     customerSessionId: {
       label: 'Customer Session ID',
