@@ -3,7 +3,7 @@ import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
 
 const mod = `
-Last-Modified: 08.20.2023 09.53.59
+Last-Modified: 08.22.2023 09.14.43
 `
 //August 2023, refactor for S3Cache
 
@@ -83,7 +83,7 @@ const destination: DestinationDefinition<Settings> = {
       version: {
         label: `Version:`,
         description: `\n${mod}\n`,
-        default: 'Version 1.3',
+        default: 'Version 1.7',
         type: 'string',
         required: false
       }
