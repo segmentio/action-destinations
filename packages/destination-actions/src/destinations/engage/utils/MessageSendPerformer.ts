@@ -100,7 +100,7 @@ export abstract class MessageSendPerformer<
     return res
   }
 
-  /*
+  /**
    * check if the externalId object is supported for sending a message by current class of message sender
    * @param externalId
    * @returns
@@ -153,7 +153,9 @@ export abstract class MessageSendPerformer<
 
     const didNotSubTag = supportedExtIdsWithSub?.some((e) => e.extId.subscriptionStatus == '')
     this.currentOperation?.tags.push('did_not_subscribe:' + didNotSubTag)
-
+    this.payload.sendBasedOnOptOut
+      ? this.currentOperation?.tags.push('SubscriptionOptOutType:' + true)
+      : this.currentOperation?.tags.push('SubscriptionOptOutType:' + false)
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
         sendabilityStatus: SendabilityStatus.NoSupportedExternalIds
