@@ -79,9 +79,8 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     ;(event.payload.email = 'testMail@gmail.com'), (event.payload.displayName = 'testNamePartner')
 
     const usersVars = {
-      ...newTraits,
-      ...(event.payload.email !== undefined && { email: event.payload.email }),
-      ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
+      email: event.payload.email ? event.payload.email : '',
+      displayName: event.payload.displayName ? event.payload.displayName : ''
     }
 
     if (event.payload.userId) {
