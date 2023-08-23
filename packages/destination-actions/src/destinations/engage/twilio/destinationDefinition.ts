@@ -164,6 +164,13 @@ export const destinationDefinition: DestinationDefinition<Settings> = {
         ],
         default: 'us-west-2',
         required: false
+      },
+      featureFlags: {
+        label: 'FeatureFlags',
+        description: 'The feature flags set up in personas service',
+        type: 'object',
+        default: {},
+        required: false
       }
     },
     testAuthentication: (request, options) => {

@@ -45,4 +45,10 @@ export interface Settings {
    * The region where the message is originating from
    */
   region?: string
+  /**
+   * The feature flags set up in personas service
+   */
+  featureFlags?: {
+    [k: string]: unknown
+  }
 }
