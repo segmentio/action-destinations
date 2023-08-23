@@ -60,10 +60,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('actions-tiktok-audiences.addUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'add')
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('actions-tiktok-audiences.addUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'add')
   }
 }
