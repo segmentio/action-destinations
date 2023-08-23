@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-sprig",
-  "version": "1.7.1-staging.12",
+  "version": "1.7.1-staging.13",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.1-staging.180",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.12"
+    "@segment/actions-core": "^3.77.1-staging.181",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.13"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
