@@ -26,17 +26,32 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload }) => {
+  perform: async (request, { audienceSettings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
+    if (statsClient) {
+      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+    }
+
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { payload, audienceSettings }) => {
+  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
+
+    if (statsClient) {
+      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+    }
+
     return processPayload(request, audienceSettings, payload, 'add')
   }
 }
