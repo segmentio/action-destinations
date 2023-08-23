@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+
 import type { Settings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
