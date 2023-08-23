@@ -601,7 +601,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('add tags when feature flag on', async () => {
-      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
+      const featuresFlags = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
 
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
@@ -615,7 +615,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const responses = await testAction({
-        features,
         mappingOverrides: {
           customArgs: {
             audience_id: '1',
@@ -627,6 +626,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             user_id: 'u-5',
             message_id: 'm-6'
           }
+        },
+        settingsOverrides: {
+          featuresFlags
         }
       })
 
