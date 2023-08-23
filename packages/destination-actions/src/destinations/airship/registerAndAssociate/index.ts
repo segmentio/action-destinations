@@ -146,21 +146,36 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     if (payload.channel_object.new_address && payload.channel_object.address) {
       const old_email_channel_response = await getChannelId(request, settings, payload.channel_object.address)
+      if (!old_email_channel_response.ok) {
+        // Couldn't find the old email address or some other error,
+        // so returning the request for Segment to handle as per policy
+        return old_email_channel_response
+      }
       const old_email_response_content: any = JSON.parse(old_email_channel_response.content)
       if (old_email_response_content.channel.channel_id) {
+        // Using the channel id of the old email address to replace it with the new one and then we're done
+        // We explicitly don't want to continue to the association step, as the assumption is that the
+        // original email was already associated with a Named User
         return await register(request, settings, payload, old_email_response_content.channel.channel_id)
       }
     }
     const register_response = await register(request, settings, payload, null)
+    // If we get to this point, we're registering a new email address
+    if (!register_response.ok) {
+      // Failed the registration, so returning the request for Segment to handle as per policy
+      return register_response
+    }
+
     const response_content = register_response.content
     const data = JSON.parse(response_content)
 
     const channel_id = data.channel_id
     if (payload.named_user_id && payload.named_user_id.length > 0) {
-      const associate_response = await associate_named_user(request, settings, channel_id, payload.named_user_id)
-      return associate_response
+      // If there's a Named User ID to associate with the email address, do it here
+      return await associate_named_user(request, settings, channel_id, payload.named_user_id)
     } else {
-      return data
+      // If not, simply return the registration request, success or failure, for Segment to handle as per policy
+      return register_response
     }
   }
 }
