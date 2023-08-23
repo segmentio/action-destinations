@@ -26,15 +26,30 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload }) => {
+  perform: async (request, { audienceSettings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
+
+    if (statsClient) {
+      statsContext?.statsClient?.incr('actions-tiktok-audiences.removeFromAudience', 1, statsTag)
+    }
+
     return processPayload(request, audienceSettings, [payload], 'delete')
   },
-  performBatch: async (request, { audienceSettings, payload }) => {
+  performBatch: async (request, { audienceSettings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+
+    if (statsClient) {
+      statsContext?.statsClient?.incr('actions-tiktok-audiences.removeFromAudience', 1, statsTag)
     }
 
     return processPayload(request, audienceSettings, payload, 'delete')
