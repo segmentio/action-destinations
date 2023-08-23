@@ -116,7 +116,7 @@ describe('FacebookConversionsApi', () => {
 
         expect(hashed_data.em).toEqual(undefined)
         expect(hashed_data.ph).toEqual('cf9b0227ee02d8f8f9dbb6060fa2941bb667efc71f6ee2e6ee17b40121a5f4a6')
-        expect(hashed_data.ge).toEqual('62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a'),
+        expect(hashed_data.ge).toEqual('62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a')
         expect(hashed_data.db).toEqual(undefined)
       })
     })
