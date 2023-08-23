@@ -569,7 +569,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('add webhookURL when feature flag off', async () => {
-      const featuresFlags = { [FLAGON_EVENT_STREAMS_ONBOARDING]: false }
+      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: false }
 
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
@@ -584,11 +584,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const responses = await testAction({
+        features,
         mappingOverrides: { customArgs: { foo: 'bar' } },
         settingsOverrides: {
           webhookUrl: 'http://localhost',
-          connectionOverrides: 'rp=all&rc=5',
-          featuresFlags
+          connectionOverrides: 'rp=all&rc=5'
         }
       })
 
@@ -601,20 +601,21 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('add tags when feature flag on', async () => {
-      const featuresFlags = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
+      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
 
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
-        tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
+        Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
       const responses = await testAction({
+        features,
         mappingOverrides: {
           customArgs: {
             audience_id: '1',
@@ -626,9 +627,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             user_id: 'u-5',
             message_id: 'm-6'
           }
-        },
-        settingsOverrides: {
-          featuresFlags
         }
       })
 
