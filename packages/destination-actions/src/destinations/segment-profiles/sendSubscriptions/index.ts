@@ -60,6 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Subscription Groups',
       description: 'Subscription groups and their statuses for this id.',
       type: 'object',
+      dynamic: true,
       properties: {
         groupName: {
           label: 'Subscription group name',
@@ -78,9 +79,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '',
           {
-            id: '',
-            type: '',
-            subscriptionStatus: ''
+            groupName: '',
+            isSubscribed: ''
           }
         ]
       }
