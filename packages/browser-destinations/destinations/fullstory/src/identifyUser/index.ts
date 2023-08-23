@@ -76,19 +76,19 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     }
 
     //Will remove after testing the event in stage
-    event.payload.email = 'testMail@gmail.com'
-    event.payload.displayName = 'testNamePartner'
+    const mailTest = event.payload.email
+    const nameTest = event.payload.displayName
 
     const usersVars = {
-      email: event.payload.email ? event.payload.email : '',
-      displayName: event.payload.displayName ? event.payload.displayName : ''
+      email: mailTest ? mailTest : 'dummyMail@gmail.com',
+      displayName: nameTest ? nameTest : 'dummyName'
     }
 
     if (event.payload.userId) {
       //Will remove after testing the event in stage
       console.log('identify call: ', event.payload, { newTraits })
 
-      FS.identify(event.payload.userId, usersVars, segmentEventSource)
+      FS.identify(event.payload.userId, newTraits, segmentEventSource)
     } else {
       //Will remove after testing the event in stage
       console.log('setUserVars call: ', event.payload, { newTraits })
