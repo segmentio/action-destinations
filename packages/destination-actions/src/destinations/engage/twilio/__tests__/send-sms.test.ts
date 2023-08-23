@@ -713,7 +713,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
-        tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
+        Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())

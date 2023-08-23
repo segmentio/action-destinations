@@ -42,9 +42,9 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       this.DEFAULT_CONNECTION_OVERRIDES
     )
 
-    this.logInfo('features', this.executeInput.features)
     this.logInfo('customArgs', this.payload.customArgs)
     if (this.executeInput.features?.[FLAGON_EVENT_STREAMS_ONBOARDING]) {
+      this.logInfo('features', this.executeInput.features)
       const tags = {
         audience_id: this.payload.customArgs && this.payload.customArgs['audience_id'],
         correlation_id: this.payload.customArgs && this.payload.customArgs['correlation_id'],
@@ -55,7 +55,7 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
         user_id: this.payload.customArgs && this.payload.customArgs['user_id'],
         message_id: this.payload.customArgs && this.payload.customArgs['message_id']
       }
-      body.append('tags', JSON.stringify(tags))
+      body.append('Tags', JSON.stringify(tags))
     } else if (webhookUrlWithParams) {
       body.append('StatusCallback', webhookUrlWithParams)
     }
