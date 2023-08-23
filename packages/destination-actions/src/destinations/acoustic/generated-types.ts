@@ -30,12 +30,12 @@ export interface Settings {
    */
   a_refreshToken: string
   /**
-   * A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
+   * A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.
    */
   attributesMax?: number
   /**
    *
-   * Last-Modified: 06.28.2023 16.15.37
+   * Last-Modified: 06.23.2023 12.42.42
    *
    */
   version?: string
