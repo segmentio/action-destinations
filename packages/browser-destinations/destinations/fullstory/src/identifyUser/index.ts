@@ -78,6 +78,7 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     if (event.payload.userId) {
       //Will remove after testing the event in stage
       console.log('identify call: ', event.payload, { newTraits })
+      event.payload?.email = 'testEmailstage@gmail.com'
 
       FS.identify(event.payload.userId, newTraits, segmentEventSource)
     } else {
