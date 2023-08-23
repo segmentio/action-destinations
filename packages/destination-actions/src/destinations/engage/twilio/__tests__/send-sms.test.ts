@@ -569,7 +569,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('add webhookURL when feature flag off', async () => {
-      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: false }
+      const featuresFlags = { [FLAGON_EVENT_STREAMS_ONBOARDING]: false }
 
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
@@ -584,11 +584,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const responses = await testAction({
-        features,
         mappingOverrides: { customArgs: { foo: 'bar' } },
         settingsOverrides: {
           webhookUrl: 'http://localhost',
-          connectionOverrides: 'rp=all&rc=5'
+          connectionOverrides: 'rp=all&rc=5',
+          featuresFlags
         }
       })
 

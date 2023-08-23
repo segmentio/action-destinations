@@ -48,7 +48,7 @@ export interface Settings {
   /**
    * The feature flags set up in personas service
    */
-  featureFlags?: {
+  featuresFlags?: {
     [k: string]: unknown
   }
 }
