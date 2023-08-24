@@ -3,11 +3,13 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
+import createSegment from './createSegment'
 
 // Response format: https://developer.yahooinc.com/datax/guide/datax-online-spec/oauth2-authentication/
 interface RefreshTokenResponse {
   access_token: string
 }
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
@@ -49,7 +51,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateSegment
+    updateSegment,
+    createSegment
   }
 }
 export default destination
