@@ -525,5 +525,49 @@ describe('CustomerIO', () => {
         }
       })
     })
+
+    it('should success with mapping of preset and `identify` call', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const anonymousId = 'unknown_123'
+      const timestamp = dayjs.utc().toISOString()
+      const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+      const traits = {
+        full_name: 'Test User',
+        email: 'test@example.com',
+        created_at: timestamp,
+        person: {
+          over18: true,
+          identification: 'valid',
+          birthdate
+        }
+      }
+      trackDeviceService.put(`/customers/${userId}`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        anonymousId,
+        timestamp,
+        traits
+      })
+
+      const responses = await testDestination.testAction('createUpdatePerson', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          custom_attributes: {
+            '@path': '$.traits'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
   })
 })
