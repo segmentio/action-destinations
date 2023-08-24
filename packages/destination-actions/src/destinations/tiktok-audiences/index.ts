@@ -12,6 +12,8 @@ import createAudience from './createAudience'
 
 import addToAudience from './addToAudience'
 
+import removeFromAudience from './removeFromAudience'
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'TikTok Audiences',
   slug: 'actions-tiktok-audiences',
@@ -172,7 +174,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     addUser,
     removeUser,
     createAudience,
-    addToAudience
+    addToAudience,
+    removeFromAudience
   }
 }
 
