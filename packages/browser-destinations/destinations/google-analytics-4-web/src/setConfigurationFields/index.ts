@@ -100,7 +100,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         analytics_storage: payload.analytics_storage_consent_state
       })
     }
-    type ConfigType = { [key: string]: string | boolean | number }
+    type ConfigType = { [key: string]: unknown }
 
     const config: ConfigType = {
       send_page_view: true,
