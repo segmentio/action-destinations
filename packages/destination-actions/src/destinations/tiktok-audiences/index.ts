@@ -10,6 +10,8 @@ import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
 
 import createAudience from './createAudience'
 
+import addToAudience from './addToAudience'
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'TikTok Audiences',
   slug: 'actions-tiktok-audiences',
@@ -24,7 +26,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description:
           'The Advertiser IDs where audiences should be synced. Hidden in production and should not be altered by users.',
         type: 'string',
-        required: true,
+        required: false, // Make it optional so the native methods aren't expecting this.
         multiple: true
       }
     },
@@ -169,7 +171,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   actions: {
     addUser,
     removeUser,
-    createAudience
+    createAudience,
+    addToAudience
   }
 }
 
