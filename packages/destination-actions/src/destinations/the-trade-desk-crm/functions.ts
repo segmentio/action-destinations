@@ -83,7 +83,7 @@ export async function processPayload(input: ProcessPayloadInput) {
       UsersFormatted: usersFormatted,
       DropOptions: {
         PiiType: input.payloads[0].pii_type,
-        MergeMode: input.payloads[0].merge_mode || 'Replace'
+        MergeMode: 'Replace'
       }
     })
   }
@@ -216,7 +216,7 @@ async function getCRMDataDropEndpoint(request: RequestClient, settings: Settings
       },
       json: {
         PiiType: payload.pii_type,
-        MergeMode: payload.merge_mode || 'Replace'
+        MergeMode: 'Replace'
       }
     }
   )
