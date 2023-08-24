@@ -138,17 +138,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    const config = {
-      send_page_view: false,
-      cookie_update: settings.cookieUpdate,
-      cookie_domain: settings.cookieDomain,
-      cookie_prefix: settings.cookiePrefix,
-      cookie_expires: settings.cookieExpirationInSeconds,
-      cookie_path: settings.cookiePath,
-      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
-      allow_google_signals: settings.allowGoogleSignals
-    }
-
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       // eslint-disable-next-line prefer-rest-params
@@ -156,7 +145,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     }
 
     window.gtag('js', new Date())
-    window.gtag('config', settings.measurementID, config)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'default', {
         ad_storage: settings.defaultAdsStorageConsentState,

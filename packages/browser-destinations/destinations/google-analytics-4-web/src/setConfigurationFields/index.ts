@@ -100,43 +100,56 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         analytics_storage: payload.analytics_storage_consent_state
       })
     }
+    type ConfigType = { [key: string]: string | boolean | number }
+
+    const config: ConfigType = {
+      send_page_view: true,
+      cookie_update: settings.cookieUpdate,
+      cookie_domain: settings.cookieDomain,
+      cookie_prefix: settings.cookiePrefix,
+      cookie_expires: settings.cookieExpirationInSeconds,
+      cookie_path: settings.cookiePath,
+      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
+      allow_google_signals: settings.allowGoogleSignals
+    }
+
     if (payload.screen_resolution) {
-      gtag('config', settings.measurementID, { screen_resolution: payload.screen_resolution })
+      config.screen_resolution = payload.screen_resolution
     }
     if (payload.page_title) {
-      gtag('config', settings.measurementID, { page_title: payload.page_title })
+      config.pagetitle = payload.page_title
     }
     if (payload.page_referrer) {
-      gtag('config', settings.measurementID, { page_referrer: payload.page_referrer })
+      config.pagereferrer = payload.page_referrer
     }
     if (payload.page_location) {
-      gtag('config', settings.measurementID, { page_location: payload.page_location })
+      config.pagelocation = payload.page_location
     }
     if (payload.language) {
-      gtag('config', settings.measurementID, { language: payload.language })
+      config.language = payload.language
     }
     if (payload.content_group) {
-      gtag('config', settings.measurementID, { content_group: payload.content_group })
+      config.contentgroup = payload.content_group
     }
     if (payload.campaign_term) {
-      gtag('config', settings.measurementID, { campaign_term: payload.campaign_term })
+      config.campaignterm = payload.campaign_term
     }
     if (payload.campaign_source) {
-      gtag('config', settings.measurementID, { campaign_source: payload.campaign_source })
+      config.campaignsource = payload.campaign_source
     }
     if (payload.campaign_name) {
-      gtag('config', settings.measurementID, { campaign_name: payload.campaign_name })
+      config.campaignname = payload.campaign_name
     }
     if (payload.campaign_medium) {
-      gtag('config', settings.measurementID, { campaign_medium: payload.campaign_medium })
+      config.campaignmedium = payload.campaign_medium
     }
     if (payload.campaign_id) {
-      gtag('config', settings.measurementID, { campaign_id: payload.campaign_id })
+      config.campaignid = payload.campaign_id
     }
     if (payload.campaign_content) {
-      gtag('config', settings.measurementID, { campaign_content: payload.campaign_content })
+      config.campaigncontent = payload.campaign_content
     }
-    // gtag('event', 'page_view')
+    gtag('config', settings.measurementID, config)
   }
 }
 
