@@ -17,9 +17,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       send: true,
       traitEnrichment: true,
       externalIds: [
-        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
-      ]
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'true', channelType: 'sms' }
+      ],
+      sendBasedOnOptOut: false
     })
   })
 
@@ -35,7 +36,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' }]
         }
       })
 
@@ -369,7 +370,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('subscription handling', () => {
-    it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+    it.each(['subscribed', 'true', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
@@ -392,7 +393,61 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', false, null])(
+    it.each(['subscribed', 'true', true, null, ''])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: true
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each(['subscribed', 'true', true])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each([false, 'unsubscribed', null, ''])(
       'does NOT send an SMS when subscriptonStatus ="%s"',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({
@@ -415,7 +470,57 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         expect(twilioRequest.isDone()).toEqual(false)
       }
     )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true'
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
   })
+
+  it.each([false, 'unsubscribed'])(
+    'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+    async (subscriptionStatus) => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true'
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+          sendBasedOnOptOut: true
+        }
+      })
+      expect(responses).toHaveLength(0)
+      expect(twilioRequest.isDone()).toEqual(false)
+    }
+  )
 
   it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
