@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc"
@@ -10,11 +10,11 @@
   "dependencies": {
     "@segment/analytics-browser-actions-adobe-target": "^1.8.0",
     "@segment/analytics-browser-actions-amplitude-plugins": "^1.8.0",
-    "@segment/analytics-browser-actions-braze": "^1.8.0",
-    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.8.0",
+    "@segment/analytics-browser-actions-braze": "^1.9.0",
+    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.9.0",
     "@segment/analytics-browser-actions-commandbar": "^1.8.0",
     "@segment/analytics-browser-actions-friendbuy": "^1.8.0",
-    "@segment/analytics-browser-actions-fullstory": "^1.8.0",
+    "@segment/analytics-browser-actions-fullstory": "^1.9.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.8.0",
     "@segment/analytics-browser-actions-heap": "^1.8.0",
     "@segment/analytics-browser-actions-hubspot": "^1.8.0",
