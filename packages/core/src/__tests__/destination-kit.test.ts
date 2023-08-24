@@ -176,11 +176,7 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { output: ['this is a test', {}] }
-      ])
+      expect(res).toEqual([{ output: ['this is a test', {}] }])
     })
 
     test('should succeed when traits filtering is specified', async () => {
@@ -207,11 +203,7 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { output: ['this is a test', {}] }
-      ])
+      expect(res).toEqual([{ output: ['this is a test', {}] }])
     })
 
     test('should succeed when property filtering is specified', async () => {
@@ -238,11 +230,7 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { output: ['this is a test', {}] }
-      ])
+      expect(res).toEqual([{ output: ['this is a test', {}] }])
     })
   })
 
@@ -269,11 +257,7 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { output: ['this is a test', {}] }
-      ])
+      expect(res).toEqual([{ output: ['this is a test', {}] }])
     })
   })
 
@@ -402,7 +386,6 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
 
       expect(res).toEqual([
-        { output: 'Mappings resolved' },
         {
           output: {
             features: eventOptions.features,
@@ -443,7 +426,6 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
 
       expect(res).toEqual([
-        { output: 'Mappings resolved' },
         {
           output: {
             features: {},
@@ -481,7 +463,6 @@ describe('destination kit', () => {
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
-        { output: 'Mappings resolved' },
         {
           output: {
             features: {},
@@ -523,7 +504,6 @@ describe('destination kit', () => {
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
-        { output: 'Mappings resolved' },
         {
           output: {
             features: {},
@@ -575,7 +555,6 @@ describe('destination kit', () => {
       }
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
-        { output: 'Mappings resolved' },
         {
           output: {
             features: {},

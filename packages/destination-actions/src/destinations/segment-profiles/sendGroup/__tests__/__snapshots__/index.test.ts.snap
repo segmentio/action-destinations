@@ -13,6 +13,7 @@ Object {
         "industry": "Technology",
         "name": "Example Corp",
       },
+      "type": "identify",
       "userId": "test-user-ufi5bgkko5",
     },
   ],

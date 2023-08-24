@@ -84,7 +84,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (features && features['actions-segment-tapi-internal']) {
-      return { batch: [screenPayload] }
+      const payload = { ...screenPayload, type: 'screen' }
+      return { batch: [payload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url

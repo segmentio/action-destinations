@@ -13,6 +13,7 @@ Object {
         "email": "test-user@test-company.com",
         "name": "Test User",
       },
+      "type": "identify",
       "userId": "test-user-ufi5bgkko5",
     },
   ],
