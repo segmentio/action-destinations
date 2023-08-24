@@ -35,13 +35,12 @@ function generateFile(payloads: Payload[]) {
 
     if (payload.unhashed_identifier_data) {
       for (const identifier of Object.getOwnPropertyNames(payload.unhashed_identifier_data)) {
-        row.push(hash(payload.unhashed_identifier_data[identifier] as string))
+        row.push(hash(normalize(identifier, payload.unhashed_identifier_data[identifier] as string)))
       }
     }
     rows.push(row.map(enquoteIdentifier).join(payload.delimiter))
   }
 
-  // TODO: verify multiple emails are handled
   const filename = payloads[0].filename
   const fileContent = Buffer.from(rows.join('\n'))
 
@@ -66,4 +65,32 @@ const hash = (value: string): string => {
   return hash.digest('hex')
 }
 
-export { generateFile, enquoteIdentifier }
+/*
+  Identifiers need to be hashed according to LiveRamp spec's:
+  https://docs.liveramp.com/connect/en/formatting-identifiers.html
+*/
+const normalize = (key: string, value: string): string => {
+  switch (key) {
+    case 'phone_number': {
+      // Remove all country extensions, parentheses, and hyphens before hashing.
+      // For example, if the input phone number is "+1 (555) 123-4567", convert that to "5551234567" before hashing.
+
+      // This regex matches the country code in the first group, and captures the remaining digits.
+      // because the captures are optional, the regex works correctly even if some parts of the phone number are missing.
+      const phoneRegex = /(?:\+1)?\s*\(?\s*(\d+)\s*-?\)?\s*(\d+)\s*-?\s*(\d+)/
+      const match = phoneRegex.exec(value)
+      if (!match || match.length < 4) return value
+
+      // Drop the ALL capture. Return the rest of captures joined together.
+      return match.slice(1).join('')
+    }
+
+    case 'email': {
+      return value.toLowerCase().trim()
+    }
+  }
+
+  return value
+}
+
+export { generateFile, enquoteIdentifier, normalize }
