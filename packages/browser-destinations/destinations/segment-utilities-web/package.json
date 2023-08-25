@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-utils",
-  "version": "1.7.1-staging.13",
+  "version": "1.7.1-staging.14",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,7 +11,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.7.1-staging.13"
+    "@segment/browser-destination-runtime": "^1.7.1-staging.14"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
