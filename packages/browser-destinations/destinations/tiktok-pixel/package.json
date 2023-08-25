@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-tiktok-pixel",
-  "version": "1.1.1-staging.14",
+  "version": "1.1.1-staging.15",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,8 +11,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.1-staging.182",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.14"
+    "@segment/actions-core": "^3.77.1-staging.183",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.15"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
