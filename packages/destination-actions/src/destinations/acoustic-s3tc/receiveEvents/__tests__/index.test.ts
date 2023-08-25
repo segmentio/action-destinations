@@ -1,5 +1,5 @@
 // import nock from 'nock'
-import { createTestEvent } from '@segment/actions-core'
+import { createTestEvent, SegmentEvent } from '@segment/actions-core'
 
 // import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core';
 import { Settings } from '../../generated-types'
@@ -8,16 +8,16 @@ import action from '../index'
 import { validateSettings } from '../preCheck'
 import { addUpdateEvents } from '../eventprocessing'
 
-describe('Receive Events Action', () => {
+describe('Send Events Action', () => {
   // Mocked request function
   const mockRequest = jest.fn()
 
-  test('has valid title and description', () => {
-    expect(action.title).toBe('Receive Events')
-    expect(action.description).toContain('Provide Segment Track and Identify Event Data')
-  })
+  type PayloadWithEmail = SegmentEvent & {
+    email?: string
+  }
 
-  const e = createTestEvent()
+  const e = createTestEvent() as PayloadWithEmail
+  e.email = 'test@gmail.com'
 
   const mockSettings = {
     cacheType: 'S3',
@@ -28,15 +28,8 @@ describe('Receive Events Action', () => {
     fileNamePrefix: 'prefix'
   } as Settings
 
-  const mockPayload = {
-    email: 'example@example.com',
-    payload: e,
-    enable_batching: false
-    // Add other payload properties as needed
-  } as Payload
-
   test('perform Action.Perform call with valid payload and settings', async () => {
-    action.perform(mockRequest, { settings: mockSettings, payload: mockPayload })
+    action.perform(mockRequest, { settings: mockSettings, payload: e as Payload })
   })
 
   test('perform ValidateSettings call with valid payload and settings', async () => {
@@ -50,8 +43,8 @@ describe('Receive Events Action', () => {
   test('perform AddUpdateEvents call with valid payload and settings', async () => {
     // Mock addUpdateEvents function
     const mockAddUpdateEvents = jest.fn(addUpdateEvents).mockReturnValue('csvRows')
-    mockAddUpdateEvents(mockPayload, mockPayload.email)
-    expect(mockAddUpdateEvents).toHaveBeenCalledWith(mockPayload, mockPayload.email)
+    mockAddUpdateEvents(e, e.email)
+    expect(mockAddUpdateEvents).toHaveBeenCalledWith(e, e.email)
     expect(mockAddUpdateEvents).toHaveReturned()
   })
 
