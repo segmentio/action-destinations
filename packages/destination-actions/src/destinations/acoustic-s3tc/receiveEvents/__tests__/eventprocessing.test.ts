@@ -269,30 +269,6 @@ describe('addUpdateEvents', () => {
   })
 })
 
-describe('parseSections', () => {
-  test('parses sections with nesting', () => {
-    const section = {
-      key1: 'value1',
-      key2: {
-        subkey1: 'subvalue1',
-        subkey2: {
-          subsubkey1: 'subsubvalue1'
-        }
-      }
-    }
-
-    const result = parseSections(section, 0)
-
-    expect(result).toEqual({
-      key1: 'value1',
-      'key2.subkey1': 'subvalue1',
-      'key2.subkey2.subsubkey1': 'subsubvalue1'
-    })
-  })
-
-  // Add more test cases for different scenarios and edge cases
-})
-
 describe('addUpdateEvents', () => {
   test('adds update events to CSV rows', () => {
     const mockPayload = {

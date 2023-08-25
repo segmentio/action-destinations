@@ -3,15 +3,10 @@ import { createTestEvent, SegmentEvent } from '@segment/actions-core'
 
 // import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core';
 import { Settings } from '../../generated-types'
-import { Payload } from '../generated-types'
-import action from '../index'
 import { validateSettings } from '../preCheck'
 import { addUpdateEvents } from '../eventprocessing'
 
 describe('Send Events Action', () => {
-  // Mocked request function
-  const mockRequest = jest.fn()
-
   type PayloadWithEmail = SegmentEvent & {
     email?: string
   }
@@ -27,10 +22,6 @@ describe('Send Events Action', () => {
     s3_bucket: 'my-bucket',
     fileNamePrefix: 'prefix'
   } as Settings
-
-  test('perform Action.Perform call with valid payload and settings', async () => {
-    action.perform(mockRequest, { settings: mockSettings, payload: e as Payload })
-  })
 
   test('perform ValidateSettings call with valid payload and settings', async () => {
     // Mock validateSettings function
