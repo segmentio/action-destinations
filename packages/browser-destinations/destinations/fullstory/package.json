@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",

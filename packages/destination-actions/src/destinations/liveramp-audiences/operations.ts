@@ -6,8 +6,7 @@ Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
 function generateFile(payloads: Payload[]) {
-  const rows = []
-  const headers = ['audience_key']
+  const headers: string[] = ['audience_key']
 
   // Prepare header row
   if (payloads[0].identifier_data) {
@@ -21,30 +20,33 @@ function generateFile(payloads: Payload[]) {
       headers.push(identifier)
     }
   }
-  rows.push(headers.join(payloads[0].delimiter))
+
+  let rows = Buffer.from(headers.join(payloads[0].delimiter) + '\n')
 
   // Prepare data rows
-  for (const payload of payloads) {
-    const row = []
-    row.push(payload.audience_key)
+  for (let i = 0; i < payloads.length; i++) {
+    const payload = payloads[i]
+    const row: string[] = [enquoteIdentifier(payload.audience_key)]
     if (payload.identifier_data) {
-      for (const identifier of Object.getOwnPropertyNames(payload.identifier_data)) {
-        row.push(payload.identifier_data[identifier] as string)
+      for (const key in payload.identifier_data) {
+        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key)) {
+          row.push(enquoteIdentifier(String(payload.identifier_data[key])))
+        }
       }
     }
 
     if (payload.unhashed_identifier_data) {
-      for (const identifier of Object.getOwnPropertyNames(payload.unhashed_identifier_data)) {
-        row.push(hash(normalize(identifier, payload.unhashed_identifier_data[identifier] as string)))
+      for (const key in payload.unhashed_identifier_data) {
+        if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
+          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
+        }
       }
     }
-    rows.push(row.map(enquoteIdentifier).join(payload.delimiter))
+    rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }
 
   const filename = payloads[0].filename
-  const fileContent = Buffer.from(rows.join('\n'))
-
-  return { filename, fileContent }
+  return { filename, fileContent: rows }
 }
 
 /*
@@ -56,7 +58,7 @@ function generateFile(payloads: Payload[]) {
   LCD TV,50" -> "LCD TV,50"""
 */
 function enquoteIdentifier(identifier: string) {
-  return `"${identifier.replace(/"/g, '""')}"`
+  return `"${String(identifier).replace(/"/g, '""')}"`
 }
 
 const hash = (value: string): string => {

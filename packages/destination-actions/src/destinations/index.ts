@@ -121,6 +121,8 @@ register('64c02312ff0ce798cc8d1a7e', './rehook')
 register('64c031541451bb784943f809', './attio')
 register('64ca21ee1f8f380283837ba1', './prodeology')
 register('64d3487dcc68fe039fb6237f', './gameball')
+register('64e72af1eabf77368b877a51', './pushwoosh')
+register('64e72a310da9ebedf99c8937', './launchdarkly-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
