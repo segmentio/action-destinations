@@ -47,7 +47,7 @@ export function register(
       address: address_to_use
     }
   }
-  if (country_language) {
+  if (Array.isArray(country_language) && country_language.length === 2) {
     payload.channel_object.locale_language = country_language[0]
     payload.channel_object.locale_country = country_language[1]
   }
