@@ -103,7 +103,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     type ConfigType = { [key: string]: unknown }
 
     const config: ConfigType = {
-      send_page_view: settings.pageView,
+      send_page_view: settings.pageView ?? true,
       cookie_update: settings.cookieUpdate,
       cookie_domain: settings.cookieDomain,
       cookie_prefix: settings.cookiePrefix,
