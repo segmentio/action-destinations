@@ -117,37 +117,37 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       config.screen_resolution = payload.screen_resolution
     }
     if (payload.page_title) {
-      config.pagetitle = payload.page_title
+      config.page_title = payload.page_title
     }
     if (payload.page_referrer) {
-      config.pagereferrer = payload.page_referrer
+      config.page_referrer = payload.page_referrer
     }
     if (payload.page_location) {
-      config.pagelocation = payload.page_location
+      config.page_location = payload.page_location
     }
     if (payload.language) {
       config.language = payload.language
     }
     if (payload.content_group) {
-      config.contentgroup = payload.content_group
+      config.content_group = payload.content_group
     }
     if (payload.campaign_term) {
-      config.campaignterm = payload.campaign_term
+      config.campaign_term = payload.campaign_term
     }
     if (payload.campaign_source) {
-      config.campaignsource = payload.campaign_source
+      config.campaign_source = payload.campaign_source
     }
     if (payload.campaign_name) {
-      config.campaignname = payload.campaign_name
+      config.campaign_name = payload.campaign_name
     }
     if (payload.campaign_medium) {
-      config.campaignmedium = payload.campaign_medium
+      config.campaign_medium = payload.campaign_medium
     }
     if (payload.campaign_id) {
-      config.campaignid = payload.campaign_id
+      config.campaign_id = payload.campaign_id
     }
     if (payload.campaign_content) {
-      config.campaigncontent = payload.campaign_content
+      config.campaign_content = payload.campaign_content
     }
     gtag('config', settings.measurementID, config)
   }
