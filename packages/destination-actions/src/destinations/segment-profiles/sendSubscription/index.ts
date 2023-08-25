@@ -60,10 +60,10 @@ const action: ActionDefinition<Settings, Payload> = {
     //   method: 'PUT',
     //   json: subscriptionPayload,
     //   headers: {
-    //     authorization: `Bearer sgp_Ua64FCDMvglfndts7THALqjFXsdyWjFRRmubU55yHttaEn7kn7fHUTvoKfWQpzKh`
+    //     authorization: `Bearer $tokensgp`
     //   }
     // })
   }
 }
-//`Bearer sgp_Ua64FCDMvglfndts7THALqjFXsdyWjFRRmubU55yHttaEn7kn7fHUTvoKfWQpzKh`
+
 export default action
