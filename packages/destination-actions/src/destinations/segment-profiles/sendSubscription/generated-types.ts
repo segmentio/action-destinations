@@ -14,7 +14,13 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * Information about a user subscription.
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
+  /**
+   * Information about users Global Subscription, Channel, Subscription Groups.
    */
   subscriptions?: {
     /**
@@ -29,6 +35,18 @@ export interface Payload {
      * The subscription status for the user.
      */
     status: string
-    [k: string]: unknown
+    /**
+     * Subscription groups the user is associated with.
+     */
+    groups?: {
+      /**
+       * Name of the subscription group.
+       */
+      name: string
+      /**
+       * The subscription status for the specific group.
+       */
+      status: string
+    }[]
   }[]
 }

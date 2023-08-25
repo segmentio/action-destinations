@@ -36,71 +36,85 @@ export const engage_space: InputField = {
   dynamic: true
 }
 
-// export const subscriptions: InputField = {
-export const subscriptionProperties: Record<string, InputField> = {
-  subscriptions: {
-    label: 'Engage Channel and Group Subscriptions',
-    description: 'Information about a user subscription.',
-    type: 'object',
-    defaultObjectUI: 'keyvalue',
-    multiple: true,
-    additionalProperties: true,
-    properties: {
-      key: {
-        label: 'Key',
-        description: 'The unique identifier for the subscription (e.g., phone number, email).',
-        type: 'string',
-        required: true
-      },
-      type: {
-        label: 'Type',
-        description: 'The medium of subscription (e.g., SMS, EMAIL, WHATSAPP).',
-        type: 'string',
-        choices: [
-          { value: 'SMS', label: 'SMS' },
-          { value: 'EMAIL', label: 'EMAIL' },
-          { value: 'WHATSAPP', label: 'WHATSAPP' }
-        ],
-        required: true
-      },
-      status: {
-        label: 'Status',
-        description: 'The subscription status for the user.',
-        type: 'string',
-        choices: [
-          { value: 'SUBSCRIBED', label: 'SUBSCRIBED' },
-          { value: 'UNSUBSCRIBED', label: 'UNSUBSCRIBED' },
-          { value: 'DID_NOT_SUBSCRIBE', label: 'DID_NOT_SUBSCRIBE' }
-        ],
-        required: true
+export const subscriptions: InputField = {
+  // export const subscriptionProperties: Record<string, InputField> = {
+  //   subscriptions: {
+  label: 'Engage Channel and Group Subscriptions',
+  description: 'Information about users Global Subscription, Channel, Subscription Groups.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  multiple: true,
+  additionalProperties: false,
+  // required: true,
+  // default: {
+  //   '@arrayPath': [
+  //     {
+  //       key: '',
+  //       type: '',
+  //       status: '',
+  //       groups: {
+  //         name: '',
+  //         status: ''
+  //       }
+  //     }
+  //   ]
+  // },
+  properties: {
+    key: {
+      label: 'Key',
+      description: 'The unique identifier for the subscription (e.g., phone number, email).',
+      type: 'string',
+      required: true
+    },
+    type: {
+      label: 'Type',
+      description: 'The medium of subscription (e.g., SMS, EMAIL, WHATSAPP).',
+      type: 'string',
+      choices: [
+        { value: 'SMS', label: 'SMS' },
+        { value: 'EMAIL', label: 'EMAIL' },
+        { value: 'WHATSAPP', label: 'WHATSAPP' }
+      ],
+      required: true
+    },
+    status: {
+      label: 'Status',
+      description: 'The subscription status for the user.',
+      type: 'string',
+      choices: [
+        { value: 'SUBSCRIBED', label: 'SUBSCRIBED' },
+        { value: 'UNSUBSCRIBED', label: 'UNSUBSCRIBED' },
+        { value: 'DID_NOT_SUBSCRIBE', label: 'DID_NOT_SUBSCRIBE' }
+      ],
+      required: true
+    },
+    groups: {
+      label: 'Groups',
+      description: 'Subscription groups the user is associated with.',
+      type: 'object',
+      multiple: true,
+      dynamic: true,
+      properties: {
+        name: {
+          label: 'Group Name',
+          description: 'Name of the subscription group.',
+          type: 'string',
+          required: true
+        },
+        status: {
+          label: 'Group Status',
+          description: 'The subscription status for the specific group.',
+          type: 'string',
+          choices: [
+            { value: 'SUBSCRIBED', label: 'SUBSCRIBED' },
+            { value: 'UNSUBSCRIBED', label: 'UNSUBSCRIBED' },
+            { value: 'DID_NOT_SUBSCRIBE', label: 'DID_NOT_SUBSCRIBE' }
+          ],
+          required: true
+        }
       }
-      // groups: {
-      //   label: 'Groups',
-      //   description: 'Subscription groups the user is associated with.',
-      //   type: 'object',
-      //   multiple: true,
-      //   dynamic: true,
-      //   properties: {
-      //     name: {
-      //       label: 'Group Name',
-      //       description: 'Name of the subscription group.',
-      //       type: 'string',
-      //       required: true
-      //     },
-      //     status: {
-      //       label: 'Group Status',
-      //       description: 'The subscription status for the specific group.',
-      //       type: 'string',
-      //       choices: [
-      //         { value: 'SUBSCRIBED', label: 'SUBSCRIBED' },
-      //         { value: 'UNSUBSCRIBED', label: 'UNSUBSCRIBED' },
-      //         { value: 'DID_NOT_SUBSCRIBE', label: 'DID_NOT_SUBSCRIBE' }
-      //       ],
-      //       required: true
-      //     }
-      //   }
-      // }
     }
+    //}
   }
   // In this representation:
   //

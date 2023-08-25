@@ -1,32 +1,38 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymous_id, engage_space, subscriptionProperties, user_id } from '../segment-properties'
-import { MissingUserOrAnonymousIdThrowableError } from '../errors'
-// import { SEGMENT_ENDPOINTS } from '../properties'
+import { anonymous_id, engage_space, user_id, traits, subscriptions } from '../segment-properties'
+import { InvalidEndpointSelectedThrowableError, MissingUserOrAnonymousIdThrowableError } from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
+import { SEGMENT_ENDPOINTS } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Get User Subscriptions into Engage through rETL',
-  description: 'Get User Subscriptions into Engage through rETL',
+  title: 'SendSubscriptions',
+  description:
+    'Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them.',
   defaultSubscription: 'type = "identify"',
   fields: {
     engage_space,
     user_id,
     anonymous_id,
     //group_id,
-    //traits,
-    ...subscriptionProperties
+    traits,
+    subscriptions
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
     const subscriptionPayload: Object = {
       userId: payload?.user_id,
-      anonymousId: payload?.anonymous_id,
-      subscriptions: payload?.subscriptions,
+      //anonymousId: payload?.anonymous_id,
+      traits: {
+        ...payload?.traits
+      },
+      context: {
+        messaging_subscriptions: payload?.subscriptions
+      },
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
         // to any destinations which is connected to the Segment Profiles space.
@@ -34,20 +40,30 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    // if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-    //   throw InvalidEndpointSelectedThrowableError
-    // }
+    //Throw an error if endpoint is not defined or invalid
+    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
+      throw InvalidEndpointSelectedThrowableError
+    }
 
     //const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`https://api.segmentapis.build/spaces/${payload.engage_space}/messaging-subscriptions/batch`, {
+    console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
+    return request(`https://api.segment.io/v1/identify`, {
       method: 'POST',
       json: subscriptionPayload,
       headers: {
         authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
       }
     })
+
+    //papi call
+    // return request(`https://api.segmentapis.build/spaces/${payload.engage_space}/messaging-subscriptions`, {
+    //   method: 'PUT',
+    //   json: subscriptionPayload,
+    //   headers: {
+    //     authorization: `Bearer sgp_Ua64FCDMvglfndts7THALqjFXsdyWjFRRmubU55yHttaEn7kn7fHUTvoKfWQpzKh`
+    //   }
+    // })
   }
 }
-
+//`Bearer sgp_Ua64FCDMvglfndts7THALqjFXsdyWjFRRmubU55yHttaEn7kn7fHUTvoKfWQpzKh`
 export default action
