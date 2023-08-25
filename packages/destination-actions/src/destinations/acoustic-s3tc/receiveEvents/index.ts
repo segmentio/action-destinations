@@ -7,7 +7,7 @@ import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { validateSettings } from './preCheck'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Receive Events',
+  title: 'Send Events',
   description:
     'Send Segment identify() and track() events to Acoustic Connect. At least one of the following optional fields should be populated: Key-Value pairs, Arrays, Context, Properties, Traits.',
   fields: {

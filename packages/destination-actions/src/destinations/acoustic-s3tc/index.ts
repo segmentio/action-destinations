@@ -44,10 +44,10 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Acoustic S3TC',
-  slug: 'actions-acoustic-s3tc',
+  name: 'Acoustic (Actions)',
+  slug: 'actions-acoustic',
   mode: 'cloud',
-  description: 'Acoustic S3TC - Send Segment Track and Identify Event Data to Acoustic Connect',
+  description: 'Send Segment Track and Identify Event Data to Acoustic Connect',
   authentication: {
     scheme: 'custom',
     fields: {
