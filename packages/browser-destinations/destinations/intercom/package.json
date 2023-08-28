@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-intercom",
-  "version": "1.7.1-staging.15",
+  "version": "1.7.1-staging.16",
   "license": "MIT",
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -11,9 +11,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.1-staging.183",
-    "@segment/actions-shared": "^1.59.1-staging.15",
-    "@segment/browser-destination-runtime": "^1.7.1-staging.15"
+    "@segment/actions-core": "^3.77.1-staging.184",
+    "@segment/actions-shared": "^1.59.1-staging.16",
+    "@segment/browser-destination-runtime": "^1.7.1-staging.16"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
