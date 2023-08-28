@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
@@ -215,22 +215,7 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-
-    // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, externalIdFieldName)
-    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
-
-    try {
-      await this.uploadBulkCSV(jobId, csv)
-    } catch (err) {
-      // we must always close the "bulk job" otherwise it will get
-      // stuck in pending
-      await this.closeBulkJob(jobId).catch((_) => {
-        // ignore close error to avoid masking the root error
-      })
-      throw err
-    }
-    return await this.closeBulkJob(jobId)
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
   }
 
   private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
@@ -242,15 +227,27 @@ export default class Salesforce {
       )
     }
 
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+  }
+
+  private async handleBulkJob(
+    payloads: GenericPayload[],
+    sobject: string,
+    idField: string,
+    operation: string
+  ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, 'Id')
-    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    const csv = buildCSVData(payloads, idField)
+    const jobId = await this.createBulkJob(sobject, idField, operation)
     try {
       await this.uploadBulkCSV(jobId, csv)
     } catch (err) {
-      // we must always close the "bulk job" otherwise it will get
-      // stuck in pending
-      await this.closeBulkJob(jobId).catch((_) => {
+      // always close the "bulk job" otherwise it will get
+      // stuck in "pending".
+      //
+      // run in background to ensure this service has time to respond
+      // with useful information before the connection closes.
+      this.closeBulkJob(jobId).catch((_) => {
         // ignore close error to avoid masking the root error
       })
       throw err
