@@ -97,44 +97,4 @@ describe('Segment.sendIdentify', () => {
       context: {}
     })
   })
-
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
-    })
-
-    const responses = await testDestination.testAction('sendIdentify', {
-      event,
-      mapping: defaultIdentifyMapping,
-      settings: {
-        source_write_key: 'test-source-write-key',
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
-      },
-      features: {
-        'actions-segment-tapi-internal': true
-      }
-    })
-
-    const results = testDestination.results
-    expect(responses.length).toBe(0)
-    expect(results.length).toBe(3)
-    expect(results[2].data).toMatchObject({
-      batch: [
-        {
-          userId: event.userId,
-          anonymousId: event.anonymousId,
-          traits: {
-            ...event.traits
-          },
-          context: {}
-        }
-      ]
-    })
-  })
 })

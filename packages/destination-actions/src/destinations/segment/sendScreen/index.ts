@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -81,11 +81,6 @@ const action: ActionDefinition<Settings, Payload> = {
     // Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
       throw InvalidEndpointSelectedThrowableError
-    }
-
-    if (features && features['actions-segment-tapi-internal']) {
-      const payload = { ...screenPayload, type: 'screen' }
-      return { batch: [payload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
