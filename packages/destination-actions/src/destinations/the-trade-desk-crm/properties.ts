@@ -34,17 +34,17 @@ export const email: InputField = {
   default: {
     '@path': '$.context.traits.email'
   },
-  readOnly: true
+  unsafe_hidden: true
 }
 
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'The name of the current Segment event.',
-  type: 'hidden',
+  type: 'string',
   default: {
     '@path': '$.event'
   },
-  readOnly: true
+  unsafe_hidden: true
 }
 
 export const enable_batching: InputField = {
