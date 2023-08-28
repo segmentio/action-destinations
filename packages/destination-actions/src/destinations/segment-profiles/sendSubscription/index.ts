@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const subscriptionPayload: Object = {
       userId: payload?.user_id,
-      //anonymousId: payload?.anonymous_id,
+      anonymousId: payload?.anonymous_id,
       traits: {
         ...payload?.traits
       },
@@ -45,9 +45,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    //const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
+    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
     console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
-    return request(`https://api.segment.io/v1/identify`, {
+    return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
       json: subscriptionPayload,
       headers: {

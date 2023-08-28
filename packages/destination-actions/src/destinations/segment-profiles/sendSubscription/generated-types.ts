@@ -24,11 +24,11 @@ export interface Payload {
    */
   subscriptions?: {
     /**
-     * The unique identifier for the subscription (e.g., phone number, email).
+     * The unique identifier for the subscription (e.g., phone number, email, push tokens).
      */
     key: string
     /**
-     * The medium of subscription (e.g., SMS, EMAIL, WHATSAPP).
+     * A Channel to update subscription EMAIL | SMS | Whatsapp | IosPush | AndroidPush.
      */
     type: string
     /**
@@ -44,7 +44,7 @@ export interface Payload {
        */
       name: string
       /**
-       * The subscription status for the specific group.
+       * The subscription status for the specific group. Currently, it is supported for EMAIL channel
        */
       status: string
     }[]

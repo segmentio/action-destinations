@@ -46,39 +46,41 @@ export const subscriptions: InputField = {
   multiple: true,
   additionalProperties: false,
   // required: true,
-  // default: {
-  //   '@arrayPath': [
-  //     {
-  //       key: '',
-  //       type: '',
-  //       status: '',
-  //       groups: {
-  //         name: '',
-  //         status: ''
-  //       }
-  //     }
-  //   ]
-  // },
+  default: {
+    // '@arrayPath': [
+    //{
+    key: '',
+    type: '',
+    status: '',
+    groups: {
+      name: '',
+      status: ''
+    }
+    //    }
+    //]
+  },
   properties: {
     key: {
-      label: 'Key',
-      description: 'The unique identifier for the subscription (e.g., phone number, email).',
+      label: 'ID',
+      description: 'The unique identifier for the subscription (e.g., phone number, email, push tokens).',
       type: 'string',
       required: true
     },
     type: {
-      label: 'Type',
-      description: 'The medium of subscription (e.g., SMS, EMAIL, WHATSAPP).',
+      label: 'ChannelType',
+      description: 'A Channel to update subscription EMAIL | SMS | Whatsapp | IosPush | AndroidPush.',
       type: 'string',
       choices: [
         { value: 'SMS', label: 'SMS' },
         { value: 'EMAIL', label: 'EMAIL' },
-        { value: 'WHATSAPP', label: 'WHATSAPP' }
+        { value: 'WHATSAPP', label: 'WHATSAPP' },
+        { value: 'IosPush', label: 'IosPush' },
+        { value: 'AndroidPush', label: 'AndroidPush' }
       ],
       required: true
     },
     status: {
-      label: 'Status',
+      label: 'Subscription Status',
       description: 'The subscription status for the user.',
       type: 'string',
       choices: [
@@ -103,7 +105,7 @@ export const subscriptions: InputField = {
         },
         status: {
           label: 'Group Status',
-          description: 'The subscription status for the specific group.',
+          description: 'The subscription status for the specific group. Currently, it is supported for EMAIL channel',
           type: 'string',
           choices: [
             { value: 'SUBSCRIBED', label: 'SUBSCRIBED' },
