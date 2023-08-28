@@ -87,5 +87,5 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 100000
+  default: 10000
 }
