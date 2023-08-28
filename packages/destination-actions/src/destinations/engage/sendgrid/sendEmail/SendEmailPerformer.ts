@@ -35,6 +35,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const bypass_subscription = this.payload.byPassSubscription !== undefined && this.payload.byPassSubscription
     if (bypass_subscription) {
       this.currentOperation?.logs.push('Bypassing subscription')
+      this.currentOperation?.tags.push('bypass_subscription:' + true)
       return true
     }
 
@@ -227,11 +228,17 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    // only include preview text in design editor templates
-    if (this.payload.bodyType === 'design' && this.payload.previewText) {
-      const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+    if (this.payload.previewText) {
+      try {
+        const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
+
+        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+      } catch (ex) {
+        this.logger?.error('Error inserting preview text, using original html', {
+          ex
+        })
+        this.statsClient.incr('insert_preview_fail', 1)
+      }
     }
 
     parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)
