@@ -216,11 +216,20 @@ export default class Salesforce {
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
 
+    // construct the CSV data to catch errors before creating a bulk job
+    const csv = buildCSVData(payloads, externalIdFieldName)
     const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
 
-    const csv = buildCSVData(payloads, externalIdFieldName)
-
-    await this.uploadBulkCSV(jobId, csv)
+    try {
+      await this.uploadBulkCSV(jobId, csv)
+    } catch (err) {
+      // we must always close the "bulk job" otherwise it will get
+      // stuck in pending
+      await this.closeBulkJob(jobId).catch((_) => {
+        // ignore close error to avoid masking the root error
+      })
+      throw err
+    }
     return await this.closeBulkJob(jobId)
   }
 
@@ -233,10 +242,19 @@ export default class Salesforce {
       )
     }
 
-    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, 'Id')
-
-    await this.uploadBulkCSV(jobId, csv)
+    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
+    try {
+      await this.uploadBulkCSV(jobId, csv)
+    } catch (err) {
+      // we must always close the "bulk job" otherwise it will get
+      // stuck in pending
+      await this.closeBulkJob(jobId).catch((_) => {
+        // ignore close error to avoid masking the root error
+      })
+      throw err
+    }
     return await this.closeBulkJob(jobId)
   }
 
