@@ -34,6 +34,7 @@ export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent
     properties: {},
     receivedAt: new Date().toISOString(),
     sentAt: new Date().toISOString(),
+    subscriptions: {},
     timestamp: new Date().toISOString(),
     traits: {},
     type: 'track',
