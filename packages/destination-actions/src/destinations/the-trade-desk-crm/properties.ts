@@ -30,26 +30,29 @@ export const pii_type: InputField = {
 export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to The Trade Desk.",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
+  type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  }
+  },
+  unsafe_hidden: true
 }
 
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'The name of the current Segment event.',
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+  type: 'string',
   default: {
     '@path': '$.event'
-  }
+  },
+  unsafe_hidden: true
 }
 
 export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching of requests to The Trade Desk CRM Segment.',
   type: 'boolean',
-  default: true
+  default: true,
+  unsafe_hidden: true
 }
 
 export const batch_size: InputField = {
@@ -57,23 +60,6 @@ export const batch_size: InputField = {
   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
   type: 'number',
   required: false,
-  default: 100000
-}
-
-export const merge_mode: InputField = {
-  label: 'Merge Mode',
-  description: 'The merge mode to use when syncing data to The Trade Desk CRM Segment.',
-  type: 'string',
-  choices: [
-    {
-      label: 'Add',
-      value: 'Add'
-    },
-    {
-      label: 'Replace',
-      value: 'Replace'
-    }
-  ],
-  default: 'Replace',
-  required: false
+  default: 100000,
+  unsafe_hidden: true
 }
