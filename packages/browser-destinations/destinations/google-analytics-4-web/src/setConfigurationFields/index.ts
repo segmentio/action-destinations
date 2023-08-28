@@ -116,6 +116,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.screen_resolution) {
       config.screen_resolution = payload.screen_resolution
     }
+    if (payload.user_id) {
+      config.user_id = payload.user_id
+    }
     if (payload.page_title) {
       config.page_title = payload.page_title
     }
