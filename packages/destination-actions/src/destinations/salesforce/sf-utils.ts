@@ -12,7 +12,8 @@ const isSettingsKey = new Set<string>([
   'bulkUpsertExternalId',
   'bulkUpdateRecordId',
   'recordMatcherOperator',
-  'customObjectName'
+  'customObjectName',
+  'batch_size'
 ])
 
 const NO_VALUE = `#N/A`
