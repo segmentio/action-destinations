@@ -84,7 +84,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       mapping = { ...defaultMappings, ...mapping } as JSONObject
     }
 
-    const results = await super.executeAction(action, {
+    this.results = await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
       settings: settings ?? ({} as T),
@@ -95,9 +95,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext)
     })
-
-    this.results = results
-
+    
     const responses = this.responses
     this.responses = []
 
@@ -132,7 +130,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       events = [{ type: 'track' }]
     }
 
-    await super.executeBatch(action, {
+    this.results = await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),
