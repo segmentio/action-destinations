@@ -2,6 +2,10 @@
   "name": "@segment/browser-destination-runtime",
   "version": "1.11.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "scripts": {
     "build": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc --outDir ./dist/esm",
