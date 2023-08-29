@@ -2,6 +2,10 @@
   "name": "@segment/analytics-browser-actions-screeb",
   "version": "1.8.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "main": "./dist/cjs",
   "module": "./dist/esm",
   "scripts": {
