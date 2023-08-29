@@ -14,7 +14,7 @@ export class IntegrationError extends CustomError {
    * @param message - a human-friendly message to display to users
    * @param code - error code/reason
    * @param status - http status code (e.g. 400).
-   *    - 4xx errors are not automatically retried, except for 408, 423, 429.
+   *    - 4xx errors are not automatically retried, except for 408, 423, 429
    *    - 5xx are automatically retried, except for 501
    */
   constructor(message: string, code: string, status: number) {
