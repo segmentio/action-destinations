@@ -24,7 +24,7 @@ jobs:
           cache: yarn
 
       - name: Install
-        run: yarn add -W @nx/nx-linux-x64-gnu && yarn install --frozen-lockfile --ignore-optional
+        run: yarn install --frozen-lockfile --ignore-optional --ignore-scripts
 
       - name: Bootstrap
         run: yarn bootstrap --no-ci
