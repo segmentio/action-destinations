@@ -615,4 +615,39 @@ describe('HubSpot.upsertContactBatch', () => {
     expect(testBatchResponses[2].data).toMatchSnapshot()
     expect(testBatchResponses[3].data).toMatchSnapshot()
   })
+  test('should fail if any of error comes while reading batch of contacts', async () => {
+    const events = createBatchTestEvents(createContactList)
+
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(207, {
+        status: 'COMPLETE',
+        results: [],
+        numErrors: 1,
+        errors: [
+          {
+            status: 'error',
+            category: 'VALIDATION_ERROR',
+            message: "'lastname' Property does not exist"
+          }
+        ]
+      })
+
+    const mapping = {
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
+
+    await expect(
+      testDestination.testBatchAction('upsertContact', {
+        mapping,
+        useDefaultMappings: true,
+        events
+      })
+    ).rejects.toThrowError("'lastname' Property does not exist")
+  })
 })
