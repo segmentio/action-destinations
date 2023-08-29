@@ -9,7 +9,7 @@ import type { Payload } from './generated-types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: 'Send to CDPResolution',
-  description: 'Send page, track, or identify event data to CDPResolution once per session.',
+  description: 'Send page, track, or identify event data to CDP Resolution once per session.',
   defaultSubscription: 'type = "page" or type = "track" or type = "identify"',
   platform: 'web',
   fields: {
