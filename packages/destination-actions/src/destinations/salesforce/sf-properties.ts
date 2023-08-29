@@ -29,7 +29,7 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 10000
+  default: 5000
 }
 
 export const bulkUpsertExternalId: InputField = {
