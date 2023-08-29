@@ -8,6 +8,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Optimizely Advanced Audience Targeting',
   slug: 'actions-optimizely-advanced-audience-targeting',
   mode: 'cloud',
+  description: 'Sync Segment Engage Audiences to Optimizely Data Platform',
 
   authentication: {
     scheme: 'custom',
