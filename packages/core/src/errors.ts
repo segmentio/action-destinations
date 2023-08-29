@@ -14,7 +14,7 @@ export class IntegrationError extends CustomError {
    * @param message - a human-friendly message to display to users
    * @param code - error code/reason
    * @param status - http status code (e.g. 400).
-   *    - 4xx errors are not automatically retried, except for 408, 423, 429
+   *    - 4xx errors are not automatically retried, except for 408, 423, 429.
    *    - 5xx are automatically retried, except for 501
    */
   constructor(message: string, code: string, status: number) {
@@ -61,7 +61,7 @@ export class RetryableError extends CustomError {
  * This could happen when a token or API key has expired or been revoked,
  * or various other scenarios where the authentication credentials are no longer valid.
  *
- * This error signals to Segment that the user must manually fix their credentials for events to succeed.
+ * This error signals to Segment that the user must manually fix their credentials for events to succeed
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
