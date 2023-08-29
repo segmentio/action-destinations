@@ -49,7 +49,11 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       required: true,
       default: {
-        '@path': '$.email'
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     },
     type: {

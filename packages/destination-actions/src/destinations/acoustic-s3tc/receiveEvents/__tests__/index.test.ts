@@ -1,18 +1,15 @@
 // import nock from 'nock'
-import { createTestEvent, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent } from '@segment/actions-core'
 
 // import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core';
 import { Settings } from '../../generated-types'
 import { validateSettings } from '../preCheck'
 import { addUpdateEvents } from '../eventprocessing'
+import { Payload } from '../generated-types'
 
 describe('Send Events Action', () => {
-  type PayloadWithEmail = SegmentEvent & {
-    email?: string
-  }
-
-  const e = createTestEvent() as PayloadWithEmail
-  e.email = 'test@gmail.com'
+  const e = createTestEvent()
+  e.properties = { email: 'test@gmail.com' }
 
   const mockSettings = {
     cacheType: 'S3',
@@ -34,8 +31,8 @@ describe('Send Events Action', () => {
   test('perform AddUpdateEvents call with valid payload and settings', async () => {
     // Mock addUpdateEvents function
     const mockAddUpdateEvents = jest.fn(addUpdateEvents).mockReturnValue('csvRows')
-    mockAddUpdateEvents(e, e.email)
-    expect(mockAddUpdateEvents).toHaveBeenCalledWith(e, e.email)
+    mockAddUpdateEvents(e as Payload, 'test@gmail.com')
+    expect(mockAddUpdateEvents).toHaveBeenCalledWith(e, e.properties?.email)
     expect(mockAddUpdateEvents).toHaveReturned()
   })
 
