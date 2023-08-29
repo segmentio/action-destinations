@@ -43,7 +43,7 @@ type RetryableStatusCodes =
   | 599
 
 /**
- * Error that should halt execution but allows the request to be retried automatically.
+ * Error that should halt execution but allows the request to be retried automatically
  * This error signals to Segment that a transient error occurred, and retrying the request may succeed without user intervention.
  */
 export class RetryableError extends CustomError {
