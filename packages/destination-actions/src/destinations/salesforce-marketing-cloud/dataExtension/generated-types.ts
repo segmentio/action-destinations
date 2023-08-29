@@ -25,8 +25,4 @@ export interface Payload {
    * If true, data is batched before sending to the SFMC Data Extension.
    */
   enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }
