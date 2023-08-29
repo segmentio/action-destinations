@@ -1,6 +1,10 @@
 {
   "name": "@segment/destinations-manifest",
   "version": "1.13.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc"
