@@ -24,7 +24,7 @@ jobs:
           cache: yarn
 
       - name: Install
-        run: yarn install --frozen-lockfile --ignore-optional
+        run: yarn install --frozen-lockfile
 
       - name: Bootstrap
         run: yarn bootstrap --no-ci
