@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-adobe-target",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,7 +16,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.12.1"
+    "@segment/browser-destination-runtime": "^1.12.2"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
