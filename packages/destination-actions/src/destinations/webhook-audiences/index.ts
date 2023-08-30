@@ -60,8 +60,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       })
 
-      const jsonOutput = await response.json()
-      if (!jsonOutput[externalIdKey]) {
+      try {
+        const jsonOutput = await response.json()
+
+        if (!jsonOutput[externalIdKey]) {
+          throw new IntegrationError(`Missing ${externalIdKey} in response`, 'INVALID_RESPONSE', 400)
+        }
+      } catch {
         throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
       }
 
