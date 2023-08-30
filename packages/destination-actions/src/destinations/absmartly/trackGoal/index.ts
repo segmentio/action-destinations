@@ -4,17 +4,11 @@ import type { Payload } from './generated-types'
 import { defaultGoalFields, sendGoal } from '../goal'
 
 const fields = { ...defaultGoalFields }
-fields.name = {
-  ...fields.name,
-  default: {
-    '@template': 'Page: {{ name }}'
-  }
-}
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Page Event',
-  description: 'Send Page event to ABsmartly as a goal',
-  fields,
+  title: 'Track Goal',
+  description: 'Send a goal event to ABsmartly',
+  fields: fields,
   perform: (request, { payload, settings }) => {
     return sendGoal(request, payload, settings)
   }

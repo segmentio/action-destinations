@@ -1,6 +1,6 @@
 import { mapUnits, Units } from './unit'
 import { InputField, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { sendEvent, PublishRequestEvent } from './event'
+import { sendEvent, PublishRequestEvent, defaultEventFields, DefaultPayload } from './event'
 import { Settings } from './generated-types'
 import { isValidTimestamp, unixTimestampOf } from './timestamp'
 import { Data } from 'ws'
@@ -11,16 +11,10 @@ export interface PublishRequestGoal {
   properties: null | Record<string, unknown>
 }
 
-export interface TrackPayload extends Units {
+export interface GoalPayload extends Units, DefaultPayload {
   name: string
-  publishedAt: string | number
   achievedAt: string | number
   properties?: null | Record<string, unknown>
-  agent?: string
-  application?: string
-  exposuresTracking?: boolean
-  exposureEventName?: string
-  exposure?: Record<string, unknown>
 }
 
 export const defaultGoalFields: Record<string, InputField> = {
@@ -49,16 +43,6 @@ export const defaultGoalFields: Record<string, InputField> = {
       '@path': '$.event'
     }
   },
-  publishedAt: {
-    label: 'Goal Sent Time',
-    type: 'datetime',
-    required: true,
-    description:
-      'Exact timestamp when the goal sent (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
-    default: {
-      '@path': '$.sentAt'
-    }
-  },
   achievedAt: {
     label: 'Goal Achievement Time',
     type: 'datetime',
@@ -78,26 +62,12 @@ export const defaultGoalFields: Record<string, InputField> = {
       '@path': '$.properties'
     }
   },
-  agent: {
-    label: 'Agent',
-    type: 'string',
-    required: false,
-    description: 'Optional agent identifier that originated the event. Used to identify which SDK generated the event.',
-    default: 'segment'
-  },
-  application: {
-    label: 'Application',
-    type: 'string',
-    required: false,
-    description:
-      'Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings -> Applications section of the ABsmartly Web Console',
-    default: ''
-  }
+  ...defaultEventFields
 }
 
 export function sendGoal(
   request: RequestClient,
-  payload: TrackPayload,
+  payload: GoalPayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
   if (typeof payload.name !== 'string' || payload.name.length == 0) {

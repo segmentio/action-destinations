@@ -1,31 +1,50 @@
 import type { DestinationDefinition, Preset, RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import trackEvent from './trackEvent'
-import pageEvent from './pageEvent'
-import screenEvent from './screenEvent'
-import { defaultValues } from '@segment/actions-core'
+import trackGoal from './trackGoal'
+import trackExposure from './trackExposure'
+import { defaultValues, InputField } from '@segment/actions-core'
+
+function patch(field: InputField, patch: Partial<InputField>): InputField {
+  return {
+    ...field,
+    ...patch
+  }
+}
 
 const presets: Preset[] = [
   {
     name: 'Track Calls',
-    subscribe: 'type = "track"',
-    partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields),
+    subscribe: 'type = "track" and event != "Experiment Viewed"',
+    partnerAction: 'trackGoal',
+    mapping: defaultValues(trackGoal.fields),
     type: 'automatic'
   },
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'pageEvent',
-    mapping: defaultValues(pageEvent.fields),
+    partnerAction: 'trackGoal',
+    mapping: defaultValues({
+      ...trackGoal.fields,
+      name: patch(trackGoal.fields.name, { default: { '@template': 'Page: {{ name }}' } })
+    }),
     type: 'automatic'
   },
   {
     name: 'Screen Calls',
     subscribe: 'type = "screen"',
-    partnerAction: 'screenEvent',
-    mapping: defaultValues(screenEvent.fields),
+    partnerAction: 'trackGoal',
+    mapping: defaultValues({
+      ...trackGoal.fields,
+      name: patch(trackGoal.fields.name, { default: { '@template': 'Screen: {{ name }}' } })
+    }),
+    type: 'automatic'
+  },
+  {
+    name: 'Exposures (Verbatim)',
+    subscribe: 'type = "track" and event = "Experiment Viewed"',
+    partnerAction: 'trackExposure',
+    mapping: defaultValues(trackExposure.fields),
     type: 'automatic'
   }
 ]
@@ -87,9 +106,8 @@ const destination: DestinationDefinition<Settings> = {
 
   presets,
   actions: {
-    trackEvent,
-    pageEvent,
-    screenEvent
+    trackGoal,
+    trackExposure
   }
 }
 

@@ -4,30 +4,30 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('ABsmartly.pageEvent', () => {
+describe('ABsmartly.trackGoal', () => {
   const settings = {
     collectorEndpoint: 'https://test.absmartly.io/v1',
     environment: 'dev',
     apiKey: 'testkey'
   }
 
-  const pageEvent = createTestEvent({
+  const baseEvent = createTestEvent({
     type: 'page',
+    event: 'Order Completed',
     userId: '123',
     anonymousId: 'anon-123',
     properties: {
       url: 'https://example.com'
     },
-    name: 'Home',
     sentAt: '2023-01-01T00:00:00.100Z',
     originalTimestamp: '2023-01-01T00:00:00.000Z'
   } as SegmentEvent)
 
-  it('should send the page event to ABsmartly collector as a goal', async () => {
+  it('should send the track event to ABsmartly collector as a goal', async () => {
     nock('https://test.absmartly.io/v1').put(`/context`).reply(200)
 
-    const responses = await testDestination.testAction('pageEvent', {
-      event: pageEvent,
+    const responses = await testDestination.testAction('trackGoal', {
+      event: baseEvent,
       settings,
       useDefaultMappings: true
     })
@@ -43,8 +43,8 @@ describe('ABsmartly.pageEvent', () => {
       goals: [
         {
           achievedAt: 1672531200000,
-          name: 'Page: Home',
-          properties: pageEvent.properties
+          name: 'Order Completed',
+          properties: baseEvent.properties
         }
       ]
     })

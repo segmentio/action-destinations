@@ -1,4 +1,4 @@
-import { TrackPayload, sendGoal } from '../goal'
+import { GoalPayload, sendGoal } from '../goal'
 import { PayloadValidationError } from '@segment/actions-core'
 import { mapUnits } from '../unit'
 import { sendEvent } from '../event'
@@ -7,7 +7,7 @@ jest.mock('../event')
 
 describe('sendGoal()', () => {
   const settings = { collectorEndpoint: 'http://test.com', environment: 'dev', apiKey: 'testkey' }
-  const payload: TrackPayload = {
+  const payload: GoalPayload = {
     units: {
       anonymousId: 'testid'
     },
@@ -31,7 +31,7 @@ describe('sendGoal()', () => {
         {
           ...payload,
           name: null
-        } as unknown as TrackPayload,
+        } as unknown as GoalPayload,
         settings
       )
     ).toThrowError(PayloadValidationError)
@@ -41,7 +41,7 @@ describe('sendGoal()', () => {
         {
           ...payload,
           name: undefined
-        } as unknown as TrackPayload,
+        } as unknown as GoalPayload,
         settings
       )
     ).toThrowError(PayloadValidationError)
@@ -88,7 +88,7 @@ describe('sendGoal()', () => {
         {
           ...payload,
           properties: 'bleh'
-        } as unknown as TrackPayload,
+        } as unknown as GoalPayload,
         settings
       )
     ).toThrowError(PayloadValidationError)
@@ -98,7 +98,7 @@ describe('sendGoal()', () => {
         {
           ...payload,
           properties: 0
-        } as unknown as TrackPayload,
+        } as unknown as GoalPayload,
         settings
       )
     ).toThrowError(PayloadValidationError)

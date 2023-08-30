@@ -1,4 +1,4 @@
-import { TrackPayload } from '../goal'
+import { ExposurePayload } from '../exposure'
 import { sendEvent } from '../event'
 import { sendExposure } from '../exposure'
 import { PayloadValidationError } from '@segment/actions-core'
@@ -7,18 +7,10 @@ jest.mock('../event')
 
 describe('sendExposure()', () => {
   const settings = { collectorEndpoint: 'http://test.com', environment: 'dev', apiKey: 'testkey' }
-  const payload: TrackPayload = {
-    units: {
-      anonymousId: 'testid'
-    },
-    name: 'exposure event',
+  const payload: ExposurePayload = {
     publishedAt: '2023-01-01T00:00:00.3Z',
-    achievedAt: '2023-01-01T00:00:00.000000Z',
     application: 'testapp',
     agent: 'test-sdk',
-    properties: {
-      testprop: 'testvalue'
-    },
     exposure: {
       units: [{ type: 'anonymousId', value: 'testid' }],
       exposures: [{ experiment: 'testexp', variant: 'testvar' }],
