@@ -51,3 +51,15 @@ Object {
   "userId": "hIC1OAmWa[Q!&d%o",
 }
 `;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendSubscription action - required fields 1`] = `
+Object {
+  "anonymousId": "DG(EHzEGR*wPpBQj",
+  "context": Object {},
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {},
+  "userId": "DG(EHzEGR*wPpBQj",
+}
+`;

@@ -20,33 +20,29 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Information about users Global Subscription, Channel, Subscription Groups.
+   * Email of the user
    */
-  subscriptions?: {
-    /**
-     * The unique identifier for the subscription (e.g., phone number, email, push tokens).
-     */
-    key: string
-    /**
-     * A Channel to update subscription EMAIL | SMS | Whatsapp | IosPush | AndroidPush.
-     */
-    type: string
-    /**
-     * The subscription status for the user.
-     */
-    status: string
-    /**
-     * Subscription groups the user is associated with.
-     */
-    groups?: {
-      /**
-       * Name of the subscription group.
-       */
-      name: string
-      /**
-       * The subscription status for the specific group. Currently, it is supported for EMAIL channel
-       */
-      status: string
-    }[]
-  }[]
+  email?: string
+  /**
+   * Phone number of the user
+   */
+  phone?: string
+  /**
+   * Global status of the email subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
+   */
+  email_subscription_status?: string
+  /**
+   * Global status of the SMS subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
+   */
+  sms_subscription_status?: string
+  /**
+   * Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
+   */
+  whatsapp_subscription_status?: string
+  /**
+   * Subscription status for the groups. Object containing group names as keys and statuses as values
+   */
+  subscriptionGroups?: {
+    [k: string]: unknown
+  }
 }
