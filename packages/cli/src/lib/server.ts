@@ -289,7 +289,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            audienceSettings: req.body.payload.context.personas.audience_settings || {},
+            audienceSettings: req.body.payload.context.personas?.audience_settings || {},
             mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {}
           }
