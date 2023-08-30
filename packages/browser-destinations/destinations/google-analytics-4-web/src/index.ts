@@ -134,21 +134,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
       label: 'Wait Time to Update Consent State',
       type: 'number'
+    },
+    pageView: {
+      description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
+      label: 'Page Views',
+      type: 'boolean',
+      default: true
     }
   },
 
   initialize: async ({ settings }, deps) => {
-    const config = {
-      send_page_view: false,
-      cookie_update: settings.cookieUpdate,
-      cookie_domain: settings.cookieDomain,
-      cookie_prefix: settings.cookiePrefix,
-      cookie_expires: settings.cookieExpirationInSeconds,
-      cookie_path: settings.cookiePath,
-      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
-      allow_google_signals: settings.allowGoogleSignals
-    }
-
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       // eslint-disable-next-line prefer-rest-params
@@ -156,7 +151,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     }
 
     window.gtag('js', new Date())
-    window.gtag('config', settings.measurementID, config)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'default', {
         ad_storage: settings.defaultAdsStorageConsentState,

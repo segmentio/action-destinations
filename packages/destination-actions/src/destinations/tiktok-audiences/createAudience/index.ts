@@ -23,7 +23,17 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         const tiktok = new TikTokAudiences(request)
 
-        return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        if (settings.advertiser_ids) {
+          return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        }
+
+        return {
+          choices: [],
+          error: {
+            message: JSON.stringify('BAD REQUEST - expected settings.advertiser_ids and got nothing!'),
+            code: '400'
+          }
+        }
       } catch (err) {
         return {
           choices: [],

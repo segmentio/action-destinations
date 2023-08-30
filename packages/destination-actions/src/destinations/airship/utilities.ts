@@ -3,6 +3,118 @@ import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
+import { Payload as RegisterPayload } from './registerAndAssociate/generated-types'
+import { timezone } from '../segment/segment-properties'
+
+// exported Action function
+export function register(
+  request: RequestClient,
+  settings: Settings,
+  payload: RegisterPayload,
+  old_channel: string | null
+) {
+  let address_to_use = payload.channel_object.address
+  const endpoint = map_endpoint(settings.endpoint)
+  let register_uri = `${endpoint}/api/channels/email`
+  if (old_channel && payload.channel_object.new_address) {
+    register_uri = `${endpoint}/api/channels/email/replace/${old_channel}`
+    address_to_use = payload.channel_object.new_address
+  }
+  let country_language = null
+  if (payload.locale && payload.locale.length > 0) {
+    country_language = _extract_country_language(payload.locale)
+  }
+  const register_payload: {
+    channel: {
+      commercial_opted_in?: string
+      commercial_opted_out?: string
+      click_tracking_opted_in?: string
+      click_tracking_opted_out?: string
+      open_tracking_opted_in?: string
+      open_tracking_opted_out?: string
+      transactional_opted_in?: string
+      transactional_opted_out?: string
+      suppression_state?: string
+      type: string
+      address: string
+      timezone?: string
+      locale_language?: string
+      locale_country?: string
+    }
+  } = {
+    channel: {
+      type: 'email',
+      address: address_to_use
+    }
+  }
+  if (Array.isArray(country_language) && country_language.length === 2) {
+    payload.channel_object.locale_language = country_language[0]
+    payload.channel_object.locale_country = country_language[1]
+  }
+  if (timezone) {
+    payload.channel_object.timezone = payload.timezone
+  }
+  // handle and format all optional date params
+  if (payload.channel_object.commercial_opted_in) {
+    register_payload.channel.commercial_opted_in = _parse_and_format_date(payload.channel_object.commercial_opted_in)
+  }
+  if (payload.channel_object.commercial_opted_out) {
+    register_payload.channel.commercial_opted_out = _parse_and_format_date(payload.channel_object.commercial_opted_out)
+  }
+  if (payload.channel_object.click_tracking_opted_in) {
+    register_payload.channel.commercial_opted_in = _parse_and_format_date(
+      payload.channel_object.click_tracking_opted_in
+    )
+  }
+  if (payload.channel_object.click_tracking_opted_out) {
+    register_payload.channel.click_tracking_opted_in = _parse_and_format_date(
+      payload.channel_object.click_tracking_opted_out
+    )
+  }
+  if (payload.channel_object.open_tracking_opted_in) {
+    register_payload.channel.open_tracking_opted_in = _parse_and_format_date(
+      payload.channel_object.open_tracking_opted_in
+    )
+  }
+  if (payload.channel_object.open_tracking_opted_out) {
+    register_payload.channel.open_tracking_opted_out = _parse_and_format_date(
+      payload.channel_object.open_tracking_opted_out
+    )
+  }
+  if (payload.channel_object.transactional_opted_in) {
+    register_payload.channel.transactional_opted_in = _parse_and_format_date(
+      payload.channel_object.transactional_opted_in
+    )
+  }
+  if (payload.channel_object.transactional_opted_out) {
+    register_payload.channel.transactional_opted_out = _parse_and_format_date(
+      payload.channel_object.transactional_opted_out
+    )
+  }
+  if (payload.channel_object.suppression_state) {
+    register_payload.channel.suppression_state = payload.channel_object.suppression_state
+  }
+
+  return do_request(request, register_uri, register_payload)
+}
+
+// exported Action function
+export function associate_named_user(
+  request: RequestClient,
+  settings: Settings,
+  channel_id: string,
+  named_user_id: string
+) {
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/named_users/associate`
+
+  const associate_payload = {
+    channel_id: channel_id,
+    named_user_id: named_user_id
+  }
+
+  return do_request(request, uri, associate_payload)
+}
 
 // exported Action function
 export function setCustomEvent(request: RequestClient, settings: Settings, payload: CustomEventsPayload) {
@@ -35,6 +147,13 @@ export function setAttribute(request: RequestClient, settings: Settings, payload
     }
   }
   return do_request(request, uri, airship_payload)
+}
+
+// exported Action function
+export function getChannelId(request: RequestClient, settings: Settings, emailAddress: string) {
+  const endpoint = map_endpoint(settings.endpoint)
+  const uri = `${endpoint}/api/channels/email/${emailAddress}`
+  return request(uri, { method: 'GET' })
 }
 
 // exported Action function
@@ -74,7 +193,7 @@ function _build_custom_event_object(payload: CustomEventsPayload): object {
     }
   }
   const airship_payload = {
-    occurred: validate_timestamp(payload.occurred),
+    occurred: _validate_timestamp(payload.occurred),
     user: {
       named_user_id: payload.named_user_id
     },
@@ -107,7 +226,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   */
   let adjustedDate = null
   if (typeof attribute_value == 'string') {
-    adjustedDate = parse_date(attribute_value)
+    adjustedDate = _parse_date(attribute_value)
   }
 
   const attribute: {
@@ -118,7 +237,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   } = {
     action: 'set',
     key: attribute_key,
-    timestamp: validate_timestamp(occurred)
+    timestamp: _validate_timestamp(occurred)
   }
 
   if (attribute_value == null || (typeof attribute_value == 'string' && attribute_value.length === 0)) {
@@ -165,7 +284,7 @@ function _build_tags_object(payload: TagsPayload): object {
   return airship_payload
 }
 
-function validate_timestamp(timestamp: string | number | Date) {
+function _validate_timestamp(timestamp: string | number | Date) {
   const payload_time_stamp: Date = new Date(timestamp)
   const three_months_ago: Date = new Date()
   three_months_ago.setDate(three_months_ago.getDate() - 90)
@@ -176,7 +295,24 @@ function validate_timestamp(timestamp: string | number | Date) {
   }
 }
 
-function parse_date(attribute_value: any): Date | null {
+function _parse_and_format_date(date_string: string) {
+  /*
+  take a string, and if it can be used to create a valid Date instance,
+   format it into a date string that Airship can use. Otherwise, return
+   the original string
+   */
+  const date_obj = _parse_date(date_string)
+  if (date_obj) {
+    return date_obj.toISOString().split('.')[0]
+  } else {
+    return date_string
+  }
+}
+
+function _parse_date(attribute_value: any): Date | null {
+  /*
+  This function is for converting dates or returning null if they're not valid.
+  */
   // Attempt to parse the attribute_value as a Date
   const date = new Date(attribute_value)
 
@@ -188,11 +324,17 @@ function parse_date(attribute_value: any): Date | null {
   return null // Return null for invalid dates
 }
 
+function _extract_country_language(locale: string): string[] {
+  const country_language = locale.split('-')
+  return country_language
+}
+
 export const _private = {
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,
   _build_tags_object,
-  parse_date,
-  validate_timestamp
+  _parse_date,
+  _parse_and_format_date,
+  _validate_timestamp
 }

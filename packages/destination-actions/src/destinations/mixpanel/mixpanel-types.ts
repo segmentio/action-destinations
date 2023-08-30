@@ -48,6 +48,11 @@ export type MixpanelEventProperties = {
   utm_medium?: string // 'email'
   utm_source?: string // 'Newsletter'
   utm_term?: string // 'tps reports'
+  advertising_id?: string
+  ad_tracking_enabled?: string
+  timezone?: string
+  app_platform?: string
+  event_original_name?: string
 }
 
 export type MixpanelEvent = {
