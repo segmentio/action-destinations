@@ -143,7 +143,7 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext: StatsContext) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
@@ -203,7 +203,7 @@ export default class Salesforce {
     }
   }
 
-  private bulkUpsert = async (payloads: GenericPayload[], sobject: string, statsContext: StatsContext) => {
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -219,7 +219,7 @@ export default class Salesforce {
     return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext)
   }
 
-  private bulkUpdate = async (payloads: GenericPayload[], sobject: string, statsContext: StatsContext) => {
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',
@@ -236,7 +236,7 @@ export default class Salesforce {
     sobject: string,
     idField: string,
     operation: string,
-    statsContext: StatsContext
+    statsContext?: StatsContext
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField)
@@ -263,7 +263,7 @@ export default class Salesforce {
     sobject: string,
     externalIdFieldName: string,
     operation: string,
-    statsContext: StatsContext
+    statsContext?: StatsContext
   ) => {
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
