@@ -2,58 +2,59 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 
+declare global {
+  interface Window {
+    gtag: Function
+    dataLayer: any
+  }
+}
+
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
-  name: 'Google Campaign Manager',
+  name: 'Google Tag for Campaign Manager',
   slug: 'actions-google-campaign-manager',
   mode: 'device',
 
   settings: {
-    floodlightConfigID: {
-      description: 'This field identifies the Floodlight configuration the tag is associated with.',
-      label: 'Floodlight Config ID',
+    advertiserId: {
+      description:
+        'In Campaign Manager, go to Floodlight -> Configuration, and Advertiser ID is located under the Configuration heading.',
+      label: 'Advertiser ID',
       type: 'string',
       required: true,
       default: 'DC-'
     },
-    activityGroupTagString: {
-      description: 'This field identifies the Floodlight activity group the tag is associated with.',
-      label: 'Activity Group Tag',
-      type: 'string',
-      required: false
-    },
-    activityTagString: {
-      description: 'This identifies the Floodlight activity the tag is associated with.',
-      label: 'Activity Tag',
-      type: 'string',
-      required: false
-    },
     allowAdPersonalizationSignals: {
-      description: 'This allows you disable to the usage of the data for personalized ads.',
+      description:
+        'This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users',
       label: 'Activity Tag',
       type: 'boolean',
-      required: false,
-      default: false
+      required: true,
+      default: true
+    },
+    conversionLinker: {
+      description:
+        'This feature can be disabled if you do not want the global site tag to set first party cookies on your site domain.',
+      label: 'Activity Tag',
+      type: 'boolean',
+      required: true,
+      default: true
     }
   },
 
-  //TODO: allowCustomScripts, variables, send_to
-  // TODO: counter vs sales?
-
   initialize: async ({ settings }, deps) => {
-    const config = {
-      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals
-    }
-
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       // eslint-disable-next-line prefer-rest-params
       window.dataLayer.push(arguments)
     }
 
+    window.gtag('set', 'allow_ad_personalization_signals', settings.allowAdPersonalizationSignals)
     window.gtag('js', new Date())
-    window.gtag('config', settings.floodlightConfigID, config)
-    const script = `https://www.googletagmanager.com/gtag/js?id=${settings.floodlightConfigID}`
+    window.gtag('config', settings.advertiserId, {
+      conversion_linker: settings.conversionLinker
+    })
+    const script = `https://www.googletagmanager.com/gtag/js?id=${settings.advertiserId}`
     await deps.loadScript(script)
     return window.gtag
   },
