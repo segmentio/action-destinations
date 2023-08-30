@@ -13,8 +13,7 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, Function> = {
   name: 'Google Tag for Campaign Manager',
   slug: 'actions-google-campaign-manager',
   mode: 'device',

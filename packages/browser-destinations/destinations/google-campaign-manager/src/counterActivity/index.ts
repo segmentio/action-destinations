@@ -55,8 +55,15 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       type: 'object'
     }
   },
-  perform: (_client) => {
-    // Invoke Partner SDK here
+  perform: (gtag, { payload, settings }) => {
+    gtag('event', 'conversion', {
+      allow_custom_scripts: payload.enableDynamicTags,
+      send_to: `${settings.advertiserId}/${payload.activityGroupTagString}/${payload.activityTagString}+${payload.countingMethod}`,
+      ...(payload.sessionId !== undefined &&
+        payload.countingMethod == 'per_session' && { session_id: payload.sessionId }),
+      ...payload.uVariables,
+      ...(payload.dcCustomParams !== undefined && { dc_custom_params: { ...payload.dcCustomParams } })
+    })
   }
 }
 
