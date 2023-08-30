@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Counter Activity',
-  description: 'Counter tags are used to count the number of conversions.',
+  description: 'Record non-monetary conversion data such as unique users, conversions, and session length.',
   platform: 'web',
   fields: {
     activityGroupTagString: {
