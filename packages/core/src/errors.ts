@@ -61,7 +61,7 @@ export class RetryableError extends CustomError {
  * This could happen when a token or API key has expired or been revoked,
  * or various other scenarios where the authentication credentials are no longer valid.
  *
- * This error signals to Segment that the user must manually fix their credentials for events to succeed.
+ * This error signals to Segment that the user must manually fix their credentials for events to succeed
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
