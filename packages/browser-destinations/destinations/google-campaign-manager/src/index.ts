@@ -2,6 +2,10 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 
+import counterActivity from './counterActivity'
+
+import salesActivity from './salesActivity'
+
 declare global {
   interface Window {
     gtag: Function
@@ -59,7 +63,10 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     return window.gtag
   },
 
-  actions: {}
+  actions: {
+    counterActivity,
+    salesActivity
+  }
 }
 
 export default browserDestination(destination)
