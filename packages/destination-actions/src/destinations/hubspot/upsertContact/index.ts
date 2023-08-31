@@ -373,36 +373,39 @@ function updateActionsForBatchedContacts(
   readResponse: BatchContactResponse,
   contactsUpsertMap: Record<string, ContactsUpsertMapItem>
 ) {
+  console.log(readResponse)
+  // Throw any other error responses
+  throw new IntegrationError('test Error', 'TEST_ERROR', 400)
   // Case 1: Loop over results if there are any
-  if (readResponse.data?.results && readResponse.data.results.length > 0) {
-    for (const result of readResponse.data.results) {
-      // Set the action to update for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].action = 'update'
+  // if (readResponse.data?.results && readResponse.data.results.length > 0) {
+  //   for (const result of readResponse.data.results) {
+  //     // Set the action to update for contacts that exist in HubSpot
+  //     contactsUpsertMap[result.properties.email].action = 'update'
 
-      // Set the id for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].payload.id = result.id
+  //     // Set the id for contacts that exist in HubSpot
+  //     contactsUpsertMap[result.properties.email].payload.id = result.id
 
-      // Re-index the payload with ID
-      contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
-      delete contactsUpsertMap[result.properties.email]
-    }
-  }
+  //     // Re-index the payload with ID
+  //     contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
+  //     delete contactsUpsertMap[result.properties.email]
+  //   }
+  // }
 
-  // Case 2: Loop over errors if there are any
-  if (readResponse.data?.numErrors && readResponse.data.errors) {
-    for (const error of readResponse.data.errors) {
-      if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
-        // Set the action to create for contacts that don't exist in HubSpot
-        for (const id of error.context.ids) {
-          //Set Action to create
-          contactsUpsertMap[id].action = 'create'
-        }
-      } else {
-        // Throw any other error responses
-        throw new IntegrationError(error.message, error.category, 400)
-      }
-    }
-  }
+  // // Case 2: Loop over errors if there are any
+  // if (readResponse.data?.numErrors && readResponse.data.errors) {
+  //   for (const error of readResponse.data.errors) {
+  //     if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
+  //       // Set the action to create for contacts that don't exist in HubSpot
+  //       for (const id of error.context.ids) {
+  //         //Set Action to create
+  //         contactsUpsertMap[id].action = 'create'
+  //       }
+  //     } else {
+  //       // Throw any other error responses
+  //       throw new IntegrationError(error.message, error.category, 400)
+  //     }
+  //   }
+  // }
   return contactsUpsertMap
 }
 async function checkAndRetryUpdatingLifecycleStage(
