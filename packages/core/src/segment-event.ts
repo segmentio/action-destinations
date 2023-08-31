@@ -123,6 +123,10 @@ export interface SegmentEvent {
     [k: string]: JSONValue
   }
 
+  subscriptions?: object & {
+    [k: string]: JSONValue
+  }
+
   integrations?: Integrations
   context?: AnalyticsContext
   options?: Options
