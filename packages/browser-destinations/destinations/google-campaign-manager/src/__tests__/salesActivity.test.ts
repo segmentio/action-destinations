@@ -29,7 +29,15 @@ const subscriptions: Subscription[] = [
       transactionId: {
         '@path': '$.properties.transactionId'
       },
-      quantity: 1
+      quantity: 1,
+      uVariables: {
+        u1: 'custom variable 1',
+        u2: 'custom variable 2'
+      },
+      dcCustomParams: {
+        dc_lat: 0,
+        tag_for_child_directed_treatment: 1
+      }
     }
   }
 ]
@@ -90,7 +98,10 @@ describe('GoogleCampaignManager.salesActivity', () => {
         send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`,
         quantity: 1,
         value: 10,
-        transaction_id: transactionId
+        transaction_id: transactionId,
+        u1: 'custom variable 1',
+        u2: 'custom variable 2',
+        dc_custom_params: { dc_lat: 0, tag_for_child_directed_treatment: 1 }
       })
     )
   })

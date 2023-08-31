@@ -29,8 +29,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     },
     allowAdPersonalizationSignals: {
       description:
-        'This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users',
-      label: 'Activity Tag',
+        'This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users.',
+      label: 'Allow Ad Personalization Signals',
       type: 'boolean',
       required: true,
       default: true
@@ -38,7 +38,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     conversionLinker: {
       description:
         'This feature can be disabled if you do not want the global site tag to set first party cookies on your site domain.',
-      label: 'Activity Tag',
+      label: 'Conversion Linker',
       type: 'boolean',
       required: true,
       default: true

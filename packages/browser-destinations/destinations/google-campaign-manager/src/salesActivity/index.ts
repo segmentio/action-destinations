@@ -31,7 +31,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Counting Method',
       type: 'string',
       description: 'Specifies how conversions will be counted for this Floodlight activity.',
-      choices: ['transactions', 'items_sold'],
+      choices: [
+        { value: 'transactions', label: 'transactions' },
+        { value: 'items_sold', label: 'items_sold' }
+      ],
       required: true
     },
     transactionId: {
@@ -66,17 +69,19 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'U Variables',
       description:
         'Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.',
-      type: 'object'
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only'
     },
     dcCustomParams: {
       label: 'Custom Parameters',
       description:
         'You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.',
-      type: 'object'
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: (gtag, { payload, settings }) => {
-    gtag('event', 'purchase', {
+    const requestBody = {
       allow_custom_scripts: payload.enableDynamicTags,
       send_to: `${settings.advertiserId}/${payload.activityGroupTagString}/${payload.activityTagString}+${payload.countingMethod}`,
       value: payload.value,
@@ -84,7 +89,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       quantity: payload.quantity,
       ...payload.uVariables,
       ...(payload.dcCustomParams !== undefined && { dc_custom_params: { ...payload.dcCustomParams } })
-    })
+    }
+    gtag('event', 'purchase', requestBody)
   }
 }
 

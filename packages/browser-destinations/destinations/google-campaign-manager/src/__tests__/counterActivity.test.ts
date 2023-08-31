@@ -22,6 +22,17 @@ const subscriptions: Subscription[] = [
       },
       enableDynamicTags: {
         '@path': '$.properties.enableDynamicTags'
+      },
+      sessionId: {
+        '@path': '$.properties.sessionId'
+      },
+      uVariables: {
+        u1: 'custom variable 1',
+        u2: 'custom variable 2'
+      },
+      dcCustomParams: {
+        dc_lat: 0,
+        tag_for_child_directed_treatment: 1
       }
     }
   }
@@ -77,7 +88,44 @@ describe('GoogleCampaignManager.counterActivity', () => {
       expect.stringContaining('conversion'),
       expect.objectContaining({
         allow_custom_scripts: enableDynamicTags,
-        send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`
+        send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`,
+        u1: 'custom variable 1',
+        u2: 'custom variable 2',
+        dc_custom_params: { dc_lat: 0, tag_for_child_directed_treatment: 1 }
+      })
+    )
+  })
+
+  test('track event (per session)', async () => {
+    const activityGroupTagString = 'group'
+    const activityTagString = 'activity'
+    const countingMethod = 'per_session'
+    const enableDynamicTags = false
+    const sessionId = 'my_session'
+
+    const context = new Context({
+      event: 'Counter Activity',
+      type: 'track',
+      properties: {
+        activityGroupTagString,
+        activityTagString,
+        countingMethod,
+        enableDynamicTags,
+        sessionId
+      }
+    })
+    await counterActivityEvent.track?.(context)
+
+    expect(mockGTAG.gtag).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('conversion'),
+      expect.objectContaining({
+        allow_custom_scripts: enableDynamicTags,
+        send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`,
+        session_id: sessionId,
+        u1: 'custom variable 1',
+        u2: 'custom variable 2',
+        dc_custom_params: { dc_lat: 0, tag_for_child_directed_treatment: 1 }
       })
     )
   })

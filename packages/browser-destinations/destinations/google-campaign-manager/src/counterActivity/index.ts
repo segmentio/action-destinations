@@ -33,7 +33,11 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Counting Method',
       type: 'string',
       description: 'Specifies how conversions will be counted for this Floodlight activity.',
-      choices: ['standard', 'unique', 'per_session'],
+      choices: [
+        { value: 'standard', label: 'standard' },
+        { value: 'unique', label: 'unique' },
+        { value: 'per_session', label: 'per_session' }
+      ],
       required: true
     },
     sessionId: {
@@ -46,24 +50,27 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'U Variables',
       description:
         'Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.',
-      type: 'object'
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only'
     },
     dcCustomParams: {
       label: 'Custom Parameters',
       description:
         'You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.',
-      type: 'object'
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: (gtag, { payload, settings }) => {
-    gtag('event', 'conversion', {
+    const requestBody = {
       allow_custom_scripts: payload.enableDynamicTags,
       send_to: `${settings.advertiserId}/${payload.activityGroupTagString}/${payload.activityTagString}+${payload.countingMethod}`,
       ...(payload.sessionId !== undefined &&
         payload.countingMethod == 'per_session' && { session_id: payload.sessionId }),
       ...payload.uVariables,
       ...(payload.dcCustomParams !== undefined && { dc_custom_params: { ...payload.dcCustomParams } })
-    })
+    }
+    gtag('event', 'conversion', requestBody)
   }
 }
 
