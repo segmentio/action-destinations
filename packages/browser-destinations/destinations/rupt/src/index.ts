@@ -41,8 +41,7 @@ export const destination: BrowserDestinationDefinition<Settings, Rupt> = {
       required: true
     },
     logout_url: {
-      description:
-        'A URL to redirect the user to if they choose to logout or if they are kicked out by a verified owner.',
+      description: 'A URL to redirect the user to if they choose to logout or if they are removed by a verified owner.',
       label: 'Logout URL',
       type: 'string',
       required: false

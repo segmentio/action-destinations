@@ -25,9 +25,9 @@ const attach: BrowserActionDefinition<Settings, Rupt, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.email' }
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
         }
       }
     },
@@ -38,8 +38,8 @@ const attach: BrowserActionDefinition<Settings, Rupt, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.phone' },
-          then: { '@path': '$.traits.phone' },
+          exists: { '@path': '$.context.traits.phone' },
+          then: { '@path': '$.context.traits.phone' },
           else: { '@path': '$.properties.phone' }
         }
       }
@@ -59,8 +59,6 @@ const attach: BrowserActionDefinition<Settings, Rupt, Payload> = {
     }
   },
   perform(rupt, data) {
-    console.log('attach', data)
-
     rupt.attach({
       client_id: data.settings.client_id,
       account: data.payload.account,
