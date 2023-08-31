@@ -1,1 +1,0 @@
-describe('Google Campaign Manager', () => {})
