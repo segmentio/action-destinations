@@ -32,8 +32,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       type: 'string',
       description: 'Specifies how conversions will be counted for this Floodlight activity.',
       choices: [
-        { value: 'transactions', label: 'transactions' },
-        { value: 'items_sold', label: 'items_sold' }
+        { value: 'transactions', label: 'Transactions' },
+        { value: 'items_sold', label: 'Items Sold' }
       ],
       required: true
     },

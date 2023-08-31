@@ -34,9 +34,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       type: 'string',
       description: 'Specifies how conversions will be counted for this Floodlight activity.',
       choices: [
-        { value: 'standard', label: 'standard' },
-        { value: 'unique', label: 'unique' },
-        { value: 'per_session', label: 'per_session' }
+        { value: 'standard', label: 'Standard' },
+        { value: 'unique', label: 'Unique' },
+        { value: 'per_session', label: 'Per Session' }
       ],
       required: true
     },
