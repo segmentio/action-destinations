@@ -107,9 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const result = await request<ProjectConfig>(settings.dataFileUrl, {
-      skipResponseCloning: true
-    })
+    const result = await request<ProjectConfig>(settings.dataFileUrl)
     if (!isValidJson(result.content)) {
       throw new IntegrationError(result.content, 'PROJECT_DEACTIVATED', 400)
     }
