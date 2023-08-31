@@ -6,8 +6,8 @@ import { GTAG } from '../types'
 // TODO: Update to reflect code default paths
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'counterActivity',
-    name: 'Counter Activity',
+    partnerAction: 'salesActivity',
+    name: 'Sales Activity',
     enabled: true,
     subscribe: 'type = "track"',
     mapping: {
@@ -22,12 +22,19 @@ const subscriptions: Subscription[] = [
       },
       enableDynamicTags: {
         '@path': '$.properties.enableDynamicTags'
-      }
+      },
+      value: {
+        '@path': '$.properties.value'
+      },
+      transactionId: {
+        '@path': '$.properties.transactionId'
+      },
+      quantity: 1
     }
   }
 ]
 
-describe('GoogleCampaignManager.counterActivity', () => {
+describe('GoogleCampaignManager.salesActivity', () => {
   const settings = {
     advertiserId: 'test123',
     allowAdPersonalizationSignals: false,
@@ -35,7 +42,7 @@ describe('GoogleCampaignManager.counterActivity', () => {
   }
 
   let mockGTAG: GTAG
-  let counterActivityEvent: any
+  let salesActivityEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
@@ -43,7 +50,7 @@ describe('GoogleCampaignManager.counterActivity', () => {
       ...settings,
       subscriptions
     })
-    counterActivityEvent = trackEventPlugin
+    salesActivityEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockGTAG = {
@@ -57,27 +64,33 @@ describe('GoogleCampaignManager.counterActivity', () => {
   test('track event', async () => {
     const activityGroupTagString = 'group'
     const activityTagString = 'activity'
-    const countingMethod = 'standard'
+    const countingMethod = 'transactions'
     const enableDynamicTags = false
+    const transactionId = 'my-transaction'
 
     const context = new Context({
-      event: 'Counter Activity',
+      event: 'Sales Activity',
       type: 'track',
       properties: {
         activityGroupTagString,
         activityTagString,
         countingMethod,
-        enableDynamicTags
+        enableDynamicTags,
+        value: 10,
+        transactionId
       }
     })
-    await counterActivityEvent.track?.(context)
+    await salesActivityEvent.track?.(context)
 
     expect(mockGTAG.gtag).toHaveBeenCalledWith(
       expect.anything(),
-      expect.stringContaining('conversion'),
+      expect.stringContaining('purchase'),
       expect.objectContaining({
         allow_custom_scripts: enableDynamicTags,
-        send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`
+        send_to: `${settings.advertiserId}/${activityGroupTagString}/${activityTagString}+${countingMethod}`,
+        quantity: 1,
+        value: 10,
+        transaction_id: transactionId
       })
     )
   })
