@@ -33,12 +33,20 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.type'
       }
+    },
+    userId: {
+      label: 'User ID',
+      type: 'string',
+      description: 'The unique identifier of the user.',
+      default: {
+        '@path': '$.userId'
+      }
     }
   },
   perform: (request, { payload }) => {
-    const { groupId, type, traits } = payload
+    const { groupId, type, traits, userId } = payload
 
-    const body = JSON.stringify({ groupId, traits, type })
+    const body = JSON.stringify({ groupId, traits, type, userId })
     return request(`${BASE_API_URL}/group`, {
       method: 'post',
       body

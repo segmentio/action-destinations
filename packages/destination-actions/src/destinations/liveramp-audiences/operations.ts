@@ -23,7 +23,6 @@ function generateFile(payloads: Payload[]) {
 
   let rows = Buffer.from(headers.join(payloads[0].delimiter) + '\n')
 
-  const hashOrCache = createHashOrCache()
   // Prepare data rows
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
@@ -39,7 +38,7 @@ function generateFile(payloads: Payload[]) {
     if (payload.unhashed_identifier_data) {
       for (const key in payload.unhashed_identifier_data) {
         if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
-          row.push(`"${hashOrCache(String(payload.unhashed_identifier_data[key]))}"`)
+          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
         }
       }
     }
@@ -60,19 +59,6 @@ function generateFile(payloads: Payload[]) {
 */
 function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
-}
-
-// createHashOrCache will cache the unhashed_identifier_data
-// to reduce CPU time spent generating sha256
-function createHashOrCache() {
-  const cache = new Map<string, string>()
-  return function hashOrCache(value: string): string {
-    if (!cache.has(value)) {
-      cache.set(value, hash(value))
-    }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return cache.get(value)!
-  }
 }
 
 const hash = (value: string): string => {

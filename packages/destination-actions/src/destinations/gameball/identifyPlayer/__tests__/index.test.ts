@@ -31,10 +31,14 @@ describe('actions-gameball.identifyPlayer', () => {
         mobile: '+20100000000',
         displayName: 'Jon Snow',
         gender: 'M',
-        dateOfBirth: '1990-09-20',
+        birthday: '1990-09-20',
         joinDate: '2022-09-20',
-        zip: '12345',
-        guest: false,
+        address: {
+          country: 'Egypt',
+          city: 'Cairo',
+          postalCode: '12345'
+        },
+        is_guest: false,
         totalSpent: 1000,
         lastOrderDate: '2023-06-20',
         totalOrders: 100,

@@ -13,6 +13,7 @@ Object {
         },
         "email": "opemal@ner.kr",
         "eventName": "sZcTM%n(kDC3tsz4iK5h",
+        "event_source": "segment",
         "messageId": "sZcTM%n(kDC3tsz4iK5h",
         "properties": Object {
           "testType": "sZcTM%n(kDC3tsz4iK5h",
@@ -33,6 +34,7 @@ Object {
       "name": "sZcTM%n(kDC3tsz4iK5h",
       "payload": Object {
         "eventName": "sZcTM%n(kDC3tsz4iK5h",
+        "event_source": "segment",
         "timestamp": "2021-02-01T00:00:00.000Z",
       },
     },

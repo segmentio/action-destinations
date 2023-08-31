@@ -3,6 +3,7 @@ import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 
 export const API_VERSION = 'v53.0'
 
@@ -142,15 +143,15 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, statsContext)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, statsContext)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -202,7 +203,7 @@ export default class Salesforce {
     }
   }
 
-  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -215,10 +216,10 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext)
   }
 
-  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',
@@ -227,18 +228,19 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', statsContext)
   }
 
   private async handleBulkJob(
     payloads: GenericPayload[],
     sobject: string,
     idField: string,
-    operation: string
+    operation: string,
+    statsContext?: StatsContext
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField)
-    const jobId = await this.createBulkJob(sobject, idField, operation)
+    const jobId = await this.createBulkJob(sobject, idField, operation, statsContext)
     try {
       await this.uploadBulkCSV(jobId, csv)
     } catch (err) {
@@ -247,15 +249,22 @@ export default class Salesforce {
       //
       // run in background to ensure this service has time to respond
       // with useful information before the connection closes.
+      statsContext?.statsClient.incr('sf_bulk_job_closed_timedout', 1, statsContext.tags)
       this.closeBulkJob(jobId).catch((_) => {
         // ignore close error to avoid masking the root error
       })
       throw err
     }
+    statsContext?.statsClient.incr('sf_bulk_job_closed_successfully', 1, statsContext.tags)
     return await this.closeBulkJob(jobId)
   }
 
-  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+  private createBulkJob = async (
+    sobject: string,
+    externalIdFieldName: string,
+    operation: string,
+    statsContext?: StatsContext
+  ) => {
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
@@ -273,6 +282,7 @@ export default class Salesforce {
       throw new IntegrationError('Failed to create bulk job', 'Failed to create bulk job', 500)
     }
 
+    statsContext?.statsClient.incr('sf_bulk_job_created', 1, statsContext.tags)
     return res.data.id
   }
 

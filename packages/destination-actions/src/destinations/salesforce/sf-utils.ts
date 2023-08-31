@@ -112,17 +112,13 @@ const buildCSVFromHeaderMap = (
 
   for (let i = 0; i < n; i++) {
     let row = ''
-    for (const [key, _] of headerMap.entries()) {
+    for (const column of headerMap.values()) {
       let noValueFound = true
-      if (headerMap.has(key)) {
-        const column = headerMap.get(key) as [[CSVData, number]]
-
-        if (column !== undefined && column.length > 0 && column[column.length - 1][1] === i) {
-          const valueTuple = column.pop()
-          if (valueTuple !== undefined && valueTuple[0] !== undefined && valueTuple[0] !== null) {
-            row += `"${escapeDoubleQuotes(valueTuple[0])}",`
-            noValueFound = false
-          }
+      if (column != null && column.length > 0 && column[column.length - 1][1] === i) {
+        const valueTuple = column.pop()
+        if (valueTuple != null && valueTuple[0] != null) {
+          row += `"${escapeDoubleQuotes(valueTuple[0])}",`
+          noValueFound = false
         }
       }
 

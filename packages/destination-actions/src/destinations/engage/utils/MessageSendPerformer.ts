@@ -139,16 +139,10 @@ export abstract class MessageSendPerformer<
     if (subVal == undefined) {
       return 'unknown'
     }
-    if (subVal == 'true') {
-      return 'subscribed'
-    }
-    if (subVal == 'false') {
-      return 'unsubscribed'
-    }
     if (subVal == '') {
       return 'did_not_subscribe'
     }
-    return 'unknown'
+    return subVal
   }
   /**
    * Gets all sendable recepients for the current payload or a reason why it is not sendable

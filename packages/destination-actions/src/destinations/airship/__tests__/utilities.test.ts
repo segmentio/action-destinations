@@ -107,17 +107,29 @@ describe('Testing _build_tags_object', () => {
   })
 })
 
-describe('Testing validate_timestamp', () => {
+describe('Testing _validate_timestamp', () => {
   it('should correctly format a timestamo', () => {
-    expect(_private.validate_timestamp(valid_custom_event_payload.occurred)).toEqual(
+    expect(_private._validate_timestamp(valid_custom_event_payload.occurred)).toEqual(
       occurred.toISOString().split('.')[0]
     )
   })
 })
 
-describe('Testing parse_date', () => {
+describe('Testing _parse_date', () => {
   it('should parse a date into a date object', () => {
-    expect(_private.parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
+    expect(_private._parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
+  })
+})
+
+describe('Testing _parse_and_format_date', () => {
+  it('should modify a valid date string', () => {
+    expect(_private._parse_and_format_date('2023-05-09T00:47:43.378Z')).toEqual('2023-05-09T00:47:43')
+  })
+})
+
+describe('Testing _parse_and_format_date', () => {
+  it('should return the original string', () => {
+    expect(_private._parse_and_format_date('foo')).toEqual('foo')
   })
 })
 

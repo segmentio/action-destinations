@@ -90,6 +90,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceName = createAudienceInput.audienceName
       const idType = createAudienceInput.audienceSettings?.idType
       const advertiserId = createAudienceInput.audienceSettings?.advertiserId
+      const statsClient = createAudienceInput?.statsContext?.statsClient
+      const statsTags = createAudienceInput?.statsContext?.tags
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -111,21 +113,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const r = await response.json()
       if (r['message'] !== 'OK') {
-        // TODO: Add statsClient calls
-        // statsContext?.statsClient.incr('actions-tiktok-audiences.createAudience.native', 1, statsContext?.tags)
+        statsClient?.incr('actions-tiktok-audiences.createAudience.error', 1, statsTags)
         throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
       }
 
+      statsClient?.incr('actions-tiktok-audiences.createAudience.success', 1, statsTags)
       return {
         externalId: r.data['audience_id']
       }
     },
     async getAudience(request, getAudienceInput) {
-      // TODO: Add statsClient calls
-      // statsContext?.statsClient.incr('actions-tiktok-audiences.getAudience.native', 1, statsContext?.tags)
       const url = new URL(GET_AUDIENCE_URL)
       const audienceIds = [getAudienceInput.externalId]
       const advertiserId = getAudienceInput.audienceSettings?.advertiserId
+      const statsClient = getAudienceInput?.statsContext?.statsClient
+      const statsTags = getAudienceInput?.statsContext?.tags
 
       if (!advertiserId) {
         throw new IntegrationError(
@@ -148,6 +150,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const r = await response.json()
       if (r['message'] !== 'OK') {
+        statsClient?.incr('actions-tiktok-audiences.getAudience.error', 1, statsTags)
         throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
       }
 
@@ -161,6 +164,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         )
       }
 
+      statsClient?.incr('actions-tiktok-audiences.getAudience.success', 1, statsTags)
       return {
         externalId: externalId
       }
