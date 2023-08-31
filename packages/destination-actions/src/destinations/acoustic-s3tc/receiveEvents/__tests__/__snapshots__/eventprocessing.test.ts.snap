@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`addUpdateEvents addUpdateEvents should return expected output 1`] = `
+"EMAIL, EventSource, EventName, EventValue, Event Timestamp
+acmeTest@gmail.com, undefined Event, email, acmeTest@gmail.com, undefined
+acmeTest@gmail.com, undefined Event, action_source, system_generated, undefined
+acmeTest@gmail.com, undefined Event, cart_id, fff7b1597270349875cffad3852067ab, undefined
+acmeTest@gmail.com, undefined Event, category, Shopify (Littledata), undefined
+acmeTest@gmail.com, undefined Event, checkout_id, 26976972210285, undefined
+acmeTest@gmail.com, undefined Event, coupon, HONEY15, undefined
+acmeTest@gmail.com, undefined Event, currency, USD, undefined
+acmeTest@gmail.com, undefined Event, discount, 4.79, undefined
+acmeTest@gmail.com, undefined Event, presentment_amount, 31.98, undefined
+acmeTest@gmail.com, undefined Event, presentment_currency, USD, undefined
+acmeTest@gmail.com, undefined Event, price, 31.98, undefined
+acmeTest@gmail.com, undefined Event, products.0.brand, acme, undefined
+acmeTest@gmail.com, undefined Event, products.0.category, Fragrance, undefined
+acmeTest@gmail.com, undefined Event, products.0.image_url, https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142, undefined
+acmeTest@gmail.com, undefined Event, products.0.name, Simply Lavender, undefined
+acmeTest@gmail.com, undefined Event, products.0.presentment_amount, 12.99, undefined
+acmeTest@gmail.com, undefined Event, products.0.presentment_currency, USD, undefined
+acmeTest@gmail.com, undefined Event, products.0.price, 12.99, undefined
+acmeTest@gmail.com, undefined Event, products.0.product_id, 1542783500397, undefined
+acmeTest@gmail.com, undefined Event, products.0.quantity, 1, undefined
+acmeTest@gmail.com, undefined Event, products.0.shopify_product_id, 1542783500397, undefined
+acmeTest@gmail.com, undefined Event, products.0.shopify_variant_id, 14369408221293, undefined
+acmeTest@gmail.com, undefined Event, products.0.sku, NGL, undefined
+acmeTest@gmail.com, undefined Event, products.0.url, https://acme-scents.myshopify.com/products/simply-lavender, undefined
+acmeTest@gmail.com, undefined Event, products.0.variant, Simply Lavender, undefined
+acmeTest@gmail.com, undefined Event, products.1.brand, NEST New York, undefined
+acmeTest@gmail.com, undefined Event, products.1.category, Fragrance, undefined
+acmeTest@gmail.com, undefined Event, products.1.image_url, https://cdn.shopify.com/s/files/1/0023/0021/5405/products/Grapefruit_Prod_1.jpg?v=1649344617, undefined
+acmeTest@gmail.com, undefined Event, products.1.name, Grapefruit, undefined
+acmeTest@gmail.com, undefined Event, products.1.presentment_amount, 18.99, undefined
+acmeTest@gmail.com, undefined Event, products.1.presentment_currency, USD, undefined
+acmeTest@gmail.com, undefined Event, products.1.price, 18.99, undefined
+acmeTest@gmail.com, undefined Event, products.1.product_id, 3979374755949, undefined
+acmeTest@gmail.com, undefined Event, products.1.quantity, 1, undefined
+acmeTest@gmail.com, undefined Event, products.1.shopify_product_id, 3979374755949, undefined
+acmeTest@gmail.com, undefined Event, products.1.shopify_variant_id, 29660017000557, undefined
+acmeTest@gmail.com, undefined Event, products.1.sku, MXV, undefined
+acmeTest@gmail.com, undefined Event, products.1.url, https://acme-scents.myshopify.com/products/grapefruit, undefined
+acmeTest@gmail.com, undefined Event, products.1.variant, Grapefruit, undefined
+acmeTest@gmail.com, undefined Event, sent_from, Littledata app, undefined
+acmeTest@gmail.com, undefined Event, shipping_method, Standard Shipping (5-7 days), undefined
+acmeTest@gmail.com, undefined Event, source_name, web, undefined
+acmeTest@gmail.com, undefined Event, step, 2, undefined
+acmeTest@gmail.com, undefined Event, integration.name, shopify_littledata, undefined
+acmeTest@gmail.com, undefined Event, integration.version, 9.1, undefined
+acmeTest@gmail.com, undefined Event, library.name, analytics-node, undefined
+acmeTest@gmail.com, undefined Event, library.version, 3.5.0, undefined
+acmeTest@gmail.com, undefined Event, traits.address.city, greenville, undefined
+acmeTest@gmail.com, undefined Event, traits.address.country, us, undefined
+acmeTest@gmail.com, undefined Event, traits.address.postalCode, 29609, undefined
+acmeTest@gmail.com, undefined Event, traits.address.state, sc, undefined
+acmeTest@gmail.com, undefined Event, traits.email, acmeTest@gmail.com, undefined
+acmeTest@gmail.com, undefined Event, traits.firstName, james, undefined
+acmeTest@gmail.com, undefined Event, traits.lastName, acmeTest, undefined
+"
+`;
+
+exports[`addUpdateEvents adds update events to CSV rows 1`] = `
+"EMAIL, EventSource, EventName, EventValue, Event Timestamp
+example@example.com, undefined Event, key1, value1, undefined
+"
+`;
+
+exports[`parseSections parseSections should match correct outcome 1`] = `
+Object {
+  "action_source": "system_generated",
+  "cart_id": "fff7b1597270349875cffad3852067ab",
+  "category": "Shopify (Littledata)",
+  "checkout_id": 26976972210285,
+  "coupon": "HONEY15",
+  "currency": "USD",
+  "discount": 4.79,
+  "email": "acmeTest@gmail.com",
+  "presentment_amount": "31.98",
+  "presentment_currency": "USD",
+  "price": 31.98,
+  "products.0.brand": "acme",
+  "products.0.category": "Fragrance",
+  "products.0.image_url": "https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142",
+  "products.0.name": "Simply Lavender",
+  "products.0.presentment_amount": "12.99",
+  "products.0.presentment_currency": "USD",
+  "products.0.price": 12.99,
+  "products.0.product_id": "1542783500397",
+  "products.0.quantity": 1,
+  "products.0.shopify_product_id": "1542783500397",
+  "products.0.shopify_variant_id": "14369408221293",
+  "products.0.sku": "NGL",
+  "products.0.url": "https://acme-scents.myshopify.com/products/simply-lavender",
+  "products.0.variant": "Simply Lavender",
+  "products.1.brand": "NEST New York",
+  "products.1.category": "Fragrance",
+  "products.1.image_url": "https://cdn.shopify.com/s/files/1/0023/0021/5405/products/Grapefruit_Prod_1.jpg?v=1649344617",
+  "products.1.name": "Grapefruit",
+  "products.1.presentment_amount": "18.99",
+  "products.1.presentment_currency": "USD",
+  "products.1.price": 18.99,
+  "products.1.product_id": "3979374755949",
+  "products.1.quantity": 1,
+  "products.1.shopify_product_id": "3979374755949",
+  "products.1.shopify_variant_id": "29660017000557",
+  "products.1.sku": "MXV",
+  "products.1.url": "https://acme-scents.myshopify.com/products/grapefruit",
+  "products.1.variant": "Grapefruit",
+  "sent_from": "Littledata app",
+  "shipping_method": "Standard Shipping (5-7 days)",
+  "source_name": "web",
+  "step": 2,
+}
+`;
