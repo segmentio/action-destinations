@@ -6,7 +6,7 @@ export interface Settings {
    */
   advertiserId: string
   /**
-   * This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users
+   * This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users.
    */
   allowAdPersonalizationSignals: boolean
   /**
