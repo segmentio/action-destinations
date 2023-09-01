@@ -14,7 +14,7 @@ export interface Payload {
    */
   sftp_folder_path?: string
   /**
-   * Identifies the user within the entered audience.
+   * Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.
    */
   audience_key: string
   /**
