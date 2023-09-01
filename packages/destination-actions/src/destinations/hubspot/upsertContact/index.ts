@@ -51,6 +51,9 @@ export interface ContactBatchResponse {
   numErrors?: number
   errors?: ContactErrorResponse[]
 }
+export interface BatchContactResponse {
+  data: ContactBatchResponse
+}
 
 interface ContactsUpsertMapItem {
   action: 'create' | 'update' | 'undefined'
@@ -248,68 +251,11 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload }) => {
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
-    const contactsUpsertMap: Record<string, ContactsUpsertMapItem> = {}
-
-    for (const contact of payload) {
-      contactsUpsertMap[contact.email.toLowerCase()] = {
-        // Setting initial state to undefined as we don't know if the contact exists in HubSpot
-        action: 'undefined',
-
-        payload: {
-          // Skip setting the id as we don't know if the contact exists in HubSpot
-          properties: {
-            company: contact.company,
-            firstname: contact.firstname,
-            lastname: contact.lastname,
-            phone: contact.phone,
-            address: contact.address,
-            city: contact.city,
-            state: contact.state,
-            country: contact.country,
-            zip: contact.zip,
-            email: contact.email.toLowerCase(),
-            website: contact.website,
-            lifecyclestage: contact.lifecyclestage?.toLowerCase(),
-            ...flattenObject(contact.properties)
-          }
-        }
-      }
-    }
+    let contactsUpsertMap = mapUpsertContactPayload(payload)
 
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
-    console.log('PERFORM BATCH ===>', JSON.stringify(readResponse), JSON.stringify(payload))
-
-    // Case 1: Loop over results if there are any
-    if (readResponse.data?.results && readResponse.data.results.length > 0) {
-      for (const result of readResponse.data.results) {
-        // Set the action to update for contacts that exist in HubSpot
-        contactsUpsertMap[result.properties.email].action = 'update'
-
-        // Set the id for contacts that exist in HubSpot
-        contactsUpsertMap[result.properties.email].payload.id = result.id
-
-        // Re-index the payload with ID
-        contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
-        delete contactsUpsertMap[result.properties.email]
-      }
-    }
-
-    // Case 2: Loop over errors if there are any
-    if (readResponse.data?.numErrors && readResponse.data.errors) {
-      for (const error of readResponse.data.errors) {
-        if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
-          // Set the action to create for contacts that don't exist in HubSpot
-          for (const id of error.context.ids) {
-            //Set Action to create
-            contactsUpsertMap[id].action = 'create'
-          }
-        } else {
-          // Throw any other error responses
-          throw new IntegrationError(error.message, error.category, 400)
-        }
-      }
-    }
+    contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
 
     // Divide Contacts into two maps - one for insert and one for update
     const createList: ContactCreateRequestPayload[] = []
@@ -334,40 +280,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (updateList.length > 0) {
       // Update contacts that already exist in HubSpot
       const updateContactResponse = await updateContactsBatch(request, updateList)
-
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      const resetLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
-      const retryLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
-
-      for (const result of updateContactResponse.data.results) {
-        const desiredLifeCycleStage = contactsUpsertMap[result.id].payload.properties.lifecyclestage
-        const currentLifeCycleStage = result.properties.lifecyclestage
-
-        if (desiredLifeCycleStage && desiredLifeCycleStage !== currentLifeCycleStage) {
-          resetLifeCycleStagePayload.push({
-            id: result.id,
-            properties: {
-              lifecyclestage: ''
-            }
-          })
-
-          retryLifeCycleStagePayload.push({
-            id: result.id,
-            properties: {
-              lifecyclestage: desiredLifeCycleStage
-            }
-          })
-        }
-      }
-
-      // Retry Life Cycle Stage Updates
-      if (retryLifeCycleStagePayload.length > 0) {
-        // Reset Life Cycle Stage
-        await updateContactsBatch(request, resetLifeCycleStagePayload)
-
-        // Set the new Life Cycle Stage
-        await updateContactsBatch(request, retryLifeCycleStagePayload)
-      }
+      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
     }
   }
 }
@@ -423,4 +337,112 @@ async function updateContactsBatch(request: RequestClient, contactUpdatePayload:
   })
 }
 
+function mapUpsertContactPayload(payload: Payload[]) {
+  // Create a map of email & id to contact upsert payloads
+  // Record<Email and ID, ContactsUpsertMapItem>
+  const contactsUpsertMap: Record<string, ContactsUpsertMapItem> = {}
+  for (const contact of payload) {
+    contactsUpsertMap[contact.email.toLowerCase()] = {
+      // Setting initial state to undefined as we don't know if the contact exists in HubSpot
+      action: 'undefined',
+
+      payload: {
+        // Skip setting the id as we don't know if the contact exists in HubSpot
+        properties: {
+          company: contact.company,
+          firstname: contact.firstname,
+          lastname: contact.lastname,
+          phone: contact.phone,
+          address: contact.address,
+          city: contact.city,
+          state: contact.state,
+          country: contact.country,
+          zip: contact.zip,
+          email: contact.email.toLowerCase(),
+          website: contact.website,
+          lifecyclestage: contact.lifecyclestage?.toLowerCase(),
+          ...flattenObject(contact.properties)
+        }
+      }
+    }
+  }
+
+  return contactsUpsertMap
+}
+
+function updateActionsForBatchedContacts(
+  readResponse: BatchContactResponse,
+  contactsUpsertMap: Record<string, ContactsUpsertMapItem>
+) {
+  // Throw any other error responses
+  // Case 1: Loop over results if there are any
+  if (readResponse.data?.results && readResponse.data.results.length > 0) {
+    for (const result of readResponse.data.results) {
+      // Set the action to update for contacts that exist in HubSpot
+      contactsUpsertMap[result.properties.email].action = 'update'
+
+      // Set the id for contacts that exist in HubSpot
+      contactsUpsertMap[result.properties.email].payload.id = result.id
+
+      // Re-index the payload with ID
+      contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
+      delete contactsUpsertMap[result.properties.email]
+    }
+  }
+
+  // Case 2: Loop over errors if there are any
+  if (readResponse.data?.numErrors && readResponse.data.errors) {
+    for (const error of readResponse.data.errors) {
+      if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
+        // Set the action to create for contacts that don't exist in HubSpot
+        for (const id of error.context.ids) {
+          //Set Action to create
+          contactsUpsertMap[id].action = 'create'
+        }
+      } else {
+        // Throw any other error responses
+        throw new IntegrationError(error.message, error.category, 400)
+      }
+    }
+  }
+  return contactsUpsertMap
+}
+async function checkAndRetryUpdatingLifecycleStage(
+  request: RequestClient,
+  updateContactResponse: BatchContactResponse,
+  contactsUpsertMap: Record<string, ContactsUpsertMapItem>
+) {
+  // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
+  const resetLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
+  const retryLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
+
+  for (const result of updateContactResponse.data.results) {
+    const desiredLifeCycleStage = contactsUpsertMap[result.id].payload.properties.lifecyclestage
+    const currentLifeCycleStage = result.properties.lifecyclestage
+
+    if (desiredLifeCycleStage && desiredLifeCycleStage !== currentLifeCycleStage) {
+      resetLifeCycleStagePayload.push({
+        id: result.id,
+        properties: {
+          lifecyclestage: ''
+        }
+      })
+
+      retryLifeCycleStagePayload.push({
+        id: result.id,
+        properties: {
+          lifecyclestage: desiredLifeCycleStage
+        }
+      })
+    }
+  }
+  // Retry Life Cycle Stage Updates
+  if (retryLifeCycleStagePayload.length > 0) {
+    // Reset Life Cycle Stage
+    await updateContactsBatch(request, resetLifeCycleStagePayload)
+
+    // Set the new Life Cycle Stage
+    await updateContactsBatch(request, retryLifeCycleStagePayload)
+  }
+}
 export default action

@@ -64,6 +64,38 @@ const updateContactList: BatchContactListItem[] = [
   }
 ]
 
+const createContactList: BatchContactListItem[] = [
+  {
+    email: 'userone@somecompany.com',
+    firstname: 'User',
+    lastname: 'One',
+    lifecyclestage: 'lead'
+  },
+  {
+    email: 'usertwo@somecompany.com',
+    firstname: 'User',
+    lastname: 'Two',
+    lifecyclestage: 'subscriber'
+  }
+]
+
+const updateContactList: BatchContactListItem[] = [
+  {
+    id: '103',
+    email: 'userthree@somecompany.com',
+    firstname: 'User',
+    lastname: 'Three',
+    lifecyclestage: 'subscriber'
+  },
+  {
+    id: '104',
+    email: 'userfour@somecompany.com',
+    firstname: 'User',
+    lastname: 'Four',
+    lifecyclestage: 'lead'
+  }
+]
+
 beforeEach((done) => {
   // Re-Initialize the destination before each test
   // This is done to mitigate a bug where action responses persist into other tests
@@ -634,5 +666,40 @@ describe('HubSpot.upsertContactBatch', () => {
     expect(testBatchResponses[1].data).toMatchSnapshot()
     expect(testBatchResponses[2].data).toMatchSnapshot()
     expect(testBatchResponses[3].data).toMatchSnapshot()
+  })
+  test('should fail if any of error comes while reading batch of contacts', async () => {
+    const events = createBatchTestEvents(createContactList)
+
+    // Mock: Read Contact Using Email
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/contacts/batch/read`)
+      .reply(207, {
+        status: 'COMPLETE',
+        results: [],
+        numErrors: 1,
+        errors: [
+          {
+            status: 'error',
+            category: 'VALIDATION_ERROR',
+            message: "'lastname' Property does not exist"
+          }
+        ]
+      })
+
+    const mapping = {
+      properties: {
+        graduation_date: {
+          '@path': '$.traits.graduation_date'
+        }
+      }
+    }
+
+    await expect(
+      testDestination.testBatchAction('upsertContact', {
+        mapping,
+        useDefaultMappings: true,
+        events
+      })
+    ).rejects.toThrowError("'lastname' Property does not exist")
   })
 })
