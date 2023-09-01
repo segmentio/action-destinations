@@ -248,9 +248,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
+    const starttime = Date.now()
     let contactsUpsertMap = mapUpsertContactPayload(payload)
 
     // Fetch the list of contacts from HubSpot
@@ -283,6 +285,8 @@ const action: ActionDefinition<Settings, Payload> = {
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
       await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
     }
+    const endtime = Date.now()
+    statsClient?.set('actions-hubspot-cloud-upsert-contact-batch-duration', starttime - endtime)
   }
 }
 
