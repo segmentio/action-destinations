@@ -10,6 +10,10 @@ export interface Settings {
    */
   accountId?: string
   /**
+   * Segment can set the Pendo Parent Account ID upon page load. This can be overridden via the Parent Account ID field in the Send Identify/Group Actions. Note: Contact Pendo to request enablement of Parent Account feature.
+   */
+  parentAccountId?: string
+  /**
    * The Pendo Region you'd like to send data to
    */
   region: string

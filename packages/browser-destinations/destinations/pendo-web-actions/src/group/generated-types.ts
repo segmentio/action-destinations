@@ -15,4 +15,14 @@ export interface Payload {
   accountData?: {
     [k: string]: unknown
   }
+  /**
+   * Pendo Parent Account ID. This overrides the Pendo Parent Account ID setting. Note: Contact Pendo to request enablement of Parent Account feature.
+   */
+  parentAccountId?: string
+  /**
+   * Additional Parent Account data to send. Note: Contact Pendo to request enablement of Parent Account feature.
+   */
+  parentAccountData?: {
+    [k: string]: unknown
+  }
 }

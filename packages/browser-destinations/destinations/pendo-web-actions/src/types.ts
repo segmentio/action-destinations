@@ -9,9 +9,14 @@ export type Account = {
 export type InitializeData = {
   visitor?: Visitor
   account?: Account
+  parentAccount?: Account
 }
 
-export type identifyPayload = { visitor: { [key: string]: string }; account?: { [key: string]: string } }
+export type identifyPayload = {
+  visitor: { [key: string]: string }
+  account?: { [key: string]: string }
+  parentAccount?: { [key: string]: string }
+}
 
 export interface PendoSDK {
   initialize: ({ visitor, account }: InitializeData) => void

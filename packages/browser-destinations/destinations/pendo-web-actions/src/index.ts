@@ -2,12 +2,10 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { loadPendo } from './loadScript'
-
-import track from './track'
 import { InitializeData, PendoSDK } from './types'
 
 import identify from './identify'
-
+import track from './track'
 import group from './group'
 
 declare global {
@@ -34,6 +32,13 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
       label: 'Set Pendo Account ID on Load',
       description:
         'Segment can set the Pendo Account ID upon page load. This can be overridden via the Account ID field in the Send Identify/Group Actions',
+      type: 'string',
+      required: false
+    },
+    parentAccountId: {
+      label: 'Set Pendo Parent Account ID on Load',
+      description:
+        'Segment can set the Pendo Parent Account ID upon page load. This can be overridden via the Parent Account ID field in the Send Identify/Group Actions. Note: Contact Pendo to request enablement of Parent Account feature.',
       type: 'string',
       required: false
     },
@@ -100,6 +105,11 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
     if (settings.accountId) {
       initialData.account = {
         id: settings.accountId
+      }
+    }
+    if (settings.parentAccountId) {
+      initialData.parentAccount = {
+        id: settings.parentAccountId
       }
     }
 

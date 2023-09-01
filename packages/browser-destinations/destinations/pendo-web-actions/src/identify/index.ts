@@ -44,6 +44,20 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       description: 'Additional Account data to send',
       type: 'object',
       required: false
+    },
+    parentAccountId: {
+      label: 'Parent Account ID',
+      description:
+        'Pendo Parent Account ID. This overrides the Pendo Parent Account ID setting. Note: Contact Pendo to request enablement of Parent Account feature.',
+      type: 'string',
+      required: false
+    },
+    parentAccountData: {
+      label: 'Parent Account Metadata',
+      description:
+        'Additional Parent Account data to send. Note: Contact Pendo to request enablement of Parent Account feature.',
+      type: 'object',
+      required: false
     }
   },
   perform: (pendo, event) => {
@@ -59,7 +73,12 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
         ...event.payload.accountData
       }
     }
-
+    if (event.payload.parentAccountId || event.settings.parentAccountId) {
+      payload.parentAccount = {
+        id: (event.payload.parentAccountId as string) ?? (event.settings.parentAccountId as string),
+        ...event.payload.parentAccountData
+      }
+    }
     pendo.identify(payload)
   }
 }
