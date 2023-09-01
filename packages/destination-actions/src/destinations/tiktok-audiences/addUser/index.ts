@@ -13,6 +13,7 @@ import {
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
+import { MIGRATION_FLAG_NAME } from '../constants'
 
 // NOTE
 // This action is not used by the native Segment Audiences feature.
@@ -74,12 +75,20 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('actions-tiktok-audiences.addUser', 1, statsContext?.tags)
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    // This flag hides mapping but we want to ensure the mappings are also not run.
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'add')
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('actions-tiktok-audiences.addUser', 1, statsContext?.tags)
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    // This flag hides mapping but we want to ensure the mappings are also not run.
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'add')
   }
 }

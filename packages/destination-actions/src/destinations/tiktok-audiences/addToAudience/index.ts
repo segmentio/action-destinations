@@ -12,6 +12,7 @@ import {
   external_audience_id
 } from '../properties'
 import { IntegrationError } from '@segment/actions-core'
+import { MIGRATION_FLAG_NAME } from '../constants'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Add to Audience',
@@ -26,7 +27,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, statsContext }) => {
+  perform: async (request, { audienceSettings, payload, statsContext, features }) => {
+    // This flag hides mapping but we want to ensure the mappings are also not run.
+    if (features && !features[MIGRATION_FLAG_NAME]) {
+      return
+    }
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -35,12 +40,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     if (statsClient) {
-      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+      statsClient?.incr('addToAudience', 1, statsTag)
     }
 
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
+  performBatch: async (request, { payload, audienceSettings, statsContext, features }) => {
+    // This flag hides mapping but we want to ensure the mappings are also not run.
+    if (features && !features[MIGRATION_FLAG_NAME]) {
+      return
+    }
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -49,7 +58,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     if (statsClient) {
-      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+      statsClient?.incr('addToAudience', 1, statsTag)
     }
 
     return processPayload(request, audienceSettings, payload, 'add')
