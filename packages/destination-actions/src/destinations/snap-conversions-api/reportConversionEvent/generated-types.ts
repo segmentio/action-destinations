@@ -105,4 +105,8 @@ export interface Payload {
    * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
    */
   click_id?: string
+  /**
+   * First name of the converted user.
+   */
+  first_name?: string
 }

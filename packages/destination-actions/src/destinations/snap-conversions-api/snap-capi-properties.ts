@@ -296,6 +296,12 @@ export const click_id: InputField = {
   type: 'string'
 }
 
+export const first_name: InputField = {
+  label: 'First name',
+  description: 'First name of the converted user.',
+  type: 'string'
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -374,6 +380,7 @@ export const formatPayload = (payload: Payload): Object => {
     sign_up_method: payload?.sign_up_method,
     device_model: payload?.device_model,
     os_version: payload?.os_version,
-    click_id: payload?.click_id
+    click_id: payload?.click_id,
+    hashed_first_name_sha: hash(payload?.first_name)
   }
 }

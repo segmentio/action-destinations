@@ -2,6 +2,13 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
+import { defaultValues } from '@segment/actions-core'
+
+import reportConversionEvent from '../reportConversionEvent'
+
+const DEFAULT_VALS = {
+  ...defaultValues(reportConversionEvent.fields)
+}
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2022-05-12T15:21:15.449Z'
@@ -397,6 +404,41 @@ describe('Snap Conversions API ', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"pixel_id\\":\\"test123\\"}"`
+      )
+    })
+
+    it('should handle event with optional parameters', async () => {
+      nock(conversionEventUrl).post('').reply(200, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          ...testEvent.properties,
+          first_name: 'John'
+        }
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: false,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        mapping: {
+          ...DEFAULT_VALS,
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          first_name: { '@path': '$.properties.first_name' }
+        }
+      })
+
+      expect(responses).not.toBeNull()
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"hashed_first_name_sha\\":\\"a8cfcd74832004951b4408cdb0a5dbcd8c7e52d43f7fe244bf720582e05241da\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
   })
