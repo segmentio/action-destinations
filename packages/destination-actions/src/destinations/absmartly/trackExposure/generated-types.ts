@@ -16,7 +16,7 @@ export interface Payload {
    */
   agent?: string
   /**
-   * Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings -> Applications section of the ABsmartly Web Console
+   * Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings > Applications section of the ABsmartly Web Console
    */
   application?: string
 }

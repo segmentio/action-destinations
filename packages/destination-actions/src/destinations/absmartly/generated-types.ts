@@ -6,11 +6,11 @@ export interface Settings {
    */
   collectorEndpoint: string
   /**
-   * ABsmartly SDK API Key. Create SDK Api Keys in the Settings -> API Keys section of the ABsmartly Web Console
+   * ABsmartly SDK API Key. Create SDK Api Keys in the Settings > API Keys section of the ABsmartly Web Console
    */
   apiKey: string
   /**
-   * Environment name. Create Environments in the Settings -> Environments section of the ABsmartly Web Console
+   * Environment name. Create Environments in the Settings > Environments section of the ABsmartly Web Console
    */
   environment: string
 }

@@ -23,7 +23,7 @@ export const defaultGoalFields: Record<string, InputField> = {
     type: 'object',
     required: true,
     description:
-      'The units of the goal to track. Mapping of unit name to source property in the event payload. Create Units in the Settings -> Units section of the ABsmartly Web Console',
+      'The units of the goal to track. Mapping of unit name to source property in the event payload. Create Units in the Settings > Units section of the ABsmartly Web Console',
     defaultObjectUI: 'keyvalue:only',
     default: {
       anonymousId: {

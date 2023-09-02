@@ -42,8 +42,7 @@ export const defaultEventFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     description:
-      'Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings -> Applications section of the ABsmartly Web Console',
-    default: ''
+      'Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings > Applications section of the ABsmartly Web Console'
   }
 }
 

@@ -69,14 +69,14 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description:
-          'ABsmartly SDK API Key. Create SDK Api Keys in the Settings -> API Keys section of the ABsmartly Web Console',
+          'ABsmartly SDK API Key. Create SDK Api Keys in the Settings > API Keys section of the ABsmartly Web Console',
         type: 'string',
         required: true
       },
       environment: {
         label: 'Environment',
         description:
-          'Environment name. Create Environments in the Settings -> Environments section of the ABsmartly Web Console',
+          'Environment name. Create Environments in the Settings > Environments section of the ABsmartly Web Console',
         type: 'string',
         required: true
       }
