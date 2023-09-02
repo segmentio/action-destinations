@@ -53,6 +53,8 @@ const destination: DestinationDefinition<Settings> = {
   name: 'ABsmartly (Actions)',
   slug: 'actions-absmartly',
   mode: 'cloud',
+  description:
+    'ABsmartly is an online experimentation service. Send events to ABsmartly to track experiments and goals.',
 
   authentication: {
     scheme: 'custom',
