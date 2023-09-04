@@ -137,4 +137,12 @@ export interface Payload {
    * Day of the month that the converted user was born.
    */
   dob_day?: string
+  /**
+   * Country associated with the conversion. Must be provided as a two letter [ISO 3166 alpha-2 country code](https://www.iso.org/obp/ui/#search).
+   */
+  country?: string
+  /**
+   * State or region associated with the conversion. If the country is US, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.
+   */
+  region?: string
 }

@@ -344,6 +344,20 @@ export const dob_day: InputField = {
   type: 'string'
 }
 
+export const country: InputField = {
+  label: 'Country',
+  description:
+    'Country associated with the conversion. Must be provided as a two letter [ISO 3166 alpha-2 country code](https://www.iso.org/obp/ui/#search).',
+  type: 'string'
+}
+
+export const region: InputField = {
+  label: 'Region',
+  description:
+    'State or region associated with the conversion. If the country is US, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.',
+  type: 'string'
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -435,6 +449,8 @@ export const formatPayload = (payload: Payload): Object => {
     hashed_state_sha: hash(payload?.state),
     hashed_zip: hash(payload?.zip),
     hashed_dob_month: hash(payload?.dob_month),
-    hashed_dob_day: hash(payload?.dob_day)
+    hashed_dob_day: hash(payload?.dob_day),
+    country: payload?.country,
+    region: payload?.region
   }
 }

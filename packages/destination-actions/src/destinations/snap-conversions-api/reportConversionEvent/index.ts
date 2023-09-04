@@ -38,7 +38,9 @@ import {
   state,
   zip,
   dob_month,
-  dob_day
+  dob_day,
+  country,
+  region
 } from '../snap-capi-properties'
 
 const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
@@ -81,7 +83,9 @@ const action: ActionDefinition<Settings, Payload> = {
     state: state,
     zip: zip,
     dob_month: dob_month,
-    dob_day: dob_day
+    dob_day: dob_day,
+    country: country,
+    region: region
   },
   perform: (request, data) => {
     if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
