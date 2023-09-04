@@ -2,6 +2,31 @@
 
 export interface Payload {
   /**
+   * List of products or items to include. Note: this field overrides the Item IDs, Number of Items, Price, Item Category and Brands fields.
+   */
+  products?: {
+    /**
+     * International Article Number (EAN) when applicable, or other product or category identifier.
+     */
+    item_id?: string
+    /**
+     * Number of items.
+     */
+    number_items?: number
+    /**
+     * Value of the purchase. This should be a single number.
+     */
+    price?: number
+    /**
+     * Category of the item.
+     */
+    item_category?: number
+    /**
+     * The brand associated with the item_id in the conversion event.
+     */
+    brand?: string
+  }[]
+  /**
    * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
    */
   event_type: string
@@ -49,6 +74,10 @@ export interface Payload {
    * Category of the item.
    */
   item_category?: string
+  /**
+   * Brands associated with the item_ids in the conversion event. This parameter/’s value should be formatted as a list of strings
+   */
+  brands?: string[]
   /**
    * International Article Number (EAN) when applicable, or other product or category identifier.
    */
