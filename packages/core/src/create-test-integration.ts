@@ -7,6 +7,7 @@ import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
 import { ExecuteDynamicFieldInput } from './destination-kit/action'
+import { Result } from './destination-kit/types'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {}
@@ -48,6 +49,7 @@ interface InputData<Settings> {
 
 class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
   responses: Destination['responses'] = []
+  results: Result[] = []
 
   constructor(destination: DestinationDefinition<T>) {
     super(destination)
@@ -73,6 +75,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext
     }: InputData<T>
   ): Promise<Destination['responses']> {
+    this.results = []
     mapping = mapping ?? {}
 
     if (useDefaultMappings) {
@@ -81,7 +84,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       mapping = { ...defaultMappings, ...mapping } as JSONObject
     }
 
-    await super.executeAction(action, {
+    this.results = await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
       settings: settings ?? ({} as T),
@@ -92,7 +95,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext)
     })
-
+    
     const responses = this.responses
     this.responses = []
 
@@ -114,6 +117,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
+    this.results = []
     mapping = mapping ?? {}
 
     if (useDefaultMappings) {
@@ -126,7 +130,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       events = [{ type: 'track' }]
     }
 
-    await super.executeBatch(action, {
+    this.results = await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),
