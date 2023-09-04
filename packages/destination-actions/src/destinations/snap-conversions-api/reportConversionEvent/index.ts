@@ -26,6 +26,7 @@ import {
   page_url,
   sign_up_method,
   formatPayload,
+  COUNTRY_ISO_3166_CODES,
   CURRENCY_ISO_4217_CODES,
   conversionType,
   device_model,
@@ -92,6 +93,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError(
         `${data.payload.currency} is not a valid currency code.`,
         'Misconfigured required field',
+        400
+      )
+    }
+
+    if (data.payload.country && !COUNTRY_ISO_3166_CODES.has(data.payload.country)) {
+      throw new IntegrationError(
+        `${data.payload.country} is not a valid country code. It must be provided as a two letter ISO 3166 alpha-2 country code.`,
+        'Misconfigured optional field',
         400
       )
     }

@@ -200,6 +200,37 @@ describe('Snap Conversions API ', () => {
       ).rejects.toThrowError('Galleon is not a valid currency code.')
     })
 
+    it('should fail invalid country', async () => {
+      nock(conversionEventUrl).post('').reply(400, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          country: 'United States of America'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('reportConversionEvent', {
+          event,
+          settings,
+          useDefaultMappings: false,
+          auth: {
+            accessToken,
+            refreshToken
+          },
+          mapping: {
+            ...DEFAULT_VALS,
+            event_type: 'PURCHASE',
+            event_conversion_type: 'WEB',
+            country: { '@path': '$.properties.country' }
+          }
+        })
+      ).rejects.toThrowError(
+        'United States of America is not a valid country code. It must be provided as a two letter ISO 3166 alpha-2 country code.'
+      )
+    })
+
     it('should fail invalid region', async () => {
       nock(conversionEventUrl).post('').reply(400, {})
 
