@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * ABsmartly Collector endpoint, for example: https://you-subdomain.absmartly.io/v1
+   * ABsmartly Collector endpoint, for example: https://you-subdomain.absmartly.io/v1 - Contact ABsmartly Support if you don't know your Collector Endpoint.
    */
   collectorEndpoint: string
   /**
@@ -10,7 +10,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Environment name. Create Environments in the Settings > Environments section of the ABsmartly Web Console
+   * Environment name. Environment name needs to match what's in the Web Console. Create Environments in the Settings > Environments section of the ABsmartly Web Console
    */
   environment: string
 }

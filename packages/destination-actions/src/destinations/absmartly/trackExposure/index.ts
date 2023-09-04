@@ -9,6 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Exposure',
   description: 'Send an experiment exposure event to ABsmartly',
   fields: fields,
+  defaultSubscription: 'type = "track" and event = "Experiment Viewed"',
   perform: (request, { payload, settings }) => {
     return sendExposure(request, payload, settings)
   }

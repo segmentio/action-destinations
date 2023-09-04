@@ -35,7 +35,13 @@ export const defaultEventFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     description: 'Optional agent identifier that originated the event. Used to identify which SDK generated the event.',
-    default: {'@path': '$.context.library.name'}
+    default: {
+      '@if': {
+        exists: { '@path': '$.context.library.name' },
+        then: { '@path': '$.context.library.name' },
+        else: 'segment'
+      }
+    }
   },
   application: {
     label: 'Application',

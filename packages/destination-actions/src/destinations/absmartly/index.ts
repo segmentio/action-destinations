@@ -61,7 +61,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       collectorEndpoint: {
         label: 'Collector Endpoint',
-        description: 'ABsmartly Collector endpoint, for example: https://you-subdomain.absmartly.io/v1',
+        description:
+          "ABsmartly Collector endpoint, for example: https://you-subdomain.absmartly.io/v1 - Contact ABsmartly Support if you don't know your Collector Endpoint.",
         format: 'uri',
         type: 'string',
         required: true
@@ -76,7 +77,7 @@ const destination: DestinationDefinition<Settings> = {
       environment: {
         label: 'Environment',
         description:
-          'Environment name. Create Environments in the Settings > Environments section of the ABsmartly Web Console',
+          "Environment name. Environment name needs to match what's in the Web Console. Create Environments in the Settings > Environments section of the ABsmartly Web Console",
         type: 'string',
         required: true
       }
