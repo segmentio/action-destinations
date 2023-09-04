@@ -200,6 +200,146 @@ describe('Snap Conversions API ', () => {
       ).rejects.toThrowError('Galleon is not a valid currency code.')
     })
 
+    it('should fail invalid region', async () => {
+      nock(conversionEventUrl).post('').reply(400, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          country: 'US',
+          region: 'California'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('reportConversionEvent', {
+          event,
+          settings,
+          useDefaultMappings: false,
+          auth: {
+            accessToken,
+            refreshToken
+          },
+          mapping: {
+            ...DEFAULT_VALS,
+            event_type: 'PURCHASE',
+            event_conversion_type: 'WEB',
+            country: { '@path': '$.properties.country' },
+            region: { '@path': '$.properties.region' }
+          }
+        })
+      ).rejects.toThrowError(
+        'California is not a valid region code. Given that country is US, region should be a two letter State code.'
+      )
+    })
+
+    it('should handle event with valid country (and no region)', async () => {
+      nock(conversionEventUrl).post('').reply(200, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          country: 'US'
+        }
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: false,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        mapping: {
+          ...DEFAULT_VALS,
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          country: { '@path': '$.properties.country' },
+          region: { '@path': '$.properties.region' }
+        }
+      })
+
+      expect(responses).not.toBeNull()
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"country\\":\\"US\\",\\"pixel_id\\":\\"test123\\"}"`
+      )
+    })
+
+    it('should handle event with valid region (US)', async () => {
+      nock(conversionEventUrl).post('').reply(200, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          country: 'US',
+          region: 'CA'
+        }
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: false,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        mapping: {
+          ...DEFAULT_VALS,
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          country: { '@path': '$.properties.country' },
+          region: { '@path': '$.properties.region' }
+        }
+      })
+
+      expect(responses).not.toBeNull()
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"country\\":\\"US\\",\\"region\\":\\"CA\\",\\"pixel_id\\":\\"test123\\"}"`
+      )
+    })
+
+    it('should handle event with valid region (non-US)', async () => {
+      nock(conversionEventUrl).post('').reply(200, {})
+
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          country: 'FR',
+          region: 'Hauts-de-France'
+        }
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: false,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        mapping: {
+          ...DEFAULT_VALS,
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          country: { '@path': '$.properties.country' },
+          region: { '@path': '$.properties.region' }
+        }
+      })
+
+      expect(responses).not.toBeNull()
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"country\\":\\"FR\\",\\"region\\":\\"Hauts-de-France\\",\\"pixel_id\\":\\"test123\\"}"`
+      )
+    })
+
     it('should fail missing event conversion type', async () => {
       nock(conversionEventUrl).post('').reply(400, {})
 

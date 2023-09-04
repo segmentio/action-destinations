@@ -96,6 +96,14 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    if (data.payload.country === 'US' && data.payload.region && data.payload.region.length !== 2) {
+      throw new IntegrationError(
+        `${data.payload.region} is not a valid region code. Given that country is US, region should be a two letter State code.`,
+        'Misconfigured optional field',
+        400
+      )
+    }
+
     if (
       !data.payload.email &&
       !data.payload.phone_number &&
