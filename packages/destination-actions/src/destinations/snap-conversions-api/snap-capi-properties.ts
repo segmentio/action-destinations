@@ -314,6 +314,36 @@ export const last_name: InputField = {
   type: 'string'
 }
 
+export const city: InputField = {
+  label: 'City',
+  description: 'City associated with the conversion.',
+  type: 'string'
+}
+
+export const state: InputField = {
+  label: 'State',
+  description: 'State or region associated with the conversion.',
+  type: 'string'
+}
+
+export const zip: InputField = {
+  label: 'Zip',
+  description: 'Zip or postal code associated with the conversion.',
+  type: 'string'
+}
+
+export const dob_month: InputField = {
+  label: 'Birthday Month',
+  description: 'Birth month of the converted user.',
+  type: 'string'
+}
+
+export const dob_day: InputField = {
+  label: 'Day of the Birthday',
+  description: 'Day of the month that the converted user was born.',
+  type: 'string'
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -395,6 +425,11 @@ export const formatPayload = (payload: Payload): Object => {
     click_id: payload?.click_id,
     hashed_first_name_sha: hash(payload?.first_name),
     hashed_middle_name_sha: hash(payload?.middle_name),
-    hashed_last_name_sha: hash(payload?.last_name)
+    hashed_last_name_sha: hash(payload?.last_name),
+    hashed_city_sha: hash(payload?.city),
+    hashed_state_sha: hash(payload?.state),
+    hashed_zip: hash(payload?.zip),
+    hashed_dob_month: hash(payload?.dob_month),
+    hashed_dob_day: hash(payload?.dob_day)
   }
 }

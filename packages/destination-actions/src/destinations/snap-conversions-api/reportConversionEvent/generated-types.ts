@@ -117,4 +117,24 @@ export interface Payload {
    * Last name of the converted user.
    */
   last_name?: string
+  /**
+   * City associated with the conversion.
+   */
+  city?: string
+  /**
+   * State or region associated with the conversion.
+   */
+  state?: string
+  /**
+   * Zip or postal code associated with the conversion.
+   */
+  zip?: string
+  /**
+   * Birth month of the converted user.
+   */
+  dob_month?: string
+  /**
+   * Day of the month that the converted user was born.
+   */
+  dob_day?: string
 }
