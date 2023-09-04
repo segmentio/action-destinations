@@ -113,4 +113,8 @@ export interface Payload {
    * Middle name of the converted user.
    */
   middle_name?: string
+  /**
+   * Last name of the converted user.
+   */
+  last_name?: string
 }

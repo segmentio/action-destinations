@@ -308,6 +308,12 @@ export const middle_name: InputField = {
   type: 'string'
 }
 
+export const last_name: InputField = {
+  label: 'Last name',
+  description: 'Last name of the converted user.',
+  type: 'string'
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -388,6 +394,7 @@ export const formatPayload = (payload: Payload): Object => {
     os_version: payload?.os_version,
     click_id: payload?.click_id,
     hashed_first_name_sha: hash(payload?.first_name),
-    hashed_middle_name_sha: hash(payload?.middle_name)
+    hashed_middle_name_sha: hash(payload?.middle_name),
+    hashed_last_name_sha: hash(payload?.last_name)
   }
 }

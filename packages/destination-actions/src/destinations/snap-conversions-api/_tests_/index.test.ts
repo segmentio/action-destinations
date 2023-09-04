@@ -415,7 +415,8 @@ describe('Snap Conversions API ', () => {
         properties: {
           ...testEvent.properties,
           first_name: 'John',
-          middle_name: 'Middle'
+          middle_name: 'Middle',
+          last_name: 'Doe'
         }
       })
 
@@ -432,7 +433,8 @@ describe('Snap Conversions API ', () => {
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB',
           first_name: { '@path': '$.properties.first_name' },
-          middle_name: { '@path': '$.properties.middle_name' }
+          middle_name: { '@path': '$.properties.middle_name' },
+          last_name: { '@path': '$.properties.last_name' }
         }
       })
 
@@ -440,7 +442,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"hashed_first_name_sha\\":\\"a8cfcd74832004951b4408cdb0a5dbcd8c7e52d43f7fe244bf720582e05241da\\",\\"hashed_middle_name_sha\\":\\"d93006ec2e4339d770a7afd068c1f1e789a52df12f595e529fd0f302fc1e5ec7\\",\\"pixel_id\\":\\"test123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\",\\"hashed_ip_address\\":\\"838c4c2573848f58e74332341a7ca6bc5cd86a8aec7d644137d53b4d597f10f5\\",\\"price\\":15,\\"currency\\":\\"USD\\",\\"page_url\\":\\"https://segment.com/academy/\\",\\"hashed_first_name_sha\\":\\"a8cfcd74832004951b4408cdb0a5dbcd8c7e52d43f7fe244bf720582e05241da\\",\\"hashed_middle_name_sha\\":\\"d93006ec2e4339d770a7afd068c1f1e789a52df12f595e529fd0f302fc1e5ec7\\",\\"hashed_last_name_sha\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
   })
