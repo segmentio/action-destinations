@@ -3,8 +3,9 @@ import type { BrowserDestinationDefinition } from '@segment/browser-destination-
 
 import type { Settings } from './generated-types'
 import { initScript } from './init-script'
-import jimo from './jimo'
 import { JimoSDK } from './types'
+
+import sendUserData from './sendUserData'
 
 declare global {
   interface Window {
@@ -14,7 +15,8 @@ declare global {
   }
 }
 
-const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
+const ENDPOINT_UNDERCITY = 'https://stage.undercity.usejimo.com/jimo-invader.js'
+// const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
 
 export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
   name: 'Jimo',
@@ -57,7 +59,7 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
     return window.jimo
   },
   actions: {
-    jimo
+    sendUserData
   }
 }
 
