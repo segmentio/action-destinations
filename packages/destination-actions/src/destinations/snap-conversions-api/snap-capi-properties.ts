@@ -396,6 +396,11 @@ export const formatPayload = (payload: Payload): Object => {
     payload.mobile_ad_id = payload.mobile_ad_id.toLowerCase()
   }
 
+  if (payload.idfv) {
+    //Converts all characters to lowercase
+    payload.idfv = payload.idfv.toLowerCase()
+  }
+
   return {
     event_type: payload?.event_type,
     event_conversion_type: payload?.event_conversion_type,
