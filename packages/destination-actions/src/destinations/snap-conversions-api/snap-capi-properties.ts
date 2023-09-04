@@ -67,6 +67,69 @@ export const CURRENCY_ISO_4217_CODES = new Set([
   'XOF'
 ])
 
+export const products: InputField = {
+  label: 'Products',
+  description:
+    'List of products or items to include. Note: this field overrides the Item IDs, Number of Items, Price, Item Category and Brands fields.',
+  type: 'object',
+  multiple: true,
+  additionalProperties: false,
+  properties: {
+    item_id: {
+      label: 'Item ID',
+      type: 'string',
+      description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
+      allowNull: false
+    },
+    number_items: {
+      label: 'Number of Items',
+      type: 'integer',
+      description: 'Number of items.',
+      allowNull: false
+    },
+    price: {
+      label: 'Price',
+      type: 'number',
+      description: 'Value of the purchase. This should be a single number.',
+      allowNull: false
+    },
+    item_category: {
+      label: 'Category',
+      type: 'number',
+      description: 'Category of the item.',
+      allowNull: false
+    },
+    brand: {
+      label: 'Brand',
+      type: 'string',
+      description: 'The brand associated with the item_id in the conversion event.',
+      allowNull: false
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': 'product_id'
+        },
+        number_items: {
+          '@path': 'quantity'
+        },
+        price: {
+          '@path': 'price'
+        },
+        item_category: {
+          '@path': 'category'
+        },
+        brand: {
+          '@path': 'brand'
+        }
+      }
+    ]
+  }
+}
+
 export const event_type: InputField = {
   label: 'Event Type',
   description:
@@ -181,6 +244,17 @@ export const item_category: InputField = {
   type: 'string',
   default: {
     '@path': '$.properties.category'
+  }
+}
+
+export const brands: InputField = {
+  label: 'Brands',
+  description:
+    'Brands associated with the item_ids in the conversion event. This parameter/’s value should be formatted as a list of strings',
+  type: 'string',
+  multiple: true,
+  default: {
+    '@path': '$.properties.brands'
   }
 }
 
@@ -348,6 +422,28 @@ export const formatPayload = (payload: Payload): Object => {
     payload.mobile_ad_id = payload.mobile_ad_id.toLowerCase()
   }
 
+  let item_ids: string | undefined = undefined
+  let number_items: string | undefined = undefined
+  let item_category: string | undefined = undefined
+  let price: string | undefined = undefined
+  let brands: string[] | undefined = undefined
+
+  // if customer populates products array, use it instead of individual fields
+  const p = payload?.products
+  if (p && Array.isArray(p) && p.length > 0) {
+    item_ids = p
+      .map((product) => (product.item_id !== undefined ? product.item_id.toString().replace(/;/g, '') : ''))
+      .join(';')
+    number_items = p
+      .map((product) => (product.number_items !== undefined ? product.number_items.toString() : ''))
+      .join(';')
+    item_category = p
+      .map((product) => (product.item_category !== undefined ? product.item_category.toString().replace(/;/g, '') : ''))
+      .join(';')
+    price = p.map((product) => (product.price !== undefined ? product.price.toString() : '')).join(';')
+    brands = p.map((product) => (product.brand !== undefined ? product.brand : ''))
+  }
+
   return {
     event_type: payload?.event_type,
     event_conversion_type: payload?.event_conversion_type,
@@ -360,11 +456,12 @@ export const formatPayload = (payload: Payload): Object => {
     hashed_phone_number: hash(payload?.phone_number),
     user_agent: payload?.user_agent,
     hashed_ip_address: hash(payload?.ip_address),
-    item_category: payload?.item_category,
-    item_ids: payload?.item_ids,
+    item_category: item_category ?? payload?.item_category,
+    brands: brands ?? payload?.brands,
+    item_ids: item_ids ?? payload?.item_ids,
     description: payload?.description,
-    number_items: payload?.number_items,
-    price: payload?.price,
+    number_items: number_items ?? payload?.number_items,
+    price: price ?? payload?.price,
     currency: payload?.currency,
     transaction_id: payload?.transaction_id,
     level: payload?.level,
