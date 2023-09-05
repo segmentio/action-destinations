@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     optimizelyUserId: {
       label: 'Optimizely User ID',
       description: 'The user identifier to sync to the Optimizely Audience',
-      type: 'hidden',
+      type: 'string',
       required: true,
       default: {
         '@if': {
