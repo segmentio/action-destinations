@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    // Return transformed payload without sending it to TAPI endpoint
+    // Return transformed payload without snding it to TAPI endpoint
     if (features && features['actions-segment-tapi-internal']) {
       return groupPayload
     }
