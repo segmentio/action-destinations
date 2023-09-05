@@ -31,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     audience_key: {
       label: 'Audience Key',
-      description: 'Identifies the user within the entered audience.',
+      description:
+        'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.',
       type: 'string',
       required: true,
       default: { '@path': '$.userId' }
