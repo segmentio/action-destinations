@@ -126,6 +126,7 @@ register('64e72a310da9ebedf99c8937', './launchdarkly-audiences')
 register('64edec5a4f881f992e432b81', './acoustic-s3tc')
 register('64edeb2bee24614fe52ede34', './optimizely-advanced-audience-targeting')
 register('64ede9fe67158afa8de61480', './dynamic-yield-audiences')
+register('64f703d1f6e9aa0a283ae3e2', './absmartly')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
