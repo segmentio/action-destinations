@@ -20,7 +20,7 @@ export interface Payload {
     /**
      * Category of the item.
      */
-    item_category?: number
+    item_category?: string
     /**
      * The brand associated with the item_id in the conversion event.
      */

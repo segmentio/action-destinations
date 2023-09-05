@@ -95,7 +95,7 @@ export const products: InputField = {
     },
     item_category: {
       label: 'Category',
-      type: 'number',
+      type: 'string',
       description: 'Category of the item.',
       allowNull: false
     },
