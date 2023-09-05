@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id: { ...group_id, required: true },
     traits
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -41,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (features && features['actions-segment-profiles-tapi-internal']) {
+      statsContext?.statsClient.incr('tapi_internal', 1)
       return groupPayload
     }
 

@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -94,6 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Return transformed payload without sending it to TAPI endpoint
     if (features && features['actions-segment-tapi-internal']) {
+      statsContext?.statsClient.incr('tapi_internal', 1)
       return pagePayload
     }
 
