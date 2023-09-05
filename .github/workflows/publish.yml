@@ -37,7 +37,7 @@ jobs:
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
