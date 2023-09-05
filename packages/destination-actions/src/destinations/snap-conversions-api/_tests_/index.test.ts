@@ -33,7 +33,7 @@ const conversionEventUrl = 'https://tr.snapchat.com/v2/conversion'
 
 describe('Snap Conversions API ', () => {
   describe('ReportConversionEvent', () => {
-    it('should use products array over individual fields if populated', async () => {
+    it('should use products array over number_items and price fields', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
       const event = createTestEvent({
         ...testEvent,
@@ -46,8 +46,8 @@ describe('Snap Conversions API ', () => {
           currency: 'USD',
           level: 3,
           products: [
-            { product_id: '123', price: 100, category: 'games', number_items: 2, brand: 'Hasbro' },
-            { product_id: '456', price: 200, category: 'games', number_items: 1, brand: 'Mattel' }
+            { product_id: '123', price: 100, category: 'games', quantity: 2, brand: 'Hasbro' },
+            { product_id: '456', price: 200, category: 'games', quantity: 1, brand: 'Mattel' }
           ]
         },
         context: {}
@@ -73,7 +73,7 @@ describe('Snap Conversions API ', () => {
       expect(responses[0].status).toBe(200)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"item_category\\":\\"games;games\\",\\"brands\\":[\\"Hasbro\\",\\"Mattel\\"],\\"item_ids\\":\\"123;456\\",\\"number_items\\":\\";\\",\\"price\\":\\"100;200\\",\\"currency\\":\\"USD\\",\\"pixel_id\\":\\"test123\\"}"`
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"item_category\\":\\"games;games\\",\\"brands\\":[\\"Hasbro\\",\\"Mattel\\"],\\"item_ids\\":\\"123;456\\",\\"number_items\\":\\"2;1\\",\\"price\\":\\"100;200\\",\\"currency\\":\\"USD\\",\\"pixel_id\\":\\"test123\\"}"`
       )
     })
 
