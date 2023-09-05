@@ -1,6 +1,6 @@
 import nock from 'nock'
+import Destination from '../..'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
 import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
 import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../../errors'
 
@@ -91,5 +91,33 @@ describe('Segment.sendIdentify', () => {
     expect(responses[0].status).toEqual(200)
     expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchSnapshot()
+  })
+
+  test('Should not send event if actions-segment-profiles-tapi-internal flag is enabled', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        name: 'Test User',
+        email: 'test-user@test-company.com'
+      },
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k'
+    })
+
+    const responses = await testDestination.testAction('sendIdentify', {
+      event,
+      mapping: defaultIdentifyMapping,
+      settings: {
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-profiles-tapi-internal': true
+      }
+    })
+    const results = testDestination.results
+
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchSnapshot()
   })
 })
