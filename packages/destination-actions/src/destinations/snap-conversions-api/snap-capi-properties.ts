@@ -405,6 +405,18 @@ export const hash = (value: string | undefined): string | undefined => {
 
 const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
+// eslint-disable-next-line
+const transformProperty = (property: string, items: Array<any>): string =>
+  items
+    .map((i) =>
+      i[property] === undefined || i[property] === null
+        ? ''
+        : typeof i[property] === 'number'
+        ? i[property].toString()
+        : i[property].toString().replace(/;/g, '')
+    )
+    .join(';')
+
 export const formatPayload = (payload: Payload): Object => {
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
@@ -431,16 +443,11 @@ export const formatPayload = (payload: Payload): Object => {
   // if customer populates products array, use it instead of individual fields
   const p = payload?.products
   if (p && Array.isArray(p) && p.length > 0) {
-    item_ids = p
-      .map((product) => (product.item_id !== undefined ? product.item_id.toString().replace(/;/g, '') : ''))
-      .join(';')
-    number_items = p
-      .map((product) => (product.number_items !== undefined ? product.number_items.toString() : ''))
-      .join(';')
-    item_category = p
-      .map((product) => (product.item_category !== undefined ? product.item_category.toString().replace(/;/g, '') : ''))
-      .join(';')
-    price = p.map((product) => (product.price !== undefined ? product.price.toString() : '')).join(';')
+    item_ids = transformProperty('item_id', p)
+    number_items = transformProperty('number_items', p)
+    item_category = transformProperty('item_category', p)
+    price = transformProperty('price', p)
+
     brands = p.map((product) => (product.brand !== undefined ? product.brand : ''))
   }
 
