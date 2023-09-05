@@ -89,14 +89,13 @@ const action: ActionDefinition<Settings, Payload> = {
     const host = getHost(settings)
 
     const d: Data = data
-    const computationId = payload.segment_computation_id
     const audienceName = payload.custom_audience_name
     const audienceValue = d?.rawData?.properties?.[audienceName] ?? d?.rawData?.traits?.[audienceName]
 
     return request(`${host}/event_import`, {
       method: 'post',
       json: {
-        audienceId: computationId,
+        audienceId: audienceName,
         timestamp: payload.timestamp,
         subscription: audienceValue,
         userId: payload.optimizelyUserId
