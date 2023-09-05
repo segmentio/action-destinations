@@ -585,13 +585,13 @@ export const zip: InputField = {
 }
 
 export const dob_month: InputField = {
-  label: 'Birthday Month',
+  label: 'Birth Month',
   description: 'Birth month of the converted user.',
   type: 'string'
 }
 
 export const dob_day: InputField = {
-  label: 'Day of the Birthday',
+  label: 'Birth Day',
   description: 'Day of the month that the converted user was born.',
   type: 'string'
 }
@@ -606,7 +606,7 @@ export const country: InputField = {
 export const region: InputField = {
   label: 'Region',
   description:
-    'State or region associated with the conversion. If the country is US, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.',
+    'State or region associated with the conversion. If the country is `US`, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.',
   type: 'string'
 }
 
@@ -646,7 +646,7 @@ export const hash = (value: string | undefined): string | undefined => {
 const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
 export const formatPayload = (payload: Payload): Object => {
-  //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
+  //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#data-hygiene
   if (payload.email) {
     //Removes all leading and trailing whitespace and converts all characters to lowercase.
     payload.email = payload.email.replace(/\s/g, '').toLowerCase()

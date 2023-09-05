@@ -299,7 +299,7 @@ describe('Snap Conversions API ', () => {
       )
     })
 
-    it('should handle event with valid region (US)', async () => {
+    it('should handle event with valid region (related to the US)', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({
@@ -335,7 +335,7 @@ describe('Snap Conversions API ', () => {
       )
     })
 
-    it('should handle event with valid region (non-US)', async () => {
+    it('should handle event with valid region (non-related to the US)', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
       const event = createTestEvent({

@@ -142,7 +142,7 @@ export interface Payload {
    */
   country?: string
   /**
-   * State or region associated with the conversion. If the country is US, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.
+   * State or region associated with the conversion. If the country is `US`, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.
    */
   region?: string
 }
