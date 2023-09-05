@@ -33,6 +33,50 @@ const conversionEventUrl = 'https://tr.snapchat.com/v2/conversion'
 
 describe('Snap Conversions API ', () => {
   describe('ReportConversionEvent', () => {
+    it('should use products array over individual fields if populated', async () => {
+      nock(conversionEventUrl).post('').reply(200, {})
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {
+          email: 'test123@gmail.com',
+          phone: '+44 844 412 4653',
+          event_tag: 'back-to-school',
+          number_items: 10,
+          price: '15',
+          currency: 'USD',
+          level: 3,
+          products: [
+            { product_id: '123', price: 100, category: 'games', number_items: 2, brand: 'Hasbro' },
+            { product_id: '456', price: 200, category: 'games', number_items: 1, brand: 'Mattel' }
+          ]
+        },
+        context: {}
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB'
+        }
+      })
+
+      console.log(responses[0].options.body)
+
+      expect(responses).not.toBeNull()
+      expect(responses[0].status).toBe(200)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"integration\\":\\"segment\\",\\"event_type\\":\\"PURCHASE\\",\\"event_conversion_type\\":\\"WEB\\",\\"timestamp\\":1652368875449,\\"hashed_email\\":\\"cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9\\",\\"hashed_phone_number\\":\\"dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383\\",\\"item_category\\":\\"games;games\\",\\"brands\\":[\\"Hasbro\\",\\"Mattel\\"],\\"item_ids\\":\\"123;456\\",\\"number_items\\":\\";\\",\\"price\\":\\"100;200\\",\\"currency\\":\\"USD\\",\\"pixel_id\\":\\"test123\\"}"`
+      )
+    })
+
     it('should handle a basic event', async () => {
       nock(conversionEventUrl).post('').reply(200, {})
 
