@@ -20,6 +20,7 @@
     "@segment/analytics-browser-actions-friendbuy": "^1.13.0",
     "@segment/analytics-browser-actions-fullstory": "^1.14.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.13.0",
+    "@segment/analytics-browser-actions-google-campaign-manager": "^1.0.0",
     "@segment/analytics-browser-actions-heap": "^1.13.0",
     "@segment/analytics-browser-actions-hubspot": "^1.13.0",
     "@segment/analytics-browser-actions-intercom": "^1.13.0",
