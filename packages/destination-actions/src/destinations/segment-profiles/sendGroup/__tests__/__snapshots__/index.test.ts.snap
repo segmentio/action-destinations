@@ -2,21 +2,16 @@
 
 exports[`SegmentProfiles.sendGroup Should not send event if actions-segment-profiles-tapi-internal flag is enabled 1`] = `
 Object {
-  "batch": Array [
-    Object {
-      "anonymousId": "arky4h2sh7k",
-      "groupId": "test-group-ks2i7e",
-      "integrations": Object {
-        "All": false,
-      },
-      "traits": Object {
-        "industry": "Technology",
-        "name": "Example Corp",
-      },
-      "type": "identify",
-      "userId": "test-user-ufi5bgkko5",
-    },
-  ],
+  "anonymousId": "arky4h2sh7k",
+  "groupId": "test-group-ks2i7e",
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "industry": "Technology",
+    "name": "Example Corp",
+  },
+  "userId": "test-user-ufi5bgkko5",
 }
 `;
 

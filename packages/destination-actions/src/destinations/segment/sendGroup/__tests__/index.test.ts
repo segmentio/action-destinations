@@ -133,17 +133,13 @@ describe('Segment.sendGroup', () => {
     expect(responses.length).toBe(0)
     expect(results.length).toBe(3)
     expect(results[2].data).toMatchObject({
-      batch: [
-        {
-          userId: event.userId,
-          anonymousId: event.anonymousId,
-          groupId: event.groupId,
-          traits: {
-            ...event.traits
-          },
-          context: {}
-        }
-      ]
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      groupId: event.groupId,
+      traits: {
+        ...event.traits
+      },
+      context: {}
     })
   })
 })

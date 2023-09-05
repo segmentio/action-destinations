@@ -2189,6 +2189,26 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.190.0":
+  version "3.205.3"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.205.3.tgz#3f7c0493c99c75c0c11493df411611d79a8f88c8"
+  integrity sha512-1/5z7bwoIMqX+6xNndqSTmYMuMimn9bb4kk9Lnlfn9KJxsFdRdcmsya5YvGnCCgyvSpJIHqUI3oKfEYNOfBGrg==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.81.3"
+    "@segment/actions-shared" "^1.63.3"
+    "@types/node" "^18.11.15"
+    ajv-formats "^2.1.1"
+    aws4 "^1.12.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    google-libphonenumber "^3.2.31"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+    ssh2-sftp-client "^9.1.0"
+
 "@segment/action-emitters@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.1.2.tgz#962527ecc014a1123ac5614ef10419b7d9371730"

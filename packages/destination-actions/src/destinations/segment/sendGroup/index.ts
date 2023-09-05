@@ -80,9 +80,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
+    // Return transformed payload without sending it to TAPI endpoint
     if (features && features['actions-segment-tapi-internal']) {
-      const payload = { ...groupPayload, type: 'group' }
-      return { batch: [payload] }
+      return groupPayload
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
