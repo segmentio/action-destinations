@@ -75,7 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext, features }) => {
-    // This flag hides mapping but we want to ensure the mappings are also not run.
     if (features && features[MIGRATION_FLAG_NAME]) {
       return
     }
@@ -83,7 +82,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return processPayload(request, settings, [payload], 'delete')
   },
   performBatch: async (request, { settings, payload, statsContext, features }) => {
-    // This flag hides mapping but we want to ensure the mappings are also not run.
     if (features && features[MIGRATION_FLAG_NAME]) {
       return
     }

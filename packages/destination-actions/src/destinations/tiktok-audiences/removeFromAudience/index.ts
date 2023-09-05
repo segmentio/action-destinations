@@ -28,7 +28,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     external_audience_id: { ...external_audience_id }
   },
   perform: async (request, { audienceSettings, payload, statsContext, features }) => {
-    // This flag hides mapping but we want to ensure the mappings are also not run.
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
@@ -44,7 +43,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return processPayload(request, audienceSettings, [payload], 'delete')
   },
   performBatch: async (request, { audienceSettings, payload, statsContext, features }) => {
-    // This flag hides mapping but we want to ensure the mappings are also not run.
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
