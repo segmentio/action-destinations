@@ -66,9 +66,9 @@ jobs:
           fi
 
   browser-tests-destination:
-    env:
-      SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-      SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+    # env: # Disable saucelabs - we blew through our quota.
+    #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+    #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
 
     runs-on: ubuntu-20.04
 
@@ -107,12 +107,12 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build:browser-destinations && yarn browser build-web
 
-      - name: Run Saucelabs Tests
+      - name: Run Browser Tests
         working-directory: packages/browser-destinations-integration-tests
         shell: bash
         run: |
           yarn start-destination-server &
-          yarn test:sauce
+          yarn test:local
 
   browser-tests-core:
     runs-on: ubuntu-20.04
