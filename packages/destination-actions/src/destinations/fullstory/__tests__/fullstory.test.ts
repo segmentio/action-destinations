@@ -18,7 +18,7 @@ const testDestination = createTestIntegration(Definition)
 describe('FullStory', () => {
   describe('testAuthentication', () => {
     it('makes expected request', async () => {
-      nock(baseUrl).get('/operations/v1?limit=1').reply(200)
+      nock(baseUrl).get('/me').reply(200)
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
   })
@@ -156,7 +156,7 @@ describe('FullStory', () => {
   describe('onDelete', () => {
     const falsyUserIds = ['', undefined, null]
     it('makes expected request given a valid user id', async () => {
-      nock(baseUrl).delete(`/v2beta/users?uid=${urlEncodedUserId}`).reply(200)
+      nock(baseUrl).delete(`/v2/users?uid=${urlEncodedUserId}`).reply(200)
       await expect(testDestination.onDelete!({ type: 'delete', userId }, settings)).resolves.not.toThrowError()
     })
 
@@ -171,7 +171,7 @@ describe('FullStory', () => {
 
   describe('identifyUserV2', () => {
     it('makes expected request with default mappings', async () => {
-      nock(baseUrl).post(`/v2beta/users?${integrationSourceQueryParam}`).reply(200)
+      nock(baseUrl).post(`/v2/users`).reply(200)
       const event = createTestEvent({
         type: 'identify',
         userId,
@@ -212,7 +212,7 @@ describe('FullStory', () => {
 
   describe('trackEventV2', () => {
     it('makes expected request with default mappings', async () => {
-      nock(baseUrl).post(`/v2beta/events?${integrationSourceQueryParam}`).reply(200)
+      nock(baseUrl).post(`/v2/events`).reply(200)
       const eventName = 'test-event'
 
       const sessionId = '12345:678'
@@ -272,7 +272,7 @@ describe('FullStory', () => {
     })
 
     it('handles undefined event values', async () => {
-      nock(baseUrl).post(`/v2beta/events?${integrationSourceQueryParam}`).reply(200)
+      nock(baseUrl).post(`/v2/events`).reply(200)
       const eventName = 'test-event'
 
       const event = createTestEvent({
