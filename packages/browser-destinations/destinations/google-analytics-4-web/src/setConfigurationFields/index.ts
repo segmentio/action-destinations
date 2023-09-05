@@ -7,7 +7,7 @@ import { updateUser } from '../ga4-functions'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
-  description: 'Set custom values for the GA4 configuration fields.',
+  description: 'Set custom values for the GA4 configuration fields and trigger a page_view event.',
   platform: 'web',
   defaultSubscription: 'type = "identify" or type = "page"',
   fields: {
