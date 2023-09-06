@@ -85,13 +85,13 @@ export const products: InputField = {
     number_items: {
       label: 'Number of Items',
       type: 'integer',
-      description: 'Number of items. Note that this field accepts an integer. e.g. 5',
+      description: 'Number of items. This field accepts an integer value. e.g. 5',
       allowNull: false
     },
     price: {
       label: 'Price',
       type: 'number',
-      description: 'Price of the item. This field accepts a numeric value only. e.g. 9.99',
+      description: 'Price of the item. This field accepts a numeric value. e.g. 9.99',
       allowNull: false
     },
     item_category: {
@@ -158,7 +158,7 @@ export const event_tag: InputField = {
 export const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
-    'The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.',
+    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
@@ -276,7 +276,7 @@ export const description: InputField = {
 
 export const number_items: InputField = {
   label: 'Number of Items',
-  description: 'Number of items. Note that this field accepts a string only. e.g. "5"',
+  description: 'Number of items. This field accepts a string only. e.g. "5"',
   type: 'string',
   default: {
     '@path': '$.properties.quantity'
@@ -285,7 +285,7 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Price of the item. This field accepts a numeric value only. e.g. 9.99',
+  description: 'Price of the item. This field accepts a numeric value. e.g. 9.99',
   type: 'number',
   default: {
     '@if': {
