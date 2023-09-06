@@ -71,15 +71,15 @@ export interface Payload {
    */
   ip_address?: string
   /**
-   * Category of the item.
+   * Category of the item. This field accepts a string.
    */
   item_category?: string
   /**
-   * Brands associated with the item_ids in the conversion event. This parameter/’s value should be formatted as a list of strings
+   * Brand associated with the item. This field accepts a string.
    */
   brands?: string[]
   /**
-   * International Article Number (EAN) when applicable, or other product or category identifier.
+   * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
    */
   item_ids?: string
   /**
@@ -87,11 +87,11 @@ export interface Payload {
    */
   description?: string
   /**
-   * Number of items.
+   * Number of items. Note that this field accepts a string only. e.g. "5"
    */
   number_items?: string
   /**
-   * Value of the purchase.This should be a single number.
+   * Price of the item. This field accepts a numeric value only. e.g. 9.99
    */
   price?: number
   /**

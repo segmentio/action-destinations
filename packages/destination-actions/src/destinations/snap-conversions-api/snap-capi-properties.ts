@@ -78,31 +78,32 @@ export const products: InputField = {
     item_id: {
       label: 'Item ID',
       type: 'string',
-      description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
+      description:
+        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
       allowNull: false
     },
     number_items: {
       label: 'Number of Items',
       type: 'integer',
-      description: 'Number of items.',
+      description: 'Number of items. Note that this field accepts an integer. e.g. 5',
       allowNull: false
     },
     price: {
       label: 'Price',
       type: 'number',
-      description: 'Value of the purchase. This should be a single number.',
+      description: 'Price of the item. This field accepts a numeric value only. e.g. 9.99',
       allowNull: false
     },
     item_category: {
       label: 'Category',
       type: 'string',
-      description: 'Category of the item.',
+      description: 'Category of the item. This field accepts a string.',
       allowNull: false
     },
     brand: {
       label: 'Brand',
       type: 'string',
-      description: 'The brand associated with the item_id in the conversion event.',
+      description: 'Brand associated with the item. This field accepts a string.',
       allowNull: false
     }
   },
@@ -240,7 +241,7 @@ export const ip_address: InputField = {
 
 export const item_category: InputField = {
   label: 'Item Category',
-  description: 'Category of the item.',
+  description: 'Category of the item. This field accepts a string.',
   type: 'string',
   default: {
     '@path': '$.properties.category'
@@ -248,19 +249,19 @@ export const item_category: InputField = {
 }
 
 export const brands: InputField = {
-  label: 'Brands',
-  description:
-    'Brands associated with the item_ids in the conversion event. This parameter/’s value should be formatted as a list of strings',
+  label: 'Brand',
+  description: 'Brand associated with the item. This field accepts a string.',
   type: 'string',
   multiple: true,
   default: {
-    '@path': '$.properties.brands'
+    '@path': '$.properties.brand'
   }
 }
 
 export const item_ids: InputField = {
-  label: 'Item IDs',
-  description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
+  label: 'Item ID',
+  description:
+    'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
   type: 'string',
   default: {
     '@path': '$.properties.product_id'
@@ -275,7 +276,7 @@ export const description: InputField = {
 
 export const number_items: InputField = {
   label: 'Number of Items',
-  description: 'Number of items.',
+  description: 'Number of items. Note that this field accepts a string only. e.g. "5"',
   type: 'string',
   default: {
     '@path': '$.properties.quantity'
@@ -284,7 +285,7 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Value of the purchase.This should be a single number.',
+  description: 'Price of the item. This field accepts a numeric value only. e.g. 9.99',
   type: 'number',
   default: {
     '@if': {
