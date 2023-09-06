@@ -95,7 +95,7 @@ describe('Segment.sendScreen', () => {
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-enabled flag is enabled', async () => {
     const event = createTestEvent({
       name: 'Home',
       properties: {
@@ -113,7 +113,7 @@ describe('Segment.sendScreen', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal': true
+        'actions-segment-tapi-enabled': true
       }
     })
 

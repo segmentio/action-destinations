@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    if (features && features['actions-segment-profiles-tapi-internal']) {
+    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
       statsContext?.statsClient.incr('tapi_internal', 1)
       return identityPayload
     }

@@ -98,7 +98,7 @@ describe('SegmentProfiles.sendGroup', () => {
     expect(responses[0].options.json).toMatchSnapshot()
   })
 
-  test('Should not send event if actions-segment-profiles-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Example Corp',
@@ -116,7 +116,7 @@ describe('SegmentProfiles.sendGroup', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-profiles-tapi-internal': true
+        'actions-segment-profiles-tapi-internal-enabled': true
       }
     })
 
