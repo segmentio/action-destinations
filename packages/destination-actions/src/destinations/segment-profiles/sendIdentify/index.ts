@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsContext?.statsClient.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])
+      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])
       const payload = { ...identityPayload, type: 'identify' }
       return { batch: [payload] }
     }
