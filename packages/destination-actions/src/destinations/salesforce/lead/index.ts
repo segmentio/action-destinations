@@ -165,7 +165,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
+  performBatch: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'upsert') {
@@ -174,7 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME, statsContext)
+    return sf.bulkHandler(payload, OBJECT_NAME)
   }
 }
 

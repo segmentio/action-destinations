@@ -176,7 +176,11 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: ['this is a test', {}] }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
     })
 
     test('should succeed when traits filtering is specified', async () => {
@@ -203,7 +207,11 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: ['this is a test', {}] }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
     })
 
     test('should succeed when property filtering is specified', async () => {
@@ -230,7 +238,11 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: ['this is a test', {}] }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
     })
   })
 
@@ -257,7 +269,11 @@ describe('destination kit', () => {
       }
 
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: ['this is a test', {}] }])
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
     })
   })
 
@@ -387,7 +403,8 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: {
+          output: 'Action Executed',
+          data: {
             features: eventOptions.features,
             statsContext: {}
           }
@@ -427,7 +444,8 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: {
+          output: 'Action Executed',
+          data: {
             features: {},
             statsContext: eventOptions.statsContext
           }
@@ -464,7 +482,8 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
         {
-          output: {
+          output: 'Action Executed',
+          data: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger
@@ -505,7 +524,8 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
         {
-          output: {
+          output: 'Action Executed',
+          data: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger,
@@ -556,7 +576,8 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
       expect(res).toEqual([
         {
-          output: {
+          output: 'Action Executed',
+          data: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger,

@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone,
     traits
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -80,9 +80,10 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    if (features && features['actions-segment-tapi-internal']) {
-      const payload = { ...groupPayload, type: 'group' }
-      return { batch: [payload] }
+    // Return transformed payload without snding it to TAPI endpoint
+    if (features && features['actions-segment-tapi-internal-enabled']) {
+      statsContext?.statsClient.incr('tapi_internal', 1)
+      return groupPayload
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url

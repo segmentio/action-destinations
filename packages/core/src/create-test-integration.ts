@@ -49,6 +49,7 @@ interface InputData<Settings> {
 
 class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
   responses: Destination['responses'] = []
+  results: Result[] = []
 
   constructor(destination: DestinationDefinition<T>) {
     super(destination)
@@ -74,38 +75,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext
     }: InputData<T>
   ): Promise<Destination['responses']> {
-    const { responses } = await this.testAction2(action, {
-      event,
-      mapping,
-      settings,
-      useDefaultMappings,
-      auth,
-      features,
-      statsContext,
-      logger,
-      transactionContext,
-      stateContext
-    })
-
-    return responses
-  }
-
-  /** Same as testAction but returns responses and results */
-  async testAction2(
-    action: string,
-    {
-      event,
-      mapping,
-      settings,
-      useDefaultMappings,
-      auth,
-      features,
-      statsContext,
-      logger,
-      transactionContext,
-      stateContext
-    }: InputData<T>
-  ): Promise<{ results: Result[]; responses: Destination['responses'] }> {
+    this.results = []
     mapping = mapping ?? {}
 
     if (useDefaultMappings) {
@@ -114,7 +84,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       mapping = { ...defaultMappings, ...mapping } as JSONObject
     }
 
-    const results = await super.executeAction(action, {
+    this.results = await super.executeAction(action, {
       event: createTestEvent(event),
       mapping,
       settings: settings ?? ({} as T),
@@ -129,7 +99,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     const responses = this.responses
     this.responses = []
 
-    return { responses, results }
+    return responses
   }
 
   async testBatchAction(
@@ -147,6 +117,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
+    this.results = []
     mapping = mapping ?? {}
 
     if (useDefaultMappings) {
@@ -159,7 +130,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       events = [{ type: 'track' }]
     }
 
-    await super.executeBatch(action, {
+    this.results = await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),

@@ -101,7 +101,7 @@ describe('Segment.sendPage', () => {
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       name: 'Home',
       properties: {
@@ -112,7 +112,7 @@ describe('Segment.sendPage', () => {
       anonymousId: 'arky4h2sh7k'
     })
 
-    const { results, responses } = await testDestination.testAction2('sendPage', {
+    const responses = await testDestination.testAction('sendPage', {
       event,
       mapping: defaultPageMapping,
       settings: {
@@ -120,24 +120,21 @@ describe('Segment.sendPage', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal': true
+        'actions-segment-tapi-internal-enabled': true
       }
     })
 
+    const results = testDestination.results
     expect(responses.length).toBe(0)
-    expect(results.length).toBe(1)
-    expect(results[0].output).toMatchObject({
-      batch: [
-        {
-          userId: event.userId,
-          anonymousId: event.anonymousId,
-          properties: {
-            name: event.name,
-            ...event.properties
-          },
-          context: {}
-        }
-      ]
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      properties: {
+        name: event.name,
+        ...event.properties
+      },
+      context: {}
     })
   })
 })

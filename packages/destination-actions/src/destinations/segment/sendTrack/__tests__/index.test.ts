@@ -102,7 +102,7 @@ describe('Segment.sendTrack', () => {
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       properties: {
         plan: 'Business'
@@ -112,7 +112,7 @@ describe('Segment.sendTrack', () => {
       event: 'Test Event'
     })
 
-    const { results, responses } = await testDestination.testAction2('sendTrack', {
+    const responses = await testDestination.testAction('sendTrack', {
       event,
       mapping: defaultTrackMapping,
       settings: {
@@ -120,23 +120,20 @@ describe('Segment.sendTrack', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal': true
+        'actions-segment-tapi-internal-enabled': true
       }
     })
 
+    const results = testDestination.results
     expect(responses.length).toBe(0)
-    expect(results.length).toBe(1)
-    expect(results[0].output).toMatchObject({
-      batch: [
-        {
-          userId: event.userId,
-          anonymousId: event.anonymousId,
-          properties: {
-            ...event.properties
-          },
-          context: {}
-        }
-      ]
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      userId: event.userId,
+      anonymousId: event.anonymousId,
+      properties: {
+        ...event.properties
+      },
+      context: {}
     })
   })
 })
