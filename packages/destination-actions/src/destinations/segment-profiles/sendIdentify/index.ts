@@ -43,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
       statsContext?.statsClient.incr('tapi_internal', 1)
-      return identityPayload
+      const payload = { ...identityPayload, type: 'identify' }
+      return { batch: [payload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
