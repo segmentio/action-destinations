@@ -85,8 +85,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Return transformed payload without sending it to TAPI endpoint
     if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient.incr('tapi_internal', 1)
-      return screenPayload
+      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
+      const payload = { ...screenPayload, type: 'screen' }
+      return { batch: [payload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url

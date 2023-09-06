@@ -121,12 +121,16 @@ describe('Segment.sendScreen', () => {
     expect(responses.length).toBe(0)
     expect(results.length).toBe(3)
     expect(results[2].data).toMatchObject({
-      userId: event.userId,
-      anonymousId: event.anonymousId,
-      properties: {
-        ...event.properties
-      },
-      context: {}
+      batch: [
+        {
+          userId: event.userId,
+          anonymousId: event.anonymousId,
+          properties: {
+            ...event.properties
+          },
+          context: {}
+        }
+      ]
     })
   })
 })
