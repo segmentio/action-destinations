@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     traits
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (request, { payload, settings, features }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -41,8 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])
+    if (features && features['actions-segment-profiles-tapi-internal']) {
       const payload = { ...identityPayload, type: 'identify' }
       return { batch: [payload] }
     }

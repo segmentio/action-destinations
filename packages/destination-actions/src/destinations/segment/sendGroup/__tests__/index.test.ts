@@ -106,7 +106,7 @@ describe('Segment.sendGroup', () => {
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Example Corp',
@@ -125,7 +125,7 @@ describe('Segment.sendGroup', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal-enabled': true
+        'actions-segment-tapi-internal': true
       }
     })
 
