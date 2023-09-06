@@ -105,4 +105,45 @@ describe('Segment.sendGroup', () => {
       context: {}
     })
   })
+
+  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+    const event = createTestEvent({
+      traits: {
+        name: 'Example Corp',
+        industry: 'Technology'
+      },
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k',
+      groupId: 'test-group-ks2i7e'
+    })
+
+    const responses = await testDestination.testAction('sendGroup', {
+      event,
+      mapping: defaultGroupMapping,
+      settings: {
+        source_write_key: 'test-source-write-key',
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-tapi-internal': true
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      batch: [
+        {
+          userId: event.userId,
+          anonymousId: event.anonymousId,
+          groupId: event.groupId,
+          traits: {
+            ...event.traits
+          },
+          context: {}
+        }
+      ]
+    })
+  })
 })

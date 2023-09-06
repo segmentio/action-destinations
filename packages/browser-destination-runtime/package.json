@@ -1,7 +1,11 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.8.0",
+  "version": "1.13.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "scripts": {
     "build": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc --outDir ./dist/esm",
@@ -56,7 +60,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.77.0"
+    "@segment/actions-core": "^3.82.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"

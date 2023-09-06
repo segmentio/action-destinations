@@ -10,6 +10,10 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
    * This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".
    */
   recordMatcherOperator?: string
