@@ -413,8 +413,8 @@ const transformProperty = (property: string, items: Array<any>): string =>
       i[property] === undefined || i[property] === null
         ? ''
         : typeof i[property] === 'number'
-        ? i[property].toString()
-        : i[property].toString().replace(/;/g, '')
+        ? (i[property] as number).toString()
+        : (i[property] as string).toString().replace(/;/g, '')
     )
     .join(';')
 
