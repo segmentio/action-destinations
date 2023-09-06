@@ -53,7 +53,9 @@ function isValidValue(value: unknown) {
 
 export async function getEventKeys(request: RequestClient, settings: Settings) {
   try {
-    const response = await request<ProjectConfig>(settings.dataFileUrl)
+    const response = await request<ProjectConfig>(settings.dataFileUrl, {
+      skipResponseCloning: true
+    })
     const choices = response.data.events.map((event) => ({
       label: event.key,
       value: event.key

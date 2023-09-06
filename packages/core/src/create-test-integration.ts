@@ -95,7 +95,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext)
     })
-    
+
     const responses = this.responses
     this.responses = []
 
