@@ -29,9 +29,9 @@ interface MessagingSubscription {
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'SendSubscriptions',
+  title: 'Send Subscriptions',
   description:
-    'Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them.',
+    'Send an identify call to Segment’s tracking API. This is used to get user channel subscription data into Engage.',
   defaultSubscription: 'type = "identify"',
   fields: {
     engage_space,
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
         type: 'EMAIL',
         status: getStatus(payload.email_subscription_status)
       }
-      console.log('before groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
+      //console.log('before groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
 
       if (payload.subscriptionGroups && typeof payload.subscriptionGroups === 'object') {
         const formattedGroups = Object.entries(payload.subscriptionGroups)
