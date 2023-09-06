@@ -40,4 +40,20 @@ describe('VWO Web (Actions)', () => {
     ) as HTMLScriptElement
     expect(script).toBeDefined()
   })
+
+  test('Loads VWO Object without intiScript', async () => {
+    const [vwo] = await vwoDestination({
+      vwoAccountId: 654331,
+      addSmartcode: false,
+      subscriptions
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await vwo.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const vwoObject = window.VWO
+    expect(vwoObject).toBeDefined()
+  })
 })

@@ -27,11 +27,11 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
 
     window.VWO = window.VWO || []
 
-    if (!window.VWO.visitor) {
-      window.VWO.visitor = function (...args) {
+    window.VWO.visitor =
+      window.VWO.visitor ||
+      function (...args) {
         window.VWO.push(['visitor', ...args])
       }
-    }
 
     window.VWO.visitor(formattedAttributes, { source: 'segment.web' })
   }
