@@ -31,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     audience_key: {
       label: 'Audience Key',
-      description: 'Identifies the user within the entered audience.',
+      description:
+        'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.',
       type: 'string',
       required: true,
       default: { '@path': '$.userId' }
@@ -68,6 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch data',
       description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
+      unsafe_hidden: true,
       required: true,
       default: true
     },
@@ -75,6 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
+      unsafe_hidden: true,
       required: false,
       default: 170000
     }
