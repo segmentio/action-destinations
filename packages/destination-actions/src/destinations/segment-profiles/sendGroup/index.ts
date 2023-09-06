@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsContext?.statsClient.incr('tapi_internal', 1)
+      statsContext?.statsClient.incr('tapi_internal', 1, [...statsContext.tags, `action:sendGroup`])
       return { batch: [payload] }
     }
 

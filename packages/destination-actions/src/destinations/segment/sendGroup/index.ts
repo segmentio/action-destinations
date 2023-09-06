@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Return transformed payload without snding it to TAPI endpoint
     if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient.incr('tapi_internal', 1)
+      statsContext?.statsClient.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendGroup'])
       const payload = { ...groupPayload, type: 'group' }
       return { batch: [payload] }
     }
