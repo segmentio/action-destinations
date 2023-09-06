@@ -10,11 +10,11 @@ export interface Payload {
      */
     item_id?: string
     /**
-     * Number of items. Note that this field accepts an integer. e.g. 5
+     * Number of items. This field accepts an integer value. e.g. 5
      */
     number_items?: number
     /**
-     * Price of the item. This field accepts a numeric value only. e.g. 9.99
+     * Price of the item. This field accepts a numeric value. e.g. 9.99
      */
     price?: number
     /**
@@ -39,7 +39,7 @@ export interface Payload {
    */
   event_tag?: string
   /**
-   * The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.
+   * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.
    */
   timestamp: string
   /**
@@ -87,11 +87,11 @@ export interface Payload {
    */
   description?: string
   /**
-   * Number of items. Note that this field accepts a string only. e.g. "5"
+   * Number of items. This field accepts a string only. e.g. "5"
    */
   number_items?: string
   /**
-   * Price of the item. This field accepts a numeric value only. e.g. 9.99
+   * Price of the item. This field accepts a numeric value. e.g. 9.99
    */
   price?: number
   /**
