@@ -70,7 +70,7 @@ export const CURRENCY_ISO_4217_CODES = new Set([
 export const products: InputField = {
   label: 'Products',
   description:
-    'List of products or items to include. Note: this field overrides the Item IDs, Number of Items, Price, Item Category and Brands fields.',
+    'List of products or items to include. Note: this field overrides the Item ID, Number of Items, Price, Item Category and Brand fields. Use this field to send details of mulitple items.',
   type: 'object',
   multiple: true,
   additionalProperties: false,
@@ -250,7 +250,7 @@ export const item_category: InputField = {
 
 export const brands: InputField = {
   label: 'Brand',
-  description: 'Brand associated with the item. This field accepts a string.',
+  description: 'Brand associated with the item. This field accepts a string or a list of strings',
   type: 'string',
   multiple: true,
   default: {

@@ -2,27 +2,27 @@
 
 export interface Payload {
   /**
-   * List of products or items to include. Note: this field overrides the Item IDs, Number of Items, Price, Item Category and Brands fields.
+   * List of products or items to include. Note: this field overrides the Item ID, Number of Items, Price, Item Category and Brand fields. Use this field to send details of mulitple items.
    */
   products?: {
     /**
-     * International Article Number (EAN) when applicable, or other product or category identifier.
+     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
      */
     item_id?: string
     /**
-     * Number of items.
+     * Number of items. Note that this field accepts an integer. e.g. 5
      */
     number_items?: number
     /**
-     * Value of the purchase. This should be a single number.
+     * Price of the item. This field accepts a numeric value only. e.g. 9.99
      */
     price?: number
     /**
-     * Category of the item.
+     * Category of the item. This field accepts a string.
      */
     item_category?: string
     /**
-     * The brand associated with the item_id in the conversion event.
+     * Brand associated with the item. This field accepts a string.
      */
     brand?: string
   }[]
@@ -75,7 +75,7 @@ export interface Payload {
    */
   item_category?: string
   /**
-   * Brand associated with the item. This field accepts a string.
+   * Brand associated with the item. This field accepts a string or a list of strings
    */
   brands?: string[]
   /**
