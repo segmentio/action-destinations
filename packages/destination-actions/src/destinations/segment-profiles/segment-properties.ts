@@ -75,5 +75,6 @@ export const subscriptionGroups: InputField = {
   type: 'object',
   additionalProperties: true,
   unsafe_hidden: true,
-  defaultObjectUI: 'keyvalue'
+  defaultObjectUI: 'keyvalue',
+  dynamic: true
 }
