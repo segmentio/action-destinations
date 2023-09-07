@@ -26,7 +26,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Enable Dynamic Tags',
       type: 'boolean',
       description:
-        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**'
+        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.'
     },
     countingMethod: {
       label: 'Counting Method',
