@@ -2196,6 +2196,14 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/analytics-browser-actions-google-analytics-4@^1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-analytics-4/-/analytics-browser-actions-google-analytics-4-1.13.0.tgz#80af49cb1f55ab42867de7cebe682aea5ddc7e20"
+  integrity sha512-3IHsRoaM0z5xFUPxO19O3LpIcz/F5n1d8GtM1gZEGZQdCYucdn9fNR8u2eDNwvoA6fDIDGBDhEiWmgXjifDiuQ==
+  dependencies:
+    "@segment/actions-core" "^3.82.0"
+    "@segment/browser-destination-runtime" "^1.13.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
