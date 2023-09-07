@@ -1,0 +1,25 @@
+{
+  "name": "@segment/analytics-browser-hubble-web",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/hubble-web"
+  },
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
+  "dependencies": {
+    "@segment/actions-core": "^3.76.0",
+    "@segment/browser-destination-runtime": "^1.4.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": "*"
+  }
+}
