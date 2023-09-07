@@ -64,21 +64,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     advertiserId: {
       type: 'string',
       label: 'Advertiser ID',
-      description: 'The advertiser ID to use when syncing audiences.',
-      required: true
+      description:
+        'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
     },
     idType: {
       type: 'string',
       label: 'ID Type',
       description:
-        'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
+        'Encryption type to be used for populating the audience. This field is required and only set when Segment creates a new audience.',
       choices: [
         { label: 'Email', value: 'EMAIL_SHA256' },
         { label: 'Google Advertising ID', value: 'GAID_SHA256' },
         { label: 'Android Advertising ID', value: 'AAID_SHA256' },
         { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-      ],
-      required: true
+      ]
     }
   },
   audienceConfig: {
@@ -101,6 +100,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      if (!idType) {
+        throw new IntegrationError('Missing ID type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       const response = await request(CREATE_AUDIENCE_URL, {
         method: 'POST',
         json: {
@@ -113,11 +116,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const r = await response.json()
       if (r['message'] !== 'OK') {
-        statsClient?.incr('actions-tiktok-audiences.createAudience.error', 1, statsTags)
+        statsClient?.incr('createAudience.error', 1, statsTags)
         throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
       }
 
-      statsClient?.incr('actions-tiktok-audiences.createAudience.success', 1, statsTags)
+      statsClient?.incr('createAudience.success', 1, statsTags)
       return {
         externalId: r.data['audience_id']
       }
@@ -150,7 +153,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const r = await response.json()
       if (r['message'] !== 'OK') {
-        statsClient?.incr('actions-tiktok-audiences.getAudience.error', 1, statsTags)
+        statsClient?.incr('getAudience.error', 1, statsTags)
         throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
       }
 
@@ -164,7 +167,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         )
       }
 
-      statsClient?.incr('actions-tiktok-audiences.getAudience.success', 1, statsTags)
+      statsClient?.incr('getAudience.success', 1, statsTags)
       return {
         externalId: externalId
       }
