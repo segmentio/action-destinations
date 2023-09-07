@@ -118,6 +118,6 @@ describe('Segment.sendIdentify', () => {
 
     expect(responses.length).toBe(0)
     expect(results.length).toBe(3)
-    expect(results[2].data).toMatchSnapshot()
+    expect(results[2].output).toMatchSnapshot()
   })
 })

@@ -120,7 +120,7 @@ describe('Segment.sendScreen', () => {
     const results = testDestination.results
     expect(responses.length).toBe(0)
     expect(results.length).toBe(3)
-    expect(results[2].data).toMatchObject({
+    expect(results[2].output).toMatchObject({
       batch: [
         {
           userId: event.userId,
