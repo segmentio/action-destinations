@@ -1,6 +1,7 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleCampaignManager, { destination } from '../index'
+import { GTAG } from '../types'
 
 const subscriptions: Subscription[] = [
   {
@@ -43,7 +44,7 @@ describe('GoogleCampaignManager.counterActivity', () => {
     conversionLinker: false
   }
 
-  let mockGTAG: typeof gtag
+  let mockGTAG: GTAG
   let counterActivityEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -55,9 +56,10 @@ describe('GoogleCampaignManager.counterActivity', () => {
     counterActivityEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockGTAG = jest.fn()
-
-      return Promise.resolve(mockGTAG)
+      mockGTAG = {
+        gtag: jest.fn()
+      }
+      return Promise.resolve(mockGTAG.gtag)
     })
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
@@ -80,7 +82,7 @@ describe('GoogleCampaignManager.counterActivity', () => {
     })
     await counterActivityEvent.track?.(context)
 
-    expect(mockGTAG).toHaveBeenCalledWith(
+    expect(mockGTAG.gtag).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('conversion'),
       expect.objectContaining({
@@ -113,7 +115,7 @@ describe('GoogleCampaignManager.counterActivity', () => {
     })
     await counterActivityEvent.track?.(context)
 
-    expect(mockGTAG).toHaveBeenCalledWith(
+    expect(mockGTAG.gtag).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('conversion'),
       expect.objectContaining({
