@@ -102,7 +102,7 @@ describe('Segment.sendTrack', () => {
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       properties: {
         plan: 'Business'
@@ -120,7 +120,7 @@ describe('Segment.sendTrack', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal': true
+        'actions-segment-tapi-internal-enabled': true
       }
     })
 
