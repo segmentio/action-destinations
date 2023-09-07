@@ -109,7 +109,7 @@ describe('SegmentProfiles.sendGroup', () => {
       groupId: 'test-group-ks2i7e'
     })
 
-    const responses = await testDestination.testAction('sendIdentify', {
+    const responses = await testDestination.testAction('sendGroup', {
       event,
       mapping: defaultGroupMapping,
       settings: {
