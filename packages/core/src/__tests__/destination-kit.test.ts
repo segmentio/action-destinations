@@ -179,7 +179,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
-        { output: 'Action Executed', data: ['this is a test', {}] }
+        { output: ['this is a test', {}] }
       ])
     })
 
@@ -210,7 +210,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
-        { output: 'Action Executed', data: ['this is a test', {}] }
+        { output: ['this is a test', {}] }
       ])
     })
 
@@ -241,7 +241,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
-        { output: 'Action Executed', data: ['this is a test', {}] }
+        { output: ['this is a test', {}] }
       ])
     })
   })
@@ -272,7 +272,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
-        { output: 'Action Executed', data: ['this is a test', {}] }
+        { output: ['this is a test', {}] }
       ])
     })
   })
@@ -404,8 +404,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
-          output: 'Action Executed',
-          data: {
+          output: {
             features: eventOptions.features,
             statsContext: {}
           }
@@ -446,8 +445,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
-          output: 'Action Executed',
-          data: {
+          output: {
             features: {},
             statsContext: eventOptions.statsContext
           }
@@ -485,8 +483,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
-          output: 'Action Executed',
-          data: {
+          output: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger
@@ -528,8 +525,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
-          output: 'Action Executed',
-          data: {
+          output: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger,
@@ -581,8 +577,7 @@ describe('destination kit', () => {
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
-          output: 'Action Executed',
-          data: {
+          output: {
             features: {},
             statsContext: {},
             logger: eventOptions.logger,
