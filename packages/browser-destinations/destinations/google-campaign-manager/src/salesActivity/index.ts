@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Sales Activity',
   description: 'Record monetary data for conversions, such as cost and the number of items sold',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     activityGroupTagString: {

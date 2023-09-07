@@ -7,6 +7,7 @@ import type { Payload } from './generated-types'
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Counter Activity',
   description: 'Record non-monetary conversion data such as unique users, conversions, and session length.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     activityGroupTagString: {
