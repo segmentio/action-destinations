@@ -3,7 +3,6 @@ import { Analytics, Context } from '@segment/analytics-next'
 import googleCampaignManager, { destination } from '../index'
 import { GTAG } from '../types'
 
-// TODO: Update to reflect code default paths
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'counterActivity',
