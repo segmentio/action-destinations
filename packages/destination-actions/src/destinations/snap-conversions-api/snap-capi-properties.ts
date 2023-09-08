@@ -551,37 +551,79 @@ export const click_id: InputField = {
 export const first_name: InputField = {
   label: 'First name',
   description: 'First name of the converted user.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.first_name' },
+      then: { '@path': '$.context.traits.first_name' },
+      else: { '@path': '$.properties.first_name' }
+    }
+  }
 }
 
 export const middle_name: InputField = {
   label: 'Middle name',
   description: 'Middle name of the converted user.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.middle_name' },
+      then: { '@path': '$.context.traits.middle_name' },
+      else: { '@path': '$.properties.middle_name' }
+    }
+  }
 }
 
 export const last_name: InputField = {
   label: 'Last name',
   description: 'Last name of the converted user.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.last_name' },
+      then: { '@path': '$.context.traits.last_name' },
+      else: { '@path': '$.properties.last_name' }
+    }
+  }
 }
 
 export const city: InputField = {
   label: 'City',
   description: 'City associated with the conversion.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.city' },
+      then: { '@path': '$.context.traits.address.city' },
+      else: { '@path': '$.properties.address.city' }
+    }
+  }
 }
 
 export const state: InputField = {
   label: 'State',
   description: 'State or region associated with the conversion.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.state' },
+      then: { '@path': '$.context.traits.address.state' },
+      else: { '@path': '$.properties.address.state' }
+    }
+  }
 }
 
 export const zip: InputField = {
   label: 'Zip',
   description: 'Zip or postal code associated with the conversion.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.postalCode' },
+      then: { '@path': '$.context.traits.address.postalCode' },
+      else: { '@path': '$.properties.address.postalCode' }
+    }
+  }
 }
 
 export const dob_month: InputField = {
@@ -607,7 +649,14 @@ export const region: InputField = {
   label: 'Region',
   description:
     'State or region associated with the conversion. If the country is `US`, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.region' },
+      then: { '@path': '$.context.traits.address.region' },
+      else: { '@path': '$.properties.address.region' }
+    }
+  }
 }
 
 //Check to see what ids need to be passed depending on the event_conversion_type
