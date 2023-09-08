@@ -10,7 +10,7 @@ export interface Payload {
    */
   activityTagString: string
   /**
-   * In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**
+   * In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.
    */
   enableDynamicTags?: boolean
   /**

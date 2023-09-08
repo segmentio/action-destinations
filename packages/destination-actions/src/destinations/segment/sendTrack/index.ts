@@ -19,7 +19,8 @@ import {
   user_agent,
   timezone,
   group_id,
-  properties
+  properties,
+  traits
 } from '../segment-properties'
 import { SEGMENT_ENDPOINTS } from '../properties'
 import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
@@ -46,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    properties
+    properties,
+    traits
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -58,6 +60,12 @@ const action: ActionDefinition<Settings, Payload> = {
       anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
       event: payload?.event_name,
+      properties: {
+        ...payload?.properties
+      },
+      traits: {
+        ...payload?.traits
+      },
       context: {
         app: payload?.application,
         campaign: payload?.campaign_parameters,
@@ -72,9 +80,6 @@ const action: ActionDefinition<Settings, Payload> = {
         userAgent: payload?.user_agent,
         timezone: payload?.timezone,
         groupId: payload?.group_id
-      },
-      properties: {
-        ...payload?.properties
       }
     }
 
