@@ -1,7 +1,11 @@
 export const generateId = () => {
-  let randomString = Math.random().toString(36).substring(2, 12)
-  while (randomString.length < 10) {
-    randomString += '0'
+  const length = 10
+  let result = ''
+
+  for (let i = 0; i < length; i++) {
+    const randomNumber = Math.floor(Math.random() * 10) // Generates a random digit between 0 and 9
+    result += randomNumber.toString() // Convert the digit to a string and append it to the result
   }
-  return randomString.substring(0, 10)
+
+  return result
 }
