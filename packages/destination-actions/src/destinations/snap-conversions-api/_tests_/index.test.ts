@@ -2,13 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { defaultValues } from '@segment/actions-core'
-
-import reportConversionEvent from '../reportConversionEvent'
-
-const DEFAULT_VALS = {
-  ...defaultValues(reportConversionEvent.fields)
-}
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2022-05-12T15:21:15.449Z'
@@ -206,7 +199,9 @@ describe('Snap Conversions API ', () => {
       const event = createTestEvent({
         ...testEvent,
         properties: {
-          country: 'United States of America'
+          address: {
+            country: 'United States of America'
+          }
         }
       })
 
@@ -214,16 +209,15 @@ describe('Snap Conversions API ', () => {
         testDestination.testAction('reportConversionEvent', {
           event,
           settings,
-          useDefaultMappings: false,
+          useDefaultMappings: true,
           auth: {
             accessToken,
             refreshToken
           },
           mapping: {
-            ...DEFAULT_VALS,
             event_type: 'PURCHASE',
             event_conversion_type: 'WEB',
-            country: { '@path': '$.properties.country' }
+            country: { '@path': '$.properties.address.country' }
           }
         })
       ).rejects.toThrowError(
@@ -237,8 +231,10 @@ describe('Snap Conversions API ', () => {
       const event = createTestEvent({
         ...testEvent,
         properties: {
-          country: 'US',
-          region: 'California'
+          address: {
+            country: 'US',
+            region: 'California'
+          }
         }
       })
 
@@ -246,17 +242,15 @@ describe('Snap Conversions API ', () => {
         testDestination.testAction('reportConversionEvent', {
           event,
           settings,
-          useDefaultMappings: false,
+          useDefaultMappings: true,
           auth: {
             accessToken,
             refreshToken
           },
           mapping: {
-            ...DEFAULT_VALS,
             event_type: 'PURCHASE',
             event_conversion_type: 'WEB',
-            country: { '@path': '$.properties.country' },
-            region: { '@path': '$.properties.region' }
+            country: { '@path': '$.properties.address.country' }
           }
         })
       ).rejects.toThrowError(
@@ -270,24 +264,24 @@ describe('Snap Conversions API ', () => {
       const event = createTestEvent({
         ...testEvent,
         properties: {
-          country: 'US'
+          address: {
+            country: 'US'
+          }
         }
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
         settings,
-        useDefaultMappings: false,
+        useDefaultMappings: true,
         auth: {
           accessToken,
           refreshToken
         },
         mapping: {
-          ...DEFAULT_VALS,
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB',
-          country: { '@path': '$.properties.country' },
-          region: { '@path': '$.properties.region' }
+          country: { '@path': '$.properties.address.country' }
         }
       })
 
@@ -305,25 +299,25 @@ describe('Snap Conversions API ', () => {
       const event = createTestEvent({
         ...testEvent,
         properties: {
-          country: 'US',
-          region: 'CA'
+          address: {
+            country: 'US',
+            region: 'CA'
+          }
         }
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
         settings,
-        useDefaultMappings: false,
+        useDefaultMappings: true,
         auth: {
           accessToken,
           refreshToken
         },
         mapping: {
-          ...DEFAULT_VALS,
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB',
-          country: { '@path': '$.properties.country' },
-          region: { '@path': '$.properties.region' }
+          country: { '@path': '$.properties.address.country' }
         }
       })
 
@@ -341,25 +335,25 @@ describe('Snap Conversions API ', () => {
       const event = createTestEvent({
         ...testEvent,
         properties: {
-          country: 'FR',
-          region: 'Hauts-de-France'
+          address: {
+            country: 'FR',
+            region: 'Hauts-de-France'
+          }
         }
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
         settings,
-        useDefaultMappings: false,
+        useDefaultMappings: true,
         auth: {
           accessToken,
           refreshToken
         },
         mapping: {
-          ...DEFAULT_VALS,
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB',
-          country: { '@path': '$.properties.country' },
-          region: { '@path': '$.properties.region' }
+          country: { '@path': '$.properties.address.country' }
         }
       })
 
@@ -589,39 +583,33 @@ describe('Snap Conversions API ', () => {
           first_name: 'John',
           middle_name: 'Middle',
           last_name: 'Doe',
-          city: 'Santa Monica',
-          state: 'CA',
-          zip: '90405',
           dob_month: 'January',
           dob_day: '26',
-          country: 'US',
-          region: 'CA'
+          address: {
+            city: 'Santa Monica',
+            country: 'US',
+            postalCode: '90405',
+            region: 'CA',
+            state: 'CA'
+          }
         }
       })
 
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
         settings,
-        useDefaultMappings: false,
+        useDefaultMappings: true,
         auth: {
           accessToken,
           refreshToken
         },
         mapping: {
-          ...DEFAULT_VALS,
           event_type: 'PURCHASE',
           event_conversion_type: 'WEB',
           idfv: { '@path': '$.properties.idfv' },
-          first_name: { '@path': '$.properties.first_name' },
-          middle_name: { '@path': '$.properties.middle_name' },
-          last_name: { '@path': '$.properties.last_name' },
-          city: { '@path': '$.properties.city' },
-          state: { '@path': '$.properties.state' },
-          zip: { '@path': '$.properties.zip' },
           dob_month: { '@path': '$.properties.dob_month' },
           dob_day: { '@path': '$.properties.dob_day' },
-          country: { '@path': '$.properties.country' },
-          region: { '@path': '$.properties.region' }
+          country: { '@path': '$.properties.address.country' }
         }
       })
 
