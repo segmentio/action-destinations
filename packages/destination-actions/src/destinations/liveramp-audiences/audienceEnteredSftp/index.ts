@@ -77,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: false,
       unsafe_hidden: true,
-      default: 100000
+      default: 50000
     }
   },
   perform: async (_, { payload }) => {
