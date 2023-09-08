@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'trackEvent'
+const actionSlug = 'singleProductEvent'
 const destinationSlug = 'OptimizelyDataPlatform'
 const seedName = `${destinationSlug}#${actionSlug}`
 

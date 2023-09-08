@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Optimizely Region to sync Audience data to. Default is US
+   * Optimizely Region to sync data to. Default is US
    */
   region: string
 }
