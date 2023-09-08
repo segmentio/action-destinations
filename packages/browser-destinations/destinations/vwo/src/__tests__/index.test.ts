@@ -41,7 +41,7 @@ describe('VWO Web (Actions)', () => {
     expect(script).toBeDefined()
   })
 
-  test('Loads VWO Object without intiScript', async () => {
+  test('Loads VWO Object without initScript', async () => {
     const [vwo] = await vwoDestination({
       vwoAccountId: 654331,
       addSmartcode: false,
