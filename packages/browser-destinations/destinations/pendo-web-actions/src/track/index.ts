@@ -28,8 +28,8 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       }
     }
   },
-  perform: (pendo, event) => {
-    pendo.track(event.payload.event, event.payload.metadata)
+  perform: (pendo, { payload }) => {
+    pendo.track(payload.event, payload.metadata)
   }
 }
 
