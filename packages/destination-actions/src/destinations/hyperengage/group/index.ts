@@ -6,21 +6,21 @@ import { commonFields } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group',
-  description: 'Indentify accounts for Hyperengage',
+  description: 'Send group calls to Hyperengage.',
   defaultSubscription: 'type = "group"',
   fields: {
     account_id: {
       type: 'string',
       required: true,
-      description: 'External identifier for the Account',
-      label: 'Company id',
+      description: 'The External ID of the account to send properties for',
+      label: 'Account id',
       default: { '@path': '$.groupId' }
     },
     name: {
       type: 'string',
       required: true,
-      description: 'The company name',
-      label: 'Company name',
+      description: 'The Account name',
+      label: 'Account name',
       default: {
         '@if': {
           exists: { '@path': '$.traits.name' },
@@ -32,56 +32,42 @@ const action: ActionDefinition<Settings, Payload> = {
     created_at: {
       type: 'string',
       required: false,
-      description: 'The timestamp when the company was created',
-      label: 'Company created at',
+      description: 'The timestamp when the account was created',
+      label: 'Account created at',
       default: { '@path': '$.traits.created_at' }
     },
     traits: {
       type: 'object',
       required: false,
-      description: 'The company custom attributes',
-      label: 'Company custom attributes',
+      description: 'The properties of the account',
+      label: 'Account properties',
       default: { '@path': '$.traits' }
     },
     plan: {
       type: 'string',
       required: false,
-      description: 'The company plan',
-      label: 'Company plan',
+      description: 'Subscription plan the account is associated with',
+      label: 'Account subscription plan',
       default: { '@path': '$.traits.plan' }
     },
     industry: {
       type: 'string',
       required: false,
-      description: 'The company industry',
-      label: 'Company industry',
+      description: 'The account industry',
+      label: 'Account industry',
       default: { '@path': '$.traits.industry' }
-    },
-    trial_start: {
-      type: 'string',
-      required: false,
-      description: 'The company trial start date',
-      label: 'Company trial start date',
-      default: { '@path': '$.traits.trial_start' }
-    },
-    trial_end: {
-      type: 'string',
-      required: false,
-      description: 'The company trial end date',
-      label: 'Company trial end date',
-      default: { '@path': '$.traits.trial_end' }
     },
     website: {
       type: 'string',
       required: false,
-      description: 'The company website',
-      label: 'Company website',
+      description: 'The account website',
+      label: 'Account website',
       default: { '@path': '$.traits.website' }
     },
     ...commonFields
   },
   perform: (request, data) => {
-    return request(`https://t.jitsu.com/api/v1/s2s/event?token=${data.settings.apiKey}`, {
+    return request(`https://events.hyperengage.io/api/v1/s2s/event?token=${data.settings.apiKey}`, {
       method: 'post',
       json: validateInput(data.settings, data.payload, 'account_identify')
     })

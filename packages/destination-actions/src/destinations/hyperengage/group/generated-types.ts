@@ -2,41 +2,33 @@
 
 export interface Payload {
   /**
-   * External identifier for the Account
+   * The External ID of the account to send properties for
    */
   account_id: string
   /**
-   * The company name
+   * The Account name
    */
   name: string
   /**
-   * The timestamp when the company was created
+   * The timestamp when the account was created
    */
   created_at?: string
   /**
-   * The company custom attributes
+   * The properties of the account
    */
   traits?: {
     [k: string]: unknown
   }
   /**
-   * The company plan
+   * Subscription plan the account is associated with
    */
   plan?: string
   /**
-   * The company industry
+   * The account industry
    */
   industry?: string
   /**
-   * The company trial start date
-   */
-  trial_start?: string
-  /**
-   * The company trial end date
-   */
-  trial_end?: string
-  /**
-   * The company website
+   * The account website
    */
   website?: string
   /**

@@ -6,7 +6,7 @@ export interface Payload {
    */
   event_name: string
   /**
-   * The event properties
+   * The properties of the track call
    */
   properties?: {
     [k: string]: unknown

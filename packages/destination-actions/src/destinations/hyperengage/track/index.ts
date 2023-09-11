@@ -6,7 +6,7 @@ import { commonFields } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
-  description: 'Send an event to Hyperengage',
+  description: 'Send track calls to Hyperengage.',
   defaultSubscription: 'type = "track"',
   fields: {
     event_name: {
@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: {
       type: 'object',
       required: false,
-      description: 'The event properties',
+      description: 'The properties of the track call',
       label: 'Event properties',
       default: { '@path': '$.properties' }
     },
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   perform: (request, data) => {
-    return request(`https://t.jitsu.com/api/v1/s2s/event?token=${data.settings.apiKey}`, {
+    return request(`https://events.hyperengage.io/api/v1/s2s/event?token=${data.settings.apiKey}`, {
       method: 'post',
       json: validateInput(data.settings, data.payload, 'track')
     })

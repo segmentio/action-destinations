@@ -29,12 +29,6 @@ const heGroupMapping = {
   industry: {
     '@path': '$.traits.industry'
   },
-  trial_start: {
-    '@path': '$.traits.trial_start'
-  },
-  trial_end: {
-    '@path': '$.traits.trial_end'
-  },
   website: {
     '@path': '$.traits.website'
   }

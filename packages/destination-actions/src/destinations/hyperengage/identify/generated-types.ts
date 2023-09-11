@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * External identifier for the user
+   * The External ID of the user
    */
   user_id: string
   /**
@@ -10,7 +10,7 @@ export interface Payload {
    */
   name: string
   /**
-   * The user email address
+   * The user's email address
    */
   email?: string
   /**
@@ -18,7 +18,7 @@ export interface Payload {
    */
   created_at?: string
   /**
-   * Traits to associate with the user
+   * Properties to associate with the user
    */
   traits?: {
     [k: string]: unknown
