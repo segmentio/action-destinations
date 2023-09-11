@@ -1,13 +1,13 @@
+import { defaultValues } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { hosts } from './utils'
 
 import singleProductEvent from './singleProductEvent'
-
-import upsertContact from './upsertContact'
-
 import multiProductEvent from './multiProductEvent'
-import { defaultValues } from '@segment/actions-core'
+import upsertContact from './upsertContact'
+import emailEvent from './emailEvent'
+
+import { hosts } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Optimizely Data Platform',
@@ -49,14 +49,14 @@ const destination: DestinationDefinition<Settings> = {
       headers: { Authorization: `Bearer ${settings.apiKey}` }
     }
   },
-  presets:[
+  presets: [
     {
       name: 'Product Viewed',
       subscribe: 'type = "track" and event = "Product Viewed"',
       partnerAction: 'singleProductEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(singleProductEvent.fields),
-        event_action: 'product_viewed'
+        event_action: 'detail'
       },
       type: 'automatic'
     },
@@ -64,9 +64,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Product Added',
       subscribe: 'type = "track" and event = "Product Added"',
       partnerAction: 'singleProductEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(singleProductEvent.fields),
-        event_action: 'product_added'
+        event_action: 'add_to_cart'
       },
       type: 'automatic'
     },
@@ -74,9 +74,19 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Product Removed',
       subscribe: 'type = "track" and event = "Product Removed"',
       partnerAction: 'singleProductEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(singleProductEvent.fields),
-        event_action: 'product_removed' 
+        event_action: 'remove_from_cart'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Order Completed',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'multiProductEvent',
+      mapping: {
+        ...defaultValues(multiProductEvent.fields),
+        event_action: 'purchase'
       },
       type: 'automatic'
     }
@@ -84,7 +94,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     singleProductEvent,
     upsertContact,
-    multiProductEvent
+    multiProductEvent,
+    emailEvent
   }
 }
 

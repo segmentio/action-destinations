@@ -17,6 +17,14 @@ export interface Payload {
      * Identifier for the product
      */
     product_sku?: string
+    /**
+     * Price for a single unit of the product. e.g. 9.99
+     */
+    price?: number
+    /**
+     * Currency
+     */
+    currency?: string
   }[]
   /**
    * Event ID to maintain unique event data

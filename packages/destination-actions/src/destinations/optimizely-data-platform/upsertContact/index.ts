@@ -101,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'user image',
       default: {
-        '@path': '$.'
+        '@path': '$.traits.avatar'
       }
     },
     properties: {
@@ -111,13 +111,16 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, data) => {
+  perform: (request, { payload }) => {
     
-    console.log(data.payload);
+    const body = {
+      type: 'product',
+      image_url: payload.imageURL
+    }
 
     return request('https://example.com', {
       method: 'post',
-      json: data.payload
+      json: body
     })
   }
 }

@@ -1,6 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-
 export const event_action: InputField = {
     label: 'Event Action',
     description: 'The name of the event',
@@ -43,8 +42,8 @@ export const currency: InputField = {
     description: 'Currency',
     type: 'string',
     choices: [
-        {label: "USD", value: "USD"},
-        {label: "EUR", value: "EUR"}
+        { label: 'USD', value: 'USD' },
+        { label: 'EUR', value: 'EUR' }
     ],
     default: {
         '@path': '$.properties.currency'
@@ -76,7 +75,7 @@ export const order_id: InputField = {
     default: {
         '@path': '$.order_id'
     }
-}
+};
 
 export const products: InputField = {
     label: 'Products',
@@ -93,19 +92,41 @@ export const products: InputField = {
         label: 'Product SKU',
         description: 'Identifier for the product',
         type: 'string'
-      }
+      },
+      price: {
+        label: 'Product Price',
+        description: 'Price for a single unit of the product. e.g. 9.99',
+        type: 'number'
+      },
+      currency: {
+        label: 'Currency',
+        description: 'Currency',
+        type: 'string',
+        choices: [
+            { label: 'USD', value: 'USD' },
+            { label: 'EUR', value: 'EUR' }
+        ]
+    }
     },
     default: {
         '@arrayPath': [
             '$.properties.products',
             {
-                product_id: {
-                    '@path': '$.product_id'
-                },
-                product_sku: {
-                    '@path': '$.sku'
-                }
+                product_id: { '@path': '$.product_id' },
+                product_sku: { '@path': '$.sku' },
+                price: { '@path': '$.price' },
+                currency: { '@path': '$.currency' }
             }
         ]
     }
-  }
+  };
+
+  export const email_event: InputField = {
+    label: 'Email Event',
+    description: 'Email details',
+    type: 'string',
+    required: true,
+    default: {
+        '@path': '$.event'
+    }
+};
