@@ -1,8 +1,12 @@
-import { ActionDefinition, PayloadValidationError, RequestClient } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadS3, validateS3 } from './s3'
 import { generateFile } from '../operations'
+import { sendEventToAWS } from '../awsClient'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import type { ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -82,27 +86,55 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 170000
     }
   },
-  perform: async (request, { payload }) => {
-    return processData(request, [payload])
+  perform: async (request, { payload, features }) => {
+    return processData({
+      request,
+      payloads: [payload],
+      features
+    })
   },
-  performBatch: (request, { payload }) => {
-    return processData(request, payload)
+  performBatch: (request, { payload, features }) => {
+    return processData({
+      request,
+      payloads: payload,
+      features
+    })
   }
 }
 
-async function processData(request: RequestClient, payloads: Payload[]) {
-  const LIVERAMP_MIN_RECORD_COUNT = 25
-  if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
+async function processData(input: ProcessDataInput<Payload>) {
+  if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
-      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${payloads.length}`
+      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
     )
   }
 
-  validateS3(payloads[0])
+  validateS3(input.payloads[0])
 
-  const { filename, fileContent } = generateFile(payloads)
+  const { filename, fileContents } = generateFile(input.payloads)
 
-  return uploadS3(payloads[0], filename, fileContent, request)
+  if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
+    //------------
+    // LEGACY FLOW
+    // -----------
+    return uploadS3(input.payloads[0], filename, fileContents, input.request)
+  } else {
+    //------------
+    // AWS FLOW
+    // -----------
+    return sendEventToAWS(input.request, {
+      audienceKey: input.payloads[0].audience_key,
+      uploadType: 's3',
+      filename,
+      fileContents,
+      s3Info: {
+        s3BucketName: input.payloads[0].s3_aws_bucket_name,
+        s3Region: input.payloads[0].s3_aws_region,
+        s3AccessKeyId: input.payloads[0].s3_aws_access_key,
+        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
+      }
+    })
+  }
 }
 
 export default action

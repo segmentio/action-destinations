@@ -1,8 +1,12 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
+import { sendEventToAWS } from '../awsClient'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import type { ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (SFTP)',
@@ -80,28 +84,55 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 50000
     }
   },
-  perform: async (_, { payload }) => {
-    return processData([payload])
+  perform: async (request, { payload, features }) => {
+    return processData({
+      request,
+      payloads: [payload],
+      features
+    })
   },
-  performBatch: (_, { payload }) => {
-    return processData(payload)
+  performBatch: (request, { payload, features }) => {
+    return processData({
+      request,
+      payloads: payload,
+      features
+    })
   }
 }
 
-async function processData(payloads: Payload[]) {
-  const LIVERAMP_MIN_RECORD_COUNT = 25
-  if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
+async function processData(input: ProcessDataInput<Payload>) {
+  if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
-      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${payloads.length}`
+      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
     )
   }
 
-  validateSFTP(payloads[0])
+  validateSFTP(input.payloads[0])
 
-  const { filename, fileContent } = generateFile(payloads)
+  const { filename, fileContents } = generateFile(input.payloads)
 
-  const sftpClient = new ClientSFTP()
-  return uploadSFTP(sftpClient, payloads[0], filename, fileContent)
+  if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
+    //------------
+    // LEGACY FLOW
+    // -----------
+    const sftpClient = new ClientSFTP()
+    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+  } else {
+    //------------
+    // AWS FLOW
+    // -----------
+    return sendEventToAWS(input.request, {
+      audienceKey: input.payloads[0].audience_key,
+      uploadType: 'sftp',
+      filename,
+      fileContents,
+      sftpInfo: {
+        sftpUsername: input.payloads[0].sftp_username,
+        sftpPassword: input.payloads[0].sftp_password,
+        sftpFolderPath: input.payloads[0].sftp_folder_path
+      }
+    })
+  }
 }
 
 export default action
