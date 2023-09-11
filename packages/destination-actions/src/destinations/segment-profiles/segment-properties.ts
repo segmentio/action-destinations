@@ -35,3 +35,25 @@ export const engage_space: InputField = {
   required: true,
   dynamic: true
 }
+
+export const timestamp: InputField = {
+  label: 'Timestamp',
+  description:
+    'Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.',
+  type: 'string'
+}
+
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: 'Name of the action that a user has performed.',
+  type: 'string',
+  required: true
+}
+
+export const properties: InputField = {
+  label: 'Properties',
+  description: 'Free-form dictionary of properties that describe the screen.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}

@@ -9,6 +9,10 @@ const destinationSlug = 'actions-segment-profiles'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
+    // skip sendTrack as it doesn't make any API calls
+    if (actionSlug == 'sendTrack') {
+      continue
+    }
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
