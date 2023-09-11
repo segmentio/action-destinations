@@ -18,7 +18,7 @@ export type identifyPayload = {
   parentAccount?: { [key: string]: string }
 }
 
-export interface PendoSDK {
+export type PendoSDK = {
   initialize: ({ visitor, account }: InitializeData) => void
   track: (eventName: string, metadata?: { [key: string]: unknown }) => void
   identify: (data: identifyPayload) => void

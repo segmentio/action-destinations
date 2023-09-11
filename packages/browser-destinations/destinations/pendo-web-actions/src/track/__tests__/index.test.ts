@@ -1,62 +1,65 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import PendoDestination, { destination } from '../../index'
+import { Subscription } from '@segment/browser-destination-runtime'
+import pendoDestination, { destination } from '../../index'
 import { PendoSDK } from '../../types'
 
-describe('Pendo.trackEvent', () => {
-  window.pendo = {
-    initialize: jest.fn().mockResolvedValueOnce({}),
-    isReady: jest.fn().mockResolvedValueOnce(undefined),
-    track: jest.fn().mockResolvedValueOnce(undefined),
-    identify: jest.fn().mockResolvedValueOnce(undefined)
-  } as unknown as PendoSDK
+const subscriptions: Subscription[] = [
+  {
+    partnerAction: 'track',
+    name: 'Track Event',
+    enabled: true,
+    subscribe: 'type = "track"',
+    mapping: {
+      event: {
+        '@path': '$.event'
+      },
+      metadata: {
+        '@path': '$.properties'
+      }
+    }
+  }
+]
 
-  it('Sends events to Pendo', async () => {
-    const [event] = await PendoDestination({
-      apiKey: 'abc123',
-      setVisitorIdOnLoad: 'disabled',
-      region: 'io',
-      subscriptions: [
-        {
-          partnerAction: 'track',
-          name: 'Track Event',
-          enabled: true,
-          subscribe: 'type = "track"',
-          mapping: {
-            event: {
-              '@path': '$.event'
-            },
-            metadata: {
-              '@path': '$.properties'
-            }
-          }
-        }
-      ]
+describe('Pendo.track', () => {
+  const settings = {
+    apiKey: 'abc123',
+    setVisitorIdOnLoad: 'disabled',
+    region: 'io'
+  }
+
+  let mockPendo: PendoSDK
+  let trackAction: any
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEvent] = await pendoDestination({
+      ...settings,
+      subscriptions
     })
+    trackAction = trackEvent
 
-    destination.actions.track.perform = jest.fn()
-    const trackSpy = jest.spyOn(destination.actions.track, 'perform')
-    await event.load(Context.system(), {} as Analytics)
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockPendo = {
+        initialize: jest.fn(),
+        isReady: jest.fn(),
+        track: jest.fn(),
+        identify: jest.fn()
+      }
+      return Promise.resolve(mockPendo)
+    })
+    await trackAction.load(Context.system(), {} as Analytics)
+  })
 
-    await event.track?.(
-      new Context({
-        type: 'track',
-        event: 'Test Event',
-        properties: {
-          test: 'hello'
-        }
-      })
-    )
+  test('calls the pendo Client track() function', async () => {
+    const context = new Context({
+      type: 'track',
+      event: 'Test Event',
+      properties: {
+        test: 'hello'
+      }
+    })
+    await trackAction.track?.(context)
 
-    expect(trackSpy).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        payload: {
-          event: 'Test Event',
-          metadata: {
-            test: 'hello'
-          }
-        }
-      })
-    )
+    expect(mockPendo.track).toHaveBeenCalledWith('Test Event', { test: 'hello' })
   })
 })
