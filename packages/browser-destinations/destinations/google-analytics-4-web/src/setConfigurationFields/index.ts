@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties } from '../ga4-properties'
 import { updateUser } from '../ga4-functions'
 
+type ConsentParamsArg = 'granted' | 'denied' | undefined
+
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
@@ -96,8 +98,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
-        ad_storage: payload.ads_storage_consent_state,
-        analytics_storage: payload.analytics_storage_consent_state
+        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
+        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
       })
     }
     type ConfigType = { [key: string]: unknown }

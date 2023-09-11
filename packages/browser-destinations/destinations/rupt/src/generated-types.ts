@@ -10,7 +10,7 @@ export interface Settings {
    */
   new_account_url: string
   /**
-   * A URL to redirect the user to if they choose to logout or if they are kicked out by a verified owner.
+   * A URL to redirect the user to if they choose to logout or if they are removed by a verified owner.
    */
   logout_url?: string
   /**
