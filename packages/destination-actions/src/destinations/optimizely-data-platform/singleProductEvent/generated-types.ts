@@ -2,6 +2,27 @@
 
 export interface Payload {
   /**
+   * User identifier details to send to Optimizely.
+   */
+  user_identifiers: {
+    /**
+     * Segment Anonymous ID
+     */
+    anonymousId?: string
+    /**
+     * Segment User ID
+     */
+    userId?: string
+    /**
+     * User Email address
+     */
+    email?: string
+    /**
+     * Optimizely VUID - user cookie generated created by Optimizely Javascript library
+     */
+    optimizely_vuid?: string
+  }
+  /**
    * The name of the event
    */
   event_action: string
@@ -9,22 +30,6 @@ export interface Payload {
    * Identifier for the product
    */
   product_id?: string
-  /**
-   * Stock Keeping Unit for the product
-   */
-  product_sku?: string
-  /**
-   * Price for a single unit of the product. e.g. 9.99
-   */
-  price?: number
-  /**
-   * Currency
-   */
-  currency?: string
-  /**
-   * Event ID to maintain unique event data
-   */
-  event_id?: string
   /**
    * Event timestamp
    */

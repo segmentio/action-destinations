@@ -5,7 +5,7 @@ import { getEmailEventType } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Email Event',
-  description: '',
+  description: 'Send email event to Optimizely',
   fields: {
     event_action: {
       label: 'Event Action',
@@ -16,21 +16,17 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.event'
       }
     },
-    email_id: {
-      label: 'Email ID',
-      description: "The email unique identifier",
-      type: 'string',
-      default: {
-        '@path': '$.properties.email_id'
-      }
-    },
     email: {
       label: 'Email',
       description: "The user's email",
       type: 'string',
       format: 'email',
       default: {
-        '@path': '$.context.traits.email'
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
       }
     },
     campaign_id: {
@@ -50,8 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     link_url: {
-      label: 'Email Link Clicked',
-      description: 'The link that is clicked in email',
+      label: 'Link URL',
+      description: 'URL of the link which was clicked',
       type: 'string',
       default: {
         '@path': '$.properties.link_url'
@@ -66,10 +62,6 @@ const action: ActionDefinition<Settings, Payload> = {
       email: payload.email,
       campaign_event_value: payload.link_url
     };
-
-    if (payload.event_action === 'Unsubscribed') {
-      body.type = 'consent'
-    }
     
     return request('https://example.com', {
       method: 'post',

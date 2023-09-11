@@ -2,55 +2,85 @@
 
 export interface Payload {
   /**
-   * Identifier email address
+   * User identifier details to send to Optimizely.
    */
-  email: string
+  user_identifiers: {
+    /**
+     * Segment Anonymous ID
+     */
+    anonymousId?: string
+    /**
+     * Segment User ID
+     */
+    userId?: string
+    /**
+     * User Email address
+     */
+    email?: string
+    /**
+     * Optimizely VUID - user cookie generated created by Optimizely Javascript library
+     */
+    optimizely_vuid?: string
+  }
   /**
-   * Company Name
+   * The name of the company associated with the Contact
    */
   company?: string
   /**
-   * Person title
+   * The Contact's Title
    */
   title?: string
   /**
-   * Person Full Name
+   * Contact's full name
    */
   name?: string
   /**
-   * First name
+   * Contact's first name
    */
   firstname?: string
   /**
-   * Last name.
+   * Contact's last name
    */
   lastname?: string
   /**
-   * Person Gender
+   * Contact's gender
    */
   gender?: string
   /**
-   * Birthday
+   * Contact's birthday. The format should be datetime
    */
-  DOB?: string
+  DOB?: string | number
   /**
-   * Phone number.
+   * Contact's phone number.
    */
   phone?: string
   /**
    * Address details object
    */
   address?: {
-    [k: string]: unknown
+    /**
+     * The user's steet.
+     */
+    street?: string
+    /**
+     * The user's city.
+     */
+    city?: string
+    /**
+     * The user's state or region.
+     */
+    state?: string
+    /**
+     * Zip or postal code
+     */
+    zip?: string
+    /**
+     * The user's country.
+     */
+    country?: string
   }
   /**
-   * user image
+   * The user's avatar image URL.
    */
   imageURL?: string
-  /**
-   * Properties
-   */
-  properties?: {
-    [k: string]: unknown
-  }
 }

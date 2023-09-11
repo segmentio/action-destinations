@@ -1,25 +1,18 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { user_identifiers } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
-  description: '',
+  description: 'Creates or updates a Contact in Optimizely Data Platform',
+  defaultSubscription: 'type = "identify"',
   fields: {
-    email: {
-      label: 'Email',
-      type: 'string',
-      description: 'Identifier email address',
-      required: true,
-      format: 'email',
-      default: {
-        '@path': '$.traits.email'
-      }
-    },
+    user_identifiers: user_identifiers,
     company: {
-      label: 'Company',
+      label: 'Company Name',
       type: 'string',
-      description: 'Company Name',
+      description: 'The name of the company associated with the Contact',
       default: {
         '@path': '$.traits.company'
       }
@@ -27,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     title: {
       label: 'Title',
       type: 'string',
-      description: 'Person title',
+      description: 'The Contact\'s Title',
       default: {
         '@path': '$.traits.title'
       }
@@ -35,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       label: 'Name',
       type: 'string',
-      description: 'Person Full Name',
+      description: 'Contact\'s full name',
       default: {
         '@path': '$.traits.name'
       }
@@ -43,39 +36,27 @@ const action: ActionDefinition<Settings, Payload> = {
     firstname: {
       label: 'First Name',
       type: 'string',
-      description: 'First name',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.first_name' },
-          then: { '@path': '$.traits.first_name' },
-          else: { '@path': '$.traits.firstName' }
-        }
-      }
+      description: 'Contact\'s first name',
+      default: { '@path': '$.traits.first_name' }
     },
     lastname: {
       label: 'Last Name',
       type: 'string',
-      description: 'Last name.',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.last_name' },
-          then: { '@path': '$.traits.last_name' },
-          else: { '@path': '$.traits.lastName' }
-        }
-      }
+      description: 'Contact\'s last name',
+      default: { '@path': '$.traits.last_name' }
     },
     gender: {
       label: 'Gender',
       type: 'string',
-      description: 'Person Gender',
+      description: 'Contact\'s gender',
       default: {
         '@path': '$.traits.gender'
       }
     },
     DOB: {
       label: 'Birthday',
-      type: 'string',
-      description: 'Birthday',
+      type: 'datetime',
+      description: 'Contact\'s birthday. The format should be datetime',
       default: {
         '@path': '$.traits.birthday'
       }
@@ -83,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone: {
       label: 'Phone',
       type: 'string',
-      description: 'Phone number.',
+      description: 'Contact\'s phone number.',
       default: {
         '@path': '$.traits.phone'
       }
@@ -92,23 +73,48 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Address',
       type: 'object',
       description: "Address details object",
+      properties: {
+        street: {
+          label: 'Street',
+          type: 'string',
+          description: "The user's steet."
+        },
+        city: {
+          label: 'City',
+          type: 'string',
+          description: "The user's city."
+        },
+        state: {
+          label: 'State',
+          type: 'string',
+          description: "The user's state or region."
+        },
+        zip: {
+          label: 'Zip code',
+          type: 'string',
+          description: "Zip or postal code"
+        },
+        country: {
+          label: 'Country',
+          type: 'string',
+          description: "The user's country."
+        }
+      },
       default: {
-        '@path': '$.traits.address'
+        street: { '@path': '$.traits.address.street' },
+        city: { '@path': '$.traits.address.city' },
+        state: { '@path': '$.traits.address.state' },
+        zip: { '@path': '$.traits.address.postalCode' },
+        country: { '@path': '$.traits.address.country' },
       }
     },
     imageURL: {
       label: 'avatar',
       type: 'string',
-      description: 'user image',
+      description: "The user's avatar image URL.",
       default: {
         '@path': '$.traits.avatar'
       }
-    },
-    properties: {
-      label: 'Other properties',
-      type: 'object',
-      description: 'Properties',
-      defaultObjectUI: 'keyvalue:only'
     }
   },
   perform: (request, { payload }) => {

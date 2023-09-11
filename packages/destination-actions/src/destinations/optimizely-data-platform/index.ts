@@ -81,6 +81,16 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
+      name: 'Product Catalog Details Upserted',
+      subscribe: 'type = "track" and event = "Product Catalog Details Upserted"',
+      partnerAction: 'upsertProduct',
+      mapping: {
+        ...defaultValues(singleProductEvent.fields),
+        event_action: 'product_catalog_item_upserted'
+      },
+      type: 'automatic'
+    },
+    {
       name: 'Order Completed',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'multiProductEvent',
@@ -89,12 +99,33 @@ const destination: DestinationDefinition<Settings> = {
         event_action: 'purchase'
       },
       type: 'automatic'
+    },
+    {
+      name: 'Email Link Clicked',
+      subscribe: 'type = "track" and event = "Email Link Clicked"',
+      partnerAction: 'emailEvent',
+      mapping: {
+        ...defaultValues(emailEvent.fields),
+        event_action: 'email_click'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Email Opened',
+      subscribe: 'type = "track" and event = "Email Opened"',
+      partnerAction: 'emailEvent',
+      mapping: {
+        ...defaultValues(emailEvent.fields),
+        event_action: 'email_opened'
+      },
+      type: 'automatic'
     }
   ],
   actions: {
-    singleProductEvent,
+
+    singleProductEvent, // Record an analytics event for a user against a single product. Does not upsert product details.
+    multiProductEvent, // Record an analytics event for a user against multiple products (purchase). Does not upsert product details.
     upsertContact,
-    multiProductEvent,
     emailEvent
   }
 }

@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const audienceName = payload.custom_audience_name
     const audienceValue = d?.rawData?.properties?.[audienceName] ?? d?.rawData?.traits?.[audienceName]
 
-    return request(`${host}/event_import`, {
+    return request(`${host}/sync_audience`, {
       method: 'post',
       json: {
         audienceId: computationId,
