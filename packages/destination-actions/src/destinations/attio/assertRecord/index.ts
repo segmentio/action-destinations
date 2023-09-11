@@ -29,14 +29,13 @@ const attributes: InputField = {
   label: 'Attributes',
   description:
     'Attributes to either set or update on the Attio Record. The values on the left should be ' +
-    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs, ' +
+    'for example: traits.name → name. ' +
     'The Matching Attribute must be included for assertion to work.',
   defaultObjectUI: 'keyvalue:only',
   additionalProperties: true,
   properties: {},
-  default: {
-    an_example_attribute: { '@path': '$.traits.name' }
-  }
+  default: {}
 }
 
 export const objectLookup = async (request: RequestClient): Promise<DynamicFieldResponse> => {
