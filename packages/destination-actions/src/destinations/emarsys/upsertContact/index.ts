@@ -52,6 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const contact: ContactData = {}
 
     contact[data.payload.key_field] = data.payload.key_value
+    console.log(data.payload.write_field)
     Object.assign(contact, data.payload.write_field)
     const payload: ContactsApiPayload = {
       key_id: data.payload.key_field,
