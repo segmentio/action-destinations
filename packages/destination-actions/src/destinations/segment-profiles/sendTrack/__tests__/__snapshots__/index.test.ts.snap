@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SegmentProfiles.sendTrack Should return transformed segment track event 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "anonymousId": "arky4h2sh7k",
+      "event": "Test Event",
+      "properties": Object {
+        "plan": "Business",
+      },
+      "timestamp": undefined,
+      "userId": "test-user-ufi5bgkko5",
+    },
+  ],
+}
+`;
