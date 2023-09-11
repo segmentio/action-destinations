@@ -7,21 +7,21 @@ import track from './track'
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Track Calls',
+    name: 'Track Event',
     subscribe: 'type = "track"',
     partnerAction: 'track',
     mapping: defaultValues(track.fields),
     type: 'automatic'
   },
   {
-    name: 'Identify Calls',
+    name: 'Identify User',
     subscribe: 'type = "identify"',
     partnerAction: 'identify',
     mapping: defaultValues(identify.fields),
     type: 'automatic'
   },
   {
-    name: 'Group Calls',
+    name: 'Group',
     subscribe: 'type = "group"',
     partnerAction: 'group',
     mapping: defaultValues(group.fields),
@@ -30,7 +30,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Hyperengage',
+  name: 'Hyperengage (Actions)',
   slug: 'actions-hyperengage',
   mode: 'cloud',
 
