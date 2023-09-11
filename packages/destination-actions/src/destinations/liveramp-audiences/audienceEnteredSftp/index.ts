@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
       type: 'string',
-      default: '/uploads/audience_name/',
+      default: { '@template': '/uploads/{{properties.audience_key}}/' },
       format: 'uri-reference'
     },
     audience_key: {
@@ -82,6 +82,15 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       unsafe_hidden: true,
       default: 50000
+    },
+    _segment_audience_computation_id: {
+      label: 'Segment Audience Compute ID',
+      description:
+        'The Audience Compute ID. This is used to identify audience chunks from a sync during aggregation. Note: This field is not visible on the UI.',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.personas.computation_id' }
     }
   },
   perform: async (request, { payload, features }) => {
@@ -122,7 +131,7 @@ async function processData(input: ProcessDataInput<Payload>) {
     // AWS FLOW
     // -----------
     return sendEventToAWS(input.request, {
-      audienceKey: input.payloads[0].audience_key,
+      audienceComputeId: input.payloads[0]._segment_audience_computation_id,
       uploadType: 'sftp',
       filename,
       fileContents,

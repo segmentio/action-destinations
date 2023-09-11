@@ -7,7 +7,7 @@ import { getAWSCredentialsFromEKS, AWSCredentials } from '../../lib/AWS/sts'
 import { ACTION_SLUG, LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from './properties'
 
 interface SendToAWSRequest {
-  audienceKey: string
+  audienceComputeId?: string
   uploadType: 's3' | 'sftp'
   filename: string
   fileContents: Buffer
@@ -61,12 +61,12 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   // Compute file path and message dedupe id
   // Each advertiser and segment can eventually have multiple data drops, we use uuid create unique files
   const uuidValue = uuidv4()
-  const userdataFilePath = `/${ACTION_SLUG}/${input.audienceKey}/${uuidValue}.csv`
-  const metadataFilePath = `/${ACTION_SLUG}/${input.audienceKey}/meta.json`
+  const userdataFilePath = `/${ACTION_SLUG}/${input.audienceComputeId}/${uuidValue}.csv`
+  const metadataFilePath = `/${ACTION_SLUG}/${input.audienceComputeId}/meta.json`
 
   // Create Metadata
   const metadata: LRMetaPayload = {
-    audienceKey: input.audienceKey,
+    audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
     filename: input.filename
   }
@@ -95,7 +95,7 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
     request,
     bucketName: S3_BUCKET_NAME,
     region: AWS_REGION,
-    fileContentType: 'text/plain',
+    fileContentType: 'text/csv',
     filePath: userdataFilePath,
     fileContent: input.fileContents,
     awsCredentials: awsCredentials
