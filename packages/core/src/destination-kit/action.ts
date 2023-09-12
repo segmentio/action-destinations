@@ -23,6 +23,9 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any> =
   data: ExecuteInput<Settings, Payload, AudienceSettings>
 ) => MaybePromise<Return>
 
+type MappingSetupValues = string | number | boolean | undefined
+type MappingSetupReturn = Record<string, MappingSetupValues>
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
   /** The display title of the action */
@@ -64,6 +67,9 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
+
+  /** The operation to perform when updates to this action are saved */
+  mappingSetup?: RequestFn<Settings, Payload, MappingSetupReturn, AudienceSettings>
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
@@ -97,6 +103,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
+  readonly hasMappingSetupSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -113,7 +120,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.destinationName = destinationName
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
-
+    this.hasMappingSetupSupport = typeof definition.mappingSetup === 'function'
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -223,6 +230,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
     return (await this.performRequest(fn, data)) as DynamicFieldResponse
+  }
+
+  async executeMappingSetup(data: ExecuteInput<Settings, Payload, AudienceSettings>) {
+    if (!this.hasMappingSetupSupport || !this.definition.mappingSetup) {
+      throw new IntegrationError('This action does not support mapping setup.', 'NotImplemented', 501)
+    }
+
+    const setupFn = this.definition.mappingSetup
+
+    return await this.performRequest(setupFn, data)
   }
 
   /**

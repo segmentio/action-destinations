@@ -138,6 +138,18 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
+  // PoC of the mappingSetup method. We will create a new lead record on save, then save the resulting record ID in an object under 'mappingSetup'
+  mappingSetup: async (request, { settings, payload }) => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
+
+    const { data } = await sf.createRecord(payload, OBJECT_NAME)
+
+    return {
+      id: data.id,
+      success: data.success
+    }
+  },
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
