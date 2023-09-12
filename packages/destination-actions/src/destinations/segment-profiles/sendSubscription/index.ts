@@ -38,12 +38,12 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id,
     anonymous_id,
     //group_id,
-    traits,
     email,
     phone,
     email_subscription_status,
     sms_subscription_status,
     whatsapp_subscription_status,
+    traits,
     subscriptionGroups
   },
   perform: (request, { payload, settings }) => {
@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return 'DID_NOT_SUBSCRIBE'
     }
-
+    //add validations here throw error (email, phone, status)
     const messaging_subscriptions: MessagingSubscription[] = []
 
     if (payload?.email) {
@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       context: {
         messaging_subscriptions,
-        externalIds
+        externalIds // add retl flag, add tapi call
       },
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
