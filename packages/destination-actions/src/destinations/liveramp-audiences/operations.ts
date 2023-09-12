@@ -1,20 +1,37 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 
 // Type definitions
+export type RawData = {
+  context?: {
+    personas?: {
+      computation_key?: string
+      computation_class?: string
+      computation_id?: string
+    }
+  }
+}
+
 export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
   request: RequestClient
   payloads: T[]
   features?: Record<string, boolean>
+  rawData?: RawData[]
 }
+
+export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings
+> & { rawData?: RawData }
 
 /*
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: sftpPayload[] | sftpPayload[]) {
+function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   const headers: string[] = ['audience_key']
 
   // Prepare header row

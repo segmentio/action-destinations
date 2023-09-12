@@ -49,8 +49,4 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
-  /**
-   * The Audience Compute ID. This is used to identify audience chunks from a sync during aggregation. Note: This field is not visible on the UI.
-   */
-  _segment_audience_computation_id?: string
 }

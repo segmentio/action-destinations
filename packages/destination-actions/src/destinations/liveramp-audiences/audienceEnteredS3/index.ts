@@ -6,7 +6,7 @@ import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../pr
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { ProcessDataInput } from '../operations'
+import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -84,28 +84,22 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       default: 170000
-    },
-    _segment_audience_computation_id: {
-      label: 'Segment Audience Compute ID',
-      description:
-        'The Audience Compute ID. This is used to identify audience chunks from a sync during aggregation. Note: This field is not visible on the UI.',
-      type: 'string',
-      unsafe_hidden: true,
-      default: { '@path': '$.context.personas.computation_id' }
     }
   },
-  perform: async (request, { payload, features }) => {
+  perform: async (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload, RawData>) => {
     return processData({
       request,
       payloads: [payload],
-      features
+      features,
+      rawData: rawData ? [rawData] : []
     })
   },
-  performBatch: (request, { payload, features }) => {
+  performBatch: (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[]>) => {
     return processData({
       request,
       payloads: payload,
-      features
+      features,
+      rawData
     })
   }
 }
@@ -131,7 +125,7 @@ async function processData(input: ProcessDataInput<Payload>) {
     // AWS FLOW
     // -----------
     return sendEventToAWS(input.request, {
-      audienceComputeId: input.payloads[0]._segment_audience_computation_id,
+      audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
       filename,
       fileContents,
