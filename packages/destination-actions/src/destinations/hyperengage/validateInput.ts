@@ -1,4 +1,5 @@
 import { Settings } from './generated-types'
+import random from 'lodash/random'
 
 // Convert relevant input properties to Hyperengage properties
 export const validateInput = (
@@ -14,7 +15,7 @@ export const validateInput = (
     screen_resolution: '0',
     user_id: input?.user_id || input?.userId,
     account_id: input?.account_id || input?.accountId || input?.traits?.companyId || input?.traits?.company?.id,
-    anonymous_id: input?.anonymousId || Math.random().toString(36).substring(2, 12),
+    anonymous_id: input?.anonymousId || random(1000000000, 9999999999).toString(),
     ids: {},
     event_type: event_type,
     ...input

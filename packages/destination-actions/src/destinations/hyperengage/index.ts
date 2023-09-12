@@ -56,7 +56,7 @@ const destination: DestinationDefinition<Settings> = {
       }
 
       if (!settings.workspaceIdentifier || settings.workspaceIdentifier.length === 0) {
-        throw new IntegrationError('Server Token is required', 'Invalid Server Token', 400)
+        throw new IntegrationError('Workspace identifier is required', 'Invalid workspace identifier', 400)
       }
       return true
     }
