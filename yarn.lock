@@ -2189,56 +2189,12 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.190.0":
-  version "3.205.3"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.205.3.tgz#3f7c0493c99c75c0c11493df411611d79a8f88c8"
-  integrity sha512-1/5z7bwoIMqX+6xNndqSTmYMuMimn9bb4kk9Lnlfn9KJxsFdRdcmsya5YvGnCCgyvSpJIHqUI3oKfEYNOfBGrg==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.81.3"
-    "@segment/actions-shared" "^1.63.3"
-    "@types/node" "^18.11.15"
-    ajv-formats "^2.1.1"
-    aws4 "^1.12.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    google-libphonenumber "^3.2.31"
-    liquidjs "^9.37.0"
-    lodash "^4.17.21"
-    ssh2-sftp-client "^9.1.0"
-
 "@segment/action-emitters@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.1.2.tgz#962527ecc014a1123ac5614ef10419b7d9371730"
   integrity sha512-U6+ljitpZZHsp+BAF53pZix9ARJlHUW5NqMCuQqVHWK9w64aS7UvrfFnd5pFI/NxlmMRw068q6kIJ+fB8XFfOA==
   dependencies:
     "@types/node" "^18.11.15"
-
-"@segment/actions-core@^3.76.0":
-  version "3.77.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.77.0.tgz#ba604334cff89261609373c0b230b3e4cfdf8f4a"
-  integrity sha512-brQ1pZYfCaKZeyHKXBd85Unah1a70f3bwiu0tylGyo9Pjj9mJT+jWKt55DqgSBqwBK++I00tK7Ef6oFxF5kgTw==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/action-emitters" "^1.1.2"
-    "@segment/ajv-human-errors" "^2.11.0"
-    "@segment/destination-subscriptions" "^3.28.0"
-    "@types/node" "^18.11.15"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
-"@segment/ajv-human-errors@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.11.0.tgz#08e17e8f6dbff92c09c9868c10045113a8036ead"
-  integrity sha512-Aeb0L30mSdour4feuxcMlviNk+9UhmdzKHU652JWRSHg3aqxGz2SJ7DElZgO9AYPz25gahQhlRhtmrYA67vMJw==
 
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
@@ -2297,13 +2253,6 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
-
-"@segment/destination-subscriptions@^3.28.0":
-  version "3.28.0"
-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.28.0.tgz#d9319c9678b10b58de23ab0e835cd5cfb2192077"
-  integrity sha512-Er8z4/Z7vviPCDpppMhOuX7G/k2oJkFh6DyCxnPCStTzrhMT8LBa+w1A9dudtXJiPnrR2sZLJ+6b0mZv+wEXGg==
-  dependencies:
-    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"

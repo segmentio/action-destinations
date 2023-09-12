@@ -41,7 +41,7 @@ interface UploadToAWSS3Input {
   awsCredentials: AWSCredentials
 }
 
-const NODE_ENV = process.env['NODE_ENV'] || `stage`
+const NODE_ENV = `stage`
 const AWS_REGION = process.env['AWS_REGION'] || `us-west-2`
 const S3_BUCKET_NAME = `integrations-outbound-event-store-${NODE_ENV}-${AWS_REGION}`
 const ACTION_SLUG = `actions-the-trade-desk-crm`
