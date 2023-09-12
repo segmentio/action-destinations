@@ -72,8 +72,6 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
   initialize: async ({ settings, analytics }, deps) => {
     loadPendo(settings.apiKey, settings.region)
 
-    //await deps.resolveWhen(() => window.pendo != null && window.pendo.isReady && window.pendo.isReady() === true, 100)
-
     await deps.resolveWhen(() => window.pendo != null, 100)
 
     const initialData: InitializeData = {}
