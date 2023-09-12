@@ -343,6 +343,29 @@ function setupRoutes(def: DestinationDefinition | null): void {
         )
       }
     }
+
+    if (typeof definition.mappingSetup === 'function') {
+      router.post(
+        `/${actionSlug}/mappingSetup`,
+        asyncHandler(async (req: express.Request, res: express.Response) => {
+          try {
+            const data = {
+              settings: req.body.settings || {},
+              payload: req.body.payload || {},
+              page: req.body.page || 1,
+              auth: req.body.auth || {},
+              audienceSettings: req.body.audienceSettings || {}
+            }
+            const action = destination.actions[actionSlug]
+            const result = await action.executeMappingSetup(data)
+
+            return res.status(200).json(result)
+          } catch (err) {
+            return res.status(500).json([err])
+          }
+        })
+      )
+    }
   }
 
   app.use(router)
