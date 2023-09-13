@@ -13,7 +13,17 @@ import {
   whatsapp_subscription_status,
   subscriptionGroups
 } from '../segment-properties'
-import { InvalidEndpointSelectedThrowableError, MissingUserOrAnonymousIdThrowableError } from '../errors'
+import {
+  InvalidEndpointSelectedThrowableError,
+  MissingEmailIfEmailSubscriptionIsPresentThrowableError,
+  MissingEmailOrPhoneThrowableError,
+  MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError,
+  MissingEmailSubscriptionIfEmailIsPresentThrowableError,
+  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError,
+  MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError,
+  MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError,
+  MissingUserOrAnonymousIdThrowableError
+} from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
 
@@ -46,10 +56,44 @@ const action: ActionDefinition<Settings, Payload> = {
     traits,
     subscriptionGroups
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+
+    if (!payload.email && !payload.phone) {
+      throw MissingEmailOrPhoneThrowableError
+    }
+
+    if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
+      throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
+    }
+
+    if (!payload.email && payload.email_subscription_status) {
+      throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
+    }
+
+    if (
+      payload.email &&
+      payload.phone &&
+      !(payload.email_subscription_status || payload.whatsapp_subscription_status || payload.sms_subscription_status)
+    ) {
+      throw MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError
+    }
+
+    if (payload.phone && !payload.email && !(payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
+      throw MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError
+    }
+
+    if (payload.email && !payload.phone && !payload.email_subscription_status) {
+      throw MissingEmailSubscriptionIfEmailIsPresentThrowableError
+    }
+
+    if (payload.subscriptionGroups && !payload.email_subscription_status) {
+      throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
+    }
+
+    const messaging_subscriptions_retl = true
 
     const getStatus = (subscriptionStatus: string | null | undefined): string => {
       if (subscriptionStatus === 'true' || subscriptionStatus === 'SUBSCRIBED') {
@@ -60,18 +104,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return 'DID_NOT_SUBSCRIBE'
     }
-    //add validations here throw error (email, phone, status)
+
     const messaging_subscriptions: MessagingSubscription[] = []
 
     if (payload?.email) {
-      //console.log('Initial Payload:', JSON.stringify(payload, null, 2))
-
       const emailSubscription: MessagingSubscription = {
         key: payload.email,
         type: 'EMAIL',
         status: getStatus(payload.email_subscription_status)
       }
-      //console.log('before groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
 
       if (payload.subscriptionGroups && typeof payload.subscriptionGroups === 'object') {
         const formattedGroups = Object.entries(payload.subscriptionGroups)
@@ -83,7 +124,6 @@ const action: ActionDefinition<Settings, Payload> = {
         emailSubscription.groups = formattedGroups
       }
 
-      //console.log('after groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
       messaging_subscriptions.push(emailSubscription)
     }
 
@@ -133,11 +173,12 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       context: {
         messaging_subscriptions,
-        externalIds // add retl flag, add tapi call
+        externalIds,
+        messaging_subscriptions_retl
       },
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
-        // to any destinations which is connected to the Segment Profiles space.
+        // to any destinations which is connected to the Segment Profiles space
         All: false
       }
     }
@@ -145,6 +186,12 @@ const action: ActionDefinition<Settings, Payload> = {
     //Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
       throw InvalidEndpointSelectedThrowableError
+    }
+
+    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
+      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendSubscription`])
+      const payload = { ...subscriptionPayload, type: 'identify' }
+      return { batch: [payload] }
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
