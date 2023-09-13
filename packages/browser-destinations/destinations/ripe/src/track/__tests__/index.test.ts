@@ -43,6 +43,7 @@ describe('Ripe.track', () => {
   test('it maps the event name and properties and passes them into RipeSDK.track', async () => {
     window.Ripe = {
       init: jest.fn().mockResolvedValueOnce('123'),
+      setIds: jest.fn().mockResolvedValueOnce(undefined),
       track: jest.fn().mockResolvedValueOnce(undefined)
     } as unknown as RipeSDK
 
