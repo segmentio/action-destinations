@@ -66,6 +66,7 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event,
+        features: { 'tiktok-hide-create-audience-action': true },
         settings: {
           advertiser_ids: ['123']
         },
@@ -126,6 +127,7 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event: anotherEvent,
+        features: { 'tiktok-hide-create-audience-action': true },
         settings: {
           advertiser_ids: ['123']
         },
@@ -145,6 +147,7 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event,
+        features: { 'tiktok-hide-create-audience-action': true },
         settings: {
           advertiser_ids: ['123']
         },

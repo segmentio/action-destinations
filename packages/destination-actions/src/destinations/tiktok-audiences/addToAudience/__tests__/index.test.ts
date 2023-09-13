@@ -66,6 +66,7 @@ describe('TiktokAudiences.addToAudience', () => {
     const r = await testDestination.testAction('addToAudience', {
       auth,
       event,
+      features: { 'tiktok-hide-create-audience-action': true },
       settings: {},
       useDefaultMappings: true,
       mapping: {
@@ -95,6 +96,7 @@ describe('TiktokAudiences.addToAudience', () => {
 
     const responses = await testDestination.testAction('addToAudience', {
       event,
+      features: { 'tiktok-hide-create-audience-action': true },
       settings: {
         advertiser_ids: ['123']
       },
@@ -156,6 +158,7 @@ describe('TiktokAudiences.addToAudience', () => {
 
     const r = await testDestination.testAction('addToAudience', {
       event: anotherEvent,
+      features: { 'tiktok-hide-create-audience-action': true },
       settings: {
         advertiser_ids: ['123']
       },
@@ -173,6 +176,7 @@ describe('TiktokAudiences.addToAudience', () => {
     await expect(
       testDestination.testAction('addToAudience', {
         event,
+        features: { 'tiktok-hide-create-audience-action': true },
         settings: {
           advertiser_ids: ['123']
         },
@@ -196,6 +200,7 @@ describe('TiktokAudiences.addToAudience', () => {
     await expect(
       testDestination.testAction('addToAudience', {
         event,
+        features: { 'tiktok-hide-create-audience-action': true },
         settings: {
           advertiser_ids: ['123']
         },

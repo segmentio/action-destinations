@@ -137,19 +137,19 @@ Object {
       "action": "set",
       "key": "mobile_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
       "key": "home_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
       "key": "work_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
