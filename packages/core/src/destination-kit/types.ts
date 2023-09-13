@@ -12,6 +12,8 @@ export type MaybePromise<T> = T | Promise<T>
 export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
+  // Data to be returned from action
+  data?: JSONObject | null
 }
 
 export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {

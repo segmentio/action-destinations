@@ -10,13 +10,13 @@ export interface Payload {
    */
   name: string
   /**
-   * Additional attributes to either set or update on the Attio Company Record. The keys on the left should be Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.
+   * Additional attributes to either set or update on the Attio Company Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name
    */
   company_attributes?: {
     [k: string]: unknown
   }
   /**
-   * Additional attributes to either set or update on the Attio Workspace Record. The keys on the left should be Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.
+   * Additional attributes to either set or update on the Attio Workspace Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name
    */
   workspace_attributes?: {
     [k: string]: unknown

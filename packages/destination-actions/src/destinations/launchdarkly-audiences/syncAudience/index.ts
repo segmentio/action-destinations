@@ -92,6 +92,14 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch events',
+      description:
+        'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
+      required: false,
+      default: true
+    },
     audience_action: {
       label: 'Audience Action',
       description: 'Indicates if the user will be added or removed from the Audience',
