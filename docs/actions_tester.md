@@ -50,3 +50,11 @@ Actions tester allows for a simulated test of the action environment. Clicking t
 Currently the output panel behaves in two 'modes'. The first is `immediate` failures. If your api call could not be completed due to invalid url, credentials, etc, the pane will display whatever debugging information we have in the client.
 
 Once you have made a successful api call, we show both the request and response objects that the actions runtime uses internally to track your event. At the time of this writing, these are PERSISTED across individual calls, so if multiple calls appear and this is not desired behavior, you may want to reload the browser instance.
+
+#### Testing Refresh Token
+
+For OAuth2 destination, you can test refreshAccessToken handler from the `Test Refresh Token` pane. You can fill in the fields in the section, click on `Test Refresh Token` and results will be displayed in the output panel.
+
+#### Testing Authentication
+
+For validating `testAuthentication` handler from actions tester, navigate to the `Settings` pane and fill in all the required settings. You should see `Test Authentication` button below the output panel on the right. On clicking the button, results will be displayed in the output panel.

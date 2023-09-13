@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for pushwoosh destination: trackEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "app_code": "hs1yuui#x*",
+      "attributes": Object {
+        "testType": "hs1yuui#x*",
+      },
+      "device_id": "hs1yuui#x*",
+      "device_platform": "hs1yuui#x*",
+      "name": "hs1yuui#x*",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "hs1yuui#x*",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for pushwoosh destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "app_code": "hs1yuui#x*",
+      "device_id": "hs1yuui#x*",
+      "name": "hs1yuui#x*",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "hs1yuui#x*",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for pushwoosh destination: updateUserProfile action - all fields 1`] = `
+Object {
+  "app_version": "5Sy4b@)9k1mNFrTf@lt",
+  "attributes": Object {
+    "testType": "5Sy4b@)9k1mNFrTf@lt",
+  },
+  "city": "5Sy4b@)9k1mNFrTf@lt",
+  "country": "5Sy4b@)9k1mNFrTf@lt",
+  "current_location": Object {
+    "latitude": 76915367582105.6,
+    "longitude": 76915367582105.6,
+  },
+  "device_id": "5Sy4b@)9k1mNFrTf@lt",
+  "device_model": "5Sy4b@)9k1mNFrTf@lt",
+  "device_os_version": "5Sy4b@)9k1mNFrTf@lt",
+  "device_platform": "5Sy4b@)9k1mNFrTf@lt",
+  "device_token": "5Sy4b@)9k1mNFrTf@lt",
+  "email": "co@rajetu.co.uk",
+  "language": "5Sy4b@)9k1mNFrTf@lt",
+  "timezone": "5Sy4b@)9k1mNFrTf@lt",
+  "user_agent": "5Sy4b@)9k1mNFrTf@lt",
+  "user_id": "5Sy4b@)9k1mNFrTf@lt",
+}
+`;
+
+exports[`Testing snapshot for pushwoosh destination: updateUserProfile action - required fields 1`] = `
+Object {
+  "attributes": Object {},
+  "device_id": "5Sy4b@)9k1mNFrTf@lt",
+  "user_id": "5Sy4b@)9k1mNFrTf@lt",
+}
+`;

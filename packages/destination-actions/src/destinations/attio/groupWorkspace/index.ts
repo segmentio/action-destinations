@@ -38,8 +38,9 @@ const company_attributes: InputField = {
   type: 'object',
   label: 'Additional Company attributes',
   description:
-    'Additional attributes to either set or update on the Attio Company Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio Company Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
   default: {}
 }
@@ -48,12 +49,11 @@ const workspace_attributes: InputField = {
   type: 'object',
   label: 'Additional Workspace attributes',
   description:
-    'Additional attributes to either set or update on the Attio Workspace Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio Workspace Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
-  default: {
-    '@path': '$.properties'
-  }
+  default: {}
 }
 
 const action: ActionDefinition<Settings, Payload> = {
