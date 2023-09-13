@@ -16,7 +16,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.12.0"
+    "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
