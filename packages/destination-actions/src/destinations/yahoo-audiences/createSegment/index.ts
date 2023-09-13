@@ -9,18 +9,34 @@ import { TaxonomyObject } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Yahoo Segment',
   description: 'Use this action to generate Yahoo Segment. Please refer to the docs for more detail',
+  defaultSubscription: 'event = "Audience Entered" and event = "Audience Exited"',
+
   fields: {
     segment_audience_key: {
       label: 'Audience Key',
-      description: 'Provide audience name as it should be displayed in Yahoo platform',
+      description: 'Provide audience key. Maps to Yahoo Taxonomy segment node name',
       type: 'string',
       required: true
     },
     segment_audience_id: {
       label: 'Audience Id',
-      description: 'Provide audience Id (aud_...) from audience URL in Segment Engage',
+      description:
+        'Provide audience Id (aud_...) from audience URL in Segment Engage. Maps to Yahoo Taxonomy segment node Id',
       type: 'string',
       required: true
+    },
+    engage_space_id: {
+      label: 'Engage Space Id',
+      description:
+        'Provide Engage Space Id found in Unify > Settings > API Access. Maps to Yahoo Taxonomy customer node Id and name',
+      type: 'string',
+      required: true
+    },
+    customer_desc: {
+      label: 'Space Description',
+      description: 'Provide the description for Yahoo Taxonomy customer node',
+      type: 'string',
+      required: false
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -42,7 +58,10 @@ async function create_yahoo_segment(request: RequestClient, settings: Settings, 
 
   // If taxonomy doesn't include customer folder - create customer forder and audience subfolder
   // Locate customer folder
-  const customer_folder_index: number = taxonomy_arr.findIndex((customer_obj) => customer_obj.id == settings.mdm_id)
+
+  const customer_folder_index: number = taxonomy_arr.findIndex(
+    (customer_obj) => customer_obj.id == payload.engage_space_id
+  )
 
   if (customer_folder_index < 0) {
     const customer_taxonomy = await create_customer_taxonomy(yahooTaxonomyApiClient, settings, payload)

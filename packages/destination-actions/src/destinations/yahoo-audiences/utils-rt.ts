@@ -104,9 +104,9 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     if (schema.maid === true && event.device_type === 'ios') {
       hashed_idfa = create_hash(event.advertising_id)
     }
-    const hashed_gpsaid: string | undefined = ''
+    let hashed_gpsaid: string | undefined = ''
     if (schema.maid === true && event.device_type === 'android') {
-      hashed_idfa = create_hash(event.advertising_id)
+      hashed_gpsaid = create_hash(event.advertising_id)
     }
 
     const ts = Math.floor(new Date().getTime() / 1000)

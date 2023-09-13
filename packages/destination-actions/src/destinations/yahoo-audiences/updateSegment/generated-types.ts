@@ -30,11 +30,19 @@ export interface Payload {
    */
   device_type?: string
   /**
-   * Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo
+   * Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo. Segment will hash MAIDs
    */
   send_advertising_id?: boolean
   /**
-   * Send user email to Yahoo
+   * Send user email to Yahoo. Segment will hash emails
    */
   send_email?: boolean
+  /**
+   * Set to true to indicate that audience data is subject to GDPR regulations
+   */
+  gdpr_flag?: boolean
+  /**
+   * Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"
+   */
+  gdpr_euconsent?: string
 }

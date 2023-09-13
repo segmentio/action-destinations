@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Entered" and event = "Audience Exited"',
   fields: {
     segment_audience_id: {
-      label: 'Segment Audience Id', // Maps to Yahoo Segment Id
+      label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
       description: 'Segment Audience Id',
       type: 'hidden',
       required: true,
@@ -65,15 +65,28 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     send_advertising_id: {
       label: 'Send Mobile Advertising ID',
-      description: 'Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo',
+      description: 'Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo. Segment will hash MAIDs',
       type: 'boolean',
       default: true
     },
     send_email: {
       label: 'Send User Email',
-      description: 'Send user email to Yahoo',
+      description: 'Send user email to Yahoo. Segment will hash emails',
       type: 'boolean',
       default: true
+    },
+    gdpr_flag: {
+      label: 'GDPR Flag',
+      description: 'Set to true to indicate that audience data is subject to GDPR regulations',
+      type: 'boolean',
+      default: false
+    },
+    gdpr_euconsent: {
+      label: 'GDPR Consent Attributes',
+      description:
+        'Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"',
+      type: 'string',
+      required: false
     }
   },
 
