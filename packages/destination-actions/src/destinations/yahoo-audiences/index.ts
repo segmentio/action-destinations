@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+
 import type { Settings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
@@ -8,6 +9,7 @@ import createSegment from './createSegment'
 interface RefreshTokenResponse {
   access_token: string
 }
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
