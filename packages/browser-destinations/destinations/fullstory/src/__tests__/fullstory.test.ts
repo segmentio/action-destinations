@@ -202,4 +202,37 @@ describe('#identify', () => {
       'segment-browser-actions'
     )
   })
+
+  it('should set displayName correctly', async () => {
+    const [_, identifyUser] = await fullstory({
+      orgId: 'thefullstory.com',
+      subscriptions: example
+    })
+
+    await identifyUser.load(Context.system(), {} as Analytics)
+    const fs = jest.spyOn(window.FS, 'identify')
+
+    await identifyUser.identify?.(
+      new Context({
+        type: 'identify',
+        userId: 'userId',
+        traits: {
+          name: 'Hasbulla',
+          email: 'thegoat@world',
+          height: '50cm'
+        }
+      })
+    )
+
+    expect(fs).toHaveBeenCalledWith(
+      'userId',
+      {
+        displayName: 'Hasbulla',
+        email: 'thegoat@world',
+        height: '50cm',
+        name: 'Hasbulla'
+      },
+      'segment-browser-actions'
+    )
+  })
 })

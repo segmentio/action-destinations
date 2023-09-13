@@ -155,7 +155,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
-    results.push({ output: output as JSONObject })
+    results.push({ data: output as JSONObject, output: 'Action Executed' })
 
     return results
   }

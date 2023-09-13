@@ -13,6 +13,11 @@ import {
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
+import { MIGRATION_FLAG_NAME } from '../constants'
+
+// NOTE
+// This action is not used by the native Segment Audiences feature.
+// TODO: Remove on cleanup.
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Users',
@@ -32,7 +37,17 @@ const action: ActionDefinition<Settings, Payload> = {
     selected_advertiser_id: async (request, { settings }) => {
       try {
         const tiktok = new TikTokAudiences(request)
-        return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        if (settings.advertiser_ids) {
+          return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        }
+
+        return {
+          choices: [],
+          error: {
+            message: JSON.stringify('BAD REQUEST - expected settings.advertiser_ids and got nothing!'),
+            code: '400'
+          }
+        }
       } catch (err) {
         return {
           choices: [],
@@ -59,10 +74,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'delete')
   }
 }

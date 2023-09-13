@@ -321,6 +321,7 @@ The supported conditional values are:
 
 - "exists": If the given value is not undefined or null, the @if directive resolves to the "then"
   value. Otherwise, the "else" value is used.
+- "blank": If the given value is undefined or null, the @if directive resolves to the "then" value. Otherwise, the "else" value is used.
 
 ```json
 Input:
@@ -351,6 +352,16 @@ Mappings:
 }
 =>
 "nope"
+
+{
+  "@if": {
+    "blank": { "@path": "$.c" },
+    "then": "yep",
+    "else": "nope"
+  }
+}
+=>
+"yep"
 ```
 
 If "then" or "else" are not defined and the conditional indicates that their value should be used,

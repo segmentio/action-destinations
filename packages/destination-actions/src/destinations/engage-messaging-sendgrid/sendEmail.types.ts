@@ -78,6 +78,10 @@ export interface Payload {
    */
   byPassSubscription?: boolean
   /**
+   * Send to any subscription status other than unsubscribed
+   */
+  sendBasedOnOptOut?: boolean
+  /**
    * Any API lookup configs that are needed to send the template
    */
   apiLookups?: {
