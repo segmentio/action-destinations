@@ -2,10 +2,9 @@
   "name": "@segment/analytics-browser-actions-pendo-web-actions",
   "version": "1.0.0",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/browser-destinations/destinations/pendo-web-actions"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "main": "./dist/cjs",
   "module": "./dist/esm",
