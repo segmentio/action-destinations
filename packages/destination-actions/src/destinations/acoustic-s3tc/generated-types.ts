@@ -2,29 +2,21 @@
 
 export interface Settings {
   /**
-   * Prefix to all Stored File Names
+   * Use your Org name but replace any spaces with an underscore, eg., AcmeCustomer_Prod
    */
-  fileNamePrefix?: string
+  fileNamePrefix: string
   /**
-   * Write permission to the S3 bucket.
+   * The Access Point created for your access to the S3 Bucket.
    */
-  s3_access_key?: string
+  s3_bucket_access?: string
   /**
-   * Write permission to the S3 bucket.
-   */
-  s3_secret?: string
-  /**
-   * An Access Point created as access to the S3 bucket.
-   */
-  s3_bucket?: string
-  /**
-   * See S3 definition, should be eg: us-east-1, us-east-2
+   * Should always be us-east-1 unless directed by Acoustic otherwise.
    */
   s3_region?: string
   /**
    *
    *
-   * Last-Modified: 08.22.2023 09.14.43
+   * Last-Modified: 09.13.2023 12.30.43
    *
    *
    */
