@@ -342,9 +342,7 @@ export abstract class MessageSendPerformer<
     })
   }
 
-  @track({
-    wrapIntegrationError: () => ['Unable to get profile traits', 'SMS trait fetch failure', 500]
-  })
+  @track()
   async getProfileTraits(): Promise<Record<string, string>> {
     if (this.payload.traitEnrichment) return this.payload?.traits || ({} as any)
 
