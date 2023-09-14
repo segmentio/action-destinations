@@ -211,4 +211,24 @@ export interface Payload {
    * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    brands?: {
+      brand?: string
+      version?: string
+    }[]
+    mobile?: string
+    platform?: string
+    architecture?: string
+    bitness?: string
+    fullVersionList?: {
+      [k: string]: unknown
+    }
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: string
+  }
 }

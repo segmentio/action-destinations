@@ -193,6 +193,69 @@ const action: ActionDefinition<Settings, Payload> = {
         'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
+    },
+    userAgentData: {
+      label: 'User Agent Data',
+      type: 'object',
+      description: 'The user agent data of device sending the event',
+      properties: {
+        brands: {
+          label: 'Brands',
+          type: 'object',
+          multiple: true,
+          properties: {
+            brand: {
+              label: 'Brand',
+              type: 'string'
+            },
+            version: {
+              label: 'version',
+              type: 'string'
+            }
+          }
+        },
+        mobile: {
+          label: 'Mobile',
+          type: 'string'
+        },
+        platform: {
+          label: 'Platform',
+          type: 'string'
+        },
+        architecture: {
+          label: 'Architecture',
+          type: 'string'
+        },
+        bitness: {
+          label: 'Bitness',
+          type: 'string'
+        },
+        fullVersionList: {
+          label: 'FullVersionList',
+          type: 'object'
+        },
+        model: {
+          label: 'Model',
+          type: 'string'
+        },
+        platformVersion: {
+          label: 'PlatformVersion',
+          type: 'string'
+        },
+        uaFullVersion: {
+          label: 'UaFullVersion',
+          type: 'string'
+        },
+        wow64: {
+          label: 'wow64',
+          type: 'string'
+        }
+      },
+      default: {
+        brands: { '@path': '$.context.userAgentData.brands' },
+        mobile: { '@path': '$.context.userAgentData.mobile' },
+        platform: { '@path': '$.context.userAgentData.platform' }
+      }
     }
   },
   perform: (request, { payload, settings }) => {
@@ -204,6 +267,7 @@ const action: ActionDefinition<Settings, Payload> = {
       session_id,
       userAgent,
       userAgentParsing,
+      userAgentData,
       utm_properties,
       referrer,
       min_id_length,
@@ -244,7 +308,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         // Conditionally track revenue with main event

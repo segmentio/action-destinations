@@ -115,4 +115,24 @@ export interface Payload {
    * The name of the library that generated the event.
    */
   library?: string
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    brands?: {
+      brand?: string
+      version?: string
+    }[]
+    mobile?: string
+    platform?: string
+    architecture?: string
+    bitness?: string
+    fullVersionList?: {
+      [k: string]: unknown
+    }
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: string
+  }
 }

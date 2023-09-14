@@ -7,8 +7,26 @@ interface ParsedUA {
   device_type?: string
 }
 
-export function parseUserAgentProperties(userAgent?: string): ParsedUA {
-  if (!userAgent) {
+interface UserAgentData {
+  brands?: {
+    brand?: string
+    version?: string
+  }[]
+  mobile?: string
+  platform?: string
+  architecture?: string
+  bitness?: string
+  fullVersionList?: {
+    [k: string]: unknown
+  }
+  model?: string
+  platformVersion?: string
+  uaFullVersion?: string
+  wow64?: string
+}
+
+export function parseUserAgentProperties(userAgent?: string, userAgentData?: UserAgentData): ParsedUA {
+  if (!userAgent && !userAgentData) {
     return {}
   }
 
@@ -23,8 +41,8 @@ export function parseUserAgentProperties(userAgent?: string): ParsedUA {
 
   return {
     os_name: os.name ?? browser.name,
-    os_version: os.version ?? browser.major,
-    device_model: device.model ?? os.name,
+    os_version: userAgentData?.platformVersion ?? browser.major,
+    device_model: userAgentData?.model ?? os.name,
     device_type: device.type
   }
 }
