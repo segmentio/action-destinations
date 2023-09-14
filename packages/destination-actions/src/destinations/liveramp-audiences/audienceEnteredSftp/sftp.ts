@@ -3,8 +3,7 @@ import Client from 'ssh2-sftp-client'
 import path from 'path'
 import { Payload } from './generated-types'
 
-const LIVERAMP_SFTP_SERVER = 'files.liveramp.com'
-const LIVERAMP_SFTP_PORT = 22
+import { LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from '../properties'
 
 function validateSFTP(payload: Payload) {
   if (!payload.sftp_username) {
