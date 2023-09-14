@@ -1,6 +1,6 @@
 import { IntegrationError } from '@segment/actions-core'
 import { OperationErrorHandler, TryCatchFinallyContext, TryCatchFinallyHook } from './operationTracking'
-import { getErrorDetails } from './ResponseError'
+import { ResponseError } from './ResponseError'
 
 export type IntegrationErrorWrapperContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
@@ -35,10 +35,10 @@ export class IntegrationErrorWrapper {
       () => {
         if (error instanceof IntegrationError) return error
         const wrapper = getWrapper()
-        const resultError = getErrorDetails(wrapper)
+        const resultError = (Array.isArray(wrapper) ? new IntegrationError(...wrapper) : wrapper) as ResponseError
 
-        // trying to get original error status from Response if exist. If there is one, we set it to the result error
-        const responseErrorStatus = resultError.status
+        //trying to get original error status from Response if esist. If there is one, we set it to the result error
+        const responseErrorStatus = resultError.response?.data?.status
         if (responseErrorStatus) {
           resultError.status = responseErrorStatus
         }
