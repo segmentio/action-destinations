@@ -643,7 +643,7 @@ describe('sendMobilePush action', () => {
       expect(responses[0].data).toMatchObject(externalIds[0])
     })
 
-    it('displays all fields with content sid replacements', async () => {
+    it('displays content template fields when no values are provieded for body & media', async () => {
       const template = {
         types: {
           ['twilio/media']: {
@@ -679,6 +679,65 @@ describe('sendMobilePush action', () => {
           space_id: spaceId,
           ...customizations,
           media: template.types['twilio/media'].media,
+          __segment_internal_external_id_key__: 'ios.push_token',
+          __segment_internal_external_id_value__: 'ios-token-1'
+        })
+      })
+
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, template)
+      nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
+
+      // rm media
+      const { media, ...restCustomizations } = customizations
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid,
+          customizations: { title, tapAction, sound, ttl, priority, ...restCustomizations },
+          externalIds
+        }
+      })
+      expect(responses[1].url).toEqual(notifyReqUrl)
+      expect(responses[1].data).toMatchObject(externalIds[0])
+    })
+
+    it('lets fields body & media take precedent over content template when values are provided', async () => {
+      const template = {
+        types: {
+          ['twilio/media']: {
+            body: 'text body',
+            media: ['http://myimg.com/me.png']
+          }
+        }
+      }
+
+      const notificationReq = new URLSearchParams({
+        Body: body,
+        Action: tapAction,
+        Title: title,
+        Sound: sound,
+        Priority: priority,
+        TimeToLive: ttl.toString(),
+        FcmPayload: JSON.stringify({
+          mutable_content: true,
+          notification: {
+            badge: customizations.badgeAmount
+          }
+        }),
+        ApnPayload: JSON.stringify({
+          aps: {
+            'mutable-content': 1,
+            badge: customizations.badgeAmount
+          }
+        }),
+        Recipients: JSON.stringify({
+          apn: [{ addr: 'ios-token-1' }]
+        }),
+        CustomData: JSON.stringify({
+          space_id: spaceId,
+          ...customizations,
+          media: customizations.media,
           __segment_internal_external_id_key__: 'ios.push_token',
           __segment_internal_external_id_value__: 'ios-token-1'
         })

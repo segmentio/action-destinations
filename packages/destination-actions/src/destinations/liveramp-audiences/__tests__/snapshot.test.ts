@@ -5,7 +5,8 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
-import { enquoteIdentifier } from '../operations'
+import { enquoteIdentifier, normalize } from '../operations'
+import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'LiverampAudiences'
@@ -51,7 +52,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     const request = responses[0].request
@@ -92,7 +96,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     const request = responses[0].request
@@ -125,7 +132,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
         events: [event],
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        features: {
+          [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+        }
       })
       throw new Error('expected action to throw')
     } catch (err) {
@@ -165,7 +175,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     expect(sftpPut.mock.calls).toMatchSnapshot()
@@ -194,7 +207,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     expect(sftpPut.mock.calls).toMatchSnapshot()
@@ -218,7 +234,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
         events: [event],
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        features: {
+          [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+        }
       })
       throw new Error('expected action to throw')
     } catch (err) {
@@ -233,5 +252,38 @@ describe(`Testing snapshot for ${destinationSlug}'s generic functions:`, () => {
     const enquotedIdentifiers = identifiers.map(enquoteIdentifier)
 
     expect(enquotedIdentifiers).toMatchSnapshot()
+  })
+
+  it('normalizes identifiers correctly', async () => {
+    /*
+      allowed formats listed below:
+
+      +1XXXXXXXXXX
+      +1 (XXX) XXX-XXXX
+      (XXX) XXX-XXXX
+      XXX-XXX-XXXX
+      XXX XXX XXXX
+      XXXXXXXXXX
+    */
+    const phoneNumbers = [
+      '+15551234567',
+      '+1 (555) 123-4567',
+      '(555) 123-4567',
+      '555-123-4567',
+      '555 123 4567',
+      '5551234567'
+    ]
+    const normalizedNumbers = phoneNumbers.map((value) => normalize('phone_number', value))
+    expect(normalizedNumbers).toMatchSnapshot()
+
+    const emails = [
+      'TestEmail@domain.com',
+      'test@test.com ',
+      'valid@domain.com',
+      'first+last@names.com',
+      'first.last@names.com'
+    ]
+    const normalizedEmails = emails.map((value) => normalize('email', value))
+    expect(normalizedEmails).toMatchSnapshot()
   })
 })

@@ -1,8 +1,12 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
+import { sendEventToAWS } from '../awsClient'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (SFTP)',
@@ -24,12 +28,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
       type: 'string',
-      default: '/uploads/audience_name/',
+      default: { '@template': '/uploads/{{properties.audience_key}}/' },
       format: 'uri-reference'
     },
     audience_key: {
       label: 'Audience Key',
-      description: 'Identifies the user within the entered audience.',
+      description:
+        'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.',
       type: 'string',
       required: true,
       default: { '@path': '$.userId' }
@@ -43,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     unhashed_identifier_data: {
       label: 'Hashable Identifier Data',
-      description: `Additional data pertaining to the user to be hashed before written to the file`,
+      description: `Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.`,
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue:only'
@@ -67,6 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch data',
       description: 'Receive events in a batch payload. This is required for LiveRamp audiences ingestion.',
       required: true,
+      unsafe_hidden: true,
       default: true
     },
     batch_size: {
@@ -74,31 +80,61 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 100000
+      unsafe_hidden: true,
+      default: 50000
     }
   },
-  perform: async (_, { payload }) => {
-    return processData([payload])
+  perform: async (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload, RawData>) => {
+    return processData({
+      request,
+      payloads: [payload],
+      features,
+      rawData: rawData ? [rawData] : []
+    })
   },
-  performBatch: (_, { payload }) => {
-    return processData(payload)
+  performBatch: (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[]>) => {
+    return processData({
+      request,
+      payloads: payload,
+      features,
+      rawData
+    })
   }
 }
 
-async function processData(payloads: Payload[]) {
-  const LIVERAMP_MIN_RECORD_COUNT = 25
-  if (payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
+async function processData(input: ProcessDataInput<Payload>) {
+  if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
-      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${payloads.length}`
+      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
     )
   }
 
-  validateSFTP(payloads[0])
+  validateSFTP(input.payloads[0])
 
-  const { filename, fileContent } = generateFile(payloads)
+  const { filename, fileContents } = generateFile(input.payloads)
 
-  const sftpClient = new ClientSFTP()
-  return uploadSFTP(sftpClient, payloads[0], filename, fileContent)
+  if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
+    //------------
+    // LEGACY FLOW
+    // -----------
+    const sftpClient = new ClientSFTP()
+    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+  } else {
+    //------------
+    // AWS FLOW
+    // -----------
+    return sendEventToAWS(input.request, {
+      audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
+      uploadType: 'sftp',
+      filename,
+      fileContents,
+      sftpInfo: {
+        sftpUsername: input.payloads[0].sftp_username,
+        sftpPassword: input.payloads[0].sftp_password,
+        sftpFolderPath: input.payloads[0].sftp_folder_path
+      }
+    })
+  }
 }
 
 export default action
