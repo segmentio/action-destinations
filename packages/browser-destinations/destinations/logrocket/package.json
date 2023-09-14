@@ -20,6 +20,6 @@
     "logrocket": "^3.0.1"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }

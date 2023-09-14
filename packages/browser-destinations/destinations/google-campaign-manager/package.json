@@ -19,6 +19,6 @@
     "@segment/browser-destination-runtime": "^1.4.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }
