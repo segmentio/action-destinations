@@ -1,10 +1,9 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
 import Client from 'ssh2-sftp-client'
 import path from 'path'
 import { Payload } from './generated-types'
 
 import { LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from '../properties'
-import { PayloadValidationError } from '@segment/actions-core/*'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
