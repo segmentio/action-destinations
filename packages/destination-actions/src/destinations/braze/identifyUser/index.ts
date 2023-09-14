@@ -42,7 +42,8 @@ const action: ActionDefinition<Settings, Payload> = {
             external_id: payload.external_id,
             user_alias: payload.user_alias
           }
-        ]
+        ],
+          "merge_behavior": "merge" //update to braze attribute handling
       }
     })
   }
