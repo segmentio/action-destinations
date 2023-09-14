@@ -35,6 +35,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const bypass_subscription = this.payload.byPassSubscription !== undefined && this.payload.byPassSubscription
     if (bypass_subscription) {
       this.currentOperation?.logs.push('Bypassing subscription')
+      this.currentOperation?.tags.push('bypass_subscription:' + true)
       return true
     }
 
@@ -117,7 +118,18 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [parsedSubject, apiLookupData] = await Promise.all([
+    const [
+      parsedFromEmail,
+      parsedFromName,
+      parsedFromReplyToEmail,
+      parsedFromReplyToName,
+      parsedSubject,
+      apiLookupData
+    ] = await Promise.all([
+      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
       this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
       this.performApiLookups(this.payload.apiLookups, profile)
     ])
@@ -144,12 +156,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         }
       ],
       from: {
-        email: this.payload.fromEmail,
-        name: this.payload.fromName
+        email: parsedFromEmail,
+        name: parsedFromName
       },
       reply_to: {
-        email: this.payload.replyToEmail,
-        name: this.payload.replyToName
+        email: parsedFromReplyToEmail,
+        name: parsedFromReplyToName
       },
       subject: parsedSubject,
       content: [
