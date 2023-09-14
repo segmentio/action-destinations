@@ -123,9 +123,24 @@ export interface SegmentEvent {
     [k: string]: JSONValue
   }
 
-  subscriptions?: object & {
+  email?: string
+
+  phone?: string
+
+  email_subscription_status?: string
+
+  sms_subscription_status?: string
+
+  whatsapp_subscription_status?: string
+
+  subscription_groups?: object & {
     [k: string]: JSONValue
   }
+
+  android_push_token?: string
+  android_push_subscription_status?: string
+  ios_push_token?: string
+  ios_push_subscription_status?: string
 
   integrations?: Integrations
   context?: AnalyticsContext

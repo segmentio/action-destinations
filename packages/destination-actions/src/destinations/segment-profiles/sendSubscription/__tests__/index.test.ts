@@ -19,32 +19,64 @@ const defaultSubscriptionMapping = {
   traits: {
     '@path': '$.traits'
   },
-  subscriptions: {
-    '@path': '$.subscriptions'
+  email: {
+    '@path': '$.email'
+  },
+  email_subscription_status: {
+    '@path': '$.email_subscription_status'
+  },
+  subscriptionGroups: {
+    '@path': '$.subscription_groups'
+  },
+  phone: {
+    '@path': '$.phone'
+  },
+  sms_subscription_status: {
+    '@path': '$.sms_subscription_status'
+  },
+  whatsapp_subscription_status: {
+    '@path': '$.whatsapp_subscription_status'
+  },
+  ios_push_token: {
+    '@path': '$.ios_push_token'
+  },
+  ios_push_subscription_status: {
+    '@path': '$.ios_push_subscription_status'
+  },
+  android_push_token: {
+    '@path': '$.android_push_token'
+  },
+  android_push_subscription_status: {
+    '@path': '$.android_push_subscription_status'
   },
   engage_space: 'engage-space-writekey'
 }
 describe('SegmentProfiles.sendSubscription', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      type: 'identify',
+      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      subscriptions: {
-        key: 'tester11@seg.com',
-        type: 'EMAIL',
-        status: 'SUBSCRIBED',
-        groups: {
-          name: 'Newsletter',
-          status: 'SUBSCRIBED'
-        }
-      }
+      email: 'tester11@seg.com',
+      email_subscription_status: 'true',
+      phone: '+12135618345',
+      sms_subscription_status: 'true',
+      whatsapp_subscription_status: 'true',
+      subscription_groups: {
+        marketing: 'true',
+        ProductUpdates: '',
+        newsletter: 'false'
+      },
+      android_push_token: 'abcd12bbfygdbvbvvvv',
+      android_push_subscription_status: 'false',
+      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+      ios_push_subscription_status: 'true'
     })
 
     await expect(
-      testDestination.testAction('sendIdentify', {
+      testDestination.testAction('sendSubscription', {
         event,
         mapping: {
           engage_space: 'engage-space-writekey'
@@ -55,26 +87,31 @@ describe('SegmentProfiles.sendSubscription', () => {
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      type: 'identify',
+      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      subscriptions: {
-        key: 'tester11@seg.com',
-        type: 'EMAIL',
-        status: 'SUBSCRIBED',
-        groups: {
-          name: 'Newsletter',
-          status: 'SUBSCRIBED'
-        }
+      email: 'tester11@seg.com',
+      email_subscription_status: 'true',
+      phone: '+12135618345',
+      sms_subscription_status: 'true',
+      whatsapp_subscription_status: 'true',
+      subscription_groups: {
+        marketing: 'true',
+        ProductUpdates: '',
+        newsletter: 'false'
       },
+      android_push_token: 'abcd12bbfygdbvbvvvv',
+      android_push_subscription_status: 'false',
+      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+      ios_push_subscription_status: 'true',
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k'
     })
 
     await expect(
-      testDestination.testAction('sendIdentify', {
+      testDestination.testAction('sendSubscription', {
         event,
         mapping: defaultSubscriptionMapping,
         settings: {
@@ -84,31 +121,36 @@ describe('SegmentProfiles.sendSubscription', () => {
     ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
   })
 
-  test('Should send an identify event to Segment', async () => {
+  test('Should send a subscription event to Segment', async () => {
     // Mock: Segment Identify Call
     const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
     nock(segmentEndpoint).post('/identify').reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'identify',
+      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      subscriptions: {
-        key: 'tester11@seg.com',
-        type: 'EMAIL',
-        status: 'SUBSCRIBED',
-        groups: {
-          name: 'Newsletter',
-          status: 'SUBSCRIBED'
-        }
+      email: 'tester11@seg.com',
+      email_subscription_status: 'true',
+      phone: '+12135618345',
+      sms_subscription_status: 'true',
+      whatsapp_subscription_status: 'true',
+      subscription_groups: {
+        marketing: 'true',
+        ProductUpdates: '',
+        newsletter: 'false'
       },
+      android_push_token: 'abcd12bbfygdbvbvvvv',
+      android_push_subscription_status: 'false',
+      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+      ios_push_subscription_status: 'true',
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k'
     })
 
-    const responses = await testDestination.testAction('sendIdentify', {
+    const responses = await testDestination.testAction('sendSubscription', {
       event,
       mapping: defaultSubscriptionMapping,
       settings: {
@@ -120,5 +162,47 @@ describe('SegmentProfiles.sendSubscription', () => {
     expect(responses[0].status).toEqual(200)
     expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchSnapshot()
+  })
+
+  test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
+    const event = createTestEvent({
+      //type: 'identify',
+      traits: {
+        name: 'Test User',
+        email: 'test-user@test-company.com'
+      },
+      email: 'tester11@seg.com',
+      email_subscription_status: 'true',
+      phone: '+12135618345',
+      sms_subscription_status: 'true',
+      whatsapp_subscription_status: 'true',
+      subscription_groups: {
+        marketing: 'true',
+        ProductUpdates: '',
+        newsletter: 'false'
+      },
+      android_push_token: 'abcd12bbfygdbvbvvvv',
+      android_push_subscription_status: 'false',
+      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+      ios_push_subscription_status: 'true',
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k'
+    })
+
+    const responses = await testDestination.testAction('sendSubscription', {
+      event,
+      mapping: defaultSubscriptionMapping,
+      settings: {
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-profiles-tapi-internal-enabled': true
+      }
+    })
+    const results = testDestination.results
+
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchSnapshot()
   })
 })
