@@ -4,6 +4,15 @@ import path from 'path'
 import { Payload } from './generated-types'
 
 import { LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from '../properties'
+import { PayloadValidationError } from '@segment/actions-core/*'
+
+enum SFTPErrorCode {
+  NO_SUCH_FILE = 2
+}
+
+interface SFTPError extends Error {
+  code: number
+}
 
 function validateSFTP(payload: Payload) {
   if (!payload.sftp_username) {
@@ -34,7 +43,19 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     password: payload.sftp_password
   })
 
-  const retVal = await action(sftp)
+  let retVal
+  try {
+    retVal = await action(sftp)
+  } catch (e: unknown) {
+    const sftpError = e as SFTPError
+    if (sftpError) {
+      if (sftpError.code == SFTPErrorCode.NO_SUCH_FILE) {
+        throw new PayloadValidationError(`Could not find path: ${payload.sftp_folder_path}`)
+      }
+    }
+
+    throw e
+  }
   await sftp.end()
   return retVal
 }
@@ -42,7 +63,7 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
 async function testAuthenticationSFTP(sftp: Client, payload: Payload) {
   return doSFTP(sftp, payload, async (sftp) => {
     return sftp.exists(payload.sftp_folder_path as string).then((fileType) => {
-      if (!fileType) throw new Error(`Could not find path: ${payload.sftp_folder_path}`)
+      if (!fileType) throw new PayloadValidationError(`Could not find path: ${payload.sftp_folder_path}`)
     })
   })
 }
