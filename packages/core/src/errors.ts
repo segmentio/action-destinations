@@ -98,6 +98,22 @@ export class APIError extends IntegrationError {
 }
 
 /**
+ * Error to indicate the destination has gone over its allotted execution time
+ * and has is self-terminatng.
+ * This is typically used when the destination makes calls using a stack other than the
+ * HTTP/S RequestClient.
+ * Error will be retried.
+ */
+export class SelfTimeoutError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.SELF_TIMEOUT, 408)
+  }
+}
+
+/**
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
@@ -112,5 +128,7 @@ export enum ErrorCodes {
   // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   // OAuth refresh failed
-  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
+  // Destination has spent more than the alloted time and needs to self-terminate
+  SELF_TIMEOUT = 'SELF_TIMEOUT'
 }

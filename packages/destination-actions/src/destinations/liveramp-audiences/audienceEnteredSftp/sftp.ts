@@ -1,4 +1,9 @@
-import { InvalidAuthenticationError, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  SelfTimeoutError,
+  DEFAULT_REQUEST_TIMEOUT
+} from '@segment/actions-core'
 
 import Client from 'ssh2-sftp-client'
 import path from 'path'
@@ -48,6 +53,7 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     if (!connectionEnded) {
       void sftp.end() // hang promise on purpose, we are on fault hot path
       connectionEnded = true
+      throw new SelfTimeoutError(`did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`)
     }
   }, DEFAULT_REQUEST_TIMEOUT)
 
@@ -63,11 +69,12 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     }
 
     throw e
+  } finally {
+    clearTimeout(timeout)
+    if (!connectionEnded) {
+      await sftp.end()
+    }
   }
-  if (!connectionEnded) {
-    await sftp.end()
-  }
-  clearTimeout(timeout)
 
   return retVal
 }
