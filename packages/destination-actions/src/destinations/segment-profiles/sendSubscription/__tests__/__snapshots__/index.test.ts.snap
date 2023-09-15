@@ -4,7 +4,7 @@ exports[`SegmentProfiles.sendSubscription Should not send event if actions-segme
 Object {
   "batch": Array [
     Object {
-      "anonymousId": "arky4h2sh7k",
+      "anonymousId": "anonId1234",
       "context": Object {
         "externalIds": Array [
           Object {
@@ -57,7 +57,7 @@ Object {
         "name": "Test User",
       },
       "type": "identify",
-      "userId": "test-user-ufi5bgkko5",
+      "userId": "user1234",
     },
   ],
 }
@@ -78,7 +78,7 @@ Headers {
 
 exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment 2`] = `
 Object {
-  "anonymousId": "arky4h2sh7k",
+  "anonymousId": "anonId1234",
   "context": Object {
     "externalIds": Array [
       Object {
@@ -130,11 +130,11 @@ Object {
     "email": "test-user@test-company.com",
     "name": "Test User",
   },
-  "userId": "test-user-ufi5bgkko5",
+  "userId": "user1234",
 }
 `;
 
-exports[`SegmentProfiles.sendSubscription Should send an identify event to Segment 1`] = `
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment when subscription groups are defined 1`] = `
 Headers {
   Symbol(map): Object {
     "authorization": Array [
@@ -147,10 +147,32 @@ Headers {
 }
 `;
 
-exports[`SegmentProfiles.sendSubscription Should send an identify event to Segment 2`] = `
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment when subscription groups are defined 2`] = `
 Object {
-  "anonymousId": "arky4h2sh7k",
-  "groupId": undefined,
+  "anonymousId": "anonId1234",
+  "context": Object {
+    "externalIds": Array [
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "tester11@seg.com",
+        "type": "email",
+      },
+    ],
+    "messaging_subscriptions": Array [
+      Object {
+        "key": "tester11@seg.com",
+        "status": "subscribed",
+        "type": "EMAIL",
+      },
+      Object {
+        "key": "abcd12bbfjfsykdbvbvvvvvv",
+        "status": "subscribed",
+        "type": "IOS_PUSH",
+      },
+    ],
+    "messaging_subscriptions_retl": true,
+  },
   "integrations": Object {
     "All": false,
   },
@@ -158,6 +180,6 @@ Object {
     "email": "test-user@test-company.com",
     "name": "Test User",
   },
-  "userId": "test-user-ufi5bgkko5",
+  "userId": "user1234",
 }
 `;

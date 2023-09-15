@@ -68,7 +68,6 @@ const action: ActionDefinition<Settings, Payload> = {
     traits
   },
   perform: (request, { payload, settings, features, statsContext }) => {
-    //console.log('payload', payload)
     const messaging_subscriptions_retl = true
     const validateSubscriptions = () => {
       if (!payload.anonymous_id && !payload.user_id) {
@@ -263,7 +262,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    //console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
+
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
       json: subscriptionPayload,

@@ -38,16 +38,6 @@ export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent
     traits: {},
     type: 'track',
     userId: 'user1234',
-    email: 'test-user@sd.com',
-    phone: '+12134567842',
-    email_subscription_status: 'true',
-    sms_subscription_status: 'false',
-    whatsapp_subscription_status: 'true',
-    subscription_groups: {},
-    android_push_token: 'abcd12bbfygdbvbvvvv',
-    android_push_subscription_status: 'false',
-    ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-    ios_push_subscription_status: 'true',
     ...event
   }
 }
