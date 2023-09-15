@@ -12,19 +12,32 @@ const seedName = `${destinationSlug}#${actionSlug}`
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    const [settingsData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      properties: {
+        email: 'tester11@seg.com',
+        email_subscription_status: 'unsubscribed'
+      }
     })
-
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        email: {
+          '@path': '$.properties.email'
+        },
+        email_subscription_status: {
+          '@path': '$.properties.email_subscription_status'
+        },
+        user_id: {
+          '@path': '$.userId'
+        },
+        engage_space: 'engage-space-writekey'
+      },
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
@@ -57,7 +70,23 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        ...event.properties,
+        email: 'tester11@seg.com',
+        email_subscription_status: 'true',
+        phone: '+12135618345',
+        sms_subscription_status: 'true',
+        whatsapp_subscription_status: 'true',
+        subscription_groups: {
+          marketing: 'true',
+          ProductUpdates: '',
+          newsletter: 'false'
+        },
+        android_push_token: 'abcd12bbfygdbvbvvvv',
+        android_push_subscription_status: 'false',
+        ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+        ios_push_subscription_status: 'true'
+      },
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })

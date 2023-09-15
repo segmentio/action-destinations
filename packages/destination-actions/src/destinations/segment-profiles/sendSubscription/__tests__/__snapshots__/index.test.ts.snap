@@ -4,7 +4,7 @@ exports[`SegmentProfiles.sendSubscription Should not send event if actions-segme
 Object {
   "batch": Array [
     Object {
-      "anonymousId": "arky4h2sh7k",
+      "anonymousId": "anonId1234",
       "context": Object {
         "externalIds": Array [
           Object {
@@ -57,7 +57,7 @@ Object {
         "name": "Test User",
       },
       "type": "identify",
-      "userId": "test-user-ufi5bgkko5",
+      "userId": "user1234",
     },
   ],
 }
@@ -78,7 +78,7 @@ Headers {
 
 exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment 2`] = `
 Object {
-  "anonymousId": "arky4h2sh7k",
+  "anonymousId": "anonId1234",
   "context": Object {
     "externalIds": Array [
       Object {
@@ -130,34 +130,6 @@ Object {
     "email": "test-user@test-company.com",
     "name": "Test User",
   },
-  "userId": "test-user-ufi5bgkko5",
-}
-`;
-
-exports[`SegmentProfiles.sendSubscription Should send an identify event to Segment 1`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
-
-exports[`SegmentProfiles.sendSubscription Should send an identify event to Segment 2`] = `
-Object {
-  "anonymousId": "arky4h2sh7k",
-  "groupId": undefined,
-  "integrations": Object {
-    "All": false,
-  },
-  "traits": Object {
-    "email": "test-user@test-company.com",
-    "name": "Test User",
-  },
-  "userId": "test-user-ufi5bgkko5",
+  "userId": "user1234",
 }
 `;

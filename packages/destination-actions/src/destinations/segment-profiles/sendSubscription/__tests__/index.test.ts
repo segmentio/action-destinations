@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
 
-// Default Identify Mapping
+// Default Subscription Mapping
 const defaultSubscriptionMapping = {
   user_id: {
     '@path': '$.userId'
@@ -20,66 +20,56 @@ const defaultSubscriptionMapping = {
     '@path': '$.traits'
   },
   email: {
-    '@path': '$.email'
+    '@path': '$.properties.email'
   },
   email_subscription_status: {
-    '@path': '$.email_subscription_status'
+    '@path': '$.properties.email_subscription_status'
   },
   subscriptionGroups: {
-    '@path': '$.subscription_groups'
+    '@path': '$.properties.subscription_groups'
   },
   phone: {
-    '@path': '$.phone'
+    '@path': '$.properties.phone'
   },
   sms_subscription_status: {
-    '@path': '$.sms_subscription_status'
+    '@path': '$.properties.sms_subscription_status'
   },
   whatsapp_subscription_status: {
-    '@path': '$.whatsapp_subscription_status'
+    '@path': '$.properties.whatsapp_subscription_status'
   },
   ios_push_token: {
-    '@path': '$.ios_push_token'
+    '@path': '$.properties.ios_push_token'
   },
   ios_push_subscription_status: {
-    '@path': '$.ios_push_subscription_status'
+    '@path': '$.properties.ios_push_subscription_status'
   },
   android_push_token: {
-    '@path': '$.android_push_token'
+    '@path': '$.properties.android_push_token'
   },
   android_push_subscription_status: {
-    '@path': '$.android_push_subscription_status'
+    '@path': '$.properties.android_push_subscription_status'
   },
   engage_space: 'engage-space-writekey'
 }
 describe('SegmentProfiles.sendSubscription', () => {
   test('Should throw an error if `userId or` `anonymousId` is not defined', async () => {
     const event = createTestEvent({
-      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      email: 'tester11@seg.com',
-      email_subscription_status: 'true',
-      phone: '+12135618345',
-      sms_subscription_status: 'true',
-      whatsapp_subscription_status: 'true',
-      subscription_groups: {
-        marketing: 'true',
-        ProductUpdates: '',
-        newsletter: 'false'
-      },
-      android_push_token: 'abcd12bbfygdbvbvvvv',
-      android_push_subscription_status: 'false',
-      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-      ios_push_subscription_status: 'true'
+      properties: {
+        email: 'tester11@seg.com',
+        email_subscription_status: 'unsubscribed'
+      }
     })
 
     await expect(
       testDestination.testAction('sendSubscription', {
         event,
         mapping: {
-          engage_space: 'engage-space-writekey'
+          engage_space: 'engage-space-writekey',
+          defaultSubscriptionMapping
         }
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
@@ -87,27 +77,15 @@ describe('SegmentProfiles.sendSubscription', () => {
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
     const event = createTestEvent({
-      //type: 'identify',
+      type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      email: 'tester11@seg.com',
-      email_subscription_status: 'true',
-      phone: '+12135618345',
-      sms_subscription_status: 'true',
-      whatsapp_subscription_status: 'true',
-      subscription_groups: {
-        marketing: 'true',
-        ProductUpdates: '',
-        newsletter: 'false'
-      },
-      android_push_token: 'abcd12bbfygdbvbvvvv',
-      android_push_subscription_status: 'false',
-      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-      ios_push_subscription_status: 'true',
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      properties: {
+        email: 'tester11@seg.com',
+        email_subscription_status: 'unsubscribed'
+      }
     })
 
     await expect(
@@ -132,22 +110,24 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      email: 'tester11@seg.com',
-      email_subscription_status: 'true',
-      phone: '+12135618345',
-      sms_subscription_status: 'true',
-      whatsapp_subscription_status: 'true',
-      subscription_groups: {
-        marketing: 'true',
-        ProductUpdates: '',
-        newsletter: 'false'
-      },
-      android_push_token: 'abcd12bbfygdbvbvvvv',
-      android_push_subscription_status: 'false',
-      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-      ios_push_subscription_status: 'true',
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      properties: {
+        email: 'tester11@seg.com',
+        email_subscription_status: 'true',
+        phone: '+12135618345',
+        sms_subscription_status: 'true',
+        whatsapp_subscription_status: 'true',
+        subscription_groups: {
+          marketing: 'true',
+          ProductUpdates: '',
+          newsletter: 'false'
+        },
+        android_push_token: 'abcd12bbfygdbvbvvvv',
+        android_push_subscription_status: 'false',
+        ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+        ios_push_subscription_status: 'true',
+        userId: 'test-user-ufi5bgkko5',
+        anonymousId: 'arky4h2sh7k'
+      }
     })
 
     const responses = await testDestination.testAction('sendSubscription', {
@@ -166,27 +146,28 @@ describe('SegmentProfiles.sendSubscription', () => {
 
   test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
-      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
-      email: 'tester11@seg.com',
-      email_subscription_status: 'true',
-      phone: '+12135618345',
-      sms_subscription_status: 'true',
-      whatsapp_subscription_status: 'true',
-      subscription_groups: {
-        marketing: 'true',
-        ProductUpdates: '',
-        newsletter: 'false'
-      },
-      android_push_token: 'abcd12bbfygdbvbvvvv',
-      android_push_subscription_status: 'false',
-      ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-      ios_push_subscription_status: 'true',
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      properties: {
+        email: 'tester11@seg.com',
+        email_subscription_status: 'true',
+        phone: '+12135618345',
+        sms_subscription_status: 'true',
+        whatsapp_subscription_status: 'true',
+        subscription_groups: {
+          marketing: 'true',
+          ProductUpdates: '',
+          newsletter: 'false'
+        },
+        android_push_token: 'abcd12bbfygdbvbvvvv',
+        android_push_subscription_status: 'false',
+        ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
+        ios_push_subscription_status: 'true',
+        userId: 'test-user-ufi5bgkko5',
+        anonymousId: 'arky4h2sh7k'
+      }
     })
 
     const responses = await testDestination.testAction('sendSubscription', {
