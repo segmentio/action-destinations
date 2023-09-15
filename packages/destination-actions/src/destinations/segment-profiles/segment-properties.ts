@@ -105,7 +105,5 @@ export const subscription_groups: InputField = {
   description: 'Subscription status for the groups. Object containing group names as keys and statuses as values',
   type: 'object',
   additionalProperties: true,
-  // unsafe_hidden: true,
   defaultObjectUI: 'keyvalue'
-  //dynamic: true
 }

@@ -105,7 +105,6 @@ describe('SegmentProfiles.sendSubscription', () => {
     nock(segmentEndpoint).post('/identify').reply(200, { success: true })
 
     const event = createTestEvent({
-      //type: 'identify',
       traits: {
         name: 'Test User',
         email: 'test-user@test-company.com'
