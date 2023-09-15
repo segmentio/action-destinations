@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * appID
+   * id
    */
-  appID: string
+  id: string
 }

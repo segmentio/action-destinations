@@ -35,9 +35,9 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
   ],
 
   settings: {
-    appID: {
-      description: 'appID',
-      label: 'appID',
+    id: {
+      description: 'id',
+      label: 'id',
       type: 'string',
       required: true
     }
