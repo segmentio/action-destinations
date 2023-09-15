@@ -10,6 +10,7 @@ import {
   testEventPayload,
   testMessageId,
   testUserId,
+  testUserRef,
   testWorkspaceRef
 } from '../../mocks'
 
@@ -30,6 +31,7 @@ describe('Devrev.streamEvent', () => {
       integrations: {
         // @ts-expect-error integrations should accept complex objects;
         DevRev: {
+          userRef: testUserRef,
           accountRef: testAccountRef,
           workspaceRef: testWorkspaceRef
         }
@@ -60,6 +62,7 @@ describe('Devrev.streamEvent', () => {
             timestamp: testEventPayload.timestamp,
             email: testEventPayload.properties?.email,
             userId: testUserId,
+            userRef: testUserRef,
             accountRef: testAccountRef,
             workspaceRef: testWorkspaceRef,
             messageId: testMessageId,

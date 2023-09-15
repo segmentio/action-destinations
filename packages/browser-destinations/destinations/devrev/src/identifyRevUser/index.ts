@@ -9,6 +9,13 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   hidden: false,
   defaultSubscription: 'type = "identify"',
   fields: {
+    userRef: {
+      label: 'User Ref',
+      type: 'string',
+      required: false,
+      description: 'User Ref, ideally mappable to external ref of a Rev User.',
+      default: 'userRef'
+    },
     accountRef: {
       label: 'Account Ref',
       type: 'string',
@@ -29,11 +36,16 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const traits = analytics.user()?.traits()
     if (!traits) return
 
+    const userRef = payload.userRef ? traits[payload.userRef] : undefined
     const accountRef = payload.accountRef ? traits[payload.accountRef] : undefined
     const workspaceRef = payload.workspaceRef ? traits[payload.workspaceRef] : undefined
 
-    if (accountRef || workspaceRef) {
+    if (userRef || accountRef || workspaceRef) {
       context.updateEvent('integrations.DevRev', {})
+
+      if (userRef) {
+        context.updateEvent('integrations.DevRev.userRef', userRef)
+      }
 
       if (accountRef) {
         context.updateEvent('integrations.DevRev.accountRef', accountRef)

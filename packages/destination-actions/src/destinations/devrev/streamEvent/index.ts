@@ -26,10 +26,23 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       label: 'User ID',
-      description: 'User ID, ideally mappable to external ref of a Rev User.',
+      description: 'User ID as received from Segment.',
       type: 'string',
       required: false,
       default: { '@path': '$.userId' }
+    },
+    userRef: {
+      label: 'User Ref',
+      description: 'User Ref, ideally mappable to external ref of a Rev User.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.userRef' },
+          then: { '@path': '$.traits.userRef' },
+          else: { '@path': '$.integrations.DevRev.userRef' }
+        }
+      }
     },
     accountRef: {
       label: 'Account Ref',

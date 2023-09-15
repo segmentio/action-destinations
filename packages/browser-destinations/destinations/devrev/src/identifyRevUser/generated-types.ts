@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * User Ref, ideally mappable to external ref of a Rev User.
+   */
+  userRef?: string
+  /**
    * Account Ref, ideally mappable to external ref of a Rev Account.
    */
   accountRef?: string

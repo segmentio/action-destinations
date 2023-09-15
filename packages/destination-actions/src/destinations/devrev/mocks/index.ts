@@ -17,6 +17,7 @@ export const email = 'test-user@test.com'
 export const domain = email.split('@')[1]
 
 export const testUserId = 'test-user-id'
+export const testUserRef = 'test-user-ref'
 export const testAccountRef = 'test-account-ref'
 export const testWorkspaceRef = 'test-workspace-ref'
 export const testUserFullName = 'test-user-full-name'
