@@ -22,5 +22,6 @@ export type PendoSDK = {
   initialize: ({ visitor, account }: InitializeData) => void
   track: (eventName: string, metadata?: { [key: string]: unknown }) => void
   identify: (data: identifyPayload) => void
+  flush: (force: boolean) => void
   isReady: () => boolean
 }
