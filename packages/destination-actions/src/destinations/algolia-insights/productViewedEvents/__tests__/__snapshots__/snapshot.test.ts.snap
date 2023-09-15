@@ -7,11 +7,11 @@ Object {
       "eventName": "Product Viewed",
       "eventType": "view",
       "index": "og&DCP)aINw@qxe)",
-      "objectID": "og&DCP)aINw@qxe)",
       "objectIDs": Array [
         "og&DCP)aINw@qxe)",
       ],
       "queryID": "og&DCP)aINw@qxe)",
+      "testType": "og&DCP)aINw@qxe)",
       "timestamp": null,
       "userToken": "og&DCP)aINw@qxe)",
     },
