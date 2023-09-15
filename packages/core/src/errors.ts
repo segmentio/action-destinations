@@ -99,7 +99,7 @@ export class APIError extends IntegrationError {
 
 /**
  * Error to indicate the destination has gone over its allotted execution time
- * and has is self-terminatng.
+ * and is self-terminating.
  * This is typically used when the destination makes calls using a stack other than the
  * HTTP/S RequestClient.
  * Error will be retried.
