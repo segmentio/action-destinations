@@ -264,7 +264,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         mobile: {
           label: 'Mobile',
-          type: 'string'
+          type: 'boolean'
         },
         platform: {
           label: 'Platform',
@@ -280,7 +280,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         fullVersionList: {
           label: 'FullVersionList',
-          type: 'object'
+          type: 'object',
+          multiple: true
         },
         model: {
           label: 'Model',
@@ -296,13 +297,20 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         wow64: {
           label: 'wow64',
-          type: 'string'
+          type: 'boolean'
         }
       },
       default: {
         brands: { '@path': '$.context.userAgentData.brands' },
         mobile: { '@path': '$.context.userAgentData.mobile' },
-        platform: { '@path': '$.context.userAgentData.platform' }
+        platform: { '@path': '$.context.userAgentData.platform' },
+        architecture: { '@path': '$.context.userAgentData.architecture' },
+        bitness: { '@path': '$.context.userAgentData.bitness' },
+        fullVersionList: { '@path': '$.context.userAgentData.fullVersionList' },
+        model: { '@path': '$.context.userAgentData.model' },
+        platformVersion: { '@path': '$.context.userAgentData.platformVersion' },
+        uaFullVersion: { '@path': '$.context.userAgentData.uaFullVersion' },
+        wow64: { '@path': '$.context.userAgentData.wow64' }
       }
     }
   },

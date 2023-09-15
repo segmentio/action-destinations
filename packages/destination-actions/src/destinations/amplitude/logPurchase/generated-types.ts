@@ -219,16 +219,16 @@ export interface Payload {
       brand?: string
       version?: string
     }[]
-    mobile?: string
+    mobile?: boolean
     platform?: string
     architecture?: string
     bitness?: string
     fullVersionList?: {
       [k: string]: unknown
-    }
+    }[]
     model?: string
     platformVersion?: string
     uaFullVersion?: string
-    wow64?: string
+    wow64?: boolean
   }
 }
