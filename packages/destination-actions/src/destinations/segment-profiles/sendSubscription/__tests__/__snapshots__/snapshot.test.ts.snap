@@ -263,6 +263,11 @@ Object {
         "status": "unsubscribed",
         "type": "EMAIL",
       },
+      Object {
+        "key": "+12135618345",
+        "status": "subscribed",
+        "type": "SMS",
+      },
     ],
     "messaging_subscriptions_retl": true,
   },

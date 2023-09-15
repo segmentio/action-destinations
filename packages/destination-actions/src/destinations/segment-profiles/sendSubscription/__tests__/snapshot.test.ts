@@ -23,7 +23,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'unsubscribed',
-        phone: '+12135618345'
+        phone: '+12135618345',
+        sms_subscription_status: 'true'
       }
     })
     const responses = await testDestination.testAction(actionSlug, {
@@ -58,19 +59,19 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: {
         email: 'tester11@seg.com',
-        email_subscription_status: 'true',
+        email_subscription_status: true,
         phone: '+12135618345',
-        sms_subscription_status: 'true',
-        whatsapp_subscription_status: 'true',
+        sms_subscription_status: true,
+        whatsapp_subscription_status: true,
         subscription_groups: {
-          marketing: 'true',
+          marketing: true,
           ProductUpdates: '',
-          newsletter: 'false'
+          newsletter: false
         },
         android_push_token: 'abcd12bbfygdbvbvvvv',
-        android_push_subscription_status: 'false',
+        android_push_subscription_status: false,
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true'
+        ios_push_subscription_status: true
       }
     })
 
