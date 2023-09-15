@@ -213,7 +213,6 @@ const action: ActionDefinition<Settings, Payload> = {
      * An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
      * the contact is not found, an attempt will be made to create contact with the given properties
      */
-    console.log('PERFORM=====>>>>', JSON.stringify(payload))
 
     try {
       const response = await updateContact(request, payload.email, contactProperties)
@@ -248,11 +247,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, statsContext }) => {
-    const statsClient = statsContext?.statsClient
+  performBatch: async (request, { payload }) => {
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
-    const starttime = Date.now()
     let contactsUpsertMap = mapUpsertContactPayload(payload)
 
     // Fetch the list of contacts from HubSpot
@@ -285,8 +282,6 @@ const action: ActionDefinition<Settings, Payload> = {
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
       await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
     }
-    const endtime = Date.now()
-    statsClient?.set('actions-hubspot-cloud-upsert-contact-batch-duration', starttime - endtime)
   }
 }
 

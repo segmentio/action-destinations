@@ -119,6 +119,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.user_id) {
       config.user_id = payload.user_id
     }
+    if (payload.user_properties) {
+      config.user_properties = payload.user_properties
+    }
     if (payload.page_title) {
       config.page_title = payload.page_title
     }

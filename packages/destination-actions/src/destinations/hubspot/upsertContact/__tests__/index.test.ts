@@ -96,6 +96,38 @@ const updateContactList: BatchContactListItem[] = [
   }
 ]
 
+const createContactList: BatchContactListItem[] = [
+  {
+    email: 'userone@somecompany.com',
+    firstname: 'User',
+    lastname: 'One',
+    lifecyclestage: 'lead'
+  },
+  {
+    email: 'usertwo@somecompany.com',
+    firstname: 'User',
+    lastname: 'Two',
+    lifecyclestage: 'subscriber'
+  }
+]
+
+const updateContactList: BatchContactListItem[] = [
+  {
+    id: '103',
+    email: 'userthree@somecompany.com',
+    firstname: 'User',
+    lastname: 'Three',
+    lifecyclestage: 'subscriber'
+  },
+  {
+    id: '104',
+    email: 'userfour@somecompany.com',
+    firstname: 'User',
+    lastname: 'Four',
+    lifecyclestage: 'lead'
+  }
+]
+
 beforeEach((done) => {
   // Re-Initialize the destination before each test
   // This is done to mitigate a bug where action responses persist into other tests

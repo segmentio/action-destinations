@@ -2,11 +2,10 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-// TODO: reasonable default paths
-
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Counter Activity',
   description: 'Record non-monetary conversion data such as unique users, conversions, and session length.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     activityGroupTagString: {
@@ -27,7 +26,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Enable Dynamic Tags',
       type: 'boolean',
       description:
-        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**'
+        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.'
     },
     countingMethod: {
       label: 'Counting Method',

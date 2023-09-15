@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { key, id, keys, enable_batching, values_dataExtensionFields, batch_size } from '../sfmc-properties'
+import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
 import { upsertRows } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {

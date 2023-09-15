@@ -11,9 +11,27 @@ import {
   email_subscription_status,
   sms_subscription_status,
   whatsapp_subscription_status,
-  subscriptionGroups
+  subscription_groups,
+  android_push_token,
+  android_push_subscription_status,
+  ios_push_subscription_status,
+  ios_push_token
 } from '../segment-properties'
-import { InvalidEndpointSelectedThrowableError, MissingUserOrAnonymousIdThrowableError } from '../errors'
+import {
+  InvalidEndpointSelectedThrowableError,
+  InvalidGroupSubscriptionStatusThrowableError,
+  InvalidSubscriptionStatusThrowableError,
+  MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
+  MissingEmailIfEmailSubscriptionIsPresentThrowableError,
+  MissingEmailOrPhoneThrowableError,
+  MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError,
+  MissingEmailSubscriptionIfEmailIsPresentThrowableError,
+  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError,
+  MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
+  MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError,
+  MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError,
+  MissingUserOrAnonymousIdThrowableError
+} from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
 
@@ -37,73 +55,163 @@ const action: ActionDefinition<Settings, Payload> = {
     engage_space,
     user_id,
     anonymous_id,
-    //group_id,
-    traits,
     email,
-    phone,
     email_subscription_status,
+    subscription_groups,
+    phone,
     sms_subscription_status,
     whatsapp_subscription_status,
-    subscriptionGroups
+    android_push_token,
+    android_push_subscription_status,
+    ios_push_token,
+    ios_push_subscription_status,
+    traits
   },
-  perform: (request, { payload, settings }) => {
-    if (!payload.anonymous_id && !payload.user_id) {
-      throw MissingUserOrAnonymousIdThrowableError
+  perform: (request, { payload, settings, features, statsContext }) => {
+    //console.log('payload', payload)
+    const messaging_subscriptions_retl = true
+    const validateSubscriptions = () => {
+      if (!payload.anonymous_id && !payload.user_id) {
+        throw MissingUserOrAnonymousIdThrowableError
+      }
+
+      if (!payload.email && !payload.phone) {
+        throw MissingEmailOrPhoneThrowableError
+      }
+
+      if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
+        throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
+      }
+
+      if (!payload.email && payload.email_subscription_status) {
+        throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
+      }
+
+      if (
+        payload.email &&
+        payload.phone &&
+        !(payload.email_subscription_status || payload.whatsapp_subscription_status || payload.sms_subscription_status)
+      ) {
+        throw MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError
+      }
+
+      if (
+        payload.phone &&
+        !payload.email &&
+        !(payload.sms_subscription_status || payload.whatsapp_subscription_status)
+      ) {
+        throw MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError
+      }
+
+      if (payload.email && !payload.phone && !payload.email_subscription_status) {
+        throw MissingEmailSubscriptionIfEmailIsPresentThrowableError
+      }
+
+      if (payload.subscription_groups && !payload.email_subscription_status) {
+        throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
+      }
+
+      if (!payload.android_push_token && payload.android_push_subscription_status) {
+        throw MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError
+      }
+
+      if (!payload.ios_push_token && payload.ios_push_subscription_status) {
+        throw MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError
+      }
+
+      const validStatuses = ['true', 'subscribed', 'false', 'unsubscribed', 'did_not_subscribe']
+
+      //Validate global subscription statuses
+      if (
+        (payload.email_subscription_status &&
+          !validStatuses.includes(payload.email_subscription_status.trim().toLowerCase())) ||
+        (payload.sms_subscription_status &&
+          !validStatuses.includes(payload.sms_subscription_status.trim().toLowerCase())) ||
+        (payload.whatsapp_subscription_status &&
+          !validStatuses.includes(payload.whatsapp_subscription_status.trim().toLowerCase())) ||
+        (payload.ios_push_subscription_status &&
+          !validStatuses.includes(payload.ios_push_subscription_status.trim().toLowerCase())) ||
+        (payload.android_push_subscription_status &&
+          !validStatuses.includes(payload.android_push_subscription_status.trim().toLowerCase()))
+      ) {
+        throw InvalidSubscriptionStatusThrowableError
+      }
+
+      // Validate the group subscription statuses
+      if (payload.subscription_groups && typeof payload.subscription_groups === 'object') {
+        Object.values(payload.subscription_groups).forEach((group) => {
+          const groupSub: GroupSubscription = group as GroupSubscription
+          if (groupSub.status && !validStatuses.includes(groupSub.status.trim().toLowerCase())) {
+            throw InvalidGroupSubscriptionStatusThrowableError
+          }
+        })
+      }
     }
 
+    //TODO: Add email format and phone validations
+
+    const addMessagingSubscription = (key: string, type: string, status: string | null | undefined) => {
+      messaging_subscriptions.push({
+        key,
+        type,
+        status: getStatus(status?.trim().toLowerCase())
+      })
+    }
+
+    validateSubscriptions()
+
     const getStatus = (subscriptionStatus: string | null | undefined): string => {
-      if (subscriptionStatus === 'true' || subscriptionStatus === 'SUBSCRIBED') {
-        return 'SUBSCRIBED'
+      if (subscriptionStatus === 'true' || subscriptionStatus === 'subscribed') {
+        return 'subscribed'
       }
-      if (subscriptionStatus === 'false' || subscriptionStatus === 'UNSUBSCRIBED') {
-        return 'UNSUBSCRIBED'
+      if (subscriptionStatus === 'false' || subscriptionStatus === 'unsubscribed') {
+        return 'unsubscribed'
       }
-      return 'DID_NOT_SUBSCRIBE'
+      if (subscriptionStatus === null || !subscriptionStatus || subscriptionStatus === '') {
+        return 'did_not_subscribe'
+      }
+      throw InvalidSubscriptionStatusThrowableError
     }
 
     const messaging_subscriptions: MessagingSubscription[] = []
 
     if (payload?.email) {
-      //console.log('Initial Payload:', JSON.stringify(payload, null, 2))
+      if (payload.email_subscription_status) {
+        const emailSubscription: MessagingSubscription = {
+          key: payload.email,
+          type: 'EMAIL',
+          status: getStatus(payload.email_subscription_status?.trim().toLowerCase())
+        }
 
-      const emailSubscription: MessagingSubscription = {
-        key: payload.email,
-        type: 'EMAIL',
-        status: getStatus(payload.email_subscription_status)
-      }
-      //console.log('before groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
+        if (payload.subscription_groups && typeof payload.subscription_groups === 'object') {
+          const formattedGroups = Object.entries(payload.subscription_groups)
+            .filter(([name, status]) => name !== undefined && status !== undefined)
+            .map(([name, status]) => ({
+              name: String(name),
+              status: getStatus(String(status).trim().toLowerCase())
+            }))
+          emailSubscription.groups = formattedGroups
+        }
 
-      if (payload.subscriptionGroups && typeof payload.subscriptionGroups === 'object') {
-        const formattedGroups = Object.entries(payload.subscriptionGroups)
-          .filter(([name, status]) => name !== undefined && status !== undefined)
-          .map(([name, status]) => ({
-            name: String(name),
-            status: getStatus(String(status))
-          }))
-        emailSubscription.groups = formattedGroups
-      }
-
-      //console.log('after groupSubscriptions:', JSON.stringify(emailSubscription, null, 2))
-      messaging_subscriptions.push(emailSubscription)
-    }
-
-    if (payload?.phone) {
-      if (payload.sms_subscription_status !== undefined) {
-        messaging_subscriptions.push({
-          key: payload.phone,
-          type: 'SMS',
-          status: getStatus(payload.sms_subscription_status)
-        })
-      }
-
-      if (payload.whatsapp_subscription_status !== undefined) {
-        messaging_subscriptions.push({
-          key: payload.phone,
-          type: 'WHATSAPP',
-          status: getStatus(payload.whatsapp_subscription_status)
-        })
+        messaging_subscriptions.push(emailSubscription)
       }
     }
+
+    payload?.phone &&
+      payload?.sms_subscription_status !== undefined &&
+      addMessagingSubscription(payload.phone, 'SMS', payload.sms_subscription_status)
+
+    payload?.phone &&
+      payload?.whatsapp_subscription_status !== undefined &&
+      addMessagingSubscription(payload.phone, 'WHATSAPP', payload.whatsapp_subscription_status)
+
+    payload?.android_push_token &&
+      payload?.android_push_subscription_status !== undefined &&
+      addMessagingSubscription(payload.android_push_token, 'ANDROID_PUSH', payload.android_push_subscription_status)
+
+    payload?.ios_push_token &&
+      payload?.ios_push_subscription_status !== undefined &&
+      addMessagingSubscription(payload.ios_push_token, 'IOS_PUSH', payload.ios_push_subscription_status)
 
     const externalIds: Array<{ id: string; type: string; collection: string; encoding: string }> = []
 
@@ -133,11 +241,12 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       context: {
         messaging_subscriptions,
-        externalIds
+        externalIds,
+        messaging_subscriptions_retl
       },
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
-        // to any destinations which is connected to the Segment Profiles space.
+        // to any destinations which is connected to the Segment Profiles space
         All: false
       }
     }
@@ -147,8 +256,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
+    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
+      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendSubscription`])
+      const payload = { ...subscriptionPayload, type: 'identify' }
+      return { batch: [payload] }
+    }
+
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
+    //console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
       json: subscriptionPayload,

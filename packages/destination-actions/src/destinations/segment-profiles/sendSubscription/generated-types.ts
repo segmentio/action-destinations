@@ -14,35 +14,51 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
-   * Free-form dictionary of traits that describe the user or group of users.
-   */
-  traits?: {
-    [k: string]: unknown
-  }
-  /**
    * Email of the user
    */
   email?: string
+  /**
+   * Global status of the email subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
+   */
+  email_subscription_status?: string | null
+  /**
+   * Subscription status for the groups. Object containing group names as keys and statuses as values
+   */
+  subscription_groups?: {
+    [k: string]: unknown
+  }
   /**
    * Phone number of the user
    */
   phone?: string
   /**
-   * Global status of the email subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
-   */
-  email_subscription_status?: string
-  /**
    * Global status of the SMS subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
    */
-  sms_subscription_status?: string
+  sms_subscription_status?: string | null
   /**
-   * Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.
+   * Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.
    */
-  whatsapp_subscription_status?: string
+  whatsapp_subscription_status?: string | null
   /**
-   * Subscription status for the groups. Object containing group names as keys and statuses as values
+   * Android Push Token of the user
    */
-  subscriptionGroups?: {
+  android_push_token?: string
+  /**
+   * Global status of the android push subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.
+   */
+  android_push_subscription_status?: string | null
+  /**
+   * Ios Push Token of the user
+   */
+  ios_push_token?: string
+  /**
+   * Global status of the ios push subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.
+   */
+  ios_push_subscription_status?: string | null
+  /**
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
     [k: string]: unknown
   }
 }

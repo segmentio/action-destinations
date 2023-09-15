@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Sales Activity',
-  description: 'Record monetary data for conversions, such as cost and the number of items sold',
+  description: 'Record monetary data for conversions, such as cost and the number of items sold.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     activityGroupTagString: {
@@ -25,7 +26,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Enable Dynamic Tags',
       type: 'boolean',
       description:
-        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**'
+        'In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.'
     },
     countingMethod: {
       label: 'Counting Method',
