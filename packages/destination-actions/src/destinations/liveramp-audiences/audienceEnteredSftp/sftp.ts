@@ -1,4 +1,5 @@
-import { InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+
 import Client from 'ssh2-sftp-client'
 import path from 'path'
 import { Payload } from './generated-types'
@@ -42,6 +43,14 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     password: payload.sftp_password
   })
 
+  let connectionEnded = false // no chance of accessing internals with TypeScript, keep connection state externally
+  const timeout = setTimeout(() => {
+    if (!connectionEnded) {
+      void sftp.end() // hang promise on purpose, we are on fault hot path
+      connectionEnded = true
+    }
+  }, DEFAULT_REQUEST_TIMEOUT)
+
   let retVal
   try {
     retVal = await action(sftp)
@@ -55,7 +64,11 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
 
     throw e
   }
-  await sftp.end()
+  if (!connectionEnded) {
+    await sftp.end()
+  }
+  clearTimeout(timeout)
+
   return retVal
 }
 
