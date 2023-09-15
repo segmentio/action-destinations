@@ -2,7 +2,16 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { TrackEventsPublishBody, devrevApiPaths, getBaseUrl } from '../../utils'
-import { settings, testAnonymousId, testContext, testEventPayload, testMessageId, testUserId } from '../../mocks'
+import {
+  settings,
+  testAccountRef,
+  testAnonymousId,
+  testContext,
+  testEventPayload,
+  testMessageId,
+  testUserId,
+  testWorkspaceRef
+} from '../../mocks'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -18,6 +27,13 @@ describe('Devrev.streamEvent', () => {
       ...testEventPayload,
       messageId: testMessageId,
       anonymousId: testAnonymousId,
+      integrations: {
+        // @ts-expect-error integrations should accept complex objects;
+        DevRev: {
+          accountRef: testAccountRef,
+          workspaceRef: testWorkspaceRef
+        }
+      },
       context: testContext,
       userId: testUserId,
       properties: {
@@ -44,11 +60,13 @@ describe('Devrev.streamEvent', () => {
             timestamp: testEventPayload.timestamp,
             email: testEventPayload.properties?.email,
             userId: testUserId,
+            accountRef: testAccountRef,
+            workspaceRef: testWorkspaceRef,
             messageId: testMessageId,
             anonymousId: testAnonymousId,
             context: testContext,
             properties: testEventPayload.properties,
-            event_source: 'segment'
+            devrev_source_identifier: 'segment'
           }
         }
       ]

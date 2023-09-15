@@ -14,6 +14,14 @@ export interface Payload {
    */
   userId?: string
   /**
+   * Account Ref, ideally mappable to external ref of a Rev Account.
+   */
+  accountRef?: string
+  /**
+   * Workspace Ref, ideally mappable to external ref of a Rev Workspace.
+   */
+  workspaceRef?: string
+  /**
    * The email of the contact associated with this event.
    */
   email?: string

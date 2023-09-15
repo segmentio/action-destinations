@@ -1,0 +1,71 @@
+import { Analytics, Context } from '@segment/analytics-next'
+import identifyRevUser from '..'
+
+describe('DevRev.identifyRevUser', () => {
+  it('should enrich account and workspace ref', async () => {
+    const mockUserTraits = {
+      account_ref: 'ACC-test',
+      workspace_ref: 'WOR-test'
+    }
+
+    const context = new Context({
+      type: 'identify',
+      traits: mockUserTraits
+    })
+
+    const analytics = {
+      user: jest.fn(() => ({
+        traits: jest.fn(() => mockUserTraits)
+      }))
+    } as any as Analytics
+
+    await identifyRevUser.perform(
+      {},
+      {
+        settings: {},
+        context,
+        payload: {
+          accountRef: 'account_ref',
+          workspaceRef: 'workspace_ref'
+        },
+        analytics
+      }
+    )
+
+    expect(context.event.integrations).toHaveProperty('DevRev')
+    expect(context.event.integrations).toHaveProperty('DevRev.accountRef', mockUserTraits.account_ref)
+    expect(context.event.integrations).toHaveProperty('DevRev.workspaceRef', mockUserTraits.workspace_ref)
+  })
+
+  it("should not enrich account and worskapce ref if they don't exist", async () => {
+    const mockUserTraits = {
+      randomTrait: 'random'
+    }
+
+    const context = new Context({
+      type: 'identify',
+      traits: mockUserTraits
+    })
+
+    const analytics = {
+      user: jest.fn(() => ({
+        traits: jest.fn(() => mockUserTraits)
+      }))
+    } as any as Analytics
+
+    await identifyRevUser.perform(
+      {},
+      {
+        settings: {},
+        context,
+        payload: {
+          accountRef: 'accountRef',
+          workspaceRef: 'workspaceRef'
+        },
+        analytics
+      }
+    )
+
+    expect(context.event.integrations).toBeUndefined
+  })
+})

@@ -31,6 +31,32 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.userId' }
     },
+    accountRef: {
+      label: 'Account Ref',
+      description: 'Account Ref, ideally mappable to external ref of a Rev Account.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.accountRef' },
+          then: { '@path': '$.traits.accountRef' },
+          else: { '@path': '$.integrations.DevRev.accountRef' }
+        }
+      }
+    },
+    workspaceRef: {
+      label: 'Workspace Ref',
+      description: 'Workspace Ref, ideally mappable to external ref of a Rev Workspace.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.workspaceRef' },
+          then: { '@path': '$.traits.workspaceRef' },
+          else: { '@path': '$.integrations.DevRev.workspaceRef' }
+        }
+      }
+    },
     email: {
       label: 'Email Address',
       description: 'The email of the contact associated with this event.',
@@ -86,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
           payload: {
             // add mapped data to payload
             ...payload,
-            event_source: 'segment'
+            devrev_source_identifier: 'segment'
           }
         }
       ]
