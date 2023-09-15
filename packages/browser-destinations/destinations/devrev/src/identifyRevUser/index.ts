@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Identify Rev User',
-  description: 'Looks up Account and Workspace Refs from user traits and adds it to context.',
+  description: 'Looks up User, Account and Workspace Refs from user traits and adds it to context.',
   platform: 'web',
   hidden: false,
   defaultSubscription: 'type = "identify"',
