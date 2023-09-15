@@ -22,11 +22,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: {
         email: 'tester11@seg.com',
-        email_subscription_status: 'unsubscribed',
+        email_subscription_status: true,
         phone: '+12135618345',
-        sms_subscription_status: 'true'
+        sms_subscription_status: true
       }
     })
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: defaultSubscriptionMapping,

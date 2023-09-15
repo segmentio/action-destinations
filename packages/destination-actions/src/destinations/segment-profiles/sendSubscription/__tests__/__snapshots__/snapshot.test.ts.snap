@@ -260,7 +260,7 @@ Object {
     "messaging_subscriptions": Array [
       Object {
         "key": "tester11@seg.com",
-        "status": "unsubscribed",
+        "status": "subscribed",
         "type": "EMAIL",
       },
       Object {
