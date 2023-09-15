@@ -48,18 +48,18 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     password: payload.sftp_password
   })
 
-  let connectionEnded = false // no chance of accessing internals with TypeScript, keep connection state externally
+  let timeoutError
   const timeout = setTimeout(() => {
-    if (!connectionEnded) {
-      void sftp.end() // hang promise on purpose, we are on fault hot path
-      connectionEnded = true
-      throw new SelfTimeoutError(`did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`)
-    }
+    void sftp.end() // hang promise on purpose, we are on fault hot path
+    timeoutError = new SelfTimeoutError(
+      `did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`
+    )
   }, DEFAULT_REQUEST_TIMEOUT)
 
   let retVal
   try {
     retVal = await action(sftp)
+    if (timeoutError) throw timeoutError
   } catch (e: unknown) {
     const sftpError = e as SFTPError
     if (sftpError) {
@@ -71,7 +71,7 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     throw e
   } finally {
     clearTimeout(timeout)
-    if (!connectionEnded) {
+    if (!timeoutError) {
       await sftp.end()
     }
   }
