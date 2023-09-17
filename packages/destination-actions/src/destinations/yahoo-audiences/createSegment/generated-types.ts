@@ -14,7 +14,7 @@ export interface Payload {
    */
   engage_space_id: string
   /**
-   * Provide the description for Yahoo Taxonomy customer node
+   * Provide the description for Yahoo Taxonomy customer node, less then 1000 characters
    */
   customer_desc?: string
 }

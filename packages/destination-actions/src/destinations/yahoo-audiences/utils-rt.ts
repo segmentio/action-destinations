@@ -8,7 +8,7 @@ import { Payload } from './updateSegment/generated-types'
  * @param length The ID length. The default is 24.
  * @returns A generated random ID (string)
  */
-export function gen_random_id(length = 24): string {
+export function gen_random_id(length: number): string {
   const pattern = 'abcdefghijklmnopqrstuvwxyz123456789'
   const result = []
   for (let i = 0; i < length; i++) {
@@ -34,7 +34,7 @@ export function create_hash(input: string | undefined) {
  * @returns The JWT token
  */
 export function generate_jwt(client_id: string, client_secret: string) {
-  const random_id = gen_random_id()
+  const random_id = gen_random_id(24)
   const current_time = Math.floor(new Date().getTime() / 1000)
 
   const jwt_header = {
@@ -97,23 +97,6 @@ export function gen_update_segment_payload(payloads: Payload[]) {
   check_schema(payloads[0])
   const schema = get_id_schema(payloads[0])
 
-  /* 
-  Ouput schema
-  {
-    Schema: [
-        "EMAIL","IDFA", "GPSAID", "SEGMENTS"
-    ],
-    Data: [
-        ["user_1_sha_email", "","", "exp=current_unix_ts+90_days&seg_id=audience_1a_id&ts=current_unix_ts"],         // add User 1 into Segment 'audience_1a'
-        ["user_1_sha_email", "","", "exp=0&seg_id=audience_1b_id&ts=current_unix_ts"]                                // remove User 1 from Segment 'audience_1b'
-        ["", "user_2_idfa", "", "exp=current_unix_ts+90_days&seg_id=audience_2a_id&ts=current_unix_ts"],             // add User 2 into Segment 'audience_2a'
-        ["", "user_3_idfa", "user_4_gpsaid", "exp=current_unix_ts+90_days&seg_id=audience_2b_id&ts=current_unix_ts"] // add User 3 into Segment 'audience_2b'
-    ],
-    gdpr: true,
-    gdpr_euconsent: "storage and access of information and personalisation"
-  }
-  */
-
   const data = []
   let exp
   for (const event of payloads) {
@@ -133,7 +116,6 @@ export function gen_update_segment_payload(payloads: Payload[]) {
           break
       }
     }
-    let hashed_gpsaid: string | undefined = ''
     if (schema.maid === true && event.device_type === 'android') {
       hashed_gpsaid = create_hash(event.advertising_id)
     }

@@ -1,10 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { RequestClient, RetryableError } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { YahooTaxonomy } from '../api'
-import { TaxonomyObject } from '../types'
-/* Generates a Segment in Yahoo + a node for a customer if it doesn't exist */
+import { gen_customer_taxonomy_payload, gen_oauth1_signature, gen_segment_subtaxonomy_payload } from '../utils-tax'
+import { TAXONOMY_BASE_URL } from '../constants'
+/* Generates a Segment in Yahoo Taxonomy */
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Yahoo Segment',
@@ -34,26 +34,51 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customer_desc: {
       label: 'Space Description',
-      description: 'Provide the description for Yahoo Taxonomy customer node',
+      description: 'Provide the description for Yahoo Taxonomy customer node, less then 1000 characters',
       type: 'string',
       required: false
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return create_yahoo_segment(request, settings, payload)
+  perform: async (request, { settings, payload, auth }) => {
+    if (auth?.accessToken) {
+      const creds = Buffer.from(auth?.accessToken, 'base64').toString()
+      const tx_creds = JSON.parse(creds['tx'])
+      return update_taxonomy(tx_creds, request, settings, payload)
+    }
   }
 }
 
-// Oauth1 authentication (only server part: provide key + token, exchange for access token)
-async function create_yahoo_segment(request: RequestClient, settings: Settings, payload: Payload) {
-  const yahooTaxonomyApiClient: YahooTaxonomy = new YahooTaxonomy(request)
-  const taxonomy_req = await yahooTaxonomyApiClient.get_taxonomy()
+async function update_taxonomy(tx_creds, request: RequestClient, settings: Settings, payload: Payload) {
+  const tx_client_key = tx_creds['tx_client_key']
+  const tx_client_secret = tx_creds['tx_client_secret']
+
+  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret)
+  // PUT node endpoint always returns 202 ACCEPTED unless bad JSON is passed
+
+  await request(`${TAXONOMY_BASE_URL}/taxonomy/append/`, {
+    method: 'PUT',
+    body: gen_customer_taxonomy_payload(settings, payload),
+    headers: {
+      Authorization: oauth1_auth_string
+    }
+  })
+  await request(`${TAXONOMY_BASE_URL}/taxonomy/append/${payload.engage_space_id}`, {
+    method: 'PUT',
+    body: gen_segment_subtaxonomy_payload(payload),
+    headers: {
+      Authorization: oauth1_auth_string
+    }
+  })
+
+  // 'GET taxonomy' endpoint should not be used, because it doesn't consistently return the complete taxonomy
+  /*
+  const taxonomy_req = await yahooTaxonomyApiClient.get_taxonomy(client_key, client_secret)
   const taxonomy_arr: Array<TaxonomyObject> = await taxonomy_req.json()
 
   // If taxonomy is empty - create customer forder and audience subfolder
   if (taxonomy_arr.length == 0) {
-    await create_customer_taxonomy(yahooTaxonomyApiClient, settings, payload)
-    await create_segment_taxonomy(yahooTaxonomyApiClient, settings, payload)
+    await create_customer_taxonomy(client_key, client_secret,yahooTaxonomyApiClient, settings, payload)
+    await create_segment_taxonomy(client_key, client_secret,yahooTaxonomyApiClient, settings, payload)
   }
 
   // If taxonomy doesn't include customer folder - create customer forder and audience subfolder
@@ -64,11 +89,11 @@ async function create_yahoo_segment(request: RequestClient, settings: Settings, 
   )
 
   if (customer_folder_index < 0) {
-    const customer_taxonomy = await create_customer_taxonomy(yahooTaxonomyApiClient, settings, payload)
+    const customer_taxonomy = await create_customer_taxonomy(client_key, client_secret,yahooTaxonomyApiClient, settings, payload)
     if (customer_taxonomy?.status !== 200) {
       throw new RetryableError(`Retrying the attempt to create customer taxonomy`)
     }
-    const segment_taxonomy = await create_segment_taxonomy(yahooTaxonomyApiClient, settings, payload)
+    const segment_taxonomy = await create_segment_taxonomy(client_key, client_secret,yahooTaxonomyApiClient, settings, payload)
     if (segment_taxonomy?.status !== 200) {
       throw new RetryableError(`Retrying the attempt to create segment taxonomy`)
     }
@@ -80,31 +105,14 @@ async function create_yahoo_segment(request: RequestClient, settings: Settings, 
         (segment_obj: { id: string }) => segment_obj.id == payload.segment_audience_id
       ) < 0
     ) {
-      const segment_taxonomy = await create_segment_taxonomy(yahooTaxonomyApiClient, settings, payload)
+      const segment_taxonomy = await create_segment_taxonomy(client_key, client_secret,yahooTaxonomyApiClient, settings, payload)
       if (segment_taxonomy?.status !== 200) {
         throw new RetryableError(`Retrying the attempt to create segment taxonomy`)
       }
       return segment_taxonomy
     }
   }
-}
-
-async function create_customer_taxonomy(yahooTaxonomyApiClient: YahooTaxonomy, settings: Settings, payload: Payload) {
-  const taxonomy_req = await yahooTaxonomyApiClient.get_taxonomy()
-  const taxonomy_arr = await taxonomy_req.json()
-
-  if (taxonomy_arr.length == 0) {
-    return yahooTaxonomyApiClient.add_customer_taxonomy_node(settings, '', payload)
-  }
-}
-
-async function create_segment_taxonomy(yahooTaxonomyApiClient: YahooTaxonomy, settings: Settings, payload: Payload) {
-  const taxonomy_req = await yahooTaxonomyApiClient.get_taxonomy()
-  const taxonomy_arr = await taxonomy_req.json()
-
-  if (taxonomy_arr.length == 0) {
-    return yahooTaxonomyApiClient.add_segment_subtaxonomy_node(settings.mdm_id, payload)
-  }
+  */
 }
 
 export default action
