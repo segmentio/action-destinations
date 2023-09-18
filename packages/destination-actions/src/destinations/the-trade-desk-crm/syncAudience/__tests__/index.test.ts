@@ -272,7 +272,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
           pii_type: 'Email'
         }
       })
-    ).rejects.toThrow(`received payload count below The Trade Desk's ingestion limits. Expected: >=1500 actual: 1`)
+    ).rejects.toThrow(`received payload count below The Trade Desk's ingestion minimum. Expected: >=1500 actual: 1`)
   })
 
   it('should execute legacy flow if flagon override is defined', async () => {
