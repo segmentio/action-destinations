@@ -21,6 +21,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    settingsData['apiKey'] = 'abc123';
+    settingsData['region'] = 'US';
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
@@ -53,6 +56,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
+
+    settingsData['apiKey'] = 'abc123';
+    settingsData['region'] = 'US';
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,

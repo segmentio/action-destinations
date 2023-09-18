@@ -7,6 +7,7 @@ import {
   product_id,
   timestamp
 } from '../fields'
+import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Single Product Event',
@@ -17,16 +18,19 @@ const action: ActionDefinition<Settings, Payload> = {
     product_id: {...product_id},
     timestamp: {...timestamp}
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
+    const host = hosts[settings.region]
+  
     const body = {
       type: 'product',
-      identifiers: payload.user_identifiers,
+      requestType: 'single',
+      user_identifiers: payload.user_identifiers,
       action: payload.event_action,
-      product_id: payload.product_id,
-      timestamp: payload.timestamp
+      timestamp: payload.timestamp,
+      product_id: payload.product_id
     }
     
-    return request('https://eo493p73oqjeket.m.pipedream.net', {
+    return request(`${host}/product_event`, {
       method: 'post',
       json: body
     });

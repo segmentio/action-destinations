@@ -81,16 +81,6 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Product Catalog Details Upserted',
-      subscribe: 'type = "track" and event = "Product Catalog Details Upserted"',
-      partnerAction: 'upsertProduct',
-      mapping: {
-        ...defaultValues(singleProductEvent.fields),
-        event_action: 'product_catalog_item_upserted'
-      },
-      type: 'automatic'
-    },
-    {
       name: 'Order Completed',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'multiProductEvent',
@@ -106,7 +96,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_click'
+        event_action: 'click'
       },
       type: 'automatic'
     },
@@ -116,13 +106,32 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_opened'
+        event_action: 'open'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Unsubscribed',
+      subscribe: 'type = "track" and event = "Unsubscribed"',
+      partnerAction: 'emailEvent',
+      mapping: {
+        ...defaultValues(emailEvent.fields),
+        event_action: 'opt-out'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Email Marked as Spam',
+      subscribe: 'type = "track" and event = "Email Marked as Spam"',
+      partnerAction: 'emailEvent',
+      mapping: {
+        ...defaultValues(emailEvent.fields),
+        event_action: 'spam_complaint'
       },
       type: 'automatic'
     }
   ],
   actions: {
-
     singleProductEvent, // Record an analytics event for a user against a single product. Does not upsert product details.
     multiProductEvent, // Record an analytics event for a user against multiple products (purchase). Does not upsert product details.
     upsertContact,

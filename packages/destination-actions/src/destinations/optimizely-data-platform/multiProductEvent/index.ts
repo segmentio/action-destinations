@@ -9,6 +9,7 @@ import {
   total,
   timestamp
 } from '../fields'
+import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Multi Product Event',
@@ -21,18 +22,21 @@ const action: ActionDefinition<Settings, Payload> = {
     total: {...total},
     timestamp: {...timestamp}
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
+    const host = hosts[settings.region]
 
     const body = {
       type: 'product',
+      requestType: 'multi',
       user_identifiers: payload.user_identifiers,
       action: payload.event_action,
+      timestamp: payload.timestamp,
       order_id: payload.order_id,
       total: payload.total,
       purchase: payload.products
     }
     
-    return request('https://example.com', {
+    return request(`${host}/product_event`, {
       method: 'post',
       json: body
     });

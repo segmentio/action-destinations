@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getEmailEventType } from '../utils'
+import { getEmailEventType, hosts } from '../utils'
+import { timestamp } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Email Event',
@@ -21,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's email",
       type: 'string',
       format: 'email',
+      required: true, 
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -41,6 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Campaign Name',
       description: "The campaign name",
       type: 'string',
+      required: true,
       default: {
         '@path': '$.properties.campaign_name'
       }
@@ -52,18 +55,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties.link_url'
       }
-    }
+    },
+    timestamp: {...timestamp}
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
+    const host = hosts[settings.region]
+
     const body = {
       type: 'email',
       action: getEmailEventType[payload.event_action],
       campaign: payload.campaign,
       email: payload.email,
-      campaign_event_value: payload.link_url
+      campaign_event_value: payload.link_url ?? null,
+      timestamp: payload.timestamp
     };
     
-    return request('https://example.com', {
+    return request(`${host}/email_event`, {
       method: 'post',
       json: body
     });

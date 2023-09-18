@@ -55,11 +55,15 @@ export interface Payload {
    */
   phone?: string
   /**
+   * Contact's age.
+   */
+  age?: number
+  /**
    * Address details object
    */
   address?: {
     /**
-     * The user's steet.
+     * The user's street.
      */
     street?: string
     /**
@@ -82,5 +86,5 @@ export interface Payload {
   /**
    * The user's avatar image URL.
    */
-  imageURL?: string
+  avatar?: string
 }

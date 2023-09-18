@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_identifiers } from '../fields'
+import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -13,25 +14,19 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Company Name',
       type: 'string',
       description: 'The name of the company associated with the Contact',
-      default: {
-        '@path': '$.traits.company'
-      }
+      default: { '@path': '$.traits.company' }
     },
     title: {
       label: 'Title',
       type: 'string',
       description: 'The Contact\'s Title',
-      default: {
-        '@path': '$.traits.title'
-      }
+      default: { '@path': '$.traits.title' }
     },
     name: {
       label: 'Name',
       type: 'string',
       description: 'Contact\'s full name',
-      default: {
-        '@path': '$.traits.name'
-      }
+      default: { '@path': '$.traits.name' }
     },
     firstname: {
       label: 'First Name',
@@ -49,25 +44,25 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Gender',
       type: 'string',
       description: 'Contact\'s gender',
-      default: {
-        '@path': '$.traits.gender'
-      }
+      default: { '@path': '$.traits.gender' }
     },
     DOB: {
       label: 'Birthday',
       type: 'datetime',
       description: 'Contact\'s birthday. The format should be datetime',
-      default: {
-        '@path': '$.traits.birthday'
-      }
+      default: { '@path': '$.traits.birthday' }
     },
     phone: {
       label: 'Phone',
       type: 'string',
       description: 'Contact\'s phone number.',
-      default: {
-        '@path': '$.traits.phone'
-      }
+      default: { '@path': '$.traits.phone' }
+    },
+    age: {
+      label: 'Age',
+      type: 'number',
+      description: 'Contact\'s age.',
+      default: { '@path': '$.traits.age' }
     },
     address: {
       label: 'Address',
@@ -77,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
         street: {
           label: 'Street',
           type: 'string',
-          description: "The user's steet."
+          description: "The user's street."
         },
         city: {
           label: 'City',
@@ -108,23 +103,32 @@ const action: ActionDefinition<Settings, Payload> = {
         country: { '@path': '$.traits.address.country' },
       }
     },
-    imageURL: {
+    avatar: {
       label: 'avatar',
       type: 'string',
       description: "The user's avatar image URL.",
-      default: {
-        '@path': '$.traits.avatar'
-      }
+      default: { '@path': '$.traits.avatar' }
     }
   },
-  perform: (request, { payload }) => {
-    
+  perform: (request, { payload, settings }) => {
+    const host = hosts[settings.region]
+
     const body = {
-      type: 'product',
-      image_url: payload.imageURL
+      user_identifiers: payload.user_identifiers,
+      title: payload.title,
+      name: payload.name,
+      first_name: payload.firstname,
+      last_name: payload.lastname,
+      age: payload.age,
+      dob: payload.DOB,
+      gender: payload.gender,
+      phone: payload.phone,
+      address: payload.address,
+      company: payload.company,
+      image_url: payload.avatar
     }
 
-    return request('https://example.com', {
+    return request(`${host}/upsert_contact`, {
       method: 'post',
       json: body
     })

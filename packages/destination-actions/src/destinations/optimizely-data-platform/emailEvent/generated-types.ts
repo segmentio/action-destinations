@@ -6,13 +6,9 @@ export interface Payload {
    */
   event_action: string
   /**
-   * The email unique identifier
-   */
-  email_id?: string
-  /**
    * The user's email
    */
-  email?: string
+  email: string
   /**
    * The campaign unique identifier
    */
@@ -20,9 +16,13 @@ export interface Payload {
   /**
    * The campaign name
    */
-  campaign?: string
+  campaign: string
   /**
-   * The link that is clicked in email
+   * URL of the link which was clicked
    */
   link_url?: string
+  /**
+   * Event timestamp
+   */
+  timestamp?: string
 }

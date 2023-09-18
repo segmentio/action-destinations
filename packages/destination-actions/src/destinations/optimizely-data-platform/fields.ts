@@ -10,7 +10,6 @@ export const event_action: InputField = {
     }
 }
 
-
 export const user_identifiers: InputField = {
     label: 'User identifiers',
     description: 'User identifier details to send to Optimizely. ',
@@ -89,7 +88,7 @@ export const order_id: InputField = {
     description: 'Identifier for the order',
     type: 'string',
     default: {
-        '@path': '$.order_id'
+        '@path': '$.properties.order_id'
     }
 };
 
@@ -98,7 +97,7 @@ export const total: InputField = {
     description: 'Total value of the order',
     type: 'string',
     default: {
-        '@path': '$.total'
+        '@path': '$.properties.total'
     }
 };
 
