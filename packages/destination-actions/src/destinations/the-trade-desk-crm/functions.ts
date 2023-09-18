@@ -67,7 +67,7 @@ export async function processPayload(input: ProcessPayloadInput) {
 
     if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
       throw new PayloadValidationError(
-        `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
+        `received payload count below The Trade Desk's ingestion minimum. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
       )
     }
 

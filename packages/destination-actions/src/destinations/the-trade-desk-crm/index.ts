@@ -37,7 +37,7 @@ export interface GET_CRMS_API_RESPONSE {
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'The Trade Desk Crm',
+  name: 'The Trade Desk CRM',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
 
