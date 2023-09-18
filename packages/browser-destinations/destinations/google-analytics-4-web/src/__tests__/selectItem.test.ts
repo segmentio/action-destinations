@@ -1,7 +1,6 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-import { GA } from '../types'
 
 const subscriptions: Subscription[] = [
   {
@@ -44,7 +43,7 @@ describe('GoogleAnalytics4Web.selectItem', () => {
     measurementID: 'test123'
   }
 
-  let mockGA4: GA
+  let mockGA4: typeof gtag
   let selectItemEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -56,10 +55,8 @@ describe('GoogleAnalytics4Web.selectItem', () => {
     selectItemEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockGA4 = {
-        gtag: jest.fn()
-      }
-      return Promise.resolve(mockGA4.gtag)
+      mockGA4 = jest.fn()
+      return Promise.resolve(mockGA4)
     })
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
@@ -83,7 +80,7 @@ describe('GoogleAnalytics4Web.selectItem', () => {
 
     await selectItemEvent.track?.(context)
 
-    expect(mockGA4.gtag).toHaveBeenCalledWith(
+    expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('select_item'),
       expect.objectContaining({
