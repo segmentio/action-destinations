@@ -79,7 +79,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Region',
       description: 'Region of your audience.',
-      choices: [{ label: 'US', value: 'US' }]
+      default: 'US',
+      choices: [
+        { label: 'US', value: 'US' },
+        { label: 'EU', value: 'EU' },
+        { label: 'APAC', value: 'APAC' }
+      ]
     }
   },
   audienceConfig: {

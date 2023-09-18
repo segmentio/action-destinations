@@ -1,4 +1,4 @@
-import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
@@ -46,6 +46,7 @@ const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 const TTD_MIN_RECORD_COUNT = 1500
 
 export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'
+export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 
 export async function processPayload(input: ProcessPayloadInput) {
   if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
@@ -53,7 +54,13 @@ export async function processPayload(input: ProcessPayloadInput) {
       `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
     )
   }
-  const crmID = input.payloads[0].external_id
+
+  let crmID = ''
+  if (input.features && input.features[TTD_LIST_ACTION_FLOW_FLAG_NAME]) {
+    crmID = input.payloads[0].external_id
+  } else {
+    crmID = await getCRMInfo(input.request, input.settings, input.payloads[0])
+  }
 
   // Get user emails from the payloads
   const usersFormatted = extractUsers(input.payloads)
@@ -79,6 +86,7 @@ export async function processPayload(input: ProcessPayloadInput) {
       TDDAuthToken: input.settings.auth_token,
       AdvertiserId: input.settings.advertiser_id,
       CrmDataId: crmID,
+      SegmentName: input.payloads[0].name,
       UsersFormatted: usersFormatted,
       DropOptions: {
         PiiType: input.payloads[0].pii_type,
@@ -88,73 +96,73 @@ export async function processPayload(input: ProcessPayloadInput) {
   }
 }
 
-// async function getAllDataSegments(request: RequestClient, settings: Settings) {
-//   const allDataSegments: Segments[] = []
-//   // initial call to get first page
-//   let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(
-//     `${BASE_URL}/crmdata/segment/${settings.advertiser_id}`,
-//     {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'TTD-Auth': settings.auth_token
-//       }
-//     }
-//   )
-//   let segments = response.data.Segments
-//   // pagingToken leads you to the next page
-//   let pagingToken = response.data.PagingToken
-//   // keep iterating through pages until the last empty page
-//   while (segments.length > 0) {
-//     allDataSegments.push(...segments)
-//     response = await request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}?pagingToken=${pagingToken}`, {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'TTD-Auth': settings.auth_token
-//       }
-//     })
+async function getAllDataSegments(request: RequestClient, settings: Settings) {
+  const allDataSegments: Segments[] = []
+  // initial call to get first page
+  let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(
+    `${BASE_URL}/crmdata/segment/${settings.advertiser_id}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      }
+    }
+  )
+  let segments = response.data.Segments
+  // pagingToken leads you to the next page
+  let pagingToken = response.data.PagingToken
+  // keep iterating through pages until the last empty page
+  while (segments.length > 0) {
+    allDataSegments.push(...segments)
+    response = await request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}?pagingToken=${pagingToken}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      }
+    })
 
-//     segments = response.data.Segments
-//     pagingToken = response.data.PagingToken
-//   }
-//   return allDataSegments
-// }
+    segments = response.data.Segments
+    pagingToken = response.data.PagingToken
+  }
+  return allDataSegments
+}
 
-// async function getCRMInfo(request: RequestClient, settings: Settings, payload: Payload): Promise<string> {
-//   let segmentId: string
-//   const segments = await getAllDataSegments(request, settings)
-//   const segmentExists = segments.filter(function (segment) {
-//     if (segment.SegmentName == payload.name) {
-//       return segment
-//     }
-//   })
+async function getCRMInfo(request: RequestClient, settings: Settings, payload: Payload): Promise<string> {
+  let segmentId: string
+  const segments = await getAllDataSegments(request, settings)
+  const segmentExists = segments.filter(function (segment) {
+    if (segment.SegmentName == payload.name) {
+      return segment
+    }
+  })
 
-//   // More than 1 audience returned matches name
-//   if (segmentExists.length > 1) {
-//     throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
-//   } else if (segmentExists.length == 1) {
-//     segmentId = segmentExists[0].CrmDataId
-//   } else {
-//     // If an audience does not exist, we will create it. In V1, we will send a single batch
-//     // of full audience syncs every 24 hours to eliminate the risk of a race condition.
-//     const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'TTD-Auth': settings.auth_token
-//       },
-//       json: {
-//         AdvertiserId: settings.advertiser_id,
-//         SegmentName: payload.name,
-//         Region: payload.region
-//       }
-//     })
-//     segmentId = response.data.CrmDataId
-//   }
+  // More than 1 audience returned matches name
+  if (segmentExists.length > 1) {
+    throw new IntegrationError('Multiple audiences found with the same name', 'INVALID_SETTINGS', 400)
+  } else if (segmentExists.length == 1) {
+    segmentId = segmentExists[0].CrmDataId
+  } else {
+    // If an audience does not exist, we will create it. In V1, we will send a single batch
+    // of full audience syncs every 24 hours to eliminate the risk of a race condition.
+    const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': settings.auth_token
+      },
+      json: {
+        AdvertiserId: settings.advertiser_id,
+        SegmentName: payload.name,
+        Region: payload.region
+      }
+    })
+    segmentId = response.data.CrmDataId
+  }
 
-//   return segmentId
-// }
+  return segmentId
+}
 
 function extractUsers(payloads: Payload[]): string {
   let users = ''
