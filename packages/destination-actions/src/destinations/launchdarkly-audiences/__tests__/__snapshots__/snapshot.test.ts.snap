@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-launchdarkly-audiences destination: syncAudience action - required fields 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "cohortId": "test_audience",
+      "cohortName": "Test audience",
+      "userId": "uKRBKG",
+      "value": true,
+    },
+  ],
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
+}
+`;
+
+exports[`Testing snapshot for actions-launchdarkly-audiences destination: syncAudience action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "api-key",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
+    ],
+    "user-agent": Array [
+      "SegmentSyncAudiences/1.0.0",
+    ],
+  },
+}
+`;

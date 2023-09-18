@@ -10,17 +10,30 @@ import { track } from './track'
 import { PayloadValidationError } from '@segment/actions-core'
 
 export enum SendabilityStatus {
+  /**
+   * No. of externalIds for which the message send is triggered based on the customer chosen send type (bypass, opt-out, opt-in)
+   */
   ShouldSend = 'should_send',
   /**
-   * No externalIds that supported by this Channel exist in the payload
+   * No. of externalIds for which the message send is not triggered based on the customer chosen send type (bypass, opt-out, opt-in)
+   */
+  NotSubscribed = 'not_subscribed',
+  /**
+   * This is set if there are no supported ids for this channel in the payload
    */
   NoSupportedExternalIds = 'no_supported_ids',
-  NotSubscribed = 'not_subscribed',
-  SendDisabled = 'send_disabled',
-  InvalidSubscriptionStatus = 'invalid_subscription_status'
+  /**
+   * No. of externalIds that have iSubscribed field missing from PSS (This should never happen as PSS always return either true, false or null)
+   */
+  InvalidSubscriptionStatus = 'invalid_subscription_status',
+  /**
+   * This is set if 'send' is false in the payload.
+   */
+  SendDisabled = 'send_disabled'
 }
 
 export interface MessagePayloadBase {
+  sendBasedOnOptOut?: boolean
   send?: boolean
   userId?: string
   customArgs?: {
@@ -94,7 +107,7 @@ export abstract class MessageSendPerformer<
    */
   abstract isSupportedExternalId(externalId: NonNullable<TPayload['externalIds']>[number]): boolean
 
-  static readonly nonSendableStatuses = ['unsubscribed', 'did not subscribed', 'false'] // do we need that??
+  static readonly nonSendableStatuses = ['unsubscribed', 'false']
   static readonly sendableStatuses = ['subscribed', 'true']
 
   /**
@@ -112,13 +125,25 @@ export abstract class MessageSendPerformer<
   isExternalIdSubscribed(extId: ExtId<TPayload>): boolean | undefined {
     const staticMems = this.getStaticMembersOfThisClass()
     const subStatus = extId.subscriptionStatus?.toString()?.toLowerCase()
-    if (!subStatus) return false // falsy status is valid and considered to be Not Subscribed, so return false
-    // if subStatus is not in any of the lists of valid statuses, then return true
+
+    // isOptOutModel if true means we can target to any statuses apart from unsubscribed
+    const isOptOutModel = this.payload.sendBasedOnOptOut ? true : false
+    if (!subStatus) return isOptOutModel
     if (staticMems.sendableStatuses.includes(subStatus)) return true
     if (staticMems.nonSendableStatuses.includes(subStatus)) return false
     return undefined //Invalid subscriptionStatus
   }
 
+  // These are used for tags in datadog for Subscription Team
+  convertSubscriptionStatusText(subVal: string | undefined): string {
+    if (subVal == undefined) {
+      return 'unknown'
+    }
+    if (subVal == '') {
+      return 'did_not_subscribe'
+    }
+    return subVal
+  }
   /**
    * Gets all sendable recepients for the current payload or a reason why it is not sendable
    * @returns
@@ -128,20 +153,31 @@ export abstract class MessageSendPerformer<
       return { sendabilityStatus: SendabilityStatus.SendDisabled }
     }
 
-    // list of extenalIds that are supported by this Channel, if none - exit
+    // list of extenalIds that are supported by this Channel, if none - exit based on customer chosen send type (bypass, opt-out, opt-in)
     const supportedExtIdsWithSub = this.payload.externalIds
       ?.filter((extId) => this.isSupportedExternalId(extId))
-      .map((extId) => ({ extId, isSubscribed: this.isExternalIdSubscribed(extId) }))
+      .map((extId) => ({
+        extId,
+        isSubscribed: this.isExternalIdSubscribed(extId)
+      }))
+
+    this.payload.sendBasedOnOptOut
+      ? this.currentOperation?.tags.push('SubscriptionOptOutType:' + true)
+      : this.currentOperation?.tags.push('SubscriptionOptOutType:' + false)
+
     if (!supportedExtIdsWithSub || !supportedExtIdsWithSub.length)
       return {
         sendabilityStatus: SendabilityStatus.NoSupportedExternalIds
       }
 
+    this.currentOperation?.tags.push(
+      'subscription_status:' + this.convertSubscriptionStatusText(supportedExtIdsWithSub[0]?.extId?.subscriptionStatus)
+    )
     const invalidSubStatuses = supportedExtIdsWithSub.filter((e) => e.isSubscribed === undefined).map((e) => e.extId)
 
-    const subscribedExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)
+    const shouldSendExtIds = supportedExtIdsWithSub.filter((e) => e.isSubscribed === true).map((e) => e.extId)
 
-    if (!subscribedExtIds.length) {
+    if (!shouldSendExtIds.length) {
       return invalidSubStatuses.length == 0
         ? {
             sendabilityStatus: SendabilityStatus.NotSubscribed
@@ -153,13 +189,13 @@ export abstract class MessageSendPerformer<
     }
 
     // if have subscribed, then return them IF they have id values (e.g. phone numbers)
-    if (subscribedExtIds.length) {
+    if (shouldSendExtIds.length) {
       // making sure subscribed have id value
-      const subWithIds = subscribedExtIds.filter((extId) => extId.id)
+      const subWithIds = shouldSendExtIds.filter((extId) => extId.id)
       return {
         sendabilityStatus:
           subWithIds.length > 0 ? SendabilityStatus.ShouldSend : SendabilityStatus.NoSupportedExternalIds,
-        recepients: subWithIds.length > 0 ? subWithIds : subscribedExtIds,
+        recepients: subWithIds.length > 0 ? subWithIds : shouldSendExtIds,
         invalid: invalidSubStatuses
       }
     }

@@ -12,6 +12,8 @@ export type MaybePromise<T> = T | Promise<T>
 export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
+  // Data to be returned from action
+  data?: JSONObject | null
 }
 
 export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {
@@ -163,6 +165,19 @@ export interface InputField {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+
+  /**
+   * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
+   * some kind of hardcoded internal "setting". For example the `enable_batching` field which is hardcoded to true for some destinations.
+   */
+  unsafe_hidden?: boolean
+
+  /**
+   * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
+   * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
+   * locked out from editing an empty field.
+   */
+  readOnly?: boolean
 }
 
 export type FieldValue = string | number | boolean | object | Directive

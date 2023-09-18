@@ -10,10 +10,9 @@ export interface Payload {
    */
   matching_attribute: string
   /**
-   * Attributes to either set or update on the Attio Record. The keys on the left should be Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text. The Matching Attribute must be included for assertion to work.
+   * Attributes to either set or update on the Attio Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs, for example: traits.name → name. The Matching Attribute must be included for assertion to work.
    */
   attributes?: {
-    name?: string
     [k: string]: unknown
   }
 }
