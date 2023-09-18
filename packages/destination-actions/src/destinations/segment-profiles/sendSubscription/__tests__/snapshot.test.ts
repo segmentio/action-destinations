@@ -27,7 +27,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         sms_subscription_status: true
       }
     })
-
+    console.log(event)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       //mapping: defaultSubscriptionMapping,
