@@ -99,13 +99,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const method = 'PUT'
     const opts = await generateS3RequestOptions(
-      settings.s3_bucket as string,
-      settings.s3_region as string,
+      settings.s3_bucket_accesspoint,
+      settings.s3_region,
       fileName,
       method,
       csvRows,
-      settings.s3_access_key as string,
-      settings.s3_secret as string
+      settings.s3_access_key,
+      settings.s3_secret
     )
     if (!opts.headers || !opts.method || !opts.host || !opts.path) {
       throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
