@@ -1,5 +1,5 @@
 import type { Payload } from './generated-types'
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
 import { CONSTANTS } from '../constants'
 
@@ -119,7 +119,12 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
  * @param updateBatch array of events to commit to the spreadsheet
  * @param gs interface object capable of interacting with Google Sheets API
  */
-async function processUpdateBatch(mappingSettings: MappingSettings, updateBatch: UpdateBatch[], gs: GoogleSheets) {
+async function processUpdateBatch(
+  mappingSettings: MappingSettings,
+  updateBatch: UpdateBatch[],
+  gs: GoogleSheets,
+  statsContext: StatsContext | undefined
+) {
   // Utility function used to calculate which range an event should be written to
   const getRange = (targetIndex: number, columnCount: number) => {
     const targetRange = new A1(1, targetIndex)
@@ -142,7 +147,7 @@ async function processUpdateBatch(mappingSettings: MappingSettings, updateBatch:
     range: `${mappingSettings.spreadsheetName}!${headerRowRange.toString()}`,
     values: [['id', ...mappingSettings.columns]]
   })
-
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:batchUpdate`])
   return gs.batchUpdate(mappingSettings, batchPayload)
 }
 
@@ -186,7 +191,12 @@ async function processUpdateBatch(mappingSettings: MappingSettings, updateBatch:
  * @param gs interface object capable of interacting with Google Sheets API
  * @returns
  */
-async function processAppendBatch(mappingSettings: MappingSettings, appendBatch: AppendBatch[], gs: GoogleSheets) {
+async function processAppendBatch(
+  mappingSettings: MappingSettings,
+  appendBatch: AppendBatch[],
+  gs: GoogleSheets,
+  statsContext: StatsContext | undefined
+) {
   if (appendBatch.length <= 0) {
     return
   }
@@ -195,7 +205,7 @@ async function processAppendBatch(mappingSettings: MappingSettings, appendBatch:
   const values = appendBatch.map(({ identifier, event }) =>
     generateColumnValuesFromFields(identifier, event, mappingSettings.columns)
   )
-
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:append-spreadsheet`])
   return gs.append(mappingSettings, `A${DATA_ROW_OFFSET}`, values)
 }
 
@@ -204,7 +214,7 @@ async function processAppendBatch(mappingSettings: MappingSettings, appendBatch:
  * @param request request object used to perform HTTP calls
  * @param events array of events to commit to the spreadsheet
  */
-async function processData(request: RequestClient, events: Payload[]) {
+async function processData(request: RequestClient, events: Payload[], statsContext: StatsContext | undefined) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].spreadsheet_id,
@@ -214,7 +224,7 @@ async function processData(request: RequestClient, events: Payload[]) {
   }
 
   const gs: GoogleSheets = new GoogleSheets(request)
-
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-spreadsheet`])
   // Get all of the row identifiers (assumed to be in the first column A)
   const response = await gs.get(mappingSettings, `A${DATA_ROW_OFFSET}:A`)
 
@@ -222,8 +232,8 @@ async function processData(request: RequestClient, events: Payload[]) {
   const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings)
 
   const promises = [
-    processUpdateBatch(mappingSettings, updateBatch, gs),
-    processAppendBatch(mappingSettings, appendBatch, gs)
+    processUpdateBatch(mappingSettings, updateBatch, gs, statsContext),
+    processAppendBatch(mappingSettings, appendBatch, gs, statsContext)
   ]
 
   return await Promise.all(promises)

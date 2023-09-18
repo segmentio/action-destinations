@@ -30,11 +30,11 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: enable_batching,
     batch_size: batch_size
   },
-  perform: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    return upsertRows(request, settings.subdomain, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    return upsertRows(request, settings.subdomain, payload, statsContext)
   }
 }
 

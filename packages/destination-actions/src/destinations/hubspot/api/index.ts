@@ -1,4 +1,4 @@
-import { HTTPError } from '@segment/actions-core'
+import { HTTPError, StatsContext } from '@segment/actions-core'
 import { ModifiedResponse } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import { CustomSearchToAssociateThrowableError } from '../errors'
@@ -35,7 +35,8 @@ export class Hubspot {
     searchFields: { [key: string]: unknown },
     objectType: string,
     responseProperties: string[],
-    responseSortBy: string[]
+    responseSortBy: string[],
+    statsContext?: StatsContext
   ) {
     if (typeof searchFields === 'object' && Object.keys(searchFields).length > 0) {
       const searchPayload: SearchPayload = {
@@ -54,6 +55,10 @@ export class Hubspot {
           ]
         })
       }
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+        ...statsContext?.tags,
+        `endpoint:search-${this.objectType}-object`
+      ])
 
       return this.request<SearchResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/search`, {
         method: 'POST',
@@ -70,7 +75,16 @@ export class Hubspot {
    * @param {{[key: string]: unknown}} properties A list of key-value pairs of properties of the object
    * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves the updated object
    */
-  async create(properties: { [key: string]: unknown }, associations: CreateAssociation[] = []) {
+  async create(
+    properties: { [key: string]: unknown },
+    associations: CreateAssociation[] = [],
+    statsContext?: StatsContext
+  ) {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:create-${this.objectType}-object`
+    ])
+
     return this.request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${this.objectType}`, {
       method: 'POST',
       json: {
@@ -87,7 +101,17 @@ export class Hubspot {
    * @param {String} [idProperty] Unique property of object record to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated record ID
    * @returns {Promise<ModifiedResponse<UpsertRecordResponse>>} A promise that resolves the updated object
    */
-  async update(uniqueIdentifier: string, properties: { [key: string]: unknown }, idProperty?: string) {
+  async update(
+    uniqueIdentifier: string,
+    properties: { [key: string]: unknown },
+    idProperty?: string,
+    statsContext?: StatsContext
+  ) {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:update-${this.objectType}-object`
+    ])
+
     // Construct the URL to update record of given objectType
     // URL to update record by ID: /crm/v3/objects/{objectType}/{objectId}
     // URL to update record by unique property: /crm/v3/objects/{objectType}/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
@@ -110,7 +134,8 @@ export class Hubspot {
    * @param {batchInput[]} input Unique property of object record to match with uniqueIdentifier, if this parameter is not defined then uniqueIdentifier is matched with HubSpot generated record ID
    * @returns {Promise<ModifiedResponse<UpsertRecordResponse>>} A promise that resolves the updated object
    */
-  async associate(objectId: string, toObjectId: string, associations: AssociationType[]) {
+  async associate(objectId: string, toObjectId: string, associations: AssociationType[], statsContext?: StatsContext) {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:associate-objects`])
     const associateURL = `${HUBSPOT_BASE_URL}/crm/v4/objects/${this.objectType}/${objectId}/associations/${this.toObjectType}/${toObjectId}`
 
     return this.request<UpsertRecordResponse>(associateURL, {
@@ -121,7 +146,8 @@ export class Hubspot {
 
   async getObjectResponseToAssociate(
     searchFieldsToAssociateCustomObjects: { [key: string]: unknown } | undefined,
-    associationType: AssociationType | null
+    associationType: AssociationType | null,
+    statsContext?: StatsContext
   ) {
     try {
       if (
@@ -136,7 +162,8 @@ export class Hubspot {
           { ...searchFieldsToAssociateCustomObjects },
           this.toObjectType,
           [],
-          []
+          [],
+          statsContext
         )
         if (searchCustomResponseToAssociate?.data && searchCustomResponseToAssociate?.data?.total) {
           return searchCustomResponseToAssociate

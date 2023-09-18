@@ -210,7 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: false
     }
   },
-  perform: async (request, { payload, transactionContext }) => {
+  perform: async (request, { payload, transactionContext, statsContext }) => {
     // Check if user has mapped the internal property SEGMENT_UNIQUE_IDENTIFIER in other Properties field
     if (payload.properties?.[SEGMENT_UNIQUE_IDENTIFIER]) {
       throw RestrictedPropertyThrowableError
@@ -248,7 +248,8 @@ const action: ActionDefinition<Settings, Payload> = {
       const updateCompanyResponse = await hubspotApiClient.update(
         payload.groupid,
         companyProperties,
-        SEGMENT_UNIQUE_IDENTIFIER
+        SEGMENT_UNIQUE_IDENTIFIER,
+        statsContext
       )
 
       companyId = updateCompanyResponse.data.id
@@ -287,7 +288,8 @@ const action: ActionDefinition<Settings, Payload> = {
             { ...payload.companysearchfields },
             'companies',
             responseProperties,
-            responseSortBy
+            responseSortBy,
+            statsContext
           )
         } catch (e) {
           // HubSpot throws a generic 400 error if an undefined property is used in search
@@ -311,7 +313,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         // Create a wrapper function which calls createCompany and returns the response
         const createCompanyWrapper = async function () {
-          return await hubspotApiClient.create(companyProperties)
+          return await hubspotApiClient.create(companyProperties, [], statsContext)
         }
 
         companyId = await upsertCompanyWithRetry(request, createCompanyWrapper)
@@ -326,7 +328,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         // Create a wrapper function which calls updateCompany and returns the response
         const updateCompanyWrapper = async function () {
-          return await hubspotApiClient.update(companyId, companyProperties)
+          return await hubspotApiClient.update(companyId, companyProperties, undefined, statsContext)
         }
 
         await upsertCompanyWithRetry(request, updateCompanyWrapper)
@@ -335,6 +337,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Associate company with contact if Associate Contact flag is set to true
     if (payload.associateContact && transactionContext?.transaction?.contact_id) {
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:associate-objects`])
       await associateCompanyToContact(request, companyId, transactionContext.transaction.contact_id, ASSOCIATION_TYPE)
     }
   }

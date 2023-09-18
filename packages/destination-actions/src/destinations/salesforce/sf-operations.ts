@@ -1,4 +1,10 @@
-import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ModifiedResponse,
+  RequestClient,
+  RefreshAccessTokenResult,
+  StatsContext
+} from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
@@ -154,8 +160,12 @@ export default class Salesforce {
     this.request = request
   }
 
-  createRecord = async (payload: GenericPayload, sobject: string) => {
+  createRecord = async (payload: GenericPayload, sobject: string, statsContext?: StatsContext) => {
     const json = this.buildJSONData(payload, sobject)
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:create-salesforce-object`
+    ])
 
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
@@ -163,13 +173,13 @@ export default class Salesforce {
     })
   }
 
-  updateRecord = async (payload: GenericPayload, sobject: string) => {
+  updateRecord = async (payload: GenericPayload, sobject: string, statsContext?: StatsContext) => {
     if (!payload.traits || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using update operation', 'Undefined Traits', 400)
     }
 
     if (Object.keys(payload.traits).includes('Id') && payload.traits['Id']) {
-      return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
+      return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload, statsContext)
     }
 
     const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
@@ -179,10 +189,10 @@ export default class Salesforce {
       throw err
     }
 
-    return await this.baseUpdate(recordId, sobject, payload)
+    return await this.baseUpdate(recordId, sobject, payload, statsContext)
   }
 
-  upsertRecord = async (payload: GenericPayload, sobject: string) => {
+  upsertRecord = async (payload: GenericPayload, sobject: string, statsContext?: StatsContext) => {
     if (!payload.traits || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
@@ -192,20 +202,20 @@ export default class Salesforce {
 
     if (err) {
       if (err.status === 404) {
-        return await this.createRecord(payload, sobject)
+        return await this.createRecord(payload, sobject, statsContext)
       }
       throw err
     }
-    return await this.baseUpdate(recordId, sobject, payload)
+    return await this.baseUpdate(recordId, sobject, payload, statsContext)
   }
 
-  deleteRecord = async (payload: GenericPayload, sobject: string) => {
+  deleteRecord = async (payload: GenericPayload, sobject: string, statsContext?: StatsContext) => {
     if (!payload.traits || Object.keys(payload.traits).length === 0) {
       throw new IntegrationError('Undefined Traits when using delete operation', 'Undefined Traits', 400)
     }
 
     if (Object.keys(payload.traits).includes('Id') && payload.traits['Id']) {
-      return await this.baseDelete(payload.traits['Id'] as string, sobject)
+      return await this.baseDelete(payload.traits['Id'] as string, sobject, statsContext)
     }
 
     const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
@@ -215,20 +225,20 @@ export default class Salesforce {
       throw err
     }
 
-    return await this.baseDelete(recordId, sobject)
+    return await this.baseDelete(recordId, sobject, statsContext)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, statsContext)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, statsContext)
     } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject)
+      return await this.bulkInsert(payloads, sobject, statsContext)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -274,12 +284,12 @@ export default class Salesforce {
     }
   }
 
-  private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkInsert = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     // The idField is purposely passed as an empty string since the field is not required.
-    return this.handleBulkJob(payloads, sobject, '', 'insert')
+    return this.handleBulkJob(payloads, sobject, '', 'insert', statsContext)
   }
 
-  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpsert = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -292,10 +302,10 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext)
   }
 
-  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpdate = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',
@@ -304,35 +314,46 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', statsContext)
   }
 
   private async handleBulkJob(
     payloads: GenericPayload[],
     sobject: string,
     idField: string,
-    operation: string
+    operation: string,
+    statsContext?: StatsContext
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField)
-    const jobId = await this.createBulkJob(sobject, idField, operation)
+    const jobId = await this.createBulkJob(sobject, idField, operation, statsContext)
     try {
-      await this.uploadBulkCSV(jobId, csv)
+      await this.uploadBulkCSV(jobId, csv, statsContext)
     } catch (err) {
       // always close the "bulk job" otherwise it will get
       // stuck in "pending".
       //
       // run in background to ensure this service has time to respond
       // with useful information before the connection closes.
-      this.closeBulkJob(jobId).catch((_) => {
+      this.closeBulkJob(jobId, statsContext).catch((_) => {
         // ignore close error to avoid masking the root error
       })
       throw err
     }
-    return await this.closeBulkJob(jobId)
+    return await this.closeBulkJob(jobId, statsContext)
   }
 
-  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+  private createBulkJob = async (
+    sobject: string,
+    externalIdFieldName: string,
+    operation: string,
+    statsContext?: StatsContext
+  ) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `operation:${operation}`,
+      `endpoint:create-bulk-job`
+    ])
     const jsonData: { object: string; contentType: 'CSV'; operation: string; externalIdFieldName?: string } = {
       object: sobject,
       contentType: 'CSV',
@@ -342,7 +363,7 @@ export default class Salesforce {
     if (operation === 'update' || operation === 'upsert') {
       jsonData.externalIdFieldName = externalIdFieldName
     }
-
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-bulk-job`])
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
@@ -358,7 +379,11 @@ export default class Salesforce {
     return res.data.id
   }
 
-  private uploadBulkCSV = async (jobId: string, csv: string) => {
+  private uploadBulkCSV = async (jobId: string, csv: string, statsContext?: StatsContext) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:upload-batched-job-data-in-csv`
+    ])
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
       method: 'put',
       headers: {
@@ -369,7 +394,8 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (jobId: string) => {
+  private closeBulkJob = async (jobId: string, statsContext?: StatsContext) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:close-job`])
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
       method: 'PATCH',
       json: {
@@ -378,16 +404,28 @@ export default class Salesforce {
     })
   }
 
-  private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
+  private baseUpdate = async (
+    recordId: string,
+    sobject: string,
+    payload: GenericPayload,
+    statsContext?: StatsContext
+  ) => {
     const json = this.buildJSONData(payload, sobject)
-
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:update-salesforce-object`
+    ])
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: json
     })
   }
 
-  private baseDelete = async (recordId: string, sobject: string) => {
+  private baseDelete = async (recordId: string, sobject: string, statsContext?: StatsContext) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:delete-salesforce-object`
+    ])
     return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'delete'
     })

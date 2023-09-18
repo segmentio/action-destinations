@@ -311,6 +311,7 @@ const action: ActionDefinition<Settings, Payload> = {
         hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
       } as UserIdentifierInterface)
     }
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:uploadClickConversions`])
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${

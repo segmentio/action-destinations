@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, statsContext }) => {
     const eventName = transformEventName(payload.eventName)
 
     const event: CustomBehavioralEvent = {
@@ -118,7 +118,10 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.utk && !payload.email && !payload.objectId) {
       throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
     }
-
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:send-custom-behavioural-event`
+    ])
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event

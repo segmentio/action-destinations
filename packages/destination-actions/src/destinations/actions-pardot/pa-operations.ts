@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, StatsContext } from '@segment/actions-core'
 import type { Payload as ProspectsPayload } from './prospects/generated-types'
 import { ProspectsType } from './pa-type'
 
@@ -20,9 +20,10 @@ export default class Pardot {
     this.request = request
   }
 
-  upsertRecord = async (payload: ProspectsPayload) => {
+  upsertRecord = async (payload: ProspectsPayload, statsContext?: StatsContext) => {
     const prospect = this.buildProspectJSON(payload)
 
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:upsert-prospect-record`])
     return this.request<ProspectUpsertResponseData>(
       `${this.baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do/upsertLatestByEmail`,
       {

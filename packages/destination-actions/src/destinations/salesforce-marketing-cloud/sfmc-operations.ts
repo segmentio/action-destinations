@@ -1,11 +1,12 @@
-import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 
 export function upsertRows(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  statsContext?: StatsContext
 ) {
   const { key, id } = payloads[0]
   if (!key && !id) {
@@ -22,6 +23,7 @@ export function upsertRows(
       values: payload.values
     })
   })
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:data-extension`])
   if (key) {
     return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
       method: 'POST',
