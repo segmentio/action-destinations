@@ -28,8 +28,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         user_id: 'user12'
       }
     })
-    console.log('event reqd fields ', event)
-    console.log('event.properties reqd', event.properties)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
@@ -79,8 +77,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         user_id: 'user1234'
       }
     })
-    console.log('event all fields ', event)
-    console.log('event.properties all', event.properties)
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
