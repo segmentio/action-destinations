@@ -74,7 +74,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         android_push_token: 'abcd12bbfygdbvbvvvv',
         android_push_subscription_status: false,
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: true
+        ios_push_subscription_status: true,
+        engage_space: 'engage-space-writekey',
+        user_id: 'user1234'
       }
     })
     console.log('event all fields ', event)
