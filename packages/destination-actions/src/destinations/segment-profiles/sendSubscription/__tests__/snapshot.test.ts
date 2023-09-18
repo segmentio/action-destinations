@@ -23,39 +23,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         email: 'tester11@seg.com',
         email_subscription_status: true,
         phone: '+12135618345',
-        sms_subscription_status: true
+        sms_subscription_status: true,
+        engage_space: 'engage-space-writekey',
+        user_id: 'user12'
       }
     })
     console.log('event reqd fields ', event)
     console.log('event.properties reqd', event.properties)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: {
-        ...event.properties,
-        engage_space: 'engage-space-writekey',
-        user_id: {
-          '@path': '$.userId'
-        }
-      },
-      //mapping: defaultSubscriptionMapping,
-      // mapping: {
-      //   user_id: {
-      //     '@path': '$.userId'
-      //   },
-      //   email: {
-      //     '@path': '$.properties.email'
-      //   },
-      //   email_subscription_status: {
-      //     '@path': '$.properties.email_subscription_status'
-      //   },
-      //   phone: {
-      //     '@path': '$.properties.phone'
-      //   },
-      //   sms_subscription_status: {
-      //     '@path': '$.properties.sms_subscription_status'
-      //   },
-      //   engage_space: 'engage-space-writekey'
-      // },
+      mapping: event.properties,
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
@@ -104,14 +81,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     console.log('event.properties all', event.properties)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      //mapping: defaultSubscriptionMapping,
-      mapping: {
-        ...event.properties,
-        engage_space: 'engage-space-writekey',
-        user_id: {
-          '@path': '$.userId'
-        }
-      },
+      mapping: event.properties,
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
