@@ -36,26 +36,27 @@ export function create_hash(input: string | undefined) {
 export function generate_jwt(client_id: string, client_secret: string) {
   const random_id = gen_random_id(24)
   const current_time = Math.floor(new Date().getTime() / 1000)
-
+  const url = 'https://id.b2b.yahooinc.com/identity/oauth2/access_token'
+  const jwt_payload = {
+    iss: client_id,
+    sub: client_id,
+    aud: url + '?realm=dataxonline',
+    jti: random_id,
+    exp: current_time + 3600,
+    iat: current_time
+  }
   const jwt_header = {
     alg: 'HS256',
     typ: 'JWT'
   }
 
-  const jwt_payload = {
-    iss: client_id,
-    sub: client_id,
-    aud: 'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
-    jti: 'id-' + random_id,
-    exp: current_time + 3600,
-    iat: current_time
-  }
+  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
+  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
+  const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
 
-  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64url')
-  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64url')
   const hash = createHmac('sha256', client_secret)
-  const signature = hash.update(jwt_header_encoded + '.' + jwt_payload_encoded).digest('hex')
-  const jwt = jwt_header_encoded + '.' + jwt_payload_encoded + '.' + signature
+  const signature = hash.update(jwt_head_payload).digest('base64')
+  const jwt = jwt_head_payload + '.' + signature
 
   return jwt
 }
@@ -78,6 +79,7 @@ export function get_id_schema(payload: Payload) {
  * @param payload The payload.
  */
 export function check_schema(payload: Payload): void {
+  console.log(payload)
   if (payload.send_email === false && payload.send_advertising_id === false) {
     throw new IntegrationError(
       'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
@@ -94,9 +96,10 @@ export function check_schema(payload: Payload): void {
  * @returns
  */
 export function gen_update_segment_payload(payloads: Payload[]) {
+  console.log('payloads:', payloads)
   check_schema(payloads[0])
   const schema = get_id_schema(payloads[0])
-
+  // TODO: sort payloads by userId and group segments per user
   const data = []
   let exp
   for (const event of payloads) {
@@ -121,6 +124,7 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     }
 
     const ts = Math.floor(new Date().getTime() / 1000)
+    console.log('ts:', ts)
     if (event.event_name == 'Audience Entered') {
       exp = ts + 90 * 24 * 60 * 60
     }
@@ -130,13 +134,13 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     }
 
     const seg_id = event.segment_audience_id
-    data.push([hashed_email, hashed_idfa, hashed_gpsaid, 'exp=' + exp + '&seg_id=' + seg_id, +'&ts=' + ts])
+    data.push([hashed_email, hashed_idfa, hashed_gpsaid, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
   }
 
   const yahoo_payload = {
-    Schema: ['EMAIL', 'IDFA', 'GPSAID', 'SEGMENTS'],
+    Schema: ['SHA256EMAIL', 'IDFA', 'GPSAID', 'SEGMENTS'],
     Data: data,
-    gdpr: false // at this point we set GDPR = false
+    gdpr: false // at this point we always set GDPR = false
   }
   return yahoo_payload
 }

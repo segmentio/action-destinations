@@ -5,6 +5,8 @@ import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
 import createSegment from './createSegment'
 
+import createCustomerNode from './createCustomerNode'
+
 // Response format: https://developer.yahooinc.com/datax/guide/datax-online-spec/oauth2-authentication/
 interface RefreshTokenResponse {
   access_token: string
@@ -26,11 +28,11 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { auth }) => {
-      // Should refresh the token for OAuth1 and Oauth2
-      // Return new Oauth1 auth string and refreshed Bearer for Oauth2
-      // Oauth1
-      const rt_client_key = JSON.parse(auth.clientId)['realtime_api']
-      const rt_client_secret = JSON.parse(auth.clientSecret)['realtime_api']
+      // Oauth2 client_credentials
+      const rt_client_key = JSON.parse(auth.clientId)['rt_api']
+      console.log('rt_client_key:', rt_client_key)
+      const rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+      console.log('rt_client_secret:', rt_client_secret)
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
       const res = await request<RefreshTokenResponse>('https://id.b2b.yahooinc.com/identity/oauth2/access_token', {
         method: 'POST',
@@ -42,32 +44,50 @@ const destination: DestinationDefinition<Settings> = {
           realm: 'dataxonline'
         })
       })
-      const tx_client_key = JSON.parse(auth.clientId)['realtime_api']
-      const tx_client_secret = JSON.parse(auth.clientSecret)['realtime_api']
+      // Oauth1 (sign request)
+      const tx_client_key = JSON.parse(auth.clientId)['tax_api']
+      const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
+      console.log('rt_access_token:', rt_access_token)
+      //const rt_access_token = '123456'
       const creds = {
+        // Oauth1
         tx: {
           tx_client_key: tx_client_key,
           tx_client_secret: tx_client_secret
         },
+        // Oauth2
         rt: rt_access_token
       }
       const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
+      console.log('creds_base64:', creds_base64)
       return { accessToken: creds_base64 }
     }
   },
-  extendRequest({ auth }) {
-    // Collect new Oauth1 auth string and refreshed Bearer for Oauth2 and add them to a request
-    return {
+  /*
+// Potentially will be used to extend Tax Oauth1 requests.
+  extendRequest({ auth, payload }) {
+    let resp;
+    if (payload.segment_audience_id) {
+      resp = 'this is audience update';
+      console.log('AUDIENCE_ID IS AVAILABLE')
+    } else {
+      resp = 'this is taxonomy update'
+      console.log('AUDIENCE_ID IS NOT AVAILABLE')
+    }
+    console.log(resp)
+    return { 
       headers: {
-        authorization: `${auth?.accessToken}`
+        // authorization: `${auth?.accessToken}`
       }
     }
   },
+*/
 
   actions: {
     updateSegment,
-    createSegment
+    createSegment,
+    createCustomerNode
   }
 }
 export default destination

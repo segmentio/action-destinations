@@ -2,13 +2,12 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { gen_customer_taxonomy_payload, gen_oauth1_signature, gen_segment_subtaxonomy_payload } from '../utils-tax'
-import { TAXONOMY_BASE_URL } from '../constants'
+import { gen_oauth1_signature, gen_segment_subtaxonomy_payload } from '../utils-tax'
 /* Generates a Segment in Yahoo Taxonomy */
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create Yahoo Segment',
-  description: 'Use this action to generate Yahoo Segment. Please refer to the docs for more detail',
+  title: 'Create SEGMENT sub-node in Yahoo taxonomy',
+  description: 'Use this action to generate SEGMENT sub-node within CUSTOMER node in Yahoo taxonomy',
   defaultSubscription: 'event = "Audience Entered" and event = "Audience Exited"',
 
   fields: {
@@ -30,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Provide Engage Space Id found in Unify > Settings > API Access. Maps to Yahoo Taxonomy customer node Id and name',
       type: 'string',
-      required: true
+      required: false
     },
     customer_desc: {
       label: 'Space Description',
@@ -39,37 +38,41 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload, auth }) => {
+  perform: async (request, { payload, auth }) => {
     if (auth?.accessToken) {
-      const creds = Buffer.from(auth?.accessToken, 'base64').toString()
-      const tx_creds = JSON.parse(creds['tx'])
-      return update_taxonomy(tx_creds, request, settings, payload)
+      const creds = Buffer.from(auth.accessToken, 'base64').toString()
+      const creds_json = JSON.parse(creds)
+      const tx_pair = creds_json.tx
+      console.log(tx_pair)
+      return update_taxonomy(tx_pair, request, payload)
     }
   }
 }
+interface CredsObj {
+  tx_client_key: string
+  tx_client_secret: string
+}
 
-async function update_taxonomy(tx_creds, request: RequestClient, settings: Settings, payload: Payload) {
-  const tx_client_key = tx_creds['tx_client_key']
-  const tx_client_secret = tx_creds['tx_client_secret']
+async function update_taxonomy(tx_creds: CredsObj, request: RequestClient, payload: Payload) {
+  const tx_client_secret = tx_creds.tx_client_key
+  const tx_client_key = tx_creds.tx_client_secret
 
-  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret)
-  // PUT node endpoint always returns 202 ACCEPTED unless bad JSON is passed
-
-  await request(`${TAXONOMY_BASE_URL}/taxonomy/append/`, {
+  console.log('createSegment > update_taxonomy')
+  const url = `https://datax.yahooapis.com/v1/taxonomy/append/${payload.engage_space_id}`
+  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
+  console.log('oauth1_auth_string:', oauth1_auth_string)
+  const body_form_data = gen_segment_subtaxonomy_payload(payload)
+  console.log(body_form_data)
+  const add_segment_node = await request(url, {
     method: 'PUT',
-    body: gen_customer_taxonomy_payload(settings, payload),
+    body: body_form_data,
     headers: {
-      Authorization: oauth1_auth_string
+      Authorization: oauth1_auth_string,
+      'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
     }
   })
-  await request(`${TAXONOMY_BASE_URL}/taxonomy/append/${payload.engage_space_id}`, {
-    method: 'PUT',
-    body: gen_segment_subtaxonomy_payload(payload),
-    headers: {
-      Authorization: oauth1_auth_string
-    }
-  })
-
+  const segment_node_json = await add_segment_node.json()
+  console.log('createSegment resp:', JSON.stringify(segment_node_json))
   // 'GET taxonomy' endpoint should not be used, because it doesn't consistently return the complete taxonomy
   /*
   const taxonomy_req = await yahooTaxonomyApiClient.get_taxonomy(client_key, client_secret)

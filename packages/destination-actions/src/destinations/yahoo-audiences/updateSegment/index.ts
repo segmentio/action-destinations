@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { gen_update_segment_payload } from '../utils-rt'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
@@ -90,24 +91,47 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  // We should batch requests at all times
-  perform: (request, { payload }) => {
-    return request('https://dataxonline.yahoo.com/online/audience/', {
-      method: 'POST',
-      json: payload
-    })
+  // We should batch requests at all times, so perform is won't likely run. Should I remove it?
+  perform: (request, { payload, auth }) => {
+    console.log('updateSegment > perform')
+    if (auth?.accessToken) {
+      console.log('access token obj is avail')
+      const creds = Buffer.from(auth?.accessToken, 'base64').toString()
+      const creds_json = JSON.parse(creds)
+      const rt_access_token = creds_json.rt
+      const body = gen_update_segment_payload([payload])
+      console.log(JSON.stringify(body))
+      return request('https://dataxonline.yahoo.com/online/audience/', {
+        method: 'POST',
+        json: body,
+        headers: {
+          Authorization: `Bearer ${rt_access_token}`
+        }
+      })
+    } else {
+      console.log('updateSegment > perform: no auth access_token')
+    }
   },
-  performBatch: (request, { payload }) => {
-    return request('https://dataxonline.yahoo.com/online/audience/', {
-      method: 'POST',
-      json: payload
-    })
+  performBatch: (request, { payload, auth }) => {
+    console.log('updateSegment > performBatch')
+    if (auth?.accessToken) {
+      console.log('access token obj is avail')
+      const body = gen_update_segment_payload(payload)
+      console.log(JSON.stringify(body))
+      const creds = Buffer.from(auth?.accessToken, 'base64').toString()
+      const creds_json = JSON.parse(creds)
+      const rt_access_token = creds_json.rt
+      return request('https://dataxonline.yahoo.com/online/audience/', {
+        method: 'POST',
+        json: body,
+        headers: {
+          Authorization: `Bearer ${rt_access_token}`
+        }
+      })
+    } else {
+      console.log('updateSegment > performBatch: no auth access_token')
+    }
   }
 }
-/*
-TODO: 
-check if Segment does not exist -- return error, add a note that a user must use CreateSegment mapping 
-to create Segment
-*/
 
 export default action
