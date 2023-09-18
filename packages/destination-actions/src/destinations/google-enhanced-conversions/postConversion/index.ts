@@ -209,7 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, settings }) => {
+  perform: async (request, { payload, settings, statsContext }) => {
     /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
     but not for the Google Ads API. */
     if (!settings.conversionTrackingId) {
@@ -251,6 +251,8 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     try {
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:post-conversion`])
+
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
         searchParams: {

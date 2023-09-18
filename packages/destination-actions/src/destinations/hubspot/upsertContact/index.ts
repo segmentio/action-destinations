@@ -1,4 +1,4 @@
-import { HTTPError } from '@segment/actions-core'
+import { HTTPError, StatsContext } from '@segment/actions-core'
 import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -132,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { payload, transactionContext }) => {
+  perform: async (request, { payload, transactionContext, statsContext }) => {
     const contactProperties = {
       company: payload.company,
       firstname: payload.firstname,
@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
      */
 
     try {
-      const response = await updateContact(request, payload.email, contactProperties)
+      const response = await updateContact(request, payload.email, contactProperties, statsContext)
 
       // cache contact_id for it to be available for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
@@ -170,14 +170,15 @@ const action: ActionDefinition<Settings, Payload> = {
         const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecyclestage: '' })
+        await updateContact(request, payload.email, { lifecyclestage: '' }, statsContext)
+
         // update contact again with new lifecycle stage
-        return updateContact(request, payload.email, contactProperties)
+        return updateContact(request, payload.email, contactProperties, statsContext)
       }
       return response
     } catch (ex) {
       if ((ex as HTTPError)?.response?.status == 404) {
-        const result = await createContact(request, contactProperties)
+        const result = await createContact(request, contactProperties, statsContext)
 
         // cache contact_id for it to be available for company action
         transactionContext?.setTransaction('contact_id', result.data.id)
@@ -188,7 +189,12 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function createContact(request: RequestClient, contactProperties: { [key: string]: unknown }) {
+async function createContact(
+  request: RequestClient,
+  contactProperties: { [key: string]: unknown },
+  statsContext?: StatsContext
+) {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-contact-object`])
   return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
@@ -197,7 +203,13 @@ async function createContact(request: RequestClient, contactProperties: { [key: 
   })
 }
 
-async function updateContact(request: RequestClient, email: string, properties: { [key: string]: unknown }) {
+async function updateContact(
+  request: RequestClient,
+  email: string,
+  properties: { [key: string]: unknown },
+  statsContext?: StatsContext
+) {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:update-contact-object`])
   return request<ContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
     method: 'PATCH',
     json: {

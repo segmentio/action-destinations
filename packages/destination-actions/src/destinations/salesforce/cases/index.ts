@@ -34,31 +34,31 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
-      return await sf.createRecord(payload, OBJECT_NAME)
+      return await sf.createRecord(payload, OBJECT_NAME, statsContext)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, OBJECT_NAME)
+      return await sf.updateRecord(payload, OBJECT_NAME, statsContext)
     }
 
     if (payload.operation === 'upsert') {
-      return await sf.upsertRecord(payload, OBJECT_NAME)
+      return await sf.upsertRecord(payload, OBJECT_NAME, statsContext)
     }
 
     if (payload.operation === 'delete') {
-      return await sf.deleteRecord(payload, OBJECT_NAME)
+      return await sf.deleteRecord(payload, OBJECT_NAME, statsContext)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandler(payload, OBJECT_NAME, statsContext)
   }
 }
 

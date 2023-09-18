@@ -107,7 +107,10 @@ async function processPayload(
   if (elements.length < 1) {
     return
   }
-  statsContext?.statsClient?.incr('linked-audience-batch-create-dmpSegment', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+    ...statsContext?.tags,
+    `endpoint:add-or-remove-users-from-dmpSegment`
+  ])
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
@@ -146,7 +149,7 @@ async function getDmpSegmentId(
   payload: Payload,
   statsContext: StatsContext | undefined
 ) {
-  statsContext?.statsClient?.incr('linked-audience-get-dmpSegment', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
@@ -162,7 +165,7 @@ async function createDmpSegment(
   payload: Payload,
   statsContext: StatsContext | undefined
 ) {
-  statsContext?.statsClient?.incr('linked-audience-create-dmpSegment', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']

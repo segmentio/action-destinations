@@ -267,6 +267,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     }
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:uploadConversionAdjustments`
+    ])
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${

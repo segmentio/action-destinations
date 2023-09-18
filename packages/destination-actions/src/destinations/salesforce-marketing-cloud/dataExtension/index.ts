@@ -14,11 +14,11 @@ const action: ActionDefinition<Settings, Payload> = {
     values: values_dataExtensionFields,
     enable_batching: enable_batching
   },
-  perform: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    return upsertRows(request, settings.subdomain, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    return upsertRows(request, settings.subdomain, payload, statsContext)
   }
 }
 

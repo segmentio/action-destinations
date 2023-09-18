@@ -116,15 +116,22 @@ const action: ActionDefinition<Settings, Payload> = {
    *
    * Note: Companies will be only visible in Intercom's Dashboard when there is at least one associated contact.
    */
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, statsContext }) => {
     const contact = await getUniqueIntercomContact(request, payload)
     delete payload.email
     delete payload.external_id
-
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+      ...statsContext?.tags,
+      `endpoint:create-update-intercom-company`
+    ])
     const response = await createOrUpdateIntercomCompany(request, payload)
     if (contact) {
       payload.contact_id = contact.id
       const companyId = response.data.id
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+        ...statsContext?.tags,
+        `endpoint:associate-contact-to-intercom-company`
+      ])
       return attachContactToIntercomCompany(request, contact.id, companyId)
     }
     return response

@@ -99,6 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         customVariableIds.data[0].results
       )
     }
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:uploadCallConversions`])
     const response: ModifiedResponse<PartialErrorResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
         settings.customerId

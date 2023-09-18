@@ -76,11 +76,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-  perform: (request, { payload }) => {
-    return processData(request, [payload])
+  perform: (request, { payload, statsContext }) => {
+    return processData(request, [payload], statsContext)
   },
-  performBatch: (request, { payload }) => {
-    return processData(request, payload)
+  performBatch: (request, { payload, statsContext }) => {
+    return processData(request, payload, statsContext)
   }
 }
 
