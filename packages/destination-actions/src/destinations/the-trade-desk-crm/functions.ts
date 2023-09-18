@@ -49,12 +49,6 @@ export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow
 export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 
 export async function processPayload(input: ProcessPayloadInput) {
-  if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
-    throw new PayloadValidationError(
-      `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
-    )
-  }
-
   let crmID = ''
   if (input.features && input.features[TTD_LIST_ACTION_FLOW_FLAG_NAME]) {
     crmID = input.payloads[0].external_id
@@ -70,6 +64,12 @@ export async function processPayload(input: ProcessPayloadInput) {
     //------------
     // LEGACY FLOW
     // -----------
+
+    if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
+      throw new PayloadValidationError(
+        `received payload count below The Trade Desk's ingestion limits. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
+      )
+    }
 
     // Create a new TTD Drop Endpoint
     const dropEndpoint = await getCRMDataDropEndpoint(input.request, input.settings, input.payloads[0], crmID)

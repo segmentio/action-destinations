@@ -3,11 +3,12 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 export const external_id: InputField = {
   label: 'External Audience ID',
   description: 'The CRM Data ID for The Trade Desk Segment. ',
-  type: 'hidden',
+  type: 'string',
   required: true,
   default: {
     '@path': '$.context.personas.external_audience_id'
-  }
+  },
+  unsafe_hidden: true
 }
 
 export const name: InputField = {
@@ -47,8 +48,7 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  },
-  unsafe_hidden: true
+  }
 }
 
 export const event_name: InputField = {
