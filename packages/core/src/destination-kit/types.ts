@@ -94,8 +94,8 @@ export type FieldTypeName =
   | 'object'
   | 'hidden'
 
-/** The shape of an input field definition */
-export interface InputField {
+/** Properties of an InputField which are involved in creating the generated-types.ts file */
+export interface InputFieldJSONSchema {
   /** A short, human-friendly label for the field */
   label: string
   /** A human-friendly description of the field */
@@ -110,10 +110,6 @@ export interface InputField {
   additionalProperties?: boolean
   /** An optional default value for the field */
   default?: FieldValue
-  /** A placeholder display value that suggests what to input */
-  placeholder?: string
-  /** Whether or not the field supports dynamically fetching options */
-  dynamic?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -153,30 +149,36 @@ export interface InputField {
     | 'regex' // tests whether a string is a valid regular expression by passing it to RegExp constructor.
     | 'uuid' // Universally Unique IDentifier according to RFC4122.
     | 'password' // hint to the UI to hide/obfuscate input strings
-    | 'text' // longer strings
+    | 'text' // longer strings 
+}
 
+export interface InputField extends InputFieldJSONSchema {
+  /** A placeholder display value that suggests what to input */
+  placeholder?: string
+  /** Whether or not the field supports dynamically fetching options */
+  dynamic?: boolean
   /**
-   * Determines the UI representation of the object field. Only applies to object types.
-   * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
-   * Object Reference: Users can specify only another object in the segment event to use as the value for this key in the payload
-   */
+     * Determines the UI representation of the object field. Only applies to object types.
+     * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
+     * Object Reference: Users can specify only another object in the segment event to use as the value for this key in the payload
+     */
   defaultObjectUI?:
-    | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
-    | 'object' // Users will see the object editor by default and can change to the key value editor.
-    | 'keyvalue:only' // Users will only use the key value editor.
-    | 'object:only' // Users will only use the object editor.
+  | 'keyvalue' // Users will see the key value object editor by default and can change to the object editor.
+  | 'object' // Users will see the object editor by default and can change to the key value editor.
+  | 'keyvalue:only' // Users will only use the key value editor.
+  | 'object:only' // Users will only use the object editor.
 
   /**
-   * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
-   * some kind of hardcoded internal "setting". For example the `enable_batching` field which is hardcoded to true for some destinations.
-   */
+  * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
+  * some kind of hardcoded internal "setting". For example the `enable_batching` field which is hardcoded to true for some destinations.
+  */
   unsafe_hidden?: boolean
 
   /**
-   * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
-   * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
-   * locked out from editing an empty field.
-   */
+  * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
+  * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
+  * locked out from editing an empty field.
+  */
   readOnly?: boolean
 }
 

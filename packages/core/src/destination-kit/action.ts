@@ -5,7 +5,7 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result, InputFieldJSONSchema } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -22,9 +22,6 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any> =
   request: RequestClient,
   data: ExecuteInput<Settings, Payload, AudienceSettings>
 ) => MaybePromise<Return>
-
-type MappingSetupValues = string | number | boolean | undefined
-type MappingSetupReturn = Record<string, MappingSetupValues>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
@@ -68,8 +65,11 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
-  /** The operation to perform when updates to this action are saved */
-  mappingSetup?: RequestFn<Settings, Payload, MappingSetupReturn, AudienceSettings>
+  mappingSetupValue?: InputFieldJSONSchema
+  /** The operation to perform when updates to this action are saved TODO: define a return type
+   * that corresponds to what users define in mappingSetupValue
+  */
+  mappingSetup?: RequestFn<Settings, Payload, any, AudienceSettings>
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {

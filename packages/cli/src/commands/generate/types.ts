@@ -131,7 +131,12 @@ export default class GenerateTypes extends Command {
 
     // TODO how to load directory structure consistently?
     for (const [slug, action] of Object.entries(destination.actions)) {
-      const types = await generateTypes(action.fields, 'Payload')
+      let fields = action.fields
+      if (action.mappingSetupValue) {
+        fields = { ...fields, mappingSetupValue: action.mappingSetupValue }
+      }
+
+      const types = await generateTypes(fields, 'Payload')
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
         fs.writeFileSync(path.join(parentDir, slug, 'generated-types.ts'), types)
       } else {
