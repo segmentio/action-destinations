@@ -24,12 +24,10 @@ import {
   MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
   MissingEmailIfEmailSubscriptionIsPresentThrowableError,
   MissingEmailOrPhoneThrowableError,
-  MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError,
-  // MissingEmailSubscriptionIfEmailIsPresentThrowableError,
-  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError,
+  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError, MissingExternalIdsThrowableError,
   MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
   MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError,
-  // MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError,
+  MissingSubscriptionStatusesThrowableError,
   MissingUserOrAnonymousIdThrowableError
 } from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
@@ -49,12 +47,11 @@ const validateSubscriptions = (payload: Payload) => {
       payload.ios_push_subscription_status
     )
   ) {
-    throw MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError
+    throw MissingSubscriptionStatusesThrowableError
   }
 
   if (!payload.email && !payload.phone && !payload.android_push_token && !payload.ios_push_token) {
-    // Throw Error for atleast one valid external ID need to be here
-    throw MissingEmailOrPhoneThrowableError
+    throw MissingExternalIdsThrowableError
   }
 
   if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
@@ -150,8 +147,12 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings, features, statsContext }) => {
     const messaging_subscriptions_retl = true
 
+    // Before sending subscription data to Segment, a series of validations are done
     validateSubscriptions(payload)
+
     //TODO: Add email format and phone validations
+
+    // A helper function to create a messaging subscription object and add it to a list.
     const addMessagingSubscription = (key: string, type: string, status: string | null | undefined) => {
       messaging_subscriptions.push({
         key,
@@ -160,6 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    // Transforms a subscription status to one of the accepted values
     const getStatus = (subscriptionStatus: string | null | undefined): string => {
       if (subscriptionStatus === 'true' || subscriptionStatus === 'subscribed') {
         return 'subscribed'
@@ -175,6 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const messaging_subscriptions: MessagingSubscription[] = []
 
+    //Creating the Email Subscription Object:
     if (payload?.email) {
       if (payload.email_subscription_status) {
         const emailSubscription: MessagingSubscription = {
@@ -183,6 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
           status: getStatus(payload.email_subscription_status?.trim().toLowerCase())
         }
 
+        //Handling Subscription Groups:
         if (payload.subscription_groups && typeof payload.subscription_groups === 'object') {
           const formattedGroups = Object.entries(payload.subscription_groups)
             .filter(([name, status]) => name !== undefined && status !== undefined)
@@ -233,6 +237,24 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
+    if (payload?.android_push_token) {
+      externalIds.push({
+        id: payload.android_push_token,
+        type: 'android_push',
+        collection: 'users',
+        encoding: 'none'
+      })
+    }
+
+    if (payload?.ios_push_token) {
+      externalIds.push({
+        id: payload.ios_push_token,
+        type: 'ios_push',
+        collection: 'users',
+        encoding: 'none'
+      })
+    }
+
     const subscriptionPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
@@ -263,7 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
+    console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
       json: subscriptionPayload,
