@@ -2,13 +2,30 @@
 
 export interface Payload {
   /**
-   * The name of the event
+   * User identifier details to send to Optimizely.
+   */
+  user_identifiers: {
+    /**
+     * Segment Anonymous ID
+     */
+    anonymousId?: string
+    /**
+     * Segment User ID
+     */
+    userId?: string
+    /**
+     * User Email address. This is a required field
+     */
+    email: string
+    /**
+     * Optimizely VUID - user cookie generated created by Optimizely Javascript library
+     */
+    optimizely_vuid?: string
+  }
+  /**
+   * The name of the Optimizely event to send
    */
   event_action: string
-  /**
-   * The user's email
-   */
-  email: string
   /**
    * The campaign unique identifier
    */

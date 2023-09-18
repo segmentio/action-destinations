@@ -23,7 +23,7 @@ export interface Payload {
     optimizely_vuid?: string
   }
   /**
-   * The name of the event
+   * The name of the Optimizely event to send
    */
   event_action: string
   /**
