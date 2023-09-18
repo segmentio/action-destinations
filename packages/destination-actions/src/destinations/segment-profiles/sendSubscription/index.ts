@@ -23,8 +23,8 @@ import {
   InvalidSubscriptionStatusThrowableError,
   MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
   MissingEmailIfEmailSubscriptionIsPresentThrowableError,
-  MissingEmailOrPhoneThrowableError,
-  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError, MissingExternalIdsThrowableError,
+  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError,
+  MissingExternalIdsThrowableError,
   MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
   MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError,
   MissingSubscriptionStatusesThrowableError,
@@ -36,6 +36,10 @@ import { SEGMENT_ENDPOINTS } from '../properties'
 const validateSubscriptions = (payload: Payload) => {
   if (!payload.anonymous_id && !payload.user_id) {
     throw MissingUserOrAnonymousIdThrowableError
+  }
+
+  if (!payload.email && !payload.phone && !payload.android_push_token && !payload.ios_push_token) {
+    throw MissingExternalIdsThrowableError
   }
 
   if (
@@ -50,10 +54,6 @@ const validateSubscriptions = (payload: Payload) => {
     throw MissingSubscriptionStatusesThrowableError
   }
 
-  if (!payload.email && !payload.phone && !payload.android_push_token && !payload.ios_push_token) {
-    throw MissingExternalIdsThrowableError
-  }
-
   if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
     throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
   }
@@ -61,15 +61,6 @@ const validateSubscriptions = (payload: Payload) => {
   if (!payload.email && payload.email_subscription_status) {
     throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
   }
-  // Below should not happen as we can allow creation of phone without subscription status acttached
-
-  // if (payload.phone && !payload.email && !(payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
-  //   throw MissingSmsOrWhatsappSubscriptionIfPhoneIsPresentThrowableError
-  // }
-
-  // if (payload.email && !payload.phone && !payload.email_subscription_status) {
-  //   throw MissingEmailSubscriptionIfEmailIsPresentThrowableError
-  // }
 
   if (payload.subscription_groups && !payload.email_subscription_status) {
     throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
@@ -147,7 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings, features, statsContext }) => {
     const messaging_subscriptions_retl = true
 
-    // Before sending subscription data to Segment, a series of validations are done
+    // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload)
 
     //TODO: Add email format and phone validations
@@ -161,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    // Transforms a subscription status to one of the accepted values
+    // Transforms a subscription status to one of the accepted values.
     const getStatus = (subscriptionStatus: string | null | undefined): string => {
       if (subscriptionStatus === 'true' || subscriptionStatus === 'subscribed') {
         return 'subscribed'
@@ -285,7 +276,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    console.log('payload', JSON.stringify(subscriptionPayload, null, 2))
+
     return request(`${selectedSegmentEndpoint}/identify`, {
       method: 'POST',
       json: subscriptionPayload,

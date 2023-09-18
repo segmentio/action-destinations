@@ -19,6 +19,18 @@ Object {
             "id": "+12135618345",
             "type": "phone",
           },
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "abcd12bbfygdbvbvvvv",
+            "type": "android_push",
+          },
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "abcd12bbfjfsykdbvbvvvvvv",
+            "type": "ios_push",
+          },
         ],
         "messaging_subscriptions": Array [
           Object {
@@ -93,6 +105,18 @@ Object {
         "id": "+12135618345",
         "type": "phone",
       },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfygdbvbvvvv",
+        "type": "android_push",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfjfsykdbvbvvvvvv",
+        "type": "ios_push",
+      },
     ],
     "messaging_subscriptions": Array [
       Object {
@@ -158,6 +182,12 @@ Object {
         "id": "tester11@seg.com",
         "type": "email",
       },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfjfsykdbvbvvvvvv",
+        "type": "ios_push",
+      },
     ],
     "messaging_subscriptions": Array [
       Object {
@@ -200,6 +230,18 @@ Object {
         "encoding": "none",
         "id": "+12135618345",
         "type": "phone",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfygdbvbvvvv",
+        "type": "android_push",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfjfsykdbvbvvvvvv",
+        "type": "ios_push",
       },
     ],
     "messaging_subscriptions": Array [
