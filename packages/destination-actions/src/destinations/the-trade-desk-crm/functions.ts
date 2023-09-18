@@ -51,7 +51,7 @@ export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 export async function processPayload(input: ProcessPayloadInput) {
   let crmID = ''
   if (input.features && input.features[TTD_LIST_ACTION_FLOW_FLAG_NAME]) {
-    crmID = input.payloads[0].external_id
+    crmID = input.payloads[0].external_id!
   } else {
     crmID = await getCRMInfo(input.request, input.settings, input.payloads[0])
   }
