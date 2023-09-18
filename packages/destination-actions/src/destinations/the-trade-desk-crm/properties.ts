@@ -4,7 +4,6 @@ export const external_id: InputField = {
   label: 'External Audience ID',
   description: 'The CRM Data ID for The Trade Desk Segment. ',
   type: 'string',
-  required: true,
   default: {
     '@path': '$.context.personas.external_audience_id'
   },

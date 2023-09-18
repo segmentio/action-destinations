@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The CRM Data ID for The Trade Desk Segment.
    */
-  external_id: string
+  external_id?: string
   /**
    * The type of personally identifiable data (PII) sent by the advertiser.
    */
