@@ -28,7 +28,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         user_id: 'user12'
       }
     })
-
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
