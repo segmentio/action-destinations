@@ -139,7 +139,24 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
   // PoC of the mappingSetup method. We will create a new lead record on save, then save the resulting record ID in an object under 'mappingSetup'
-  mappingSetup: async (request, { settings, payload }) => {
+  mappingSetupValue: {
+    label: 'Mapping Setup',
+    description: 'Create a new lead record on save, then save the resulting record ID in an object under "mappingSetup".',
+    type: 'object',
+    properties: {
+      id: {
+        label: 'ID',
+        description: 'The ID of the newly created lead.',
+        type: 'string'
+      },
+      success: {
+        label: 'Success',
+        description: 'Whether or not the lead was successfully created.',
+        type: 'boolean'
+      }
+    }
+  },
+  mappingSetup: async (request, { settings, payload }): Promise<Payload["mappingSetupValue"]> => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
     // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
 
@@ -151,6 +168,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
+    if (!payload.mappingSetupValue?.success) { // just for PoC purposes
+      throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
+    }
+
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
