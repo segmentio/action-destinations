@@ -30,7 +30,25 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: defaultSubscriptionMapping,
+      //mapping: defaultSubscriptionMapping,
+      mapping: {
+        user_id: {
+          '@path': '$.userId'
+        },
+        email: {
+          '@path': '$.properties.email'
+        },
+        email_subscription_status: {
+          '@path': '$.properties.email_subscription_status'
+        },
+        phone: {
+          '@path': '$.properties.phone'
+        },
+        sms_subscription_status: {
+          '@path': '$.properties.sms_subscription_status'
+        },
+        engage_space: 'engage-space-writekey'
+      },
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
