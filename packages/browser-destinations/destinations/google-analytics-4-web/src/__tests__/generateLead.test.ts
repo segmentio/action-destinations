@@ -1,7 +1,6 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-import { GA } from '../types'
 
 const subscriptions: Subscription[] = [
   {
@@ -25,7 +24,7 @@ describe('GoogleAnalytics4Web.generateLead', () => {
     measurementID: 'test123'
   }
 
-  let mockGA4: GA
+  let mockGA4: typeof gtag
   let generateLeadEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -37,10 +36,8 @@ describe('GoogleAnalytics4Web.generateLead', () => {
     generateLeadEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockGA4 = {
-        gtag: jest.fn()
-      }
-      return Promise.resolve(mockGA4.gtag)
+      mockGA4 = jest.fn()
+      return Promise.resolve(mockGA4)
     })
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
@@ -56,7 +53,7 @@ describe('GoogleAnalytics4Web.generateLead', () => {
     })
     await generateLeadEvent.track?.(context)
 
-    expect(mockGA4.gtag).toHaveBeenCalledWith(
+    expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('generate_lead'),
       expect.objectContaining({

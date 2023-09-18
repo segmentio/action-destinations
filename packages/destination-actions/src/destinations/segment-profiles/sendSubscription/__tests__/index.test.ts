@@ -3,9 +3,9 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import {
   InvalidEndpointSelectedThrowableError,
-  MissingEmailOrPhoneThrowableError,
-  MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError,
+  MissingExternalIdsThrowableError,
   MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
+  MissingSubscriptionStatusesThrowableError,
   MissingUserOrAnonymousIdThrowableError
 } from '../../errors'
 import { DEFAULT_SEGMENT_ENDPOINT, SEGMENT_ENDPOINTS } from '../../properties'
@@ -105,7 +105,7 @@ describe('SegmentProfiles.sendSubscription', () => {
     ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
   })
 
-  test('Should throw an error if `email` or `phone` is not defined', async () => {
+  test('Should throw an error if `email` or `phone` or `Android_Push_Token` or `Ios_Push_Token` is not defined', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Test User',
@@ -118,10 +118,10 @@ describe('SegmentProfiles.sendSubscription', () => {
         event,
         mapping: defaultSubscriptionMapping
       })
-    ).rejects.toThrowError(MissingEmailOrPhoneThrowableError)
+    ).rejects.toThrowError(MissingExternalIdsThrowableError)
   })
 
-  test('Should throw an error if `email` or `phone` is defined without a subscription status', async () => {
+  test('Should throw an error if `email` or `phone` or `android_push_token` or `ios_push_token` is defined without a subscription status', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Test User',
@@ -129,7 +129,8 @@ describe('SegmentProfiles.sendSubscription', () => {
       },
       properties: {
         email: 'tester11@seg.com',
-        phone: '+12135618345'
+        phone: '+12135618345',
+        ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv'
       }
     })
 
@@ -138,7 +139,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         event,
         mapping: defaultSubscriptionMapping
       })
-    ).rejects.toThrowError(MissingEmailSmsOrWhatsappSubscriptionIfEmailPhoneIsPresentThrowableError)
+    ).rejects.toThrowError(MissingSubscriptionStatusesThrowableError)
   })
 
   test('Should throw an error if `Ios_Push_Subscription` is defined without a`ios_push_token`', async () => {

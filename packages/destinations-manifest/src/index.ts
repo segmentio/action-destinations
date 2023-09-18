@@ -7,7 +7,6 @@ export { BrowserDestinationDefinition } from '@segment/browser-destination-runti
 type MetadataId = string
 
 export interface ManifestEntry {
-  e
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: BrowserDestinationDefinition<any, any>
   directory: string

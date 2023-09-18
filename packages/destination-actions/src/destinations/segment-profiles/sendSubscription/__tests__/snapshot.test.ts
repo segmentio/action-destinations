@@ -3,7 +3,6 @@ import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
 import { DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
-import { defaultSubscriptionMapping } from './index.test'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendSubscription'
@@ -24,13 +23,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         email: 'tester11@seg.com',
         email_subscription_status: true,
         phone: '+12135618345',
-        sms_subscription_status: true
+        sms_subscription_status: true,
+        engage_space: 'engage-space-writekey',
+        user_id: 'user12'
       }
     })
-
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: defaultSubscriptionMapping,
+      mapping: event.properties,
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
@@ -72,13 +72,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         android_push_token: 'abcd12bbfygdbvbvvvv',
         android_push_subscription_status: false,
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: true
+        ios_push_subscription_status: true,
+        engage_space: 'engage-space-writekey',
+        user_id: 'user1234'
       }
     })
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: defaultSubscriptionMapping,
+      mapping: event.properties,
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
