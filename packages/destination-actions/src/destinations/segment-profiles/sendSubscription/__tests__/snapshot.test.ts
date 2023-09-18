@@ -3,7 +3,6 @@ import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
 import { DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
-import { defaultSubscriptionMapping } from './index.test'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendSubscription'
@@ -27,28 +26,36 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         sms_subscription_status: true
       }
     })
-    console.log(event)
+    console.log('event reqd fields ', event)
+    console.log('event.properties reqd', event.properties)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      //mapping: defaultSubscriptionMapping,
       mapping: {
+        ...event.properties,
+        engage_space: 'engage-space-writekey',
         user_id: {
           '@path': '$.userId'
-        },
-        email: {
-          '@path': '$.properties.email'
-        },
-        email_subscription_status: {
-          '@path': '$.properties.email_subscription_status'
-        },
-        phone: {
-          '@path': '$.properties.phone'
-        },
-        sms_subscription_status: {
-          '@path': '$.properties.sms_subscription_status'
-        },
-        engage_space: 'engage-space-writekey'
+        }
       },
+      //mapping: defaultSubscriptionMapping,
+      // mapping: {
+      //   user_id: {
+      //     '@path': '$.userId'
+      //   },
+      //   email: {
+      //     '@path': '$.properties.email'
+      //   },
+      //   email_subscription_status: {
+      //     '@path': '$.properties.email_subscription_status'
+      //   },
+      //   phone: {
+      //     '@path': '$.properties.phone'
+      //   },
+      //   sms_subscription_status: {
+      //     '@path': '$.properties.sms_subscription_status'
+      //   },
+      //   engage_space: 'engage-space-writekey'
+      // },
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })
@@ -93,10 +100,18 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         ios_push_subscription_status: true
       }
     })
-
+    console.log('event all fields ', event)
+    console.log('event.properties all', event.properties)
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: defaultSubscriptionMapping,
+      //mapping: defaultSubscriptionMapping,
+      mapping: {
+        ...event.properties,
+        engage_space: 'engage-space-writekey',
+        user_id: {
+          '@path': '$.userId'
+        }
+      },
       settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
       auth: undefined
     })

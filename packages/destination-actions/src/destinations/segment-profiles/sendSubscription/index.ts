@@ -54,16 +54,16 @@ const validateSubscriptions = (payload: Payload) => {
     throw MissingSubscriptionStatusesThrowableError
   }
 
-  if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
-    throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
-  }
-
   if (!payload.email && payload.email_subscription_status) {
     throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
   }
 
   if (payload.subscription_groups && !payload.email_subscription_status) {
     throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
+  }
+
+  if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
+    throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
   }
 
   if (!payload.android_push_token && payload.android_push_subscription_status) {
