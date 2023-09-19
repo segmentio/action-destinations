@@ -19,17 +19,17 @@ const domain: InputField = {
   }
 }
 
-const name: InputField = {
+const workspace_id: InputField = {
   type: 'string',
-  label: 'Name',
-  description: 'The name of the Workspace',
+  label: 'ID',
+  description: 'The ID of the Workspace',
   format: 'text',
   required: true,
   default: {
     '@if': {
-      exists: { '@path': '$.traits.name' },
-      then: { '@path': '$.traits.name' },
-      else: { '@path': '$.name' }
+      exists: { '@path': '$.context.groupId' },
+      then: { '@path': '$.context.groupId' },
+      else: { '@path': '$.id' }
     }
   }
 }
@@ -62,14 +62,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {
     domain,
-    name,
+    workspace_id,
     company_attributes,
     workspace_attributes
   },
 
   perform: async (request, data) => {
     const {
-      payload: { domain, name, workspace_attributes, company_attributes }
+      payload: { domain, workspace_id, workspace_attributes, company_attributes }
     } = data
 
     const client = new AttioClient(request)
@@ -85,9 +85,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return await client.assertRecord({
       object: 'workspaces',
-      matching_attribute: 'name',
+      matching_attribute: 'workspace_id',
       values: {
-        name,
+        workspace_id,
         company: company.data.data.id.record_id,
         ...(workspace_attributes ?? {})
       }
