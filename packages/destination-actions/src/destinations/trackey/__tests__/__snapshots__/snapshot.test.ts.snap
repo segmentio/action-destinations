@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-trackey destination: group action - all fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-trackey destination: group action - required fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-trackey destination: identify action - all fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-trackey destination: identify action - required fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-trackey destination: track action - all fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-trackey destination: track action - required fields 1`] = `Object {}`;
