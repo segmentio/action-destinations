@@ -251,7 +251,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     try {
-      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:post-conversion`])
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:postConversion`])
 
       return await request('https://www.google.com/ads/event/api/v1', {
         method: 'post',
