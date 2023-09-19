@@ -7,7 +7,7 @@ import { formatAttributes } from '../utility'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, VWO, Payload> = {
   title: 'Identify User',
-  description: `Sends Segment's page event to VWO`,
+  description: `Sends Segment's user traits to VWO`,
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
@@ -27,11 +27,11 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
 
     window.VWO = window.VWO || []
 
-    if (!window.VWO.visitor) {
-      window.VWO.visitor = function (...args) {
+    window.VWO.visitor =
+      window.VWO.visitor ||
+      function (...args) {
         window.VWO.push(['visitor', ...args])
       }
-    }
 
     window.VWO.visitor(formattedAttributes, { source: 'segment.web' })
   }
