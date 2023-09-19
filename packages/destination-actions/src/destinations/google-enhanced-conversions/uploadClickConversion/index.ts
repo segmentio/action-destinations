@@ -1,7 +1,7 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { APIError, ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, PartialErrorResponse } from '../types'
+import { CartItem, ConversionActionId, ConversionActionResponse, PartialErrorResponse } from '../types'
 import {
   formatCustomVariables,
   hash,
@@ -9,9 +9,11 @@ import {
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation
+  commonHashedEmailValidation,
+  getConversionActionId
 } from '../functions'
 import { ModifiedResponse } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
@@ -22,7 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     gclid: {
       label: 'GCLID',
@@ -184,6 +187,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    }
+  },
+
+  dynamicFields: {
+    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
+      try {
+        const results = await getConversionActionId(settings.customerId, auth, request)
+
+        const res: Array<ConversionActionResponse> = JSON.parse(results.content)
+        const choices = res[0].results.map((input: ConversionActionId) => {
+          return { value: input.conversionAction.id, label: input.conversionAction.name }
+        })
+        return {
+          choices
+        }
+      } catch (err) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (err as APIError).message ?? 'Unknown error',
+            code: (err as APIError).status + '' ?? 'Unknown error'
+          }
+        }
+      }
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
