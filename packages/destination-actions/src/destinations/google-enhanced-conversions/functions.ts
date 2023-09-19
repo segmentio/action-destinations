@@ -77,8 +77,8 @@ export async function getConversionActionId(
   return await request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
     method: 'post',
     headers: {
-      authorization: `Bearer ya29.a0AfB_byDqBa6A_HC1nPV2oApWCEsEcCkKKOxLp0BoEVylvU9cWcUSDEnwF3QeD6Zrt5QGDl2gNjkEvmS4tp3fzhJ9f19tzKvPQRjW2sZiYz0sGinbtoL0xKYWgoDsPj8ka7QP_3uD1YyIPnY6e70KT83LTeVlkyThFmoQaCgYKATcSARMSFQGOcNnCdeX-o8QYocMTpjzwfWv4oA0171`,
-      'developer-token': `jswOXXIc50JI8nAuUGWVRg`
+      authorization: `Bearer ${auth?.accessToken}`,
+      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
     },
     json: {
       query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
