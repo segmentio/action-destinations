@@ -69,6 +69,23 @@ export async function getCustomVariables(
   )
 }
 
+export async function getConversionActionId(
+  customerId: string | undefined,
+  auth: any,
+  request: RequestClient
+): Promise<ModifiedResponse<QueryResponse[]>> {
+  return await request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
+    method: 'post',
+    headers: {
+      authorization: `Bearer ya29.a0AfB_byDqBa6A_HC1nPV2oApWCEsEcCkKKOxLp0BoEVylvU9cWcUSDEnwF3QeD6Zrt5QGDl2gNjkEvmS4tp3fzhJ9f19tzKvPQRjW2sZiYz0sGinbtoL0xKYWgoDsPj8ka7QP_3uD1YyIPnY6e70KT83LTeVlkyThFmoQaCgYKATcSARMSFQGOcNnCdeX-o8QYocMTpjzwfWv4oA0171`,
+      'developer-token': `jswOXXIc50JI8nAuUGWVRg`
+    },
+    json: {
+      query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+    }
+  })
+}
+
 /* Ensures there is no error when using Google's partialFailure mode
    See here: https://developers.google.com/google-ads/api/docs/best-practices/partial-failures
  */

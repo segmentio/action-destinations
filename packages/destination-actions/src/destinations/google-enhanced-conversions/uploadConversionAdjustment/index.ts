@@ -1,8 +1,21 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getApiVersion, commonHashedEmailValidation } from '../functions'
+import {
+  APIError,
+  ActionDefinition,
+  DynamicFieldResponse,
+  PayloadValidationError,
+  RequestClient
+} from '@segment/actions-core'
+import {
+  hash,
+  handleGoogleErrors,
+  convertTimestamp,
+  getApiVersion,
+  commonHashedEmailValidation,
+  getConversionActionId
+} from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PartialErrorResponse } from '../types'
+import { ConversionActionId, ConversionActionResponse, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     adjustment_type: {
       label: 'Adjustment Type',
@@ -22,6 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
+        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' },
+        { label: `UNKNOWN`, value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -194,6 +210,30 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
+      }
+    }
+  },
+  dynamicFields: {
+    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
+      try {
+        const results = await getConversionActionId(settings.customerId, auth, request)
+
+        const res: Array<ConversionActionResponse> = JSON.parse(results.content)
+        const choices = res[0].results.map((input: ConversionActionId) => {
+          return { value: input.conversionAction.id, label: input.conversionAction.name }
+        })
+        return {
+          choices
+        }
+      } catch (err) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (err as APIError).message ?? 'Unknown error',
+            code: (err as APIError).status + '' ?? 'Unknown error'
+          }
+        }
       }
     }
   },
