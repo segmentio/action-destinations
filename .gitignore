@@ -12,3 +12,4 @@ coverage
 
 # playwright
 playwright-report
+.vscode 

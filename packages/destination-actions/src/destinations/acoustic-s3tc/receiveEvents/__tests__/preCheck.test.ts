@@ -7,8 +7,8 @@ jest.mock('../../generated-types')
 const validS3Settings = {
   s3_access_key: 'access_key',
   s3_secret: 'secret',
-  s3_region: 'us-west-1',
-  s3_bucket: 'my-bucket',
+  s3_region: 'us-east-1',
+  s3_bucket_accesspoint_alias: 'my-bucket',
   fileNamePrefix: 'prefix'
 }
 
@@ -19,9 +19,10 @@ describe('validateSettings', () => {
 
   test('missing accessKey', () => {
     const settings = {
+      s3_access_key: '',
       s3_secret: 'secret',
       s3_region: 'us-east-1',
-      s3_bucket: 'my-bucket',
+      s3_bucket_accesspoint_alias: 'my-bucket',
       fileNamePrefix: 'prefix'
     }
 
@@ -31,8 +32,9 @@ describe('validateSettings', () => {
   test('missing secret', () => {
     const settings = {
       s3_access_key: 'access_key',
+      s3_secret: '',
       s3_region: 'us-east-1',
-      s3_bucket: 'my-bucket',
+      s3_bucket_accesspoint_alias: 'my-bucket',
       fileNamePrefix: 'prefix'
     }
 
@@ -43,7 +45,8 @@ describe('validateSettings', () => {
     const settings = {
       s3_access_key: 'access_key',
       s3_secret: 'secret',
-      s3_bucket: 'my-bucket',
+      s3_region: '',
+      s3_bucket_accesspoint_alias: 'my-bucket',
       fileNamePrefix: 'prefix'
     }
 
@@ -55,14 +58,21 @@ describe('validateSettings', () => {
       s3_access_key: 'access_key',
       s3_secret: 'secret',
       s3_region: 'us-east-1',
-      s3_bucket: 'my-bucket'
+      s3_bucket_accesspoint_alias: 'my-bucket',
+      fileNamePrefix: ''
     }
 
     expect(() => validateSettings(settings)).toThrow(IntegrationError)
   })
 
   test('missing S3 settings', () => {
-    const settings = {}
+    const settings = {
+      s3_access_key: '',
+      s3_secret: '',
+      s3_region: '',
+      s3_bucket_accesspoint_alias: '',
+      fileNamePrefix: ''
+    }
 
     expect(() => validateSettings(settings)).toThrow(IntegrationError)
   })

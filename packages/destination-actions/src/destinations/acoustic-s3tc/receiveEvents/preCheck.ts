@@ -14,7 +14,7 @@ function validateSettings(settings: Settings) {
     throw new IntegrationError('Missing S3 Region', 'MISSING_S3_REGION', 400)
   }
 
-  if (!settings.s3_bucket_accesspoint) {
+  if (!settings.s3_bucket_accesspoint_alias) {
     throw new IntegrationError('Missing S3 Bucket Access Point.', 'MISSING_S3_BUCKET_ACCESS_POINT', 400)
   }
 
