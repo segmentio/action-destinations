@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -19,8 +19,8 @@
     "@segment/analytics-browser-actions-commandbar": "^1.13.0",
     "@segment/analytics-browser-actions-friendbuy": "^1.13.0",
     "@segment/analytics-browser-actions-fullstory": "^1.14.0",
-    "@segment/analytics-browser-actions-google-analytics-4": "^1.14.0",
-    "@segment/analytics-browser-actions-google-campaign-manager": "^1.2.0",
+    "@segment/analytics-browser-actions-google-analytics-4": "^1.15.0",
+    "@segment/analytics-browser-actions-google-campaign-manager": "^1.3.0",
     "@segment/analytics-browser-actions-heap": "^1.13.0",
     "@segment/analytics-browser-actions-hubspot": "^1.13.0",
     "@segment/analytics-browser-actions-intercom": "^1.13.0",
@@ -33,11 +33,11 @@
     "@segment/analytics-browser-actions-screeb": "^1.13.0",
     "@segment/analytics-browser-actions-sprig": "^1.13.0",
     "@segment/analytics-browser-actions-stackadapt": "^1.13.0",
-    "@segment/analytics-browser-actions-tiktok-pixel": "^1.7.0",
+    "@segment/analytics-browser-actions-tiktok-pixel": "^1.8.0",
     "@segment/analytics-browser-actions-upollo": "^1.13.0",
     "@segment/analytics-browser-actions-userpilot": "^1.13.0",
     "@segment/analytics-browser-actions-utils": "^1.13.0",
-    "@segment/analytics-browser-actions-vwo": "^1.13.0",
+    "@segment/analytics-browser-actions-vwo": "^1.14.0",
     "@segment/analytics-browser-actions-wiseops": "^1.13.0",
     "@segment/browser-destination-runtime": "^1.13.0"
   }
