@@ -3,7 +3,7 @@ import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
 
 const mod = `
-Last-Modified: 09.13.2023 12.30.43
+Last-Modified: 09.19.2023 10.30.43
 `
 //August 2023, refactor for S3Cache
 
@@ -44,7 +44,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Acoustic S3TC',
+  name: 'Acoustic (Actions)',
   slug: 'actions-acoustic',
   mode: 'cloud',
   description: 'Acoustic (S3TC) - Provide Segment Track and Identify Event Data to Acoustic Connect',
@@ -61,7 +61,7 @@ const destination: DestinationDefinition<Settings> = {
       s3_bucket_accesspoint_alias: {
         label: 'S3 Bucket Access Point Alias',
         description: 'The Alias of the Access Point created for your access to the S3 Bucket.',
-        default: 'tricklercache-access-s6qd6oc3twmfi3gh33hdcttsp67jyuse1a-s3alias',
+        default: '',
         type: 'string',
         required: true
       },

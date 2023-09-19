@@ -2,31 +2,31 @@
 
 export interface Payload {
   /**
-   * (optional) Map simple Key-Value pairs
+   * Map simple Key-Value pairs (optional)
    */
   key_value_pairs?: {
     [k: string]: unknown
   }
   /**
-   * (optional) If the data needed is in an array, use this section to Map Array data into useable attributes
+   * If the data needed is in an array, use this section to Map Array data into useable attributes (optional)
    */
   array_data?: {
     [k: string]: unknown
   }[]
   /**
-   * (optional) If the data is present in a Context section, use this to map the attributes of a Context Section
+   * If the data is present in a Context section, use this to map the attributes of a Context Section (optional)
    */
   context?: {
     [k: string]: unknown
   }
   /**
-   * (optional) If the data is present in a Properties section, use this to map the attributes of a Properties Section
+   * If the data is present in a Properties section, use this to map the attributes of a Properties Section (optional)
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * (optional) If the data is present in a Traits section, use this to map the attributes of a Traits Section
+   * If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional)
    */
   traits?: {
     [k: string]: unknown
@@ -36,11 +36,11 @@ export interface Payload {
    */
   email: string
   /**
-   * The type of event. e.g. track or identify. This field is required
+   * Do Not Modify - The type of event. e.g. track or identify, this field is required
    */
   type: string
   /**
-   * The timestamp for when the event took place. This field is required
+   * Do Not Modify - The timestamp for when the event took place. This field is required
    */
   timestamp: string | number
 }
