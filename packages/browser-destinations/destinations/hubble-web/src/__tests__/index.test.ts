@@ -80,7 +80,7 @@ describe('Hubble', () => {
 
   test('load Hubble SDK', async () => {
     const [event] = await hubbleDestination({
-      appID: testID,
+      id: testID,
       subscriptions
     })
 

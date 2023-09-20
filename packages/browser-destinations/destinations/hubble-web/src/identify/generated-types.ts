@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Unique user ID
+   * Unique identifer of the user
    */
   userId: string
   /**
-   * Anonymous id of the user
+   * Anonymous identifier of the user
    */
   anonymousId?: string
   /**

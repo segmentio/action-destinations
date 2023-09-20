@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
   title: 'Track',
-  description: 'Track event',
+  description: 'Track events to trigger Hubble surveys',
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
@@ -27,6 +27,24 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    userId: {
+      description: 'Unique identifer of the user',
+      type: 'string',
+      required: false,
+      label: 'User ID',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      description: 'Anonymous identifier of the user',
+      type: 'string',
+      required: false,
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (hubble, event) => {
@@ -35,7 +53,7 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
       return
     }
 
-    hubble.track && hubble.track(payload.event, payload.attributes)
+    hubble.track && hubble.track(payload.event, payload.attributes, payload.userId, payload.anonymousId)
   }
 }
 

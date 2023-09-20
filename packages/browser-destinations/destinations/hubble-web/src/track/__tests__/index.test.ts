@@ -28,13 +28,33 @@ describe('track', () => {
       resolveWhen: (_fn: any, _timeout: any) => {}
     }))
   })
-  test('it maps event parameters correctly to track function', async () => {
-    const [track] = await hubbleDestination({
-      appID: 'testID',
+
+  let track: any
+  const mockTrack: jest.Mock<any, any> = jest.fn()
+
+  beforeEach(async () => {
+    const [hubbleTrack] = await hubbleDestination({
+      id: 'testID',
       subscriptions
     })
 
+    track = hubbleTrack
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      const mockedWithTrack = {
+        id: 'testID',
+        initialized: true,
+        emitter: { setSource: jest.fn() },
+        track: mockTrack,
+        identify: jest.fn(),
+        setSource: jest.fn()
+      }
+      return Promise.resolve(mockedWithTrack)
+    })
     await track.load(Context.system(), {} as Analytics)
+  })
+
+  test('it maps event parameters correctly to track function', async () => {
     jest.spyOn(destination.actions.track, 'perform')
 
     await track.track?.(
