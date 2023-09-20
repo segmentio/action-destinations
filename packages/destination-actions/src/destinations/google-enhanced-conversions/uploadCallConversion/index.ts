@@ -1,4 +1,10 @@
-import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  DynamicFieldResponse,
+  PayloadValidationError,
+  RequestClient,
+  APIError
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -11,7 +17,6 @@ import {
 } from '../functions'
 import { ConversionActionId, ConversionActionResponse, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
-import { APIError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Call Conversion',
