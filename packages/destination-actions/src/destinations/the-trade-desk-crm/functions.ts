@@ -49,9 +49,9 @@ export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow
 export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 
 export async function processPayload(input: ProcessPayloadInput) {
-  let crmID = ''
-  if (input.features && input.features[TTD_LIST_ACTION_FLOW_FLAG_NAME]) {
-    crmID = input.payloads[0].external_id!
+  let crmID
+  if (input?.features?.[TTD_LIST_ACTION_FLOW_FLAG_NAME]) {
+    crmID = input?.payloads?.[0]?.external_id || ''
   } else {
     crmID = await getCRMInfo(input.request, input.settings, input.payloads[0])
   }
@@ -102,11 +102,7 @@ async function getAllDataSegments(request: RequestClient, settings: Settings) {
   let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(
     `${BASE_URL}/crmdata/segment/${settings.advertiser_id}`,
     {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'TTD-Auth': settings.auth_token
-      }
+      method: 'GET'
     }
   )
   let segments = response.data.Segments
@@ -116,11 +112,7 @@ async function getAllDataSegments(request: RequestClient, settings: Settings) {
   while (segments.length > 0) {
     allDataSegments.push(...segments)
     response = await request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}?pagingToken=${pagingToken}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'TTD-Auth': settings.auth_token
-      }
+      method: 'GET'
     })
 
     segments = response.data.Segments
@@ -148,10 +140,6 @@ async function getCRMInfo(request: RequestClient, settings: Settings, payload: P
     // of full audience syncs every 24 hours to eliminate the risk of a race condition.
     const response: ModifiedResponse<CREATE_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'TTD-Auth': settings.auth_token
-      },
       json: {
         AdvertiserId: settings.advertiser_id,
         SegmentName: payload.name,
@@ -217,10 +205,6 @@ async function getCRMDataDropEndpoint(request: RequestClient, settings: Settings
     `${BASE_URL}/crmdata/segment/${settings.advertiser_id}/${crmId}`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'TTD-Auth': settings.auth_token
-      },
       json: {
         PiiType: payload.pii_type,
         MergeMode: 'Replace'

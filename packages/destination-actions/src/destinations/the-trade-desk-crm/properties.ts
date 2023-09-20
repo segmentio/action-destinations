@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const external_id: InputField = {
   label: 'External Audience ID',
-  description: 'The CRM Data ID for The Trade Desk Segment. ',
+  description: 'The CRM Data ID for The Trade Desk Segment.',
   type: 'string',
   default: {
     '@path': '$.context.personas.external_audience_id'

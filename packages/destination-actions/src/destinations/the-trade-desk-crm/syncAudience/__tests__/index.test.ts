@@ -244,7 +244,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
     ).rejects.toThrow('Multiple audiences found with the same name')
   })
 
-  it('should fail if batch has less than 1500 and old flow', async () => {
+  it('should fail if batch has less than 1500 and using legacy flow', async () => {
     nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
       .get(/.*/)
       .reply(200, {
