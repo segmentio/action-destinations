@@ -187,4 +187,17 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
   enable_batching?: boolean
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    mobile?: boolean
+    platform?: string
+    architecture?: string
+    bitness?: string
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: boolean
+  }
 }
