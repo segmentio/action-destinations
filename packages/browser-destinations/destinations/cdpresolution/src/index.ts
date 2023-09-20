@@ -6,28 +6,27 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 
-import pageLoad from './pageLoad'
+import sync from './sync'
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Track Page View',
+    name: 'Sync identifier to CDP Resolution',
     subscribe: 'type = "page"',
-    partnerAction: 'pageLoad',
-    mapping: defaultValues(pageLoad.fields),
+    partnerAction: 'sync',
+    mapping: defaultValues(sync.fields),
     type: 'automatic'
   }
 ]
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
-  name: 'Cdpresolution',
+  name: 'CDP Resolution',
   slug: 'actions-cdpresolution',
+  description: 'Sync Segment identifier to CDP Resolution',  
   mode: 'device',
-
   settings: {
-    // Add any Segment destination settings required here
-    ClientIdentifier: {
+    clientIdentifier: {
       label: 'Client Identifier',
       description: 'Client identifier provided by CDP Resolution [Hashed Account ID]',
       type: 'string',
@@ -46,17 +45,12 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
       required: true
     }
   },
-
-  initialize: async ({ settings, analytics }, deps) => {
-    //await deps.loadScript('<path_to_partner_script>')
-    // initialize client code here
-    const baseURL = settings.endpoint
-
+  initialize: async () => {
+    return {}
   },
-
   presets,
   actions: {
-    pageLoad
+    sync
   }
 }
 

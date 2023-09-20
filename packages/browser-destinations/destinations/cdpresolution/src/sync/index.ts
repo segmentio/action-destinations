@@ -8,9 +8,9 @@ import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
-  title: 'Send to CDPResolution',
-  description: 'Send page, track, or identify event data to CDP Resolution once per session.',
-  defaultSubscription: 'type = "page" or type = "track" or type = "identify"',
+  title: 'Sync identifier to CDPResolution',
+  description: 'Sync identifier CDP Resolution.',
+  defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
     anonymousId: {
@@ -23,7 +23,6 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
     }
   },
   perform: (_client, event) => {
-    // Invoke Partner SDK here
     try {
       const cdpcookieset = getCookie('cdpresolutionset')
       const pid = '48a021d87720f17403d730658979d7f60e9cec91937e82072c66f611748dd47d'
@@ -31,7 +30,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
       const baseUrl = event.settings.endpoint
 
       const partnerUserId = {
-        client_id: event.settings.ClientIdentifier,
+        client_id: event.settings.clientIdentifier,
         visitor_id: userAnonymousId
       }
       const partnerUserIdStr = encodeURIComponent(JSON.stringify(partnerUserId))
@@ -46,7 +45,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
         return
       }
     } catch (e) {
-      throw new Error('Failed at Page Load')
+      throw new Error('CDP Resolution Destination failed to sync')
     }
   }
 }

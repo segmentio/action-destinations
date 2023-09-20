@@ -8,5 +8,5 @@ export interface Settings {
   /**
    * Client identifier provided by CDP Resolution [CDP Resultion Account](https://www.cdpresolution.com/accountsettings)
    */
-  ClientIdentifier: string
+  clientIdentifier: string
 }
