@@ -10,8 +10,8 @@ export function insertEmailPreviewText(html: string, previewText: string): strin
       ${htmlEscape(previewText)}
     </div>
 
-    <div style='display: none; max-height: 0px; overflow: hidden;'>
-      ${'&nbsp;&zwnj;'.repeat(13)}&nbsp;
+    <div style="display: none; max-height: 0px; overflow: hidden;">
+      &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
     </div>
   `)
 

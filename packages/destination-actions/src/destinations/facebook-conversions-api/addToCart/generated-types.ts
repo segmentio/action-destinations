@@ -16,7 +16,7 @@ export interface Payload {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
      */
-    externalId?: string
+    externalId?: string[]
     /**
      * An email address in lowercase.
      */

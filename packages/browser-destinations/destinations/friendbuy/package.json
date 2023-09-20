@@ -1,7 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.7.0",
+  "version": "1.13.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "main": "./dist/cjs",
   "module": "./dist/esm",
   "scripts": {
@@ -11,9 +15,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.0",
-    "@segment/actions-shared": "^1.59.0",
-    "@segment/browser-destination-runtime": "^1.7.0"
+    "@segment/actions-core": "^3.82.0",
+    "@segment/actions-shared": "^1.64.0",
+    "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"

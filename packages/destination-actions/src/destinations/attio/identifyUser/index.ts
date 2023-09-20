@@ -23,27 +23,22 @@ const user_attributes: InputField = {
   type: 'object',
   label: 'Additional User attributes',
   description:
-    'Additional attributes to either set or update on the Attio User Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio User Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
   additionalProperties: true,
-  properties: {
-    name: {
-      label: 'Name',
-      type: 'string'
-    }
-  },
-  default: {
-    name: { '@path': '$.traits.name' }
-  }
+  properties: {},
+  default: {}
 }
 
 const person_attributes: InputField = {
   type: 'object',
   label: 'Additional Person attributes',
   description:
-    'Additional attributes to either set or update on the Attio Person Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio Person Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
   default: {}
 }
