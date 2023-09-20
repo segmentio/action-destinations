@@ -6,7 +6,7 @@ import { CDPResolution } from '../../types'
 const subscriptions: Subscription[] = [
   {
     partnerAction: 'sync',
-    name: 'Sync User ID to CDP Resolution',
+    name: 'Sync Anonymous ID',
     enabled: true,
     subscribe: 'type = "identify"',
     mapping: {
@@ -20,7 +20,7 @@ const subscriptions: Subscription[] = [
 describe('CDPResolution.sync', () => {
   const settings = {
     endpoint: 'https://a.usbrowserspeed.com/cs',
-    ClientIdentifier: 'clientid1'
+    clientIdentifier: 'clientid1'
   }
 
   let mockCDPResolution: CDPResolution
@@ -48,7 +48,7 @@ describe('CDPResolution.sync', () => {
       type: 'identify',
       anonymousId: 'aid1'
     })
-    await syncAction.sync?.(context)
+    await syncAction.identify?.(context)
 
     expect(mockCDPResolution.sync).toHaveBeenCalledWith('https://a.usbrowserspeed.com/cs', 'clientid1', 'aid1')
   })
