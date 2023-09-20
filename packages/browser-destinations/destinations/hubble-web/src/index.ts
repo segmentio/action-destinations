@@ -50,7 +50,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
     await deps.resolveWhen(() => window.Hubble.initialized, 250)
 
     // eslint-disable-next-line  @typescript-eslint/no-unsafe-call
-    window.Hubble.setSource('__segment__')
+    window.Hubble?.setSource('__segment__')
     return window.Hubble
   },
 
