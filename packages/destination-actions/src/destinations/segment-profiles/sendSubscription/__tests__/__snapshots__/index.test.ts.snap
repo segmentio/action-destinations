@@ -1,0 +1,215 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SegmentProfiles.sendSubscription Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "anonymousId": "anonId1234",
+      "context": Object {
+        "externalIds": Array [
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "tester11@seg.com",
+            "type": "email",
+          },
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "+12135618345",
+            "type": "phone",
+          },
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "abcd12bbfygdbvbvvvv",
+            "type": "android_push",
+          },
+          Object {
+            "collection": "users",
+            "encoding": "none",
+            "id": "abcd12bbfjfsykdbvbvvvvvv",
+            "type": "ios_push",
+          },
+        ],
+        "messaging_subscriptions": Array [
+          Object {
+            "key": "tester11@seg.com",
+            "status": "subscribed",
+            "type": "EMAIL",
+          },
+          Object {
+            "key": "+12135618345",
+            "status": "subscribed",
+            "type": "SMS",
+          },
+          Object {
+            "key": "+12135618345",
+            "status": "subscribed",
+            "type": "WHATSAPP",
+          },
+          Object {
+            "key": "abcd12bbfygdbvbvvvv",
+            "status": "unsubscribed",
+            "type": "ANDROID_PUSH",
+          },
+          Object {
+            "key": "abcd12bbfjfsykdbvbvvvvvv",
+            "status": "subscribed",
+            "type": "IOS_PUSH",
+          },
+        ],
+        "messaging_subscriptions_retl": true,
+      },
+      "integrations": Object {
+        "All": false,
+      },
+      "traits": Object {
+        "email": "test-user@test-company.com",
+        "name": "Test User",
+      },
+      "type": "identify",
+      "userId": "user1234",
+    },
+  ],
+}
+`;
+
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment 2`] = `
+Object {
+  "anonymousId": "anonId1234",
+  "context": Object {
+    "externalIds": Array [
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "tester11@seg.com",
+        "type": "email",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "+12135618345",
+        "type": "phone",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfygdbvbvvvv",
+        "type": "android_push",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfjfsykdbvbvvvvvv",
+        "type": "ios_push",
+      },
+    ],
+    "messaging_subscriptions": Array [
+      Object {
+        "key": "tester11@seg.com",
+        "status": "subscribed",
+        "type": "EMAIL",
+      },
+      Object {
+        "key": "+12135618345",
+        "status": "subscribed",
+        "type": "SMS",
+      },
+      Object {
+        "key": "+12135618345",
+        "status": "subscribed",
+        "type": "WHATSAPP",
+      },
+      Object {
+        "key": "abcd12bbfygdbvbvvvv",
+        "status": "unsubscribed",
+        "type": "ANDROID_PUSH",
+      },
+      Object {
+        "key": "abcd12bbfjfsykdbvbvvvvvv",
+        "status": "subscribed",
+        "type": "IOS_PUSH",
+      },
+    ],
+    "messaging_subscriptions_retl": true,
+  },
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "email": "test-user@test-company.com",
+    "name": "Test User",
+  },
+  "userId": "user1234",
+}
+`;
+
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment when subscription groups are defined 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`SegmentProfiles.sendSubscription Should send a subscription event to Segment when subscription groups are defined 2`] = `
+Object {
+  "anonymousId": "anonId1234",
+  "context": Object {
+    "externalIds": Array [
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "tester11@seg.com",
+        "type": "email",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "abcd12bbfjfsykdbvbvvvvvv",
+        "type": "ios_push",
+      },
+    ],
+    "messaging_subscriptions": Array [
+      Object {
+        "key": "tester11@seg.com",
+        "status": "subscribed",
+        "type": "EMAIL",
+      },
+      Object {
+        "key": "abcd12bbfjfsykdbvbvvvvvv",
+        "status": "subscribed",
+        "type": "IOS_PUSH",
+      },
+    ],
+    "messaging_subscriptions_retl": true,
+  },
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {
+    "email": "test-user@test-company.com",
+    "name": "Test User",
+  },
+  "userId": "user1234",
+}
+`;
