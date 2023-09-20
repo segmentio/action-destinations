@@ -2,27 +2,27 @@
 
 export interface Payload {
   /**
-   * Segment Audience Id
+   * Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy
    */
   segment_audience_id: string
   /**
-   * Segment Audience Key
+   * Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy
    */
   segment_audience_key: string
   /**
-   * The user's email address to send to LinkedIn.
+   * Email address of a user
    */
   email?: string
   /**
-   * The name of the current Segment event.
+   * The name of the current Segment event
    */
   event_name?: string
   /**
-   * Enable batching of requests to the LinkedIn DMP Segment.
+   * Enable batching of requests to the LinkedIn DMP Segment
    */
   enable_batching?: boolean & string
   /**
-   * The user's Mobile Advertising ID
+   * User's Mobile Advertising Id
    */
   advertising_id?: string
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   device_type?: string
   /**
-   * Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo. Segment will hash MAIDs
+   * Send mobile advertising ID (IDFA or Google Ad Id) to Yahoo. Segment will hash MAIDs
    */
   send_advertising_id?: boolean
   /**

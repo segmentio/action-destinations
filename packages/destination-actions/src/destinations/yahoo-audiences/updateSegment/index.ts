@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
-      description: 'Segment Audience Id',
+      description: 'Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy',
       type: 'hidden',
       required: true,
       default: {
@@ -18,8 +18,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     segment_audience_key: {
-      label: 'Yahoo Segment Key',
-      description: 'Segment Audience Key',
+      label: 'Segment Audience Key',
+      description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
       type: 'hidden',
       required: true,
       default: {
@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'User Email',
-      description: "The user's email address to send to LinkedIn.",
+      description: 'Email address of a user',
       type: 'hidden',
       default: {
         '@path': '$.context.traits.email'
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_name: {
       label: 'Event Name', // Determines user membership in the audience
-      description: 'The name of the current Segment event.',
+      description: 'The name of the current Segment event',
       type: 'hidden',
       default: {
         '@path': '$.event'
@@ -44,13 +44,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: {
       label: 'Enable Batching',
-      description: 'Enable batching of requests to the LinkedIn DMP Segment.',
+      description: 'Enable batching of requests to the LinkedIn DMP Segment',
       type: 'hidden', // We should always batch Yahoo requests
       default: true
     },
     advertising_id: {
       label: 'User Mobile Advertising ID',
-      description: "The user's Mobile Advertising ID",
+      description: "User's Mobile Advertising Id",
       type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.advertisingId'
@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     send_advertising_id: {
       label: 'Send Mobile Advertising ID',
-      description: 'Send mobile advertising ID (IDFA, AAID or GAID) to Yahoo. Segment will hash MAIDs',
+      description: 'Send mobile advertising ID (IDFA or Google Ad Id) to Yahoo. Segment will hash MAIDs',
       type: 'boolean',
       default: true
     },
@@ -94,13 +94,17 @@ const action: ActionDefinition<Settings, Payload> = {
   // We should batch requests at all times, so perform is won't likely run. Should I remove it?
   perform: (request, { payload, auth }) => {
     console.log('updateSegment > perform')
+    console.log('auth obj', JSON.stringify(auth))
+    // const tk = 'qwerty'
+    // if (tk) {
     if (auth?.accessToken) {
       console.log('access token obj is avail')
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
+      //const rt_access_token = tk;
       const body = gen_update_segment_payload([payload])
-      console.log(JSON.stringify(body))
+      console.log('Req Body:', JSON.stringify(body))
       return request('https://dataxonline.yahoo.com/online/audience/', {
         method: 'POST',
         json: body,
@@ -108,19 +112,30 @@ const action: ActionDefinition<Settings, Payload> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
+        .then((response) => response.json())
+        .then((response) => console.log(response))
+        .then((response) => {
+          return response
+        })
+        .catch((err) => {
+          console.log('perform: error updating segment >', err)
+        })
     } else {
       console.log('updateSegment > perform: no auth access_token')
     }
   },
   performBatch: (request, { payload, auth }) => {
     console.log('updateSegment > performBatch')
+    //const tk = 'qwerty'
+    //if (tk) {
     if (auth?.accessToken) {
       console.log('access token obj is avail')
       const body = gen_update_segment_payload(payload)
-      console.log(JSON.stringify(body))
+      console.log('Req Body:', JSON.stringify(body))
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
+      //const rt_access_token = tk;
       return request('https://dataxonline.yahoo.com/online/audience/', {
         method: 'POST',
         json: body,
@@ -128,6 +143,14 @@ const action: ActionDefinition<Settings, Payload> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
+        .then((response) => response.json())
+        .then((response) => console.log(response))
+        .then((response) => {
+          return response
+        })
+        .catch((err) => {
+          console.log('performBatch: error updating segment >', err)
+        })
     } else {
       console.log('updateSegment > performBatch: no auth access_token')
     }

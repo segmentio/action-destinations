@@ -13,37 +13,43 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     segment_audience_key: {
       label: 'Audience Key',
-      description: 'Provide audience key. Maps to Yahoo Taxonomy segment node name',
+      description: 'Provide audience key. This maps to the "Name" of the Segment node in Yahoo taxonomy',
       type: 'string',
       required: true
     },
     segment_audience_id: {
       label: 'Audience Id',
       description:
-        'Provide audience Id (aud_...) from audience URL in Segment Engage. Maps to Yahoo Taxonomy segment node Id',
+        'Provide audience Id (aud_...) from audience URL in Segment Engage. This maps to the "Id" of the Segment node in Yahoo taxonomy',
       type: 'string',
       required: true
     },
     engage_space_id: {
       label: 'Engage Space Id',
       description:
-        'Provide Engage Space Id found in Unify > Settings > API Access. Maps to Yahoo Taxonomy customer node Id and name',
+        'Provide Engage Space Id found in Unify > Settings > API Access. This maps to the "Id" and "Name" of the top-level Customer node in Yahoo taxonomy and specifies the parent node for your Segment node in Yahoo taxonomy',
       type: 'string',
       required: false
     },
     customer_desc: {
       label: 'Space Description',
-      description: 'Provide the description for Yahoo Taxonomy customer node, less then 1000 characters',
+      description: 'Provide the description for Segment node in Yahoo taxonomy. This must be less then 1000 characters',
       type: 'string',
       required: false
     }
   },
   perform: async (request, { payload, auth }) => {
+    // const tk = {
+    //   tx_client_secret: 'abc',
+    //   tx_client_key:'123'
+    // }
     if (auth?.accessToken) {
+      // if (tk) {
       const creds = Buffer.from(auth.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const tx_pair = creds_json.tx
       console.log(tx_pair)
+      // const tx_pair = tk;
       return update_taxonomy(tx_pair, request, payload)
     }
   }

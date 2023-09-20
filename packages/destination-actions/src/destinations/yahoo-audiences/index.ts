@@ -7,7 +7,6 @@ import createSegment from './createSegment'
 
 import createCustomerNode from './createCustomerNode'
 
-// Response format: https://developer.yahooinc.com/datax/guide/datax-online-spec/oauth2-authentication/
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -49,7 +48,6 @@ const destination: DestinationDefinition<Settings> = {
       const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
       console.log('rt_access_token:', rt_access_token)
-      //const rt_access_token = '123456'
       const creds = {
         // Oauth1
         tx: {

@@ -81,6 +81,7 @@ export function get_id_schema(payload: Payload) {
 export function check_schema(payload: Payload): void {
   console.log(payload)
   if (payload.send_email === false && payload.send_advertising_id === false) {
+    console.log('INVALID_SETTINGS error: Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.')
     throw new IntegrationError(
       'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
       'INVALID_SETTINGS',
