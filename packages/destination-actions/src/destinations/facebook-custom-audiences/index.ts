@@ -40,13 +40,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Advertiser Account ID',
       description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
-      required: true
+      required: true,
+      dynamic: true
     },
     audienceDescription: {
       type: 'string',
       label: 'Description',
       description: 'A brief description about your audience.',
       required: true
+    }
+  },
+  dynamicSettings: {
+    adAccountId: async (_request, _data) => {
+      return {
+        choices: [
+          {
+            label: 'Test Ad Account ID',
+            value: 'test1'
+          }
+        ]
+      }
     }
   },
   audienceConfig: {
