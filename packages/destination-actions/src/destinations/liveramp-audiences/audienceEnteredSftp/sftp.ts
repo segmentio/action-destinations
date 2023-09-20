@@ -87,4 +87,4 @@ async function testAuthenticationSFTP(sftp: Client, payload: Payload) {
   })
 }
 
-export { validateSFTP, uploadSFTP, testAuthenticationSFTP, Client }
+export { validateSFTP, uploadSFTP, doSFTP, testAuthenticationSFTP, Client }
