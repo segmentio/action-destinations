@@ -9,7 +9,7 @@ import {
 } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
-import { getErrorDetails } from './ResponseError'
+import { ErrorDetails, getErrorDetails } from './ResponseError'
 
 export class EngageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
@@ -57,8 +57,8 @@ export class EngageStats extends OperationStats {
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
-      statsMethod ||
-      'incr' // have to do this to avoid issues with JS bundler/minifier
+        statsMethod ||
+        'incr' // have to do this to avoid issues with JS bundler/minifier
       ) {
         case 'incr':
           statsFunc = this.statsClient?.incr.bind(this.statsClient)
@@ -96,7 +96,7 @@ export class EngageStats extends OperationStats {
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res = super.extractTagsFromError(error, ctx)
 
-    const errDetails = getErrorDetails(error)
+    const errDetails: ErrorDetails = getErrorDetails(error)
     if (errDetails?.code) res.push(`error_code:${errDetails.code}`)
     if (errDetails?.status) res.push(`error_status:${errDetails.status}`)
 
