@@ -135,8 +135,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           },
           mappingOmitKeys: ['body']
         })
-      ).rejects.toThrowError('Internal Server Error')
-      expectErrorLogged('getContentTemplateTypes failed', 'Internal Server Error')
+      ).rejects.toThrowError('Not Found')
+      expectErrorLogged('getContentTemplateTypes failed', 'Not Found')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -556,7 +556,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Not Found')
+      ).rejects.toThrowError('Internal Server Error')
       expectErrorLogged('Internal Server Error')
     })
 
