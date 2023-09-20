@@ -95,19 +95,11 @@ export const email_action_identifiers: InputField = {
   }
 }
 
-export const product_id: InputField = {
-  label: 'Product ID',
-  description: 'Identifier for the product',
-  type: 'string',
-  default: {
-    '@path': '$.properties.product_id'
-  }
-}
-
 export const timestamp: InputField = {
   label: 'Timestamp',
   description: 'Event timestamp',
   type: 'string',
+  required: true,
   default: {
     '@path': '$.timestamp'
   }

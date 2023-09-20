@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - all fields 1`] = `
+Object {
+  "action": "SjDZyt(p",
+  "campaign": "SjDZyt(p",
+  "campaign_event_value": "SjDZyt(p",
+  "timestamp": "SjDZyt(p",
+  "type": "email",
+  "user_identifiers": Object {
+    "anonymousId": "SjDZyt(p",
+    "email": "avasa@saec.bw",
+    "optimizely_vuid": "SjDZyt(p",
+    "userId": "SjDZyt(p",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - required fields 1`] = `
+Object {
+  "campaign": "SjDZyt(p",
+  "campaign_event_value": null,
+  "type": "email",
+  "user_identifiers": Object {
+    "email": "avasa@saec.bw",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: multiProductEvent action - all fields 1`] = `
+Object {
+  "action": "d0QnJMQa",
+  "order_id": "d0QnJMQa",
+  "purchase": Array [
+    Object {
+      "product_id": "d0QnJMQa",
+      "qty": -45686749082419.2,
+    },
+  ],
+  "requestType": "multi",
+  "timestamp": "d0QnJMQa",
+  "total": "d0QnJMQa",
+  "type": "product",
+  "user_identifiers": Object {
+    "anonymousId": "d0QnJMQa",
+    "email": "gabju@hescak.bs",
+    "optimizely_vuid": "d0QnJMQa",
+    "userId": "d0QnJMQa",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: multiProductEvent action - required fields 1`] = `
+Object {
+  "order_id": "d0QnJMQa",
+  "requestType": "multi",
+  "type": "product",
+  "user_identifiers": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: singleProductEvent action - all fields 1`] = `
+Object {
+  "action": "mEhWvzhxpIAkj&(",
+  "product_id": "mEhWvzhxpIAkj&(",
+  "requestType": "single",
+  "timestamp": "mEhWvzhxpIAkj&(",
+  "type": "product",
+  "user_identifiers": Object {
+    "anonymousId": "mEhWvzhxpIAkj&(",
+    "email": "pizitvi@inebave.lb",
+    "optimizely_vuid": "mEhWvzhxpIAkj&(",
+    "userId": "mEhWvzhxpIAkj&(",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: singleProductEvent action - required fields 1`] = `
+Object {
+  "product_id": "mEhWvzhxpIAkj&(",
+  "requestType": "single",
+  "type": "product",
+  "user_identifiers": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: upsertContact action - all fields 1`] = `
+Object {
+  "address": Object {
+    "city": "WnJP3)h29qx6Q9XcA@qx",
+    "country": "WnJP3)h29qx6Q9XcA@qx",
+    "state": "WnJP3)h29qx6Q9XcA@qx",
+    "street": "WnJP3)h29qx6Q9XcA@qx",
+    "zip": "WnJP3)h29qx6Q9XcA@qx",
+  },
+  "age": 89357760918978.56,
+  "company": "WnJP3)h29qx6Q9XcA@qx",
+  "dob": "2021-02-01T00:00:00.000Z",
+  "first_name": "WnJP3)h29qx6Q9XcA@qx",
+  "gender": "WnJP3)h29qx6Q9XcA@qx",
+  "image_url": "WnJP3)h29qx6Q9XcA@qx",
+  "last_name": "WnJP3)h29qx6Q9XcA@qx",
+  "name": "WnJP3)h29qx6Q9XcA@qx",
+  "phone": "WnJP3)h29qx6Q9XcA@qx",
+  "title": "WnJP3)h29qx6Q9XcA@qx",
+  "user_identifiers": Object {
+    "anonymousId": "WnJP3)h29qx6Q9XcA@qx",
+    "email": "hi@iz.bw",
+    "optimizely_vuid": "WnJP3)h29qx6Q9XcA@qx",
+    "userId": "WnJP3)h29qx6Q9XcA@qx",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: upsertContact action - required fields 1`] = `
+Object {
+  "user_identifiers": Object {},
+}
+`;

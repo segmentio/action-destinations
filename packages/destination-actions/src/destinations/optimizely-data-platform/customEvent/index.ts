@@ -12,8 +12,8 @@ import {
 import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Multi Product Event',
-  description: 'Send Segment analytics / track() events to Optimizely Data Platform',
+  title: 'Ecommerce Event',
+  description: 'Send Segment Ecommerce track() events to Optimizely Data Platform',
   fields: {
     user_identifiers: user_identifiers,
     event_action: {...event_action},
@@ -26,17 +26,15 @@ const action: ActionDefinition<Settings, Payload> = {
     const host = hosts[settings.region]
 
     const body = {
-      type: 'product',
-      requestType: 'multi',
       user_identifiers: payload.user_identifiers,
       action: payload.event_action,
       timestamp: payload.timestamp,
       order_id: payload.order_id,
       total: payload.total,
-      purchase: payload.products
+      products: payload.products
     }
     
-    return request(`${host}/product_event`, {
+    return request(`${host}/ecommerce_event`, {
       method: 'post',
       json: body
     });
