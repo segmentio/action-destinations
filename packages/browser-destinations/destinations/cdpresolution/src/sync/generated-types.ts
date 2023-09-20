@@ -4,5 +4,5 @@ export interface Payload {
   /**
    * The anonymous id of the user
    */
-  anonymousId?: string
+  anonymousId: string
 }
