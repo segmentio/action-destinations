@@ -48,5 +48,5 @@ export function getErrorDetails(error: any): ErrorDetails {
   ]
     .filter(Boolean)
     .join('; ')
-  return { status, code: code.toString(), message }
+  return { status, code: code?.toString(), message }
 }
