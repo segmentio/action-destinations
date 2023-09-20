@@ -211,20 +211,7 @@ export interface Payload {
    * The user agent data of device sending the event
    */
   userAgentData?: {
-    brands?: {
-      brand?: string
-      version?: string
-    }[]
-    mobile?: boolean
-    platform?: string
-    architecture?: string
-    bitness?: string
-    fullVersionList?: {
-      [k: string]: unknown
-    }[]
     model?: string
     platformVersion?: string
-    uaFullVersion?: string
-    wow64?: boolean
   }
 }

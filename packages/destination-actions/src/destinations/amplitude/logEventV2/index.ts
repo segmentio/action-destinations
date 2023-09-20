@@ -7,6 +7,7 @@ import { getEndpointByRegion } from '../regional-endpoints'
 import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
+import { userAgentData } from '../properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -203,77 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: true,
       type: 'integer'
     },
-    userAgentData: {
-      label: 'User Agent Data',
-      type: 'object',
-      description: 'The user agent data of device sending the event',
-      properties: {
-        brands: {
-          label: 'Brands',
-          type: 'object',
-          multiple: true,
-          properties: {
-            brand: {
-              label: 'Brand',
-              type: 'string'
-            },
-            version: {
-              label: 'version',
-              type: 'string'
-            }
-          }
-        },
-        mobile: {
-          label: 'Mobile',
-          type: 'boolean'
-        },
-        platform: {
-          label: 'Platform',
-          type: 'string'
-        },
-        architecture: {
-          label: 'Architecture',
-          type: 'string'
-        },
-        bitness: {
-          label: 'Bitness',
-          type: 'string'
-        },
-        fullVersionList: {
-          label: 'FullVersionList',
-          type: 'object',
-          multiple: true
-        },
-        model: {
-          label: 'Model',
-          type: 'string'
-        },
-        platformVersion: {
-          label: 'PlatformVersion',
-          type: 'string'
-        },
-        uaFullVersion: {
-          label: 'UaFullVersion',
-          type: 'string'
-        },
-        wow64: {
-          label: 'wow64',
-          type: 'boolean'
-        }
-      },
-      default: {
-        brands: { '@path': '$.context.userAgentData.brands' },
-        mobile: { '@path': '$.context.userAgentData.mobile' },
-        platform: { '@path': '$.context.userAgentData.platform' },
-        architecture: { '@path': '$.context.userAgentData.architecture' },
-        bitness: { '@path': '$.context.userAgentData.bitness' },
-        fullVersionList: { '@path': '$.context.userAgentData.fullVersionList' },
-        model: { '@path': '$.context.userAgentData.model' },
-        platformVersion: { '@path': '$.context.userAgentData.platformVersion' },
-        uaFullVersion: { '@path': '$.context.userAgentData.uaFullVersion' },
-        wow64: { '@path': '$.context.userAgentData.wow64' }
-      }
-    }
+    userAgentData
   },
   perform: (request, { payload, settings }) => {
     const {

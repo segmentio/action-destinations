@@ -8,42 +8,8 @@ describe('amplitude - custom user agent parsing', () => {
       '"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.0.0 Safari/537.36"'
 
     const userAgentData = {
-      architecture: 'arm',
-      bitness: '64',
-      brands: [
-        {
-          brand: 'Chromium',
-          version: '116'
-        },
-        {
-          brand: 'Not)A;Brand',
-          version: '24'
-        },
-        {
-          brand: 'Google Chrome',
-          version: '116'
-        }
-      ],
-      fullVersionList: [
-        {
-          brand: 'Chromium',
-          version: '116.0.5845.110'
-        },
-        {
-          brand: 'Not)A;Brand',
-          version: '24.0.0.0'
-        },
-        {
-          brand: 'Google Chrome',
-          version: '116.0.5845.110'
-        }
-      ],
-      mobile: false,
       model: 'TAB 2 A7',
-      platform: 'macOS',
-      platformVersion: '5.0.1',
-      uaFullVersion: '116.0.5845.110',
-      wow64: false
+      platformVersion: '5.0.1'
     }
 
     const result = parseUserAgentProperties(userAgent, userAgentData)
@@ -78,42 +44,8 @@ describe('amplitude - custom user agent parsing', () => {
       '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"'
 
     const userAgentData = {
-      architecture: 'arm',
-      bitness: '64',
-      brands: [
-        {
-          brand: 'Chromium',
-          version: '116'
-        },
-        {
-          brand: 'Not)A;Brand',
-          version: '24'
-        },
-        {
-          brand: 'Google Chrome',
-          version: '116'
-        }
-      ],
-      fullVersionList: [
-        {
-          brand: 'Chromium',
-          version: '116.0.5845.110'
-        },
-        {
-          brand: 'Not)A;Brand',
-          version: '24.0.0.0'
-        },
-        {
-          brand: 'Google Chrome',
-          version: '116.0.5845.110'
-        }
-      ],
-      mobile: false,
       model: 'SM-J710FN',
-      platform: 'macOS',
-      platformVersion: '12.6.1',
-      uaFullVersion: '116.0.5845.110',
-      wow64: false
+      platformVersion: '12.6.1'
     }
 
     const result = parseUserAgentProperties(userAgent, userAgentData)
