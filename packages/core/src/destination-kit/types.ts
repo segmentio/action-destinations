@@ -80,6 +80,8 @@ export interface GlobalSetting {
   default?: string | number | boolean
   properties?: InputField['properties']
   format?: InputField['format']
+  /** Whether or not the field supports dynamically fetching options */
+  dynamic?: boolean
 }
 
 /** The supported field type names */

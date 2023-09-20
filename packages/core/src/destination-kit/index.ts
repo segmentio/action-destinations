@@ -9,7 +9,15 @@ import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
+import type {
+  GlobalSetting,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  Deletion,
+  DeletionPayload,
+  DynamicFieldResponse
+} from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -120,6 +128,10 @@ export interface AudienceDestinationDefinition<Settings = unknown, AudienceSetti
   audienceFields: Record<string, GlobalSetting>
 
   actions: Record<string, ActionDefinition<Settings, any, AudienceSettings>>
+
+  dynamicSettings?: {
+    [K in keyof Settings | keyof AudienceSettings]?: RequestFn<Settings, {}, DynamicFieldResponse, AudienceSettings>
+  }
 }
 
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
@@ -139,6 +151,10 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  dynamicSettings?: {
+    [K in keyof Settings]?: RequestFn<Settings, {}, DynamicFieldResponse, any>
+  }
 
   onDelete?: Deletion<Settings>
 }
