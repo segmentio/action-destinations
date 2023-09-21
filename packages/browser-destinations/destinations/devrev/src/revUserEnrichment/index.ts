@@ -3,31 +3,31 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
-  title: 'Identify Rev User',
-  description: 'Looks up User, Account and Workspace Refs from user traits and adds it to context.',
+  title: 'Rev User Enrichment Plugin',
+  description: 'Looks up User, Account and Workspace Refs from user traits on the browser, and adds it to context.',
   platform: 'web',
   hidden: false,
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
   fields: {
     userRef: {
       label: 'User Ref',
       type: 'string',
       required: false,
-      description: 'User Ref, ideally mappable to external ref of a Rev User.',
+      description: 'User Ref trait field name, ideally mappable to external ref of a Rev User.',
       default: 'userRef'
     },
     accountRef: {
       label: 'Account Ref',
       type: 'string',
       required: false,
-      description: 'Account Ref, ideally mappable to external ref of a Rev Account.',
+      description: 'Account Ref trait field name, ideally mappable to external ref of a Rev Account.',
       default: 'accountRef'
     },
     workspaceRef: {
       label: 'Workspace Ref',
       type: 'string',
       required: false,
-      description: 'Workspace Ref, ideally mappable to external ref of a Rev Workspace.',
+      description: 'Workspace Ref trait field name, ideally mappable to external ref of a Rev Workspace.',
       default: 'workspaceRef'
     }
   },

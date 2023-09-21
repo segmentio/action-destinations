@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import identifyRevUser from '..'
+import revUserEnrichment from '..'
 
-describe('DevRev.identifyRevUser', () => {
+describe('DevRev.revUserEnrichment', () => {
   it('should enrich account and workspace ref', async () => {
     const mockUserTraits = {
       user_ref: 'USER-test',
@@ -20,7 +20,7 @@ describe('DevRev.identifyRevUser', () => {
       }))
     } as any as Analytics
 
-    await identifyRevUser.perform(
+    await revUserEnrichment.perform(
       {},
       {
         settings: {},
@@ -56,7 +56,7 @@ describe('DevRev.identifyRevUser', () => {
       }))
     } as any as Analytics
 
-    await identifyRevUser.perform(
+    await revUserEnrichment.perform(
       {},
       {
         settings: {},
