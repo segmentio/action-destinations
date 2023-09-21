@@ -39,6 +39,9 @@
     "@segment/analytics-browser-actions-utils": "^1.13.0",
     "@segment/analytics-browser-actions-vwo": "^1.14.0",
     "@segment/analytics-browser-actions-wiseops": "^1.13.0",
+    "@segment/analytics-browser-actions-pendo-web-actions": "^1.1.0",
+    "@segment/analytics-browser-actions-cdpresolution": "^1.0.0",
+    "@segment/analytics-browser-actions-devrev": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.13.0"
   }
 }
