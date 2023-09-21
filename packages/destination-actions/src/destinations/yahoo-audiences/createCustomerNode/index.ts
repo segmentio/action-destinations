@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Provide Engage Space Id found in Unify > Settings > API Access. This maps to the "Id" and "Name" of the top-level Customer node in Yahoo taxonomy',
       type: 'string',
-      required: false
+      required: true
     },
     customer_desc: {
       label: 'Space Description',

@@ -7,7 +7,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
   defaultSubscription:
-    '(event = "Audience Entered" or event = "Audience Exited") and properties.audience_key = "provide_audience_key"',
+    'event = "Audience Entered" or event = "Audience Exited") and properties.audience_key = "provide_audience_key"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -33,7 +33,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email address of a user',
       type: 'hidden',
       default: {
-        '@path': '$.context.traits.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
+        }
       }
     },
     event_name: {
@@ -56,7 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.advertisingId'
-      }
+      },
+      required: true
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
@@ -64,24 +69,28 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.type'
-      }
+      },
+      required: true
     },
     send_advertising_id: {
       label: 'Send Mobile Advertising ID',
       description: 'Send mobile advertising ID (IDFA or Google Ad Id) to Yahoo. Segment will hash MAIDs',
       type: 'boolean',
+      required: true,
       default: true
     },
     send_email: {
       label: 'Send User Email',
       description: 'Send user email to Yahoo. Segment will hash emails',
       type: 'boolean',
+      required: true,
       default: true
     },
     gdpr_flag: {
       label: 'GDPR Flag',
       description: 'Set to true to indicate that audience data is subject to GDPR regulations',
       type: 'boolean',
+      required: true,
       default: false
     },
     gdpr_euconsent: {
@@ -92,11 +101,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     },
     // Fetch event traits or props, which will be used to determine user's membership in an audience
-    event_traits: {
-      label: 'Event traits or properties',
-      description: 'Whether a user has entere or exited the audience',
+    event_attributes: {
+      label: 'Event traits or properties. Do not modify this setting',
+      description: 'Event traits or properties. Do not modify this setting',
       type: 'object',
-
+      readOnly: true,
+      required: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties' },
@@ -111,14 +121,14 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, auth }) => {
     console.log('updateSegment > perform')
     console.log('auth obj', JSON.stringify(auth))
-    // const tk = 'qwerty'
+    // const tk = '***'
     // if (tk) {
     if (auth?.accessToken) {
       console.log('access token obj is avail')
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
-      //const rt_access_token = tk;
+      //  const rt_access_token = tk;
       const body = gen_update_segment_payload([payload])
       console.log('Req Body:', JSON.stringify(body))
       return request('https://dataxonline.yahoo.com/online/audience/', {
@@ -144,8 +154,8 @@ const action: ActionDefinition<Settings, Payload> = {
     console.log('updateSegment > performBatch')
     console.log('auth obj', JSON.stringify(auth))
 
-    //const tk = 'qwerty'
-    //if (tk) {
+    // const tk = '***'
+    // if (tk) {
     if (auth?.accessToken) {
       console.log('access token obj is avail')
       const body = gen_update_segment_payload(payload)
@@ -153,7 +163,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
-      //const rt_access_token = tk;
+      // const rt_access_token = tk;
       return request('https://dataxonline.yahoo.com/online/audience/', {
         method: 'POST',
         json: body,

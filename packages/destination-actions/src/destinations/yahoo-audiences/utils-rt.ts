@@ -127,11 +127,12 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     const ts = Math.floor(new Date().getTime() / 1000)
     console.log('ts:', ts)
     const seg_key = event.segment_audience_key
-    if (event.event_name == 'Audience Entered' || event.event_traits[seg_key] == true) {
+    // When a users enters an audience - set expiration ts to now() + 90 days
+    if (event.event_name == 'Audience Entered' || event.event_attributes[seg_key] == true) {
       exp = ts + 90 * 24 * 60 * 60
     }
-
-    if (event.event_name == 'Audience Exited') {
+    // When a users enters an audience - set expiration ts to 0
+    if (event.event_name == 'Audience Exited' || event.event_attributes[seg_key] == false) {
       exp = 0
     }
 
@@ -139,10 +140,20 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     data.push([hashed_email, hashed_idfa, hashed_gpsaid, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
   }
 
-  const yahoo_payload = {
+  const yahoo_payload: YahooPayload = {
     Schema: ['SHA256EMAIL', 'IDFA', 'GPSAID', 'SEGMENTS'],
     Data: data,
-    gdpr: false // at this point we always set GDPR = false
+    gdpr: payloads[0].gdpr_flag
+  }
+
+  if (payloads[0].gdpr_flag) {
+    yahoo_payload.gdpr_euconsent = payloads[0].gdpr_euconsent
   }
   return yahoo_payload
+}
+interface YahooPayload {
+  Schema: Array<string>
+  Data: Array<unknown>
+  gdpr: boolean
+  gdpr_euconsent?: string | undefined
 }
