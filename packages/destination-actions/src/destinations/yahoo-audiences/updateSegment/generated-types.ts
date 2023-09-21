@@ -45,4 +45,10 @@ export interface Payload {
    * Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"
    */
   gdpr_euconsent?: string
+  /**
+   * Whether a user has entere or exited the audience
+   */
+  event_traits?: {
+    [k: string]: unknown
+  }
 }

@@ -126,7 +126,8 @@ export function gen_update_segment_payload(payloads: Payload[]) {
 
     const ts = Math.floor(new Date().getTime() / 1000)
     console.log('ts:', ts)
-    if (event.event_name == 'Audience Entered') {
+    const seg_key = event.segment_audience_key
+    if (event.event_name == 'Audience Entered' || event.event_traits[seg_key] == true) {
       exp = ts + 90 * 24 * 60 * 60
     }
 

@@ -6,7 +6,8 @@ import { gen_update_segment_payload } from '../utils-rt'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
-  defaultSubscription: 'event = "Audience Entered" and event = "Audience Exited"',
+  defaultSubscription:
+    '(event = "Audience Entered" or event = "Audience Exited") and properties.audience_key = "provide_audience_key"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -17,10 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_id'
       }
     },
+    // Technically not required in the Yahoo request payload
     segment_audience_key: {
       label: 'Segment Audience Key',
       description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
-      type: 'hidden',
+      type: 'string',
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -88,6 +90,20 @@ const action: ActionDefinition<Settings, Payload> = {
         'Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"',
       type: 'string',
       required: false
+    },
+    // Fetch event traits or props, which will be used to determine user's membership in an audience
+    event_traits: {
+      label: 'Event traits or properties',
+      description: 'Whether a user has entere or exited the audience',
+      type: 'object',
+
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
     }
   },
 
@@ -126,6 +142,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { payload, auth }) => {
     console.log('updateSegment > performBatch')
+    console.log('auth obj', JSON.stringify(auth))
+
     //const tk = 'qwerty'
     //if (tk) {
     if (auth?.accessToken) {
