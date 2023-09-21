@@ -4,5 +4,5 @@ export interface Settings {
   /**
    * Your Trackey API Key
    */
-  apiKey?: string
+  apiKey: string
 }
