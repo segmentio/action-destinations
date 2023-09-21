@@ -130,7 +130,7 @@ export interface AudienceDestinationDefinition<Settings = unknown, AudienceSetti
   actions: Record<string, ActionDefinition<Settings, any, AudienceSettings>>
 
   dynamicSettings?: {
-    [K in keyof Settings | keyof AudienceSettings]?: RequestFn<Settings, {}, DynamicFieldResponse, AudienceSettings>
+    [key: string]: RequestFn<Settings, {}, DynamicFieldResponse, AudienceSettings>
   }
 }
 
@@ -153,7 +153,7 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
   authentication?: AuthenticationScheme<Settings>
 
   dynamicSettings?: {
-    [K in keyof Settings]?: RequestFn<Settings, {}, DynamicFieldResponse, any>
+    [key: string]: RequestFn<Settings, {}, DynamicFieldResponse, any>
   }
 
   onDelete?: Deletion<Settings>
@@ -606,6 +606,32 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     return action.executeDynamicField(fieldKey, data)
+  }
+
+  public async executeDynamicSetting(
+    settingKey: string,
+    data: ExecuteDynamicFieldInput<Settings, {}, object>
+  ): Promise<DynamicFieldResponse> {
+    if (!this.definition.dynamicSettings || !this.definition.dynamicSettings?.[settingKey]) {
+      return {
+        choices: [],
+        error: { code: 'dynamic_setting_not_found', message: `Setting ${settingKey} has no defined dynamic function` }
+      }
+    }
+
+    const destinationSettings = this.getDestinationSettings(data.settings as unknown as JSONObject)
+    const auth = getAuthData(data.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any> = {
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    const fn = this.definition.dynamicSettings?.[settingKey]
+
+    return await fn(requestClient, data)
   }
 
   private async onSubscription(
