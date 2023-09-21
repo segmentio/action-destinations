@@ -50,7 +50,9 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
 
   let timeoutError
   const timeout = setTimeout(() => {
-    void sftp.end() // hang promise on purpose, we are on fault hot path
+    void sftp.end().catch((err) => {
+      console.error(err)
+    }) // hang promise on purpose, we are on fault hot path, but also catch the error to avoid an unhandledRejection
     timeoutError = new SelfTimeoutError(
       `did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`
     )
