@@ -1,7 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-wiseops",
-  "version": "1.8.0",
+  "version": "1.13.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "main": "./dist/cjs",
   "module": "./dist/esm",
   "scripts": {
@@ -11,10 +15,10 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.77.0",
-    "@segment/browser-destination-runtime": "^1.8.0"
+    "@segment/actions-core": "^3.82.0",
+    "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }

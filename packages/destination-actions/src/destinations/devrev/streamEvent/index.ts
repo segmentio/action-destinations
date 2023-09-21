@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { TrackEventsPublishBody, devrevApiPaths, devrevApiRoot } from '../utils'
+import { TrackEventsPublishBody, devrevApiPaths, getBaseUrl } from '../utils'
 import { RequestOptions } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.anonymousId' }
     }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { settings, payload }) => {
     const { eventName, timestamp } = payload
 
     // Track API payload
@@ -85,12 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
           event_time: timestamp.toString(),
           payload: {
             // add mapped data to payload
-            ...payload
+            ...payload,
+            event_source: 'segment'
           }
         }
       ]
     }
-    const url = `${devrevApiRoot}${devrevApiPaths.trackEventsPublish}`
+    const url = `${getBaseUrl(settings)}${devrevApiPaths.trackEventsPublish}`
     const options: RequestOptions = {
       method: 'POST',
       json: reqBody

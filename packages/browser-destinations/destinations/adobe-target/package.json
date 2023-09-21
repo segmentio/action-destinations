@@ -1,7 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-adobe-target",
-  "version": "1.8.0",
+  "version": "1.13.0",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "main": "./dist/cjs",
   "module": "./dist/esm",
   "scripts": {
@@ -12,9 +16,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.8.0"
+    "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }

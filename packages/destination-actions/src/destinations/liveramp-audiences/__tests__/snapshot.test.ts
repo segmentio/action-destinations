@@ -6,6 +6,7 @@ import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 import { enquoteIdentifier, normalize } from '../operations'
+import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'LiverampAudiences'
@@ -51,7 +52,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     const request = responses[0].request
@@ -92,7 +96,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     const request = responses[0].request
@@ -125,7 +132,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
         events: [event],
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        features: {
+          [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+        }
       })
       throw new Error('expected action to throw')
     } catch (err) {
@@ -165,7 +175,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     expect(sftpPut.mock.calls).toMatchSnapshot()
@@ -194,7 +207,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
       events,
       mapping: events[0].properties,
       settings: settingsData,
-      auth: undefined
+      auth: undefined,
+      features: {
+        [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+      }
     })
 
     expect(sftpPut.mock.calls).toMatchSnapshot()
@@ -218,7 +234,10 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
         events: [event],
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth: undefined,
+        features: {
+          [LIVERAMP_LEGACY_FLOW_FLAG_NAME]: true
+        }
       })
       throw new Error('expected action to throw')
     } catch (err) {
