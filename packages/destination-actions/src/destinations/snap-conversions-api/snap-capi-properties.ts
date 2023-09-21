@@ -449,7 +449,7 @@ export const formatPayload = (payload: Payload): Object => {
     item_category = transformProperty('item_category', p)
     price = transformProperty('price', p)
 
-    brands = p.map((product) => (product.brand !== undefined ? product.brand : ''))
+    brands = p.map((product) => product.brand ?? '')
   }
 
   return {

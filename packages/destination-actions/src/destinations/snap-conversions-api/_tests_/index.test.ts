@@ -67,8 +67,6 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      console.log(responses[0].options.body)
-
       expect(responses).not.toBeNull()
       expect(responses[0].status).toBe(200)
 
