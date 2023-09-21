@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.143.2-staging.18",
+  "version": "3.143.2-staging.19",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "@oclif/plugin-help": "^3.3",
     "@segment/action-destinations": "^3.207.1-staging.0",
     "@segment/actions-core": "^3.82.0",
-    "@segment/destinations-manifest": "^1.15.1-staging.0",
+    "@segment/destinations-manifest": "^1.19.1-staging.0",
     "@types/node": "^18.11.15",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",

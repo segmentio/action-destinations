@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.13.1-staging.0",
+  "version": "1.13.1-staging.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
