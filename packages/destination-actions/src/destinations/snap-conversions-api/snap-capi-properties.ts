@@ -70,7 +70,7 @@ export const CURRENCY_ISO_4217_CODES = new Set([
 export const products: InputField = {
   label: 'Products',
   description:
-    'List of products or items to include. Note: this field overrides the Item ID, Number of Items, Price, Item Category and Brand fields. Use this field to send details of mulitple items.',
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Number of Items', 'Item Category' and 'Brand' fields. The value sent for the purchase can be controlled via the 'Track Purchase Value Per Product' field",
   type: 'object',
   multiple: true,
   additionalProperties: false,
