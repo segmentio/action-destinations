@@ -67,6 +67,12 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     timezone: payload.timezone,
     app_platform: payload.app_platform,
     event_original_name: payload.name,
+    $mobile: payload.userAgentData?.mobile,
+    $platform: payload.userAgentData?.platform,
+    $bitness: payload.userAgentData?.bitness,
+    $platformVersion: payload.userAgentData?.platformVersion,
+    $uaFullVersion: payload.userAgentData?.uaFullVersion,
+    $wow64: payload.userAgentData?.wow64,
     // Ignore Mixpanel reserved properties
     ...omit(payload.event_properties, mixpanelReservedProperties)
   }
