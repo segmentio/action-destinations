@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Client identifier provided by CDP Resolution [Hashed Account ID]
-   */
-  clientIdentifier: string
-  /**
    * Identity resolution endpoint. [CDP Resolution documentation](https://www.cdpresolution.com/docs/)
    */
   endpoint: string
+  /**
+   * Client identifier provided by CDP Resolution [CDP Resultion Account](https://www.cdpresolution.com/accountsettings)
+   */
+  clientIdentifier: string
 }
