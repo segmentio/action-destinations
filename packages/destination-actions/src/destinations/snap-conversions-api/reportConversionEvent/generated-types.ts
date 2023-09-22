@@ -27,6 +27,10 @@ export interface Payload {
     brand?: string
   }[]
   /**
+   * When enabled, calculates the total value of the purchase using 'Number of Items' and 'Price' values from the Products field. When disabled, value of purchase is taken from the 'Price' field
+   */
+  trackPurchaseValuePerProduct?: boolean
+  /**
    * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
    */
   event_type: string
@@ -91,7 +95,7 @@ export interface Payload {
    */
   number_items?: string
   /**
-   * Price of the item. This field accepts a numeric value. e.g. 9.99
+   * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
    */
   price?: number
   /**

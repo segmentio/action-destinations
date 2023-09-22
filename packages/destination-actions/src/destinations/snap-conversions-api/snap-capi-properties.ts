@@ -131,6 +131,15 @@ export const products: InputField = {
   }
 }
 
+export const trackPurchaseValuePerProduct: InputField = {
+  label: 'Track Purchase Value Per Product',
+  description:
+    "When enabled, calculates the total value of the purchase using 'Number of Items' and 'Price' values from the Products field. When disabled, value of purchase is taken from the 'Price' field",
+  type: 'boolean',
+  required: false,
+  default: false
+}
+
 export const event_type: InputField = {
   label: 'Event Type',
   description:
@@ -285,7 +294,8 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Price of the item. This field accepts a numeric value. e.g. 9.99',
+  description:
+    "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
   type: 'number',
   default: {
     '@if': {
@@ -418,6 +428,20 @@ const transformProperty = (property: string, items: Array<any>): string =>
     )
     .join(';')
 
+interface Product {
+  number_items?: number
+  price?: number
+}
+
+function calculatePrice(products: Product[]): number {
+  return products.reduce((totalValue, product) => {
+    if (product.number_items !== undefined && product.price !== undefined) {
+      return totalValue + product.number_items * product.price
+    }
+    return totalValue
+  }, 0)
+}
+
 export const formatPayload = (payload: Payload): Object => {
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
@@ -438,7 +462,6 @@ export const formatPayload = (payload: Payload): Object => {
   let item_ids: string | undefined = undefined
   let number_items: string | undefined = undefined
   let item_category: string | undefined = undefined
-  let price: string | undefined = undefined
   let brands: string[] | undefined = undefined
 
   // if customer populates products array, use it instead of individual fields
@@ -447,8 +470,6 @@ export const formatPayload = (payload: Payload): Object => {
     item_ids = transformProperty('item_id', p)
     number_items = transformProperty('number_items', p)
     item_category = transformProperty('item_category', p)
-    price = transformProperty('price', p)
-
     brands = p.map((product) => product.brand ?? '')
   }
 
@@ -469,7 +490,8 @@ export const formatPayload = (payload: Payload): Object => {
     item_ids: item_ids ?? payload?.item_ids,
     description: payload?.description,
     number_items: number_items ?? payload?.number_items,
-    price: price ?? payload?.price,
+    price:
+      payload.trackPurchaseValuePerProduct ?? false ? calculatePrice(payload.products as Product[]) : payload.price,
     currency: payload?.currency,
     transaction_id: payload?.transaction_id,
     level: payload?.level,
