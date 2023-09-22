@@ -77,6 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const endpoint = getRegionalEndpoint('trackEvent', settings.dataCenterLocation as DataCenterLocation)
+    console.log(JSON.stringify(trackEventRequest))
     return request(endpoint, {
       method: 'post',
       json: trackEventRequest
