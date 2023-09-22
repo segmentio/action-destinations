@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-optimizely-data-platform destination: customEvent action - all fields 1`] = `
+Object {
+  "action": "p$KWIG5p0vR(@gNw)lv@",
+  "order_id": "p$KWIG5p0vR(@gNw)lv@",
+  "products": Array [
+    Object {
+      "product_id": "p$KWIG5p0vR(@gNw)lv@",
+      "qty": 82827023776481.28,
+    },
+  ],
+  "timestamp": "p$KWIG5p0vR(@gNw)lv@",
+  "total": "p$KWIG5p0vR(@gNw)lv@",
+  "user_identifiers": Object {
+    "anonymousId": "p$KWIG5p0vR(@gNw)lv@",
+    "email": "agijit@cove.ly",
+    "optimizely_vuid": "p$KWIG5p0vR(@gNw)lv@",
+    "userId": "p$KWIG5p0vR(@gNw)lv@",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: customEvent action - required fields 1`] = `
+Object {
+  "action": "p$KWIG5p0vR(@gNw)lv@",
+  "order_id": "p$KWIG5p0vR(@gNw)lv@",
+  "timestamp": "p$KWIG5p0vR(@gNw)lv@",
+  "user_identifiers": Object {},
+}
+`;
+
 exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - all fields 1`] = `
 Object {
   "action": "SjDZyt(p",
@@ -18,69 +48,14 @@ Object {
 
 exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - required fields 1`] = `
 Object {
+  "action": "SjDZyt(p",
   "campaign": "SjDZyt(p",
   "campaign_event_value": null,
+  "timestamp": "SjDZyt(p",
   "type": "email",
   "user_identifiers": Object {
     "email": "avasa@saec.bw",
   },
-}
-`;
-
-exports[`Testing snapshot for actions-optimizely-data-platform destination: multiProductEvent action - all fields 1`] = `
-Object {
-  "action": "d0QnJMQa",
-  "order_id": "d0QnJMQa",
-  "purchase": Array [
-    Object {
-      "product_id": "d0QnJMQa",
-      "qty": -45686749082419.2,
-    },
-  ],
-  "requestType": "multi",
-  "timestamp": "d0QnJMQa",
-  "total": "d0QnJMQa",
-  "type": "product",
-  "user_identifiers": Object {
-    "anonymousId": "d0QnJMQa",
-    "email": "gabju@hescak.bs",
-    "optimizely_vuid": "d0QnJMQa",
-    "userId": "d0QnJMQa",
-  },
-}
-`;
-
-exports[`Testing snapshot for actions-optimizely-data-platform destination: multiProductEvent action - required fields 1`] = `
-Object {
-  "order_id": "d0QnJMQa",
-  "requestType": "multi",
-  "type": "product",
-  "user_identifiers": Object {},
-}
-`;
-
-exports[`Testing snapshot for actions-optimizely-data-platform destination: singleProductEvent action - all fields 1`] = `
-Object {
-  "action": "mEhWvzhxpIAkj&(",
-  "product_id": "mEhWvzhxpIAkj&(",
-  "requestType": "single",
-  "timestamp": "mEhWvzhxpIAkj&(",
-  "type": "product",
-  "user_identifiers": Object {
-    "anonymousId": "mEhWvzhxpIAkj&(",
-    "email": "pizitvi@inebave.lb",
-    "optimizely_vuid": "mEhWvzhxpIAkj&(",
-    "userId": "mEhWvzhxpIAkj&(",
-  },
-}
-`;
-
-exports[`Testing snapshot for actions-optimizely-data-platform destination: singleProductEvent action - required fields 1`] = `
-Object {
-  "product_id": "mEhWvzhxpIAkj&(",
-  "requestType": "single",
-  "type": "product",
-  "user_identifiers": Object {},
 }
 `;
 

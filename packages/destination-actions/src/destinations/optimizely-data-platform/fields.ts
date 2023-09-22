@@ -124,8 +124,8 @@ export const total: InputField = {
 }
 
 export const products: InputField = {
-  label: 'Products',
-  description: 'List of product details. Product ID field is required for each product.',
+  label: 'Product details',
+  description: 'Product details to associate with the event. Product ID field is required for each product',
   type: 'object',
   multiple: true,
   properties: {

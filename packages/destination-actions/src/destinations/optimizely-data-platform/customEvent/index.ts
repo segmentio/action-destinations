@@ -1,14 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  user_identifiers,
-  event_action,
-  products,
-  order_id,
-  total,
-  timestamp
-} from '../fields'
+import { user_identifiers, event_action, products, order_id, total, timestamp } from '../fields'
 import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -16,11 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send Segment Ecommerce track() events to Optimizely Data Platform',
   fields: {
     user_identifiers: user_identifiers,
-    event_action: {...event_action},
-    products: {...products},
-    order_id: {...order_id},
-    total: {...total},
-    timestamp: {...timestamp}
+    event_action: { ...event_action },
+    products: { ...products },
+    order_id: { ...order_id },
+    total: { ...total },
+    timestamp: { ...timestamp }
   },
   perform: (request, { payload, settings }) => {
     const host = hosts[settings.region]
@@ -33,11 +26,11 @@ const action: ActionDefinition<Settings, Payload> = {
       total: payload.total,
       products: payload.products
     }
-    
-    return request(`${host}/ecommerce_event`, {
+
+    return request(`${host}/custom_event`, {
       method: 'post',
       json: body
-    });
+    })
   }
 }
 

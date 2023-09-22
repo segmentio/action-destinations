@@ -27,7 +27,7 @@ export interface Payload {
    */
   event_action: string
   /**
-   * List of product details. Product ID field is required for each product.
+   * Product details to associate with the event. Product ID field is required for each product
    */
   products?: {
     /**
@@ -50,5 +50,5 @@ export interface Payload {
   /**
    * Event timestamp
    */
-  timestamp?: string
+  timestamp: string
 }

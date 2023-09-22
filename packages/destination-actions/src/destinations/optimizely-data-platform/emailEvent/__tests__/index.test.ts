@@ -39,11 +39,14 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
         region: 'US'
       },
       useDefaultMappings: true
-    });
+    })
 
-    const expectedBody = `"{\\"type\\":\\"email\\",\\"action\\":\\"open\\",\\"campaign\\":\\"opti-test-campaign\\",\\"email\\":\\"test.email@test.com\\",\\"campaign_event_value\\":\\"https://url-from-email-clicked.com\\",\\"timestamp\\":\\"${emailEvent.timestamp}\\"}"`;
+    const expectedBody = `"{\\"type\\":\\"email\\",\\"action\\":\\"open\\",\\"campaign\\":\\"opti-test-campaign\\",\\"email\\":\\"test.email@test.com\\",\\"campaign_event_value\\":\\"https://url-from-email-clicked.com\\",\\"timestamp\\":\\"${emailEvent.timestamp}\\"}"`
 
-    expect(response[0].status).toBe(201);
-    expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
+    expect(response[0].status).toBe(201)
+    expect(response[0].options.body).toMatchInlineSnapshot(
+      expectedBody,
+      `"{\\"type\\":\\"email\\",\\"action\\":\\"Email Opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\"},\\"campaign_event_value\\":\\"https://url-from-email-clicked.com\\",\\"timestamp\\":\\"2023-09-22T12:25:05.555Z\\"}"`
+    )
   })
 })

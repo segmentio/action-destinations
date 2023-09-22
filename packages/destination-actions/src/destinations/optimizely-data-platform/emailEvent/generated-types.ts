@@ -41,5 +41,5 @@ export interface Payload {
   /**
    * Event timestamp
    */
-  timestamp?: string
+  timestamp: string
 }

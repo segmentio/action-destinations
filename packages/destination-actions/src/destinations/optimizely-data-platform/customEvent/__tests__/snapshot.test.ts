@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'multiProductEvent'
+const actionSlug = 'customEvent'
 const destinationSlug = 'OptimizelyDataPlatform'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -21,8 +21,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    settingsData['apiKey'] = 'abc123';
-    settingsData['region'] = 'US';
+    settingsData['apiKey'] = 'abc123'
+    settingsData['region'] = 'US'
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
@@ -57,8 +57,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    settingsData['apiKey'] = 'abc123';
-    settingsData['region'] = 'US';
+    settingsData['apiKey'] = 'abc123'
+    settingsData['region'] = 'US'
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,

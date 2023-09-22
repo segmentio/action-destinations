@@ -1,33 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for OptimizelyDataPlatform's multiProductEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for OptimizelyDataPlatform's customEvent destination action: all fields 1`] = `
 Object {
-  "action": "th5j#WMl[^",
-  "order_id": "th5j#WMl[^",
-  "purchase": Array [
+  "action": "FX3MHiX9P^tIkXKVCa",
+  "order_id": "FX3MHiX9P^tIkXKVCa",
+  "products": Array [
     Object {
-      "product_id": "th5j#WMl[^",
-      "qty": -27527503371304.96,
+      "product_id": "FX3MHiX9P^tIkXKVCa",
+      "qty": 66713950523228.16,
     },
   ],
-  "requestType": "multi",
-  "timestamp": "th5j#WMl[^",
-  "total": "th5j#WMl[^",
-  "type": "product",
+  "timestamp": "FX3MHiX9P^tIkXKVCa",
+  "total": "FX3MHiX9P^tIkXKVCa",
   "user_identifiers": Object {
-    "anonymousId": "th5j#WMl[^",
-    "email": "faj@daratdi.lr",
-    "optimizely_vuid": "th5j#WMl[^",
-    "userId": "th5j#WMl[^",
+    "anonymousId": "FX3MHiX9P^tIkXKVCa",
+    "email": "oriiwo@hovevut.bn",
+    "optimizely_vuid": "FX3MHiX9P^tIkXKVCa",
+    "userId": "FX3MHiX9P^tIkXKVCa",
   },
 }
 `;
 
-exports[`Testing snapshot for OptimizelyDataPlatform's multiProductEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for OptimizelyDataPlatform's customEvent destination action: required fields 1`] = `
 Object {
-  "order_id": "th5j#WMl[^",
-  "requestType": "multi",
-  "type": "product",
+  "action": "FX3MHiX9P^tIkXKVCa",
+  "order_id": "FX3MHiX9P^tIkXKVCa",
+  "timestamp": "FX3MHiX9P^tIkXKVCa",
   "user_identifiers": Object {},
 }
 `;

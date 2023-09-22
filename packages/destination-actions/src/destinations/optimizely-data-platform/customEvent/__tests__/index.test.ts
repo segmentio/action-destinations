@@ -7,18 +7,9 @@ const productEvent = createTestEvent({
   type: 'track',
   event: 'purchase',
   context: {
-    personas: {
-      computation_class: 'audience',
-      computation_key: 'some_audience_name',
-      computation_id: 'abc'
-    },
     traits: {
       email: 'test.email@test.com'
     }
-  },
-  traits: {
-    email: 'test.email@test.com',
-    optimizely_vuid: 'vuid identifier'
   },
   properties: {
     order_id: '1234',
@@ -31,10 +22,10 @@ const productEvent = createTestEvent({
 })
 
 describe('OptimizelyDataPlatform.trackEvent', () => {
-  it('Should fire multi product event', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/product_event').reply(201, {})
+  it('Should fire custom event', async () => {
+    nock('https://function.zaius.app/twilio_segment').post('/custom_event').reply(201, {})
 
-    const response = await testDestination.testAction('multiProductEvent', {
+    const response = await testDestination.testAction('customEvent', {
       event: productEvent,
       settings: {
         apiKey: 'abc123',
@@ -43,9 +34,9 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
       useDefaultMappings: true
     })
 
-    const expectedBody = `"{\\"type\\":\\"product\\",\\"requestType\\":\\"multi\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\",\\"optimizely_vuid\\":\\"vuid identifier\\"},\\"action\\":\\"purchase\\",\\"timestamp\\":\\"${productEvent.timestamp}\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"purchase\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]}"`;
+    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"timestamp\\":\\"${productEvent.timestamp}\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]}"`
 
-    expect(response[0].status).toBe(201);
+    expect(response[0].status).toBe(201)
     expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
   })
 })
