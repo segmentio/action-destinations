@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-stackadapt",
-  "version": "1.13.0",
+  "version": "1.13.1-dynamic-settings.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.82.0",
-    "@segment/browser-destination-runtime": "^1.13.0"
+    "@segment/actions-core": "^3.82.1-dynamic-settings.0",
+    "@segment/browser-destination-runtime": "^1.13.1-dynamic-settings.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
