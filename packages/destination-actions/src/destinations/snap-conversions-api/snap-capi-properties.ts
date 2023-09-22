@@ -416,8 +416,7 @@ export const hash = (value: string | undefined): string | undefined => {
 
 const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
-// eslint-disable-next-line
-const transformProperty = (property: string, items: Array<any>): string =>
+const transformProperty = (property: string, items: Array<Record<string, string | number | undefined>>): string =>
   items
     .map((i) =>
       i[property] === undefined || i[property] === null
