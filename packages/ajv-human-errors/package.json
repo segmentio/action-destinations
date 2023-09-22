@@ -1,6 +1,6 @@
 {
   "name": "@segment/ajv-human-errors",
-  "version": "2.11.4-dynamic-settings.0",
+  "version": "2.11.3-dynamic-settings.56+52002a19",
   "description": "Human-readable error messages for Ajv (Another JSON Schema Validator).",
   "repository": {
     "type": "git",
@@ -30,5 +30,6 @@
   },
   "peerDependencies": {
     "ajv": "^8.0.0"
-  }
+  },
+  "gitHead": "52002a193e4c86fdf33ab9c2597563326fad0df9"
 }

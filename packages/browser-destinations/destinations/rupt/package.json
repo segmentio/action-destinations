@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-rupt",
-  "version": "1.2.1-dynamic-settings.0",
+  "version": "1.2.1-dynamic-settings.1616+52002a19",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,10 +15,11 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.82.1-dynamic-settings.0",
-    "@segment/browser-destination-runtime": "^1.13.1-dynamic-settings.0"
+    "@segment/actions-core": "^3.81.3-dynamic-settings.56+52002a19",
+    "@segment/browser-destination-runtime": "^1.12.3-dynamic-settings.56+52002a19"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
-  }
+  },
+  "gitHead": "52002a193e4c86fdf33ab9c2597563326fad0df9"
 }
