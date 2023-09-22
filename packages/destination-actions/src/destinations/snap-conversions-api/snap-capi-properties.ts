@@ -299,9 +299,9 @@ export const price: InputField = {
   type: 'number',
   default: {
     '@if': {
-      exists: { '@path': '$.properties.price' },
-      then: { '@path': '$.properties.price' },
-      else: { '@path': '$.properties.value' }
+      exists: { '@path': '$.properties.revenue' },
+      then: { '@path': '$.properties.revenue' },
+      else: { '@path': '$.properties.total' }
     }
   }
 }
