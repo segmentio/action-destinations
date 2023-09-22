@@ -16,10 +16,10 @@ import {
   android_push_subscription_status,
   ios_push_subscription_status,
   ios_push_token
-} from '../segment-properties'
+} from './subscription-properties'
 import {
   InvalidEndpointSelectedThrowableError,
-  InvalidGroupSubscriptionStatusThrowableError,
+  // InvalidGroupSubscriptionStatusThrowableError,
   InvalidSubscriptionStatusThrowableError,
   MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
   MissingEmailIfEmailSubscriptionIsPresentThrowableError,
@@ -75,11 +75,12 @@ const validateSubscriptions = (payload: Payload) => {
   if (!payload.anonymous_id && !payload.user_id) {
     throw MissingUserOrAnonymousIdThrowableError
   }
-
+  // Throws an error if none of the subscription related externalId fields are undefined
   if (!payload.email && !payload.phone && !payload.android_push_token && !payload.ios_push_token) {
     throw MissingExternalIdsThrowableError
   }
 
+  // Throws an error if none of the subscription statues fields are undefined
   if (
     !(
       payload.email_subscription_status ||
@@ -112,32 +113,20 @@ const validateSubscriptions = (payload: Payload) => {
     throw MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError
   }
 
-  const validStatuses = ['true', 'subscribed', 'false', 'unsubscribed', 'did_not_subscribe']
-
-  //Validate global subscription statuses at least one valid status is sent
+  // Only time we should not make a identify call is if none of the subscription status is valid
   if (
-    (payload.email_subscription_status &&
-      !validStatuses.includes(payload.email_subscription_status.trim().toLowerCase())) ||
-    (payload.sms_subscription_status &&
-      !validStatuses.includes(payload.sms_subscription_status.trim().toLowerCase())) ||
-    (payload.whatsapp_subscription_status &&
-      !validStatuses.includes(payload.whatsapp_subscription_status.trim().toLowerCase())) ||
-    (payload.ios_push_subscription_status &&
-      !validStatuses.includes(payload.ios_push_subscription_status.trim().toLowerCase())) ||
-    (payload.android_push_subscription_status &&
-      !validStatuses.includes(payload.android_push_subscription_status.trim().toLowerCase()))
+    payload.email_subscription_status &&
+    getStatus(payload.email_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    payload.sms_subscription_status &&
+    getStatus(payload.sms_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    payload.whatsapp_subscription_status &&
+    getStatus(payload.whatsapp_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    payload.ios_push_subscription_status &&
+    getStatus(payload.ios_push_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    payload.android_push_subscription_status &&
+    getStatus(payload.android_push_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS
   ) {
     throw InvalidSubscriptionStatusThrowableError
-  }
-
-  // Validate the group subscription statuses
-  if (payload.subscription_groups && typeof payload.subscription_groups === 'object') {
-    Object.values(payload.subscription_groups).forEach((group) => {
-      const groupSub: GroupSubscription = group as GroupSubscription
-      if (groupSub.status && !validStatuses.includes(groupSub.status.trim().toLowerCase())) {
-        throw InvalidGroupSubscriptionStatusThrowableError
-      }
-    })
   }
 }
 

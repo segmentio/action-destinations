@@ -20,13 +20,13 @@ Object {
         "collection": "users",
         "encoding": "none",
         "id": "abcd12bbfygdbvbvvvv",
-        "type": "android_push",
+        "type": "android.push_token",
       },
       Object {
         "collection": "users",
         "encoding": "none",
         "id": "abcd12bbfjfsykdbvbvvvvvv",
-        "type": "ios_push",
+        "type": "ios.push_token",
       },
     ],
     "messaging_subscriptions": Array [
@@ -34,39 +34,38 @@ Object {
         "groups": Array [
           Object {
             "name": "marketing",
-            "status": "subscribed",
+            "status": "SUBSCRIBED",
           },
           Object {
             "name": "ProductUpdates",
-            "status": "did_not_subscribe",
           },
           Object {
             "name": "newsletter",
-            "status": "unsubscribed",
+            "status": "UNSUBSCRIBED",
           },
         ],
         "key": "tester11@seg.com",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "EMAIL",
       },
       Object {
         "key": "+12135618345",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "SMS",
       },
       Object {
         "key": "+12135618345",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "WHATSAPP",
       },
       Object {
         "key": "abcd12bbfygdbvbvvvv",
-        "status": "unsubscribed",
+        "status": "UNSUBSCRIBED",
         "type": "ANDROID_PUSH",
       },
       Object {
         "key": "abcd12bbfjfsykdbvbvvvvvv",
-        "status": "subscribed",
+        "status": "UNSUBSCRIBED",
         "type": "IOS_PUSH",
       },
     ],
@@ -100,12 +99,12 @@ Object {
     "messaging_subscriptions": Array [
       Object {
         "key": "tester11@seg.com",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "EMAIL",
       },
       Object {
         "key": "+12135618345",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "SMS",
       },
     ],
