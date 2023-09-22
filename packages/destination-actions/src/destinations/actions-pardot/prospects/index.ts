@@ -181,11 +181,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     const baseUrl = settings.isSandbox ? 'https://pi.demo.pardot.com' : 'https://pi.pardot.com'
     const pa: Pardot = new Pardot(settings.businessUnitID, baseUrl, request)
     try {
-      return await pa.upsertRecord(payload)
+      return await pa.upsertRecord(payload, statsContext)
     } catch (err) {
       const error = err as HTTPError
       if (!error.response) {

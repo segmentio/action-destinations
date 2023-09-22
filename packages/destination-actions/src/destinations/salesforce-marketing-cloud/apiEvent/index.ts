@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
     contactKey: contactKeyAPIEvent,
     data: eventData
   },
-  perform: (request, { settings, payload }) => {
+  perform: (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:apiEvent`])
     return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/interaction/v1/events`, {
       method: 'POST',
       json: payload

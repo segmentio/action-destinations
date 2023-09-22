@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return sf.customObjectName()
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload.operation) && !payload.customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
@@ -52,31 +52,31 @@ const action: ActionDefinition<Settings, Payload> = {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
-      return await sf.createRecord(payload, payload.customObjectName)
+      return await sf.createRecord(payload, payload.customObjectName, statsContext)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, payload.customObjectName)
+      return await sf.updateRecord(payload, payload.customObjectName, statsContext)
     }
 
     if (payload.operation === 'upsert') {
-      return await sf.upsertRecord(payload, payload.customObjectName)
+      return await sf.upsertRecord(payload, payload.customObjectName, statsContext)
     }
 
     if (payload.operation === 'delete') {
-      return await sf.deleteRecord(payload, payload.customObjectName)
+      return await sf.deleteRecord(payload, payload.customObjectName, statsContext)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
-    return sf.bulkHandler(payload, payload[0].customObjectName)
+    return sf.bulkHandler(payload, payload[0].customObjectName, statsContext)
   }
 }
 

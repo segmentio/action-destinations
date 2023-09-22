@@ -10,8 +10,9 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     contactKey: { ...contactKey, required: true }
   },
-  perform: (request, { settings, payload }) => {
-return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`, {
+  perform: (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-contact`])
+    return request(`https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/v1/contacts`, {
       method: 'POST',
       json: {
         contactKey: payload.contactKey,

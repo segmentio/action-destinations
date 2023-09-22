@@ -92,7 +92,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue'
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, statsContext }) => {
     /**
      * Searches for a contact with the given payload.
      * If unique user is found, updates the contact first.
@@ -107,8 +107,16 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const contact = await getUniqueIntercomContact(request, payload)
       if (contact) {
+        statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+          ...statsContext?.tags,
+          `endpoint:update-intercom-contact`
+        ])
         return updateIntercomContact(request, contact.id, payload)
       }
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+        ...statsContext?.tags,
+        `endpoint:create-intercom-contact`
+      ])
       return await createIntercomContact(request, payload)
     } catch (error) {
       if (error?.response?.status === 409) {

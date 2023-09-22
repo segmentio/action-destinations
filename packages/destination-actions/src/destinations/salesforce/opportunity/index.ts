@@ -55,34 +55,34 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.createRecord(payload, OBJECT_NAME)
+      return await sf.createRecord(payload, OBJECT_NAME, statsContext)
     }
 
     validateLookup(payload)
 
     if (payload.operation === 'update') {
-      return await sf.updateRecord(payload, OBJECT_NAME)
+      return await sf.updateRecord(payload, OBJECT_NAME, statsContext)
     }
 
     if (payload.operation === 'upsert') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
         throw new IntegrationError('Missing close_date, name or stage_name value', 'Misconfigured required field', 400)
       }
-      return await sf.upsertRecord(payload, OBJECT_NAME)
+      return await sf.upsertRecord(payload, OBJECT_NAME, statsContext)
     }
 
     if (payload.operation === 'delete') {
-      return await sf.deleteRecord(payload, OBJECT_NAME)
+      return await sf.deleteRecord(payload, OBJECT_NAME, statsContext)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload[0].operation === 'upsert') {
@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandler(payload, OBJECT_NAME, statsContext)
   }
 }
 
