@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import upsertProfile from './upsertProfile'
+
 const API_URL = 'https://a.klaviyo.com/api'
 
 const destination: DestinationDefinition<Settings> = {
@@ -54,7 +56,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  actions: {}
+  actions: {
+    upsertProfile
+  }
 }
 
 export default destination
