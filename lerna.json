@@ -2,6 +2,7 @@
   "packages": ["packages/*", "packages/browser-destinations/destinations/*"],
   "npmClient": "yarn",
   "version": "independent",
+  "useNx": true,
   "useWorkspaces": true,
   "command": {
     "bootstrap": {
