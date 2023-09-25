@@ -2,12 +2,32 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const external_id: InputField = {
   label: 'External Audience ID',
-  description: 'The CRM Data ID for The Trade Desk Segment. ',
-  type: 'hidden',
-  required: true,
+  description: 'The CRM Data ID for The Trade Desk Segment.',
+  type: 'string',
   default: {
     '@path': '$.context.personas.external_audience_id'
-  }
+  },
+  unsafe_hidden: true
+}
+
+export const name: InputField = {
+  label: 'Segment Name',
+  description:
+    'The name of The Trade Desk CRM Data Segment you want to sync. If the audience name does not exist Segment will create one.',
+  type: 'string',
+  required: true
+}
+
+export const region: InputField = {
+  label: 'Region',
+  description: 'The geographical region of the CRM data segment based on the origin of PII.',
+  type: 'string',
+  default: 'US',
+  choices: [
+    { label: 'US', value: 'US' },
+    { label: 'EU', value: 'EU' },
+    { label: 'APAC', value: 'APAC' }
+  ]
 }
 
 export const pii_type: InputField = {

@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
+   * The name of The Trade Desk CRM Data Segment you want to sync. If the audience name does not exist Segment will create one.
+   */
+  name: string
+  /**
+   * The geographical region of the CRM data segment based on the origin of PII.
+   */
+  region?: string
+  /**
    * The CRM Data ID for The Trade Desk Segment.
    */
-  external_id: string
+  external_id?: string
   /**
    * The type of personally identifiable data (PII) sent by the advertiser.
    */
@@ -13,10 +21,6 @@ export interface Payload {
    * The user's email address to send to The Trade Desk.
    */
   email?: string
-  /**
-   * The merge mode to use when syncing data to The Trade Desk CRM Segment.
-   */
-  merge_mode?: string
   /**
    * Enable batching of requests to The Trade Desk CRM Segment.
    */
