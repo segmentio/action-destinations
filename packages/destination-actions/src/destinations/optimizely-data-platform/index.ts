@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'detail'
+        event_action: 'product_viewed'
       },
       type: 'automatic'
     },
@@ -80,7 +80,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'add_to_cart'
+        event_action: 'product_added_to_cart'
       },
       type: 'automatic'
     },
@@ -90,7 +90,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'remove_from_cart'
+        event_action: 'product_removed_from_cart'
       },
       type: 'automatic'
     },
@@ -100,7 +100,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...defaultValues(customEvent.fields),
-        event_action: 'purchase'
+        event_action: 'purchase_completed'
       },
       type: 'automatic'
     },
@@ -110,7 +110,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'click'
+        event_action: 'email_clicked'
       },
       type: 'automatic'
     },
@@ -120,7 +120,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'open'
+        event_action: 'email_opened'
       },
       type: 'automatic'
     },
@@ -130,7 +130,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'opt-out'
+        event_action: 'email_unsubscribed'
       },
       type: 'automatic'
     },
@@ -140,13 +140,13 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'spam_complaint'
+        event_action: 'email_marked_as_spam'
       },
       type: 'automatic'
     }
   ],
   actions: {
-    customEvent, // Record a custom event for a user. Does not upsert product details.
+    customEvent,
     upsertContact,
     emailEvent
   }

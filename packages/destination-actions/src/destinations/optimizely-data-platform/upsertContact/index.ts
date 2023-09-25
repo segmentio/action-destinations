@@ -6,7 +6,8 @@ import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
-  description: 'Creates or updates a Contact in Optimizely Data Platform',
+  description:
+    'Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_identifiers: user_identifiers,
@@ -19,55 +20,55 @@ const action: ActionDefinition<Settings, Payload> = {
     title: {
       label: 'Title',
       type: 'string',
-      description: 'The Contact\'s Title',
+      description: "The Contact's Title",
       default: { '@path': '$.traits.title' }
     },
     name: {
       label: 'Name',
       type: 'string',
-      description: 'Contact\'s full name',
+      description: "Contact's full name",
       default: { '@path': '$.traits.name' }
     },
     firstname: {
       label: 'First Name',
       type: 'string',
-      description: 'Contact\'s first name',
+      description: "Contact's first name",
       default: { '@path': '$.traits.first_name' }
     },
     lastname: {
       label: 'Last Name',
       type: 'string',
-      description: 'Contact\'s last name',
+      description: "Contact's last name",
       default: { '@path': '$.traits.last_name' }
     },
     gender: {
       label: 'Gender',
       type: 'string',
-      description: 'Contact\'s gender',
+      description: "Contact's gender",
       default: { '@path': '$.traits.gender' }
     },
     DOB: {
       label: 'Birthday',
       type: 'datetime',
-      description: 'Contact\'s birthday. The format should be datetime',
+      description: "Contact's birthday. The format should be datetime",
       default: { '@path': '$.traits.birthday' }
     },
     phone: {
       label: 'Phone',
       type: 'string',
-      description: 'Contact\'s phone number.',
+      description: "Contact's phone number.",
       default: { '@path': '$.traits.phone' }
     },
     age: {
       label: 'Age',
       type: 'number',
-      description: 'Contact\'s age.',
+      description: "Contact's age.",
       default: { '@path': '$.traits.age' }
     },
     address: {
       label: 'Address',
       type: 'object',
-      description: "Address details object",
+      description: 'Address details object',
       properties: {
         street: {
           label: 'Street',
@@ -87,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
         zip: {
           label: 'Zip code',
           type: 'string',
-          description: "Zip or postal code"
+          description: 'Zip or postal code'
         },
         country: {
           label: 'Country',
@@ -100,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
         city: { '@path': '$.traits.address.city' },
         state: { '@path': '$.traits.address.state' },
         zip: { '@path': '$.traits.address.postalCode' },
-        country: { '@path': '$.traits.address.country' },
+        country: { '@path': '$.traits.address.country' }
       }
     },
     avatar: {

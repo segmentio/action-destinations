@@ -6,7 +6,7 @@ import { hosts } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Email Event',
-  description: 'Send email event to Optimizely',
+  description: 'Send Segment track() events containing email related details to Optimizely Data Platform',
   fields: {
     user_identifiers: email_action_identifiers,
     event_action: event_action,
