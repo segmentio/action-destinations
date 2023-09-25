@@ -65,7 +65,7 @@ Object {
       },
       Object {
         "key": "abcd12bbfjfsykdbvbvvvvvv",
-        "status": "UNSUBSCRIBED",
+        "status": "SUBSCRIBED",
         "type": "IOS_PUSH",
       },
     ],
