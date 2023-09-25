@@ -42,7 +42,7 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       this.DEFAULT_CONNECTION_OVERRIDES
     )
 
-    if (this.executeInput.features?.[FLAGON_EVENT_STREAMS_ONBOARDING]) {
+    if (this.executeInput.features?.[FLAGON_EVENT_STREAMS_ONBOARDING] === true) {
       const tags = {
         audience_id: this.payload.customArgs && this.payload.customArgs['audience_id'],
         correlation_id: this.payload.customArgs && this.payload.customArgs['correlation_id'],
