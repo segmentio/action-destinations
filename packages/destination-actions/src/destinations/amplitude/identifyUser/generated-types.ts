@@ -115,4 +115,11 @@ export interface Payload {
    * The name of the library that generated the event.
    */
   library?: string
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    model?: string
+    platformVersion?: string
+  }
 }

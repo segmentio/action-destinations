@@ -110,6 +110,7 @@ export function associate_named_user(
 
   const associate_payload = {
     channel_id: channel_id,
+    device_type: 'email',
     named_user_id: named_user_id
   }
 
