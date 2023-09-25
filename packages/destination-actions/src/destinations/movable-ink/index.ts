@@ -1,13 +1,19 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import identify from './identify'
+import search from './search'
+import conversion from './conversion'
+import productViewed from './productViewed'
 
-import sendAnalyticsEvent from './sendAnalyticsEvent'
+import productAdded from './productAdded'
+
+import categoryView from './categoryView'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Movable Ink',
   slug: 'actions-movable-ink',
   mode: 'cloud',
-
+  description: 'Send Segment analytics events to Movable Ink',
   authentication: {
     scheme: 'basic',
     fields: {
@@ -36,22 +42,19 @@ const destination: DestinationDefinition<Settings> = {
       // you can remove the `testAuthentication` function, though discouraged.
     }
   },
-
   extendRequest({ settings }) {
     return {
       username: settings.username,
       password: settings.password
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {
-    sendAnalyticsEvent
+    identify,
+    search,
+    conversion,
+    productViewed,
+    productAdded,
+    categoryView
   }
 }
 

@@ -9,4 +9,8 @@ export interface Settings {
    * Your Movable Ink password.
    */
   password: string
+  /**
+   * The Movable Ink URL to send data to.
+   */
+  movableInkURL: string
 }
