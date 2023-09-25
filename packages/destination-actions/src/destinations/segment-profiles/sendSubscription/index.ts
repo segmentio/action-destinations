@@ -173,8 +173,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits
   },
   perform: (request, { payload, settings, features, statsContext }) => {
-    const messaging_subscriptions_retl = true
-    const messaging_subscriptions: MessagingSubscription[] = []
+    const messagingSubscriptions: MessagingSubscription[] = []
     const externalIds: Array<{ id: string; type: string; collection: string; encoding: string }> = []
     //Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
@@ -213,7 +212,7 @@ const action: ActionDefinition<Settings, Payload> = {
               }))
             emailSubscription.groups = formattedGroups
           }
-          messaging_subscriptions.push(emailSubscription)
+          messagingSubscriptions.push(emailSubscription)
         }
       }
     }
@@ -234,7 +233,7 @@ const action: ActionDefinition<Settings, Payload> = {
           payload.sms_subscription_status?.trim().toLowerCase()
         )
         if (smsSubscription) {
-          messaging_subscriptions.push(smsSubscription)
+          messagingSubscriptions.push(smsSubscription)
         }
       }
       // Whatsapp subscription object
@@ -245,7 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
           payload.whatsapp_subscription_status?.trim().toLowerCase()
         )
         if (whatsappSubscription) {
-          messaging_subscriptions.push(whatsappSubscription)
+          messagingSubscriptions.push(whatsappSubscription)
         }
       }
     }
@@ -266,7 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
           payload.android_push_subscription_status?.trim().toLowerCase()
         )
         if (androidPushTokenStatus) {
-          messaging_subscriptions.push(androidPushTokenStatus)
+          messagingSubscriptions.push(androidPushTokenStatus)
         }
       }
     }
@@ -287,7 +286,7 @@ const action: ActionDefinition<Settings, Payload> = {
           payload.android_push_subscription_status?.trim().toLowerCase()
         )
         if (androidPushTokenStatus) {
-          messaging_subscriptions.push(androidPushTokenStatus)
+          messagingSubscriptions.push(androidPushTokenStatus)
         }
       }
     }
@@ -299,9 +298,9 @@ const action: ActionDefinition<Settings, Payload> = {
         ...payload?.traits
       },
       context: {
-        messaging_subscriptions,
+        messaging_subscriptions: messagingSubscriptions,
         externalIds,
-        messaging_subscriptions_retl
+        messaging_subscriptions_retl: true
       },
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
