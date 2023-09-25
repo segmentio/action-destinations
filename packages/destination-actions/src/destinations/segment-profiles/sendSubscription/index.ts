@@ -97,7 +97,11 @@ const validateSubscriptions = (payload: Payload) => {
     throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
   }
 
-  if (payload.subscription_groups && !payload.email_subscription_status) {
+  if (
+    payload.subscription_groups &&
+    !payload.email_subscription_status &&
+    Object.keys(payload.subscription_groups).length > 0
+  ) {
     throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
   }
 
@@ -196,7 +200,11 @@ const action: ActionDefinition<Settings, Payload> = {
         )
         if (emailSubscription) {
           //Handling Subscription Groups:
-          if (payload.subscription_groups && typeof payload.subscription_groups === 'object') {
+          if (
+            payload.subscription_groups &&
+            typeof payload.subscription_groups === 'object' &&
+            Object.keys(payload.subscription_groups).length > 0
+          ) {
             const formattedGroups = Object.entries(payload.subscription_groups)
               .filter(([name, status]) => name !== undefined && status !== undefined)
               .map(([name, status]) => ({
