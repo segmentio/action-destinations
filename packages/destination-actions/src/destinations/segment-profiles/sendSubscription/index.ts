@@ -76,7 +76,7 @@ const validateSubscriptions = (payload: Payload) => {
     throw MissingUserOrAnonymousIdThrowableError
   }
   // Throws an error if none of the subscription related externalId fields are undefined
-  if (!payload.email && !payload.phone && !payload.android_push_token && !payload.ios_push_token) {
+  if (!(payload.email || payload.phone || payload.android_push_token || payload.ios_push_token)) {
     throw MissingExternalIdsThrowableError
   }
 
