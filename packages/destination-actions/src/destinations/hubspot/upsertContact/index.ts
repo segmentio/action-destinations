@@ -377,15 +377,17 @@ function updateActionsForBatchedContacts(
   // Case 1: Loop over results if there are any
   if (readResponse.data?.results && readResponse.data.results.length > 0) {
     for (const result of readResponse.data.results) {
-      // Set the action to update for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].action = 'update'
+      if (contactsUpsertMap[result.properties.email]) {
+        // Set the action to update for contacts that exist in HubSpot
+        contactsUpsertMap[result.properties.email].action = 'update'
 
-      // Set the id for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].payload.id = result.id
+        // Set the id for contacts that exist in HubSpot
+        contactsUpsertMap[result.properties.email].payload.id = result.id
 
-      // Re-index the payload with ID
-      contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
-      delete contactsUpsertMap[result.properties.email]
+        // Re-index the payload with ID
+        contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
+        delete contactsUpsertMap[result.properties.email]
+      }
     }
   }
 
