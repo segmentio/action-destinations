@@ -6,8 +6,7 @@ import { gen_update_segment_payload } from '../utils-rt'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
-  defaultSubscription:
-    'event = "Audience Entered" or event = "Audience Exited") and properties.audience_key = "provide_audience_key"',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -18,15 +17,54 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_id'
       }
     },
-    // Technically not required in the Yahoo request payload
     segment_audience_key: {
       label: 'Segment Audience Key',
       description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
-      type: 'string',
+      type: 'hidden',
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
       }
+    },
+    // Fetch event traits or props, which will be used to determine user's membership in an audience
+    event_attributes: {
+      label: 'Event traits or properties. Do not modify this setting',
+      description: 'Event traits or properties. Do not modify this setting',
+      type: 'object',
+      readOnly: true,
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
+    },
+    segment_computation_action: {
+      label: 'Segment Computation Action',
+      description:
+        "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
+      type: 'hidden',
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_class'
+      },
+      choices: [{ label: 'audience', value: 'audience' }]
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of requests',
+      type: 'hidden', // We should always batch Yahoo requests
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 1000
     },
     email: {
       label: 'User Email',
@@ -40,24 +78,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    event_name: {
-      label: 'Event Name', // Determines user membership in the audience
-      description: 'The name of the current Segment event',
-      type: 'hidden',
-      default: {
-        '@path': '$.event'
-      }
-    },
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching of requests to the LinkedIn DMP Segment',
-      type: 'hidden', // We should always batch Yahoo requests
-      default: true
-    },
     advertising_id: {
       label: 'User Mobile Advertising ID',
       description: "User's Mobile Advertising Id",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+      type: 'hidden',
       default: {
         '@path': '$.context.device.advertisingId'
       },
@@ -66,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "The user's mobile device type",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+      type: 'hidden',
       default: {
         '@path': '$.context.device.type'
       },
@@ -99,38 +123,15 @@ const action: ActionDefinition<Settings, Payload> = {
         'Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"',
       type: 'string',
       required: false
-    },
-    // Fetch event traits or props, which will be used to determine user's membership in an audience
-    event_attributes: {
-      label: 'Event traits or properties. Do not modify this setting',
-      description: 'Event traits or properties. Do not modify this setting',
-      type: 'object',
-      readOnly: true,
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.traits' }
-        }
-      }
     }
   },
 
-  // We should batch requests at all times, so perform is won't likely run. Should I remove it?
   perform: (request, { payload, auth }) => {
-    console.log('updateSegment > perform')
-    console.log('auth obj', JSON.stringify(auth))
-    // const tk = '***'
-    // if (tk) {
     if (auth?.accessToken) {
-      console.log('access token obj is avail')
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
-      //  const rt_access_token = tk;
       const body = gen_update_segment_payload([payload])
-      console.log('Req Body:', JSON.stringify(body))
       return request('https://dataxonline.yahoo.com/online/audience/', {
         method: 'POST',
         json: body,
@@ -151,19 +152,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: (request, { payload, auth }) => {
-    console.log('updateSegment > performBatch')
-    console.log('auth obj', JSON.stringify(auth))
-
-    // const tk = '***'
-    // if (tk) {
     if (auth?.accessToken) {
-      console.log('access token obj is avail')
       const body = gen_update_segment_payload(payload)
-      console.log('Req Body:', JSON.stringify(body))
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
-      // const rt_access_token = tk;
       return request('https://dataxonline.yahoo.com/online/audience/', {
         method: 'POST',
         json: body,

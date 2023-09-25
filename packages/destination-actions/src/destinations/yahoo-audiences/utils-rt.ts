@@ -79,9 +79,7 @@ export function get_id_schema(payload: Payload) {
  * @param payload The payload.
  */
 export function check_schema(payload: Payload): void {
-  console.log(payload)
   if (payload.send_email === false && payload.send_advertising_id === false) {
-    console.log('INVALID_SETTINGS error: Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.')
     throw new IntegrationError(
       'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
       'INVALID_SETTINGS',
@@ -97,10 +95,8 @@ export function check_schema(payload: Payload): void {
  * @returns
  */
 export function gen_update_segment_payload(payloads: Payload[]) {
-  console.log('payloads:', payloads)
   check_schema(payloads[0])
   const schema = get_id_schema(payloads[0])
-  // TODO: sort payloads by userId and group segments per user
   const data = []
   let exp
   for (const event of payloads) {
@@ -125,14 +121,13 @@ export function gen_update_segment_payload(payloads: Payload[]) {
     }
 
     const ts = Math.floor(new Date().getTime() / 1000)
-    console.log('ts:', ts)
     const seg_key = event.segment_audience_key
     // When a users enters an audience - set expiration ts to now() + 90 days
-    if (event.event_name == 'Audience Entered' || event.event_attributes[seg_key] == true) {
+    if (event.event_attributes[seg_key] == true) {
       exp = ts + 90 * 24 * 60 * 60
     }
     // When a users enters an audience - set expiration ts to 0
-    if (event.event_name == 'Audience Exited' || event.event_attributes[seg_key] == false) {
+    if (event.event_attributes[seg_key] == false) {
       exp = 0
     }
 

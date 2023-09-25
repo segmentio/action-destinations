@@ -10,17 +10,27 @@ export interface Payload {
    */
   segment_audience_key: string
   /**
+   * Event traits or properties. Do not modify this setting
+   */
+  event_attributes: {
+    [k: string]: unknown
+  }
+  /**
+   * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
+   */
+  segment_computation_action: string
+  /**
+   * Enable batching of requests
+   */
+  enable_batching?: boolean & string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
    * Email address of a user
    */
   email?: string
-  /**
-   * The name of the current Segment event
-   */
-  event_name?: string
-  /**
-   * Enable batching of requests to the LinkedIn DMP Segment
-   */
-  enable_batching?: boolean & string
   /**
    * User's Mobile Advertising Id
    */
@@ -45,10 +55,4 @@ export interface Payload {
    * Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"
    */
   gdpr_euconsent?: string
-  /**
-   * Event traits or properties. Do not modify this setting
-   */
-  event_attributes: {
-    [k: string]: unknown
-  }
 }
