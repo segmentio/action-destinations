@@ -19,7 +19,6 @@ import {
 } from './subscription-properties'
 import {
   InvalidEndpointSelectedThrowableError,
-  // InvalidGroupSubscriptionStatusThrowableError,
   InvalidSubscriptionStatusThrowableError,
   MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
   MissingEmailIfEmailSubscriptionIsPresentThrowableError,

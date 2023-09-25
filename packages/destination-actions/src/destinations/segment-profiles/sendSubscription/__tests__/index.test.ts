@@ -291,7 +291,7 @@ describe('SegmentProfiles.sendSubscription', () => {
       }
     })
     const results = testDestination.results
-    console.log(results)
+
     expect(responses.length).toBe(0)
     expect(results.length).toBe(3)
     expect(results[2].data).toMatchSnapshot()
