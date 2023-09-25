@@ -44,7 +44,8 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
       return
     }
 
-    hubble.identify && hubble.identify(payload.userId, payload.anonymousId, payload.attributes)
+    hubble.identify &&
+      hubble.identify({ userId: payload.userId, anonymousId: payload.anonymousId, attributes: payload.attributes })
   }
 }
 

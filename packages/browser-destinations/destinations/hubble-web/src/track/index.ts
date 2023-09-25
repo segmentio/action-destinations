@@ -53,7 +53,13 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
       return
     }
 
-    hubble.track && hubble.track(payload.event, payload.attributes, payload.userId, payload.anonymousId)
+    hubble.track &&
+      hubble.track({
+        event: payload.event,
+        attributes: payload.attributes,
+        userId: payload.userId,
+        anonymousId: payload.anonymousId
+      })
   }
 }
 
