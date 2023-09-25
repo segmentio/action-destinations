@@ -76,6 +76,9 @@ describe('SegmentProfiles.sendSubscription', () => {
         mapping: {
           engage_space: 'engage-space-writekey',
           defaultSubscriptionMapping
+        },
+        settings: {
+          endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
@@ -116,7 +119,10 @@ describe('SegmentProfiles.sendSubscription', () => {
     await expect(
       testDestination.testAction('sendSubscription', {
         event,
-        mapping: defaultSubscriptionMapping
+        mapping: defaultSubscriptionMapping,
+        settings: {
+          endpoint: DEFAULT_SEGMENT_ENDPOINT
+        }
       })
     ).rejects.toThrowError(MissingExternalIdsThrowableError)
   })
@@ -137,7 +143,10 @@ describe('SegmentProfiles.sendSubscription', () => {
     await expect(
       testDestination.testAction('sendSubscription', {
         event,
-        mapping: defaultSubscriptionMapping
+        mapping: defaultSubscriptionMapping,
+        settings: {
+          endpoint: DEFAULT_SEGMENT_ENDPOINT
+        }
       })
     ).rejects.toThrowError(MissingSubscriptionStatusesThrowableError)
   })
@@ -159,7 +168,10 @@ describe('SegmentProfiles.sendSubscription', () => {
     await expect(
       testDestination.testAction('sendSubscription', {
         event,
-        mapping: defaultSubscriptionMapping
+        mapping: defaultSubscriptionMapping,
+        settings: {
+          endpoint: DEFAULT_SEGMENT_ENDPOINT
+        }
       })
     ).rejects.toThrowError(MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError)
   })
