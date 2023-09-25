@@ -1,7 +1,8 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { gen_customer_taxonomy_payload, gen_oauth1_signature } from '../utils-tax'
+import { gen_customer_taxonomy_payload } from '../utils-tax'
+import { update_taxonomy } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create top-level CUSTOMER node in Yahoo taxonomy',
@@ -34,31 +35,10 @@ const action: ActionDefinition<Settings, Payload> = {
       const creds_json = JSON.parse(creds)
       const tx_pair = creds_json.tx
       // const tx_pair = tk;
-      return update_taxonomy(tx_pair, request, settings, payload)
+      const taxonomy_payload = gen_customer_taxonomy_payload(settings, payload)
+      return update_taxonomy('', tx_pair, request, taxonomy_payload)
     }
   }
 }
 
-interface CredsObj {
-  tx_client_key: string
-  tx_client_secret: string
-}
-
-async function update_taxonomy(tx_creds: CredsObj, request: RequestClient, settings: Settings, payload: Payload) {
-  const tx_client_secret = tx_creds.tx_client_key
-  const tx_client_key = tx_creds.tx_client_secret
-  const url = 'https://datax.yahooapis.com/v1/taxonomy/append'
-  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
-  const body_form_data = gen_customer_taxonomy_payload(settings, payload)
-  const add_customer_node = await request(url, {
-    method: 'PUT',
-    body: body_form_data,
-    headers: {
-      Authorization: oauth1_auth_string,
-      'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
-    }
-  })
-  const customer_node_json = await add_customer_node.json()
-  return customer_node_json
-}
 export default action
