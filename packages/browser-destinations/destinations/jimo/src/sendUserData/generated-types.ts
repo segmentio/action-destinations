@@ -5,4 +5,8 @@ export interface Payload {
    * The unique user id provided to segment that will be reuse in Jimo
    */
   userId?: string | null
+  /**
+   * The email of the user
+   */
+  email?: string | null
 }

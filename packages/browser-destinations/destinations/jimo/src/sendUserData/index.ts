@@ -16,16 +16,30 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    email: {
+      label: 'User email',
+      description: 'The email of the user',
+      type: 'string',
+      allowNull: true,
+      default: {
+        '@path': '$.traits.email'
+      }
     }
   },
   defaultSubscription: 'type = "identify"',
   perform: (jimo, { payload }) => {
-    console.log('in perform')
     if (payload.userId != null) {
-      // Supposed to trigger a network request, nothing happens?
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.push(['set', 'user:id', payload.userId])
+      jimo.push(['set', 'user:id', [payload.userId]])
       console.debug('user id sent to jimo')
+    } else {
+      console.debug('user id not sent, null')
+    }
+    if (payload.email != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      jimo.push(['set', 'user:email', [payload.email]])
+      console.debug('user email sent to jimo')
     } else {
       console.debug('user id not sent, null')
     }

@@ -9,14 +9,13 @@ import sendUserData from './sendUserData'
 
 declare global {
   interface Window {
-    jimo: JimoSDK
+    jimo: JimoSDK | never[]
     JIMO_PROJECT_ID: string
     JIMO_MANUAL_INIT: boolean
   }
 }
 
-const ENDPOINT_UNDERCITY = 'https://stage.undercity.usejimo.com/jimo-invader.js'
-// const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
+const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
 
 export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
   name: 'Jimo',
@@ -46,17 +45,16 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       .loadScript(`${ENDPOINT_UNDERCITY}`)
       .catch((err) => console.error('Unable to load Jimo SDK script. Error : ', err))
 
-    console.log('Project id : ', window['JIMO_PROJECT_ID'])
     await deps.resolveWhen(
-      () => Object.prototype.hasOwnProperty.call(window, 'jimo'),
-      // &&
-      // // When initialized on load, window.jimo is first an array then become an object after it get initialized
-      // settings.initOnLoad === true &&
-      // Array.isArray(window.jimo) === false,
+      () =>
+        Object.prototype.hasOwnProperty.call(window, 'jimo') &&
+        // When initialized on load, window.jimo is first an array then become an object after it get initialized
+        settings.initOnLoad === true &&
+        Array.isArray(window.jimo) === false,
       100
     )
     console.log('Jimo added to window')
-    return window.jimo
+    return window.jimo as JimoSDK
   },
   actions: {
     sendUserData

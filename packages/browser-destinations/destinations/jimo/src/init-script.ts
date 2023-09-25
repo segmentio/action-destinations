@@ -6,7 +6,6 @@ export function initScript(settings: Settings) {
     return
   }
 
-  console.log('Setup Jimo global variables')
   window.jimo = []
   window['JIMO_PROJECT_ID'] = settings.projectId
   window['JIMO_MANUAL_INIT'] = settings.initOnLoad === false
