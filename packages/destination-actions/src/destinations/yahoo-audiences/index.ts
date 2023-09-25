@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import { generate_jwt } from './utils-rt'
@@ -33,16 +33,20 @@ const destination: DestinationDefinition<Settings> = {
       const rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
       console.log('rt_client_secret:', rt_client_secret)
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
-      const res = await request<RefreshTokenResponse>('https://id.b2b.yahooinc.com/identity/oauth2/access_token', {
-        method: 'POST',
-        body: new URLSearchParams({
-          client_assertion: jwt,
-          client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-          grant_type: 'client_credentials',
-          scope: 'audience',
-          realm: 'dataxonline'
-        })
-      })
+      // TODO: What should we do if `res` returns an error?
+      const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
+        'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
+        {
+          method: 'POST',
+          body: new URLSearchParams({
+            client_assertion: jwt,
+            client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            grant_type: 'client_credentials',
+            scope: 'audience',
+            realm: 'dataxonline'
+          })
+        }
+      )
       // Oauth1 (sign request)
       const tx_client_key = JSON.parse(auth.clientId)['tax_api']
       const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']

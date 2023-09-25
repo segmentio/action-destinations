@@ -2,27 +2,15 @@ import { createHmac, createHash } from 'crypto'
 
 import { IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateSegment/generated-types'
-
-/**
- * Generates a random ID
- * @param length The ID length. The default is 24.
- * @returns A generated random ID (string)
- */
-export function gen_random_id(length: number): string {
-  const pattern = 'abcdefghijklmnopqrstuvwxyz123456789'
-  const result = []
-  for (let i = 0; i < length; i++) {
-    result.push(pattern[Math.floor(Math.random() * pattern.length)])
-  }
-  return result.join('')
-}
+import { YahooPayload } from './types'
+import { gen_random_id } from './utils'
 
 /**
  * Creates a SHA256 hash from the input
  * @param input The input string
- * @returns The SHA256 hash
+ * @returns The SHA256 hash (string), or undefined if the input is undefined.
  */
-export function create_hash(input: string | undefined) {
+export function create_hash(input: string | undefined): string | undefined {
   if (input === undefined) return
   return createHash('sha256').update(input).digest('hex')
 }
@@ -33,7 +21,7 @@ export function create_hash(input: string | undefined) {
  * @param client_secret
  * @returns The JWT token
  */
-export function generate_jwt(client_id: string, client_secret: string) {
+export function generate_jwt(client_id: string, client_secret: string): string {
   const random_id = gen_random_id(24)
   const current_time = Math.floor(new Date().getTime() / 1000)
   const url = 'https://id.b2b.yahooinc.com/identity/oauth2/access_token'
@@ -64,9 +52,9 @@ export function generate_jwt(client_id: string, client_secret: string) {
 /**
  * Gets the definition to send the hashed email or hashed advertising ID.
  * @param payload The payload.
- * @returns The definitions object (id_schema).
+ * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
-export function get_id_schema(payload: Payload) {
+export function get_id_schema(payload: Payload): { maid: boolean; email: boolean } {
   return {
     maid: payload.send_advertising_id === true,
     email: payload.send_email === true
@@ -92,9 +80,9 @@ export function check_schema(payload: Payload): void {
  * The ID schema defines whether the payload should contain the
  * hashed advertising ID for iOS or Android, or the hashed email.
  * @param payloads
- * @returns
+ * @returns {YahooPayload} The Yahoo payload.
  */
-export function gen_update_segment_payload(payloads: Payload[]) {
+export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
   check_schema(payloads[0])
   const schema = get_id_schema(payloads[0])
   const data = []
@@ -144,11 +132,6 @@ export function gen_update_segment_payload(payloads: Payload[]) {
   if (payloads[0].gdpr_flag) {
     yahoo_payload.gdpr_euconsent = payloads[0].gdpr_euconsent
   }
+
   return yahoo_payload
-}
-interface YahooPayload {
-  Schema: Array<string>
-  Data: Array<unknown>
-  gdpr: boolean
-  gdpr_euconsent?: string | undefined
 }

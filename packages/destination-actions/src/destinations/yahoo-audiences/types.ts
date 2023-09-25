@@ -13,3 +13,10 @@ export interface TaxonomyObject {
     }
   ]
 }
+
+export interface YahooPayload {
+  Schema: Array<string>
+  Data: Array<unknown>
+  gdpr: boolean
+  gdpr_euconsent?: string | undefined
+}
