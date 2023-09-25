@@ -2,11 +2,11 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import {
-  InvalidEndpointSelectedThrowableError,
-  MissingExternalIdsThrowableError,
-  MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
-  MissingSubscriptionStatusesThrowableError,
-  MissingUserOrAnonymousIdThrowableError
+  InvalidEndpointSelectedError,
+  MissingExternalIdsError,
+  MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
+  MissingSubscriptionStatusesError,
+  MissingUserOrAnonymousIdError
 } from '../../errors'
 import { DEFAULT_SEGMENT_ENDPOINT, SEGMENT_ENDPOINTS } from '../../properties'
 
@@ -81,7 +81,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
-    ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
+    ).rejects.toThrowError(MissingUserOrAnonymousIdError)
   })
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
@@ -105,7 +105,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: 'incorrect-endpoint'
         }
       })
-    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
+    ).rejects.toThrowError(InvalidEndpointSelectedError)
   })
 
   test('Should throw an error if `email` or `phone` or `Android_Push_Token` or `Ios_Push_Token` is not defined', async () => {
@@ -124,7 +124,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
-    ).rejects.toThrowError(MissingExternalIdsThrowableError)
+    ).rejects.toThrowError(MissingExternalIdsError)
   })
 
   test('Should throw an error if `email` or `phone` or `android_push_token` or `ios_push_token` is defined without a subscription status', async () => {
@@ -148,7 +148,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
-    ).rejects.toThrowError(MissingSubscriptionStatusesThrowableError)
+    ).rejects.toThrowError(MissingSubscriptionStatusesError)
   })
 
   test('Should throw an error if `Ios_Push_Subscription` is defined without a`ios_push_token`', async () => {
@@ -173,7 +173,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
-    ).rejects.toThrowError(MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError)
+    ).rejects.toThrowError(MissingIosPushTokenIfIosPushSubscriptionIsPresentError)
   })
 
   test('Should send a subscription event to Segment when subscription groups are defined', async () => {

@@ -18,29 +18,67 @@ import {
   ios_push_token
 } from './subscription-properties'
 import {
-  InvalidEndpointSelectedThrowableError,
-  InvalidSubscriptionStatusThrowableError,
-  MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError,
-  MissingEmailIfEmailSubscriptionIsPresentThrowableError,
-  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError,
-  MissingExternalIdsThrowableError,
-  MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError,
-  MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError,
-  MissingSubscriptionStatusesThrowableError,
-  MissingUserOrAnonymousIdThrowableError
+  InvalidEndpointSelectedError,
+  InvalidSubscriptionStatusError,
+  MissingExternalIdsError,
+  MissingSubscriptionStatusesError,
+  MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentError,
+  MissingEmailIfEmailSubscriptionIsPresentError,
+  MissingEmailSubscriptionIfSubscriptionGroupsIsPresentError,
+  MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
+  MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
 } from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
 
 interface SubscriptionStatusConfig {
   status: string
-  matchingStatues: string[]
+  matchingStatuses: string[]
 }
 
 const subscriptionStatusConfig: SubscriptionStatusConfig[] = [
-  { status: 'SUBSCRIBED', matchingStatues: ['true', 'subscribed'] },
-  { status: 'UNSUBSCRIBED', matchingStatues: ['false', 'unsubscribed'] },
-  { status: 'DID-NOT-SUBSCRIBE', matchingStatues: ['did-not-subscribe', 'did_not_subscribe'] }
+  { status: 'SUBSCRIBED', matchingStatuses: ['true', 'subscribed'] },
+  { status: 'UNSUBSCRIBED', matchingStatuses: ['false', 'unsubscribed'] },
+  { status: 'DID-NOT-SUBSCRIBE', matchingStatuses: ['did-not-subscribe', 'did_not_subscribe'] }
+]
+
+interface SupportedChannelsConfig {
+  field: string
+  externalId: string
+  subscriptionFields: string[]
+  channels: string[]
+  groups: boolean
+}
+
+const supportedChannels: SupportedChannelsConfig[] = [
+  {
+    field: 'email',
+    externalId: 'email',
+    subscriptionFields: ['email_subscription_status'],
+    channels: ['EMAIL'],
+    groups: true
+  },
+  {
+    field: 'phone',
+    externalId: 'phone',
+    subscriptionFields: ['sms_subscription_status', 'whatsapp_subscription_status'],
+    channels: ['SMS', 'WHATSAPP'],
+    groups: false
+  },
+  {
+    field: 'android_push_token',
+    externalId: 'android.push_token',
+    subscriptionFields: ['android_push_subscription_status'],
+    channels: ['ANDROID_PUSH'],
+    groups: false
+  },
+  {
+    field: 'ios_push_token',
+    externalId: 'ios.push_token',
+    subscriptionFields: ['ios_push_subscription_status'],
+    channels: ['IOS_PUSH'],
+    groups: false
+  }
 ]
 
 const INVALID_SUBSCRIPTION_STATUS = 'INVALID'
@@ -55,6 +93,12 @@ interface MessagingSubscription {
   groups?: GroupSubscription[]
 }
 
+interface ExtenalId {
+  id: string
+  type: string
+  collection: string
+  encoding: string
+}
 // Transforms a subscription status to one of the accepted values.
 const getStatus = (subscriptionStatus: string | null | undefined): string | undefined => {
   const tempSubscriptionStatus = subscriptionStatus?.trim().toLowerCase()
@@ -63,7 +107,7 @@ const getStatus = (subscriptionStatus: string | null | undefined): string | unde
   }
 
   const status = subscriptionStatusConfig.find(
-    ({ matchingStatues }) => matchingStatues.indexOf(tempSubscriptionStatus) > -1
+    ({ matchingStatuses }) => matchingStatuses.indexOf(tempSubscriptionStatus) > -1
   )
 
   if (status) {
@@ -72,13 +116,69 @@ const getStatus = (subscriptionStatus: string | null | undefined): string | unde
   return INVALID_SUBSCRIPTION_STATUS
 }
 
-const validateSubscriptions = (payload: Payload) => {
-  if (!payload.anonymous_id && !payload.user_id) {
-    throw MissingUserOrAnonymousIdThrowableError
+const enrichExternalIds = (payload: Payload, externalIds: ExtenalId[]): ExtenalId[] => {
+  for (const channel of supportedChannels) {
+    const field = payload[channel.field as keyof typeof payload]
+    if (field != undefined) {
+      externalIds.push({
+        id: field as string,
+        type: channel.externalId,
+        collection: 'users',
+        encoding: 'none'
+      })
+    }
   }
+  return externalIds
+}
+
+const enrichMessagingSubscriptions = (
+  payload: Payload,
+  messagingSubscriptions: MessagingSubscription[]
+): MessagingSubscription[] => {
+  for (const channel of supportedChannels) {
+    const field = payload[channel.field as keyof typeof payload]
+    for (const [index, subscriptionField] of channel.subscriptionFields.entries()) {
+      const subscriptionValue = payload[subscriptionField as keyof typeof payload]
+      const subscription = formatToMessagingSubscription(
+        field as string,
+        channel.channels[index],
+        subscriptionValue as string
+      )
+      if (subscription && channel.groups) {
+        //Handling Subscription Groups:
+        if (
+          payload.subscription_groups &&
+          typeof payload.subscription_groups === 'object' &&
+          Object.keys(payload.subscription_groups).length > 0
+        ) {
+          const formattedGroups = Object.entries(payload.subscription_groups)
+            .filter(([name, status]) => name !== undefined && status !== undefined)
+            .map(([name, status]) => ({
+              name: String(name),
+              status: getStatus(String(status))
+            }))
+          subscription.groups = formattedGroups
+        }
+      }
+      if (subscription) messagingSubscriptions.push(subscription)
+    }
+  }
+  return messagingSubscriptions
+}
+
+const validateSubscriptions = (payload: Payload) => {
   // Throws an error if none of the subscription related externalId fields are undefined
-  if (!(payload.email || payload.phone || payload.android_push_token || payload.ios_push_token)) {
-    throw MissingExternalIdsThrowableError
+  if (
+    !(
+      payload.anonymous_id ||
+      payload.user_id ||
+      payload.email ||
+      payload.phone ||
+      payload.android_push_token ||
+      payload.ios_push_token
+    )
+  ) {
+    throw MissingExternalIdsError
   }
 
   // Throws an error if none of the subscription statues fields are undefined
@@ -91,11 +191,11 @@ const validateSubscriptions = (payload: Payload) => {
       payload.ios_push_subscription_status
     )
   ) {
-    throw MissingSubscriptionStatusesThrowableError
+    throw MissingSubscriptionStatusesError
   }
 
   if (!payload.email && payload.email_subscription_status) {
-    throw MissingEmailIfEmailSubscriptionIsPresentThrowableError
+    throw MissingEmailIfEmailSubscriptionIsPresentError
   }
 
   if (
@@ -103,19 +203,19 @@ const validateSubscriptions = (payload: Payload) => {
     !payload.email_subscription_status &&
     Object.keys(payload.subscription_groups).length > 0
   ) {
-    throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentThrowableError
+    throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentError
   }
 
   if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
-    throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentThrowableError
+    throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
   }
 
   if (!payload.android_push_token && payload.android_push_subscription_status) {
-    throw MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentThrowableError
+    throw MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentError
   }
 
   if (!payload.ios_push_token && payload.ios_push_subscription_status) {
-    throw MissingIosPushTokenIfIosPushSubscriptionIsPresentThrowableError
+    throw MissingIosPushTokenIfIosPushSubscriptionIsPresentError
   }
 
   // Only time we should not make a identify call is if none of the subscription status is valid
@@ -131,7 +231,7 @@ const validateSubscriptions = (payload: Payload) => {
     payload.android_push_subscription_status &&
     getStatus(payload.android_push_subscription_status) == INVALID_SUBSCRIPTION_STATUS
   ) {
-    throw InvalidSubscriptionStatusThrowableError
+    throw InvalidSubscriptionStatusError
   }
 }
 
@@ -174,120 +274,16 @@ const action: ActionDefinition<Settings, Payload> = {
     traits
   },
   perform: (request, { payload, settings, features, statsContext }) => {
-    const messagingSubscriptions: MessagingSubscription[] = []
-    const externalIds: Array<{ id: string; type: string; collection: string; encoding: string }> = []
     //Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
+      throw InvalidEndpointSelectedError
     }
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload)
-
-    if (payload?.email) {
-      // email externalId
-      externalIds.push({
-        id: payload.email,
-        type: 'email',
-        collection: 'users',
-        encoding: 'none'
-      })
-      //EMAIL Subscription Object
-      if (payload.email_subscription_status) {
-        const emailSubscription = formatToMessagingSubscription(
-          payload.email,
-          'EMAIL',
-          payload.email_subscription_status
-        )
-        if (emailSubscription) {
-          //Handling Subscription Groups:
-          if (
-            payload.subscription_groups &&
-            typeof payload.subscription_groups === 'object' &&
-            Object.keys(payload.subscription_groups).length > 0
-          ) {
-            const formattedGroups = Object.entries(payload.subscription_groups)
-              .filter(([name, status]) => name !== undefined && status !== undefined)
-              .map(([name, status]) => ({
-                name: String(name),
-                status: getStatus(String(status))
-              }))
-            emailSubscription.groups = formattedGroups
-          }
-          messagingSubscriptions.push(emailSubscription)
-        }
-      }
-    }
-
-    if (payload?.phone) {
-      // phone externalId
-      externalIds.push({
-        id: payload.phone,
-        type: 'phone',
-        collection: 'users',
-        encoding: 'none'
-      })
-      // SMS subscription object
-      if (payload?.sms_subscription_status) {
-        const smsSubscription = formatToMessagingSubscription(payload?.phone, 'SMS', payload.sms_subscription_status)
-        if (smsSubscription) {
-          messagingSubscriptions.push(smsSubscription)
-        }
-      }
-      // Whatsapp subscription object
-      if (payload?.whatsapp_subscription_status) {
-        const whatsappSubscription = formatToMessagingSubscription(
-          payload?.phone,
-          'WHATSAPP',
-          payload.whatsapp_subscription_status
-        )
-        if (whatsappSubscription) {
-          messagingSubscriptions.push(whatsappSubscription)
-        }
-      }
-    }
-
-    // ANDROID_PUSH subscription object
-    if (payload?.android_push_token) {
-      // android.push_token externalId
-      externalIds.push({
-        id: payload.android_push_token,
-        type: 'android.push_token',
-        collection: 'users',
-        encoding: 'none'
-      })
-      if (payload?.android_push_subscription_status) {
-        const androidPushTokenStatus = formatToMessagingSubscription(
-          payload?.android_push_token,
-          'ANDROID_PUSH',
-          payload.android_push_subscription_status
-        )
-        if (androidPushTokenStatus) {
-          messagingSubscriptions.push(androidPushTokenStatus)
-        }
-      }
-    }
-
-    // IOS_PUSH subscription object
-    if (payload?.ios_push_token) {
-      // ios.push_token externalId
-      externalIds.push({
-        id: payload.ios_push_token,
-        type: 'ios.push_token',
-        collection: 'users',
-        encoding: 'none'
-      })
-      if (payload?.ios_push_token) {
-        const iosPushTokenStatus = formatToMessagingSubscription(
-          payload?.ios_push_token,
-          'IOS_PUSH',
-          payload.ios_push_subscription_status
-        )
-        if (iosPushTokenStatus) {
-          messagingSubscriptions.push(iosPushTokenStatus)
-        }
-      }
-    }
-
+    // Enriches ExternalId's
+    const externalIds: ExtenalId[] = enrichExternalIds(payload, [])
+    // Enrich Messaging Subscriptions
+    const messagingSubscriptions: MessagingSubscription[] = enrichMessagingSubscriptions(payload, [])
     const subscriptionPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
