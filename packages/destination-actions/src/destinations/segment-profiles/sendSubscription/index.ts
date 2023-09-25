@@ -196,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const emailSubscription = formatToMessagingSubscription(
           payload.email,
           'EMAIL',
-          payload.email_subscription_status?.trim().toLowerCase()
+          payload.email_subscription_status
         )
         if (emailSubscription) {
           //Handling Subscription Groups:
@@ -228,11 +228,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
       // SMS subscription object
       if (payload?.sms_subscription_status) {
-        const smsSubscription = formatToMessagingSubscription(
-          payload?.phone,
-          'SMS',
-          payload.sms_subscription_status?.trim().toLowerCase()
-        )
+        const smsSubscription = formatToMessagingSubscription(payload?.phone, 'SMS', payload.sms_subscription_status)
         if (smsSubscription) {
           messagingSubscriptions.push(smsSubscription)
         }
@@ -242,7 +238,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const whatsappSubscription = formatToMessagingSubscription(
           payload?.phone,
           'WHATSAPP',
-          payload.whatsapp_subscription_status?.trim().toLowerCase()
+          payload.whatsapp_subscription_status
         )
         if (whatsappSubscription) {
           messagingSubscriptions.push(whatsappSubscription)
@@ -263,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const androidPushTokenStatus = formatToMessagingSubscription(
           payload?.android_push_token,
           'ANDROID_PUSH',
-          payload.android_push_subscription_status?.trim().toLowerCase()
+          payload.android_push_subscription_status
         )
         if (androidPushTokenStatus) {
           messagingSubscriptions.push(androidPushTokenStatus)
@@ -280,14 +276,14 @@ const action: ActionDefinition<Settings, Payload> = {
         collection: 'users',
         encoding: 'none'
       })
-      if (payload?.android_push_subscription_status) {
-        const androidPushTokenStatus = formatToMessagingSubscription(
+      if (payload?.ios_push_token) {
+        const iosPushTokenStatus = formatToMessagingSubscription(
           payload?.ios_push_token,
           'IOS_PUSH',
-          payload.android_push_subscription_status?.trim().toLowerCase()
+          payload.ios_push_subscription_status
         )
-        if (androidPushTokenStatus) {
-          messagingSubscriptions.push(androidPushTokenStatus)
+        if (iosPushTokenStatus) {
+          messagingSubscriptions.push(iosPushTokenStatus)
         }
       }
     }
