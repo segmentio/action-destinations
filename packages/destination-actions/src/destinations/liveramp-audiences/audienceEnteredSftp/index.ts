@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
       type: 'string',
-      default: { '@template': '/uploads/{{properties.audience_key}}/' },
+      default: { '@template': '/uploads/' },
       format: 'uri-reference'
     },
     audience_key: {

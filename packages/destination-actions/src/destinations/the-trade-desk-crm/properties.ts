@@ -1,5 +1,15 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
+export const external_id: InputField = {
+  label: 'External Audience ID',
+  description: 'The CRM Data ID for The Trade Desk Segment.',
+  type: 'string',
+  default: {
+    '@path': '$.context.personas.external_audience_id'
+  },
+  unsafe_hidden: true
+}
+
 export const name: InputField = {
   label: 'Segment Name',
   description:
@@ -12,8 +22,12 @@ export const region: InputField = {
   label: 'Region',
   description: 'The geographical region of the CRM data segment based on the origin of PII.',
   type: 'string',
-  required: true,
-  default: 'US'
+  default: 'US',
+  choices: [
+    { label: 'US', value: 'US' },
+    { label: 'EU', value: 'EU' },
+    { label: 'APAC', value: 'APAC' }
+  ]
 }
 
 export const pii_type: InputField = {
@@ -33,8 +47,7 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  },
-  unsafe_hidden: true
+  }
 }
 
 export const event_name: InputField = {

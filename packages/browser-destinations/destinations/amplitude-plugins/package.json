@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-amplitude-plugins",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -18,6 +18,6 @@
     "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }

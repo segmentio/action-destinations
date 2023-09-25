@@ -51,6 +51,8 @@ jobs:
         run: NODE_ENV=production yarn build
 
       - name: Lint
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: yarn lint
 
       - name: Validate

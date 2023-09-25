@@ -1,9 +1,23 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  SelfTimeoutError,
+  DEFAULT_REQUEST_TIMEOUT
+} from '@segment/actions-core'
+
 import Client from 'ssh2-sftp-client'
 import path from 'path'
 import { Payload } from './generated-types'
 
 import { LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from '../properties'
+
+enum SFTPErrorCode {
+  NO_SUCH_FILE = 2
+}
+
+interface SFTPError extends Error {
+  code: number
+}
 
 function validateSFTP(payload: Payload) {
   if (!payload.sftp_username) {
@@ -34,17 +48,45 @@ async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): 
     password: payload.sftp_password
   })
 
-  const retVal = await action(sftp)
-  await sftp.end()
+  let timeoutError
+  const timeout = setTimeout(() => {
+    void sftp.end().catch((err) => {
+      console.error(err)
+    }) // hang promise on purpose, we are on fault hot path, but also catch the error to avoid an unhandledRejection
+    timeoutError = new SelfTimeoutError(
+      `did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`
+    )
+  }, DEFAULT_REQUEST_TIMEOUT)
+
+  let retVal
+  try {
+    retVal = await action(sftp)
+    if (timeoutError) throw timeoutError
+  } catch (e: unknown) {
+    const sftpError = e as SFTPError
+    if (sftpError) {
+      if (sftpError.code == SFTPErrorCode.NO_SUCH_FILE) {
+        throw new PayloadValidationError(`Could not find path: ${payload.sftp_folder_path}`)
+      }
+    }
+
+    throw e
+  } finally {
+    clearTimeout(timeout)
+    if (!timeoutError) {
+      await sftp.end()
+    }
+  }
+
   return retVal
 }
 
 async function testAuthenticationSFTP(sftp: Client, payload: Payload) {
   return doSFTP(sftp, payload, async (sftp) => {
     return sftp.exists(payload.sftp_folder_path as string).then((fileType) => {
-      if (!fileType) throw new Error(`Could not find path: ${payload.sftp_folder_path}`)
+      if (!fileType) throw new PayloadValidationError(`Could not find path: ${payload.sftp_folder_path}`)
     })
   })
 }
 
-export { validateSFTP, uploadSFTP, testAuthenticationSFTP, Client }
+export { validateSFTP, uploadSFTP, doSFTP, testAuthenticationSFTP, Client }

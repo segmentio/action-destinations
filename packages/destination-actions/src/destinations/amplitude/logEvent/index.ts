@@ -10,6 +10,7 @@ import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { formatSessionId } from '../convert-timestamp'
+import { userAgentData } from '../properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -158,12 +159,23 @@ const action: ActionDefinition<Settings, Payload> = {
         'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
-    }
+    },
+    userAgentData
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
-    const { time, session_id, userAgent, userAgentParsing, utm_properties, referrer, min_id_length, library, ...rest } =
-      omit(payload, revenueKeys)
+    const {
+      time,
+      session_id,
+      userAgent,
+      userAgentParsing,
+      userAgentData,
+      utm_properties,
+      referrer,
+      min_id_length,
+      library,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
@@ -198,7 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         library: 'segment'

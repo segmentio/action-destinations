@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -20,6 +20,6 @@
     "@segment/browser-destination-runtime": "^1.13.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }

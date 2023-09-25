@@ -6,7 +6,7 @@ export { BrowserDestinationDefinition } from '@segment/browser-destination-runti
 
 type MetadataId = string
 
-export interface ManifestEntry {e
+export interface ManifestEntry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   definition: BrowserDestinationDefinition<any, any>
   directory: string
@@ -57,3 +57,5 @@ register('64c1690a9f08c84a420aba78', '@segment/analytics-browser-actions-tiktok-
 register('64f2434e5066280a0e7f1ab3', '@segment/analytics-browser-actions-google-campaign-manager')
 register('6501a4325a8a629197cdd691', '@segment/analytics-browser-actions-pendo-web-actions')
 register('6501a5225aa338d11164cc0f', '@segment/analytics-browser-actions-rupt')
+register('650c69e7f47d84b86c120b4c', '@segment/analytics-browser-actions-cdpresolution')
+register('649adeaa719bd3f55fe81bef', '@segment/analytics-browser-actions-devrev')

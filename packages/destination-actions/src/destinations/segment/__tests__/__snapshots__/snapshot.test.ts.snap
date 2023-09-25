@@ -392,6 +392,9 @@ Object {
       "width": -29887526831390.72,
     },
     "timezone": "CYyxkIddLM",
+    "traits": Object {
+      "testType": "CYyxkIddLM",
+    },
     "userAgent": "CYyxkIddLM",
   },
   "event": "CYyxkIddLM",
@@ -408,6 +411,7 @@ Object {
   "anonymousId": "CYyxkIddLM",
   "context": Object {
     "groupId": "CYyxkIddLM",
+    "traits": Object {},
   },
   "event": "CYyxkIddLM",
   "properties": Object {},
