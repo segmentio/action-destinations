@@ -254,7 +254,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
-    contactsUpsertMap = fix(readResponse, contactsUpsertMap)
+    contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
 
     // Divide Contacts into two maps - one for insert and one for update
     const createList: ContactCreateRequestPayload[] = []
@@ -369,7 +369,10 @@ function mapUpsertContactPayload(payload: Payload[]) {
   return contactsUpsertMap
 }
 
-function fix(readResponse: BatchContactResponse, contactsUpsertMap: Record<string, ContactsUpsertMapItem>) {
+function updateActionsForBatchedContacts(
+  readResponse: BatchContactResponse,
+  contactsUpsertMap: Record<string, ContactsUpsertMapItem>
+) {
   // Throw any other error responses
   // Case 1: Loop over results if there are any
   if (readResponse.data?.results && readResponse.data.results.length > 0) {
