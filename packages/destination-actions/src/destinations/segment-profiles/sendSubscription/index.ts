@@ -58,11 +58,13 @@ interface MessagingSubscription {
 
 // Transforms a subscription status to one of the accepted values.
 const getStatus = (subscriptionStatus: string | null | undefined): string | undefined => {
-  if (!subscriptionStatus) {
+  const tempSubscriptionStatus = subscriptionStatus?.trim().toLowerCase()
+  if (!tempSubscriptionStatus) {
     return undefined
   }
+
   const status = subscriptionStatusConfig.find(
-    ({ matchingStatues }) => matchingStatues.indexOf(subscriptionStatus) > -1
+    ({ matchingStatues }) => matchingStatues.indexOf(tempSubscriptionStatus) > -1
   )
 
   if (status) {
@@ -120,15 +122,15 @@ const validateSubscriptions = (payload: Payload) => {
   // Only time we should not make a identify call is if none of the subscription status is valid
   if (
     payload.email_subscription_status &&
-    getStatus(payload.email_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    getStatus(payload.email_subscription_status) == INVALID_SUBSCRIPTION_STATUS &&
     payload.sms_subscription_status &&
-    getStatus(payload.sms_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    getStatus(payload.sms_subscription_status) == INVALID_SUBSCRIPTION_STATUS &&
     payload.whatsapp_subscription_status &&
-    getStatus(payload.whatsapp_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    getStatus(payload.whatsapp_subscription_status) == INVALID_SUBSCRIPTION_STATUS &&
     payload.ios_push_subscription_status &&
-    getStatus(payload.ios_push_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS &&
+    getStatus(payload.ios_push_subscription_status) == INVALID_SUBSCRIPTION_STATUS &&
     payload.android_push_subscription_status &&
-    getStatus(payload.android_push_subscription_status.trim().toLowerCase()) == INVALID_SUBSCRIPTION_STATUS
+    getStatus(payload.android_push_subscription_status) == INVALID_SUBSCRIPTION_STATUS
   ) {
     throw InvalidSubscriptionStatusThrowableError
   }
@@ -140,7 +142,7 @@ const formatToMessagingSubscription = (
   type: string,
   status: string | null | undefined
 ): MessagingSubscription | undefined => {
-  const tempStatus = getStatus(status?.trim().toLowerCase())
+  const tempStatus = getStatus(status)
   if (tempStatus) {
     return {
       key,
@@ -208,7 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
               .filter(([name, status]) => name !== undefined && status !== undefined)
               .map(([name, status]) => ({
                 name: String(name),
-                status: getStatus(String(status).trim().toLowerCase())
+                status: getStatus(String(status))
               }))
             emailSubscription.groups = formattedGroups
           }
