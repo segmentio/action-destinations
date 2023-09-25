@@ -126,52 +126,50 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload, auth }) => {
+  perform: async (request, { payload, auth }) => {
     if (auth?.accessToken) {
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
       const body = gen_update_segment_payload([payload])
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-        .then((response) => response.json())
-        .then((response) => console.log(response))
-        .then((response) => {
-          return response
+      try {
+        const response = await request('https://dataxonline.yahoo.com/online/audience/', {
+          method: 'POST',
+          json: body,
+          headers: {
+            Authorization: `Bearer ${rt_access_token}`
+          }
         })
-        .catch((err) => {
-          console.log('perform: error updating segment >', err)
-        })
+        const response_json = await response.json()
+        console.log(response_json)
+        return response_json
+      } catch (err) {
+        console.log('perform: error updating segment >', err)
+      }
     } else {
       console.log('updateSegment > perform: no auth access_token')
     }
   },
-  performBatch: (request, { payload, auth }) => {
+  performBatch: async (request, { payload, auth }) => {
     if (auth?.accessToken) {
       const body = gen_update_segment_payload(payload)
       const creds = Buffer.from(auth?.accessToken, 'base64').toString()
       const creds_json = JSON.parse(creds)
       const rt_access_token = creds_json.rt
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-        .then((response) => response.json())
-        .then((response) => console.log(response))
-        .then((response) => {
-          return response
+      try {
+        const response = await request('https://dataxonline.yahoo.com/online/audience/', {
+          method: 'POST',
+          json: body,
+          headers: {
+            Authorization: `Bearer ${rt_access_token}`
+          }
         })
-        .catch((err) => {
-          console.log('performBatch: error updating segment >', err)
-        })
+        const response_json = await response.json()
+        console.log(response_json)
+        return response_json
+      } catch (err) {
+        console.log('performBatch: error updating segment >', err)
+      }
     } else {
       console.log('updateSegment > performBatch: no auth access_token')
     }

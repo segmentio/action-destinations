@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const creds_json = JSON.parse(creds)
       const tx_pair = creds_json.tx
       const body_form_data = gen_segment_subtaxonomy_payload(payload)
-      return update_taxonomy(String(payload.engage_space_id), tx_pair, request, body_form_data)
+      return await update_taxonomy(String(payload.engage_space_id), tx_pair, request, body_form_data)
     }
   }
 }

@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: (request, { settings, payload, auth }) => {
+  perform: async (request, { settings, payload, auth }) => {
     // const tk = {
     //   tx_client_secret: 'abc',
     //   tx_client_key:'123'
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const tx_pair = creds_json.tx
       // const tx_pair = tk;
       const taxonomy_payload = gen_customer_taxonomy_payload(settings, payload)
-      return update_taxonomy('', tx_pair, request, taxonomy_payload)
+      return await update_taxonomy('', tx_pair, request, taxonomy_payload)
     }
   }
 }
