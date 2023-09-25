@@ -243,6 +243,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
     key: attribute_key,
     timestamp: _validate_timestamp(occurred)
   }
+  console.log(attribute)
 
   if (attribute_value == null || (typeof attribute_value == 'string' && attribute_value.length === 0)) {
     attribute.action = 'remove'
