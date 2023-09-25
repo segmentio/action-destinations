@@ -18,7 +18,7 @@ import {
   ios_push_token
 } from './subscription-properties'
 import {
-  InvalidEndpointSelectedError,
+  InvalidEndpointSelectedThrowableError,
   InvalidSubscriptionStatusError,
   MissingExternalIdsError,
   MissingSubscriptionStatusesError,
@@ -276,7 +276,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings, features, statsContext }) => {
     //Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedError
+      throw InvalidEndpointSelectedThrowableError
     }
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload)
