@@ -2,21 +2,13 @@
 
 export interface Payload {
   /**
-   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Number of Items', 'Item Category' and 'Brand' fields. The value sent for the purchase can be controlled via the 'Track Purchase Value Per Product' field
+   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
    */
   products?: {
     /**
      * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
      */
     item_id?: string
-    /**
-     * Number of items. This field accepts an integer value. e.g. 5
-     */
-    number_items?: number
-    /**
-     * Price of the item. This field accepts a numeric value. e.g. 9.99
-     */
-    price?: number
     /**
      * Category of the item. This field accepts a string.
      */
@@ -26,10 +18,6 @@ export interface Payload {
      */
     brand?: string
   }[]
-  /**
-   * When enabled, calculates the total value of the purchase using 'Number of Items' and 'Price' values from the Products field. When disabled, value of purchase is taken from the 'Price' field
-   */
-  trackPurchaseValuePerProduct?: boolean
   /**
    * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
    */

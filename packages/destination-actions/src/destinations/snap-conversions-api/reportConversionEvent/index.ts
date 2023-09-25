@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   products,
-  trackPurchaseValuePerProduct,
   event_type,
   event_conversion_type,
   event_tag,
@@ -44,7 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
     'Report events directly to Snapchat. Data shared can power Snap solutions such as custom audience targeting, campaign optimization, Dynamic Ads, and more.',
   fields: {
     products: products,
-    trackPurchaseValuePerProduct: trackPurchaseValuePerProduct,
     event_type: { ...event_type, required: true },
     event_conversion_type: { ...event_conversion_type, required: true },
     event_tag: event_tag,

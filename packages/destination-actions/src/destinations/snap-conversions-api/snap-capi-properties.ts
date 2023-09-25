@@ -70,7 +70,7 @@ export const CURRENCY_ISO_4217_CODES = new Set([
 export const products: InputField = {
   label: 'Products',
   description:
-    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Number of Items', 'Item Category' and 'Brand' fields. The value sent for the purchase can be controlled via the 'Track Purchase Value Per Product' field",
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
   type: 'object',
   multiple: true,
   additionalProperties: false,
@@ -80,18 +80,6 @@ export const products: InputField = {
       type: 'string',
       description:
         'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
-      allowNull: false
-    },
-    number_items: {
-      label: 'Number of Items',
-      type: 'integer',
-      description: 'Number of items. This field accepts an integer value. e.g. 5',
-      allowNull: false
-    },
-    price: {
-      label: 'Price',
-      type: 'number',
-      description: 'Price of the item. This field accepts a numeric value. e.g. 9.99',
       allowNull: false
     },
     item_category: {
@@ -114,12 +102,6 @@ export const products: InputField = {
         item_id: {
           '@path': 'product_id'
         },
-        number_items: {
-          '@path': 'quantity'
-        },
-        price: {
-          '@path': 'price'
-        },
         item_category: {
           '@path': 'category'
         },
@@ -129,15 +111,6 @@ export const products: InputField = {
       }
     ]
   }
-}
-
-export const trackPurchaseValuePerProduct: InputField = {
-  label: 'Track Purchase Value Per Product',
-  description:
-    "When enabled, calculates the total value of the purchase using 'Number of Items' and 'Price' values from the Products field. When disabled, value of purchase is taken from the 'Price' field",
-  type: 'boolean',
-  required: false,
-  default: false
 }
 
 export const event_type: InputField = {
@@ -427,20 +400,6 @@ const transformProperty = (property: string, items: Array<Record<string, string 
     )
     .join(';')
 
-interface Product {
-  number_items?: number
-  price?: number
-}
-
-function calculatePrice(products: Product[]): number {
-  return products.reduce((totalValue, product) => {
-    if (product.number_items !== undefined && product.price !== undefined) {
-      return totalValue + product.number_items * product.price
-    }
-    return totalValue
-  }, 0)
-}
-
 export const formatPayload = (payload: Payload): Object => {
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
@@ -459,7 +418,6 @@ export const formatPayload = (payload: Payload): Object => {
   }
 
   let item_ids: string | undefined = undefined
-  let number_items: string | undefined = undefined
   let item_category: string | undefined = undefined
   let brands: string[] | undefined = undefined
 
@@ -467,7 +425,6 @@ export const formatPayload = (payload: Payload): Object => {
   const p = payload?.products
   if (p && Array.isArray(p) && p.length > 0) {
     item_ids = transformProperty('item_id', p)
-    number_items = transformProperty('number_items', p)
     item_category = transformProperty('item_category', p)
     brands = p.map((product) => product.brand ?? '')
   }
@@ -488,9 +445,8 @@ export const formatPayload = (payload: Payload): Object => {
     brands: brands ?? payload?.brands,
     item_ids: item_ids ?? payload?.item_ids,
     description: payload?.description,
-    number_items: number_items ?? payload?.number_items,
-    price:
-      payload.trackPurchaseValuePerProduct ?? false ? calculatePrice(payload.products as Product[]) : payload.price,
+    number_items: payload?.number_items,
+    price: payload?.price,
     currency: payload?.currency,
     transaction_id: payload?.transaction_id,
     level: payload?.level,
