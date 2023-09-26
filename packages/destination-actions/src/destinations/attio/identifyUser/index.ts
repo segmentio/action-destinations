@@ -19,6 +19,15 @@ const email_address: InputField = {
   }
 }
 
+const user_id: InputField = {
+  type: 'string',
+  label: 'ID',
+  description: 'The ID of the User',
+  format: 'text',
+  required: true,
+  default: { '@path': '$.userId' }
+}
+
 const user_attributes: InputField = {
   type: 'object',
   label: 'Additional User attributes',
@@ -49,33 +58,31 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {
     email_address,
+    user_id,
     user_attributes,
     person_attributes
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { email_address, user_attributes, person_attributes }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     await client.assertRecord({
       object: 'people',
       matching_attribute: 'email_addresses',
       values: {
-        email_addresses: email_address,
-        ...(person_attributes ?? {})
+        email_addresses: payload.email_address,
+        ...(payload.person_attributes ?? {})
       }
     })
 
     return await client.assertRecord({
       object: 'users',
-      matching_attribute: 'primary_email_address',
+      matching_attribute: 'user_id',
       values: {
-        primary_email_address: email_address,
-        person: email_address,
-        ...(user_attributes ?? {})
+        primary_email_address: payload.email_address,
+        person: payload.email_address,
+        user_id: payload.user_id,
+        ...(payload.user_attributes ?? {})
       }
     })
   }
