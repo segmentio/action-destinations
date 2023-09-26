@@ -27,9 +27,9 @@ const workspace_id: InputField = {
   required: true,
   default: {
     '@if': {
-      exists: { '@path': '$.context.groupId' },
-      then: { '@path': '$.context.groupId' },
-      else: { '@path': '$.id' }
+      exists: { '@path': '$.groupId' },
+      then: { '@path': '$.groupId' },
+      else: { '@path': '$.context.group_id' }
     }
   }
 }

@@ -25,13 +25,7 @@ const user_id: InputField = {
   description: 'The ID of the User',
   format: 'text',
   required: true,
-  default: {
-    '@if': {
-      exists: { '@path': '$.userId' },
-      then: { '@path': '$.userId' },
-      else: { '@path': '$.anonymousId' }
-    }
-  }
+  default: { '@path': '$.userId' }
 }
 
 const user_attributes: InputField = {
