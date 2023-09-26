@@ -22,6 +22,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       ]
     })
   })
+  const tags = {}
 
   describe('send WhatsApp', () => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
@@ -87,6 +88,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
+        Tags: JSON.stringify(tags),
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -198,7 +200,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: from,
-        To: 'whatsapp:+19195551234'
+        To: 'whatsapp:+19195551234',
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -264,7 +267,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' }),
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -293,7 +297,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '2': '360 Scope St' }),
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -322,7 +327,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' }),
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
