@@ -489,18 +489,49 @@ describe('HubSpot.upsertContactBatch', () => {
     expect(testBatchResponses[1].data).toMatchSnapshot()
   })
 
-  test('should create and update contact successfully', async () => {
+  test("should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object", async () => {
     const events = createBatchTestEvents([...createContactList, ...updateContactList])
 
-    // Mock: Read Contact Using Email
+    // Mock: Read Contact Using Email and considering a email as case sensitive for now for testing perspective.
+    //In ideal case,it should not be like this.Hubspot takes all emails as case insenstivity and will return the email in lowercase while sending response.
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/read`)
-      .reply(200, generateBatchReadResponse([...createContactList, ...updateContactList]))
+      .reply(
+        200,
+        generateBatchReadResponse([
+          ...createContactList,
+          {
+            id: '103',
+            email: 'userthree@SomeCompany.com',
+            firstname: 'User',
+            lastname: 'Three',
+            lifecyclestage: 'subscriber'
+          },
+          {
+            id: '104',
+            email: 'userfour@somecompany.com',
+            firstname: 'User',
+            lastname: 'Four',
+            lifecyclestage: 'lead'
+          }
+        ])
+      )
 
     // Mock: Update Contact
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/update`)
-      .reply(200, generateBatchCreateResponse(updateContactList))
+      .reply(
+        200,
+        generateBatchCreateResponse([
+          {
+            id: '104',
+            email: 'userfour@somecompany.com',
+            firstname: 'User',
+            lastname: 'Four',
+            lifecyclestage: 'lead'
+          }
+        ])
+      )
 
     // Mock: Create Contact
     nock(HUBSPOT_BASE_URL)

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully 1`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 1`] = `
 Object {
   "afterResponse": Array [
     [Function],
@@ -51,7 +51,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully 2`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 2`] = `
 Object {
   "errors": Array [
     Object {
@@ -72,7 +72,7 @@ Object {
       "id": "103",
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
-        "email": "userthree@somecompany.com",
+        "email": "userthree@SomeCompany.com",
         "hs_object_id": "103",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -91,7 +91,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully 3`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 3`] = `
 Object {
   "results": Array [
     Object {
@@ -121,20 +121,9 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully 4`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 4`] = `
 Object {
   "results": Array [
-    Object {
-      "id": "103",
-      "properties": Object {
-        "createdate": "2023-07-06T12:47:47.626Z",
-        "email": "userthree@somecompany.com",
-        "firstname": "User",
-        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
-        "lastname": "Three",
-        "lifecyclestage": "subscriber",
-      },
-    },
     Object {
       "id": "104",
       "properties": Object {
