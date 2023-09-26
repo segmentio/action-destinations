@@ -8,5 +8,5 @@ export interface Settings {
   /**
    * Identity resolution endpoint. [CDP Resolution documentation](https://www.cdpresolution.com/docs/)
    */
-  endpoint: string
+  clientIdentifier: string
 }
