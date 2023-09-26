@@ -74,13 +74,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     region: {
       type: 'string',
       label: 'Region',
-      description: 'Region of your audience.',
-      default: 'US',
-      choices: [
-        { label: 'US', value: 'US' },
-        { label: 'EU', value: 'EU' },
-        { label: 'APAC', value: 'APAC' }
-      ]
+      description: 'Region of your audience.'
     }
   },
   audienceConfig: {
@@ -91,6 +85,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const advertiserId = createAudienceInput.settings.advertiser_id
+      const authToken = createAudienceInput.settings.auth_token
       const region = createAudienceInput.audienceSettings?.region
 
       if (audienceName?.length == 0) {
@@ -99,6 +94,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const response: ModifiedResponse<CreateApiResponse> = await request(`${BASE_URL}/crmdata/segment`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'TTD-Auth': authToken
+        },
         json: {
           AdvertiserId: advertiserId,
           SegmentName: audienceName,
@@ -117,11 +116,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       const crmDataId = getAudienceInput.externalId
       const advertiserId = getAudienceInput.settings.advertiser_id
+      const authToken = getAudienceInput.settings.auth_token
 
       const response: ModifiedResponse<GetApiResponse> = await request(
         `${BASE_URL}/crmdata/segment/${advertiserId}/${crmDataId}`,
         {
-          method: 'GET'
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'TTD-Auth': authToken
+          }
         }
       )
 
