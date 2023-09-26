@@ -46,11 +46,11 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
   },
 
   initialize: async ({ settings }, deps) => {
-    await deps.loadScript(`http://localhost:3003/api/sdk/${settings.id}.js`)
+    await deps.loadScript(`https://sdk.hubble.team/api/sdk/${settings.id}`)
     await deps.resolveWhen(() => window.Hubble.initialized, 250)
 
     // eslint-disable-next-line  @typescript-eslint/no-unsafe-call
-    window.Hubble?.setSource('__segment__')
+    window.Hubble.setSource('__segment__')
     return window.Hubble
   },
 
