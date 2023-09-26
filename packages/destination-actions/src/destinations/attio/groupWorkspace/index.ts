@@ -67,19 +67,15 @@ const action: ActionDefinition<Settings, Payload> = {
     workspace_attributes
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { domain, workspace_id, workspace_attributes, company_attributes }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     const company = await client.assertRecord({
       object: 'companies',
       matching_attribute: 'domains',
       values: {
-        domains: domain,
-        ...(company_attributes ?? {})
+        domains: payload.domain,
+        ...(payload.company_attributes ?? {})
       }
     })
 
@@ -87,9 +83,9 @@ const action: ActionDefinition<Settings, Payload> = {
       object: 'workspaces',
       matching_attribute: 'workspace_id',
       values: {
-        workspace_id,
+        workspace_id: payload.workspace_id,
         company: company.data.data.id.record_id,
-        ...(workspace_attributes ?? {})
+        ...(payload.workspace_attributes ?? {})
       }
     })
   }
