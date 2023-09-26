@@ -67,6 +67,52 @@ export const CURRENCY_ISO_4217_CODES = new Set([
   'XOF'
 ])
 
+export const products: InputField = {
+  label: 'Products',
+  description:
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+  type: 'object',
+  multiple: true,
+  additionalProperties: false,
+  properties: {
+    item_id: {
+      label: 'Item ID',
+      type: 'string',
+      description:
+        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
+      allowNull: false
+    },
+    item_category: {
+      label: 'Category',
+      type: 'string',
+      description: 'Category of the item. This field accepts a string.',
+      allowNull: false
+    },
+    brand: {
+      label: 'Brand',
+      type: 'string',
+      description: 'Brand associated with the item. This field accepts a string.',
+      allowNull: false
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': 'product_id'
+        },
+        item_category: {
+          '@path': 'category'
+        },
+        brand: {
+          '@path': 'brand'
+        }
+      }
+    ]
+  }
+}
+
 export const event_type: InputField = {
   label: 'Event Type',
   description:
@@ -94,7 +140,7 @@ export const event_tag: InputField = {
 export const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
-    'The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.',
+    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
@@ -177,16 +223,27 @@ export const ip_address: InputField = {
 
 export const item_category: InputField = {
   label: 'Item Category',
-  description: 'Category of the item.',
+  description: 'Category of the item. This field accepts a string.',
   type: 'string',
   default: {
     '@path': '$.properties.category'
   }
 }
 
+export const brands: InputField = {
+  label: 'Brand',
+  description: 'Brand associated with the item. This field accepts a string or a list of strings',
+  type: 'string',
+  multiple: true,
+  default: {
+    '@path': '$.properties.brand'
+  }
+}
+
 export const item_ids: InputField = {
-  label: 'Item IDs',
-  description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
+  label: 'Item ID',
+  description:
+    'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
   type: 'string',
   default: {
     '@path': '$.properties.product_id'
@@ -201,7 +258,7 @@ export const description: InputField = {
 
 export const number_items: InputField = {
   label: 'Number of Items',
-  description: 'Number of items.',
+  description: 'Number of items. This field accepts a string only. e.g. "5"',
   type: 'string',
   default: {
     '@path': '$.properties.quantity'
@@ -210,13 +267,14 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Value of the purchase.This should be a single number.',
+  description:
+    "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
   type: 'number',
   default: {
     '@if': {
-      exists: { '@path': '$.properties.price' },
-      then: { '@path': '$.properties.price' },
-      else: { '@path': '$.properties.value' }
+      exists: { '@path': '$.properties.revenue' },
+      then: { '@path': '$.properties.revenue' },
+      else: { '@path': '$.properties.total' }
     }
   }
 }
@@ -331,6 +389,17 @@ export const hash = (value: string | undefined): string | undefined => {
 
 const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
+const transformProperty = (property: string, items: Array<Record<string, string | number | undefined>>): string =>
+  items
+    .map((i) =>
+      i[property] === undefined || i[property] === null
+        ? ''
+        : typeof i[property] === 'number'
+        ? (i[property] as number).toString()
+        : (i[property] as string).toString().replace(/;/g, '')
+    )
+    .join(';')
+
 export const formatPayload = (payload: Payload): Object => {
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
@@ -348,6 +417,18 @@ export const formatPayload = (payload: Payload): Object => {
     payload.mobile_ad_id = payload.mobile_ad_id.toLowerCase()
   }
 
+  let item_ids: string | undefined = undefined
+  let item_category: string | undefined = undefined
+  let brands: string[] | undefined = undefined
+
+  // if customer populates products array, use it instead of individual fields
+  const p = payload?.products
+  if (p && Array.isArray(p) && p.length > 0) {
+    item_ids = transformProperty('item_id', p)
+    item_category = transformProperty('item_category', p)
+    brands = p.map((product) => product.brand ?? '')
+  }
+
   return {
     event_type: payload?.event_type,
     event_conversion_type: payload?.event_conversion_type,
@@ -360,8 +441,9 @@ export const formatPayload = (payload: Payload): Object => {
     hashed_phone_number: hash(payload?.phone_number),
     user_agent: payload?.user_agent,
     hashed_ip_address: hash(payload?.ip_address),
-    item_category: payload?.item_category,
-    item_ids: payload?.item_ids,
+    item_category: item_category ?? payload?.item_category,
+    brands: brands ?? payload?.brands,
+    item_ids: item_ids ?? payload?.item_ids,
     description: payload?.description,
     number_items: payload?.number_items,
     price: payload?.price,

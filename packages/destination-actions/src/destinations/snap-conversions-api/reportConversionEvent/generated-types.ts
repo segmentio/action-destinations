@@ -2,6 +2,23 @@
 
 export interface Payload {
   /**
+   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
+   */
+  products?: {
+    /**
+     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
+     */
+    item_id?: string
+    /**
+     * Category of the item. This field accepts a string.
+     */
+    item_category?: string
+    /**
+     * Brand associated with the item. This field accepts a string.
+     */
+    brand?: string
+  }[]
+  /**
    * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
    */
   event_type: string
@@ -14,7 +31,7 @@ export interface Payload {
    */
   event_tag?: string
   /**
-   * The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.
+   * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.
    */
   timestamp: string
   /**
@@ -46,11 +63,15 @@ export interface Payload {
    */
   ip_address?: string
   /**
-   * Category of the item.
+   * Category of the item. This field accepts a string.
    */
   item_category?: string
   /**
-   * International Article Number (EAN) when applicable, or other product or category identifier.
+   * Brand associated with the item. This field accepts a string or a list of strings
+   */
+  brands?: string[]
+  /**
+   * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
    */
   item_ids?: string
   /**
@@ -58,11 +79,11 @@ export interface Payload {
    */
   description?: string
   /**
-   * Number of items.
+   * Number of items. This field accepts a string only. e.g. "5"
    */
   number_items?: string
   /**
-   * Value of the purchase.This should be a single number.
+   * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
    */
   price?: number
   /**
