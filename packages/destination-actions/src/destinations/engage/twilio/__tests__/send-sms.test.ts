@@ -135,8 +135,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           },
           mappingOmitKeys: ['body']
         })
-      ).rejects.toThrowError('Unable to fetch content template')
-      expectErrorLogged('getContentTemplateTypes failed', 'Unable to fetch content template')
+      ).rejects.toThrowError('Not Found')
+      expectErrorLogged('getContentTemplateTypes failed', 'Not Found')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -556,8 +556,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to get profile traits')
-      expectErrorLogged('Unable to get profile traits')
+      ).rejects.toThrowError('Internal Server Error')
+      expectErrorLogged('Internal Server Error')
     })
 
     it('should get profile traits successfully', async () => {
