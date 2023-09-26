@@ -1,16 +1,18 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-api'
 
-export const productClickedEvents: ActionDefinition<Settings, Payload> = {
-  title: 'Product Clicked Events',
-  description: 'When a product is clicked within an Algolia Search, Recommend or Predict result',
+export const productAddedEvents: ActionDefinition<Settings, Payload> = {
+  title: 'Product Added Events',
+  description:
+    'Product added events for ecommerce use cases for a customer adding an item to their cart. Query ID is optional and indicates that the event was the result of a search query.',
   fields: {
-    objectID: {
+    product: {
       label: 'Product ID',
-      description: 'Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.',
+      description:
+        'Populates the ObjectIds field in the Algolia Insights API with a single ObjectId (productId) of the product added.',
       type: 'string',
       required: true,
       default: {
@@ -28,20 +30,11 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
     },
     queryID: {
       label: 'Query ID',
-      description: 'Query ID of the list on which the item was clicked.',
+      description: 'Query ID of the list on which the item was purchased.',
       type: 'string',
       required: false,
       default: {
         '@path': '$.properties.query_id'
-      }
-    },
-    position: {
-      label: 'Position',
-      description: 'Position of the click in the list of Algolia search results.',
-      type: 'integer',
-      required: false,
-      default: {
-        '@path': '$.properties.position'
       }
     },
     userToken: {
@@ -75,17 +68,16 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  defaultSubscription: 'type = "track" and event = "Product Clicked"',
+  defaultSubscription: 'type = "track" and event = "Product Added"',
   perform: (request, data) => {
-    const insightEvent: AlgoliaProductClickedEvent = {
+    const insightEvent: AlgoliaConversionEvent = {
       ...data.payload.extraProperties,
-      eventName: 'Product Clicked',
-      eventType: 'click',
+      eventName: 'Add to cart',
+      eventType: 'conversion',
       index: data.payload.index,
       queryID: data.payload.queryID,
-      objectIDs: [data.payload.objectID],
+      objectIDs: [data.payload.product],
       userToken: data.payload.userToken,
-      positions: data.payload.position ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
@@ -97,11 +89,10 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
   }
 }
 
-/** used in the quick setup */
-export const productClickPresets: Preset = {
-  name: 'Send product clicked events to Algolia',
-  subscribe: productClickedEvents.defaultSubscription as string,
-  partnerAction: 'productClickedEvents',
-  mapping: defaultValues(productClickedEvents.fields),
+export const productAddedPresets: Preset = {
+  name: 'Send product added events to Algolia',
+  subscribe: productAddedEvents.defaultSubscription as string,
+  partnerAction: 'productAddedEvents',
+  mapping: defaultValues(productAddedEvents.fields),
   type: 'automatic'
 }
