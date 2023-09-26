@@ -2,8 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-
-const API_URL = 'https://a.klaviyo.com/api'
+import { API_URL } from './config'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
