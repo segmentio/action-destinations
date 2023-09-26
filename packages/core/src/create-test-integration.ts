@@ -47,7 +47,7 @@ interface InputData<Settings> {
   stateContext?: StateContext
 }
 
-class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
+class TestDestination<T, AudienceSettings = JSONObject> extends Destination<T, AudienceSettings> {
   responses: Destination['responses'] = []
   results: Result[] = []
 
