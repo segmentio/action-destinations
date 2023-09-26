@@ -56,9 +56,7 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     return Object.fromEntries(parsedEntries)
   }
 
-  @track({
-    wrapIntegrationError: () => ['Unable to fetch content template', 'Twilio Content API request failure', 500]
-  })
+  @track()
   async getContentTemplateTypes(): Promise<ContentTemplateTypes> {
     if (!this.payload.contentSid) {
       throw new PayloadValidationError('Content SID not in payload')
