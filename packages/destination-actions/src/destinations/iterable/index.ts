@@ -65,25 +65,89 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Calls',
       subscribe: 'type = "track" and event != "Order Completed" and event != "Cart Updated"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
       partnerAction: 'updateUser',
-      mapping: defaultValues(updateUser.fields)
+      mapping: defaultValues(updateUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Update Cart Calls',
       subscribe: 'type = "track" and event = "Cart Updated"',
       partnerAction: 'updateCart',
-      mapping: defaultValues(updateCart.fields)
+      mapping: defaultValues(updateCart.fields),
+      type: 'automatic'
     },
     {
       name: 'Order Completed Calls',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields)
+      mapping: defaultValues(trackPurchase.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        dataFields: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        dataFields: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        dataFields: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Exited',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        dataFields: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateUser',
+      mapping: {
+        ...defaultValues(updateUser.fields),
+        dataFields: {
+          '@path': '$.traits'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
     }
   ]
 }

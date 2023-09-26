@@ -35,3 +35,75 @@ export const engage_space: InputField = {
   required: true,
   dynamic: true
 }
+
+export const email: InputField = {
+  label: 'Email',
+  description: 'Email of the user',
+  type: 'string'
+}
+
+export const phone: InputField = {
+  label: 'Phone',
+  description: 'Phone number of the user',
+  type: 'string'
+}
+
+export const android_push_token: InputField = {
+  label: 'Android Push Token',
+  description: 'Android Push Token of the user',
+  type: 'string'
+}
+
+export const ios_push_token: InputField = {
+  label: 'Ios Push Token',
+  description: 'Ios Push Token of the user',
+  type: 'string'
+}
+
+export const email_subscription_status: InputField = {
+  label: 'Email Subscription Status',
+  description:
+    'Global status of the email subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.',
+  type: 'string',
+  allowNull: true
+}
+
+export const sms_subscription_status: InputField = {
+  label: 'SMS Subscription Status',
+  description:
+    'Global status of the SMS subscription. True is subscribed, false is unsubscribed and null|undefined is did-not-subscribe.',
+  type: 'string',
+  allowNull: true
+}
+
+export const whatsapp_subscription_status: InputField = {
+  label: 'WhatsApp Subscription Status',
+  description:
+    'Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.',
+  type: 'string',
+  allowNull: true
+}
+
+export const android_push_subscription_status: InputField = {
+  label: 'Android Push Subscription Status',
+  description:
+    'Global status of the android push subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.',
+  type: 'string',
+  allowNull: true
+}
+
+export const ios_push_subscription_status: InputField = {
+  label: 'Ios Push Subscription Status',
+  description:
+    'Global status of the ios push subscription. True is subscribed, false is unsubscribed and null is did-not-subscribe.',
+  type: 'string',
+  allowNull: true
+}
+
+export const subscription_groups: InputField = {
+  label: 'Subscription Groups',
+  description: 'Subscription status for the groups. Object containing group names as keys and statuses as values',
+  type: 'object',
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue'
+}

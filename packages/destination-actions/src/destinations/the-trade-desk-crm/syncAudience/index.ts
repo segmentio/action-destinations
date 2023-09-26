@@ -17,11 +17,21 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: { ...event_name },
     batch_size: { ...batch_size }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
+  perform: async (request, { settings, payload, features }) => {
+    return processPayload({
+      request,
+      settings,
+      payloads: [payload],
+      features
+    })
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  performBatch: async (request, { settings, payload, features }) => {
+    return processPayload({
+      request,
+      settings,
+      payloads: payload,
+      features
+    })
   }
 }
 

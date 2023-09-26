@@ -9,6 +9,7 @@ import screen from './screen'
 
 interface RefreshTokenResponse {
   access_token: string
+  refresh_token: string
 }
 
 const destination: DestinationDefinition<Settings> = {
@@ -42,7 +43,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.data?.access_token }
+      return { accessToken: res.data?.access_token, refreshToken: res.data?.refresh_token }
     }
   },
 
@@ -83,31 +84,36 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Calls',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     },
     {
       name: 'Page Calls',
       subscribe: 'type = "page"',
       partnerAction: 'page',
-      mapping: defaultValues(page.fields)
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
     },
     {
       name: 'Screen Calls',
       subscribe: 'type = "screen"',
       partnerAction: 'screen',
-      mapping: defaultValues(screen.fields)
+      mapping: defaultValues(screen.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Group Calls',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     }
   ]
 }

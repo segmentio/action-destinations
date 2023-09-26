@@ -18,20 +18,22 @@ declare global {
   }
 }
 
-const defaultVersion = '4.6'
+const defaultVersion = '4.8'
 
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
-    mapping: defaultValues(updateUserProfile.fields)
+    mapping: defaultValues(updateUserProfile.fields),
+    type: 'automatic'
   },
   {
     name: 'Order Completed calls',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchase.fields)
+    mapping: defaultValues(trackPurchase.fields),
+    type: 'automatic'
   },
   {
     name: 'Track Calls',
@@ -45,7 +47,8 @@ const presets: DestinationDefinition['presets'] = [
       eventProperties: {
         '@path': '$.properties'
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 
@@ -78,6 +81,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '4.6',
           label: '4.6'
+        },
+        {
+          value: '4.8',
+          label: '4.8'
         }
       ],
       default: defaultVersion,
@@ -102,6 +109,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'US-04	(https://dashboard-04.braze.com)', value: 'sdk.iad-04.braze.com' },
         { label: 'US-05	(https://dashboard-05.braze.com)', value: 'sdk.iad-05.braze.com' },
         { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
+        { label: 'US-07	(https://dashboard-07.braze.com)', value: 'sdk.iad-07.braze.com' },
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
         { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' }
@@ -316,10 +324,14 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             return false
           }
 
-          client.instance.initialize(api_key, {
-            baseUrl: window.BRAZE_BASE_URL || endpoint,
-            ...expectedConfig
-          })
+          if (
+            !client.instance.initialize(api_key, {
+              baseUrl: window.BRAZE_BASE_URL || endpoint,
+              ...expectedConfig
+            })
+          ) {
+            return false
+          }
 
           if (typeof client.instance.addSdkMetadata === 'function') {
             client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])

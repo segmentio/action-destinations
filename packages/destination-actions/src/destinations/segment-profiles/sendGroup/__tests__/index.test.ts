@@ -97,4 +97,33 @@ describe('SegmentProfiles.sendGroup', () => {
     expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchSnapshot()
   })
+
+  test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
+    const event = createTestEvent({
+      traits: {
+        name: 'Example Corp',
+        industry: 'Technology'
+      },
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k',
+      groupId: 'test-group-ks2i7e'
+    })
+
+    const responses = await testDestination.testAction('sendGroup', {
+      event,
+      mapping: defaultGroupMapping,
+      settings: {
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-profiles-tapi-internal-enabled': true
+      }
+    })
+
+    const results = testDestination.results
+
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchSnapshot()
+  })
 })
