@@ -95,8 +95,6 @@ export interface NormalizedOptions extends Omit<AllRequestOptions, 'headers'> {
   headers: RequestInit['headers']
   // method is expected to be defined at this point
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD'
-
-  signal?: AbortSignal
 }
 
 type MaybePromise<T> = Promise<T> | T
@@ -272,8 +270,7 @@ class RequestClient {
     }
 
     // Use our internal abort controller for fetch
-    // @ts-ignore AbortSignal is declared but still a mismatch
-    this.options.signal = this.abortController.signal
+    this.options.signal = this.abortController.signal as AbortSignal & { reason?: string; throwIfAborted?: () => void }
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)

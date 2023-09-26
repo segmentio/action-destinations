@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { HTTPError, RequestClient } from '@segment/actions-core'
 import { VisitorAttribute, Event, ProjectConfig } from '../types'
 import type { Settings } from '../generated-types'
 import reduceRight from 'lodash/reduceRight'
@@ -64,13 +64,16 @@ export async function getEventKeys(request: RequestClient, settings: Settings) {
       choices: [...choices]
     }
   } catch (err) {
-    return {
-      choices: [],
-      error: {
-        message: err?.response?.statusText ?? 'Unknown error',
-        code: err?.response?.status ?? 'Unknown code'
+    if (err instanceof HTTPError) {
+      return {
+        choices: [],
+        error: {
+          message: err?.response?.statusText ?? 'Unknown error',
+          code: err?.response?.status ?? 'Unknown code'
+        }
       }
     }
+    throw err
   }
 }
 

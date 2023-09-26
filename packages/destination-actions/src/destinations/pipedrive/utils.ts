@@ -4,5 +4,6 @@ export function addCustomFieldsFromPayloadToEntity<E>(payload: PayloadWithCustom
   if (!payload.custom_fields) {
     return
   }
+  // @ts-ignore TODO: fix entity type
   Object.assign(entity, payload.custom_fields)
 }
