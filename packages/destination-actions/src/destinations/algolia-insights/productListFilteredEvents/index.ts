@@ -1,20 +1,28 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaFilterClickedEvent } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-export const productClickedEvents: ActionDefinition<Settings, Payload> = {
-  title: 'Product Clicked Events',
-  description: 'When a product is clicked within an Algolia Search, Recommend or Predict result',
+export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
+  title: 'Product List Filtered Events',
+  description: 'When a product list is filtered within an Algolia Search',
   fields: {
-    objectID: {
-      label: 'Product ID',
-      description: 'Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.',
-      type: 'string',
+    filters: {
+      label: 'Filters',
+      description:
+        'Populates the filters field in the Algolia Insights API, a list of up to 10 facet filters. Field should be an array of strings with format ${attribute}:${value}.',
+      type: 'object',
+      multiple: true,
       required: true,
+      defaultObjectUI: 'keyvalue',
+      additionalProperties: false,
+      properties: {
+        attribute: { label: 'Filter name', description: 'The name of the Filter', type: 'string', required: true },
+        value: { label: 'Filter value', description: 'The value of the Filter', type: 'string', required: true }
+      },
       default: {
-        '@path': '$.properties.product_id'
+        '@arrayPath': ['$.properties.filters', { attribute: { '@path': '$.attribute' }, value: { '@path': '$.value' } }]
       }
     },
     index: {
@@ -33,15 +41,6 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@path': '$.properties.query_id'
-      }
-    },
-    position: {
-      label: 'Position',
-      description: 'Position of the click in the list of Algolia search results.',
-      type: 'integer',
-      required: false,
-      default: {
-        '@path': '$.properties.position'
       }
     },
     userToken: {
@@ -75,17 +74,17 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  defaultSubscription: 'type = "track" and event = "Product Clicked"',
+  defaultSubscription: 'type = "track" and event = "Product List Filtered"',
   perform: (request, data) => {
-    const insightEvent: AlgoliaProductClickedEvent = {
+    const filters: string[] = data.payload.filters.map(({ attribute, value }) => `${attribute}:${value}`)
+    const insightEvent: AlgoliaFilterClickedEvent = {
       ...data.payload.extraProperties,
-      eventName: 'Product Clicked',
+      eventName: 'Product List Filtered',
       eventType: 'click',
       index: data.payload.index,
       queryID: data.payload.queryID,
-      objectIDs: [data.payload.objectID],
+      filters,
       userToken: data.payload.userToken,
-      positions: data.payload.position ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
@@ -98,10 +97,10 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const productClickPresets: Preset = {
-  name: 'Send product clicked events to Algolia',
-  subscribe: productClickedEvents.defaultSubscription as string,
-  partnerAction: 'productClickedEvents',
-  mapping: defaultValues(productClickedEvents.fields),
+export const productListFilteredPresets: Preset = {
+  name: 'Send product list filtered events to Algolia',
+  subscribe: productListFilteredEvents.defaultSubscription as string,
+  partnerAction: 'productListFilteredEvents',
+  mapping: defaultValues(productListFilteredEvents.fields),
   type: 'automatic'
 }
