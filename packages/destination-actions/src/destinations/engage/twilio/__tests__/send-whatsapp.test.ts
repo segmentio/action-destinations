@@ -49,7 +49,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -67,7 +68,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: JSON.stringify(tags)
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -125,7 +127,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: JSON.stringify(tags)
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -149,7 +152,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           ContentSid: defaultTemplateSid,
           From: 'MG1111222233334444',
-          To: defaultTo
+          To: defaultTo,
+          Tags: JSON.stringify(tags)
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
