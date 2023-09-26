@@ -56,7 +56,7 @@ describe('Snap Conversions API ', () => {
         },
         context: {}
       })
-      console.log(event)
+
       const responses = await testDestination.testAction('reportConversionEvent', {
         event,
         settings,
