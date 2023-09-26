@@ -30,6 +30,7 @@ import {
 } from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
+import { StatsClient } from '@segment/actions-core/destination-kit'
 
 interface SubscriptionStatusConfig {
   status: string
@@ -166,18 +167,11 @@ const enrichMessagingSubscriptions = (
   return messagingSubscriptions
 }
 
-const validateSubscriptions = (payload: Payload) => {
+const validateSubscriptions = (payload: Payload, statsClient?: StatsClient, tags?: string[]) => {
   // Throws an error if none of the subscription related externalId fields are undefined
-  if (
-    !(
-      payload.anonymous_id ||
-      payload.user_id ||
-      payload.email ||
-      payload.phone ||
-      payload.android_push_token ||
-      payload.ios_push_token
-    )
-  ) {
+  if (!(payload.email || payload.phone || payload.android_push_token || payload.ios_push_token)) {
+    tags?.push(`type:missing_external_ids`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingExternalIdsError
   }
 
@@ -191,10 +185,14 @@ const validateSubscriptions = (payload: Payload) => {
       payload.ios_push_subscription_status
     )
   ) {
+    tags?.push(`type:missing_subscription_status`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingSubscriptionStatusesError
   }
 
   if (!payload.email && payload.email_subscription_status) {
+    tags?.push(`type:missing_email_but_subscription_exists`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingEmailIfEmailSubscriptionIsPresentError
   }
 
@@ -203,18 +201,26 @@ const validateSubscriptions = (payload: Payload) => {
     !payload.email_subscription_status &&
     Object.keys(payload.subscription_groups).length > 0
   ) {
+    tags?.push(`type:missing_email_but_subscription_groups_exists`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingEmailSubscriptionIfSubscriptionGroupsIsPresentError
   }
 
   if (!payload.phone && (payload.sms_subscription_status || payload.whatsapp_subscription_status)) {
+    tags?.push(`type:missing_phone_but_subscription_exists`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
   }
 
   if (!payload.android_push_token && payload.android_push_subscription_status) {
+    tags?.push(`type:missing_android_push_but_subscription_exists`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingAndroidPushTokenIfAndroidPushSubscriptionIsPresentError
   }
 
   if (!payload.ios_push_token && payload.ios_push_subscription_status) {
+    tags?.push(`type:missing_ios_push_but_subscription_exists`)
+    statsClient?.incr('validation_error', 1, tags)
     throw MissingIosPushTokenIfIosPushSubscriptionIsPresentError
   }
 
@@ -231,6 +237,8 @@ const validateSubscriptions = (payload: Payload) => {
     payload.android_push_subscription_status &&
     getStatus(payload.android_push_subscription_status) == INVALID_SUBSCRIPTION_STATUS
   ) {
+    tags?.push(`type:invalid_subscription_value`)
+    statsClient?.incr('validation_error', 1, tags)
     throw InvalidSubscriptionStatusError
   }
 }
@@ -274,12 +282,16 @@ const action: ActionDefinition<Settings, Payload> = {
     traits
   },
   perform: (request, { payload, settings, features, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+    tags?.push(`action:sendSubscription`)
     //Throw an error if endpoint is not defined or invalid
     if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
+      statsClient?.incr('invalid_endpoint', 1, tags)
       throw InvalidEndpointSelectedThrowableError
     }
     // Before sending subscription data to Segment, a series of validations are done.
-    validateSubscriptions(payload)
+    validateSubscriptions(payload, statsClient, tags)
     // Enriches ExternalId's
     const externalIds: ExtenalId[] = enrichExternalIds(payload, [])
     // Enrich Messaging Subscriptions
@@ -302,8 +314,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
+    statsClient?.incr('success', 1, tags)
     if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendSubscription`])
+      statsClient?.incr('tapi_internal', 1, tags)
       const payload = { ...subscriptionPayload, type: 'identify' }
       return { batch: [payload] }
     }

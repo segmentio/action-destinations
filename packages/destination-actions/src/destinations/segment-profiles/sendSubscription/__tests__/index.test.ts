@@ -2,11 +2,10 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import {
-  InvalidEndpointSelectedError,
+  InvalidEndpointSelectedThrowableError,
   MissingExternalIdsError,
   MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
-  MissingSubscriptionStatusesError,
-  MissingUserOrAnonymousIdError
+  MissingSubscriptionStatusesError
 } from '../../errors'
 import { DEFAULT_SEGMENT_ENDPOINT, SEGMENT_ENDPOINTS } from '../../properties'
 
@@ -81,7 +80,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: DEFAULT_SEGMENT_ENDPOINT
         }
       })
-    ).rejects.toThrowError(MissingUserOrAnonymousIdError)
+    ).rejects.toThrowError(MissingExternalIdsError)
   })
 
   test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
@@ -105,7 +104,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           endpoint: 'incorrect-endpoint'
         }
       })
-    ).rejects.toThrowError(InvalidEndpointSelectedError)
+    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
   })
 
   test('Should throw an error if `email` or `phone` or `Android_Push_Token` or `Ios_Push_Token` is not defined', async () => {
