@@ -18,7 +18,8 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
   name: 'Hubble (actions)',
   slug: 'hubble-web',
   mode: 'device',
-
+  description:
+    'From design to production, monitor, measure and enhance your user experience with seamless integration with Segment',
   presets: [
     {
       name: 'Identify user',
@@ -38,7 +39,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
 
   settings: {
     id: {
-      description: 'id',
+      description: 'Unique identifier for your team (given in Hubble app)',
       label: 'id',
       type: 'string',
       required: true
@@ -47,10 +48,10 @@ export const destination: BrowserDestinationDefinition<Settings, Hubble> = {
 
   initialize: async ({ settings }, deps) => {
     await deps.loadScript(`https://sdk.hubble.team/api/sdk/${settings.id}`)
-    await deps.resolveWhen(() => window.Hubble.initialized, 250)
+    await deps.resolveWhen(() => window?.Hubble?.initialized, 250)
 
     // eslint-disable-next-line  @typescript-eslint/no-unsafe-call
-    window.Hubble.setSource('__segment__')
+    window?.Hubble?.setSource('__segment__')
     return window.Hubble
   },
 

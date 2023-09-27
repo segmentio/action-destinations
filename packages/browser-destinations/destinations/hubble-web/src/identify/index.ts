@@ -13,7 +13,7 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
     userId: {
       description: 'Unique identifer of the user',
       type: 'string',
-      required: true,
+      required: false,
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -40,9 +40,6 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
   },
   perform: (hubble, event) => {
     const payload = event.payload
-    if (!payload || typeof payload !== 'object' || !payload.userId) {
-      return
-    }
 
     hubble.identify &&
       hubble.identify({ userId: payload.userId, anonymousId: payload.anonymousId, attributes: payload.attributes })

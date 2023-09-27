@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Hubble load Hubble SDK: 
-    <script 
-      type="text/javascript" 
-      src="https://sdk-dev.hubble.team/sdk/testId.js" 
-      async="" 
+    <script
+      type="text/javascript"
+      src="https://sdk.hubble.team/sdk/testId.js"
+      async=""
       status="loaded">
       </script>
      1`] = `

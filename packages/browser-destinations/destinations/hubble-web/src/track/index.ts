@@ -49,9 +49,6 @@ const action: BrowserActionDefinition<Settings, Hubble, Payload> = {
   },
   perform: (hubble, event) => {
     const payload = event.payload
-    if (!payload || typeof payload !== 'object' || !payload.event) {
-      return
-    }
 
     hubble.track &&
       hubble.track({

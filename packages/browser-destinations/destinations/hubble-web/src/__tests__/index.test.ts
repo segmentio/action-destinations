@@ -90,10 +90,10 @@ describe('Hubble', () => {
 
     const scripts = window.document.querySelectorAll('script')
     expect(scripts).toMatchSnapshot(`
-    <script 
-      type="text/javascript" 
-      src="https://sdk-dev.hubble.team/sdk/${testID}.js" 
-      async="" 
+    <script
+      type="text/javascript"
+      src="https://sdk.hubble.team/sdk/${testID}.js"
+      async=""
       status="loaded">
       </script>
     `)
