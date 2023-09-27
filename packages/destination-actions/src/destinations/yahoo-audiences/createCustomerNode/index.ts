@@ -24,13 +24,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: (request, { settings, payload }) => {
+  perform: async (request, { settings, payload }) => {
     const tx_creds = {
       tx_client_key: settings.taxonomy_client_key,
       tx_client_secret: settings.taxonomy_client_secret
     }
     const taxonomy_payload = gen_customer_taxonomy_payload(settings, payload)
-    return update_taxonomy('', tx_creds, request, taxonomy_payload)
+    return await update_taxonomy('', tx_creds, request, taxonomy_payload)
   }
 }
 

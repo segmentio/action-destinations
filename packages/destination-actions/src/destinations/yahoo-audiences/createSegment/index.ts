@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const body_form_data = gen_segment_subtaxonomy_payload(payload)
-    return update_taxonomy(String(payload.engage_space_id), tx_creds, request, body_form_data)
+    return await update_taxonomy(String(payload.engage_space_id), tx_creds, request, body_form_data)
   }
 }
 
