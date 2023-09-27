@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`addUpdateEvents addUpdateEvents should return expected output 1`] = `
-"EMAIL, EventSource, EventName, EventValue, Event Timestamp
+"EMAIL, EventSource, EventName, EventValue, EventTimestamp
 acmeTest@gmail.com, undefined Event, email, acmeTest@gmail.com, undefined
 acmeTest@gmail.com, undefined Event, action_source, system_generated, undefined
 acmeTest@gmail.com, undefined Event, cart_id, fff7b1597270349875cffad3852067ab, undefined
@@ -60,7 +60,7 @@ acmeTest@gmail.com, undefined Event, traits.lastName, acmeTest, undefined
 `;
 
 exports[`addUpdateEvents adds update events to CSV rows 1`] = `
-"EMAIL, EventSource, EventName, EventValue, Event Timestamp
+"EMAIL, EventSource, EventName, EventValue, EventTimestamp
 example@example.com, undefined Event, key1, value1, undefined
 "
 `;

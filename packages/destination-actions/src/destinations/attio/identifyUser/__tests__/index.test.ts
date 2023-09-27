@@ -8,6 +8,7 @@ const testDestination = createTestIntegration(Destination)
 const email = 'gob@bluth.example'
 const event = createTestEvent({
   type: 'identify' as const,
+  userId: '9',
   traits: {
     name: 'George Oscar Bluth',
     email
@@ -16,6 +17,7 @@ const event = createTestEvent({
 
 const mapping = {
   email_address: { '@path': '$.traits.email' },
+  user_id: { '@path': '$.userId' },
   user_attributes: {
     name: {
       '@path': '$.traits.name'
@@ -36,12 +38,13 @@ describe('Attio.identifyUser', () => {
       .reply(200, {})
 
     nock('https://api.attio.com')
-      .put('/v2/objects/users/records/simple?matching_attribute=primary_email_address', {
+      .put('/v2/objects/users/records/simple?matching_attribute=user_id', {
         data: {
           values: {
-            name: 'George Oscar Bluth',
+            user_id: '9',
             primary_email_address: email,
-            person: email
+            person: email,
+            name: 'George Oscar Bluth'
           }
         }
       })
