@@ -3,7 +3,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { gen_segment_subtaxonomy_payload } from '../utils-tax'
-import { update_taxonomy } from '../utils'
+import { update_taxonomy } from '../utils-tax'
 /* Generates a Segment in Yahoo Taxonomy */
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -39,14 +39,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { payload, auth }) => {
-    if (auth?.accessToken) {
-      const creds = Buffer.from(auth.accessToken, 'base64').toString()
-      const creds_json = JSON.parse(creds)
-      const tx_pair = creds_json.tx
-      const body_form_data = gen_segment_subtaxonomy_payload(payload)
-      return update_taxonomy(String(payload.engage_space_id), tx_pair, request, body_form_data)
+  perform: async (request, { payload, settings }) => {
+    const tx_creds = {
+      tx_client_key: settings.taxonomy_client_key,
+      tx_client_secret: settings.taxonomy_client_secret
     }
+
+    const body_form_data = gen_segment_subtaxonomy_payload(payload)
+    return update_taxonomy(String(payload.engage_space_id), tx_creds, request, body_form_data)
   }
 }
 

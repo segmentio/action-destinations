@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { gen_customer_taxonomy_payload } from '../utils-tax'
-import { update_taxonomy } from '../utils'
+import { update_taxonomy } from '../utils-tax'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create top-level CUSTOMER node in Yahoo taxonomy',
@@ -24,20 +24,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: (request, { settings, payload, auth }) => {
-    // const tk = {
-    //   tx_client_secret: 'abc',
-    //   tx_client_key:'123'
-    // }
-    if (auth?.accessToken) {
-      //if (tk) {
-      const creds = Buffer.from(auth.accessToken, 'base64').toString()
-      const creds_json = JSON.parse(creds)
-      const tx_pair = creds_json.tx
-      // const tx_pair = tk;
-      const taxonomy_payload = gen_customer_taxonomy_payload(settings, payload)
-      return update_taxonomy('', tx_pair, request, taxonomy_payload)
+  perform: (request, { settings, payload }) => {
+    const tx_creds = {
+      tx_client_key: settings.taxonomy_client_key,
+      tx_client_secret: settings.taxonomy_client_secret
     }
+    const taxonomy_payload = gen_customer_taxonomy_payload(settings, payload)
+    return update_taxonomy('', tx_creds, request, taxonomy_payload)
   }
 }
 

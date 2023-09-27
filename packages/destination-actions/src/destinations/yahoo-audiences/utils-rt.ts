@@ -3,7 +3,7 @@ import { createHmac, createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
-import { gen_random_id } from './utils'
+import { gen_random_id } from './utils-tax'
 
 /**
  * Creates a SHA256 hash from the input
@@ -92,20 +92,17 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     if (schema.email === true) {
       hashed_email = create_hash(event.email)
     }
-    let hashed_idfa: string | undefined = ''
-    let hashed_gpsaid: string | undefined = ''
+    let idfa: string | undefined = ''
+    let gpsaid: string | undefined = ''
     if (schema.maid === true) {
       switch (event.device_type) {
         case 'ios':
-          hashed_idfa = create_hash(event.advertising_id)
+          idfa = event.advertising_id
           break
         case 'android':
-          hashed_gpsaid = create_hash(event.advertising_id)
+          gpsaid = event.advertising_id
           break
       }
-    }
-    if (schema.maid === true && event.device_type === 'android') {
-      hashed_gpsaid = create_hash(event.advertising_id)
     }
 
     const ts = Math.floor(new Date().getTime() / 1000)
@@ -120,12 +117,12 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     }
 
     const seg_id = event.segment_audience_id
-    data.push([hashed_email, hashed_idfa, hashed_gpsaid, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
+    data.push([hashed_email, idfa, gpsaid, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
   }
 
   const yahoo_payload: YahooPayload = {
-    Schema: ['SHA256EMAIL', 'IDFA', 'GPSAID', 'SEGMENTS'],
-    Data: data,
+    schema: ['SHA256EMAIL', 'IDFA', 'GPADVID', 'SEGMENTS'],
+    data: data,
     gdpr: payloads[0].gdpr_flag
   }
 

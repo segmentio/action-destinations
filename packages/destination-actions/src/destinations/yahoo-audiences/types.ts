@@ -20,8 +20,8 @@ export interface TaxonomyObject {
 }
 
 export interface YahooPayload {
-  Schema: Array<string>
-  Data: Array<unknown>
+  schema: Array<string>
+  data: Array<unknown>
   gdpr: boolean
   gdpr_euconsent?: string | undefined
 }

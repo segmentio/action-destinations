@@ -1,21 +1,20 @@
-import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-
-import type { Settings } from './generated-types'
+import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
 import createSegment from './createSegment'
-
 import createCustomerNode from './createCustomerNode'
+import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
 
 interface RefreshTokenResponse {
   access_token: string
 }
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
   mode: 'cloud',
-
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -24,16 +23,55 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Yahoo MDM ID provided by Yahoo representative',
         type: 'string',
         required: true
+      },
+      taxonomy_client_key: {
+        label: 'Yahoo Taxonomy API client Id',
+        description: 'Taxonomy API client Id. Required to update Yahoo taxonomy',
+        type: 'string',
+        required: true
+      },
+      taxonomy_client_secret: {
+        label: 'Yahoo Taxonomy API client secret',
+        description: 'Taxonomy API client secret. Required to update Yahoo taxonomy',
+        type: 'string',
+        required: true
+      },
+      engage_space_id: {
+        label: 'Engage Space Id',
+        description:
+          'Required to create customer and segment nodes in Taxonomy. Provide Engage Space Id found in Unify > Settings > API Access. This maps to the "Id" and "Name" of the top-level Customer node in Yahoo taxonomy',
+        type: 'string',
+        required: true
+      },
+      customer_desc: {
+        label: 'Customer Description',
+        description:
+          'Required to create customer node in Taxonomy. Provide a description for the Customer node in Yahoo taxonomy. This must be less then 1000 characters',
+        type: 'string',
+        required: false
       }
     },
+    testAuthentication: async (request, input) => {
+      // Used to create top-level customer node
+      const tx_creds = {
+        tx_client_key: input.settings.taxonomy_client_key,
+        tx_client_secret: input.settings.taxonomy_client_secret
+      }
+
+      const data = {
+        engage_space_id: input.settings.engage_space_id,
+        customer_desc: input.settings.customer_desc
+      }
+
+      const body_form_data = gen_customer_taxonomy_payload(input.settings, data)
+
+      await update_taxonomy('', tx_creds, request, body_form_data)
+    },
     refreshAccessToken: async (request, { auth }) => {
-      // Oauth2 client_credentials
+      // Refresh Realtime API token (Oauth2 client_credentials)
       const rt_client_key = JSON.parse(auth.clientId)['rt_api']
-      console.log('rt_client_key:', rt_client_key)
       const rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
-      console.log('rt_client_secret:', rt_client_secret)
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
-      // TODO: What should we do if `res` returns an error?
       const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
         'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
         {
@@ -47,44 +85,89 @@ const destination: DestinationDefinition<Settings> = {
           })
         }
       )
-      // Oauth1 (sign request)
-      const tx_client_key = JSON.parse(auth.clientId)['tax_api']
-      const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
+      // // Oauth1 credentials
+      // const tx_client_key = JSON.parse(auth.clientId)['tax_api']
+      // const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
-      console.log('rt_access_token:', rt_access_token)
-      const creds = {
-        // Oauth1
-        tx: {
-          tx_client_key: tx_client_key,
-          tx_client_secret: tx_client_secret
-        },
-        // Oauth2
-        rt: rt_access_token
-      }
-      const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
-      console.log('creds_base64:', creds_base64)
-      return { accessToken: creds_base64 }
+      // const creds = {
+      //   // Oauth1
+      //   tx: {
+      //     tx_client_key: tx_client_key,
+      //     tx_client_secret: tx_client_secret
+      //   },
+      //   // Oauth2
+      //   rt: rt_access_token
+      // }
+      // const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
+      return { accessToken: rt_access_token }
     }
   },
-  /*
-// Potentially will be used to extend Tax Oauth1 requests.
-  extendRequest({ auth, payload }) {
-    let resp;
-    if (payload.segment_audience_id) {
-      resp = 'this is audience update';
-      console.log('AUDIENCE_ID IS AVAILABLE')
-    } else {
-      resp = 'this is taxonomy update'
-      console.log('AUDIENCE_ID IS NOT AVAILABLE')
-    }
-    console.log(resp)
-    return { 
-      headers: {
-        // authorization: `${auth?.accessToken}`
-      }
+  audienceFields: {
+    audience_id: {
+      type: 'string',
+      label: 'Advertiser ID',
+      description:
+        'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
+    },
+    audience_key: {
+      label: 'An audience id required by the destination',
+      description: 'An audience id required by the destination',
+      type: 'string',
+      required: true
+    },
+    engage_space_id: {
+      label: 'Engage Space Id',
+      description: 'Engage Space Id',
+      type: 'string',
+      required: true
     }
   },
-*/
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(request, createAudienceInput) {
+      const audience_id = createAudienceInput.audienceSettings?.audience_id
+      const audience_key = createAudienceInput.audienceSettings?.audience_key
+      const engage_space_id = createAudienceInput.audienceSettings?.engage_space_id
+      if (!audience_id) {
+        throw new IntegrationError('Missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!audience_key) {
+        throw new IntegrationError('Missing audience key value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!engage_space_id) {
+        throw new IntegrationError('Missing Engage space Id type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const input = {
+        segment_audience_id: audience_id,
+        segment_audience_key: audience_key,
+        engage_space_id: engage_space_id
+      }
+
+      const body_form_data = gen_segment_subtaxonomy_payload(input)
+
+      const tx_creds = {
+        tx_client_key: createAudienceInput.settings.taxonomy_client_key,
+        tx_client_secret: createAudienceInput.settings.taxonomy_client_secret
+      }
+
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
+
+      return { externalId: audience_id }
+    },
+    async getAudience(unknown, getAudienceInput) {
+      const audience_id = getAudienceInput.audienceSettings?.audience_id
+      if (!audience_id) {
+        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      return { externalId: audience_id }
+    }
+  },
 
   actions: {
     updateSegment,
