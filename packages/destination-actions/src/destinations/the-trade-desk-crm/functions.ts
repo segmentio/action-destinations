@@ -81,11 +81,11 @@ export async function processPayload(input: ProcessPayloadInput) {
       TDDAuthToken: input.settings.auth_token,
       AdvertiserId: input.settings.advertiser_id,
       CrmDataId: crmID,
-      SegmentName: input.payloads[0].name,
       UsersFormatted: usersFormatted,
       DropOptions: {
         PiiType: input.payloads[0].pii_type,
-        MergeMode: 'Replace'
+        MergeMode: 'Replace',
+        RetentionEnabled: true
       }
     })
   }
@@ -146,7 +146,8 @@ async function getCRMDataDropEndpoint(request: RequestClient, settings: Settings
       method: 'POST',
       json: {
         PiiType: payload.pii_type,
-        MergeMode: 'Replace'
+        MergeMode: 'Replace',
+        RetentionEnabled: true
       }
     }
   )

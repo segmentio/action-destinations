@@ -22,7 +22,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Region of your audience.
+   * The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)
    */
-  region?: string
+  region: string
 }
