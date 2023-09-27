@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of requests',
-      type: 'hidden', // We should always batch Yahoo requests
+      type: 'boolean', // We should always batch Yahoo requests
       default: true
     },
     batch_size: {
