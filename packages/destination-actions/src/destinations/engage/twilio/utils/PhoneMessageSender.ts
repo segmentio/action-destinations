@@ -58,8 +58,6 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       body.append('StatusCallback', webhookUrlWithParams)
     }
 
-    this.logError('EventStreamsSevTest', body)
-
     this.statsSet('message_body_size', body?.toString().length)
 
     const response = await this.request(
