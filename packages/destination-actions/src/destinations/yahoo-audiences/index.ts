@@ -160,7 +160,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       return { externalId: audience_id }
     },
-    async getAudience(unknown, getAudienceInput) {
+    async getAudience(_, getAudienceInput) {
       const audience_id = getAudienceInput.audienceSettings?.audience_id
       if (!audience_id) {
         throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
