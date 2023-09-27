@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * Enable batching of requests
    */
-  enable_batching?: boolean & string
+  enable_batching?: boolean
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
