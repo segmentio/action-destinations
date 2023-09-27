@@ -7,7 +7,7 @@ import { update_taxonomy } from '../utils-tax'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create top-level CUSTOMER node in Yahoo taxonomy',
   defaultSubscription: 'event = "Audience Entered" and event = "Audience Exited"',
-  description: '',
+  description: 'Create top-level CUSTOMER node in Yahoo taxonomy',
   fields: {
     engage_space_id: {
       label: 'Engage Space Id',
