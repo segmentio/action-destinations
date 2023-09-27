@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError, defaultValues } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import identify from './identify'
 import group from './group'
 import track from './track'
@@ -50,17 +50,17 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (_, { settings }) => {
-      if (!settings.apiKey || settings.apiKey.length === 0) {
-        throw new IntegrationError('API Key is required', 'Invalid API Key', 400)
-      }
-
-      if (!settings.workspaceIdentifier || settings.workspaceIdentifier.length === 0) {
-        throw new IntegrationError('Workspace identifier is required', 'Invalid workspace identifier', 400)
-      }
-      return true
+    testAuthentication: async (request, { settings }) => {
+      return await request('https://api.hyperengage.io/api/v1/verify_api_key', {
+        method: 'POST',
+        json: {
+          api_key: `${settings.apiKey}`,
+          workspace_identifier: `${settings.workspaceIdentifier}`
+        }
+      })
     }
   },
+
   presets,
   actions: {
     identify,
