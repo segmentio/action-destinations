@@ -76,8 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, logger, statsContext, features }) => {
-    logger?.info('addUser - features', JSON.stringify(features))
-    logger?.info(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+    logger?.warn('addUser - features', JSON.stringify(features))
+    logger?.warn(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
 
     if (features && features[MIGRATION_FLAG_NAME]) {
       return
@@ -86,8 +86,8 @@ const action: ActionDefinition<Settings, Payload> = {
     return processPayload(request, settings, [payload], 'add')
   },
   performBatch: async (request, { settings, payload, logger, statsContext, features }) => {
-    logger?.info('addUser - features', JSON.stringify(features))
-    logger?.info(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+    logger?.warn('addUser - features', JSON.stringify(features))
+    logger?.warn(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
 
     if (features && features[MIGRATION_FLAG_NAME]) {
       return

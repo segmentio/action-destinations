@@ -28,10 +28,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     external_audience_id: { ...external_audience_id }
   },
   perform: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
-    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudienceMetadata', 1, statsContext?.tags)
 
-    logger?.info('addToAudience - features', JSON.stringify(features))
-    logger?.info(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+    logger?.warn('addToAudience - features', JSON.stringify(features))
+    logger?.warn(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
 
     if (!features?.[MIGRATION_FLAG_NAME]) {
       return
@@ -48,8 +48,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   performBatch: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
     statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
 
-    logger?.info('addToAudience - features', JSON.stringify(features))
-    logger?.info(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+    logger?.warn('addToAudience - features', JSON.stringify(features))
+    logger?.warn(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
 
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
