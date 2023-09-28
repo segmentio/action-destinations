@@ -489,7 +489,7 @@ describe('HubSpot.upsertContactBatch', () => {
     expect(testBatchResponses[1].data).toMatchSnapshot()
   })
 
-  test("should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object", async () => {
+  test('should create and update contact successfully and skip that contact which is different from those are specified in segment events ', async () => {
     const events = createBatchTestEvents([...createContactList, ...updateContactList])
 
     // Mock: Read Contact Using Email and considering a differenet email in batch read response for testing perspective.

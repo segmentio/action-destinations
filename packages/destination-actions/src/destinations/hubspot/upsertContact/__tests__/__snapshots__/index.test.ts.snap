@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 1`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is different from those are specified in segment events  1`] = `
 Object {
   "afterResponse": Array [
     [Function],
@@ -51,7 +51,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 2`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is different from those are specified in segment events  2`] = `
 Object {
   "errors": Array [
     Object {
@@ -91,7 +91,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 3`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is different from those are specified in segment events  3`] = `
 Object {
   "results": Array [
     Object {
@@ -110,7 +110,7 @@ Object {
 }
 `;
 
-exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object 4`] = `
+exports[`HubSpot.upsertContactBatch should create and update contact successfully and skip that contact which is different from those are specified in segment events  4`] = `
 Object {
   "results": Array [
     Object {
