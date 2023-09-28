@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return processPayload(request, audienceSettings, [payload], 'add')
   },
   performBatch: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
-    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudienceMetadata', 1, statsContext?.tags)
 
     logger?.warn('addToAudience - features', JSON.stringify(features))
     logger?.warn(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
