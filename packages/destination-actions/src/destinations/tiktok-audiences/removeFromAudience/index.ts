@@ -28,33 +28,31 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     external_audience_id: { ...external_audience_id }
   },
   perform: async (request, { audienceSettings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('removeFromAudienceInfo', 1, statsContext?.tags)
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
-
-    const statsClient = statsContext?.statsClient
-    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    statsClient?.incr('removeFromAudience', 1, statsTag)
+    statsContext?.statsClient?.incr('removeFromAudience', 1, statsContext?.tags)
+
     return processPayload(request, audienceSettings, [payload], 'delete')
   },
   performBatch: async (request, { audienceSettings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('removeFromAudienceInfo', 1, statsContext?.tags)
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
-
-    const statsClient = statsContext?.statsClient
-    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    statsClient?.incr('removeFromAudience', 1, statsTag)
+    statsContext?.statsClient?.incr('removeFromAudience', 1, statsContext?.tags)
+
     return processPayload(request, audienceSettings, payload, 'delete')
   }
 }
