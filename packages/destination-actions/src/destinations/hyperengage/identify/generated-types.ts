@@ -14,6 +14,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * The account id, to uniquely identify the account associated with the user
+   */
+  account_id?: string
+  /**
    * The timestamp when the user was created
    */
   created_at?: string

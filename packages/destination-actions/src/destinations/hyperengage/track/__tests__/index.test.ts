@@ -62,7 +62,7 @@ describe('Hyperengage.track', () => {
 
   test('Should send an track event to Hyperengage', async () => {
     // Mock: Segment track Call
-    nock('https://t.jitsu.com').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
+    nock('https://events.hyperengage.io').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
 
     const event = createTestEvent({
       type: 'track',

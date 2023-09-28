@@ -43,6 +43,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    account_id: {
+      type: 'string',
+      required: false,
+      description: 'The account id, to uniquely identify the account associated with the user',
+      label: 'Account id',
+      default: { '@path': '$.groupId' }
+    },
     created_at: {
       type: 'string',
       required: false,

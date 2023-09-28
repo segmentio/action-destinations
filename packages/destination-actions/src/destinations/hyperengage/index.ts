@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       return await request('https://api.hyperengage.io/api/v1/verify_api_key', {
-        method: 'POST',
+        method: 'post',
         json: {
           api_key: `${settings.apiKey}`,
           workspace_identifier: `${settings.workspaceIdentifier}`

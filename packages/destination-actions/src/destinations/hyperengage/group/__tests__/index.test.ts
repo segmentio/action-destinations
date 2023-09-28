@@ -75,7 +75,7 @@ describe('Hyperengage.group', () => {
 
   test('Should send an group event to Hyperengage', async () => {
     // Mock: Segment group Call
-    nock('https://t.jitsu.com').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
+    nock('https://events.hyperengage.io').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
 
     const event = createTestEvent({
       type: 'group',
