@@ -27,9 +27,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, statsContext, features }) => {
+  perform: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
     statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
-    if (features && !features[MIGRATION_FLAG_NAME]) {
+
+    logger?.info('addToAudience - features', JSON.stringify(features))
+    logger?.info(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+
+    if (!features?.[MIGRATION_FLAG_NAME]) {
       return
     }
 
@@ -41,8 +45,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { audienceSettings, payload, statsContext, features }) => {
+  performBatch: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
     statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
+
+    logger?.info('addToAudience - features', JSON.stringify(features))
+    logger?.info(`addToAudience - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
+
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
