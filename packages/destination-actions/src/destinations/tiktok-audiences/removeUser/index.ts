@@ -13,6 +13,7 @@ import {
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
+import { MIGRATION_FLAG_NAME } from '../constants'
 
 // NOTE
 // This action is not used by the native Segment Audiences feature.
@@ -73,12 +74,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('actions-tiktok-audiences.removeUser', 1, statsContext?.tags)
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('actions-tiktok-audiences.removeUser', 1, statsContext?.tags)
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    if (features && features[MIGRATION_FLAG_NAME]) {
+      return
+    }
+    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'delete')
   }
 }

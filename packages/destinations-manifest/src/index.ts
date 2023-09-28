@@ -54,3 +54,8 @@ register('640267d74c13708d74062dcd', '@segment/analytics-browser-actions-upollo'
 register('6480b4eeab29eca5415089d4', '@segment/analytics-browser-actions-userpilot')
 register('64820d8030d09e775fbac372', '@segment/analytics-browser-actions-screeb')
 register('64c1690a9f08c84a420aba78', '@segment/analytics-browser-actions-tiktok-pixel')
+register('64f2434e5066280a0e7f1ab3', '@segment/analytics-browser-actions-google-campaign-manager')
+register('6501a4325a8a629197cdd691', '@segment/analytics-browser-actions-pendo-web-actions')
+register('6501a5225aa338d11164cc0f', '@segment/analytics-browser-actions-rupt')
+register('650c69e7f47d84b86c120b4c', '@segment/analytics-browser-actions-cdpresolution')
+register('649adeaa719bd3f55fe81bef', '@segment/analytics-browser-actions-devrev')

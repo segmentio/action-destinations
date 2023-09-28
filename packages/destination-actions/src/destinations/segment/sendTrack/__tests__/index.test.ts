@@ -21,6 +21,9 @@ const defaultTrackMapping = {
   },
   properties: {
     '@path': '$.properties'
+  },
+  traits: {
+    '@path': '$.traits'
   }
 }
 
@@ -76,6 +79,7 @@ describe('Segment.sendTrack', () => {
       properties: {
         plan: 'Business'
       },
+      traits: { email: 'testuser@gmail.com', age: 47 },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
       event: 'Test Event'
@@ -98,11 +102,11 @@ describe('Segment.sendTrack', () => {
       properties: {
         ...event.properties
       },
-      context: {}
+      context: { traits: { email: 'testuser@gmail.com', age: 47 } }
     })
   })
 
-  test('Should not send event if actions-segment-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       properties: {
         plan: 'Business'
@@ -120,7 +124,7 @@ describe('Segment.sendTrack', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-tapi-internal': true
+        'actions-segment-tapi-internal-enabled': true
       }
     })
 

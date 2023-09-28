@@ -28,20 +28,14 @@ const attributes: InputField = {
   type: 'object',
   label: 'Attributes',
   description:
-    'Attributes to either set or update on the Attio Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text. ' +
+    'Attributes to either set or update on the Attio Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs, ' +
+    'for example: traits.name → name. ' +
     'The Matching Attribute must be included for assertion to work.',
   defaultObjectUI: 'keyvalue:only',
   additionalProperties: true,
-  properties: {
-    name: {
-      label: 'Name',
-      type: 'string'
-    }
-  },
-  default: {
-    name: { '@path': '$.traits.name' }
-  }
+  properties: {},
+  default: {}
 }
 
 export const objectLookup = async (request: RequestClient): Promise<DynamicFieldResponse> => {
@@ -81,17 +75,13 @@ const action: ActionDefinition<Settings, Payload> = {
     object: objectLookup
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { attributes, object, matching_attribute }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     return await client.assertRecord({
-      object,
-      matching_attribute,
-      values: attributes ?? {}
+      object: payload.object,
+      matching_attribute: payload.matching_attribute,
+      values: payload.attributes ?? {}
     })
   }
 }

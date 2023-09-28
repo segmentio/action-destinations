@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-koala",
-  "version": "1.13.0",
+  "version": "1.15.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,10 +15,10 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.82.0",
-    "@segment/browser-destination-runtime": "^1.13.0"
+    "@segment/actions-core": "^3.83.0",
+    "@segment/browser-destination-runtime": "^1.14.0"
   },
   "peerDependencies": {
-    "@segment/analytics-next": "*"
+    "@segment/analytics-next": ">=1.55.0"
   }
 }
