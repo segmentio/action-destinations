@@ -492,17 +492,28 @@ describe('HubSpot.upsertContactBatch', () => {
   test("should create and update contact successfully and skip that contact which is not available in 'contactsUpsertMap' object", async () => {
     const events = createBatchTestEvents([...createContactList, ...updateContactList])
 
-    // Mock: Read Contact Using Email and considering a email as case sensitive for now for testing perspective.
-    //In ideal case,it should not be like this.Hubspot takes all emails as case insenstivity and will return the email in lowercase while sending response.
+    // Mock: Read Contact Using Email and considering a differenet email in batch read response for testing perspective.
+    //In ideal case,it should not be like this, it would be same as specified in event!
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/read`)
       .reply(
         200,
         generateBatchReadResponse([
-          ...createContactList,
+          {
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One',
+            lifecyclestage: 'lead'
+          },
+          {
+            email: 'usertwo@someothercompany.com',
+            firstname: 'User',
+            lastname: 'Two',
+            lifecyclestage: 'subscriber'
+          },
           {
             id: '103',
-            email: 'userthree@SomeCompany.com',
+            email: 'userthree@someothercompany.com',
             firstname: 'User',
             lastname: 'Three',
             lifecyclestage: 'subscriber'
@@ -536,7 +547,17 @@ describe('HubSpot.upsertContactBatch', () => {
     // Mock: Create Contact
     nock(HUBSPOT_BASE_URL)
       .post(`/crm/v3/objects/contacts/batch/create`)
-      .reply(201, generateBatchCreateResponse(createContactList))
+      .reply(
+        201,
+        generateBatchCreateResponse([
+          {
+            email: 'userone@somecompany.com',
+            firstname: 'User',
+            lastname: 'One',
+            lifecyclestage: 'lead'
+          }
+        ])
+      )
 
     const mapping = {
       properties: {

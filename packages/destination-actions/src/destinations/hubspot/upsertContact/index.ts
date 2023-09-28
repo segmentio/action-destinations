@@ -398,7 +398,9 @@ function updateActionsForBatchedContacts(
         // Set the action to create for contacts that don't exist in HubSpot
         for (const id of error.context.ids) {
           //Set Action to create
-          contactsUpsertMap[id].action = 'create'
+          if (contactsUpsertMap[id]) {
+            contactsUpsertMap[id].action = 'create'
+          }
         }
       } else {
         // Throw any other error responses

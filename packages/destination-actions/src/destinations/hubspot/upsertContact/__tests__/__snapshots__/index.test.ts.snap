@@ -59,7 +59,7 @@ Object {
       "context": Object {
         "ids": Array [
           "userone@somecompany.com",
-          "usertwo@somecompany.com",
+          "usertwo@someothercompany.com",
         ],
       },
       "message": "Could not get some CONTACT objects, they may be deleted or not exist. Check that ids are valid.",
@@ -72,7 +72,7 @@ Object {
       "id": "103",
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
-        "email": "userthree@SomeCompany.com",
+        "email": "userthree@someothercompany.com",
         "hs_object_id": "103",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -103,17 +103,6 @@ Object {
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
         "lastname": "One",
         "lifecyclestage": "lead",
-      },
-    },
-    Object {
-      "id": "102",
-      "properties": Object {
-        "createdate": "2023-07-06T12:47:47.626Z",
-        "email": "usertwo@somecompany.com",
-        "firstname": "User",
-        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
-        "lastname": "Two",
-        "lifecyclestage": "subscriber",
       },
     },
   ],
