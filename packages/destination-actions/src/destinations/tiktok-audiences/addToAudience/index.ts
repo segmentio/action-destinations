@@ -28,36 +28,30 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     external_audience_id: { ...external_audience_id }
   },
   perform: async (request, { audienceSettings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
-    const statsClient = statsContext?.statsClient
-    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    if (statsClient) {
-      statsClient?.incr('addToAudience', 1, statsTag)
-    }
+    statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
 
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { payload, audienceSettings, statsContext, features }) => {
+  performBatch: async (request, { audienceSettings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
     if (features && !features[MIGRATION_FLAG_NAME]) {
       return
     }
-    const statsClient = statsContext?.statsClient
-    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    if (statsClient) {
-      statsClient?.incr('addToAudience', 1, statsTag)
-    }
+    statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
 
     return processPayload(request, audienceSettings, payload, 'add')
   }
