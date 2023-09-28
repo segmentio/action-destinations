@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * An array of objects representing the purchased items. Each object must contains a product_id field.
+   * Populates the ObjectIds field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contains a product_id field.
    */
   products: {
     product_id: string
@@ -23,4 +23,10 @@ export interface Payload {
    * The timestamp of the event.
    */
   timestamp?: string
+  /**
+   * Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.
+   */
+  extraProperties?: {
+    [k: string]: unknown
+  }
 }
