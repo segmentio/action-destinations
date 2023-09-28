@@ -10,14 +10,14 @@ const domain = 'example.com'
 const event = createTestEvent({
   type: 'group' as const,
   traits: {
-    name: 'The Bluth Company',
+    id: '42',
     domain
   }
 })
 
 const mapping = {
   domain: { '@path': '$.traits.domain' },
-  name: { '@path': '$.traits.name' }
+  workspace_id: { '@path': '$.traits.id' }
 }
 
 describe('Attio.groupWorkspace', () => {
@@ -45,11 +45,11 @@ describe('Attio.groupWorkspace', () => {
       .reply(200, companyResponse)
 
     nock('https://api.attio.com')
-      .put('/v2/objects/workspaces/records/simple?matching_attribute=name', {
+      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id', {
         data: {
           values: {
             company: 'record_id',
-            name: 'The Bluth Company'
+            workspace_id: '42'
           }
         }
       })

@@ -10,7 +10,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
   fields: {
     objectID: {
       label: 'Product ID',
-      description: 'Product ID of the clicked item.',
+      description: 'Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.',
       type: 'string',
       required: true,
       default: {
@@ -63,14 +63,26 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       description: 'The timestamp of the event.',
       label: 'timestamp',
       default: { '@path': '$.timestamp' }
+    },
+    extraProperties: {
+      label: 'extraProperties',
+      required: false,
+      description:
+        'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   perform: (request, data) => {
     const insightEvent: AlgoliaProductClickedEvent = {
-      ...data.payload,
+      ...data.payload.extraProperties,
       eventName: 'Product Clicked',
       eventType: 'click',
+      index: data.payload.index,
+      queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
       positions: data.payload.position ? [data.payload.position] : undefined,

@@ -12,11 +12,10 @@ describe('Send Events Action', () => {
   e.properties = { email: 'test@gmail.com' }
 
   const mockSettings = {
-    cacheType: 'S3',
     s3_access_key: 'access_key',
     s3_secret: 'secret',
     s3_region: 'us-east-1',
-    s3_bucket: 'my-bucket',
+    s3_bucket_accesspoint_alias: 'my-bucket',
     fileNamePrefix: 'prefix'
   } as Settings
 
@@ -40,7 +39,7 @@ describe('Send Events Action', () => {
     // Mock generateS3RequestOptions function
     const mockGenerateS3RequestOptions = jest.fn().mockResolvedValue({})
     mockGenerateS3RequestOptions(
-      mockSettings.s3_bucket,
+      mockSettings.s3_bucket_accesspoint_alias,
       mockSettings.s3_region,
       expect.any(String), // Generated file name
       'PUT',
@@ -50,7 +49,7 @@ describe('Send Events Action', () => {
     )
 
     expect(mockGenerateS3RequestOptions).toHaveBeenCalledWith(
-      mockSettings.s3_bucket,
+      mockSettings.s3_bucket_accesspoint_alias,
       mockSettings.s3_region,
       expect.any(String), // Generated file name
       'PUT',
