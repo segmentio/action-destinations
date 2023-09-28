@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -77,20 +77,25 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'AUTO'
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, payload, statsContext)
   }
 }
 
-async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
+async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: Payload[],
+  statsContext: StatsContext | undefined
+) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
-  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0])
+  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
   const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition because at least an email or a
@@ -102,7 +107,10 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   if (elements.length < 1) {
     return
   }
-
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+    ...statsContext?.tags,
+    `endpoint:add-or-remove-users-from-dmpSegment`
+  ])
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
@@ -135,18 +143,29 @@ function validate(settings: Settings, payloads: Payload[]): void {
   }
 }
 
-async function getDmpSegmentId(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+async function getDmpSegmentId(
+  linkedinApiClient: LinkedInAudiences,
+  settings: Settings,
+  payload: Payload,
+  statsContext: StatsContext | undefined
+) {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
-
-  return createDmpSegment(linkedinApiClient, settings, payload)
+  return createDmpSegment(linkedinApiClient, settings, payload, statsContext)
 }
 
-async function createDmpSegment(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+async function createDmpSegment(
+  linkedinApiClient: LinkedInAudiences,
+  settings: Settings,
+  payload: Payload,
+  statsContext: StatsContext | undefined
+) {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
