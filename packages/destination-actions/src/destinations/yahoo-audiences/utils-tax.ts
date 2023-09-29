@@ -91,10 +91,18 @@ export async function update_taxonomy(
     return await add_segment_node.json()
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
-    throw new IntegrationError(
-      `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${_error.response.status}`,
-      'YAHOO_TAXONOMY_API_ERR',
-      parseInt(_error.response.status)
-    )
+    // If Taxonomy API returned 401, throw Integration error w/status 400 to prevent refreshAccessToken from firing
+    // Otherwise throw the orifinal error
+    if (parseInt(_error.response.status) == 401) {
+      throw new IntegrationError(
+        `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${
+          _error.response.status
+        }. Validate credentials`,
+        'YAHOO_TAXONOMY_API_AUTH_ERR',
+        400
+      )
+    } else {
+      throw error
+    }
   }
 }

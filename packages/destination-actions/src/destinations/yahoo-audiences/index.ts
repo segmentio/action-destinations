@@ -15,7 +15,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Yahoo Audiences',
+  description: 'Sync Segment Engage Audiences to Yahoo Ads',
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -86,39 +86,38 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           })
         }
       )
-      // // Oauth1 credentials
-      // const tx_client_key = JSON.parse(auth.clientId)['tax_api']
-      // const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
+      // Oauth1 credentials
+      const tx_client_key = JSON.parse(auth.clientId)['tax_api']
+      const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
-      // const creds = {
-      //   // Oauth1
-      //   tx: {
-      //     tx_client_key: tx_client_key,
-      //     tx_client_secret: tx_client_secret
-      //   },
-      //   // Oauth2
-      //   rt: rt_access_token
-      // }
-      // const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
-      return { accessToken: rt_access_token }
+      const creds = {
+        // Oauth1
+        tx: {
+          tx_client_key: tx_client_key,
+          tx_client_secret: tx_client_secret
+        },
+        // Oauth2
+        rt: rt_access_token
+      }
+      const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
+      return { accessToken: creds_base64 }
     }
   },
   audienceFields: {
     audience_id: {
       type: 'string',
-      label: 'Advertiser ID',
-      description:
-        'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
+      label: 'Audience Id',
+      description: 'Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy.'
     },
     audience_key: {
       label: 'Audience key',
-      description: 'An audience key required by the destination',
+      description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy.',
       type: 'string',
       required: true
     },
     engage_space_id: {
       label: 'Engage Space Id',
-      description: 'Engage Space Id',
+      description: 'Engage Space Id found in Unify > Settings > API Access.',
       type: 'string',
       required: true
     }

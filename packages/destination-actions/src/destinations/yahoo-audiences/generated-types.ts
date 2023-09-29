@@ -26,15 +26,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.
+   * Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy.
    */
   audience_id?: string
   /**
-   * An audience key required by the destination
+   * Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy.
    */
   audience_key: string
   /**
-   * Engage Space Id
+   * Engage Space Id found in Unify > Settings > API Access.
    */
   engage_space_id: string
 }
