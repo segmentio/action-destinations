@@ -21,8 +21,7 @@ import {
   locale,
   location
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Screen',
@@ -48,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -78,24 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
     // Return transformed payload without sending it to TAPI endpoint
-    if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
-      const payload = { ...screenPayload, type: 'screen' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
-    return request(`${selectedSegmentEndpoint}/screen`, {
-      method: 'POST',
-      json: screenPayload
-    })
+    return { batch: [{ ...screenPayload, type: 'screen' }] }
   }
 }
 
