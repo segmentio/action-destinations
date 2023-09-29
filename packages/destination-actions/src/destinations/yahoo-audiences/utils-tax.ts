@@ -3,8 +3,7 @@ import { Payload as CustomerNodePayload } from './createCustomerNode/generated-t
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 import { CredsObj } from './types'
-import { RequestClient } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core/*'
+import { RequestClient, IntegrationError } from '@segment/actions-core'
 
 export function gen_customer_taxonomy_payload(settings: Settings, payload: CustomerNodePayload) {
   const data = {

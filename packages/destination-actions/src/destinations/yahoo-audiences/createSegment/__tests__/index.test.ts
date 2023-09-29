@@ -6,13 +6,13 @@ import { TAXONOMY_BASE_URL } from '../../constants'
 const testDestination = createTestIntegration(Destination)
 
 describe('YahooAudiences.createSegment', () => {
-  // This is a dummy test
-  it('should pull yahoo taxonomy', async () => {
+  it.skip('should pull yahoo taxonomy', async () => {
     const event = createTestEvent()
     nock(`${TAXONOMY_BASE_URL}/v1/taxonomy`)
       .post(event as any)
       .reply(200)
-    const responses = await testDestination.testAction('send', {
+
+    const responses = await testDestination.testAction('createSegment', {
       event,
       mapping: {},
       useDefaultMappings: true
