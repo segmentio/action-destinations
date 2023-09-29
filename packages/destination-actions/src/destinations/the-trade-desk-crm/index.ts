@@ -25,7 +25,7 @@ export interface Segments {
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'The Trade Desk CRM',
+  name: 'The Trade Desk Crm',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
 
