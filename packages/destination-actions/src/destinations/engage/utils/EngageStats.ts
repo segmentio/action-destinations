@@ -9,7 +9,7 @@ import {
 } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
-import { ErrorDetails, getErrorDetails } from './ResponseError'
+import { getErrorDetails } from './ResponseError'
 
 export class EngageStats extends OperationStats {
   static getTryCatchFinallyHook(_ctx: OperationStatsContext): TryCatchFinallyHook<OperationStatsContext> {
@@ -96,7 +96,7 @@ export class EngageStats extends OperationStats {
   extractTagsFromError(error: TrackedError, ctx: OperationStatsContext): string[] {
     const res = super.extractTagsFromError(error, ctx)
 
-    const errDetails: ErrorDetails = getErrorDetails(error)
+    const errDetails = getErrorDetails(error)
     if (errDetails?.code) res.push(`error_code:${errDetails.code}`)
     if (errDetails?.status) res.push(`error_status:${errDetails.status}`)
 

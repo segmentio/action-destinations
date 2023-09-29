@@ -3,7 +3,7 @@
 import { Logger } from '@segment/actions-core/destination-kit'
 import { OperationLogger, OperationLoggerContext, TryCatchFinallyHook } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
-import { ErrorDetails, getErrorDetails } from './ResponseError'
+import { getErrorDetails } from './ResponseError'
 
 export const FLAGON_NAME_LOG_INFO = 'engage-messaging-log-info'
 export const FLAGON_NAME_LOG_ERROR = 'engage-messaging-log-error'
@@ -48,7 +48,7 @@ export class EngageLogger extends OperationLogger {
   }
 
   getErrorMessage(error: unknown) {
-    const errorDetails: ErrorDetails = getErrorDetails(error)
+    const errorDetails = getErrorDetails(error)
     let res = `${errorDetails.message}`
     if (errorDetails.code) res += `. Code: ${errorDetails.code}`
     if (errorDetails.status) res += `. Status: ${errorDetails.status}`

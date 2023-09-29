@@ -6,7 +6,7 @@ import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
-import { ErrorDetails, ResponseError, getErrorDetails } from './ResponseError'
+import { ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
@@ -58,7 +58,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       // log response from error or success
       const respError = op?.error as ResponseError
       if (respError) {
-        const errorDetails: ErrorDetails = getErrorDetails(respError)
+        const errorDetails = getErrorDetails(respError)
         const msgLowercare = errorDetails?.message?.toLowerCase()
 
         // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
