@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { IntegrationError } from '@segment/actions-core'
 
 export const operation: InputField = {
@@ -21,6 +21,15 @@ export const enable_batching: InputField = {
     'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
   type: 'boolean',
   default: false
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+  type: 'number',
+  required: false,
+  unsafe_hidden: true,
+  default: 5000
 }
 
 export const bulkUpsertExternalId: InputField = {

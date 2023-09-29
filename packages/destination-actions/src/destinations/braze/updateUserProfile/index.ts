@@ -154,7 +154,12 @@ const action: ActionDefinition<Settings, Payload> = {
     email_subscribe: {
       label: 'Email Subscribe',
       description: `The user's email subscription preference: “opted_in” (explicitly registered to receive email messages), “unsubscribed” (explicitly opted out of email messages), and “subscribed” (neither opted in nor out).`,
-      type: 'string'
+      type: 'string',
+      choices: [
+        { label: 'OTPED_IN', value: 'opted_in' },
+        { label: 'SUBSCRIBED', value: 'subscribed' },
+        { label: 'UNSUBSCRIBED', value: 'unsubscribed' }
+      ]
     },
     email_open_tracking_disabled: {
       label: 'Email Open Tracking Disabled',

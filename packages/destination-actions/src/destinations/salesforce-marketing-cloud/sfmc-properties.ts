@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -79,4 +79,13 @@ export const enable_batching: InputField = {
   description: 'If true, data is batched before sending to the SFMC Data Extension.',
   type: 'boolean',
   default: false
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+  type: 'number',
+  required: false,
+  unsafe_hidden: true,
+  default: 5000
 }

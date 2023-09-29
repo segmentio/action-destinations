@@ -21,6 +21,7 @@ export const manifest: Record<MetadataId, ManifestEntry> = {}
  * To test in staging, the ids should match across environments.
  * It is recommended that you register/create destination definitions
  * in production and sync them into staging via `sprout`.
+ *
  */
 register('60f64ae3eaebd66d17d28e9f', './1plusx')
 register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
@@ -112,6 +113,22 @@ register('6492cbb7df74e63cfa2f3e36', './iqm')
 register('6492cbd495feedacdcf431a4', './playerzero-cloud')
 register('649adeaa719bd3f55fe81bef', './devrev')
 register('649a1418b31e61334c66a7e7', './webhook-audiences')
+register('64b67be0d0dd66094c162ca7', './app-fit')
+register('64b67add9c22bc2cce3bf8bc', './m3ter')
+register('64b6a221baf168a989be641a', './listrak')
+register('64c022a713fa5f5a1452c106', './hilo')
+register('64c02312ff0ce798cc8d1a7e', './rehook')
+register('64c031541451bb784943f809', './attio')
+register('64ca21ee1f8f380283837ba1', './prodeology')
+register('64d3487dcc68fe039fb6237f', './gameball')
+register('64e72af1eabf77368b877a51', './pushwoosh')
+register('64e72a310da9ebedf99c8937', './launchdarkly-audiences')
+register('64edec5a4f881f992e432b81', './acoustic-s3tc')
+register('64edeb2bee24614fe52ede34', './optimizely-advanced-audience-targeting')
+register('64ede9fe67158afa8de61480', './dynamic-yield-audiences')
+register('64f703d1f6e9aa0a283ae3e2', './absmartly')
+register('650bdf1a62fb34ef0a8058e1', './klaviyo')
+register('6512d7f86bdccc3829fc4ac3', './optimizely-data-platform')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

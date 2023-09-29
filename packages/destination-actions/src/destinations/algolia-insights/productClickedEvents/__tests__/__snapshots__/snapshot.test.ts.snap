@@ -7,15 +7,14 @@ Object {
       "eventName": "Product Clicked",
       "eventType": "click",
       "index": "tTO6#",
-      "objectID": "tTO6#",
       "objectIDs": Array [
         "tTO6#",
       ],
-      "position": -8127732168785920,
       "positions": Array [
         -8127732168785920,
       ],
       "queryID": "tTO6#",
+      "testType": "tTO6#",
       "timestamp": null,
       "userToken": "tTO6#",
     },
@@ -33,10 +32,6 @@ Object {
       "objectID": "tTO6#",
       "objectIDs": Array [
         "tTO6#",
-      ],
-      "position": -8127732168785920,
-      "positions": Array [
-        -8127732168785920,
       ],
       "timestamp": 1674843786677,
       "userToken": "tTO6#",

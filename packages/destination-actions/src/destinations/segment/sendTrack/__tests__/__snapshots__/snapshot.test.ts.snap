@@ -60,6 +60,9 @@ Object {
       "width": 17838569150218.24,
     },
     "timezone": "ET^Xg5cIGF]2ok",
+    "traits": Object {
+      "testType": "ET^Xg5cIGF]2ok",
+    },
     "userAgent": "ET^Xg5cIGF]2ok",
   },
   "event": "ET^Xg5cIGF]2ok",
@@ -76,6 +79,7 @@ Object {
   "anonymousId": "ET^Xg5cIGF]2ok",
   "context": Object {
     "groupId": "ET^Xg5cIGF]2ok",
+    "traits": Object {},
   },
   "event": "ET^Xg5cIGF]2ok",
   "properties": Object {},

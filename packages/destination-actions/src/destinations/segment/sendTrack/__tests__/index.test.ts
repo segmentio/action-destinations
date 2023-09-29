@@ -21,6 +21,9 @@ const defaultTrackMapping = {
   },
   properties: {
     '@path': '$.properties'
+  },
+  traits: {
+    '@path': '$.traits'
   }
 }
 
@@ -76,6 +79,7 @@ describe('Segment.sendTrack', () => {
       properties: {
         plan: 'Business'
       },
+      traits: { email: 'testuser@gmail.com', age: 47 },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
       event: 'Test Event'
@@ -98,7 +102,46 @@ describe('Segment.sendTrack', () => {
       properties: {
         ...event.properties
       },
-      context: {}
+      context: { traits: { email: 'testuser@gmail.com', age: 47 } }
+    })
+  })
+
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
+    const event = createTestEvent({
+      properties: {
+        plan: 'Business'
+      },
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k',
+      event: 'Test Event'
+    })
+
+    const responses = await testDestination.testAction('sendTrack', {
+      event,
+      mapping: defaultTrackMapping,
+      settings: {
+        source_write_key: 'test-source-write-key',
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-tapi-internal-enabled': true
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      batch: [
+        {
+          userId: event.userId,
+          anonymousId: event.anonymousId,
+          properties: {
+            ...event.properties
+          },
+          context: {}
+        }
+      ]
     })
   })
 })

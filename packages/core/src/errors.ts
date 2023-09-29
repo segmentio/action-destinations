@@ -61,7 +61,7 @@ export class RetryableError extends CustomError {
  * This could happen when a token or API key has expired or been revoked,
  * or various other scenarios where the authentication credentials are no longer valid.
  *
- * This error signals to Segment that the user must manually fix their credentials for events to succeed.
+ * This error signals to Segment that the user must manually fix their credentials for events to succeed
  */
 export class InvalidAuthenticationError extends CustomError {
   status = 401
@@ -98,6 +98,22 @@ export class APIError extends IntegrationError {
 }
 
 /**
+ * Error to indicate the destination has gone over its allotted execution time
+ * and is self-terminating.
+ * This is typically used when the destination makes calls using a stack other than the
+ * HTTP/S RequestClient.
+ * Error will be retried.
+ */
+export class SelfTimeoutError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.SELF_TIMEOUT, 408)
+  }
+}
+
+/**
  * Standard error codes. Use one from this enum whenever possible.
  */
 export enum ErrorCodes {
@@ -112,5 +128,7 @@ export enum ErrorCodes {
   // Refresh token has expired
   REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
   // OAuth refresh failed
-  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
+  OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
+  // Destination has spent more than the alloted time and needs to self-terminate
+  SELF_TIMEOUT = 'SELF_TIMEOUT'
 }

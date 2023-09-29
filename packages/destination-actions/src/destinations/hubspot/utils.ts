@@ -80,3 +80,33 @@ export interface SearchResponse {
 }
 
 export interface UpsertRecordResponse extends ResponseInfo {}
+
+export function transformEventName(eventName: string) {
+  return eventName.replace(/[\s.]+/g, '_').toLocaleLowerCase()
+}
+
+export enum AssociationCategory {
+  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
+  USER_DEFINED = 'USER_DEFINED',
+  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
+}
+
+export interface AssociationType {
+  associationCategory: AssociationCategory
+  associationTypeId: number
+}
+export interface CreateAssociation {
+  to: {
+    id: string
+  }
+  types: AssociationType[]
+}
+
+export interface AssociationLabel {
+  category: AssociationCategory
+  typeId: number
+  label: string
+}
+export interface GetAssociationLabelResponse {
+  results: AssociationLabel[]
+}

@@ -103,8 +103,8 @@ export interface AccountGet {
 }
 
 export interface Comment {
-  id: string,
-  body: string,
+  id: string
+  body: string
 }
 export interface TimelineResponse {
   data: {
@@ -115,6 +115,35 @@ export interface TimelineResponse {
 export interface CreateAccountBody {
   display_name: string
   domains?: string[]
-  tags?: {id: string}[]
+  tags?: { id: string }[]
   external_refs: string[]
+}
+
+export interface TraceEvent {
+  event_time: string
+  name: string
+  payload: object
+}
+
+export interface TrackEventsPublishBody {
+  events_list: TraceEvent[]
+}
+
+export interface JwtPayload {
+  aud: string[]
+  azp: string
+  exp: number
+  'http://devrev.ai/auth0_user_id': string
+  'http://devrev.ai/devo_don': string
+  'http://devrev.ai/devoid': string
+  'http://devrev.ai/devuid': string
+  'http://devrev.ai/displayname': string
+  'http://devrev.ai/email': string
+  'http://devrev.ai/fullname': string
+  'http://devrev.ai/tokentype': string
+  iat: number
+  iss: string
+  jti: string
+  org_id: string
+  sub: string
 }

@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const selected_advertiser_id: InputField = {
   label: 'Advertiser ID',
@@ -27,6 +27,7 @@ export const audience_id: InputField = {
   description:
     'Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.',
   type: 'string',
+  dynamic: true,
   required: true
 }
 
@@ -85,4 +86,13 @@ export const enable_batching: InputField = {
   description: 'Enable batching of requests to the TikTok Audiences.',
   type: 'boolean',
   default: true
+}
+
+export const external_audience_id: InputField = {
+  label: 'External Audience ID',
+  description: "The Audience ID in TikTok's DB.",
+  type: 'hidden',
+  default: {
+    '@path': '$.context.personas.external_audience_id'
+  }
 }
