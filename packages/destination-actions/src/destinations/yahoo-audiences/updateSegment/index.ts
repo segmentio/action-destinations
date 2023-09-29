@@ -150,6 +150,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { payload, auth }) => {
     const rt_access_token = auth?.accessToken
+
     if (!rt_access_token) {
       throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
     }

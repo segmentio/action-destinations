@@ -30,7 +30,7 @@ export interface AudienceSettings {
    */
   audience_id?: string
   /**
-   * An audience id required by the destination
+   * An audience key required by the destination
    */
   audience_key: string
   /**

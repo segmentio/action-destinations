@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 import { CredsObj } from './types'
 import { RequestClient } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core/*'
 
 export function gen_customer_taxonomy_payload(settings: Settings, payload: CustomerNodePayload) {
   const data = {
@@ -73,19 +74,27 @@ export async function update_taxonomy(
   request: RequestClient,
   body_form_data: string
 ) {
-  const tx_client_secret = tx_creds.tx_client_key
-  const tx_client_key = tx_creds.tx_client_secret
+  const tx_client_secret = tx_creds.tx_client_secret
+  const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
   const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
 
-  const add_segment_node = await request(url, {
-    method: 'PUT',
-    body: body_form_data,
-    headers: {
-      Authorization: oauth1_auth_string,
-      'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
-    }
-  })
-  console.log('upd tax status:', add_segment_node.status)
-  return await add_segment_node.json()
+  try {
+    const add_segment_node = await request(url, {
+      method: 'PUT',
+      body: body_form_data,
+      headers: {
+        Authorization: oauth1_auth_string,
+        'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
+      }
+    })
+    return await add_segment_node.json()
+  } catch (error) {
+    const _error = error as { response: { data: unknown; status: string } }
+    throw new IntegrationError(
+      `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${_error.response.status}`,
+      'YAHOO_TAXONOMY_API_ERR',
+      parseInt(_error.response.status)
+    )
+  }
 }

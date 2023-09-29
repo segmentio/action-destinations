@@ -111,8 +111,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
     },
     audience_key: {
-      label: 'An audience id required by the destination',
-      description: 'An audience id required by the destination',
+      label: 'Audience key',
+      description: 'An audience key required by the destination',
       type: 'string',
       required: true
     },
@@ -128,7 +128,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced', // Indicates that the audience is synced on some schedule
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
+
     async createAudience(request, createAudienceInput) {
+      // const tax_client_key = JSON.parse(auth.clientId)['tax_api']
       const audience_id = createAudienceInput.audienceSettings?.audience_id
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.audienceSettings?.engage_space_id
@@ -157,8 +159,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: createAudienceInput.settings.taxonomy_client_secret
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
+      const update_taxonomy_result = await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
 
+      console.log(update_taxonomy_result)
       return { externalId: audience_id }
     },
     async getAudience(_, getAudienceInput) {
