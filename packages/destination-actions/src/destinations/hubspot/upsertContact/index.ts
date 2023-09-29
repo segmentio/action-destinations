@@ -384,7 +384,7 @@ function updateActionsForBatchedContacts(
         logger?.info?.(`Payload for Contact - ${payload}`)
         logger?.info?.(`Mapped contactsUpsertMap - ${contactsUpsertMap}`)
         logger?.info?.(`Batch Read Response(update) - ${readResponse}`)
-        statsContext?.statsClient?.incr('contact_email_not_found', 1)
+        statsContext?.statsClient?.incr('contact_email_not_found', 1, statsContext?.tags)
       }
       // Set the action to update for contacts that exist in HubSpot
       contactsUpsertMap[result.properties.email].action = 'update'
@@ -408,7 +408,7 @@ function updateActionsForBatchedContacts(
             logger?.info?.(`Payload for Contact - ${payload}`)
             logger?.info?.(`Mapped contactsUpsertMap - ${contactsUpsertMap}`)
             logger?.info?.(`Batch Read Response(create) - ${readResponse}`)
-            statsContext?.statsClient?.incr('contact_email_not_found', 1)
+            statsContext?.statsClient?.incr('contact_email_not_found', 1, statsContext?.tags)
           }
           //Set Action to create
           contactsUpsertMap[id].action = 'create'
