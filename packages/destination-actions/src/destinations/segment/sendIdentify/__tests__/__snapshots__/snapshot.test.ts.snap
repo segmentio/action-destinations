@@ -1,82 +1,127 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for Segment's sendIdentify destination action: all fields 1`] = `
-Object {
-  "anonymousId": "l1ibvt$6IJOK*&*ZgReE",
-  "context": Object {
-    "app": Object {
-      "build": "l1ibvt$6IJOK*&*ZgReE",
-      "name": "l1ibvt$6IJOK*&*ZgReE",
-      "namespace": "l1ibvt$6IJOK*&*ZgReE",
-      "version": "l1ibvt$6IJOK*&*ZgReE",
-    },
-    "campaign": Object {
-      "content": "l1ibvt$6IJOK*&*ZgReE",
-      "medium": "l1ibvt$6IJOK*&*ZgReE",
-      "name": "l1ibvt$6IJOK*&*ZgReE",
-      "source": "l1ibvt$6IJOK*&*ZgReE",
-      "term": "l1ibvt$6IJOK*&*ZgReE",
-    },
-    "device": Object {
-      "adTracking_Enabled": false,
-      "advertising_id": "l1ibvt$6IJOK*&*ZgReE",
-      "id": "l1ibvt$6IJOK*&*ZgReE",
-      "manufacturer": "l1ibvt$6IJOK*&*ZgReE",
-      "model": "l1ibvt$6IJOK*&*ZgReE",
-      "name": "l1ibvt$6IJOK*&*ZgReE",
-      "token": "l1ibvt$6IJOK*&*ZgReE",
-      "type": "l1ibvt$6IJOK*&*ZgReE",
-    },
-    "groupId": "l1ibvt$6IJOK*&*ZgReE",
-    "ip": "l1ibvt$6IJOK*&*ZgReE",
-    "locale": "l1ibvt$6IJOK*&*ZgReE",
-    "location": Object {
-      "city": "l1ibvt$6IJOK*&*ZgReE",
-      "country": "l1ibvt$6IJOK*&*ZgReE",
-      "latitude": 80689445061263.36,
-      "longitude": 80689445061263.36,
-      "speed": 80689445061263.36,
-    },
-    "network": Object {
-      "bluetooth": false,
-      "carrier": "l1ibvt$6IJOK*&*ZgReE",
-      "cellular": false,
-      "wifi": false,
-    },
-    "os": Object {
-      "name": "l1ibvt$6IJOK*&*ZgReE",
-      "version": "l1ibvt$6IJOK*&*ZgReE",
-    },
-    "page": Object {
-      "path": "l1ibvt$6IJOK*&*ZgReE",
-      "referrer": "l1ibvt$6IJOK*&*ZgReE",
-      "search": "l1ibvt$6IJOK*&*ZgReE",
-      "title": "l1ibvt$6IJOK*&*ZgReE",
-      "url": "l1ibvt$6IJOK*&*ZgReE",
-    },
-    "screen": Object {
-      "density": 80689445061263.36,
-      "height": 80689445061263.36,
-      "width": 80689445061263.36,
-    },
-    "timezone": "l1ibvt$6IJOK*&*ZgReE",
-    "userAgent": "l1ibvt$6IJOK*&*ZgReE",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "timestamp": "l1ibvt$6IJOK*&*ZgReE",
-  "traits": Object {
-    "testType": "l1ibvt$6IJOK*&*ZgReE",
+  Object {
+    "output": "Payload validated",
   },
-  "userId": "l1ibvt$6IJOK*&*ZgReE",
-}
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "l1ibvt$6IJOK*&*ZgReE",
+          "context": Object {
+            "app": Object {
+              "build": "l1ibvt$6IJOK*&*ZgReE",
+              "name": "l1ibvt$6IJOK*&*ZgReE",
+              "namespace": "l1ibvt$6IJOK*&*ZgReE",
+              "version": "l1ibvt$6IJOK*&*ZgReE",
+            },
+            "campaign": Object {
+              "content": "l1ibvt$6IJOK*&*ZgReE",
+              "medium": "l1ibvt$6IJOK*&*ZgReE",
+              "name": "l1ibvt$6IJOK*&*ZgReE",
+              "source": "l1ibvt$6IJOK*&*ZgReE",
+              "term": "l1ibvt$6IJOK*&*ZgReE",
+            },
+            "device": Object {
+              "adTracking_Enabled": false,
+              "advertising_id": "l1ibvt$6IJOK*&*ZgReE",
+              "id": "l1ibvt$6IJOK*&*ZgReE",
+              "manufacturer": "l1ibvt$6IJOK*&*ZgReE",
+              "model": "l1ibvt$6IJOK*&*ZgReE",
+              "name": "l1ibvt$6IJOK*&*ZgReE",
+              "token": "l1ibvt$6IJOK*&*ZgReE",
+              "type": "l1ibvt$6IJOK*&*ZgReE",
+            },
+            "groupId": "l1ibvt$6IJOK*&*ZgReE",
+            "ip": "l1ibvt$6IJOK*&*ZgReE",
+            "locale": "l1ibvt$6IJOK*&*ZgReE",
+            "location": Object {
+              "city": "l1ibvt$6IJOK*&*ZgReE",
+              "country": "l1ibvt$6IJOK*&*ZgReE",
+              "latitude": 80689445061263.36,
+              "longitude": 80689445061263.36,
+              "speed": 80689445061263.36,
+            },
+            "network": Object {
+              "bluetooth": false,
+              "carrier": "l1ibvt$6IJOK*&*ZgReE",
+              "cellular": false,
+              "wifi": false,
+            },
+            "os": Object {
+              "name": "l1ibvt$6IJOK*&*ZgReE",
+              "version": "l1ibvt$6IJOK*&*ZgReE",
+            },
+            "page": Object {
+              "path": "l1ibvt$6IJOK*&*ZgReE",
+              "referrer": "l1ibvt$6IJOK*&*ZgReE",
+              "search": "l1ibvt$6IJOK*&*ZgReE",
+              "title": "l1ibvt$6IJOK*&*ZgReE",
+              "url": "l1ibvt$6IJOK*&*ZgReE",
+            },
+            "screen": Object {
+              "density": 80689445061263.36,
+              "height": 80689445061263.36,
+              "width": 80689445061263.36,
+            },
+            "timezone": "l1ibvt$6IJOK*&*ZgReE",
+            "userAgent": "l1ibvt$6IJOK*&*ZgReE",
+          },
+          "timestamp": "l1ibvt$6IJOK*&*ZgReE",
+          "traits": Object {
+            "testType": "l1ibvt$6IJOK*&*ZgReE",
+          },
+          "type": "identify",
+          "userId": "l1ibvt$6IJOK*&*ZgReE",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;
 
 exports[`Testing snapshot for Segment's sendIdentify destination action: required fields 1`] = `
-Object {
-  "anonymousId": "l1ibvt$6IJOK*&*ZgReE",
-  "context": Object {
-    "groupId": "l1ibvt$6IJOK*&*ZgReE",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "traits": Object {},
-  "userId": "l1ibvt$6IJOK*&*ZgReE",
-}
+  Object {
+    "output": "Payload validated",
+  },
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "l1ibvt$6IJOK*&*ZgReE",
+          "context": Object {
+            "app": undefined,
+            "campaign": undefined,
+            "device": undefined,
+            "groupId": "l1ibvt$6IJOK*&*ZgReE",
+            "ip": undefined,
+            "locale": undefined,
+            "location": undefined,
+            "network": undefined,
+            "os": undefined,
+            "page": undefined,
+            "screen": undefined,
+            "timezone": undefined,
+            "userAgent": undefined,
+          },
+          "timestamp": undefined,
+          "traits": Object {},
+          "type": "identify",
+          "userId": "l1ibvt$6IJOK*&*ZgReE",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;

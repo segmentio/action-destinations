@@ -22,8 +22,7 @@ import {
   properties,
   traits
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Track',
@@ -50,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
     properties,
     traits
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -83,23 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    // Return transformed payload without sending it to TAPI endpoint
-    if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendTrack'])
-      const payload = { ...trackPayload, type: 'track' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/track`, {
-      method: 'POST',
-      json: trackPayload
-    })
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendTrack'])
+    return { batch: [{ ...trackPayload, type: 'track' }] }
   }
 }
 

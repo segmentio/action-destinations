@@ -1,90 +1,144 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for Segment's sendPage destination action: all fields 1`] = `
-Object {
-  "anonymousId": "!jvXo22kjE9u2QlY4S",
-  "context": Object {
-    "app": Object {
-      "build": "!jvXo22kjE9u2QlY4S",
-      "name": "!jvXo22kjE9u2QlY4S",
-      "namespace": "!jvXo22kjE9u2QlY4S",
-      "version": "!jvXo22kjE9u2QlY4S",
-    },
-    "campaign": Object {
-      "content": "!jvXo22kjE9u2QlY4S",
-      "medium": "!jvXo22kjE9u2QlY4S",
-      "name": "!jvXo22kjE9u2QlY4S",
-      "source": "!jvXo22kjE9u2QlY4S",
-      "term": "!jvXo22kjE9u2QlY4S",
-    },
-    "device": Object {
-      "adTracking_Enabled": false,
-      "advertising_id": "!jvXo22kjE9u2QlY4S",
-      "id": "!jvXo22kjE9u2QlY4S",
-      "manufacturer": "!jvXo22kjE9u2QlY4S",
-      "model": "!jvXo22kjE9u2QlY4S",
-      "name": "!jvXo22kjE9u2QlY4S",
-      "token": "!jvXo22kjE9u2QlY4S",
-      "type": "!jvXo22kjE9u2QlY4S",
-    },
-    "groupId": "!jvXo22kjE9u2QlY4S",
-    "ip": "!jvXo22kjE9u2QlY4S",
-    "locale": "!jvXo22kjE9u2QlY4S",
-    "location": Object {
-      "city": "!jvXo22kjE9u2QlY4S",
-      "country": "!jvXo22kjE9u2QlY4S",
-      "latitude": 64778559868108.8,
-      "longitude": 64778559868108.8,
-      "speed": 64778559868108.8,
-    },
-    "network": Object {
-      "bluetooth": false,
-      "carrier": "!jvXo22kjE9u2QlY4S",
-      "cellular": false,
-      "wifi": false,
-    },
-    "os": Object {
-      "name": "!jvXo22kjE9u2QlY4S",
-      "version": "!jvXo22kjE9u2QlY4S",
-    },
-    "page": Object {
-      "path": "!jvXo22kjE9u2QlY4S",
-      "referrer": "!jvXo22kjE9u2QlY4S",
-      "search": "!jvXo22kjE9u2QlY4S",
-      "title": "!jvXo22kjE9u2QlY4S",
-      "url": "!jvXo22kjE9u2QlY4S",
-    },
-    "screen": Object {
-      "density": 64778559868108.8,
-      "height": 64778559868108.8,
-      "width": 64778559868108.8,
-    },
-    "timezone": "!jvXo22kjE9u2QlY4S",
-    "userAgent": "!jvXo22kjE9u2QlY4S",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "name": "!jvXo22kjE9u2QlY4S",
-  "properties": Object {
-    "category": "!jvXo22kjE9u2QlY4S",
-    "name": "!jvXo22kjE9u2QlY4S",
-    "path": "!jvXo22kjE9u2QlY4S",
-    "referrer": "!jvXo22kjE9u2QlY4S",
-    "search": "!jvXo22kjE9u2QlY4S",
-    "testType": "!jvXo22kjE9u2QlY4S",
-    "title": "!jvXo22kjE9u2QlY4S",
-    "url": "!jvXo22kjE9u2QlY4S",
+  Object {
+    "output": "Payload validated",
   },
-  "timestamp": "!jvXo22kjE9u2QlY4S",
-  "userId": "!jvXo22kjE9u2QlY4S",
-}
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "!jvXo22kjE9u2QlY4S",
+          "context": Object {
+            "app": Object {
+              "build": "!jvXo22kjE9u2QlY4S",
+              "name": "!jvXo22kjE9u2QlY4S",
+              "namespace": "!jvXo22kjE9u2QlY4S",
+              "version": "!jvXo22kjE9u2QlY4S",
+            },
+            "campaign": Object {
+              "content": "!jvXo22kjE9u2QlY4S",
+              "medium": "!jvXo22kjE9u2QlY4S",
+              "name": "!jvXo22kjE9u2QlY4S",
+              "source": "!jvXo22kjE9u2QlY4S",
+              "term": "!jvXo22kjE9u2QlY4S",
+            },
+            "device": Object {
+              "adTracking_Enabled": false,
+              "advertising_id": "!jvXo22kjE9u2QlY4S",
+              "id": "!jvXo22kjE9u2QlY4S",
+              "manufacturer": "!jvXo22kjE9u2QlY4S",
+              "model": "!jvXo22kjE9u2QlY4S",
+              "name": "!jvXo22kjE9u2QlY4S",
+              "token": "!jvXo22kjE9u2QlY4S",
+              "type": "!jvXo22kjE9u2QlY4S",
+            },
+            "groupId": "!jvXo22kjE9u2QlY4S",
+            "ip": "!jvXo22kjE9u2QlY4S",
+            "locale": "!jvXo22kjE9u2QlY4S",
+            "location": Object {
+              "city": "!jvXo22kjE9u2QlY4S",
+              "country": "!jvXo22kjE9u2QlY4S",
+              "latitude": 64778559868108.8,
+              "longitude": 64778559868108.8,
+              "speed": 64778559868108.8,
+            },
+            "network": Object {
+              "bluetooth": false,
+              "carrier": "!jvXo22kjE9u2QlY4S",
+              "cellular": false,
+              "wifi": false,
+            },
+            "os": Object {
+              "name": "!jvXo22kjE9u2QlY4S",
+              "version": "!jvXo22kjE9u2QlY4S",
+            },
+            "page": Object {
+              "path": "!jvXo22kjE9u2QlY4S",
+              "referrer": "!jvXo22kjE9u2QlY4S",
+              "search": "!jvXo22kjE9u2QlY4S",
+              "title": "!jvXo22kjE9u2QlY4S",
+              "url": "!jvXo22kjE9u2QlY4S",
+            },
+            "screen": Object {
+              "density": 64778559868108.8,
+              "height": 64778559868108.8,
+              "width": 64778559868108.8,
+            },
+            "timezone": "!jvXo22kjE9u2QlY4S",
+            "userAgent": "!jvXo22kjE9u2QlY4S",
+          },
+          "name": "!jvXo22kjE9u2QlY4S",
+          "properties": Object {
+            "category": "!jvXo22kjE9u2QlY4S",
+            "name": "!jvXo22kjE9u2QlY4S",
+            "path": "!jvXo22kjE9u2QlY4S",
+            "referrer": "!jvXo22kjE9u2QlY4S",
+            "search": "!jvXo22kjE9u2QlY4S",
+            "testType": "!jvXo22kjE9u2QlY4S",
+            "title": "!jvXo22kjE9u2QlY4S",
+            "url": "!jvXo22kjE9u2QlY4S",
+          },
+          "timestamp": "!jvXo22kjE9u2QlY4S",
+          "type": "page",
+          "userId": "!jvXo22kjE9u2QlY4S",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;
 
 exports[`Testing snapshot for Segment's sendPage destination action: required fields 1`] = `
-Object {
-  "anonymousId": "!jvXo22kjE9u2QlY4S",
-  "context": Object {
-    "groupId": "!jvXo22kjE9u2QlY4S",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "properties": Object {},
-  "userId": "!jvXo22kjE9u2QlY4S",
-}
+  Object {
+    "output": "Payload validated",
+  },
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "!jvXo22kjE9u2QlY4S",
+          "context": Object {
+            "app": undefined,
+            "campaign": undefined,
+            "device": undefined,
+            "groupId": "!jvXo22kjE9u2QlY4S",
+            "ip": undefined,
+            "locale": undefined,
+            "location": undefined,
+            "network": undefined,
+            "os": undefined,
+            "page": undefined,
+            "screen": undefined,
+            "timezone": undefined,
+            "userAgent": undefined,
+          },
+          "name": undefined,
+          "properties": Object {
+            "category": undefined,
+            "name": undefined,
+            "path": undefined,
+            "referrer": undefined,
+            "search": undefined,
+            "title": undefined,
+            "url": undefined,
+          },
+          "timestamp": undefined,
+          "type": "page",
+          "userId": "!jvXo22kjE9u2QlY4S",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;

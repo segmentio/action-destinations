@@ -1,88 +1,133 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for Segment's sendTrack destination action: all fields 1`] = `
-Object {
-  "anonymousId": "ET^Xg5cIGF]2ok",
-  "context": Object {
-    "app": Object {
-      "build": "ET^Xg5cIGF]2ok",
-      "name": "ET^Xg5cIGF]2ok",
-      "namespace": "ET^Xg5cIGF]2ok",
-      "version": "ET^Xg5cIGF]2ok",
-    },
-    "campaign": Object {
-      "content": "ET^Xg5cIGF]2ok",
-      "medium": "ET^Xg5cIGF]2ok",
-      "name": "ET^Xg5cIGF]2ok",
-      "source": "ET^Xg5cIGF]2ok",
-      "term": "ET^Xg5cIGF]2ok",
-    },
-    "device": Object {
-      "adTracking_Enabled": false,
-      "advertising_id": "ET^Xg5cIGF]2ok",
-      "id": "ET^Xg5cIGF]2ok",
-      "manufacturer": "ET^Xg5cIGF]2ok",
-      "model": "ET^Xg5cIGF]2ok",
-      "name": "ET^Xg5cIGF]2ok",
-      "token": "ET^Xg5cIGF]2ok",
-      "type": "ET^Xg5cIGF]2ok",
-    },
-    "groupId": "ET^Xg5cIGF]2ok",
-    "ip": "ET^Xg5cIGF]2ok",
-    "locale": "ET^Xg5cIGF]2ok",
-    "location": Object {
-      "city": "ET^Xg5cIGF]2ok",
-      "country": "ET^Xg5cIGF]2ok",
-      "latitude": 17838569150218.24,
-      "longitude": 17838569150218.24,
-      "speed": 17838569150218.24,
-    },
-    "network": Object {
-      "bluetooth": false,
-      "carrier": "ET^Xg5cIGF]2ok",
-      "cellular": false,
-      "wifi": false,
-    },
-    "os": Object {
-      "name": "ET^Xg5cIGF]2ok",
-      "version": "ET^Xg5cIGF]2ok",
-    },
-    "page": Object {
-      "path": "ET^Xg5cIGF]2ok",
-      "referrer": "ET^Xg5cIGF]2ok",
-      "search": "ET^Xg5cIGF]2ok",
-      "title": "ET^Xg5cIGF]2ok",
-      "url": "ET^Xg5cIGF]2ok",
-    },
-    "screen": Object {
-      "density": 17838569150218.24,
-      "height": 17838569150218.24,
-      "width": 17838569150218.24,
-    },
-    "timezone": "ET^Xg5cIGF]2ok",
-    "traits": Object {
-      "testType": "ET^Xg5cIGF]2ok",
-    },
-    "userAgent": "ET^Xg5cIGF]2ok",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "event": "ET^Xg5cIGF]2ok",
-  "properties": Object {
-    "testType": "ET^Xg5cIGF]2ok",
+  Object {
+    "output": "Payload validated",
   },
-  "timestamp": "ET^Xg5cIGF]2ok",
-  "userId": "ET^Xg5cIGF]2ok",
-}
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "ET^Xg5cIGF]2ok",
+          "context": Object {
+            "app": Object {
+              "build": "ET^Xg5cIGF]2ok",
+              "name": "ET^Xg5cIGF]2ok",
+              "namespace": "ET^Xg5cIGF]2ok",
+              "version": "ET^Xg5cIGF]2ok",
+            },
+            "campaign": Object {
+              "content": "ET^Xg5cIGF]2ok",
+              "medium": "ET^Xg5cIGF]2ok",
+              "name": "ET^Xg5cIGF]2ok",
+              "source": "ET^Xg5cIGF]2ok",
+              "term": "ET^Xg5cIGF]2ok",
+            },
+            "device": Object {
+              "adTracking_Enabled": false,
+              "advertising_id": "ET^Xg5cIGF]2ok",
+              "id": "ET^Xg5cIGF]2ok",
+              "manufacturer": "ET^Xg5cIGF]2ok",
+              "model": "ET^Xg5cIGF]2ok",
+              "name": "ET^Xg5cIGF]2ok",
+              "token": "ET^Xg5cIGF]2ok",
+              "type": "ET^Xg5cIGF]2ok",
+            },
+            "groupId": "ET^Xg5cIGF]2ok",
+            "ip": "ET^Xg5cIGF]2ok",
+            "locale": "ET^Xg5cIGF]2ok",
+            "location": Object {
+              "city": "ET^Xg5cIGF]2ok",
+              "country": "ET^Xg5cIGF]2ok",
+              "latitude": 17838569150218.24,
+              "longitude": 17838569150218.24,
+              "speed": 17838569150218.24,
+            },
+            "network": Object {
+              "bluetooth": false,
+              "carrier": "ET^Xg5cIGF]2ok",
+              "cellular": false,
+              "wifi": false,
+            },
+            "os": Object {
+              "name": "ET^Xg5cIGF]2ok",
+              "version": "ET^Xg5cIGF]2ok",
+            },
+            "page": Object {
+              "path": "ET^Xg5cIGF]2ok",
+              "referrer": "ET^Xg5cIGF]2ok",
+              "search": "ET^Xg5cIGF]2ok",
+              "title": "ET^Xg5cIGF]2ok",
+              "url": "ET^Xg5cIGF]2ok",
+            },
+            "screen": Object {
+              "density": 17838569150218.24,
+              "height": 17838569150218.24,
+              "width": 17838569150218.24,
+            },
+            "timezone": "ET^Xg5cIGF]2ok",
+            "traits": Object {
+              "testType": "ET^Xg5cIGF]2ok",
+            },
+            "userAgent": "ET^Xg5cIGF]2ok",
+          },
+          "event": "ET^Xg5cIGF]2ok",
+          "properties": Object {
+            "testType": "ET^Xg5cIGF]2ok",
+          },
+          "timestamp": "ET^Xg5cIGF]2ok",
+          "type": "track",
+          "userId": "ET^Xg5cIGF]2ok",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;
 
 exports[`Testing snapshot for Segment's sendTrack destination action: required fields 1`] = `
-Object {
-  "anonymousId": "ET^Xg5cIGF]2ok",
-  "context": Object {
-    "groupId": "ET^Xg5cIGF]2ok",
-    "traits": Object {},
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "event": "ET^Xg5cIGF]2ok",
-  "properties": Object {},
-  "userId": "ET^Xg5cIGF]2ok",
-}
+  Object {
+    "output": "Payload validated",
+  },
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "ET^Xg5cIGF]2ok",
+          "context": Object {
+            "app": undefined,
+            "campaign": undefined,
+            "device": undefined,
+            "groupId": "ET^Xg5cIGF]2ok",
+            "ip": undefined,
+            "locale": undefined,
+            "location": undefined,
+            "network": undefined,
+            "os": undefined,
+            "page": undefined,
+            "screen": undefined,
+            "timezone": undefined,
+            "traits": Object {},
+            "userAgent": undefined,
+          },
+          "event": "ET^Xg5cIGF]2ok",
+          "properties": Object {},
+          "timestamp": undefined,
+          "type": "track",
+          "userId": "ET^Xg5cIGF]2ok",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;

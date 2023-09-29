@@ -1,83 +1,130 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for Segment's sendScreen destination action: all fields 1`] = `
-Object {
-  "anonymousId": "O3*7wUzuzQ",
-  "context": Object {
-    "app": Object {
-      "build": "O3*7wUzuzQ",
-      "name": "O3*7wUzuzQ",
-      "namespace": "O3*7wUzuzQ",
-      "version": "O3*7wUzuzQ",
-    },
-    "campaign": Object {
-      "content": "O3*7wUzuzQ",
-      "medium": "O3*7wUzuzQ",
-      "name": "O3*7wUzuzQ",
-      "source": "O3*7wUzuzQ",
-      "term": "O3*7wUzuzQ",
-    },
-    "device": Object {
-      "adTracking_Enabled": true,
-      "advertising_id": "O3*7wUzuzQ",
-      "id": "O3*7wUzuzQ",
-      "manufacturer": "O3*7wUzuzQ",
-      "model": "O3*7wUzuzQ",
-      "name": "O3*7wUzuzQ",
-      "token": "O3*7wUzuzQ",
-      "type": "O3*7wUzuzQ",
-    },
-    "groupId": "O3*7wUzuzQ",
-    "ip": "O3*7wUzuzQ",
-    "locale": "O3*7wUzuzQ",
-    "location": Object {
-      "city": "O3*7wUzuzQ",
-      "country": "O3*7wUzuzQ",
-      "latitude": -28830627654533.12,
-      "longitude": -28830627654533.12,
-      "speed": -28830627654533.12,
-    },
-    "network": Object {
-      "bluetooth": true,
-      "carrier": "O3*7wUzuzQ",
-      "cellular": true,
-      "wifi": true,
-    },
-    "os": Object {
-      "name": "O3*7wUzuzQ",
-      "version": "O3*7wUzuzQ",
-    },
-    "page": Object {
-      "path": "O3*7wUzuzQ",
-      "referrer": "O3*7wUzuzQ",
-      "search": "O3*7wUzuzQ",
-      "title": "O3*7wUzuzQ",
-      "url": "O3*7wUzuzQ",
-    },
-    "screen": Object {
-      "density": -28830627654533.12,
-      "height": -28830627654533.12,
-      "width": -28830627654533.12,
-    },
-    "userAgent": "O3*7wUzuzQ",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "name": "O3*7wUzuzQ",
-  "properties": Object {
-    "name": "O3*7wUzuzQ",
-    "testType": "O3*7wUzuzQ",
+  Object {
+    "output": "Payload validated",
   },
-  "timestamp": "O3*7wUzuzQ",
-  "userId": "O3*7wUzuzQ",
-}
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "O3*7wUzuzQ",
+          "context": Object {
+            "app": Object {
+              "build": "O3*7wUzuzQ",
+              "name": "O3*7wUzuzQ",
+              "namespace": "O3*7wUzuzQ",
+              "version": "O3*7wUzuzQ",
+            },
+            "campaign": Object {
+              "content": "O3*7wUzuzQ",
+              "medium": "O3*7wUzuzQ",
+              "name": "O3*7wUzuzQ",
+              "source": "O3*7wUzuzQ",
+              "term": "O3*7wUzuzQ",
+            },
+            "device": Object {
+              "adTracking_Enabled": true,
+              "advertising_id": "O3*7wUzuzQ",
+              "id": "O3*7wUzuzQ",
+              "manufacturer": "O3*7wUzuzQ",
+              "model": "O3*7wUzuzQ",
+              "name": "O3*7wUzuzQ",
+              "token": "O3*7wUzuzQ",
+              "type": "O3*7wUzuzQ",
+            },
+            "groupId": "O3*7wUzuzQ",
+            "ip": "O3*7wUzuzQ",
+            "locale": "O3*7wUzuzQ",
+            "location": Object {
+              "city": "O3*7wUzuzQ",
+              "country": "O3*7wUzuzQ",
+              "latitude": -28830627654533.12,
+              "longitude": -28830627654533.12,
+              "speed": -28830627654533.12,
+            },
+            "network": Object {
+              "bluetooth": true,
+              "carrier": "O3*7wUzuzQ",
+              "cellular": true,
+              "wifi": true,
+            },
+            "os": Object {
+              "name": "O3*7wUzuzQ",
+              "version": "O3*7wUzuzQ",
+            },
+            "page": Object {
+              "path": "O3*7wUzuzQ",
+              "referrer": "O3*7wUzuzQ",
+              "search": "O3*7wUzuzQ",
+              "title": "O3*7wUzuzQ",
+              "url": "O3*7wUzuzQ",
+            },
+            "screen": Object {
+              "density": -28830627654533.12,
+              "height": -28830627654533.12,
+              "width": -28830627654533.12,
+            },
+            "userAgent": "O3*7wUzuzQ",
+          },
+          "name": "O3*7wUzuzQ",
+          "properties": Object {
+            "name": "O3*7wUzuzQ",
+            "testType": "O3*7wUzuzQ",
+          },
+          "timestamp": "O3*7wUzuzQ",
+          "type": "screen",
+          "userId": "O3*7wUzuzQ",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;
 
 exports[`Testing snapshot for Segment's sendScreen destination action: required fields 1`] = `
-Object {
-  "anonymousId": "O3*7wUzuzQ",
-  "context": Object {
-    "groupId": "O3*7wUzuzQ",
+Array [
+  Object {
+    "output": "Mappings resolved",
   },
-  "properties": Object {},
-  "userId": "O3*7wUzuzQ",
-}
+  Object {
+    "output": "Payload validated",
+  },
+  Object {
+    "data": Object {
+      "batch": Array [
+        Object {
+          "anonymousId": "O3*7wUzuzQ",
+          "context": Object {
+            "app": undefined,
+            "campaign": undefined,
+            "device": undefined,
+            "groupId": "O3*7wUzuzQ",
+            "ip": undefined,
+            "locale": undefined,
+            "location": undefined,
+            "network": undefined,
+            "os": undefined,
+            "page": undefined,
+            "screen": undefined,
+            "userAgent": undefined,
+          },
+          "name": undefined,
+          "properties": Object {
+            "name": undefined,
+          },
+          "timestamp": undefined,
+          "type": "screen",
+          "userId": "O3*7wUzuzQ",
+        },
+      ],
+    },
+    "output": "Action Executed",
+  },
+]
 `;
