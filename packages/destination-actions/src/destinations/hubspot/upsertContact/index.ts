@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { flattenObject } from '../utils'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 interface ContactProperties {
   company?: string | undefined
@@ -247,14 +248,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, logger, statsContext }) => {
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
     let contactsUpsertMap = mapUpsertContactPayload(payload)
-
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
-    contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
+    contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap, payload, logger, statsContext)
 
     // Divide Contacts into two maps - one for insert and one for update
     const createList: ContactCreateRequestPayload[] = []
@@ -371,12 +371,21 @@ function mapUpsertContactPayload(payload: Payload[]) {
 
 function updateActionsForBatchedContacts(
   readResponse: BatchContactResponse,
-  contactsUpsertMap: Record<string, ContactsUpsertMapItem>
+  contactsUpsertMap: Record<string, ContactsUpsertMapItem>,
+  payload: Payload[],
+  logger?: Logger,
+  statsContext?: StatsContext
 ) {
   // Throw any other error responses
   // Case 1: Loop over results if there are any
   if (readResponse.data?.results && readResponse.data.results.length > 0) {
     for (const result of readResponse.data.results) {
+      if (!contactsUpsertMap[result.properties.email]) {
+        logger?.info?.(`Payload for Contact - ${payload}`)
+        logger?.info?.(`Mapped contactsUpsertMap - ${contactsUpsertMap}`)
+        logger?.info?.(`Batch Read Response(update) - ${readResponse}`)
+        statsContext?.statsClient?.incr('contact_email_not_found', 1)
+      }
       // Set the action to update for contacts that exist in HubSpot
       contactsUpsertMap[result.properties.email].action = 'update'
 
@@ -395,6 +404,12 @@ function updateActionsForBatchedContacts(
       if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
         // Set the action to create for contacts that don't exist in HubSpot
         for (const id of error.context.ids) {
+          if (!contactsUpsertMap[id]) {
+            logger?.info?.(`Payload for Contact - ${payload}`)
+            logger?.info?.(`Mapped contactsUpsertMap - ${contactsUpsertMap}`)
+            logger?.info?.(`Batch Read Response(create) - ${readResponse}`)
+            statsContext?.statsClient?.incr('contact_email_not_found', 1)
+          }
           //Set Action to create
           contactsUpsertMap[id].action = 'create'
         }
