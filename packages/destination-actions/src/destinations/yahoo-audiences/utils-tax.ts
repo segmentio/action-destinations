@@ -45,6 +45,7 @@ export function gen_random_id(length: number): string {
   }
   return random_id.join('')
 }
+
 export function gen_oauth1_signature(client_key: string, client_secret: string, method: string, url: string) {
   // Following logic in #9 https://oauth.net/core/1.0a/#sig_norm_param
   const timestamp = Math.floor(new Date().getTime() / 1000)
