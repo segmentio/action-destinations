@@ -50,6 +50,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: false
       }
     },
+    // TODO check this function!
     testAuthentication: async (request, input) => {
       // Used to create top-level customer node
       const tx_creds = {
@@ -112,12 +113,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: 'Segment Audience Key',
       type: 'string',
       required: true
-    },
-    engage_space_id: {
-      label: 'Engage Space Id',
-      description: 'Engage Space Id found in Unify > Settings > API Access',
-      type: 'string',
-      required: true
     }
   },
   audienceConfig: {
@@ -130,7 +125,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // const tax_client_key = JSON.parse(auth.clientId)['tax_api']
       const audience_id = createAudienceInput.audienceSettings?.audience_id
       const audience_key = createAudienceInput.audienceSettings?.audience_key
-      const engage_space_id = createAudienceInput.audienceSettings?.engage_space_id
+      const engage_space_id = createAudienceInput.settings?.engage_space_id
+      // TODO: add checks to confirm audienceId is actual Engage Audience Id
       if (!audience_id) {
         throw new IntegrationError('Missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
       }

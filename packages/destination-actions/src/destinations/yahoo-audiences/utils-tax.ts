@@ -97,7 +97,7 @@ export async function update_taxonomy(
       throw new IntegrationError(
         `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${
           _error.response.status
-        }. Validate credentials`,
+        }. Validate Yahoo credentials`,
         'YAHOO_TAXONOMY_API_AUTH_ERR',
         400
       )

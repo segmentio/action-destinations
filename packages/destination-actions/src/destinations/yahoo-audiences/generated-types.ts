@@ -33,8 +33,4 @@ export interface AudienceSettings {
    * Segment Audience Key
    */
   audience_key: string
-  /**
-   * Engage Space Id found in Unify > Settings > API Access
-   */
-  engage_space_id: string
 }
