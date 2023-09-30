@@ -7,7 +7,7 @@ import { gen_update_segment_payload } from '../utils-rt'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
-  defaultSubscription: 'type = "identify" or type = "track"',
+  defaultSubscription: 'type = "identify"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -57,20 +57,21 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Enable Batching',
       description: 'Enable batching of requests',
       type: 'boolean', // We should always batch Yahoo requests
-      default: true
+      default: true,
+      unsafe_hidden: true
     },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       unsafe_hidden: true,
-      required: false,
       default: 1000
     },
     email: {
       label: 'User Email',
       description: 'Email address of a user',
       type: 'hidden',
+      required: false,
       default: {
         '@if': {
           exists: { '@path': '$.context.traits.email' },
@@ -81,35 +82,33 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     advertising_id: {
       label: 'User Mobile Advertising ID',
-      description: "User's Mobile Advertising Id",
+      description: "User's mobile advertising Id",
       type: 'hidden',
       default: {
         '@path': '$.context.device.advertisingId'
       },
-      required: true
+      required: false
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
-      description: "The user's mobile device type",
+      description: "User's mobile device type",
       type: 'hidden',
       default: {
         '@path': '$.context.device.type'
       },
-      required: true
+      required: false
     },
-    send_advertising_id: {
-      label: 'Send Mobile Advertising ID',
-      description: 'Send mobile advertising ID (IDFA or Google Ad Id) to Yahoo. Segment will hash MAIDs',
-      type: 'boolean',
+    identifier: {
+      label: 'User Identifier',
+      description: 'Specify the identifier(s) to send to Yahoo',
+      type: 'string',
       required: true,
-      default: true
-    },
-    send_email: {
-      label: 'Send User Email',
-      description: 'Send user email to Yahoo. Segment will hash emails',
-      type: 'boolean',
-      required: true,
-      default: true
+      default: 'email',
+      choices: [
+        { value: 'email', label: 'Send email' },
+        { value: 'maid', label: 'Send MAID' },
+        { value: 'email_maid', label: 'Send email and/or MAID' }
+      ]
     },
     gdpr_flag: {
       label: 'GDPR Flag',
@@ -129,47 +128,38 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { payload, auth }) => {
     const rt_access_token = auth?.accessToken
-    if (rt_access_token) {
+    if (!rt_access_token) {
       throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
     }
     const body = gen_update_segment_payload([payload])
-    return request('https://dataxonline.yahoo.com/online/audience/', {
-      method: 'POST',
-      json: body,
-      headers: {
-        Authorization: `Bearer ${auth?.accessToken}`
-      }
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        return response
+    // Send request to Yahoo only when the event includes selected Ids
+    if (body.data.length > 0) {
+      return request('https://dataxonline.yahoo.com/online/audience/', {
+        method: 'POST',
+        json: body,
+        headers: {
+          Authorization: `Bearer ${rt_access_token}`
+        }
       })
-      .catch((err) => {
-        console.log('perform: error updating segment >', err)
-      })
+    }
   },
   performBatch: (request, { payload, auth }) => {
     const rt_access_token = auth?.accessToken
-
     if (!rt_access_token) {
       throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
     }
     const body = gen_update_segment_payload(payload)
-
-    return request('https://dataxonline.yahoo.com/online/audience/', {
-      method: 'POST',
-      json: body,
-      headers: {
-        Authorization: `Bearer ${rt_access_token}`
-      }
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        return response
+    console.log(body)
+    // Send request to Yahoo only when all events in the batch include selected Ids
+    if (body.data.length > 0) {
+      return request('https://dataxonline.yahoo.com/online/audience/', {
+        method: 'POST',
+        json: body,
+        headers: {
+          Authorization: `Bearer ${rt_access_token}`
+        }
       })
-      .catch((err) => {
-        console.log('perform: error updating segment >', err)
-      })
+    }
   }
 }
 

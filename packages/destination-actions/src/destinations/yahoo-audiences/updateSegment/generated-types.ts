@@ -32,21 +32,17 @@ export interface Payload {
    */
   email?: string
   /**
-   * User's Mobile Advertising Id
+   * User's mobile advertising Id
    */
-  advertising_id: string
+  advertising_id?: string
   /**
-   * The user's mobile device type
+   * User's mobile device type
    */
-  device_type: string
+  device_type?: string
   /**
-   * Send mobile advertising ID (IDFA or Google Ad Id) to Yahoo. Segment will hash MAIDs
+   * Specify the identifier(s) to send to Yahoo
    */
-  send_advertising_id: boolean
-  /**
-   * Send user email to Yahoo. Segment will hash emails
-   */
-  send_email: boolean
+  identifier: string
   /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */

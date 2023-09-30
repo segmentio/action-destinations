@@ -14,11 +14,11 @@ export interface Settings {
    */
   taxonomy_client_secret: string
   /**
-   * Required to create customer and segment nodes in Taxonomy. Provide Engage Space Id found in Unify > Settings > API Access. This maps to the "Id" and "Name" of the top-level Customer node in Yahoo taxonomy
+   * Engage Space Id found in Unify > Settings > API Access
    */
   engage_space_id: string
   /**
-   * Required to create customer node in Taxonomy. Provide a description for the Customer node in Yahoo taxonomy. This must be less then 1000 characters
+   * Engage space name and description
    */
   customer_desc?: string
 }
@@ -26,15 +26,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy.
+   * Segment Audience Id (aud_...)
    */
   audience_id?: string
   /**
-   * Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy.
+   * Segment Audience Key
    */
   audience_key: string
   /**
-   * Engage Space Id found in Unify > Settings > API Access.
+   * Engage Space Id found in Unify > Settings > API Access
    */
   engage_space_id: string
 }

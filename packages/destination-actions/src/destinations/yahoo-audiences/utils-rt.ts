@@ -1,6 +1,4 @@
 import { createHmac, createHash } from 'crypto'
-
-import { IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
@@ -50,15 +48,30 @@ export function generate_jwt(client_id: string, client_secret: string): string {
 }
 
 /**
- * Gets the definition to send the hashed email or hashed advertising ID.
+ * Gets the definition to send the hashed email or advertising ID.
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
 export function get_id_schema(payload: Payload): { maid: boolean; email: boolean } {
-  return {
-    maid: payload.send_advertising_id === true,
-    email: payload.send_email === true
+  const schema = {
+    email: false,
+    maid: false
   }
+  if (payload.identifier == 'email') {
+    schema.email = true
+  }
+  if (payload.identifier == 'maid') {
+    schema.maid = true
+  }
+  if (payload.identifier == 'email_maid') {
+    schema.maid = true
+    schema.email = true
+  }
+  return schema
+  // return {
+  //   maid: payload.send_advertising_id === true,
+  //   email: payload.send_email === true
+  // }
 }
 
 /**
@@ -66,15 +79,17 @@ export function get_id_schema(payload: Payload): { maid: boolean; email: boolean
  * If both `Send Email` and `Send Advertising ID` are set to `false`, an error is thrown.
  * @param payload The payload.
  */
-export function check_schema(payload: Payload): void {
-  if (payload.send_email === false && payload.send_advertising_id === false) {
-    throw new IntegrationError(
-      'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
-      'INVALID_SETTINGS',
-      400
-    )
-  }
-}
+// Switched over to a 'choice' field, so this function is no longer required
+// export function check_schema(payload: Payload): void {
+//   payload.identifier
+//   if (payload.send_email === false && payload.send_advertising_id === false) {
+//     throw new IntegrationError(
+//       'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
+//       'INVALID_SETTINGS',
+//       400
+//     )
+//   }
+// }
 
 /**
  * The ID schema defines whether the payload should contain the
@@ -83,18 +98,16 @@ export function check_schema(payload: Payload): void {
  * @returns {YahooPayload} The Yahoo payload.
  */
 export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
-  check_schema(payloads[0])
   const schema = get_id_schema(payloads[0])
   const data = []
-  let exp
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
-    if (schema.email === true) {
+    if (schema.email === true && event.email) {
       hashed_email = create_hash(event.email)
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
-    if (schema.maid === true) {
+    if (schema.maid === true && event.advertising_id) {
       switch (event.device_type) {
         case 'ios':
           idfa = event.advertising_id
@@ -105,14 +118,18 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
       }
     }
 
+    if (hashed_email == '' && idfa == '' && gpsaid == '') {
+      continue
+    }
     const ts = Math.floor(new Date().getTime() / 1000)
     const seg_key = event.segment_audience_key
-    // When a users enters an audience - set expiration ts to now() + 90 days
-    if (event.event_attributes[seg_key] == true) {
+    let exp
+    // When a user enters an audience - set expiration ts to now() + 90 days
+    if (event.event_attributes[seg_key] === true) {
       exp = ts + 90 * 24 * 60 * 60
     }
-    // When a users enters an audience - set expiration ts to 0
-    if (event.event_attributes[seg_key] == false) {
+    // When a user exits an audience - set expiration ts to 0
+    if (event.event_attributes[seg_key] === false) {
       exp = 0
     }
 

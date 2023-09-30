@@ -39,15 +39,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       engage_space_id: {
         label: 'Engage Space Id',
-        description:
-          'Required to create customer and segment nodes in Taxonomy. Provide Engage Space Id found in Unify > Settings > API Access. This maps to the "Id" and "Name" of the top-level Customer node in Yahoo taxonomy',
+        description: 'Engage Space Id found in Unify > Settings > API Access',
         type: 'string',
         required: true
       },
       customer_desc: {
         label: 'Customer Description',
-        description:
-          'Required to create customer node in Taxonomy. Provide a description for the Customer node in Yahoo taxonomy. This must be less then 1000 characters',
+        description: 'Engage space name and description',
         type: 'string',
         required: false
       }
@@ -107,17 +105,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     audience_id: {
       type: 'string',
       label: 'Audience Id',
-      description: 'Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy.'
+      description: 'Segment Audience Id (aud_...)'
     },
     audience_key: {
       label: 'Audience key',
-      description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy.',
+      description: 'Segment Audience Key',
       type: 'string',
       required: true
     },
     engage_space_id: {
       label: 'Engage Space Id',
-      description: 'Engage Space Id found in Unify > Settings > API Access.',
+      description: 'Engage Space Id found in Unify > Settings > API Access',
       type: 'string',
       required: true
     }
