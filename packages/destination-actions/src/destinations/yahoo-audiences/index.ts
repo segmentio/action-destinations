@@ -34,7 +34,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       taxonomy_client_secret: {
         label: 'Yahoo Taxonomy API client secret',
         description: 'Taxonomy API client secret. Required to update Yahoo taxonomy',
-        type: 'string',
+        type: 'password',
         required: true
       },
       engage_space_id: {
@@ -51,20 +51,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     // TODO check this function!
-    testAuthentication: async (request, input) => {
+    testAuthentication: async (request, { settings }) => {
       // Used to create top-level customer node
+      console.log('testAuthentication')
       const tx_creds = {
-        tx_client_key: input.settings.taxonomy_client_key,
-        tx_client_secret: input.settings.taxonomy_client_secret
+        tx_client_key: settings.taxonomy_client_key,
+        tx_client_secret: settings.taxonomy_client_secret
       }
-
+      console.log('tx_creds', tx_creds)
       const data = {
-        engage_space_id: input.settings.engage_space_id,
-        customer_desc: input.settings.customer_desc
+        engage_space_id: settings.engage_space_id,
+        customer_desc: settings.customer_desc
       }
 
-      const body_form_data = gen_customer_taxonomy_payload(input.settings, data)
-
+      const body_form_data = gen_customer_taxonomy_payload(settings, data)
+      console.log(body_form_data)
       await update_taxonomy('', tx_creds, request, body_form_data)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -106,13 +107,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     audience_id: {
       type: 'string',
       label: 'Audience Id',
-      description: 'Segment Audience Id (aud_...)'
+      description: 'Segment Audience Id (aud_...)',
+      required: true
     },
     audience_key: {
       label: 'Audience key',
       description: 'Segment Audience Key',
       type: 'string',
       required: true
+    },
+    identifier: {
+      label: 'User Identifier',
+      description: 'Specify the identifier(s) to send to Yahoo',
+      type: 'string',
+      required: true,
+      default: 'email',
+      choices: [
+        { value: 'email', label: 'Send email' },
+        { value: 'maid', label: 'Send MAID' },
+        { value: 'email_maid', label: 'Send email and/or MAID' }
+      ]
     }
   },
   audienceConfig: {
@@ -126,6 +140,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_id = createAudienceInput.audienceSettings?.audience_id
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
+      const identifier = createAudienceInput.audienceSettings?.identifier
       // TODO: add checks to confirm audienceId is actual Engage Audience Id
       if (!audience_id) {
         throw new IntegrationError('Missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
@@ -142,7 +157,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const input = {
         segment_audience_id: audience_id,
         segment_audience_key: audience_key,
-        engage_space_id: engage_space_id
+        engage_space_id: engage_space_id,
+        identifier: identifier
       }
 
       const body_form_data = gen_segment_subtaxonomy_payload(input)

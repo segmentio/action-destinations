@@ -1,10 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { gen_update_segment_payload } from '../utils-rt'
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
   defaultSubscription: 'type = "identify"',
@@ -74,9 +74,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.traits.email' }
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
         }
       }
     },
@@ -126,12 +126,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload, auth }) => {
+  perform: (request, { payload, auth, audienceSettings }) => {
     const rt_access_token = auth?.accessToken
     if (!rt_access_token) {
       throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
     }
-    const body = gen_update_segment_payload([payload])
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+    const body = gen_update_segment_payload([payload], audienceSettings)
     // Send request to Yahoo only when the event includes selected Ids
     if (body.data.length > 0) {
       return request('https://dataxonline.yahoo.com/online/audience/', {
@@ -141,14 +144,19 @@ const action: ActionDefinition<Settings, Payload> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
+    } else {
+      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
     }
   },
-  performBatch: (request, { payload, auth }) => {
+  performBatch: (request, { payload, audienceSettings, auth }) => {
     const rt_access_token = auth?.accessToken
     if (!rt_access_token) {
       throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
     }
-    const body = gen_update_segment_payload(payload)
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+    const body = gen_update_segment_payload(payload, audienceSettings)
     console.log(body)
     // Send request to Yahoo only when all events in the batch include selected Ids
     if (body.data.length > 0) {
@@ -159,6 +167,8 @@ const action: ActionDefinition<Settings, Payload> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
+    } else {
+      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
     }
   }
 }

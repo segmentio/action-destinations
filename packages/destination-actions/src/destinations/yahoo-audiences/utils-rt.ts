@@ -2,6 +2,7 @@ import { createHmac, createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
+import { AudienceSettings } from './generated-types'
 
 /**
  * Creates a SHA256 hash from the input
@@ -52,18 +53,20 @@ export function generate_jwt(client_id: string, client_secret: string): string {
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
-export function get_id_schema(payload: Payload): { maid: boolean; email: boolean } {
+export function get_id_schema(payload: Payload, audienceSettings: AudienceSettings): { maid: boolean; email: boolean } {
   const schema = {
     email: false,
     maid: false
   }
-  if (payload.identifier == 'email') {
+  let id_type
+  audienceSettings.identifier ? (id_type = audienceSettings.identifier) : (id_type = payload.identifier)
+  if (id_type == 'email') {
     schema.email = true
   }
-  if (payload.identifier == 'maid') {
+  if (id_type == 'maid') {
     schema.maid = true
   }
-  if (payload.identifier == 'email_maid') {
+  if (id_type == 'email_maid') {
     schema.maid = true
     schema.email = true
   }
@@ -97,8 +100,8 @@ export function get_id_schema(payload: Payload): { maid: boolean; email: boolean
  * @param payloads
  * @returns {YahooPayload} The Yahoo payload.
  */
-export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
-  const schema = get_id_schema(payloads[0])
+export function gen_update_segment_payload(payloads: Payload[], audienceSettings: AudienceSettings): YahooPayload {
+  const schema = get_id_schema(payloads[0], audienceSettings)
   const data = []
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
