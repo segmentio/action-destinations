@@ -38,6 +38,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Page Title',
     default: { '@path': '$.context.page.title' }
   },
+  url: {
+    type: 'string',
+    required: false,
+    description: 'The URL of the page where the event occurred.',
+    label: 'URL',
+    default: { '@path': '$.context.page.url' }
+  },
   referer: {
     type: 'string',
     required: false,

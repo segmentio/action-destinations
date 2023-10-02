@@ -18,9 +18,6 @@ export const validateInput = (
     ...input
   }
   delete properties.event_name
-  delete properties.userId
-  delete properties.accountId
-  delete properties.anonymousId
 
   // Get screen_resolution from the input screen width and height
   if (input?.screen) {
