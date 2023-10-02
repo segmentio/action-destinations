@@ -9,6 +9,8 @@ import { defaultValues } from '@segment/actions-core'
 
 import group from './group'
 
+import track from './track'
+
 declare global {
   interface Window {
     usermotion: UserMotion
@@ -34,6 +36,13 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
       partnerAction: 'group',
       mapping: defaultValues(group.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     }
   ],
   settings: {
@@ -53,7 +62,8 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
 
   actions: {
     identify,
-    group
+    group,
+    track
   }
 }
 
