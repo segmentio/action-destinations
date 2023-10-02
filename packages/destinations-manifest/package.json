@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -14,8 +14,8 @@
   "dependencies": {
     "@segment/analytics-browser-actions-adobe-target": "^1.15.0",
     "@segment/analytics-browser-actions-amplitude-plugins": "^1.15.0",
-    "@segment/analytics-browser-actions-braze": "^1.16.0",
-    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.16.0",
+    "@segment/analytics-browser-actions-braze": "^1.17.0",
+    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.17.0",
     "@segment/analytics-browser-actions-cdpresolution": "^1.2.0",
     "@segment/analytics-browser-actions-commandbar": "^1.15.0",
     "@segment/analytics-browser-actions-devrev": "^1.2.0",
@@ -42,7 +42,7 @@
     "@segment/analytics-browser-actions-utils": "^1.15.0",
     "@segment/analytics-browser-actions-vwo": "^1.16.0",
     "@segment/analytics-browser-actions-wiseops": "^1.15.0",
-    "@segment/analytics-browser-hubble-web": "^1.0.0",
+    "@segment/analytics-browser-hubble-web": "^1.1.0",
     "@segment/browser-destination-runtime": "^1.14.0"
   }
 }
