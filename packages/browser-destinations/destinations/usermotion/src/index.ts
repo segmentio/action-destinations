@@ -11,6 +11,8 @@ import group from './group'
 
 import track from './track'
 
+import pageview from './pageview'
+
 declare global {
   interface Window {
     usermotion: UserMotion
@@ -43,6 +45,13 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
       partnerAction: 'track',
       mapping: defaultValues(track.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'pageview',
+      mapping: defaultValues(pageview.fields),
+      type: 'automatic'
     }
   ],
   settings: {
@@ -63,7 +72,8 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
   actions: {
     identify,
     group,
-    track
+    track,
+    pageview
   }
 }
 
