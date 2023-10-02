@@ -10,7 +10,7 @@ export interface Payload {
    */
   name: string
   /**
-   * The timestamp when the account was created
+   * The timestamp when the account was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".
    */
   created_at?: string
   /**
@@ -32,6 +32,10 @@ export interface Payload {
    */
   website?: string
   /**
+   * User Anonymous id
+   */
+  anonymous_id?: string | null
+  /**
    * The ID of the event.
    */
   event_id?: string
@@ -46,15 +50,11 @@ export interface Payload {
   /**
    * The title of the page where the event occurred.
    */
-  page_title?: string
+  doc_title?: string
   /**
    * The referrer of the page where the event occurred.
    */
   referer?: string
-  /**
-   * The URL of the page where the event occurred.
-   */
-  url?: string
   /**
    * The user agent of the browser.
    */

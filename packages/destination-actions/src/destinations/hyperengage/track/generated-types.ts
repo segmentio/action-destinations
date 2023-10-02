@@ -6,19 +6,23 @@ export interface Payload {
    */
   event_name: string
   /**
+   * The user id, to uniquely identify the user associated with the event
+   */
+  user_id: string
+  /**
    * The properties of the track call
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * The user id, to uniquely identify the user associated with the event
-   */
-  user_id?: string
-  /**
    * The account id, to uniquely identify the account associated with the user
    */
   account_id?: string
+  /**
+   * User Anonymous id
+   */
+  anonymous_id?: string | null
   /**
    * The ID of the event.
    */
@@ -34,15 +38,11 @@ export interface Payload {
   /**
    * The title of the page where the event occurred.
    */
-  page_title?: string
+  doc_title?: string
   /**
    * The referrer of the page where the event occurred.
    */
   referer?: string
-  /**
-   * The URL of the page where the event occurred.
-   */
-  url?: string
   /**
    * The user agent of the browser.
    */

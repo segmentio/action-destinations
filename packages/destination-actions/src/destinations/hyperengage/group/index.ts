@@ -14,7 +14,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'The External ID of the account to send properties for',
       label: 'Account id',
-      default: { '@path': '$.groupId' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.group_id' },
+          then: { '@path': '$.context.group_id' },
+          else: { '@path': '$.context.groupId' }
+        }
+      }
     },
     name: {
       type: 'string',
@@ -32,7 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
     created_at: {
       type: 'string',
       required: false,
-      description: 'The timestamp when the account was created',
+      description:
+        'The timestamp when the account was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".',
       label: 'Account created at',
       default: { '@path': '$.traits.created_at' }
     },

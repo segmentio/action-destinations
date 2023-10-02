@@ -8,7 +8,15 @@ export interface Payload {
   /**
    * The user's name
    */
-  name: string
+  name?: string
+  /**
+   * The user's first name. This field is mandatory if you're not providing a name field
+   */
+  first_name?: string
+  /**
+   * The user's last name. This field is mandatory if you're not providing a name field
+   */
+  last_name?: string
   /**
    * The user's email address
    */
@@ -18,7 +26,7 @@ export interface Payload {
    */
   account_id?: string
   /**
-   * The timestamp when the user was created
+   * The timestamp when the user was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".
    */
   created_at?: string
   /**
@@ -27,6 +35,10 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * User Anonymous id
+   */
+  anonymous_id?: string | null
   /**
    * The ID of the event.
    */
@@ -42,15 +54,11 @@ export interface Payload {
   /**
    * The title of the page where the event occurred.
    */
-  page_title?: string
+  doc_title?: string
   /**
    * The referrer of the page where the event occurred.
    */
   referer?: string
-  /**
-   * The URL of the page where the event occurred.
-   */
-  url?: string
   /**
    * The user agent of the browser.
    */
