@@ -41,6 +41,9 @@ for (let index = 1; index <= 1500; index++) {
         },
         traits: {
           email: `testing${index}@testing.com`
+        },
+        personas: {
+          external_audience_id: 'external_audience_id'
         }
       }
     })
@@ -81,6 +84,9 @@ const event = createTestEvent({
     },
     traits: {
       email: 'testing@testing.com'
+    },
+    personas: {
+      external_audience_id: 'external_audience_id'
     }
   }
 })
@@ -177,5 +183,51 @@ describe('TheTradeDeskCrm.syncAudience', () => {
     })
 
     expect(responses.length).toBe(2)
+  })
+
+  it('should fail if no external_id in payload', async () => {
+    const dropReferenceId = 'aabbcc5b01-c9c7-4000-9191-000000000000'
+    const dropEndpoint = `https://thetradedesk-crm-data.s3.us-east-1.amazonaws.com/data/advertiser/advertiser-id/drop/${dropReferenceId}/pii?X-Amz-Security-Token=token&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=date&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=credentials&X-Amz-Signature=signature&`
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/personas_test_audience`)
+      .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace', RetentionEnabled: true })
+      .reply(200, { ReferenceId: dropReferenceId, Url: dropEndpoint })
+
+    nock(dropEndpoint).put(/.*/).reply(200)
+
+    const newEvent = createTestEvent({
+      event: 'Audience Entered',
+      type: 'track',
+      properties: {
+        audience_key: 'personas_test_audience'
+      },
+      context: {
+        device: {
+          advertisingId: '123'
+        },
+        traits: {
+          email: 'testing@testing.com'
+        }
+      }
+    })
+
+    await expect(
+      testDestination.testAction('syncAudience', {
+        event: newEvent,
+        settings: {
+          advertiser_id: 'advertiser_id',
+          auth_token: 'test_token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: { 'actions-the-trade-desk-crm-legacy-flow': true, 'ttd-list-action-destination': true },
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+    ).rejects.toThrow(`No external_id found in payload.`)
   })
 })
