@@ -1,5 +1,4 @@
 import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 
@@ -153,16 +152,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  },
-  presets: [
-    {
-      name: 'Sync Audience to CRM Data Segment',
-      subscribe: 'event = "Audience Entered"',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'automatic'
-    }
-  ]
+  }
 }
 
 export default destination
