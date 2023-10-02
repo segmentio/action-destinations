@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * id
+   * Unique identifier for your team (given in Hubble app)
    */
   id: string
 }

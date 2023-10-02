@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Unique identifer of the user
    */
-  userId: string
+  userId?: string
   /**
    * Anonymous identifier of the user
    */
