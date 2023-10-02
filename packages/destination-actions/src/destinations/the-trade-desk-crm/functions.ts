@@ -49,7 +49,12 @@ export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow
 export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 
 export async function processPayload(input: ProcessPayloadInput) {
-  const crmID = input?.payloads?.[0]?.external_id || ''
+  let crmID
+  if (!input.payloads[0].external_id) {
+    throw new PayloadValidationError(`No external_id found in payload.`)
+  } else {
+    crmID = input.payloads[0].external_id
+  }
 
   // Get user emails from the payloads
   const usersFormatted = extractUsers(input.payloads)
