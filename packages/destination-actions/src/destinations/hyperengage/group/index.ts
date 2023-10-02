@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.context.group_id' },
           then: { '@path': '$.context.group_id' },
-          else: { '@path': '$.context.groupId' }
+          else: { '@path': '$.groupId' }
         }
       }
     },

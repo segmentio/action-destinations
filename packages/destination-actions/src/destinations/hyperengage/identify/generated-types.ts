@@ -8,15 +8,15 @@ export interface Payload {
   /**
    * The user's name
    */
-  name?: string
+  name?: string | null
   /**
    * The user's first name. This field is mandatory if you're not providing a name field
    */
-  first_name?: string
+  first_name?: string | null
   /**
    * The user's last name. This field is mandatory if you're not providing a name field
    */
-  last_name?: string
+  last_name?: string | null
   /**
    * The user's email address
    */
@@ -55,6 +55,10 @@ export interface Payload {
    * The title of the page where the event occurred.
    */
   doc_title?: string
+  /**
+   * The URL of the page where the event occurred.
+   */
+  url?: string
   /**
    * The referrer of the page where the event occurred.
    */

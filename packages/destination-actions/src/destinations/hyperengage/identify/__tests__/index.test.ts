@@ -17,6 +17,20 @@ const heIdentifyMapping = {
       else: { '@path': '$.properties.name' }
     }
   },
+  first_name: {
+    '@if': {
+      exists: { '@path': '$.traits.first_name' },
+      then: { '@path': '$.traits.first_name' },
+      else: { '@path': '$.properties.first_name' }
+    }
+  },
+  last_name: {
+    '@if': {
+      exists: { '@path': '$.traits.last_name' },
+      then: { '@path': '$.traits.last_name' },
+      else: { '@path': '$.properties.last_name' }
+    }
+  },
   email: {
     '@if': {
       exists: { '@path': '$.traits.email' },
@@ -48,9 +62,90 @@ describe('Hyperengage.identify', () => {
     await expect(
       testDestination.testAction('identify', {
         event,
-        mapping: heIdentifyMapping
+        mapping: heIdentifyMapping,
+        settings: {
+          workspaceIdentifier: 'identifier',
+          apiKey: 'apiKey'
+        }
       })
     ).rejects.toThrowError()
+  })
+
+  test('Should throw an error if both `name` and `first_name` & `last_name` are not defined', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: 'test@company.com'
+      },
+      properties: {
+        timezone: 'America/New_York'
+      },
+      userId: '123456'
+    })
+
+    await expect(
+      testDestination.testAction('identify', {
+        event,
+        mapping: heIdentifyMapping,
+        settings: {
+          workspaceIdentifier: 'identifier',
+          apiKey: 'apiKey'
+        }
+      })
+    ).rejects.toThrowError()
+  })
+
+  test('Should not throw error if name is defined and first and last name are not', async () => {
+    nock('https://events.hyperengage.io').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        name: 'test',
+        email: 'test@company.com'
+      },
+      properties: {
+        timezone: 'America/New_York'
+      },
+      userId: '123456'
+    })
+
+    await expect(
+      testDestination.testAction('identify', {
+        event,
+        mapping: heIdentifyMapping,
+        settings: {
+          workspaceIdentifier: 'identifier',
+          apiKey: 'apiKey'
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  test('Should not throw error if first_name and last_name are defined and name is not', async () => {
+    nock('https://events.hyperengage.io').post('/api/v1/s2s/event?token=apiKey').reply(200, { success: true })
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        first_name: 'test',
+        last_name: 'test',
+        email: 'test@company.com'
+      },
+      properties: {
+        timezone: 'America/New_York'
+      },
+      userId: '123456'
+    })
+
+    await expect(
+      testDestination.testAction('identify', {
+        event,
+        mapping: heIdentifyMapping,
+        settings: {
+          workspaceIdentifier: 'identifier',
+          apiKey: 'apiKey'
+        }
+      })
+    ).resolves.not.toThrowError()
   })
 
   test('Should throw an error if workspaceIdentifier or apiKey is not defined', async () => {

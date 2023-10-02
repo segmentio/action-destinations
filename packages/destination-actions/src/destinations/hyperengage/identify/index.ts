@@ -21,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: "The user's name",
+      allowNull: true,
       label: 'Name',
       default: {
         '@if': {
@@ -33,26 +34,28 @@ const action: ActionDefinition<Settings, Payload> = {
     first_name: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: "The user's first name. This field is mandatory if you're not providing a name field",
       label: 'First name',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.firstName' },
-          then: { '@path': '$.traits.firstName' },
-          else: { '@path': '$.properties.firstName' }
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
         }
       }
     },
     last_name: {
       type: 'string',
       required: false,
+      allowNull: true,
       description: "The user's last name. This field is mandatory if you're not providing a name field",
       label: 'Last name',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.lastName' },
-          then: { '@path': '$.traits.lastName' },
-          else: { '@path': '$.properties.lastName' }
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
         }
       }
     },
@@ -78,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.context.group_id' },
           then: { '@path': '$.context.group_id' },
-          else: { '@path': '$.context.groupId' }
+          else: { '@path': '$.groupId' }
         }
       }
     },

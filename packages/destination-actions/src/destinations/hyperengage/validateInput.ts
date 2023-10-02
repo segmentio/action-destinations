@@ -58,6 +58,8 @@ export const validateInput = (
         created_at: input?.created_at,
         ...properties.traits
       }
+    } else {
+      throw new Error('Either name, or first_name and last_name must be provided.')
     }
 
     // Create object if company_id is present in traits
@@ -95,6 +97,6 @@ export const validateInput = (
     delete properties.trial_end
     delete properties.website
   }
-  console.log(properties)
+
   return properties
 }

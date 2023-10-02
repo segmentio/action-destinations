@@ -52,6 +52,10 @@ export interface Payload {
    */
   doc_title?: string
   /**
+   * The URL of the page where the event occurred.
+   */
+  url?: string
+  /**
    * The referrer of the page where the event occurred.
    */
   referer?: string
