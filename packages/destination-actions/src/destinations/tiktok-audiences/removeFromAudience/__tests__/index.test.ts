@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, TIKTOK_API_VERSION, MIGRATION_FLAG_NAME } from '../../constants'
+import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -66,7 +66,6 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event,
-        features: { [MIGRATION_FLAG_NAME]: true },
         settings: {
           advertiser_ids: ['123']
         },
@@ -127,7 +126,6 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event: anotherEvent,
-        features: { [MIGRATION_FLAG_NAME]: true },
         settings: {
           advertiser_ids: ['123']
         },
@@ -147,7 +145,6 @@ describe('TiktokAudiences.removeFromAudience', () => {
     await expect(
       testDestination.testAction('removeFromAudience', {
         event,
-        features: { [MIGRATION_FLAG_NAME]: true },
         settings: {
           advertiser_ids: ['123']
         },
