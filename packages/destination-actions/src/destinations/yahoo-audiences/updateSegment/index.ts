@@ -157,7 +157,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
     const body = gen_update_segment_payload(payload, audienceSettings)
-    console.log(body)
     // Send request to Yahoo only when all events in the batch include selected Ids
     if (body.data.length > 0) {
       return request('https://dataxonline.yahoo.com/online/audience/', {

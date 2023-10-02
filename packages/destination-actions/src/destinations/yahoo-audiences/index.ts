@@ -50,22 +50,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: false
       }
     },
-    // TODO check this function!
     testAuthentication: async (request, { settings }) => {
       // Used to create top-level customer node
-      console.log('testAuthentication')
       const tx_creds = {
         tx_client_key: settings.taxonomy_client_key,
         tx_client_secret: settings.taxonomy_client_secret
       }
-      console.log('tx_creds', tx_creds)
       const data = {
         engage_space_id: settings.engage_space_id,
         customer_desc: settings.customer_desc
       }
 
       const body_form_data = gen_customer_taxonomy_payload(settings, data)
-      console.log(body_form_data)
       await update_taxonomy('', tx_creds, request, body_form_data)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -87,6 +83,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       )
       // Oauth1 credentials
+      // Removed thas temporarily as we're fetching tx creds from the global settings
       // const tx_client_key = JSON.parse(auth.clientId)['tax_api']
       // const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
@@ -147,6 +144,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
       const identifier = createAudienceInput.audienceSettings?.identifier
+      // The 3 errors below will be removed once we have Payload accessible by createAudience()
       if (!audience_id) {
         throw new IntegrationError('Create Audience: missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -184,9 +182,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: createAudienceInput.settings.taxonomy_client_secret
       }
 
-      const update_taxonomy_result = await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
 
-      console.log(update_taxonomy_result)
       return { externalId: audience_id }
     },
     async getAudience(_, getAudienceInput) {
