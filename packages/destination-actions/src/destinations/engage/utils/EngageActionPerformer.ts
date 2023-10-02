@@ -69,7 +69,21 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           errorDetails.code?.toLowerCase().includes('etimedout')
 
         // CHANNELS-651 somehow Timeouts are not retried by Integrations, this is fixing it
-        if (isTimeoutError && !respError.status) respError.status = 408
+        if (isTimeoutError) {
+          if (!respError.status) {
+            respError.status = 408
+          }
+          if (!errorDetails.status) {
+            errorDetails.status = 408;
+          }
+
+          if (!respError.code) {
+            respError.code = 'etimedout'
+          }
+          if (!errorDetails.code) {
+            errorDetails.code = 'etimedout'
+          }
+        }
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
         if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
