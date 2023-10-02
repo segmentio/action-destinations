@@ -27,6 +27,13 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
       partnerAction: 'identify',
       mapping: defaultValues(identify.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Identify Group',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     }
   ],
   settings: {
