@@ -141,9 +141,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
       const identifier = createAudienceInput.audienceSettings?.identifier
-      // TODO: add checks to confirm audienceId is actual Engage Audience Id
       if (!audience_id) {
         throw new IntegrationError('Missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const regex = /^aud_[a-zA-Z0-9]{27}$/
+      if (regex.test(audience_id) === false) {
+        throw new IntegrationError(
+          'Incorrect audience Id. Provide audience Id "aud_..." from audience URL',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!audience_key) {
