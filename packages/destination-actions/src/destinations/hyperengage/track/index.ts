@@ -16,6 +16,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event name',
       default: { '@path': '$.event' }
     },
+    user_id: {
+      type: 'string',
+      required: true,
+      description: 'The user id, to uniquely identify the user associated with the event',
+      label: 'User id',
+      default: { '@path': '$.userId' }
+    },
     properties: {
       type: 'object',
       required: false,
@@ -23,19 +30,18 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event properties',
       default: { '@path': '$.properties' }
     },
-    user_id: {
-      type: 'string',
-      required: false,
-      description: 'The user id, to uniquely identify the user associated with the event',
-      label: 'User id',
-      default: { '@path': '$.userId' }
-    },
     account_id: {
       type: 'string',
       required: false,
       description: 'The account id, to uniquely identify the account associated with the user',
       label: 'Account id',
-      default: { '@path': '$.groupId' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.group_id' },
+          then: { '@path': '$.context.group_id' },
+          else: { '@path': '$.context.groupId' }
+        }
+      }
     },
     ...commonFields
   },

@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Hyperengage (Actions)',
   slug: 'actions-hyperengage',
   mode: 'cloud',
-
+  description: 'Hyperengage actions destination, to connect your product usage data from Segment to Hyperengage',
   authentication: {
     scheme: 'custom',
     fields: {

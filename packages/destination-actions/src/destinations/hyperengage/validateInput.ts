@@ -1,5 +1,4 @@
 import { Settings } from './generated-types'
-import random from 'lodash/random'
 
 // Convert relevant input properties to Hyperengage properties
 export const validateInput = (
@@ -13,9 +12,7 @@ export const validateInput = (
     doc_encoding: 'UTF-8',
     src: 'segment_api',
     screen_resolution: '0',
-    user_id: input?.user_id || input?.userId,
-    account_id: input?.account_id || input?.accountId || input?.traits?.companyId || input?.traits?.company?.id,
-    anonymous_id: input?.anonymousId || random(1000000000, 9999999999).toString(),
+    account_id: input?.account_id || input?.traits?.companyId || input?.traits?.company?.id,
     ids: {},
     event_type: event_type,
     ...input
@@ -31,23 +28,6 @@ export const validateInput = (
     properties.screen_resolution = `${width || 0}x${height || 0}`
     properties.vp_size = `${width || 0}x${height || 0}`
     delete properties.screen
-  }
-
-  // Get the doc_title from the input url
-  if (input?.url) {
-    const urlPattern = new RegExp(
-      '^(https?:\\/\\/)?' + // validate protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-        '(\\#[-a-z\\d_]*)?$',
-      'i'
-    )
-    if (urlPattern.test(input.url)) {
-      const url = new URL(input.url as string)
-      properties.doc_host = url.host
-    }
   }
 
   // Resolve local_tz_offset property, we can get local_tz_offset from the input context.timezone
@@ -67,11 +47,20 @@ export const validateInput = (
 
   // Validate user properties
   if (event_type === 'user_identify') {
-    properties.traits = {
-      email: input?.email,
-      name: input?.name,
-      created_at: input?.created_at,
-      ...properties.traits
+    if (input?.name) {
+      properties.traits = {
+        email: input?.email,
+        name: input?.name,
+        created_at: input?.created_at,
+        ...properties.traits
+      }
+    } else if (input?.first_name || input?.last_name) {
+      properties.traits = {
+        email: input?.email,
+        name: `${input?.first_name} ${input?.last_name}}`,
+        created_at: input?.created_at,
+        ...properties.traits
+      }
     }
 
     // Create object if company_id is present in traits
@@ -84,6 +73,8 @@ export const validateInput = (
     // Delete unnecessary user properties
     delete properties.email
     delete properties.name
+    delete properties.first_name
+    delete properties.last_name
     delete properties.created_at
   }
 
@@ -107,5 +98,6 @@ export const validateInput = (
     delete properties.trial_end
     delete properties.website
   }
+  console.log(properties)
   return properties
 }

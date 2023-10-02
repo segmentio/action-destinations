@@ -58,7 +58,6 @@ describe('validateInput', () => {
       expect(payload.workspace_key).toBe(settings.workspaceIdentifier)
       expect(payload.doc_encoding).toBe('UTF-8')
       expect(payload.src).toBe('segment_api')
-      expect(payload.anonymous_id).toHaveLength(10)
     })
   })
 

@@ -2,6 +2,14 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../encharge/generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
+  anonymous_id: {
+    type: 'string',
+    allowNull: true,
+    required: false,
+    description: 'User Anonymous id',
+    label: 'Anonymous ID',
+    default: { '@path': '$.anonymousId' }
+  },
   event_id: {
     type: 'string',
     required: false,
@@ -23,7 +31,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Document Search',
     default: { '@path': '$.context.page.search' }
   },
-  page_title: {
+  doc_title: {
     type: 'string',
     required: false,
     description: 'The title of the page where the event occurred.',
@@ -36,13 +44,6 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     description: 'The referrer of the page where the event occurred.',
     label: 'Referrer',
     default: { '@path': '$.context.page.referrer' }
-  },
-  url: {
-    type: 'string',
-    required: false,
-    description: 'The URL of the page where the event occurred.',
-    label: 'URL',
-    default: { '@path': '$.context.page.url' }
   },
   user_agent: {
     type: 'string',
@@ -140,9 +141,9 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Timezone',
     default: {
       '@if': {
-        exists: { '@path': '$.properties.timezone' },
-        then: { '@path': '$.properties.timezone' },
-        else: { '@path': '$.traits.timezone' }
+        exists: { '@path': 'context.timezone' },
+        then: { '@path': '$.context.timezone' },
+        else: { '@path': '$.properties.timezone' }
       }
     }
   },

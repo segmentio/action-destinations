@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     name: {
       type: 'string',
-      required: true,
+      required: false,
       description: "The user's name",
       label: 'Name',
       default: {
@@ -27,6 +27,32 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: { '@path': '$.traits.name' },
           then: { '@path': '$.traits.name' },
           else: { '@path': '$.properties.name' }
+        }
+      }
+    },
+    first_name: {
+      type: 'string',
+      required: false,
+      description: "The user's first name. This field is mandatory if you're not providing a name field",
+      label: 'First name',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.firstName' },
+          then: { '@path': '$.traits.firstName' },
+          else: { '@path': '$.properties.firstName' }
+        }
+      }
+    },
+    last_name: {
+      type: 'string',
+      required: false,
+      description: "The user's last name. This field is mandatory if you're not providing a name field",
+      label: 'Last name',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.lastName' },
+          then: { '@path': '$.traits.lastName' },
+          else: { '@path': '$.properties.lastName' }
         }
       }
     },
@@ -48,12 +74,19 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       description: 'The account id, to uniquely identify the account associated with the user',
       label: 'Account id',
-      default: { '@path': '$.groupId' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.group_id' },
+          then: { '@path': '$.context.group_id' },
+          else: { '@path': '$.context.groupId' }
+        }
+      }
     },
     created_at: {
       type: 'string',
       required: false,
-      description: 'The timestamp when the user was created',
+      description:
+        'The timestamp when the user was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".',
       label: 'Created at',
       default: { '@path': '$.traits.created_at' }
     },

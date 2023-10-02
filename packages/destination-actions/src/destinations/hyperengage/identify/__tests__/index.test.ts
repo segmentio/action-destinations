@@ -33,7 +33,7 @@ const heIdentifyMapping = {
 }
 
 describe('Hyperengage.identify', () => {
-  test('Should throw an error if `user_id or` `name` is not defined', async () => {
+  test('Should throw an error if `user_id` is not defined', async () => {
     const event = createTestEvent({
       type: 'identify',
       traits: {
