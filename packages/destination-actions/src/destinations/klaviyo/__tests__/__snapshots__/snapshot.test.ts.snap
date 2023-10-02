@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-klaviyo destination: trackEvent action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "metric": Object {
+        "data": Object {
+          "attributes": Object {
+            "name": "mTdOx(Nl)",
+          },
+          "type": "metric",
+        },
+      },
+      "profile": Object {
+        "data": Object {
+          "attributes": Object {
+            "email": "ujoeri@ifosi.kp",
+            "other_properties": Object {
+              "testType": "mTdOx(Nl)",
+            },
+            "phone_number": "mTdOx(Nl)",
+          },
+          "type": "profile",
+        },
+      },
+      "properties": Object {
+        "testType": "mTdOx(Nl)",
+      },
+      "time": "2021-02-01T00:00:00.000Z",
+      "value": -35080566000844.8,
+    },
+    "type": "event",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "email": "rob@cagtud.eu",
+      "external_id": "$Fd4HHQmxNI0jTCTt(t",
+      "first_name": "$Fd4HHQmxNI0jTCTt(t",
+      "image": "$Fd4HHQmxNI0jTCTt(t",
+      "last_name": "$Fd4HHQmxNI0jTCTt(t",
+      "location": Object {
+        "address1": "$Fd4HHQmxNI0jTCTt(t",
+        "address2": "$Fd4HHQmxNI0jTCTt(t",
+        "city": "$Fd4HHQmxNI0jTCTt(t",
+        "country": "$Fd4HHQmxNI0jTCTt(t",
+        "latitude": "$Fd4HHQmxNI0jTCTt(t",
+        "longitude": "$Fd4HHQmxNI0jTCTt(t",
+        "region": "$Fd4HHQmxNI0jTCTt(t",
+        "zip": "$Fd4HHQmxNI0jTCTt(t",
+      },
+      "organization": "$Fd4HHQmxNI0jTCTt(t",
+      "phone_number": "$Fd4HHQmxNI0jTCTt(t",
+      "properties": Object {
+        "testType": "$Fd4HHQmxNI0jTCTt(t",
+      },
+      "title": "$Fd4HHQmxNI0jTCTt(t",
+    },
+    "type": "profile",
+  },
+}
+`;

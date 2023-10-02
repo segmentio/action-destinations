@@ -2,8 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
+import { API_URL } from './config'
 
-const API_URL = 'https://a.klaviyo.com/api'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
@@ -57,7 +58,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    upsertProfile
+    upsertProfile,
+    trackEvent
   }
 }
 
