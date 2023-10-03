@@ -16,7 +16,6 @@ Object {
 
 exports[`Testing snapshot for actions-loops destination: createOrUpdateContact action - required fields 1`] = `
 Object {
-  "email": "bivjag@ennaato.st",
   "userId": "3dQ7ER]1HKW",
 }
 `;

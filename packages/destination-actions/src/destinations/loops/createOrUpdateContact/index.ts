@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email address for the contact.',
       type: 'string',
       format: 'email',
-      required: true,
+      required: false,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
