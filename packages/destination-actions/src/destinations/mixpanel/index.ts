@@ -5,6 +5,7 @@ import type { Settings } from './generated-types'
 
 import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
+import incrementProperties from './incrementProperties'
 
 import alias from './alias'
 import { ApiRegions, StrictMode } from './utils'
@@ -63,6 +64,13 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "group"',
     partnerAction: 'groupIdentifyUser',
     mapping: defaultValues(groupIdentifyUser.fields),
+    type: 'automatic'
+  },
+  {
+    name: 'Increment Properties',
+    subscribe: 'type = "track"',
+    partnerAction: 'incrementProperties',
+    mapping: defaultValues(incrementProperties.fields),
     type: 'automatic'
   }
 ]
@@ -126,7 +134,8 @@ const destination: DestinationDefinition<Settings> = {
     identifyUser,
     groupIdentifyUser,
     alias,
-    trackPurchase
+    trackPurchase,
+    incrementProperties
   }
 }
 

@@ -44,17 +44,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits'
       }
-    },
-    increment: {
-      label: 'Increment Numerical Properties',
-      type: 'object',
-      description:
-        'Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).',
-      multiple: false,
-      defaultObjectUI: 'keyvalue',
-      default: {
-        '@path': '$.traits.increment'
-      }
     }
   },
 
@@ -100,8 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
           'lastName',
           'name',
           'username',
-          'phone',
-          'increment'
+          'phone'
         ]),
         // to fit the Mixpanel expectations, transform the special traits to Mixpanel reserved property
         $created: payload.traits.created ?? payload.traits.createdAt ?? payload.traits.created_at,
@@ -118,30 +106,6 @@ const action: ActionDefinition<Settings, Payload> = {
         $distinct_id: payload.user_id ?? payload.anonymous_id,
         $ip: payload.ip,
         $set: traits
-      }
-
-      const engageResponse = request(`${apiServerUrl}/engage`, {
-        method: 'post',
-        body: new URLSearchParams({ data: JSON.stringify(data) })
-      })
-      responses.push(engageResponse)
-    }
-
-    if (payload.increment && Object.keys(payload.increment).length > 0) {
-      const data: MixpanelEngageProperties = {
-        $token: settings.projectToken,
-        $distinct_id: payload.user_id ?? payload.anonymous_id,
-        $ip: payload.ip
-      }
-      data.$add = {}
-
-      for (const key of Object.keys(payload.increment)) {
-        const value = payload.increment[key]
-        if (typeof value === 'string' || typeof value === 'number') {
-          if (!isNaN(+value)) {
-            data.$add[key] = +value
-          }
-        }
       }
 
       const engageResponse = request(`${apiServerUrl}/engage`, {

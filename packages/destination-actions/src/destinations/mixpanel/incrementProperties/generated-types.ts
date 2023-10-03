@@ -14,9 +14,9 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * Properties to set on the user profile
+   * Object of properties and the values to increment or decrement
    */
-  traits?: {
+  increment?: {
     [k: string]: unknown
   }
 }
