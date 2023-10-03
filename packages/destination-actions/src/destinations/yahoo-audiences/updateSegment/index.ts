@@ -128,9 +128,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
   perform: (request, { payload, auth, audienceSettings }) => {
     const rt_access_token = auth?.accessToken
-    if (!rt_access_token) {
-      throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
-    }
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
@@ -150,9 +148,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
   performBatch: (request, { payload, audienceSettings, auth }) => {
     const rt_access_token = auth?.accessToken
-    if (!rt_access_token) {
-      throw new IntegrationError('Missing authentication token', 'MISSING_REQUIRED_FIELD', 400)
-    }
+
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
