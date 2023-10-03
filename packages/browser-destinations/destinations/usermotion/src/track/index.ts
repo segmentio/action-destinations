@@ -26,9 +26,9 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       defaultObjectUI: 'object'
     }
   },
-  perform: (_, event) => {
+  perform: (UserMotion, event) => {
     const { event: eventName, properties } = event.payload
-    window.usermotion.track(eventName, { ...properties })
+    UserMotion.track(eventName, { ...properties })
   }
 }
 export default action

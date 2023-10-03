@@ -33,10 +33,10 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       }
     }
   },
-  perform: (_, event) => {
+  perform: (UserMotion, event) => {
     const { userId, traits } = event.payload
 
-    window.usermotion.identify(userId, { ...traits })
+    UserMotion.identify(userId, { ...traits })
   }
 }
 

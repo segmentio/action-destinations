@@ -29,8 +29,8 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       }
     }
   },
-  perform: (_, events) => {
-    window.usermotion.group(events.payload.groupId, events.payload.traits ?? {})
+  perform: (UserMotion, events) => {
+    UserMotion.group(events.payload.groupId, events.payload.traits ?? {})
   }
 }
 

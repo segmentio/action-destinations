@@ -17,9 +17,9 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       default: { '@path': '$.properties' }
     }
   },
-  perform: (_, event) => {
+  perform: (UserMotion, event) => {
     const { properties } = event.payload
-    window.usermotion.pageview(properties)
+    UserMotion.pageview(properties)
   }
 }
 export default action
