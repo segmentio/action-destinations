@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
-import { FLAGON_EVENT_STREAMS_ONBOARDING } from '../utils'
 
 const defaultTags = JSON.stringify({})
 
@@ -660,8 +659,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   it('add tags to body', async () => {
-    const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
-
     const expectedTwilioRequest = new URLSearchParams({
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
@@ -674,7 +671,6 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       .reply(201, {})
 
     const responses = await testAction({
-      features,
       mappingOverrides: {
         customArgs: {
           audience_id: '1',
