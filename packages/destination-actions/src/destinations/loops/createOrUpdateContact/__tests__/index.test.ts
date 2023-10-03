@@ -56,41 +56,24 @@ describe('Loops.createOrUpdateContact', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should work without email', async () => {
-    const testPayloadIn = {
-      createdAt: '2025-05-05T14:17:38.089Z',
-      customAttributes: {
-        favoriteColor: 'blue'
-      },
+  it('should not work without email', async () => {
+    const testPayload = {
       firstName: 'Ellen',
-      lastName: 'Richards',
-      source: 'Segment',
-      subscribed: true,
-      userGroup: 'Alum',
       userId: 'some-id-1'
     }
-    const testPayloadOut = {
-      createdAt: '2025-05-05T14:17:38.089Z',
-      favoriteColor: 'blue',
-      firstName: 'Ellen',
-      lastName: 'Richards',
-      source: 'Segment',
-      subscribed: true,
-      userGroup: 'Alum',
-      userId: 'some-id-1'
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(400, {
+      success: false,
+      message: 'userId not found and cannot create a new contact without an email.'
+    })
+
+    try {
+      await testDestination.testAction('createOrUpdateContact', {
+        mapping: testPayload,
+        settings: { apiKey: LOOPS_API_KEY }
+      })
+    } catch (err) {
+      expect(err.message).toBe('Bad Request')
     }
-    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayloadOut).reply(200, {
-      success: true,
-      id: 'someId'
-    })
-
-    const responses = await testDestination.testAction('createOrUpdateContact', {
-      mapping: testPayloadIn,
-      settings: { apiKey: LOOPS_API_KEY }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
   })
 
   it('should work without optional fields', async () => {
