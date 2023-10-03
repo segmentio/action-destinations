@@ -63,6 +63,39 @@ describe('Iterable.trackEvent', () => {
     })
   })
 
+  it('does not convert a non date string into a standard Iterable date format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      userId: 'user1234',
+      properties: {
+        badDate1: '1234',
+        badDate2: '1234-12',
+        badDate3: '1234-12-00',
+        badDate4: '1234-12-99',
+        myGoodDate: '2023-05-17T22:49:53.310Z'
+      }
+    })
+
+    nock('https://api.iterable.com/api').post('/events/track').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].options.json).toMatchObject({
+      userId: 'user1234',
+      dataFields: {
+        badDate1: '1234',
+        badDate2: '1234-12',
+        badDate3: '1234-12-00',
+        badDate4: '1234-12-99',
+        myGoodDate: '2023-05-17 22:49:53 +00:00'
+      }
+    })
+  })
+
   it('should success with mapping of preset and Entity Added event(presets) ', async () => {
     const event = createTestEvent({
       type: 'track',

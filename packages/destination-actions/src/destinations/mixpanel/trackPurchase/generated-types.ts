@@ -188,6 +188,19 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    mobile?: boolean
+    platform?: string
+    architecture?: string
+    bitness?: string
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: boolean
+  }
+  /**
    * Products in the order.
    */
   products?: {

@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings> = {
   fields: {
     uid: {
       type: 'string',
-      required: true,
+      required: false,
       description: "The user's id",
       label: 'User ID',
       default: {

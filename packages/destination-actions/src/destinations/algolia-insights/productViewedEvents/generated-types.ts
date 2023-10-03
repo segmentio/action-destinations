@@ -21,4 +21,10 @@ export interface Payload {
    * The timestamp of the event.
    */
   timestamp?: string
+  /**
+   * Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.
+   */
+  extraProperties?: {
+    [k: string]: unknown
+  }
 }

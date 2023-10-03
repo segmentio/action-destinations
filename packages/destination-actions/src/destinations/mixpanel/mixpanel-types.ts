@@ -53,6 +53,13 @@ export type MixpanelEventProperties = {
   timezone?: string
   app_platform?: string
   event_original_name?: string
+  $mobile?: boolean
+  $platform?: string
+  $architecture?: string
+  $bitness?: string
+  $platformVersion?: string
+  $uaFullVersion?: string
+  $wow64?: boolean
 }
 
 export type MixpanelEvent = {
