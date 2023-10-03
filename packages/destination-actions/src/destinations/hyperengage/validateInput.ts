@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Settings } from './generated-types'
+import { PayloadValidationError } from '@segment/actions-core'
 
 // Convert relevant input properties to Hyperengage properties
 export const validateInput = (
@@ -59,7 +62,7 @@ export const validateInput = (
         ...properties.traits
       }
     } else {
-      throw new Error('Either name, or first_name and last_name must be provided.')
+      throw new PayloadValidationError('Either name, or first_name and last_name must be provided.')
     }
 
     // Create object if company_id is present in traits

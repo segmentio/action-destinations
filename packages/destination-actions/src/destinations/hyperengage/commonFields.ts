@@ -148,7 +148,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Timezone',
     default: {
       '@if': {
-        exists: { '@path': 'context.timezone' },
+        exists: { '@path': '$.context.timezone' },
         then: { '@path': '$.context.timezone' },
         else: { '@path': '$.properties.timezone' }
       }

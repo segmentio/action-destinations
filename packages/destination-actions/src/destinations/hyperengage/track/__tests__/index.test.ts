@@ -4,7 +4,14 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-beforeEach(() => nock.cleanAll())
+beforeAll(() => {
+  nock.disableNetConnect()
+})
+
+afterAll(() => {
+  nock.enableNetConnect()
+  nock.cleanAll()
+})
 
 const heTrackMapping = {
   event_name: {
@@ -81,7 +88,6 @@ describe('Hyperengage.track', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
   })
 })

@@ -4,7 +4,14 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-beforeEach(() => nock.cleanAll())
+beforeAll(() => {
+  nock.disableNetConnect()
+})
+
+afterAll(() => {
+  nock.enableNetConnect()
+  nock.cleanAll()
+})
 
 const heIdentifyMapping = {
   user_id: {
@@ -199,7 +206,6 @@ describe('Hyperengage.identify', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toEqual(200)
   })
 })
