@@ -2,7 +2,7 @@ import { Command, flags } from '@oclif/command'
 import chalk from 'chalk'
 import ora from 'ora'
 import path from 'path'
-import fs from 'fs'
+import readPkgUp from 'read-pkg-up'
 import toTitleCase from 'to-title-case'
 import { autoPrompt } from '../lib/prompt'
 import { generateSlug } from '../lib/slugs'
@@ -132,12 +132,9 @@ export default class Init extends Command {
       renderTemplates(templatePath, targetDirectory, {
         ...answers,
         slugWithoutActions,
-        browserRuntimeVersion: JSON.parse(
-          fs.readFileSync(
-            path.join(require.resolve('@segment/browser-destination-runtime/plugin'), '../../../package.json'),
-            'utf-8'
-          )
-        ).version
+        browserRuntimeVersion: readPkgUp.sync({
+          cwd: require.resolve('@segment/browser-destination-runtime/plugin')
+        })?.package.version
       })
       this.spinner.succeed(`Scaffold integration`)
     } catch (err) {
