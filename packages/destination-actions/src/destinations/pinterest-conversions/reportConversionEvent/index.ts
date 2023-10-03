@@ -203,10 +203,7 @@ function createPinterestPayload(payload: Payload) {
         value: String(payload?.custom_data?.value),
         content_ids: payload.custom_data?.content_ids,
         contents: payload.custom_data?.contents,
-        num_items:
-          payload.custom_data?.num_items && !isNaN(parseInt(payload.custom_data?.num_items))
-            ? parseInt(payload.custom_data?.num_items)
-            : undefined,
+        num_items: payload.custom_data?.num_items,
         order_id: payload.custom_data?.order_id,
         search_string: payload.custom_data?.search_string,
         opt_out_type: payload.custom_data?.opt_out_type
