@@ -32,16 +32,10 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
     if (payload.userId != null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:id', [payload.userId]])
-      console.debug('user id sent to jimo')
-    } else {
-      console.debug('user id not sent, null')
     }
     if (payload.email != null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:email', [payload.email]])
-      console.debug('user email sent to jimo')
-    } else {
-      console.debug('user id not sent, null')
     }
   }
 }

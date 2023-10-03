@@ -53,7 +53,6 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
         Array.isArray(window.jimo) === false,
       100
     )
-    console.log('Jimo added to window')
     return window.jimo as JimoSDK
   },
   actions: {
