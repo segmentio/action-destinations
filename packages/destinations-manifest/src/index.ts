@@ -59,3 +59,4 @@ register('6501a4325a8a629197cdd691', '@segment/analytics-browser-actions-pendo-w
 register('6501a5225aa338d11164cc0f', '@segment/analytics-browser-actions-rupt')
 register('650c69e7f47d84b86c120b4c', '@segment/analytics-browser-actions-cdpresolution')
 register('649adeaa719bd3f55fe81bef', '@segment/analytics-browser-actions-devrev')
+register('651aac880f2c3b5a8736e0cc', '@segment/analytics-browser-hubble-web')
