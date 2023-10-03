@@ -122,7 +122,7 @@ export interface Payload {
     /**
      * Total number of products in the event.
      */
-    num_items?: string
+    num_items?: number
     /**
      * Order ID
      */
