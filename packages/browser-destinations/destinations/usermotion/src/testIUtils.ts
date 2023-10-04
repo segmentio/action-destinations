@@ -38,6 +38,21 @@ export const trackSubscription: Subscription = {
   }
 }
 
+export const groupSubscription: Subscription = {
+  partnerAction: 'group',
+  name: 'Group User',
+  enabled: true,
+  subscribe: 'type = "group"',
+  mapping: {
+    groupId: {
+      '@path': '$.groupId'
+    },
+    traits: {
+      '@path': '$.traits'
+    }
+  }
+}
+
 export const mockJsHttpRequest = (): void => {
   nock('https://api.usermotion.com').get(`/js/${TEST_API_KEY}.js`).reply(200, {})
 }

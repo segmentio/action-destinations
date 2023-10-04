@@ -29,8 +29,12 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       }
     }
   },
-  perform: (UserMotion, events) => {
-    UserMotion.group(events.payload.groupId, events.payload.traits ?? {})
+  perform: (UserMotion, event) => {
+    const { groupId, traits } = event.payload
+    if (!groupId) return
+
+    const props = typeof traits === 'object' ? { ...traits } : undefined
+    UserMotion.group(groupId, props)
   }
 }
 
