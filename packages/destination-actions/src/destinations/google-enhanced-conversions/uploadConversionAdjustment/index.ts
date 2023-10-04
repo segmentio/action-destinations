@@ -1,21 +1,15 @@
-import {
-  APIError,
-  ActionDefinition,
-  DynamicFieldResponse,
-  PayloadValidationError,
-  RequestClient
-} from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import {
   hash,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
-  getConversionActionId
+  getConversionActionDynamicData
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ConversionActionId, ConversionActionResponse, PartialErrorResponse } from '../types'
+import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -215,26 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
-      try {
-        const results = await getConversionActionId(settings.customerId, auth, request)
-
-        const res: Array<ConversionActionResponse> = JSON.parse(results.content)
-        const choices = res[0].results.map((input: ConversionActionId) => {
-          return { value: input.conversionAction.id, label: input.conversionAction.name }
-        })
-        return {
-          choices
-        }
-      } catch (err) {
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message: (err as APIError).message ?? 'Unknown error',
-            code: (err as APIError).status + '' ?? 'Unknown error'
-          }
-        }
-      }
+      return getConversionActionDynamicData(request, settings, auth)
     }
   },
   perform: async (request, { settings, payload, features, statsContext }) => {

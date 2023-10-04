@@ -1,6 +1,19 @@
 import { createHash } from 'crypto'
-import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
-import { ModifiedResponse, RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import {
+  ConversionCustomVariable,
+  PartialErrorResponse,
+  QueryResponse,
+  ConversionActionId,
+  ConversionActionResponse
+} from './types'
+import {
+  ModifiedResponse,
+  RequestClient,
+  IntegrationError,
+  PayloadValidationError,
+  DynamicFieldResponse,
+  APIError
+} from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -74,7 +87,7 @@ export async function getConversionActionId(
   auth: any,
   request: RequestClient
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
+  return request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
     method: 'post',
     headers: {
       authorization: `Bearer ${auth?.accessToken}`,
@@ -84,6 +97,33 @@ export async function getConversionActionId(
       query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
     }
   })
+}
+
+export async function getConversionActionDynamicData(
+  request: RequestClient,
+  settings: any,
+  auth: any
+): Promise<DynamicFieldResponse> {
+  try {
+    const results = await getConversionActionId(settings.customerId, auth, request)
+
+    const res: Array<ConversionActionResponse> = JSON.parse(results.content)
+    const choices = res[0].results.map((input: ConversionActionId) => {
+      return { value: input.conversionAction.id, label: input.conversionAction.name }
+    })
+    return {
+      choices
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: (err as APIError).message ?? 'Unknown error',
+        code: (err as APIError).status + '' ?? 'Unknown error'
+      }
+    }
+  }
 }
 
 /* Ensures there is no error when using Google's partialFailure mode
