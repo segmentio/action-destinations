@@ -23,6 +23,21 @@ export const identifySubscription: Subscription = {
   }
 }
 
+export const trackSubscription: Subscription = {
+  partnerAction: 'track',
+  name: 'Track Event',
+  enabled: true,
+  subscribe: 'type = "track"',
+  mapping: {
+    event: {
+      '@path': '$.name'
+    },
+    properties: {
+      '@path': '$.properties'
+    }
+  }
+}
+
 export const mockJsHttpRequest = (): void => {
   nock('https://api.usermotion.com').get(`/js/${TEST_API_KEY}.js`).reply(200, {})
 }

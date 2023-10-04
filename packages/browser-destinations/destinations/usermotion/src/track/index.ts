@@ -21,14 +21,16 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       required: false,
       description: 'Properties to send with the event.',
       label: 'Event Properties',
-      default: { '@path': '$.properties' },
-
-      defaultObjectUI: 'object'
+      default: { '@path': '$.properties' }
     }
   },
   perform: (UserMotion, event) => {
     const { event: eventName, properties } = event.payload
-    UserMotion.track(eventName, { ...properties })
+    if (!eventName) return
+
+    const props = typeof properties === 'object' ? { ...properties } : undefined
+
+    UserMotion.track(eventName, props)
   }
 }
 export default action
