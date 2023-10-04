@@ -74,7 +74,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     region: {
       type: 'string',
       label: 'Region',
-      description: 'Region of your audience.'
+      description:
+        'The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)',
+      required: true
     }
   },
   audienceConfig: {

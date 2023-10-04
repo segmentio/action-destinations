@@ -48,7 +48,7 @@ export const custom_data_field: InputField = {
     num_items: {
       label: 'Number of Items',
       description: 'Total number of products in the event. ',
-      type: 'string'
+      type: 'integer'
     },
     order_id: {
       label: 'Order ID',
