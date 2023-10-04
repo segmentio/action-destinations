@@ -138,37 +138,39 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  // PoC of the mappingSetup method. We will create a new lead record on save, then save the resulting record ID in an object under 'mappingSetup'
-  mappingSetupValue: {
-    label: 'Mapping Setup',
-    description: 'Create a new lead record on save, then save the resulting record ID in an object under "mappingSetup".',
-    type: 'object',
-    properties: {
-      id: {
-        label: 'ID',
-        description: 'The ID of the newly created lead.',
-        type: 'string'
+  hooks: {
+    'on-subscription-save': {
+      label: 'Create a Lead record, just to demo things',
+      description:
+        'This implementation of the on-subscription-save hook will create a new Lead record in Salesforce. It will then save the ID of the newly created record to payload.onSubscriptionSavedValue.id.',
+      fields: {
+        id: {
+          label: 'ID',
+          description: 'The ID of the newly created lead.',
+          type: 'string'
+        },
+        success: {
+          label: 'Success',
+          description: 'Whether or not the lead was successfully created.',
+          type: 'boolean'
+        }
       },
-      success: {
-        label: 'Success',
-        description: 'Whether or not the lead was successfully created.',
-        type: 'boolean'
+      performHook: async (request, { settings, payload }): Promise<Payload['onSubscriptionSavedValue']> => {
+        const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+        // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
+
+        const { data } = await sf.createRecord(payload, OBJECT_NAME)
+
+        return {
+          id: data.id,
+          success: data.success
+        }
       }
     }
   },
-  mappingSetup: async (request, { settings, payload }): Promise<Payload["mappingSetupValue"]> => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
-    // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
-
-    const { data } = await sf.createRecord(payload, OBJECT_NAME)
-
-    return {
-      id: data.id,
-      success: data.success
-    }
-  },
   perform: async (request, { settings, payload }) => {
-    if (!payload.mappingSetupValue?.success) { // just for PoC purposes
+    if (!payload.onSubscriptionSaved?.success) {
+      // just for PoC purposes
       throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
     }
 

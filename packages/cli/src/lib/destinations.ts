@@ -22,7 +22,6 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
   const module = require(importPath)
   // look for `default` or `destination` export
   const destination = module.destination || module.default
-
   // Loose validation on a destination definition
   if (!destination?.name || typeof destination?.actions !== 'object') {
     return null

@@ -5,7 +5,14 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result, InputFieldJSONSchema } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  InputFieldJSONSchema
+} from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -65,11 +72,28 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
-  mappingSetupValue?: InputFieldJSONSchema
+  hooks?: Record<ActionHookType, ActionHookDefinition<Settings, Payload, AudienceSettings>>
   /** The operation to perform when updates to this action are saved TODO: define a return type
    * that corresponds to what users define in mappingSetupValue
-  */
+   */
   mappingSetup?: RequestFn<Settings, Payload, any, AudienceSettings>
+}
+
+/**
+ * The supported actions hooks.
+ * on-subscription-save: Called when a subscription is saved.
+ */
+export type ActionHookType = 'on-subscription-save' // | 'on-subscription-delete' | 'on-subscription-update'
+
+export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
+  /** The display title for this hook. */
+  label: string
+  /** A description of what this hook does. */
+  description: string
+  /** The fields that this field will populate. */
+  fields: Record<string, InputFieldJSONSchema>
+  /** The operation to perform when this hook is triggered. */
+  performHook: RequestFn<Settings, Payload, any, AudienceSettings>
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
@@ -103,7 +127,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hasBatchSupport: boolean
-  readonly hasMappingSetupSupport: boolean
+  readonly hasHookSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -120,7 +144,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.destinationName = destinationName
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
-    this.hasMappingSetupSupport = typeof definition.mappingSetup === 'function'
+    this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -232,14 +256,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return (await this.performRequest(fn, data)) as DynamicFieldResponse
   }
 
-  async executeMappingSetup(data: ExecuteInput<Settings, Payload, AudienceSettings>) {
-    if (!this.hasMappingSetupSupport || !this.definition.mappingSetup) {
-      throw new IntegrationError('This action does not support mapping setup.', 'NotImplemented', 501)
+  async executeHook(hookType: ActionHookType, data: ExecuteInput<Settings, Payload, AudienceSettings>) {
+    if (!this.hasHookSupport) {
+      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
+    }
+    const hookFn = this.definition.hooks?.[hookType]?.performHook
+
+    if (!hookFn) {
+      throw new IntegrationError(`This action does not support the ${hookType} hook.`, 'NotImplemented', 501)
     }
 
-    const setupFn = this.definition.mappingSetup
-
-    return await this.performRequest(setupFn, data)
+    return await this.performRequest(hookFn, data)
   }
 
   /**

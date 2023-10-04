@@ -97,17 +97,4 @@ export interface Payload {
   customFields?: {
     [k: string]: unknown
   }
-  /**
-   * Create a new lead record on save, then save the resulting record ID in an object under "mappingSetup".
-   */
-  mappingSetupValue?: {
-    /**
-     * The ID of the newly created lead.
-     */
-    id?: string
-    /**
-     * Whether or not the lead was successfully created.
-     */
-    success?: boolean
-  }
 }

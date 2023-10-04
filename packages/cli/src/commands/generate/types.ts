@@ -132,8 +132,18 @@ export default class GenerateTypes extends Command {
     // TODO how to load directory structure consistently?
     for (const [slug, action] of Object.entries(destination.actions)) {
       let fields = action.fields
-      if (action.mappingSetupValue) {
-        fields = { ...fields, mappingSetupValue: action.mappingSetupValue }
+
+      //This doesn't work yet but good enough for a PoC
+      if (action.hasHookSupport) {
+        console.log('has hooks')
+        const hooks = action.hooks
+        console.log(hooks)
+        for (const [hookName, hook] of Object.entries(hooks)) {
+          console.log(hookName)
+          console.log(hook)
+          fields = { ...fields, [hookName]: hook.fields }
+        }
+        console.log('fields', fields)
       }
 
       const types = await generateTypes(fields, 'Payload')
