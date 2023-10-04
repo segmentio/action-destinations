@@ -81,6 +81,15 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
  */
 export type ActionHookType = 'on-subscription-save' // | 'on-subscription-delete' | 'on-subscription-update'
 
+export interface ActionHookResponse {
+  successMessage?: string
+  savedData: any
+}
+
+export interface ActionHookError {
+  message: string
+  code: string
+}
 export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
   /** The display title for this hook. */
   label: string
@@ -89,7 +98,7 @@ export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
   /** The fields that this field will populate. */
   fields: Record<string, InputFieldJSONSchema>
   /** The operation to perform when this hook is triggered. */
-  performHook: RequestFn<Settings, Payload, any, AudienceSettings>
+  performHook: RequestFn<Settings, Payload, ActionHookResponse | ActionHookError, AudienceSettings>
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {

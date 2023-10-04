@@ -13,6 +13,8 @@ import {
   batch_size
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
+import { ActionHookResponse } from '@segment/actions-core/src/destination-kit/action'
+import { ActionHookError } from '@segment/actions-core/src/destination-kit/action'
 
 const OBJECT_NAME = 'Lead'
 
@@ -155,15 +157,26 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'boolean'
         }
       },
-      performHook: async (request, { settings, payload }): Promise<Payload['onSubscriptionSavedValue']> => {
+      performHook: async (request, { settings, payload }): Promise<ActionHookResponse | ActionHookError> => {
         const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
         // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
 
-        const { data } = await sf.createRecord(payload, OBJECT_NAME)
+        let data
+        try {
+          data = (await sf.createRecord(payload, OBJECT_NAME)).data
+        } catch (e) {
+          return {
+            errorMessage: (e as Error).message ?? 'Error creating lead, please retry',
+            code: (e as Error).name ?? '400',
+          }
+        }
 
         return {
+        successMessage: `Lead ${data.id} created successfully`,
+        savedData: {
           id: data.id,
           success: data.success
+          }
         }
       }
     }
