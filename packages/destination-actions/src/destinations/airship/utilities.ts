@@ -110,6 +110,7 @@ export function associate_named_user(
 
   const associate_payload = {
     channel_id: channel_id,
+    device_type: 'email',
     named_user_id: named_user_id
   }
 
@@ -229,8 +230,8 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
     adjustedDate = _parse_date(attribute_value)
   }
 
-  if (['home_phone', 'work_phone', 'mobile_phone'].includes(attribute_key) && typeof(attribute_value) == "string") {
-    attribute_value = parseInt(attribute_value.replace(/[^0-9]/g, ""))
+  if (['home_phone', 'work_phone', 'mobile_phone'].includes(attribute_key) && typeof attribute_value == 'string') {
+    attribute_value = parseInt(attribute_value.replace(/[^0-9]/g, ''))
   }
 
   const attribute: {
@@ -255,7 +256,6 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   }
   return attribute
 }
-
 
 function _build_tags_object(payload: TagsPayload): object {
   /*
