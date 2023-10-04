@@ -73,10 +73,6 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
   hooks?: Record<ActionHookType, ActionHookDefinition<Settings, Payload, AudienceSettings>>
-  /** The operation to perform when updates to this action are saved TODO: define a return type
-   * that corresponds to what users define in mappingSetupValue
-   */
-  mappingSetup?: RequestFn<Settings, Payload, any, AudienceSettings>
 }
 
 /**
