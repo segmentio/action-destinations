@@ -48,7 +48,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        run: NODE_ENV=production yarn build-changed
 
       - name: Lint
         env:
@@ -59,7 +59,7 @@ jobs:
         run: yarn validate
 
       - name: Test
-        run: yarn test
+        run: yarn test-changed
 
       - name: destination-subscriptions size
         run: |
