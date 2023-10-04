@@ -53,6 +53,18 @@ export const groupSubscription: Subscription = {
   }
 }
 
+export const pageviewSubscription: Subscription = {
+  partnerAction: 'pageview',
+  name: 'Page View',
+  enabled: true,
+  subscribe: 'type = "page"',
+  mapping: {
+    properties: {
+      '@path': '$.properties'
+    }
+  }
+}
+
 export const mockJsHttpRequest = (): void => {
   nock('https://api.usermotion.com').get(`/js/${TEST_API_KEY}.js`).reply(200, {})
 }
