@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { flattenObject } from '../utils'
+import split from 'lodash/split'
 
 interface ContactProperties {
   company?: string | undefined
@@ -32,7 +33,7 @@ interface ContactUpdateRequestPayload {
 
 interface ContactSuccessResponse {
   id: string
-  properties: Record<string, string>
+  properties: Record<string, string | null>
 }
 
 interface ContactErrorResponse {
@@ -264,6 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (action === 'create') {
         createList.push(payload)
       } else if (action === 'update') {
+        delete payload['properties']['email']
         updateList.push({
           id: payload.id as string,
           properties: payload.properties
@@ -305,7 +307,7 @@ async function updateContact(request: RequestClient, email: string, properties: 
 
 async function readContactsBatch(request: RequestClient, emails: string[]) {
   const requestPayload = {
-    properties: ['email', 'lifecyclestage'],
+    properties: ['email', 'lifecyclestage', 'hs_additional_emails'],
     idProperty: 'email',
     inputs: emails.map((email) => ({
       id: email
@@ -376,17 +378,8 @@ function updateActionsForBatchedContacts(
   // Throw any other error responses
   // Case 1: Loop over results if there are any
   if (readResponse.data?.results && readResponse.data.results.length > 0) {
-    for (const result of readResponse.data.results) {
-      // Set the action to update for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].action = 'update'
-
-      // Set the id for contacts that exist in HubSpot
-      contactsUpsertMap[result.properties.email].payload.id = result.id
-
-      // Re-index the payload with ID
-      contactsUpsertMap[result.id] = { ...contactsUpsertMap[result.properties.email] }
-      delete contactsUpsertMap[result.properties.email]
-    }
+    //create and map payload to update contact
+    contactsUpsertMap = createPayloadToUpdateContact(readResponse, contactsUpsertMap)
   }
 
   // Case 2: Loop over errors if there are any
@@ -443,5 +436,34 @@ async function checkAndRetryUpdatingLifecycleStage(
     // Set the new Life Cycle Stage
     await updateContactsBatch(request, retryLifeCycleStagePayload)
   }
+}
+
+function createPayloadToUpdateContact(
+  readResponse: BatchContactResponse,
+  contactsUpsertMap: Record<string, ContactsUpsertMapItem>
+) {
+  for (const result of readResponse.data.results) {
+    let email: string | null = null
+    //Each Hubspot Contact can have mutiple email addresses ,one as primary and others as secondary emails
+    if (!contactsUpsertMap[`${result.properties.email}`]) {
+      // If contact is not getting mapped with Primary email then checking it in secondary email for same contact.
+      if (result.properties.hs_additional_emails) {
+        const secondaryEmails = split(result.properties.hs_additional_emails, ';')
+        email = Object.keys(contactsUpsertMap).filter((key) => secondaryEmails.includes(key))[0]
+      }
+    } else {
+      email = result.properties.email
+    }
+    if (email) {
+      // Set the action to update for contacts that exist in HubSpot
+      contactsUpsertMap[email].action = 'update'
+      // Set the id for contacts that exist in HubSpot
+      contactsUpsertMap[email].payload.id = result.id
+      // Re-index the payload with ID
+      contactsUpsertMap[result.id] = { ...contactsUpsertMap[email] }
+      delete contactsUpsertMap[email]
+    }
+  }
+  return contactsUpsertMap
 }
 export default action
