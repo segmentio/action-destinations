@@ -144,9 +144,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
-    } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
     }
+
+    throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
   },
   performBatch: (request, { payload, audienceSettings, auth }) => {
     const rt_access_token = auth?.accessToken
@@ -166,9 +166,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           Authorization: `Bearer ${rt_access_token}`
         }
       })
-    } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
     }
+
+    throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
   }
 }
 
