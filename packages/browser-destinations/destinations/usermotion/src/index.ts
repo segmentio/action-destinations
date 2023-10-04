@@ -63,7 +63,11 @@ export const destination: BrowserDestinationDefinition<Settings, UserMotion> = {
     }
   },
   initialize: async ({ settings }, deps) => {
-    await deps.loadScript(`//api.usermotion.com/js/${settings.apiKey}.js}`)
+    if (window.usermotion) {
+      return window.usermotion
+    }
+
+    await deps.loadScript(`https://api.usermotion.com/js/${settings.apiKey}.js`)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'usermotion'), 100)
 
     return window.usermotion

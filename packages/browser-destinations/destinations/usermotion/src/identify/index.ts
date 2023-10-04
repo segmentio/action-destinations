@@ -14,20 +14,13 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
       required: true,
       description: 'The ID of the logged-in user.',
       label: 'User ID',
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
+      default: { '@path': '$.userId' }
     },
     traits: {
       type: 'object',
       required: false,
       description: 'User traits.',
       label: 'Traits',
-      defaultObjectUI: 'object',
       default: {
         '@path': '$.traits'
       }
@@ -36,7 +29,10 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
   perform: (UserMotion, event) => {
     const { userId, traits } = event.payload
 
-    UserMotion.identify(userId, { ...traits })
+    if (!userId) return
+
+    const properties = typeof traits === 'object' ? { ...traits } : undefined
+    UserMotion.identify(userId, properties)
   }
 }
 
