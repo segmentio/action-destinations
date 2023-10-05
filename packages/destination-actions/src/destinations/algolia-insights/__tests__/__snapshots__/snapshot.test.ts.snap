@@ -4,9 +4,19 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
+      "currency": "HTG",
       "eventName": "U[ABpE$k",
+      "eventSubtype": "purchase",
       "eventType": "view",
       "index": "U[ABpE$k",
+      "objectData": Array [
+        Object {
+          "discount": -52282070788997.12,
+          "price": -52282070788997.12,
+          "quantity": -52282070788997.12,
+          "queryID": "U[ABpE$k",
+        },
+      ],
       "objectIDs": Array [
         "U[ABpE$k",
       ],
@@ -14,6 +24,7 @@ Object {
       "testType": "U[ABpE$k",
       "timestamp": null,
       "userToken": "U[ABpE$k",
+      "value": -52282070788997.12,
     },
   ],
 }
