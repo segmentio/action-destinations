@@ -54,6 +54,10 @@ describe('Loops.createOrUpdateContact', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toStrictEqual({
+      success: true,
+      id: 'someId'
+    })
   })
 
   it('should not work without email', async () => {
@@ -77,21 +81,25 @@ describe('Loops.createOrUpdateContact', () => {
   })
 
   it('should work without optional fields', async () => {
-    const testPayload = {
+    const testPayload2 = {
       email: 'test@example.com',
-      userId: 'some-id-1'
+      userId: 'some-id-2'
     }
-    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(200, {
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload2).reply(200, {
       success: true,
       id: 'someId'
     })
 
     const responses = await testDestination.testAction('createOrUpdateContact', {
-      mapping: testPayload,
+      mapping: testPayload2,
       settings: { apiKey: LOOPS_API_KEY }
     })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].data).toStrictEqual({
+      success: true,
+      id: 'someId'
+    })
   })
 })
