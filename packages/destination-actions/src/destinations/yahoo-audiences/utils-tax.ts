@@ -1,36 +1,34 @@
-import { Payload as SegmentNodePayload } from './createSegment/generated-types'
-import { Payload as CustomerNodePayload } from './createCustomerNode/generated-types'
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
-import { CredsObj } from './types'
+import { CredsObj, YahooSubTaxonomy } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 
-export function gen_customer_taxonomy_payload(settings: Settings, payload: CustomerNodePayload) {
+export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
-    id: payload.engage_space_id,
-    name: payload.engage_space_id,
-    description: payload.customer_desc,
+    id: settings.engage_space_id,
+    name: settings.engage_space_id,
+    description: settings.customer_desc,
     users: {
       include: [settings.mdm_id]
     }
   }
   // Form data must be delimited with CRLF = /r/n: RFC https://www.rfc-editor.org/rfc/rfc7578#section-4.1
   const req_body_form = `--SEGMENT-DATA\r\nContent-Disposition: form-data; name="metadata"\r\nContent-Type: application/json;charset=UTF-8\r\n\r\n{ "description" : "${
-    payload.customer_desc
+    settings.customer_desc
   }" }\r\n--SEGMENT-DATA\r\nContent-Disposition: form-data; name="data"\r\nContent-Type: application/json;charset=UTF-8\r\n\r\n${JSON.stringify(
     data
   )}\r\n--SEGMENT-DATA--`
   return req_body_form
 }
 
-export function gen_segment_subtaxonomy_payload(payload: SegmentNodePayload) {
+export function gen_segment_subtaxonomy_payload(payload: YahooSubTaxonomy) {
   const data = {
     id: payload.segment_audience_id,
     name: payload.segment_audience_key,
     type: 'SEGMENT'
   }
-  const req_body_form = `--SEGMENT-DATA\r\nContent-Disposition: form-data; name="metadata"\r\nContent-Type: application/json;charset=UTF-8\r\n\r\n{ "description" : "${
-    payload.customer_desc
+  const req_body_form = `--SEGMENT-DATA\r\nContent-Disposition: form-data; name="metadata"\r\nContent-Type: application/json;charset=UTF-8\r\n\r\n{ "description" : "Create segment ${
+    data.id
   }" }\r\n--SEGMENT-DATA\r\nContent-Disposition: form-data; name="data"\r\nContent-Type: application/json;charset=UTF-8\r\n\r\n${JSON.stringify(
     data
   )}\r\n--SEGMENT-DATA--`

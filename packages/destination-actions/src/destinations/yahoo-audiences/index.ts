@@ -3,8 +3,6 @@ import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
-import createSegment from './createSegment'
-import createCustomerNode from './createCustomerNode'
 import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
 
 interface RefreshTokenResponse {
@@ -50,12 +48,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_key: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID,
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
-      const data = {
-        engage_space_id: settings.engage_space_id,
-        customer_desc: settings.customer_desc
-      }
 
-      const body_form_data = gen_customer_taxonomy_payload(settings, data)
+      const body_form_data = gen_customer_taxonomy_payload(settings)
       await update_taxonomy('', tx_creds, request, body_form_data)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -142,6 +136,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID) {
         throw new IntegrationError('Missing Taxonomy API client Id', 'MISSING_REQUIRED_FIELD', 400)
       }
+      if (!identifier) {
+        throw new IntegrationError('Create Audience: missing Identifier type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
 
       const input = {
         segment_audience_id: audience_id,
@@ -171,9 +168,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    updateSegment,
-    createSegment,
-    createCustomerNode
+    updateSegment
   }
 }
 export default destination
