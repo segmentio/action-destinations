@@ -69,15 +69,13 @@ describe('Loops.createOrUpdateContact', () => {
       success: false,
       message: 'userId not found and cannot create a new contact without an email.'
     })
-
-    try {
-      await testDestination.testAction('createOrUpdateContact', {
+    await expect(
+      testDestination.testAction('createOrUpdateContact', {
         mapping: testPayload,
         settings: { apiKey: LOOPS_API_KEY }
       })
-    } catch (err) {
-      expect(err.message).toBe('Bad Request')
-    }
+    ).rejects.toThrow('Bad Request')
+    testDestination.responses = []
   })
 
   it('should work without optional fields', async () => {
@@ -95,9 +93,9 @@ describe('Loops.createOrUpdateContact', () => {
       settings: { apiKey: LOOPS_API_KEY }
     })
 
-    expect(responses.length).toBe(2)
-    expect(responses[1].status).toBe(200)
-    expect(responses[1].data).toStrictEqual({
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toStrictEqual({
       success: true,
       id: 'someId'
     })
