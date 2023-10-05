@@ -21,8 +21,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
-      settingsData['apiKey'] = 'abc123';
-      settingsData['region'] = 'US';
+      settingsData['apiKey'] = 'abc123'
+      settingsData['region'] = 'US'
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
@@ -58,8 +58,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
-      settingsData['apiKey'] = 'abc123';
-      settingsData['region'] = 'US';
+      settingsData['apiKey'] = 'abc123'
+      settingsData['region'] = 'US'
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,

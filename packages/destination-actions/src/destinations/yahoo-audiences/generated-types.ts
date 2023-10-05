@@ -6,14 +6,6 @@ export interface Settings {
    */
   mdm_id: string
   /**
-   * Taxonomy API client Id. Required to update Yahoo taxonomy
-   */
-  taxonomy_client_key: string
-  /**
-   * Taxonomy API client secret. Required to update Yahoo taxonomy
-   */
-  taxonomy_client_secret: string
-  /**
    * Engage Space Id found in Unify > Settings > API Access
    */
   engage_space_id: string

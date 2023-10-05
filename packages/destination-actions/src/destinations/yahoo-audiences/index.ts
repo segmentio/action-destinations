@@ -3,8 +3,6 @@ import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
-import createSegment from './createSegment'
-import createCustomerNode from './createCustomerNode'
 import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
 
 interface RefreshTokenResponse {
@@ -25,18 +23,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         type: 'string',
         required: true
       },
-      taxonomy_client_key: {
-        label: 'Yahoo Taxonomy API client Id',
-        description: 'Taxonomy API client Id. Required to update Yahoo taxonomy',
-        type: 'string',
-        required: true
-      },
-      taxonomy_client_secret: {
-        label: 'Yahoo Taxonomy API client secret',
-        description: 'Taxonomy API client secret. Required to update Yahoo taxonomy',
-        type: 'password',
-        required: true
-      },
       engage_space_id: {
         label: 'Engage Space Id',
         description: 'Engage Space Id found in Unify > Settings > API Access',
@@ -51,17 +37,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
+      if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
+        throw new IntegrationError('Missing Taxonomy API client secret', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID) {
+        throw new IntegrationError('Missing Taxonomy API client Id', 'MISSING_REQUIRED_FIELD', 400)
+      }
       // Used to create top-level customer node
       const tx_creds = {
-        tx_client_key: settings.taxonomy_client_key,
-        tx_client_secret: settings.taxonomy_client_secret
-      }
-      const data = {
-        engage_space_id: settings.engage_space_id,
-        customer_desc: settings.customer_desc
+        tx_client_key: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID,
+        tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      const body_form_data = gen_customer_taxonomy_payload(settings, data)
+      const body_form_data = gen_customer_taxonomy_payload(settings)
       await update_taxonomy('', tx_creds, request, body_form_data)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -82,22 +70,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           })
         }
       )
-      // Oauth1 credentials
-      // Removed thas temporarily as we're fetching tx creds from the global settings
-      // const tx_client_key = JSON.parse(auth.clientId)['tax_api']
-      // const tx_client_secret = JSON.parse(auth.clientSecret)['tax_api']
       const rt_access_token = res.data.access_token
-      // const creds = {
-      //   // Oauth1
-      //   tx: {
-      //     tx_client_key: tx_client_key,
-      //     tx_client_secret: tx_client_secret
-      //   },
-      //   // Oauth2
-      //   rt: rt_access_token
-      // }
-      // const creds_base64 = Buffer.from(JSON.stringify(creds)).toString('base64')
-      // return { accessToken: creds_base64 }
       return { accessToken: rt_access_token }
     }
   },
@@ -148,24 +121,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!audience_id) {
         throw new IntegrationError('Create Audience: missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      /*
-      audience_id will not be exposed in the UI once we have Payload accessible by createAudience()
 
-      const regex = /^aud_[a-zA-Z0-9]{27}$/
-      if (regex.test(audience_id) === false) {
-        throw new IntegrationError(
-          'Incorrect audience Id. Provide audience Id "aud_..." from audience URL',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
-      }
-      */
       if (!audience_key) {
         throw new IntegrationError('Create Audience: missing audience key value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!engage_space_id) {
         throw new IntegrationError('Create Audience: missing Engage space Id type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
+        throw new IntegrationError('Missing Taxonomy API client secret', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID) {
+        throw new IntegrationError('Missing Taxonomy API client Id', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!identifier) {
+        throw new IntegrationError('Create Audience: missing Identifier type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const input = {
@@ -178,8 +150,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const body_form_data = gen_segment_subtaxonomy_payload(input)
 
       const tx_creds = {
-        tx_client_key: createAudienceInput.settings.taxonomy_client_key,
-        tx_client_secret: createAudienceInput.settings.taxonomy_client_secret
+        tx_client_key: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID,
+        tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
       await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
@@ -196,9 +168,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    updateSegment,
-    createSegment,
-    createCustomerNode
+    updateSegment
   }
 }
 export default destination

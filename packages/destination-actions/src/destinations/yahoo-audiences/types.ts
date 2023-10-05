@@ -25,3 +25,10 @@ export interface YahooPayload {
   gdpr: boolean
   gdpr_euconsent?: string | undefined
 }
+
+export interface YahooSubTaxonomy {
+  segment_audience_id: string
+  segment_audience_key: string
+  engage_space_id: string
+  identifier: string
+}
