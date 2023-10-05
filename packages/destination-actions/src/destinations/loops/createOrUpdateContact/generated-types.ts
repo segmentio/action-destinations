@@ -12,7 +12,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Email address for the contact.
+   * Email address for the contact. This is required when creating new contacts.
    */
   email?: string
   /**

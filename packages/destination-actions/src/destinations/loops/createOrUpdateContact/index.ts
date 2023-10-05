@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Contact Email',
-      description: 'Email address for the contact.',
+      description: 'Email address for the contact. This is required when creating new contacts.',
       type: 'string',
       format: 'email',
       required: false,
