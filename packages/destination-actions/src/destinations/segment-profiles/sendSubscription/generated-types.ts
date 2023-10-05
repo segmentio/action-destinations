@@ -61,4 +61,8 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The timestamp of the event.
+   */
+  timestamp?: string | number
 }

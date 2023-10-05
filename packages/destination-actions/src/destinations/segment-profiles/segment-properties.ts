@@ -35,3 +35,12 @@ export const engage_space: InputField = {
   required: true,
   dynamic: true
 }
+
+export const timestamp: InputField = {
+  label: 'Timestamp',
+  description: 'The timestamp of the event.',
+  type: 'datetime',
+  default: {
+    '@path': '$.timestamp'
+  }
+}
