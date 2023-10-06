@@ -409,7 +409,8 @@ async function checkAndRetryUpdatingLifecycleStage(
   const retryLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
 
   for (const result of updateContactResponse.data.results) {
-    const desiredLifeCycleStage = contactsUpsertMap[result.id].payload.properties.lifecyclestage
+    const key = Object.keys(contactsUpsertMap).find((key) => contactsUpsertMap[key].payload.id == result.id)
+    const desiredLifeCycleStage = key ? contactsUpsertMap[key]?.payload?.properties?.lifecyclestage : null
     const currentLifeCycleStage = result.properties.lifecyclestage
 
     if (desiredLifeCycleStage && desiredLifeCycleStage !== currentLifeCycleStage) {
@@ -443,13 +444,13 @@ function createPayloadToUpdateContact(
   contactsUpsertMap: Record<string, ContactsUpsertMapItem>
 ) {
   for (const result of readResponse.data.results) {
-    let email: string | null = null
+    let email: string | undefined | null
     //Each Hubspot Contact can have mutiple email addresses ,one as primary and others as secondary emails
     if (!contactsUpsertMap[`${result.properties.email}`]) {
       // If contact is not getting mapped with Primary email then checking it in secondary email for same contact.
       if (result.properties.hs_additional_emails) {
         const secondaryEmails = split(result.properties.hs_additional_emails, ';')
-        email = Object.keys(contactsUpsertMap).filter((key) => secondaryEmails.includes(key))[0]
+        email = Object.keys(contactsUpsertMap).find((key) => secondaryEmails.includes(key))
       }
     } else {
       email = result.properties.email
@@ -459,9 +460,6 @@ function createPayloadToUpdateContact(
       contactsUpsertMap[email].action = 'update'
       // Set the id for contacts that exist in HubSpot
       contactsUpsertMap[email].payload.id = result.id
-      // Re-index the payload with ID
-      contactsUpsertMap[result.id] = { ...contactsUpsertMap[email] }
-      delete contactsUpsertMap[email]
     }
   }
   return contactsUpsertMap
