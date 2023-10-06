@@ -12,9 +12,30 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
     userId: {
       type: 'string',
       required: true,
-      description: 'The ID of the logged-in user.',
+      description: 'A identifier for a known user.',
       label: 'User ID',
       default: { '@path': '$.userId' }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'An identifier for an anonymous user',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
+    },
+    email: {
+      type: 'string',
+      required: true,
+      description: 'The email address for the user',
+      label: 'Email address',
+      default: { '@path': '$.traits.email' }
+    },
+    first_name: {
+      type: 'string',
+      required: false,
+      description: 'The First Name of the user',
+      label: 'User First Name',
+      default: { '@path': '$.traits.first_name' }
     },
     traits: {
       type: 'object',
@@ -27,7 +48,7 @@ const action: BrowserActionDefinition<Settings, UserMotion, Payload> = {
     }
   },
   perform: (UserMotion, event) => {
-    const { userId, traits } = event.payload
+    const { userId, email, traits } = event.payload
 
     if (!userId) return
 
