@@ -79,7 +79,8 @@ describe('Segment.sendIdentify', () => {
         email: 'test-user@test-company.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      anonymousId: 'arky4h2sh7k',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendIdentify', {
@@ -104,7 +105,8 @@ describe('Segment.sendIdentify', () => {
         email: 'test-user@test-company.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      anonymousId: 'arky4h2sh7k',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendIdentify', {
@@ -123,34 +125,4 @@ describe('Segment.sendIdentify', () => {
     expect(results.length).toBe(3)
     expect(results[2].data).toMatchSnapshot()
   })
-})
-
-test('Should successfully send an timestamp also for identify event to Segment', async () => {
-  // Mock: Segment Identify Call
-  const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-  nock(segmentEndpoint).post('/identify').reply(200, { success: true })
-
-  const event = createTestEvent({
-    type: 'identify',
-    traits: {
-      name: 'Test User',
-      email: 'test-user@test-company.com'
-    },
-    userId: 'test-user-ufi5bgkko5',
-    anonymousId: 'arky4h2sh7k',
-    timestamp: '2023-09-26T09:46:28.290Z'
-  })
-
-  const responses = await testDestination.testAction('sendIdentify', {
-    event,
-    mapping: defaultIdentifyMapping,
-    settings: {
-      endpoint: DEFAULT_SEGMENT_ENDPOINT
-    }
-  })
-
-  expect(responses.length).toBe(1)
-  expect(responses[0].status).toEqual(200)
-  expect(responses[0].options.headers).toMatchSnapshot()
-  expect(responses[0].options.json).toMatchSnapshot()
 })
