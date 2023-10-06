@@ -128,7 +128,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
   perform: (request, { payload, auth, audienceSettings }) => {
     const rt_access_token = auth?.accessToken
-
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }

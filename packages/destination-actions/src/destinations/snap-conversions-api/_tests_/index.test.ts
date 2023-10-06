@@ -32,8 +32,8 @@ const testEvent = createTestEvent({
 const conversionEventUrl = 'https://tr.snapchat.com/v2/conversion'
 
 beforeEach(() => {
-  nock.cleanAll(); // Clear all Nock interceptors and filters
-});
+  nock.cleanAll() // Clear all Nock interceptors and filters
+})
 
 describe('Snap Conversions API ', () => {
   describe('ReportConversionEvent', () => {

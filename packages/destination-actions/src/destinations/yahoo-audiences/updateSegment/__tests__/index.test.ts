@@ -18,8 +18,6 @@ const AUDIENCE_KEY = 'sneakers_buyers' // References audienceSettings.audience_k
 const ADVERTISING_ID = 'foobar' // References device.advertisingId
 const ENGAGE_SPACE_ID = 'acme_corp_engage_space' // References settings.engage_space_id
 const MDM_ID = 'mdm 123' // References settings.mdm_id
-const TX_KEY = '123' // References settings.taxonomy_client_id
-const TX_SECRET = '456' // References settings.taxonomy_client_secret
 const CUST_DESC = 'ACME Corp' // References settings.customer_desc
 
 const bad_event = createTestEvent({
@@ -80,8 +78,6 @@ describe('YahooAudiences.updateSegment', () => {
         settings: {
           engage_space_id: ENGAGE_SPACE_ID,
           mdm_id: MDM_ID,
-          taxonomy_client_key: TX_KEY,
-          taxonomy_client_secret: TX_SECRET,
           customer_desc: CUST_DESC
         }
       })
@@ -187,8 +183,6 @@ describe('YahooAudiences.updateSegment', () => {
           settings: {
             engage_space_id: ENGAGE_SPACE_ID,
             mdm_id: MDM_ID,
-            taxonomy_client_key: TX_KEY,
-            taxonomy_client_secret: TX_SECRET,
             customer_desc: CUST_DESC
           }
         })
