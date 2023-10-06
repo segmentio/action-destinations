@@ -2,7 +2,11 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
+beforeEach(() => {
+  nock.cleanAll()
+  testDestination = createTestIntegration(Destination)
+})
 
 const LOOPS_API_KEY = 'some random secret'
 
@@ -75,21 +79,20 @@ describe('Loops.createOrUpdateContact', () => {
         settings: { apiKey: LOOPS_API_KEY }
       })
     ).rejects.toThrow('Bad Request')
-    testDestination.responses = []
   })
 
   it('should work without optional fields', async () => {
-    const testPayload2 = {
+    const testPayload = {
       email: 'test@example.com',
       userId: 'some-id-2'
     }
-    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload2).reply(200, {
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(200, {
       success: true,
       id: 'someId'
     })
 
     const responses = await testDestination.testAction('createOrUpdateContact', {
-      mapping: testPayload2,
+      mapping: testPayload,
       settings: { apiKey: LOOPS_API_KEY }
     })
 
