@@ -6,8 +6,8 @@ import { API_URL } from '../config'
 import { listData } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add To List',
-  description: 'Add to list',
+  title: 'Remove profile from list',
+  description: 'Remove profile from list',
   fields: {
     profile_id: {
       label: 'Profile Id',
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
       const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
-        method: 'POST',
+        method: 'DELETE',
         json: listData
       })
       return list

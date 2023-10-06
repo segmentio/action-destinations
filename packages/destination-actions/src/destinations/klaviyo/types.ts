@@ -33,3 +33,12 @@ export interface ProfileData {
     }
   }
 }
+
+export interface listData {
+  data: [
+    {
+      type: string
+      id?: string
+    }
+  ]
+}
