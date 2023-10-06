@@ -11,14 +11,13 @@ describe('Apolloio.track', () => {
     nock(baseURL).post('').reply(200, {})
 
     const responses = await testDestination.testAction('track', {
-      mapping: { anonymousId: 'my-id', event: 'event-name' },
-      settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
+      mapping: { timestamp: '2111-12-22T04:37:50.244Z' },
+      settings: { apiToken: 'api-key' }
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
-    expect(responses[0].options.body).toContain('my-id')
-    expect(responses[0].options.body).toContain('event-name')
+    expect(responses[0].options.body).toContain('2111-12-22T04:37:50.244Z')
   })
 })
