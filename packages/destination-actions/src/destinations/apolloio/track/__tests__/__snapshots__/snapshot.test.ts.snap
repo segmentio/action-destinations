@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Apolloio's track destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymousId": "#ZEj!sso)8ImNKQTntip",
+    "campaign": Object {
+      "content": "#ZEj!sso)8ImNKQTntip",
+      "medium": "#ZEj!sso)8ImNKQTntip",
+      "name": "#ZEj!sso)8ImNKQTntip",
+      "source": "#ZEj!sso)8ImNKQTntip",
+      "term": "#ZEj!sso)8ImNKQTntip",
+    },
+    "event": "#ZEj!sso)8ImNKQTntip",
+    "ipAddress": "#ZEj!sso)8ImNKQTntip",
+    "page": Object {
+      "path": "#ZEj!sso)8ImNKQTntip",
+      "referrer": "#ZEj!sso)8ImNKQTntip",
+      "search": "#ZEj!sso)8ImNKQTntip",
+      "title": "#ZEj!sso)8ImNKQTntip",
+      "url": "#ZEj!sso)8ImNKQTntip",
+    },
+    "properties": Object {
+      "testType": "#ZEj!sso)8ImNKQTntip",
+    },
+    "timestamp": "2111-12-22T04:37:50.244Z",
+    "timezone": "#ZEj!sso)8ImNKQTntip",
+    "userId": "#ZEj!sso)8ImNKQTntip",
+  },
+]
+`;
+
+exports[`Testing snapshot for Apolloio's track destination action: required fields 1`] = `
+Array [
+  Object {
+    "timestamp": "2111-12-22T04:37:50.244Z",
+  },
+]
+`;
