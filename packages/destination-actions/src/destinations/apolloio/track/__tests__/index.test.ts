@@ -6,7 +6,6 @@ import { baseURL } from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 describe('Apolloio.track', () => {
-  // TODO: Test your action
   it('should work', async () => {
     nock(baseURL).post('').reply(200, {})
 
