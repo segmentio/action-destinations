@@ -49,9 +49,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     try {
+      const headers = payload.headers || {}
+      headers['hadron-test'] = 'test'
       return request(payload.url, {
         method: payload.method as RequestMethod,
-        headers: payload.headers as Record<string, string>,
+        headers: headers as Record<string, string>,
         json: payload.data
       })
     } catch (error) {
