@@ -18,44 +18,55 @@ const createAudienceInput = {
   audienceName: '',
   audienceSettings: {
     audience_key: AUDIENCE_KEY,
-    audience_id: AUDIENCE_ID
+    audience_id: AUDIENCE_ID,
+    identifier: ''
   }
 }
 
 describe('Yahoo Audiences', () => {
   describe('createAudience() function', () => {
     let testDestination: any
+    const OLD_ENV = process.env
 
     beforeEach(() => {
+      jest.resetModules() // Most important - it clears the cache
+      process.env = { ...OLD_ENV } // Make a copy
+      process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET = 'yoda'
+      process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID = 'luke'
       testDestination = createTestIntegration(Destination)
     })
 
+    afterAll(() => {
+      process.env = OLD_ENV // Restore old environment
+    })
+
     describe('Success cases', () => {
-      it.skip('It should create the audience successfully', async () => {
+      it('It should create the audience successfully', async () => {
         nock('https://datax.yahooapis.com').put(`/v1/taxonomy/append/${ENGAGE_SPACE_ID}`).reply(202, {
           anything: '123'
         })
 
+        createAudienceInput.audienceSettings.identifier = 'anything'
         const result = await testDestination.createAudience(createAudienceInput)
         expect(result.externalId).toBe(AUDIENCE_ID)
       })
     })
     describe('Failure cases', () => {
-      it.skip('should throw an error when audience_id setting is missing', async () => {
+      it('should throw an error when audience_id setting is missing', async () => {
         createAudienceInput.settings.engage_space_id = 'acme_corp_engage_space'
         createAudienceInput.audienceSettings.audience_key = 'sneakeres_buyers'
         createAudienceInput.audienceSettings.audience_id = ''
         await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
       })
 
-      it.skip('should throw an error when audience_key setting is missing', async () => {
+      it('should throw an error when audience_key setting is missing', async () => {
         createAudienceInput.settings.engage_space_id = 'acme_corp_engage_space'
         createAudienceInput.audienceSettings.audience_key = ''
         createAudienceInput.audienceSettings.audience_id = 'aud_12345'
         await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
       })
 
-      it.skip('should throw an error when engage_space_id setting is missing', async () => {
+      it('should throw an error when engage_space_id setting is missing', async () => {
         createAudienceInput.settings.engage_space_id = ''
         createAudienceInput.audienceSettings.audience_key = 'sneakeres_buyers'
         createAudienceInput.audienceSettings.audience_id = 'aud_123456789012345678901234567'
