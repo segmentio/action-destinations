@@ -49,14 +49,18 @@ export function generate_jwt(client_id: string, client_secret: string): string {
 }
 
 /**
- * Gets the definition to send the hashed email or advertising ID.
+ * Gets the definition to send the hashed email, phone or advertising ID.
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
-export function get_id_schema(payload: Payload, audienceSettings: AudienceSettings): { maid: boolean; email: boolean } {
+export function get_id_schema(
+  payload: Payload,
+  audienceSettings: AudienceSettings
+): { maid: boolean; email: boolean; phone: boolean } {
   const schema = {
     email: false,
-    maid: false
+    maid: false,
+    phone: false
   }
   let id_type
   audienceSettings.identifier ? (id_type = audienceSettings.identifier) : (id_type = payload.identifier)
@@ -66,33 +70,43 @@ export function get_id_schema(payload: Payload, audienceSettings: AudienceSettin
   if (id_type == 'maid') {
     schema.maid = true
   }
+  if (id_type == 'phone') {
+    schema.phone = true
+  }
   if (id_type == 'email_maid') {
     schema.maid = true
     schema.email = true
   }
+  if (id_type == 'email_phone') {
+    schema.email = true
+    schema.phone = true
+  }
+  if (id_type == 'phone_maid') {
+    schema.phone = true
+    schema.maid = true
+  }
+  if (id_type == 'email_phone_maid') {
+    schema.email = true
+    schema.phone = true
+    schema.maid = true
+  }
   return schema
-  // return {
-  //   maid: payload.send_advertising_id === true,
-  //   email: payload.send_email === true
-  // }
 }
 
-/**
- * Validates the payload schema.
- * If both `Send Email` and `Send Advertising ID` are set to `false`, an error is thrown.
- * @param payload The payload.
- */
-// Switched over to a 'choice' field, so this function is no longer required
-// export function check_schema(payload: Payload): void {
-//   payload.identifier
-//   if (payload.send_email === false && payload.send_advertising_id === false) {
-//     throw new IntegrationError(
-//       'Either `Send Email`, or `Send Advertising ID` setting must be set to `true`.',
-//       'INVALID_SETTINGS',
-//       400
-//     )
-//   }
-// }
+export function validate_phone(phone: string) {
+  /*
+  Phone must match E.164 format: a number up to 15 digits in length starting with a ‘+’
+  - remove any non-numerical characters
+  - check length
+  - if phone doesn't match the criteria - drop the value, otherwise - return the value prepended with a '+'
+  */
+  const phone_num = phone.replace(/\D/g, '')
+  if (phone_num.length <= 15 && phone_num.length >= 1) {
+    return '+' + phone_num
+  } else {
+    return ''
+  }
+}
 
 /**
  * The ID schema defines whether the payload should contain the
@@ -106,7 +120,7 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (schema.email === true && event.email) {
-      hashed_email = create_hash(event.email)
+      hashed_email = create_hash(event.email.toLowerCase())
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
@@ -120,8 +134,14 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
           break
       }
     }
-
-    if (hashed_email == '' && idfa == '' && gpsaid == '') {
+    let hashed_phone: string | undefined = ''
+    if (schema.phone === true && event.phone) {
+      const phone = validate_phone(event.phone)
+      if (phone !== '') {
+        hashed_phone = create_hash(phone)
+      }
+    }
+    if (hashed_email == '' && idfa == '' && gpsaid == '' && hashed_phone == '') {
       continue
     }
     const ts = Math.floor(new Date().getTime() / 1000)
@@ -137,11 +157,11 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
     }
 
     const seg_id = event.segment_audience_id
-    data.push([hashed_email, idfa, gpsaid, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
+    data.push([hashed_email, idfa, gpsaid, hashed_phone, 'exp=' + exp + '&seg_id=' + seg_id + '&ts=' + ts])
   }
 
   const yahoo_payload: YahooPayload = {
-    schema: ['SHA256EMAIL', 'IDFA', 'GPADVID', 'SEGMENTS'],
+    schema: ['SHA256EMAIL', 'IDFA', 'GPADVID', 'HASHEDID', 'SEGMENTS'],
     data: data,
     gdpr: payloads[0].gdpr_flag
   }

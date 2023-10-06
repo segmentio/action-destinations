@@ -96,7 +96,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       choices: [
         { value: 'email', label: 'Send email' },
         { value: 'maid', label: 'Send MAID' },
-        { value: 'email_maid', label: 'Send email and/or MAID' }
+        { value: 'phone', label: 'Send phone' },
+        { value: 'email_maid', label: 'Send email and/or MAID' },
+        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
+        { value: 'email_phone', label: 'Send email and/or phone' },
+        { value: 'phone_maid', label: 'Send phone and/or MAID' }
       ]
     }
   },
@@ -119,15 +123,31 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const identifier = createAudienceInput.audienceSettings?.identifier
       // The 3 errors below will be removed once we have Payload accessible by createAudience()
       if (!audience_id) {
-        throw new IntegrationError('Create Audience: missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "audience Id"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!audience_key) {
-        throw new IntegrationError('Create Audience: missing audience key value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "audience key"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!engage_space_id) {
-        throw new IntegrationError('Create Audience: missing Engage space Id type value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!identifier) {
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "Identifier"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
@@ -135,9 +155,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID) {
         throw new IntegrationError('Missing Taxonomy API client Id', 'MISSING_REQUIRED_FIELD', 400)
-      }
-      if (!identifier) {
-        throw new IntegrationError('Create Audience: missing Identifier type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const input = {

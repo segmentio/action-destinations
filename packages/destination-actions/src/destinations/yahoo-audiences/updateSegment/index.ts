@@ -89,6 +89,19 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       },
       required: false
     },
+    phone: {
+      label: 'User Phone',
+      description: 'Phone number of a user',
+      type: 'hidden',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        }
+      }
+    },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "User's mobile device type",
@@ -107,7 +120,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       choices: [
         { value: 'email', label: 'Send email' },
         { value: 'maid', label: 'Send MAID' },
-        { value: 'email_maid', label: 'Send email and/or MAID' }
+        { value: 'phone', label: 'Send phone' },
+        { value: 'email_maid', label: 'Send email and/or MAID' },
+        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
+        { value: 'email_phone', label: 'Send email and/or phone' },
+        { value: 'phone_maid', label: 'Send phone and/or MAID' }
       ]
     },
     gdpr_flag: {
@@ -142,12 +159,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         }
       })
     } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
+      throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
     }
   },
   performBatch: (request, { payload, audienceSettings, auth }) => {
     const rt_access_token = auth?.accessToken
-
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
@@ -162,7 +178,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         }
       })
     } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
+      throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
     }
   }
 }

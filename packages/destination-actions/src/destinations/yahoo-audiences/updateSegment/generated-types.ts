@@ -36,6 +36,10 @@ export interface Payload {
    */
   advertising_id?: string
   /**
+   * Phone number of a user
+   */
+  phone?: string
+  /**
    * User's mobile device type
    */
   device_type?: string
