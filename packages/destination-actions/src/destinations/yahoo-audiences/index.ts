@@ -54,8 +54,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     refreshAccessToken: async (request, { auth }) => {
       // Refresh Realtime API token (Oauth2 client_credentials)
-      const rt_client_key = JSON.parse(auth.clientId)['rt_api']
-      const rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+      let rt_client_key = ''
+      let rt_client_secret = ''
+      // Added try-catch in a case we don't update the vault to store strings
+      try {
+        rt_client_key = JSON.parse(auth.clientId)['rt_api']
+        rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+      } catch (err) {
+        rt_client_key = auth.clientId
+        rt_client_secret = auth.clientSecret
+      }
+
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
       const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
         'https://id.b2b.yahooinc.com/identity/oauth2/access_token',

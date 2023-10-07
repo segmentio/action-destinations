@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -7,7 +7,7 @@ import { gen_update_segment_payload } from '../utils-rt'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
-          else: { '@path': '$.properties.email' }
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
@@ -148,38 +148,35 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    const body = gen_update_segment_payload([payload], audienceSettings)
-    // Send request to Yahoo only when the event includes selected Ids
-    if (body.data.length > 0) {
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-    } else {
-      throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
-    }
+    return process_payload(request, [payload], rt_access_token, audienceSettings)
   },
   performBatch: (request, { payload, audienceSettings, auth }) => {
     const rt_access_token = auth?.accessToken
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    const body = gen_update_segment_payload(payload, audienceSettings)
-    // Send request to Yahoo only when all events in the batch include selected Ids
-    if (body.data.length > 0) {
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-    } else {
-      throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
-    }
+    return process_payload(request, payload, rt_access_token, audienceSettings)
+  }
+}
+
+async function process_payload(
+  request: RequestClient,
+  payload: Payload[],
+  token: string | undefined,
+  audienceSettings: AudienceSettings
+) {
+  const body = gen_update_segment_payload(payload, audienceSettings)
+  // Send request to Yahoo only when all events in the batch include selected Ids
+  if (body.data.length > 0) {
+    return request('https://dataxonline.yahoo.com/online/audience/', {
+      method: 'POST',
+      json: body,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  } else {
+    throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
   }
 }
 

@@ -89,7 +89,7 @@ export async function update_taxonomy(
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
     // If Taxonomy API returned 401, throw Integration error w/status 400 to prevent refreshAccessToken from firing
-    // Otherwise throw the orifinal error
+    // Otherwise throw the original error
     if (parseInt(_error.response.status) == 401) {
       throw new IntegrationError(
         `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${
