@@ -2,6 +2,8 @@ import nock from 'nock'
 import { IntegrationError, createTestIntegration } from '@segment/actions-core'
 
 import Destination from '../index'
+import { gen_update_segment_payload } from '../utils-rt'
+import { Payload } from '../updateSegment/generated-types'
 
 const AUDIENCE_ID = 'aud_123456789012345678901234567' // References audienceSettings.audience_id
 const AUDIENCE_KEY = 'sneakers_buyers' // References audienceSettings.audience_key
@@ -71,6 +73,80 @@ describe('Yahoo Audiences', () => {
         createAudienceInput.audienceSettings.audience_key = 'sneakeres_buyers'
         createAudienceInput.audienceSettings.audience_id = 'aud_123456789012345678901234567'
         await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+      })
+    })
+  })
+
+  describe('gen_update_segment_payload() function', () => {
+    describe('Success cases', () => {
+      const audienceSettings = {
+        audience_key: AUDIENCE_KEY,
+        audience_id: AUDIENCE_ID,
+        identifier: 'email'
+      }
+
+      it('trivial', () => {
+        // Given
+        const payloads: Payload[] = [{ gdpr_flag: false } as Payload]
+
+        // When
+        const result = gen_update_segment_payload(payloads, audienceSettings)
+
+        // Then
+        expect(result).toBeTruthy()
+      })
+
+      it('should group multiple payloads from the same user into one Yahoo event payload', () => {
+        // Given
+        const payloads: Payload[] = [
+          {
+            gdpr_flag: false,
+            segment_audience_id: 'aud_123',
+            segment_audience_key: 'sneakers_buyers',
+            segment_computation_action: 'enter',
+            email: 'bugsbunny@warnerbros.com',
+            advertising_id: '',
+            phone: '',
+            event_attributes: {
+              sneakers_buyers: true
+            },
+            identifier: 'email'
+          } as Payload,
+          {
+            gdpr_flag: false,
+            segment_audience_id: 'aud_234',
+            segment_audience_key: 'sneakers_buyers',
+            segment_computation_action: 'enter',
+            email: 'bugsbunny@warnerbros.com',
+            advertising_id: '',
+            phone: '',
+            event_attributes: {
+              sneakers_buyers: true
+            },
+            identifier: 'email'
+          } as Payload,
+          {
+            gdpr_flag: false,
+            segment_audience_id: 'aud_123',
+            segment_audience_key: 'sneakers_buyers',
+            segment_computation_action: 'enter',
+            email: 'daffyduck@warnerbros.com',
+            advertising_id: '',
+            phone: '',
+            event_attributes: {
+              sneakers_buyers: true
+            },
+            identifier: 'email'
+          } as Payload
+        ]
+
+        // When
+        const result = gen_update_segment_payload(payloads, audienceSettings)
+
+        // Then
+        expect(result).toBeTruthy()
+        expect(result.data.length).toBe(2)
+        expect((result.data as any)[0][4]).toContain(';')
       })
     })
   })
