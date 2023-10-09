@@ -10,6 +10,7 @@ export {
   InvalidAuthenticationError,
   RetryableError,
   PayloadValidationError,
+  SelfTimeoutError,
   APIError,
   ErrorCodes
 } from './errors'
@@ -21,7 +22,7 @@ export { time, duration } from './time'
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
 
 export type { RequestOptions } from './request-client'
-export { HTTPError } from './request-client'
+export { HTTPError, DEFAULT_REQUEST_TIMEOUT } from './request-client'
 export { ModifiedResponse } from './types'
 export { default as fetch, Request, Response, Headers } from './fetch'
 

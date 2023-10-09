@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Name of the CSV file to upload for LiveRamp ingestion.`,
       type: 'string',
       required: true,
-      default: { '@template': '{{properties.audience_key}}_PII_{{timestamp}}.csv' }
+      default: { '@template': '{{properties.audience_key}}.csv' }
     },
     enable_batching: {
       type: 'boolean',

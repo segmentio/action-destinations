@@ -72,12 +72,12 @@ Object {
     "messaging_subscriptions": Array [
       Object {
         "key": "tester11@seg.com",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "EMAIL",
       },
       Object {
         "key": "+12135618345",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "SMS",
       },
     ],
@@ -111,12 +111,12 @@ Object {
     "messaging_subscriptions": Array [
       Object {
         "key": "tester11@seg.com",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "EMAIL",
       },
       Object {
         "key": "+12135618345",
-        "status": "subscribed",
+        "status": "SUBSCRIBED",
         "type": "SMS",
       },
     ],

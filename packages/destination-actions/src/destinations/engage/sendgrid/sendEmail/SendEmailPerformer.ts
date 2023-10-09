@@ -94,6 +94,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }
+
   async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
@@ -212,6 +213,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   @track()
+  async getBodyTemplateFromS3(bodyUrl: string) {
+    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    return content
+  }
+
+  @track()
   async getBodyHtml(
     profile: Profile,
     apiLookupData: Record<string, unknown>,
@@ -228,7 +235,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   ) {
     let parsedBodyHtml
     if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
-      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      const body = await this.getBodyTemplateFromS3(this.payload.bodyUrl)
       const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
       parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
     } else {
