@@ -1,9 +1,9 @@
-import { ActionDefinition, DynamicFieldResponse, APIError, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-
 import { API_URL } from '../config'
 import { listData } from '../types'
+import { getListIdDynamicData } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add To List',
@@ -23,32 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     list_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
-      try {
-        const result: any = await request(`${API_URL}/lists/`, {
-          method: 'get',
-          headers: {
-            Authorization: `Klaviyo-API-Key ${settings.api_key}`,
-            Accept: 'application/json',
-            revision: new Date().toISOString().slice(0, 10)
-          },
-          skipResponseCloning: true
-        })
-        const choices = JSON.parse(result.content).data.map((list: { id: string; attributes: { name: string } }) => {
-          return { value: list.id, label: list.attributes.name }
-        })
-        return {
-          choices
-        }
-      } catch (err) {
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message: (err as APIError).message ?? 'Unknown error',
-            code: (err as APIError).status + '' ?? 'Unknown error'
-          }
-        }
-      }
+      return getListIdDynamicData(request, settings)
     }
   },
   perform: async (request, { payload }) => {
@@ -56,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (!list_id) {
       throw new IntegrationError(
-        "Insert the ID of the default list that you'd like to subscribe users to when you call .identify().",
+        "Insert the ID of the default list that you'd like to subscribe users",
         'Missing required fields',
         400
       )

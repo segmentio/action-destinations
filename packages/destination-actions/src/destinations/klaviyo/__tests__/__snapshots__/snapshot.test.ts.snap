@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-klaviyo destination: addList action - all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "id": "JoXB%D",
+      "type": "profile",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: addList action - required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "id": "JoXB%D",
+      "type": "profile",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "email": "rob@cagtud.eu",
+      "external_id": "$Fd4HHQmxNI0jTCTt(t",
+      "first_name": "$Fd4HHQmxNI0jTCTt(t",
+      "image": "$Fd4HHQmxNI0jTCTt(t",
+      "last_name": "$Fd4HHQmxNI0jTCTt(t",
+      "location": Object {
+        "address1": "$Fd4HHQmxNI0jTCTt(t",
+        "address2": "$Fd4HHQmxNI0jTCTt(t",
+        "city": "$Fd4HHQmxNI0jTCTt(t",
+        "country": "$Fd4HHQmxNI0jTCTt(t",
+        "latitude": "$Fd4HHQmxNI0jTCTt(t",
+        "longitude": "$Fd4HHQmxNI0jTCTt(t",
+        "region": "$Fd4HHQmxNI0jTCTt(t",
+        "zip": "$Fd4HHQmxNI0jTCTt(t",
+      },
+      "organization": "$Fd4HHQmxNI0jTCTt(t",
+      "phone_number": "$Fd4HHQmxNI0jTCTt(t",
+      "properties": Object {
+        "testType": "$Fd4HHQmxNI0jTCTt(t",
+      },
+      "title": "$Fd4HHQmxNI0jTCTt(t",
+    },
+    "type": "profile",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action - required fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "external_id": "$Fd4HHQmxNI0jTCTt(t",
+    },
+    "type": "profile",
+  },
+}
+`;

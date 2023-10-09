@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
 import addList from './addList'
+import removeProfile from './removeProfile'
+
 import { API_URL } from './config'
 
 const destination: DestinationDefinition<Settings> = {
@@ -58,7 +60,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     upsertProfile,
-    addList
+    addList,
+    removeProfile
   }
 }
 
