@@ -81,9 +81,9 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       description: `The user's email subscription preference: “opted_in” (explicitly registered to receive email messages), “unsubscribed” (explicitly opted out of email messages), and “subscribed” (neither opted in nor out).`,
       type: 'string',
       choices: [
-        { label: 'OTPED_IN', value: 'opted_in' },
-        { label: 'SUBSCRIBED', value: 'subscribed' },
-        { label: 'UNSUBSCRIBED', value: 'unsubscribed' }
+        { label: 'OPTED_IN', value: 'OPTED_IN' },
+        { label: 'SUBSCRIBED', value: 'SUBSCRIBED' },
+        { label: 'UNSUBSCRIBED', value: 'UNSUBSCRIBED' }
       ]
     },
     first_name: {
