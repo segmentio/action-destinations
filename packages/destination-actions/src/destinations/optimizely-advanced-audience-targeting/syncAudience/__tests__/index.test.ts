@@ -36,7 +36,7 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
   })
 
   it('should handle props with track', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/event_import').reply(201)
+    nock('https://function.zaius.app/twilio_segment').post('/sync_audience').reply(201)
 
     await expect(
       testDestination.testAction('syncAudience', {
@@ -47,7 +47,7 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
   })
 
   it('should handle traits with track', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/event_import').reply(201)
+    nock('https://function.zaius.app/twilio_segment').post('/sync_audience').reply(201)
 
     await expect(
       testDestination.testAction('syncAudience', {

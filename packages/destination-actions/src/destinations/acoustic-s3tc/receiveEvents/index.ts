@@ -13,13 +13,13 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     key_value_pairs: {
       label: 'Key-Value pairs',
-      description: '(optional) Map simple Key-Value pairs',
+      description: 'Map simple Key-Value pairs (optional) ',
       type: 'object'
     },
     array_data: {
       label: 'Arrays',
       description:
-        '(optional) If the data needed is in an array, use this section to Map Array data into useable attributes',
+        'If the data needed is in an array, use this section to Map Array data into useable attributes (optional) ',
       type: 'object',
       multiple: true,
       additionalProperties: true
@@ -27,19 +27,19 @@ const action: ActionDefinition<Settings, Payload> = {
     context: {
       label: 'Context',
       description:
-        '(optional) If the data is present in a Context section, use this to map the attributes of a Context Section',
+        'If the data is present in a Context section, use this to map the attributes of a Context Section (optional)',
       type: 'object'
     },
     properties: {
       label: 'Properties',
       description:
-        '(optional) If the data is present in a Properties section, use this to map the attributes of a Properties Section',
+        'If the data is present in a Properties section, use this to map the attributes of a Properties Section (optional) ',
       type: 'object'
     },
     traits: {
       label: 'Traits',
       description:
-        '(optional) If the data is present in a Traits section, use this to map the attributes of a Traits Section',
+        'If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional) ',
       type: 'object'
     },
     email: {
@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     type: {
       label: 'Type',
-      description: 'The type of event. e.g. track or identify. This field is required',
+      description: 'Do Not Modify - The type of event. e.g. track or identify, this field is required',
       type: 'string',
       required: true,
       default: {
@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Timestamp',
-      description: 'The timestamp for when the event took place. This field is required',
+      description: 'Do Not Modify - The timestamp for when the event took place. This field is required',
       type: 'datetime',
       required: true,
       default: {
@@ -99,16 +99,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const method = 'PUT'
     const opts = await generateS3RequestOptions(
-      settings.s3_bucket as string,
-      settings.s3_region as string,
+      settings.s3_bucket_accesspoint_alias,
+      settings.s3_region,
       fileName,
       method,
       csvRows,
-      settings.s3_access_key as string,
-      settings.s3_secret as string
+      settings.s3_access_key,
+      settings.s3_secret
     )
     if (!opts.headers || !opts.method || !opts.host || !opts.path) {
-      throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
+      throw new InvalidAuthenticationError('Unable to generate correct signature header for AWS S3 Put request.')
     }
 
     return await request(`https://${opts.host}/${opts.path}`, {

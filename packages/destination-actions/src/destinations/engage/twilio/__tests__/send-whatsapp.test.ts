@@ -3,6 +3,7 @@ import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpe
 
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
+const defaultTags = JSON.stringify({})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
@@ -48,7 +49,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -66,7 +68,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: defaultTags
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -87,6 +90,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
+        Tags: defaultTags,
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -123,7 +127,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
-        To: defaultTo
+        To: defaultTo,
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -147,7 +152,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           ContentSid: defaultTemplateSid,
           From: 'MG1111222233334444',
-          To: defaultTo
+          To: defaultTo,
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -198,7 +204,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: from,
-        To: 'whatsapp:+19195551234'
+        To: 'whatsapp:+19195551234',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -264,7 +271,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' }),
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -293,7 +301,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '2': '360 Scope St' }),
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -322,7 +331,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
         To: defaultTo,
-        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' })
+        ContentVariables: JSON.stringify({ '1': 'Soap', '2': '360 Scope St' }),
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')

@@ -95,6 +95,10 @@ export abstract class MessageSendPerformer<
     // sending messages and collecting results, including exceptions
     const res = this.forAllRecepients((recepient) => this.sendToRecepient(recepient))
 
+    if (this.executeInput.features) {
+      this.logInfo('Feature flags:' + JSON.stringify(this.executeInput.features))
+    }
+
     // only if it succeeded, we can send stats
     this.statsEventDeliveryTs()
     return res
