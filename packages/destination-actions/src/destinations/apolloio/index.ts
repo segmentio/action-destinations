@@ -23,8 +23,11 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(authURL + settings.apiToken, {
-        method: 'get'
+      return request(authURL + settings.apiToken).then(async (response) => {
+        const { is_logged_in } = await response.json()
+        if (is_logged_in === false) {
+          throw new Error('Invalid API key. Make sure you have the correct API key.')
+        }
       })
     }
   },
