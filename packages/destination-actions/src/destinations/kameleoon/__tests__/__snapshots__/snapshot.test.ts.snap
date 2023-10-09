@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-kameleoon destination: logEvent action - all fields 1`] = `
+Object {
+  "context": Object {
+    "testType": "VA*d2uO)D#",
+  },
+  "event": "VA*d2uO)D#",
+  "messageId": "VA*d2uO)D#",
+  "properties": Object {
+    "testType": "VA*d2uO)D#",
+  },
+  "timestamp": "2088-05-12T19:02:44.270Z",
+  "type": "VA*d2uO)D#",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: logEvent action - required fields 1`] = `
+Object {
+  "event": "VA*d2uO)D#",
+  "messageId": "VA*d2uO)D#",
+  "timestamp": "2088-05-12T19:02:44.270Z",
+  "type": "VA*d2uO)D#",
+}
+`;
