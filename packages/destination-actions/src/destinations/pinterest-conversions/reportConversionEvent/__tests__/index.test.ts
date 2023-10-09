@@ -111,6 +111,10 @@ describe('PinterestConversionApi', () => {
             client_user_agent: '5.5.5.5',
             client_ip_address:
               'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+          },
+          custom_data: {
+            num_items: '2',
+            value: 2000
           }
         }
       })

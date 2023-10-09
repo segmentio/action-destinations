@@ -21,6 +21,9 @@ const defaultTrackMapping = {
   },
   properties: {
     '@path': '$.properties'
+  },
+  traits: {
+    '@path': '$.traits'
   }
 }
 
@@ -76,6 +79,7 @@ describe('Segment.sendTrack', () => {
       properties: {
         plan: 'Business'
       },
+      traits: { email: 'testuser@gmail.com', age: 47 },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
       event: 'Test Event'
@@ -98,7 +102,7 @@ describe('Segment.sendTrack', () => {
       properties: {
         ...event.properties
       },
-      context: {}
+      context: { traits: { email: 'testuser@gmail.com', age: 47 } }
     })
   })
 

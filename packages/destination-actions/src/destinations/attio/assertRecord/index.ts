@@ -75,17 +75,13 @@ const action: ActionDefinition<Settings, Payload> = {
     object: objectLookup
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { attributes, object, matching_attribute }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     return await client.assertRecord({
-      object,
-      matching_attribute,
-      values: attributes ?? {}
+      object: payload.object,
+      matching_attribute: payload.matching_attribute,
+      values: payload.attributes ?? {}
     })
   }
 }

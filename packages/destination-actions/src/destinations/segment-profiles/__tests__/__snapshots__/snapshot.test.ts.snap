@@ -51,3 +51,81 @@ Object {
   "userId": "hIC1OAmWa[Q!&d%o",
 }
 `;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendSubscription action - all fields 1`] = `
+Object {
+  "context": Object {
+    "externalIds": Array [
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "tester11@seg.com",
+        "type": "email",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "+12135618345",
+        "type": "phone",
+      },
+    ],
+    "messaging_subscriptions": Array [
+      Object {
+        "key": "tester11@seg.com",
+        "status": "SUBSCRIBED",
+        "type": "EMAIL",
+      },
+      Object {
+        "key": "+12135618345",
+        "status": "SUBSCRIBED",
+        "type": "SMS",
+      },
+    ],
+    "messaging_subscriptions_retl": true,
+  },
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {},
+  "userId": "user12",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendSubscription action - required fields 1`] = `
+Object {
+  "context": Object {
+    "externalIds": Array [
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "tester11@seg.com",
+        "type": "email",
+      },
+      Object {
+        "collection": "users",
+        "encoding": "none",
+        "id": "+12135618345",
+        "type": "phone",
+      },
+    ],
+    "messaging_subscriptions": Array [
+      Object {
+        "key": "tester11@seg.com",
+        "status": "SUBSCRIBED",
+        "type": "EMAIL",
+      },
+      Object {
+        "key": "+12135618345",
+        "status": "SUBSCRIBED",
+        "type": "SMS",
+      },
+    ],
+    "messaging_subscriptions_retl": true,
+  },
+  "integrations": Object {
+    "All": false,
+  },
+  "traits": Object {},
+  "userId": "user12",
+}
+`;

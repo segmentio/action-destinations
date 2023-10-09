@@ -23,7 +23,7 @@ describe('destination', () => {
     expect(destination.authentication?.fields.fileNamePrefix).toBeDefined()
     expect(destination.authentication?.fields.s3_access_key).toBeDefined()
     expect(destination.authentication?.fields.s3_secret).toBeDefined()
-    expect(destination.authentication?.fields.s3_bucket).toBeDefined()
+    expect(destination.authentication?.fields.s3_bucket_accesspoint_alias).toBeDefined()
     expect(destination.authentication?.fields.s3_region).toBeDefined()
   })
 

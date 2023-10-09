@@ -227,4 +227,10 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }
