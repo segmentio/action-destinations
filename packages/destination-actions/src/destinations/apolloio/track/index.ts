@@ -12,20 +12,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'An anonymous identifier',
       label: 'Anonymous ID',
+      required: true,
       default: { '@path': '$.anonymousId' }
     },
     event: {
       type: 'string',
       label: 'Name',
       description: 'Event name',
-      required: false,
+      required: true,
       default: { '@path': '$.event' }
     },
     properties: {
       type: 'object',
       label: 'Properties',
       description: 'Properties to associate with the event',
-      required: false,
       default: { '@path': '$.properties' }
     },
     timestamp: {
@@ -40,14 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'IP Address',
       description: "The users's IP address.",
       type: 'string',
-      required: false,
+      required: true,
       default: { '@path': '$.context.ip' }
     },
     timezone: {
       label: 'Timezone',
       description: 'Timezone',
       type: 'string',
-      required: false,
       default: {
         '@path': '$.context.timezone'
       }
@@ -56,6 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The ID associated with the user',
       label: 'User ID',
+      required: true,
       default: { '@path': '$.userId' }
     },
     campaign: {
@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     page: {
       type: 'object',
-      required: false,
+      required: true,
       description: 'Information about the page where the event occurred.',
       label: 'Page',
       default: {

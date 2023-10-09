@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * An anonymous identifier
    */
-  anonymousId?: string
+  anonymousId: string
   /**
    * Event name
    */
-  event?: string
+  event: string
   /**
    * Properties to associate with the event
    */
@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * The users's IP address.
    */
-  ipAddress?: string
+  ipAddress: string
   /**
    * Timezone
    */
@@ -30,7 +30,7 @@ export interface Payload {
   /**
    * The ID associated with the user
    */
-  userId?: string
+  userId: string
   /**
    * UTM campaign information.
    */
@@ -59,7 +59,7 @@ export interface Payload {
   /**
    * Information about the page where the event occurred.
    */
-  page?: {
+  page: {
     /**
      * The URL of the page where the event occurred.
      */
