@@ -187,6 +187,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
@@ -196,8 +197,7 @@ describe('SegmentProfiles.sendSubscription', () => {
           newsletter: 'false'
         },
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true',
-        timestamp: '2023-10-10T07:24:07.036Z'
+        ios_push_subscription_status: 'true'
       }
     })
 
@@ -225,6 +225,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
@@ -239,10 +240,11 @@ describe('SegmentProfiles.sendSubscription', () => {
         android_push_token: 'abcd12bbfygdbvbvvvv',
         android_push_subscription_status: 'false',
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true',
-        timestamp: '2023-10-10T07:24:07.036Z'
+        ios_push_subscription_status: 'true'
       }
     })
+
+    console.log('edwuy: ', event)
 
     const responses = await testDestination.testAction('sendSubscription', {
       event,
@@ -264,6 +266,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
@@ -280,8 +283,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
         ios_push_subscription_status: 'true',
         userId: 'test-user-ufi5bgkko5',
-        anonymousId: 'arky4h2sh7k',
-        timestamp: '2023-10-10T07:24:07.036Z'
+        anonymousId: 'arky4h2sh7k'
       }
     })
 
