@@ -3,14 +3,15 @@ import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
 import track from './track'
-export const baseURL = 'https://us-central1-databricks-apolloio.cloudfunctions.net/segment-events-ingestion'
-export const authURL = 'https://api.apollo.io/v1/auth/health?api_key='
+export const baseURL = `${process.env.ACTIONS_APOLLOIO_BASE_URL_SECRET}`
+export const authURL = `${process.env.ACTIONS_APOLLOIO_AUTH_URL_SECRET}`
+export const headerSecret = `${process.env.ACTIONS_APOLLOIO_HEADER_SECRET}`
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Apollo.io',
   slug: 'actions-apolloio',
   mode: 'cloud',
-  description: '',
+  description: 'Apollo Plugin to ingest track data through its webhook.',
 
   authentication: {
     scheme: 'custom',
@@ -35,7 +36,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         api_key: settings.apiToken
-      }
+      },
+      json: { secret: headerSecret }
     }
   },
   actions: {
