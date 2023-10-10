@@ -196,7 +196,8 @@ describe('SegmentProfiles.sendSubscription', () => {
           newsletter: 'false'
         },
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true'
+        ios_push_subscription_status: 'true',
+        timestamp: '2023-10-10T07:24:07.036Z'
       }
     })
 
@@ -238,7 +239,8 @@ describe('SegmentProfiles.sendSubscription', () => {
         android_push_token: 'abcd12bbfygdbvbvvvv',
         android_push_subscription_status: 'false',
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true'
+        ios_push_subscription_status: 'true',
+        timestamp: '2023-10-10T07:24:07.036Z'
       }
     })
 
@@ -279,7 +281,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         ios_push_subscription_status: 'true',
         userId: 'test-user-ufi5bgkko5',
         anonymousId: 'arky4h2sh7k',
-        timestamp: '2023-09-26T09:46:28.290Z'
+        timestamp: '2023-10-10T07:24:07.036Z'
       }
     })
 

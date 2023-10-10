@@ -64,7 +64,7 @@ Object {
       "integrations": Object {
         "All": false,
       },
-      "timestamp": "2023-10-10T07:03:16.223Z",
+      "timestamp": "2023-10-10T07:25:49.680Z",
       "traits": Object {
         "email": "test-user@test-company.com",
         "name": "Test User",
@@ -151,7 +151,7 @@ Object {
   "integrations": Object {
     "All": false,
   },
-  "timestamp": "2023-10-10T07:03:16.219Z",
+  "timestamp": "2023-10-10T07:25:49.676Z",
   "traits": Object {
     "email": "test-user@test-company.com",
     "name": "Test User",
@@ -208,7 +208,7 @@ Object {
   "integrations": Object {
     "All": false,
   },
-  "timestamp": "2023-10-10T07:03:16.209Z",
+  "timestamp": "2023-10-10T07:25:49.667Z",
   "traits": Object {
     "email": "test-user@test-company.com",
     "name": "Test User",
