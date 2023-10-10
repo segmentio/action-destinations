@@ -2,8 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
+import { API_URL } from './config'
 
-const API_URL = 'https://a.klaviyo.com/api'
+import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
@@ -51,13 +52,14 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         Authorization: `Klaviyo-API-Key ${settings.api_key}`,
         Accept: 'application/json',
-        revision: new Date().toISOString().slice(0, 10)
+        revision: '2023-09-15'
       }
     }
   },
 
   actions: {
-    upsertProfile
+    upsertProfile,
+    trackEvent
   }
 }
 
