@@ -10,7 +10,6 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-trackey',
   mode: 'cloud',
   description: 'Send Segment events to Trackey',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -29,12 +28,6 @@ const destination: DestinationDefinition<Settings> = {
         'Content-Type': 'application/json'
       }
     }
-  },
-  onDelete: async () => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-    return true
   },
   actions: {
     track: {
@@ -183,7 +176,7 @@ const destination: DestinationDefinition<Settings> = {
           default: { '@path': '$.timestamp' }
         },
         traits: {
-          label: 'COmpany Traits',
+          label: 'Company Traits',
           type: 'object',
           required: false,
           description: 'Company profile information',
