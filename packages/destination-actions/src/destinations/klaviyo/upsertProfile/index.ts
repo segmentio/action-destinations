@@ -9,6 +9,7 @@ import { KlaviyoAPIError, ProfileData } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
   description: 'Upsert user profile.',
+  defaultSubscription: 'type = "identify"',
   fields: {
     email: {
       label: 'Email',

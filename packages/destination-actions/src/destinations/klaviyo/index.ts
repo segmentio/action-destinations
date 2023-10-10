@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         Authorization: `Klaviyo-API-Key ${settings.api_key}`,
         Accept: 'application/json',
-        revision: new Date().toISOString().slice(0, 10)
+        revision: '2023-09-15'
       }
     }
   },
