@@ -54,7 +54,10 @@ export const defaultSubscriptionMapping = {
   android_push_subscription_status: {
     '@path': '$.properties.android_push_subscription_status'
   },
-  engage_space: 'engage-space-writekey'
+  engage_space: 'engage-space-writekey',
+  timestamp: {
+    '@path': '$.timestamp'
+  }
 }
 describe('SegmentProfiles.sendSubscription', () => {
   test('Should throw an error if `userId` or `anonymousId` is not defined', async () => {
@@ -275,7 +278,8 @@ describe('SegmentProfiles.sendSubscription', () => {
         ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
         ios_push_subscription_status: 'true',
         userId: 'test-user-ufi5bgkko5',
-        anonymousId: 'arky4h2sh7k'
+        anonymousId: 'arky4h2sh7k',
+        timestamp: '2023-09-26T09:46:28.290Z'
       }
     })
 
