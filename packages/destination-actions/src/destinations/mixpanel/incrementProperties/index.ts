@@ -39,8 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
     increment: {
       label: 'Increment Numerical Properties',
       type: 'object',
-      description: 'Object of properties and the values to increment or decrement',
+      description:
+        'Object of properties and the values to increment or decrement. For example: `{"purchases": 1, "items": 6}}.',
       multiple: false,
+      required: true,
       defaultObjectUI: 'keyvalue',
       default: {
         '@path': '$.properties.increment'
@@ -58,6 +60,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const responses = []
 
     if (payload.increment && Object.keys(payload.increment).length > 0) {
+      const keys = Object.keys(payload.increment)
+      if (keys.length > 20) {
+        throw new IntegrationError(
+          'Exceeded maximum of 20 properties for increment call',
+          'exceeded increment limit',
+          400
+        )
+      }
       const data: MixpanelEngageProperties = {
         $token: settings.projectToken,
         $distinct_id: payload.user_id ?? payload.anonymous_id,
@@ -65,12 +75,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       data.$add = {}
 
-      for (const key of Object.keys(payload.increment)) {
+      for (const key of keys) {
         const value = payload.increment[key]
         if (typeof value === 'string' || typeof value === 'number') {
-          if (!isNaN(+value)) {
-            data.$add[key] = +value
+          if (isNaN(+value)) {
+            throw new IntegrationError(`The key "${key}" was not numeric`, 'Non numeric increment value', 400)
           }
+          data.$add[key] = +value
         }
       }
 

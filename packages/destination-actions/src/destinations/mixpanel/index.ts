@@ -65,13 +65,6 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'groupIdentifyUser',
     mapping: defaultValues(groupIdentifyUser.fields),
     type: 'automatic'
-  },
-  {
-    name: 'Increment Properties',
-    subscribe: 'type = "track"',
-    partnerAction: 'incrementProperties',
-    mapping: defaultValues(incrementProperties.fields),
-    type: 'automatic'
   }
 ]
 

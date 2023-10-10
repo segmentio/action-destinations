@@ -14,9 +14,9 @@ export interface Payload {
    */
   anonymous_id?: string | null
   /**
-   * Object of properties and the values to increment or decrement
+   * Object of properties and the values to increment or decrement. For example: `{"purchases": 1, "items": 6}}.
    */
-  increment?: {
+  increment: {
     [k: string]: unknown
   }
 }
