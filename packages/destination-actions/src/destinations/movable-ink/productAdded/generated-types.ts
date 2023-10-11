@@ -45,6 +45,7 @@ export interface Payload {
      * The quantity of the product.
      */
     quantity?: number
+    [k: string]: unknown
   }
   /**
    * A map of meta data to provide additional context about the event.

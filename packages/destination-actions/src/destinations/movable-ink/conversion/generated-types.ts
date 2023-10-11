@@ -24,7 +24,7 @@ export interface Payload {
   /**
    * Product details to associate with the event.
    */
-  products?: {
+  products: {
     /**
      * The unique identifier of the product.
      */
@@ -45,6 +45,7 @@ export interface Payload {
      * The quantity of the product.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * Unique ID for the purchase

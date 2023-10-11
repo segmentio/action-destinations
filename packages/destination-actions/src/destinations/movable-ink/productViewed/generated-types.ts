@@ -41,6 +41,7 @@ export interface Payload {
      * The URL of the product.
      */
     url?: string
+    [k: string]: unknown
   }
   /**
    * A map of meta data to provide additional context about the event.

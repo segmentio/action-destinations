@@ -9,6 +9,8 @@ import productAdded from './productAdded'
 
 import categoryView from './categoryView'
 
+import sendCustomEvent from './sendCustomEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Movable Ink',
   slug: 'actions-movable-ink',
@@ -54,7 +56,8 @@ const destination: DestinationDefinition<Settings> = {
     conversion,
     productViewed,
     productAdded,
-    categoryView
+    categoryView,
+    sendCustomEvent
   }
 }
 

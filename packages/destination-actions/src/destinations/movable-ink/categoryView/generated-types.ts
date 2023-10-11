@@ -45,6 +45,7 @@ export interface Payload {
      * The quantity of the product.
      */
     quantity?: number
+    [k: string]: unknown
   }
   /**
    * A map of meta data to provide additional context about the event.
@@ -55,7 +56,7 @@ export interface Payload {
   /**
    * Product Category details
    */
-  categoriesRequired?: {
+  categoriesRequired: {
     /**
      * The unique identifier of the Category.
      */
