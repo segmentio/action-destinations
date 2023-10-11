@@ -30,7 +30,7 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       type: 'string',
       required: true
     },
-    initOnLoad: {
+    manualInit: {
       label: 'Initialize Jimo manually',
       description:
         'Make sure Jimo is not initialized automatically after being added to your website. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
@@ -54,7 +54,7 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       () =>
         Object.prototype.hasOwnProperty.call(window, 'jimo') &&
         // When initialized on load, window.jimo is first an array then become an object after it get initialized
-        settings.initOnLoad === true &&
+        settings.manualInit === false &&
         Array.isArray(window.jimo) === false,
       100
     )

@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Id of the Jimo project
+   * Id of the Jimo project. You can find it here: https://i.usejimo.com/settings/install/portal
    */
   projectId: string
   /**
-   * Automatically initialize Jimo after loading it on the page
+   * Make sure Jimo is not initialized automatically after being added to your website. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization
    */
-  initOnLoad?: boolean
+  manualInit?: boolean
 }
