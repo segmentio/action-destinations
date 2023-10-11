@@ -5,12 +5,12 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
   title: 'Send User Data',
-  description: "Use segment user's data to enrich the associated jimo user's profile",
+  description: "Send user ID and email to Jimo",
   platform: 'web',
   fields: {
     userId: {
       label: 'User ID',
-      description: "The users's id provided by segment",
+      description: "The unique user identifier",
       type: 'string',
       allowNull: true,
       required: false,
