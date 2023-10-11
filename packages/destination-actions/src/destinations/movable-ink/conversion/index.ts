@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { event_name, user_id, anonymous_id, timestamp, timezone, products, order_id, revenue } from '../fields'
+import { event_name, user_id, anonymous_id, timestamp, timezone, products, order_id, revenue, meta } from '../fields'
+import omit from 'lodash/omit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion',
@@ -15,7 +16,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone,
     products,
     order_id,
-    revenue
+    revenue,
+    meta
   },
   perform: (request, { settings, payload }) => { 
     return request(`${settings.movableInkURL}/events`, {
@@ -28,7 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
         timezone: payload.timezone,
         products: payload.products,
         order_id: payload.order_id,
-        revenue: payload.revenue
+        revenue: payload.revenue,
+        metadata:  { ...omit(payload.meta, ['products', 'order_id', 'revenue'])},
       }
     })
   }

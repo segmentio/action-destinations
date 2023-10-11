@@ -22,9 +22,9 @@ export interface Payload {
    */
   timezone: string
   /**
-   * Product details to associate with the event
+   * Product details to associate with the event.
    */
-  productWithQuantity: {
+  products_required_false?: {
     /**
      * The unique identifier of the product.
      */
@@ -46,17 +46,11 @@ export interface Payload {
      */
     quantity?: number
     [k: string]: unknown
-  }
-  /**
-   * A map of meta data to provide additional context about the event.
-   */
-  meta?: {
-    [k: string]: unknown
-  }
+  }[]
   /**
    * Product Category details
    */
-  categoriesRequired: {
+  categories: {
     /**
      * The unique identifier of the Category.
      */
@@ -66,4 +60,10 @@ export interface Payload {
      */
     url?: string
   }[]
+  /**
+   * A map of meta data to provide additional context about the event.
+   */
+  meta?: {
+    [k: string]: unknown
+  }
 }

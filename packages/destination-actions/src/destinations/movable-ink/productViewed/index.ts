@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, timestamp, timezone, event_name, product, meta, categories } from '../fields'
+import { user_id, anonymous_id, timestamp, timezone, event_name, product, categories_required_false, meta } from '../fields'
 import omit from 'lodash/omit'
 
 
@@ -16,8 +16,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp,
     timezone,
     product,
-    meta,
-    categories
+    categories_required_false,
+    meta
   },
   perform: (request, { settings, payload }) => { 
     return request(`${settings.movableInkURL}/events`, {
@@ -29,8 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
         timestamp: payload.timestamp,
         timezone: payload.timezone,
         product: payload.product,
-        categories: payload.categories,
-        metadata:  { ...omit(payload.meta, ['product', 'categories'])},
+        categories: payload.categories_required_false,
+        metadata:  { ...omit(payload.meta, ['product', 'categories_required_false'])},
       }
     })
   }

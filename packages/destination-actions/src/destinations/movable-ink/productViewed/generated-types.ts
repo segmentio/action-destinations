@@ -44,15 +44,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * A map of meta data to provide additional context about the event.
-   */
-  meta?: {
-    [k: string]: unknown
-  }
-  /**
    * Product Category details
    */
-  categories?: {
+  categories_required_false?: {
     /**
      * The unique identifier of the Category.
      */
@@ -62,4 +56,10 @@ export interface Payload {
      */
     url?: string
   }[]
+  /**
+   * A map of meta data to provide additional context about the event.
+   */
+  meta?: {
+    [k: string]: unknown
+  }
 }

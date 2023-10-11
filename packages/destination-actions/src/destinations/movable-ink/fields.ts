@@ -72,6 +72,11 @@ export const revenue: InputField = {
   default: { '@path': '$.properties.revenue' }
 }
 
+export const revenue_required_false: InputField = {
+  ...revenue,
+  required: false
+}
+
 export const query: InputField = {
     label: 'Query',
     description: 'Query the user searched with',
@@ -86,6 +91,11 @@ export const order_id: InputField = {
     type: 'string',
     required: true,
     default: { '@path': '$.properties.order_id' }
+}
+
+export const order_id_required_false: InputField = {
+  ...order_id,
+  required: false
 }
 
 export const product_quantity: InputField = {
@@ -136,6 +146,23 @@ export const product: InputField = {
     url: { '@path': '$.url' }
   }
 }
+
+export const product_with_quantity: InputField = {
+  ...product, 
+  properties: {
+    ...product.properties,
+    quantity: {
+      label: 'Quantity',
+      description: 'The quantity of the product.',
+      type: 'integer',
+      required: false
+    }
+  },
+  default: {
+    ...product.default as object, 
+    quantity: { '@path': '$.quantity' }
+  }
+};
 
 export const products: InputField = {
     label: 'Products',
@@ -190,41 +217,30 @@ export const products: InputField = {
     }
 }
 
-export const productWithQuantity: InputField = {
-  ...product, 
+export const products_required_false: InputField = {
+  ...products,
+  required: false
+}
+
+
+export const categories: InputField = {
+  label: 'Categories',
+  description: 'Product Category details',
+  type: 'object',
+  multiple: true,
+  required: true,
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false,
   properties: {
-    ...product.properties,
-    quantity: {
-      label: 'Quantity',
-      description: 'The quantity of the product.',
-      type: 'integer',
-      required: false
-    }
+    id: { label: 'Category ID', description: 'The unique identifier of the Category.', type: 'string', required: true },
+    url: { label: 'Category URL', description: 'The URL of the Category', type: 'string' }
   },
   default: {
-    ...product.default as object, 
-    quantity: { '@path': '$.quantity' }
+    '@arrayPath': ['$.properties.categories', { id: { '@path': '$.id' }, url: { '@path': '$.url' } }]
   }
 };
 
-export const categories: InputField = {
-    label: 'Categories',
-    description: 'Product Category details',
-    type: 'object',
-    multiple: true,
-    required: false,
-    defaultObjectUI: 'keyvalue',
-    additionalProperties: false,
-    properties: {
-      id: { label: 'Category ID', description: 'The unique identifier of the Category.', type: 'string', required: true },
-      url: { label: 'Category URL', description: 'The URL of the Category', type: 'string' }
-    },
-    default: {
-      '@arrayPath': ['$.properties.categories', { id: { '@path': '$.id' }, url: { '@path': '$.url' } }]
-    }
-}
-
-export const categoriesRequired: InputField = {
+export const categories_required_false: InputField = {
   ...categories, 
-  required:true
-};
+  required:false
+}

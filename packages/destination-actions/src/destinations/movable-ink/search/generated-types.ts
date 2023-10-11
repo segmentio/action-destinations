@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The name of the event to send
+   */
+  event_name: string
+  /**
    * The unique identifier of the profile that triggered this event.
    */
   user_id?: string
@@ -25,4 +29,10 @@ export interface Payload {
    * The URL of a query the user searched with
    */
   query_url?: string
+  /**
+   * A map of meta data to provide additional context about the event.
+   */
+  meta?: {
+    [k: string]: unknown
+  }
 }
