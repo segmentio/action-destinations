@@ -10,26 +10,6 @@ export const external_id: InputField = {
   unsafe_hidden: true
 }
 
-export const name: InputField = {
-  label: 'Segment Name',
-  description:
-    'The name of The Trade Desk CRM Data Segment you want to sync. If the audience name does not exist Segment will create one.',
-  type: 'string',
-  required: true
-}
-
-export const region: InputField = {
-  label: 'Region',
-  description: 'The geographical region of the CRM data segment based on the origin of PII.',
-  type: 'string',
-  default: 'US',
-  choices: [
-    { label: 'US', value: 'US' },
-    { label: 'EU', value: 'EU' },
-    { label: 'APAC', value: 'APAC' }
-  ]
-}
-
 export const pii_type: InputField = {
   label: 'PII Type',
   description: 'The type of personally identifiable data (PII) sent by the advertiser.',

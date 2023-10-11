@@ -54,7 +54,10 @@ export const defaultSubscriptionMapping = {
   android_push_subscription_status: {
     '@path': '$.properties.android_push_subscription_status'
   },
-  engage_space: 'engage-space-writekey'
+  engage_space: 'engage-space-writekey',
+  timestamp: {
+    '@path': '$.timestamp'
+  }
 }
 describe('SegmentProfiles.sendSubscription', () => {
   test('Should throw an error if `userId` or `anonymousId` is not defined', async () => {
@@ -184,6 +187,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
@@ -221,6 +225,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
@@ -238,6 +243,8 @@ describe('SegmentProfiles.sendSubscription', () => {
         ios_push_subscription_status: 'true'
       }
     })
+
+    console.log('edwuy: ', event)
 
     const responses = await testDestination.testAction('sendSubscription', {
       event,
@@ -259,6 +266,7 @@ describe('SegmentProfiles.sendSubscription', () => {
         name: 'Test User',
         email: 'test-user@test-company.com'
       },
+      timestamp: '2023-10-10T07:24:07.036Z',
       properties: {
         email: 'tester11@seg.com',
         email_subscription_status: 'true',
