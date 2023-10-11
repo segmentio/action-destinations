@@ -35,9 +35,9 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        api_key: settings.apiToken
-      },
-      json: { secret: headerSecret }
+        api_key: settings.apiToken,
+        secret: headerSecret
+      }
     }
   },
   actions: {
