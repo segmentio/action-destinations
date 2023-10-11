@@ -6,7 +6,7 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Display Video 360',
+  name: 'Display Video 360 (Actions)',
   slug: 'actions-display-video-360',
   mode: 'cloud',
   actions: {
