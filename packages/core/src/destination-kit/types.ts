@@ -83,16 +83,7 @@ export interface GlobalSetting {
 }
 
 /** The supported field type names */
-export type FieldTypeName =
-  | 'string'
-  | 'text'
-  | 'number'
-  | 'integer'
-  | 'datetime'
-  | 'boolean'
-  | 'password'
-  | 'object'
-  | 'hidden'
+export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The shape of an input field definition */
 export interface InputField {

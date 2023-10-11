@@ -12,7 +12,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
       description: 'Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Yahoo taxonomy',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_id'
@@ -21,7 +22,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     segment_audience_key: {
       label: 'Segment Audience Key',
       description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -46,7 +48,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Segment Computation Action',
       description:
         "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_class'
@@ -70,7 +73,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     email: {
       label: 'User Email',
       description: 'Email address of a user',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: false,
       default: {
         '@if': {
@@ -83,7 +87,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     advertising_id: {
       label: 'User Mobile Advertising ID',
       description: "User's mobile advertising Id",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: {
         '@path': '$.context.device.advertisingId'
       },
@@ -92,7 +97,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "User's mobile device type",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: {
         '@path': '$.context.device.type'
       },
