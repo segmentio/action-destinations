@@ -36,7 +36,7 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
         'Make sure Jimo is not initialized automatically after being added to your website. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
       type: 'boolean',
       required: false,
-      default: true
+      default: false
     }
   },
 
