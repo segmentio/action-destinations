@@ -22,7 +22,7 @@ export interface Payload {
    */
   query: string
   /**
-   * The URL of a search result page
+   * The URL of a query the user searched with
    */
-  search_url?: string
+  query_url?: string
 }

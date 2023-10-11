@@ -59,6 +59,6 @@ export interface Payload {
     /**
      * The URL of the Category
      */
-    url: string
+    url?: string
   }[]
 }

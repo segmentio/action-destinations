@@ -6,7 +6,7 @@ import { user_id, anonymous_id, timestamp, timezone } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
-  description: 'Associate a User ID with an Anonymous ID',
+  description: 'Send an Identify event to Movable Ink, to assocate a userId with an anonymousId',
   defaultSubscription: 'type = "identify"',
   fields: {
     user_id, 

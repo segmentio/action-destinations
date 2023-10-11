@@ -1,12 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, timestamp, timezone, products, order_id, revenue } from '../fields'
+import { event_name, user_id, anonymous_id, timestamp, timezone, products, order_id, revenue } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion',
-  description: "Send an event containing conversion details to Movable Ink",
+  description: "Send a Conversion event Movable Ink",
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
+    event_name,
     user_id, 
     anonymous_id, 
     timestamp,

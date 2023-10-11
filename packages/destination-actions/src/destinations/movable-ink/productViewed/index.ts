@@ -8,6 +8,7 @@ import omit from 'lodash/omit'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Product Viewed',
   description: 'Send a "Product Viewed" event to Movable Ink',
+  defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: {
     event_name,
     user_id, 
@@ -22,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${settings.movableInkURL}/events`, {
       method: 'POST',
       json: {
-        event_name: payload.event_name,
+        event_name: 'Product Viewed',
         user_id: payload.user_id, 
         anonymous_id: payload.anonymous_id, 
         timestamp: payload.timestamp,

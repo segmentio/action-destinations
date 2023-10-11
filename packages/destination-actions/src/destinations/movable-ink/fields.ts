@@ -50,13 +50,15 @@ export const meta: InputField = {
     label: 'Metadata',
     description: 'A map of meta data to provide additional context about the event.',
     type: 'object',
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: true,
     required: false,
     default: { '@path': '$.properties' }
 }
 
-export const search_url: InputField = {
-  label: 'Search URL',
-  description: 'The URL of a search result page',
+export const query_url: InputField = {
+  label: 'Query URL',
+  description: 'The URL of a query the user searched with',
   type: 'string',
   required: false,
   default: { '@path': '$.properties.url' }
@@ -86,38 +88,6 @@ export const order_id: InputField = {
     default: { '@path': '$.properties.order_id' }
 }
 
-export const product_id: InputField = {
-    label: 'Product ID',
-    description: 'The unique identifier of the product.',
-    type: 'string',
-    required: true,
-    default: { '@path': '$.properties.product_id' }
-}
-
-export const product_title: InputField = {
-  label: 'Product Title',
-  description: 'The title or name of the product.',
-  type: 'number',
-  required: false,
-  default: { '@path': '$.properties.name' }
-}
-
-export const product_price: InputField = {
-  label: 'Product Price',
-  description: 'The product price.',
-  type: 'number',
-  required: false,
-  default: { '@path': '$.properties.price' }
-}
-
-export const product_url: InputField = {
-  label: 'Product URL',
-  description: 'The URL of the product.',
-  type: 'string',
-  required: false,
-  default: { '@path': '$.properties.url' }
-}
-
 export const product_quantity: InputField = {
   label: 'Product Quantity',
   description: 'The quantity of the product.',
@@ -132,6 +102,7 @@ export const product: InputField = {
   type: 'object',
   required: true,
   multiple: false,
+  additionalProperties: true,
   properties: {
     id: {
       label: 'Product ID',
@@ -159,36 +130,20 @@ export const product: InputField = {
     }
   },
   default: {
-    id: { '@path': '$.id' },
+    id: { '@path': '$.product_id' },
     title: { '@path': '$.title' },
     price: { '@path': '$.price' },
     url: { '@path': '$.url' }
   }
 }
 
-export const productWithQuantity: InputField = {
-  ...product, 
-  properties: {
-    ...product.properties,
-    quantity: {
-      label: 'Quantity',
-      description: 'The quantity of the product.',
-      type: 'integer',
-      required: false
-    }
-  },
-  default: {
-    ...product.default as object, 
-    quantity: { '@path': '$.quantity' }
-  }
-};
-
 export const products: InputField = {
     label: 'Products',
     description: 'Product details to associate with the event.',
     type: 'object',
-    required: false,
+    required: true,
     multiple: true,
+    additionalProperties: true,
     properties: {
       id: {
         label: 'Product ID',
@@ -235,6 +190,23 @@ export const products: InputField = {
     }
 }
 
+export const productWithQuantity: InputField = {
+  ...product, 
+  properties: {
+    ...product.properties,
+    quantity: {
+      label: 'Quantity',
+      description: 'The quantity of the product.',
+      type: 'integer',
+      required: false
+    }
+  },
+  default: {
+    ...product.default as object, 
+    quantity: { '@path': '$.quantity' }
+  }
+};
+
 export const categories: InputField = {
     label: 'Categories',
     description: 'Product Category details',
@@ -245,9 +217,14 @@ export const categories: InputField = {
     additionalProperties: false,
     properties: {
       id: { label: 'Category ID', description: 'The unique identifier of the Category.', type: 'string', required: true },
-      url: { label: 'Category URL', description: 'The URL of the Category', type: 'string', required: true }
+      url: { label: 'Category URL', description: 'The URL of the Category', type: 'string' }
     },
     default: {
       '@arrayPath': ['$.properties.categories', { id: { '@path': '$.id' }, url: { '@path': '$.url' } }]
     }
 }
+
+export const categoriesRequired: InputField = {
+  ...categories, 
+  required:true
+};

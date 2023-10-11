@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The name of the event to send
+   */
+  event_name: string
+  /**
    * The unique identifier of the profile that triggered this event.
    */
   user_id?: string
