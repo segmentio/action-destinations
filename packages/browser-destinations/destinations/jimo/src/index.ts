@@ -1,11 +1,10 @@
+import { defaultValues } from '@segment/actions-core'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
-
 import type { Settings } from './generated-types'
 import { initScript } from './init-script'
-import { JimoSDK } from './types'
-
 import sendUserData from './sendUserData'
+import { JimoSDK } from './types'
 
 declare global {
   interface Window {
@@ -21,11 +20,12 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
   name: 'Jimo',
   slug: 'actions-jimo',
   mode: 'device',
-  description: 'Install Jimo through with segment',
+  description: 'Load Jimo SDK and send user profile data to Jimo',
 
   settings: {
     projectId: {
-      description: 'Id of the Jimo project. You can find it here: https://i.usejimo.com/settings/install/portal',
+      description:
+        'Id of the Jimo project. You can find the Project Id here: https://i.usejimo.com/settings/install/portal',
       label: 'Id',
       type: 'string',
       required: true
@@ -33,31 +33,26 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
     manualInit: {
       label: 'Initialize Jimo manually',
       description:
-        'Make sure Jimo is not initialized automatically after being added to your website. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
+        'Toggling to true will prevent Jimo from initializing automatically. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
       type: 'boolean',
       required: false,
       default: false
     }
   },
-
+  presets: [
+    {
+      name: 'Send User Data',
+      subscribe: 'type = "identify"',
+      partnerAction: 'sendUserData',
+      mapping: defaultValues(sendUserData.fields),
+      type: 'automatic'
+    }
+  ],
   initialize: async ({ settings }, deps) => {
     initScript(settings)
 
-    try {
-      await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
-    } catch (err) {
-      console.error('Unable to load Jimo SDK script. Error : ', err)
-      throw new Error('JIMO_LOAD_SCRIPT_FAILED')
-    }
+    await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
-    await deps.resolveWhen(
-      () =>
-        Object.prototype.hasOwnProperty.call(window, 'jimo') &&
-        // When initialized on load, window.jimo is first an array then become an object after it get initialized
-        settings.manualInit === false &&
-        Array.isArray(window.jimo) === false,
-      100
-    )
     return window.jimo as JimoSDK
   },
   actions: {
