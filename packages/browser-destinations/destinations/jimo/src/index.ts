@@ -21,17 +21,19 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
   name: 'Jimo',
   slug: 'actions-jimo',
   mode: 'device',
+  description: 'Install Jimo through with segment',
 
   settings: {
     projectId: {
-      description: 'Id of the Jimo project',
+      description: 'Id of the Jimo project. You can find it here: https://i.usejimo.com/settings/install/portal',
       label: 'Id',
       type: 'string',
       required: true
     },
     initOnLoad: {
-      label: 'Init on load',
-      description: 'Automatically initialize Jimo after loading it on the page',
+      label: 'Initialize Jimo manually',
+      description:
+        'Make sure Jimo is not initialized automatically after being added to your website. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
       type: 'boolean',
       required: false,
       default: true
@@ -41,9 +43,12 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
   initialize: async ({ settings }, deps) => {
     initScript(settings)
 
-    await deps
-      .loadScript(`${ENDPOINT_UNDERCITY}`)
-      .catch((err) => console.error('Unable to load Jimo SDK script. Error : ', err))
+    try {
+      await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
+    } catch (err) {
+      console.error('Unable to load Jimo SDK script. Error : ', err)
+      throw new Error('JIMO_LOAD_SCRIPT_FAILED')
+    }
 
     await deps.resolveWhen(
       () =>
