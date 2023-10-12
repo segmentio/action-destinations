@@ -19,7 +19,7 @@ describe('Remove List from Profile', () => {
       properties: {}
     })
 
-    await expect(testDestination.testAction('removeProfile', { event, settings })).rejects.toThrowError(
+    await expect(testDestination.testAction('removeProfileToList', { event, settings })).rejects.toThrowError(
       IntegrationError
     )
   })
@@ -45,6 +45,8 @@ describe('Remove List from Profile', () => {
       profile_id: 'demo-profile-id'
     }
 
-    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
+    await expect(
+      testDestination.testAction('removeProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
   })
 })

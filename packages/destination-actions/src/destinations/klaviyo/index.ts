@@ -2,8 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-import addList from './addList'
-import removeProfile from './removeProfile'
+import addProfileToList from './addProfileToList'
+import removeProfileToList from './removeProfileToList'
 
 import { API_URL } from './config'
 
@@ -60,8 +60,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     upsertProfile,
-    addList,
-    removeProfile
+    addProfileToList,
+    removeProfileToList
   }
 }
 

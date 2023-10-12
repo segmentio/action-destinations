@@ -27,16 +27,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { profile_id, list_id } = payload
-
-    if (!list_id) {
-      throw new IntegrationError(
-        "Insert the ID of the default list that you'd like to subscribe users",
-        'Missing required fields',
-        400
-      )
-    }
     try {
+      const { profile_id, list_id } = payload
+      if (!list_id) {
+        throw new IntegrationError(
+          "Insert the ID of the default list that you'd like to subscribe users",
+          'Missing required fields',
+          400
+        )
+      }
       const listData: listData = {
         data: [
           {

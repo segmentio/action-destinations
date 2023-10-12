@@ -19,7 +19,9 @@ describe('Add List To Profile', () => {
       properties: {}
     })
 
-    await expect(testDestination.testAction('addList', { event, settings })).rejects.toThrowError(IntegrationError)
+    await expect(testDestination.testAction('addProfileToList', { event, settings })).rejects.toThrowError(
+      IntegrationError
+    )
   })
 
   it('should add profile to list if successful', async () => {
@@ -43,6 +45,8 @@ describe('Add List To Profile', () => {
       profile_id: 'demo-profile-id'
     }
 
-    await expect(testDestination.testAction('addList', { event, mapping, settings })).resolves.not.toThrowError()
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
   })
 })
