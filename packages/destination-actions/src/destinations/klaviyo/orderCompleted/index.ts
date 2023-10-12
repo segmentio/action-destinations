@@ -1,13 +1,57 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
+import { EventData } from '../types'
+
+const createEventData = (payload: Payload) => ({
+  data: {
+    type: 'event',
+    attributes: {
+      properties: { ...payload.properties },
+      time: payload.time,
+      value: payload.value,
+      metric: {
+        data: {
+          type: 'metric',
+          attributes: {
+            name: 'Order Completed'
+          }
+        }
+      },
+      profile: {
+        data: {
+          type: 'profile',
+          attributes: {
+            ...payload.profile
+          }
+        }
+      }
+    }
+  }
+})
+
+const sendProductRequests = async (payload: Payload, eventData: EventData, request: RequestClient) => {
+  if (payload.products && Array.isArray(payload.products)) {
+    const productPromises = payload?.products?.map((product) => {
+      eventData.data.attributes.properties = product.properties
+      eventData.data.attributes.value = product.value
+      eventData.data.attributes.metric.data.attributes.name = 'Ordered Product'
+
+      return request(`${API_URL}/events/`, {
+        method: 'POST',
+        json: eventData
+      })
+    })
+
+    await Promise.all(productPromises)
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track user events and associate it with their profile.',
+  title: 'Order Completed',
+  description: 'Order Completed Event action tracks users Order Completed events and associate it with their profile.',
   defaultSubscription: 'type = "track"',
   fields: {
     profile: {
@@ -17,18 +61,15 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         email: {
           label: 'Email',
-          type: 'string',
-          allowNull: true
+          type: 'string'
         },
         phone_number: {
           label: 'Phone Number',
-          type: 'string',
-          allowNull: true
+          type: 'string'
         },
         other_properties: {
           label: 'Other Properties',
-          type: 'object',
-          allowNull: true
+          type: 'object'
         }
       },
       required: true
@@ -78,46 +119,45 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       }
+    },
+    products: {
+      label: 'Products',
+      description: 'List of products purchased in the order.',
+      multiple: true,
+      type: 'object',
+      properties: {
+        value: {
+          label: 'Value',
+          description: 'A numeric value to associate with this event. For example, the dollar amount of a purchase.',
+          type: 'number'
+        },
+        properties: {
+          description: `Properties of this event.`,
+          label: 'Properties',
+          type: 'object'
+        }
+      }
     }
   },
-  perform: (request, { payload }) => {
+
+  perform: async (request, { payload }) => {
     const { email, phone_number } = payload.profile
 
     if (!email && !phone_number) {
       throw new IntegrationError('One of Phone Number or Email is required.', 'Missing required fields', 400)
     }
 
-    const eventData = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: { ...payload.properties },
-          time: payload.time,
-          value: payload.value,
-          metric: {
-            data: {
-              type: 'metric',
-              attributes: {
-                name: payload.metric_name
-              }
-            }
-          },
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: {
-                ...payload.profile
-              }
-            }
-          }
-        }
-      }
-    }
+    const eventData = createEventData(payload)
 
-    return request(`${API_URL}/events/`, {
+    const event = await request(`${API_URL}/events/`, {
       method: 'POST',
       json: eventData
     })
+
+    if (event.status == 202 && Array.isArray(payload.products)) {
+      await sendProductRequests(payload, eventData, request)
+    }
+    return event
   }
 }
 

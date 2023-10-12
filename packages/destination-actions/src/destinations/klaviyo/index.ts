@@ -6,6 +6,8 @@ import { API_URL } from './config'
 
 import trackEvent from './trackEvent'
 
+import orderCompleted from './orderCompleted'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
@@ -59,7 +61,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     upsertProfile,
-    trackEvent
+    trackEvent,
+    orderCompleted
   }
 }
 

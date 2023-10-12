@@ -5,11 +5,11 @@ export interface Payload {
    * Properties of the profile that triggered this event.
    */
   profile: {
-    email?: string | null
-    phone_number?: string | null
+    email?: string
+    phone_number?: string
     other_properties?: {
       [k: string]: unknown
-    } | null
+    }
   }
   /**
    * Name of the event. Must be less than 128 characters.
@@ -40,4 +40,19 @@ export interface Payload {
    *
    */
   unique_id?: string
+  /**
+   * List of products purchased in the order.
+   */
+  products?: {
+    /**
+     * A numeric value to associate with this event. For example, the dollar amount of a purchase.
+     */
+    value?: number
+    /**
+     * Properties of this event.
+     */
+    properties?: {
+      [k: string]: unknown
+    }
+  }[]
 }
