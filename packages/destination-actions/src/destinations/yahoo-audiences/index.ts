@@ -50,19 +50,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
-      await update_taxonomy('', tx_creds, request, body_form_data)
+      // The last 2 params are undefined because we don't have statsContext.statsClient and statsContext.tags in testAuthentication()
+      await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Refresh Realtime API token (Oauth2 client_credentials)
       let rt_client_key = ''
       let rt_client_secret = ''
-      // Added try-catch in a case we don't update the vault to store strings
+      // Added try-catch in a case we don't update the vault
       try {
         rt_client_key = JSON.parse(auth.clientId)['rt_api']
         rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+        console.log('its a JSON')
       } catch (err) {
         rt_client_key = auth.clientId
         rt_client_secret = auth.clientSecret
+        console.log('its a string')
       }
 
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
@@ -130,6 +133,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
       const identifier = createAudienceInput.audienceSettings?.identifier
+      const statsClient = createAudienceInput?.statsContext?.statsClient
+      const statsTags = createAudienceInput?.statsContext?.tags
       // The 3 errors below will be removed once we have Payload accessible by createAudience()
       if (!audience_id) {
         throw new IntegrationError(
@@ -180,7 +185,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags)
 
       return { externalId: audience_id }
     },

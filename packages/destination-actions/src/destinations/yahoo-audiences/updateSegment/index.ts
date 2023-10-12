@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@if': {
           exists: { '@path': '$.traits.phone' },
           then: { '@path': '$.traits.phone' },
-          else: { '@path': '$.properties.phone' }
+          else: { '@path': '$.context.traits.phone' }
         }
       }
     },
@@ -143,19 +143,19 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: (request, { payload, auth, audienceSettings }) => {
+  perform: (request, { payload, auth, audienceSettings, statsContext }) => {
     const rt_access_token = auth?.accessToken
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    return process_payload(request, [payload], rt_access_token, audienceSettings)
+    return process_payload(request, [payload], rt_access_token, audienceSettings, statsContext)
   },
-  performBatch: (request, { payload, audienceSettings, auth }) => {
+  performBatch: (request, { payload, audienceSettings, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    return process_payload(request, payload, rt_access_token, audienceSettings)
+    return process_payload(request, payload, rt_access_token, audienceSettings, statsContext)
   }
 }
 
@@ -163,11 +163,18 @@ async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  statsContext: StatsContext | undefined
 ) {
   const body = gen_update_segment_payload(payload, audienceSettings)
+  const statsClient = statsContext?.statsClient
+  const statsTag = statsContext?.tags
   // Send request to Yahoo only when all events in the batch include selected Ids
   if (body.data.length > 0) {
+    if (statsClient && statsTag) {
+      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentTriggered'])
+      statsClient?.incr('yahoo_audiences', body.data.length, [...statsTag, 'action:updateSegmentRecordsSent'])
+    }
     return request('https://dataxonline.yahoo.com/online/audience/', {
       method: 'POST',
       json: body,
@@ -176,6 +183,9 @@ async function process_payload(
       }
     })
   } else {
+    if (statsClient && statsTag) {
+      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentDiscarded'])
+    }
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
   }
 }

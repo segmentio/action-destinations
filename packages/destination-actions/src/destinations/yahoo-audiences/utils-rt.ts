@@ -127,7 +127,7 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
     }[]
   } = {}
   const data = []
-
+  //
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (schema.email === true && event.email) {
