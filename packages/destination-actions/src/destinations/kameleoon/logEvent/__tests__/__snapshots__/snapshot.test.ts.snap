@@ -10,7 +10,7 @@ Object {
   "properties": Object {
     "testType": "wNACk[QgaEuFPK",
   },
-  "timestamp": "2053-07-17T05:22:08.977Z",
+  "timestamp": Any<String>,
   "type": "wNACk[QgaEuFPK",
 }
 `;
@@ -19,7 +19,7 @@ exports[`Testing snapshot for Kameleoon's logEvent destination action: required 
 Object {
   "event": "wNACk[QgaEuFPK",
   "messageId": "wNACk[QgaEuFPK",
-  "timestamp": "2053-07-17T05:22:08.977Z",
+  "timestamp": Any<String>,
   "type": "wNACk[QgaEuFPK",
 }
 `;

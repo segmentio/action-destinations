@@ -10,7 +10,7 @@ Object {
   "properties": Object {
     "testType": "VA*d2uO)D#",
   },
-  "timestamp": "2088-05-12T19:02:44.270Z",
+  "timestamp": Any<String>,
   "type": "VA*d2uO)D#",
 }
 `;
@@ -19,7 +19,7 @@ exports[`Testing snapshot for actions-kameleoon destination: logEvent action - r
 Object {
   "event": "VA*d2uO)D#",
   "messageId": "VA*d2uO)D#",
-  "timestamp": "2088-05-12T19:02:44.270Z",
+  "timestamp": Any<String>,
   "type": "VA*d2uO)D#",
 }
 `;
