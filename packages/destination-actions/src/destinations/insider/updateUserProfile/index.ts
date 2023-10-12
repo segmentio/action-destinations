@@ -1,13 +1,21 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
+import { userProfilePayload, API_BASE, UPSERT_ENDPOINT, bulkUserProfilePayload } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
   description: "Action used to update a User's attribute in Insider InOne.",
   defaultSubscription: 'type = "identify"',
   fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Send Batch Request',
+      description:
+        'When enabled, the action will send a batch request to Insider. Batches can contain up to 1000 records in a request.',
+      required: true,
+      default: false
+    },
     email_as_identifier: {
       label: 'Treat Email as Identifier',
       type: 'boolean',
@@ -149,6 +157,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: userProfilePayload(data.payload)
+    })
+  },
+  performBatch: (request, { payload }) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: bulkUserProfilePayload(payload)
     })
   }
 }

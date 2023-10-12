@@ -10,13 +10,21 @@ import {
   user_attributes,
   uuid
 } from '../insider-properties'
-import { API_BASE, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
+import { API_BASE, sendBulkTrackEvents, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Product Added Event',
   description: 'Record Product Added Event to Insider',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
+    enable_batching: {
+      type: 'boolean',
+      label: 'Send Batch Request',
+      description:
+        'When enabled, the action will send a batch request to Insider. Batches can contain up to 1000 records in a request.',
+      required: true,
+      default: false
+    },
     email_as_identifier: { ...email_as_identifier },
     phone_number_as_identifier: { ...phone_number_as_identifier },
     uuid: { ...uuid },
@@ -42,6 +50,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: sendTrackEvent(data.payload, 'item_added_to_cart')
+    })
+  },
+  performBatch: (request, data) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: sendBulkTrackEvents(data.payload, 'item_added_to_cart')
     })
   }
 }

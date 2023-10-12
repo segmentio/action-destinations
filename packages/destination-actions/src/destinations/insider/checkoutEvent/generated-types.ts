@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * When enabled, the action will send a batch request to Insider. Batches can contain up to 1000 records in a request.
+   */
+  enable_batching: boolean
+  /**
    * If true, Email will be sent as identifier to Insider.
    */
   email_as_identifier?: boolean

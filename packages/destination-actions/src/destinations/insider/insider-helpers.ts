@@ -253,3 +253,165 @@ export function sendTrackEvent(
 
   return { users: [payload] }
 }
+
+export function bulkUserProfilePayload(data: UserPayload[]) {
+  const batchPayload = data.map((userPayload) => {
+    const identifiers = {
+      uuid: userPayload.uuid,
+      custom: {
+        segment_anonymous_id: userPayload.segment_anonymous_id
+      }
+    }
+
+    if (userPayload.email_as_identifier) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      identifiers['email'] = userPayload.email
+    }
+
+    if (userPayload.phone_number_as_identifier) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      identifiers['phone_number'] = userPayload.phone
+    }
+
+    const attributes = {
+      age: userPayload.age,
+      birthday: userPayload.birthday,
+      email: userPayload.email,
+      name: userPayload.firstName,
+      gender: userPayload.gender,
+      surname: userPayload.lastName,
+      phone_number: userPayload.phone,
+      city: userPayload.city,
+      country: userPayload.country,
+      gdpr_optin: userPayload.gdprOptin,
+      email_optin: userPayload.emailOptin,
+      sms_optin: userPayload.smsOptin,
+      whatsapp_optin: userPayload.whatsappOptin,
+      language: userPayload.language?.replace('-', '_'),
+      custom: userPayload.custom
+    }
+
+    Object.keys(attributes).forEach((key) => {
+      if (attributes[key as keyof typeof attributes] === undefined) {
+        delete attributes[key as keyof typeof attributes]
+      }
+    })
+
+    Object.keys(identifiers).forEach((key) => {
+      if (identifiers[key as keyof typeof identifiers] === undefined) {
+        delete identifiers[key as keyof typeof identifiers]
+      }
+    })
+
+    return { identifiers, attributes }
+  })
+
+  return { users: batchPayload }
+}
+
+export function sendBulkTrackEvents(
+  dataArray:
+    | TrackEventPayload[]
+    | CartViewedEventPayload[]
+    | CheckoutEventPayload[]
+    | OrderCompletedEventPayload[]
+    | ProductAddedEventPayload[]
+    | ProductListViewedEventPayload[]
+    | productRemovedEventPayload[]
+    | productViewedEventPayload[]
+    | userRegisteredEventPayload[],
+  event_name?: string
+) {
+  const bulkPayload: upsertUserPayload[] = []
+
+  dataArray.forEach((data) => {
+    const identifiers = {
+      uuid: data.uuid,
+      custom: {
+        segment_anonymous_id: data.segment_anonymous_id
+      }
+    }
+
+    if (data.email_as_identifier && data?.attributes?.email) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      identifiers['email'] = data?.attributes?.email
+    }
+
+    if (data.phone_number_as_identifier && data?.attributes?.phone) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      identifiers['phone_number'] = data?.attributes?.phone
+    }
+
+    const payload: upsertUserPayload = {
+      identifiers,
+      attributes: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        custom: {}
+      },
+      events: []
+    }
+
+    for (const key of Object.keys(data.attributes || {})) {
+      const attributeName = key.toString().toLowerCase().trim().split(' ').join('_').toString()
+      if (data.attributes) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        payload.attributes.custom[attributeName] = data.attributes[attributeName]
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const eventName = event_name || data.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
+    const event: insiderEvent = {
+      event_name: eventName,
+      timestamp: data.timestamp.toString(),
+      event_params: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        custom: {}
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    for (const key of Object.keys(data.parameters || {})) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (data.parameters) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.event_params.custom[key] = data.parameters[key]
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (data.products) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      for (const product of data.products) {
+        const productEvent = { ...event }
+        for (const key of Object.keys(product || {})) {
+          if (product) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            productEvent.event_params.custom[key] = product[key]
+          }
+        }
+        payload.events.push(productEvent)
+      }
+    } else {
+      payload.events.push(event)
+    }
+
+    bulkPayload.push(payload)
+  })
+
+  return { users: bulkPayload }
+}
