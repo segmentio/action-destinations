@@ -7,8 +7,8 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build-ts": "yarn tsc -b tsconfig.build.json",
-    "build": "yarn clean && yarn build-ts && yarn build:cjs",
+    "build-ts": "yarn tsc -p tsconfig.build.json",
+    "build": "yarn build-ts && yarn build:cjs",
     "build:esm": "tsc -p tsconfig.build.json --outDir ./dist/esm",
     "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir ./dist/cjs",
     "clean": "tsc -b tsconfig.build.json --clean"
