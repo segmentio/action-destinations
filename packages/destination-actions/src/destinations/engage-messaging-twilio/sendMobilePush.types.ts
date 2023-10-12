@@ -22,11 +22,11 @@ export interface Payload {
      */
     body?: string
     /**
-     * Media to display to notification
+     * Media to display in notification
      */
     media?: string[]
     /**
-     * Sets the notification click action/category: open_app, open_url, deep_link, dismiss, or a custom string
+     * Sets the notification click action/category: open_app, open_url, deep_link, or a custom string
      */
     tapAction?: string
     /**
@@ -66,7 +66,7 @@ export interface Payload {
        */
       text: string
       /**
-       * The action to perform when this button is tapped: open_app, open_url, deep_link, dismiss, or a custom string
+       * The action to perform when this button is tapped: open_app, open_url, deep_link, or a custom string
        */
       onTap: string
       /**

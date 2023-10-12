@@ -75,14 +75,16 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
       newTraits.segmentAnonymousId_str = event.payload.anonymousId
     }
 
+    const userVars = {
+      ...newTraits,
+      ...(event.payload.email !== undefined && { email: event.payload.email }),
+      ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
+    }
+
     if (event.payload.userId) {
-      FS.identify(event.payload.userId, newTraits, segmentEventSource)
+      FS.identify(event.payload.userId, userVars, segmentEventSource)
     } else {
-      FS.setUserVars({
-        ...newTraits,
-        ...(event.payload.email !== undefined && { email: event.payload.email }),
-        ...(event.payload.displayName !== undefined && { displayName: event.payload.displayName })
-      }, segmentEventSource)
+      FS.setUserVars(userVars, segmentEventSource)
     }
   }
 }

@@ -22,7 +22,8 @@ describe('updateUserProfile', () => {
         language: { '@path': '$.traits.language' },
         last_name: { '@path': '$.traits.last_name' },
         phone: { '@path': '$.traits.phone' },
-        push_subscribe: { '@path': '$.traits.push_subscribe' }
+        push_subscribe: { '@path': '$.traits.push_subscribe' },
+        subscription_groups: { '@path': '$.traits.braze_subscription_groups' }
       }
     }
   ]
@@ -34,6 +35,7 @@ describe('updateUserProfile', () => {
   })
 
   test('changes the external_id when present', async () => {
+    // @ts-expect-error all integrations seem to have this typescript error?
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
@@ -138,6 +140,54 @@ describe('updateUserProfile', () => {
           last_name: 'Bar',
           phone: '555 5555',
           push_subscribe: true
+        }
+      })
+    )
+  })
+
+  test('sets subscription groups not as custom attributes', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      sdkVersion: '3.5',
+      doNotLoadFontAwesome: true,
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const braze_subscription_groups = [
+      {
+        subscription_group_id: '5ertykiuyfjyttgkf',
+        subscription_group_state: 'unsubscribed'
+      },
+      {
+        subscription_group_id: 'ytghkuguymjghb',
+        subscription_group_state: 'unsubscribed'
+      }
+    ]
+    await event.identify?.(
+      new Context({
+        type: 'identify',
+        traits: {
+          dob: '01/01/2000',
+          braze_subscription_groups: braze_subscription_groups,
+          custom_attributes: { foo: 'bar' }
+        }
+      })
+    )
+
+    expect(destination.actions.updateUserProfile.perform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instance: expect.objectContaining({
+          changeUser: expect.any(Function)
+        })
+      }),
+      expect.objectContaining({
+        payload: {
+          dob: '01/01/2000',
+          subscription_groups: braze_subscription_groups,
+          custom_attributes: { foo: 'bar' }
         }
       })
     )

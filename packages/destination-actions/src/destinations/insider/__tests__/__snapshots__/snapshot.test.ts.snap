@@ -681,8 +681,12 @@ Object {
         "birthday": "CA9^h[(o",
         "city": "CA9^h[(o",
         "country": "CA9^h[(o",
+        "custom": Object {
+          "testType": "CA9^h[(o",
+        },
         "email": "tofzammi@paremu.ru",
         "email_optin": true,
+        "gdpr_optin": true,
         "gender": "CA9^h[(o",
         "language": "CA9^h[(o",
         "name": "CA9^h[(o",

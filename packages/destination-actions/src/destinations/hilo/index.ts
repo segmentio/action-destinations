@@ -9,6 +9,7 @@ import screen from './screen'
 
 interface RefreshTokenResponse {
   access_token: string
+  refresh_token: string
 }
 
 const destination: DestinationDefinition<Settings> = {
@@ -42,7 +43,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.data?.access_token }
+      return { accessToken: res.data?.access_token, refreshToken: res.data?.refresh_token }
     }
   },
 

@@ -14,7 +14,8 @@ describe('CannyFunctions.group', () => {
       timestamp: new Date().toISOString(),
       traits: {
         name: 'Group Name'
-      }
+      },
+      userId: 'user-id'
     }
     const event = createTestEvent(eventData)
     nock(BASE_API_URL).post('/group').reply(200, {})
@@ -36,7 +37,8 @@ describe('CannyFunctions.group', () => {
     expect(parsedBody).toEqual({
       groupId: event.groupId,
       traits: eventData.traits,
-      type: event.type
+      type: event.type,
+      userId: event.userId
     })
   })
 })

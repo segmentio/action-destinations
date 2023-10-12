@@ -15,4 +15,8 @@ export interface Payload {
    * The type of the event
    */
   type: string
+  /**
+   * The unique identifier of the user.
+   */
+  userId?: string
 }

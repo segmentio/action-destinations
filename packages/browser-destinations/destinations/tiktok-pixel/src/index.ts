@@ -139,7 +139,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     useExistingPixel: {
       label: 'Use Existing Pixel',
       type: 'boolean',
-      description: 'Select "true" to use existing Pixel that is already installed on your website.'
+      description:
+        'Important! Changing this setting may block data collection to Segment if not done correctly. Select "true" to use an existing TikTok Pixel which is already installed on your website. The Pixel MUST be installed on your website when this is set to "true" or all data collection to Segment may fail.'
     }
   },
   initialize: async ({ settings }, deps) => {

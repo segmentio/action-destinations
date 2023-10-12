@@ -9,8 +9,12 @@ Object {
         "birthday": "I[VT4ujd%6E",
         "city": "I[VT4ujd%6E",
         "country": "I[VT4ujd%6E",
+        "custom": Object {
+          "testType": "I[VT4ujd%6E",
+        },
         "email": "hig@mirhag.ws",
         "email_optin": true,
+        "gdpr_optin": true,
         "gender": "I[VT4ujd%6E",
         "language": "I[VT4ujd%6E",
         "name": "I[VT4ujd%6E",

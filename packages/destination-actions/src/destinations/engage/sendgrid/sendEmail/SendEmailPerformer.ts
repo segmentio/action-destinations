@@ -35,6 +35,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const bypass_subscription = this.payload.byPassSubscription !== undefined && this.payload.byPassSubscription
     if (bypass_subscription) {
       this.currentOperation?.logs.push('Bypassing subscription')
+      this.currentOperation?.tags.push('bypass_subscription:' + true)
       return true
     }
 
@@ -58,18 +59,20 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
   getRecepients(): ExtId<Payload>[] {
     //if toEmail specified => send test email requested
-    if (this.payload.toEmail)
+    if (this.payload.toEmail) {
+      // Get the externalIdContext from the first elemet of the array, for test emails we only send one externalid (i.e email)
+      const externalIdContext = this.payload?.externalIds && this.payload?.externalIds[0]
       return [
         {
           id: this.payload.toEmail,
           type: 'email',
-          groups: [
-            {
-              id: this.payload.groupId
-            }
-          ]
+          subscriptionStatus: externalIdContext?.subscriptionStatus,
+          unsubscribeLink: externalIdContext?.unsubscribeLink,
+          preferencesLink: externalIdContext?.preferencesLink,
+          groups: externalIdContext?.groups
         }
       ]
+    }
     // only email to the first found subscribed email id
     const res = super.getRecepients()
     if (res.length > 0) return [res[0]]
@@ -91,6 +94,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }
+
   async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
@@ -114,19 +118,19 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    let name
-    if (traits.first_name && traits.last_name) {
-      name = `${traits.first_name} ${traits.last_name}`
-    } else if (traits.firstName && traits.lastName) {
-      name = `${traits.firstName} ${traits.lastName}`
-    } else if (traits.name) {
-      name = traits.name
-    } else {
-      name = traits.first_name || traits.last_name || traits.firstName || traits.lastName || toEmail
-    }
-
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [parsedSubject, apiLookupData] = await Promise.all([
+    const [
+      parsedFromEmail,
+      parsedFromName,
+      parsedFromReplyToEmail,
+      parsedFromReplyToName,
+      parsedSubject,
+      apiLookupData
+    ] = await Promise.all([
+      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
       this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
       this.performApiLookups(this.payload.apiLookups, profile)
     ])
@@ -138,8 +142,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         {
           to: [
             {
-              email: toEmail,
-              name: name
+              email: toEmail
             }
           ],
           bcc: bcc.length > 0 ? bcc : undefined,
@@ -154,12 +157,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         }
       ],
       from: {
-        email: this.payload.fromEmail,
-        name: this.payload.fromName
+        email: parsedFromEmail,
+        name: parsedFromName
       },
       reply_to: {
-        email: this.payload.replyToEmail,
-        name: this.payload.replyToName
+        email: parsedFromReplyToEmail,
+        name: parsedFromReplyToName
       },
       subject: parsedSubject,
       content: [
@@ -210,6 +213,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   @track()
+  async getBodyTemplateFromS3(bodyUrl: string) {
+    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    return content
+  }
+
+  @track()
   async getBodyHtml(
     profile: Profile,
     apiLookupData: Record<string, unknown>,
@@ -226,7 +235,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   ) {
     let parsedBodyHtml
     if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
-      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      const body = await this.getBodyTemplateFromS3(this.payload.bodyUrl)
       const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
       parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
     } else {
@@ -237,11 +246,17 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       )
     }
 
-    // only include preview text in design editor templates
-    if (this.payload.bodyType === 'design' && this.payload.previewText) {
-      const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+    if (this.payload.previewText) {
+      try {
+        const parsedPreviewText = await this.parseTemplating(this.payload.previewText, { profile }, 'Preview text')
+
+        parsedBodyHtml = insertEmailPreviewText(parsedBodyHtml, parsedPreviewText)
+      } catch (ex) {
+        this.logger?.error('Error inserting preview text, using original html', {
+          ex
+        })
+        this.statsClient.incr('insert_preview_fail', 1)
+      }
     }
 
     parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)

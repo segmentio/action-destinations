@@ -2,6 +2,8 @@ import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 
+const defaultTags = JSON.stringify({})
+
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
   const spaceId = 'd'
@@ -16,9 +18,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       send: true,
       traitEnrichment: true,
       externalIds: [
-        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
-      ]
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
+        { type: 'phone', id: '+1234567891', subscriptionStatus: 'true', channelType: 'sms' }
+      ],
+      sendBasedOnOptOut: false
     })
   })
 
@@ -34,7 +37,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' }]
         }
       })
 
@@ -133,8 +136,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           },
           mappingOmitKeys: ['body']
         })
-      ).rejects.toThrowError('Unable to fetch content template')
-      expectErrorLogged('getContentTemplateTypes failed', 'Unable to fetch content template')
+      ).rejects.toThrowError('Not Found')
+      expectErrorLogged('getContentTemplateTypes failed', 'Not Found')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -156,7 +159,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -203,7 +207,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
-        MediaUrl: 'http://myimg.com'
+        MediaUrl: 'http://myimg.com',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -240,6 +245,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       twilioContentResponse.types['twilio/media'].media.forEach((media) => {
         expectedTwilioRequest.append('MediaUrl', media)
+        expectedTwilioRequest.append('Tags', defaultTags)
       })
 
       const twilioContentRequest = nock('https://content.twilio.com')
@@ -269,7 +275,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -291,6 +298,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
+        Tags: defaultTags,
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -344,7 +352,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -368,12 +377,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('subscription handling', () => {
-    it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+    it.each(['subscribed', 'true', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -391,14 +401,71 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', false, null])(
+    it.each(['subscribed', 'true', true, null, ''])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: true
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each(['subscribed', 'true', true])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each([false, 'unsubscribed', null, ''])(
       'does NOT send an SMS when subscriptonStatus ="%s"',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -414,7 +481,59 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         expect(twilioRequest.isDone()).toEqual(false)
       }
     )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: '+1234567891',
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
   })
+
+  it.each([false, 'unsubscribed'])(
+    'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+    async (subscriptionStatus) => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: '+1234567891',
+        ShortenUrls: 'true',
+        Tags: defaultTags
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+          sendBasedOnOptOut: true
+        }
+      })
+      expect(responses).toHaveLength(0)
+      expect(twilioRequest.isDone()).toEqual(false)
+    }
+  )
 
   it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
@@ -423,7 +542,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
       To: '+1234567891',
-      ShortenUrls: 'true'
+      ShortenUrls: 'true',
+      Tags: defaultTags
     })
 
     nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -450,8 +570,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to get profile traits')
-      expectErrorLogged('Unable to get profile traits')
+      ).rejects.toThrowError('Internal Server Error')
+      expectErrorLogged('Internal Server Error')
     })
 
     it('should get profile traits successfully', async () => {
@@ -517,7 +637,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -535,5 +656,40 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         else expect(logger.info).not.toHaveBeenCalled()
       })
     })
+  })
+
+  it('add tags to body', async () => {
+    const expectedTwilioRequest = new URLSearchParams({
+      Body: 'Hello world, jane!',
+      From: 'MG1111222233334444',
+      To: '+1234567891',
+      ShortenUrls: 'true',
+      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
+    })
+    const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+      .post('/Messages.json', expectedTwilioRequest.toString())
+      .reply(201, {})
+
+    const responses = await testAction({
+      mappingOverrides: {
+        customArgs: {
+          audience_id: '1',
+          correlation_id: '1',
+          journey_name: 'j-1',
+          step_name: '2',
+          campaign_name: 'c-3',
+          campaign_key: '4',
+          user_id: 'u-5',
+          message_id: 'm-6'
+        }
+      }
+    })
+
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses.map((response) => response.url)).toStrictEqual([
+      'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+    ])
+    expect(twilioRequest.isDone()).toEqual(true)
+    expect(responses.length).toBeGreaterThan(0)
   })
 })
