@@ -1,7 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, timestamp, timezone, event_name, products_required_false, categories, meta } from '../fields'
+import { movable_ink_url, user_id, anonymous_id, timestamp, timezone, products_required_false, categories, meta } from '../fields'
 import omit from 'lodash/omit'
 
 
@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a "Category View" event to Movable Ink',
   defaultSubscription: 'type = "track" and event = "Category Viewed"',
   fields: {
-    event_name,
+    movable_ink_url,
     user_id, 
     anonymous_id, 
     timestamp,
@@ -20,7 +20,11 @@ const action: ActionDefinition<Settings, Payload> = {
     meta
   },
   perform: (request, { settings, payload }) => { 
-    return request(`${settings.movableInkURL}/events`, {
+    const url = payload?.movable_ink_url ?? settings?.movable_ink_url
+    if(!url)
+      throw new IntegrationError('"Movable Ink URL" setting or "Movable Ink URL" field must be populated', 'MISSING_DESTINATION_URL', 400)
+
+    return request(url, {
       method: 'POST',
       json: {
         event_name: 'Category View',

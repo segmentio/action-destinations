@@ -1,5 +1,13 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
+export const movable_ink_url: InputField = {
+  label: 'Movable Ink URL',
+  description: 'The Movable Ink URL to send data to. This field overrides the "Movable Ink URL" setting.',
+  type: 'string',
+  required: false,
+  format: 'uri'
+}
+
 export const timestamp: InputField = {
     label: 'timestamp',
     description: "Timestamp for the event. Must be in ISO 8601 format. For example '2023-09-18T11:45:59.533Z'. Segment will convert to Unix time before sending to Movable Ink.",
@@ -12,7 +20,7 @@ export const timezone: InputField = {
     label: 'Timezone',
     description: "The timezone of where the event took place (TZ database name in the IANA Time Zone Database)",
     type: 'string',
-    required: true,
+    required: false,
     default: {
         '@if': {
             exists: { '@path': '$.context.timezone' },
@@ -50,7 +58,7 @@ export const meta: InputField = {
     label: 'Metadata',
     description: 'A map of meta data to provide additional context about the event.',
     type: 'object',
-    defaultObjectUI: 'keyvalue:only',
+    defaultObjectUI: 'keyvalue',
     additionalProperties: true,
     required: false,
     default: { '@path': '$.properties' }
@@ -141,7 +149,7 @@ export const product: InputField = {
   },
   default: {
     id: { '@path': '$.product_id' },
-    title: { '@path': '$.title' },
+    title: { '@path': '$.name' },
     price: { '@path': '$.price' },
     url: { '@path': '$.url' }
   }
@@ -207,8 +215,8 @@ export const products: InputField = {
         '@arrayPath': [
             '$.properties.products',
             {
-                id: { '@path': '$.id' },
-                title: { '@path': '$.title' },
+                id: { '@path': '$.product_id' },
+                title: { '@path': '$.name' },
                 price: { '@path': '$.price' },
                 url: { '@path': '$.url' },
                 quantity: { '@path': '$.quantity' }

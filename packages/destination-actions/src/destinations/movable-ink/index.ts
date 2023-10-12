@@ -11,6 +11,8 @@ import categoryView from './categoryView'
 
 import sendCustomEvent from './sendCustomEvent'
 
+import sendEntireEvent from './sendEntireEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Movable Ink',
   slug: 'actions-movable-ink',
@@ -31,17 +33,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      movableInkURL: {
-        label: 'password',
-        description: 'The Movable Ink URL to send data to.',
+      movable_ink_url: {
+        label: 'Movable Ink URL',
+        description: 'The Movable Ink URL to send data to. This URL can also be specified at the Action level via the "Movable Ink URL" Action field',
         type: 'string',
-        required: true
+        required: false
       }
-    },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
   extendRequest({ settings }) {
@@ -57,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
     productViewed,
     productAdded,
     categoryView,
-    sendCustomEvent
+    sendCustomEvent,
+    sendEntireEvent
   }
 }
 

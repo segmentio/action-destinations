@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The Movable Ink URL to send data to. This field overrides the "Movable Ink URL" setting.
+   */
+  movable_ink_url?: string
+  /**
    * The unique identifier of the profile that triggered this event.
    */
   user_id?: string
@@ -16,5 +20,5 @@ export interface Payload {
   /**
    * The timezone of where the event took place (TZ database name in the IANA Time Zone Database)
    */
-  timezone: string
+  timezone?: string
 }

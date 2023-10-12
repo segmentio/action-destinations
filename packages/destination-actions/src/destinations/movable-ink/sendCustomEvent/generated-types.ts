@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The Movable Ink URL to send data to. This field overrides the "Movable Ink URL" setting.
+   */
+  movable_ink_url?: string
+  /**
    * The name of the event to send
    */
   event_name: string
@@ -20,7 +24,7 @@ export interface Payload {
   /**
    * The timezone of where the event took place (TZ database name in the IANA Time Zone Database)
    */
-  timezone: string
+  timezone?: string
   /**
    * Product details to associate with the event.
    */

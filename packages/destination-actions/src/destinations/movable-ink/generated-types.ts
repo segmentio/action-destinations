@@ -10,7 +10,7 @@ export interface Settings {
    */
   password: string
   /**
-   * The Movable Ink URL to send data to.
+   * The Movable Ink URL to send data to. This URL can also be specified at the Action level via the "Movable Ink URL" Action field
    */
-  movableInkURL: string
+  movable_ink_url?: string
 }
