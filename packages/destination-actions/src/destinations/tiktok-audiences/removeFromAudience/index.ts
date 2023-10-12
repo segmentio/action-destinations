@@ -12,7 +12,6 @@ import {
   external_audience_id
 } from '../properties'
 import { IntegrationError } from '@segment/actions-core'
-import { MIGRATION_FLAG_NAME } from '../constants'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Remove from Audience',

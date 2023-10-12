@@ -13,7 +13,6 @@ import {
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
-import { MIGRATION_FLAG_NAME } from '../constants'
 
 // NOTE
 // This action is not used by the native Segment Audiences feature.

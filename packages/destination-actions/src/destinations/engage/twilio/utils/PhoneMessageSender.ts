@@ -3,8 +3,6 @@
 import { TwilioMessageSender, TwilioPayloadBase } from './TwilioMessageSender'
 import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../../utils'
 
-export const FLAGON_EVENT_STREAMS_ONBOARDING = 'event-streams-onboarding'
-
 /**
  * Base class for sending sms/mms
  */

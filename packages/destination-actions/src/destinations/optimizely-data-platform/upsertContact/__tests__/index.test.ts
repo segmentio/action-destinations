@@ -40,9 +40,9 @@ describe('OptimizelyDataPlatform.upsertContact', () => {
       useDefaultMappings: true
     })
 
-    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"first_name\\":\\"John\\",\\"last_name\\":\\"Doe\\",\\"age\\":50,\\"dob\\":\\"01/01/1990\\",\\"gender\\":\\"male\\",\\"phone\\":\\"1234567890\\",\\"address\\":{\\"street\\":\\"Victoria st\\",\\"city\\":\\"London\\",\\"state\\":\\"London\\",\\"country\\":\\"UK\\"},\\"company\\":\\"Optimizely\\",\\"image_url\\":\\"https://image-url.com\\"}"`;
+    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"first_name\\":\\"John\\",\\"last_name\\":\\"Doe\\",\\"age\\":50,\\"dob\\":\\"01/01/1990\\",\\"gender\\":\\"male\\",\\"phone\\":\\"1234567890\\",\\"address\\":{\\"street\\":\\"Victoria st\\",\\"city\\":\\"London\\",\\"state\\":\\"London\\",\\"country\\":\\"UK\\"},\\"company\\":\\"Optimizely\\",\\"image_url\\":\\"https://image-url.com\\"}"`
 
-    expect(response[0].status).toBe(201);
+    expect(response[0].status).toBe(201)
     expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
   })
 })

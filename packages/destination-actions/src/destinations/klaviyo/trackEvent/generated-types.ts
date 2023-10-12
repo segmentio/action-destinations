@@ -40,10 +40,4 @@ export interface Payload {
    *
    */
   unique_id?: string
-  /**
-   * List of products purchased in the order.
-   */
-  products?: {
-    [k: string]: unknown
-  }
 }

@@ -78,11 +78,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       }
-    },
-    products: {
-      label: 'Products',
-      description: 'List of products purchased in the order.',
-      type: 'object'
     }
   },
   perform: (request, { payload }) => {
