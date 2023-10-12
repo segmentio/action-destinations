@@ -17,10 +17,23 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
-
-      const event = createTestEvent({
-        properties: eventData
-      })
+      let event
+      if (actionSlug === 'sendSubscription') {
+        event = createTestEvent({
+          properties: {
+            email: 'tester11@seg.com',
+            email_subscription_status: true,
+            phone: '+12135618345',
+            sms_subscription_status: true,
+            engage_space: 'engage-space-writekey',
+            user_id: 'user12'
+          }
+        })
+      } else {
+        event = createTestEvent({
+          properties: eventData
+        })
+      }
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
@@ -52,9 +65,23 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
-      const event = createTestEvent({
-        properties: eventData
-      })
+      let event
+      if (actionSlug === 'sendSubscription') {
+        event = createTestEvent({
+          properties: {
+            email: 'tester11@seg.com',
+            email_subscription_status: true,
+            phone: '+12135618345',
+            sms_subscription_status: true,
+            engage_space: 'engage-space-writekey',
+            user_id: 'user12'
+          }
+        })
+      } else {
+        event = createTestEvent({
+          properties: eventData
+        })
+      }
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,

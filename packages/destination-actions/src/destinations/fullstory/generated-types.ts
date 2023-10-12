@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * [FullStory Admin API key](https://help.fullstory.com/hc/en-us/articles/360052021773-Managing-API-Keys)
+   * [FullStory API key](https://help.fullstory.com/hc/en-us/articles/360052021773-Managing-API-Keys)
    */
   apiKey: string
 }

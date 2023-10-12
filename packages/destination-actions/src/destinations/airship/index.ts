@@ -9,6 +9,8 @@ import manageTags from './manageTags'
 
 import { map_endpoint } from './utilities'
 
+import registerAndAssociate from './registerAndAssociate'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Airship (Actions)',
   slug: 'actions-airship',
@@ -62,17 +64,17 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Custom Events',
+      type: 'automatic',
       subscribe: 'type = "track"',
       partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields),
-      type: 'automatic'
+      mapping: defaultValues(customEvents.fields)
     },
     {
       name: 'Set Attributes',
+      type: 'automatic',
       subscribe: 'type = "identify"',
       partnerAction: 'setAttributes',
-      mapping: defaultValues(setAttributes.fields),
-      type: 'automatic'
+      mapping: defaultValues(setAttributes.fields)
     }
   ],
   onDelete: async (request, { settings, payload }) => {
@@ -97,7 +99,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     customEvents,
     setAttributes,
-    manageTags
+    manageTags,
+    registerAndAssociate
   }
 }
 export default destination

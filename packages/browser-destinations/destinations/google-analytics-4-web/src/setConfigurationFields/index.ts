@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties } from '../ga4-properties'
 import { updateUser } from '../ga4-functions'
 
+type ConsentParamsArg = 'granted' | 'denied' | undefined
+
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
@@ -96,47 +98,66 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
-        ad_storage: payload.ads_storage_consent_state,
-        analytics_storage: payload.analytics_storage_consent_state
+        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
+        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
       })
     }
+    type ConfigType = { [key: string]: unknown }
+
+    const config: ConfigType = {
+      send_page_view: settings.pageView ?? true,
+      cookie_update: settings.cookieUpdate,
+      cookie_domain: settings.cookieDomain,
+      cookie_prefix: settings.cookiePrefix,
+      cookie_expires: settings.cookieExpirationInSeconds,
+      cookie_path: settings.cookiePath,
+      allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
+      allow_google_signals: settings.allowGoogleSignals
+    }
+
     if (payload.screen_resolution) {
-      gtag('set', { screen_resolution: payload.screen_resolution })
+      config.screen_resolution = payload.screen_resolution
+    }
+    if (payload.user_id) {
+      config.user_id = payload.user_id
+    }
+    if (payload.user_properties) {
+      config.user_properties = payload.user_properties
     }
     if (payload.page_title) {
-      gtag('set', { page_title: payload.page_title })
+      config.page_title = payload.page_title
     }
     if (payload.page_referrer) {
-      gtag('set', { page_referrer: payload.page_referrer })
+      config.page_referrer = payload.page_referrer
     }
     if (payload.page_location) {
-      gtag('set', { page_location: payload.page_location })
+      config.page_location = payload.page_location
     }
     if (payload.language) {
-      gtag('set', { language: payload.language })
+      config.language = payload.language
     }
     if (payload.content_group) {
-      gtag('set', { content_group: payload.content_group })
+      config.content_group = payload.content_group
     }
     if (payload.campaign_term) {
-      gtag('set', { campaign_term: payload.campaign_term })
+      config.campaign_term = payload.campaign_term
     }
     if (payload.campaign_source) {
-      gtag('set', { campaign_source: payload.campaign_source })
+      config.campaign_source = payload.campaign_source
     }
     if (payload.campaign_name) {
-      gtag('set', { campaign_name: payload.campaign_name })
+      config.campaign_name = payload.campaign_name
     }
     if (payload.campaign_medium) {
-      gtag('set', { campaign_medium: payload.campaign_medium })
+      config.campaign_medium = payload.campaign_medium
     }
     if (payload.campaign_id) {
-      gtag('set', { campaign_id: payload.campaign_id })
+      config.campaign_id = payload.campaign_id
     }
     if (payload.campaign_content) {
-      gtag('set', { campaign_content: payload.campaign_content })
+      config.campaign_content = payload.campaign_content
     }
-    gtag('event', 'page_view')
+    gtag('config', settings.measurementID, config)
   }
 }
 

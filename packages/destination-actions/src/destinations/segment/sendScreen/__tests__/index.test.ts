@@ -94,4 +94,43 @@ describe('Segment.sendScreen', () => {
       context: {}
     })
   })
+
+  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
+    const event = createTestEvent({
+      name: 'Home',
+      properties: {
+        'Feed Type': 'private'
+      },
+      userId: 'test-user-ufi5bgkko5',
+      anonymousId: 'arky4h2sh7k'
+    })
+
+    const responses = await testDestination.testAction('sendScreen', {
+      event,
+      mapping: defaultScreenMapping,
+      settings: {
+        source_write_key: 'test-source-write-key',
+        endpoint: DEFAULT_SEGMENT_ENDPOINT
+      },
+      features: {
+        'actions-segment-tapi-internal-enabled': true
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      batch: [
+        {
+          userId: event.userId,
+          anonymousId: event.anonymousId,
+          properties: {
+            ...event.properties
+          },
+          context: {}
+        }
+      ]
+    })
+  })
 })

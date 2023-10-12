@@ -2,7 +2,11 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
+beforeEach(() => {
+  nock.cleanAll()
+  testDestination = createTestIntegration(Destination)
+})
 
 const LOOPS_API_KEY = 'some random secret'
 
@@ -14,7 +18,6 @@ describe('Loops.createOrUpdateContact', () => {
       })
     } catch (err) {
       expect(err.message).toContain("missing the required field 'userId'.")
-      expect(err.message).toContain("missing the required field 'email'.")
     }
   })
 
@@ -55,12 +58,33 @@ describe('Loops.createOrUpdateContact', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toStrictEqual({
+      success: true,
+      id: 'someId'
+    })
+  })
+
+  it('should not work without email', async () => {
+    const testPayload = {
+      firstName: 'Ellen',
+      userId: 'some-id-1'
+    }
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(400, {
+      success: false,
+      message: 'userId not found and cannot create a new contact without an email.'
+    })
+    await expect(
+      testDestination.testAction('createOrUpdateContact', {
+        mapping: testPayload,
+        settings: { apiKey: LOOPS_API_KEY }
+      })
+    ).rejects.toThrow('Bad Request')
   })
 
   it('should work without optional fields', async () => {
     const testPayload = {
       email: 'test@example.com',
-      userId: 'some-id-1'
+      userId: 'some-id-2'
     }
     nock('https://app.loops.so/api/v1').put('/contacts/update', testPayload).reply(200, {
       success: true,
@@ -74,5 +98,9 @@ describe('Loops.createOrUpdateContact', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toStrictEqual({
+      success: true,
+      id: 'someId'
+    })
   })
 })

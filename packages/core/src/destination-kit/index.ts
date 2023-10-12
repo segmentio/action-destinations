@@ -74,6 +74,8 @@ export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> 
   audienceSettings?: AudienceSettings
 
   audienceName: string
+
+  statsContext?: StatsContext
 }
 
 export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
@@ -82,6 +84,8 @@ export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   audienceSettings?: AudienceSettings
 
   externalId: string
+
+  statsContext?: StatsContext
 }
 
 export interface AudienceDestinationConfiguration {

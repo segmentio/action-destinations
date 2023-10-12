@@ -18,9 +18,9 @@ describe('actions-gameball.trackEvent', () => {
         metadata1: 'meta_value_1',
         metadata2: 'meta_value_2'
       }
-    });
+    })
 
-    nock(endpoints.baseApiUrl).post(endpoints.trackEvent).reply(200, {});
+    nock(endpoints.baseApiUrl).post(endpoints.trackEvent).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -29,9 +29,9 @@ describe('actions-gameball.trackEvent', () => {
         apiKey: GAMEBALL_API_KEY,
         secretKey: GAMEBALL_SECRET_KEY
       }
-    });
-    expect(responses.length).toBe(1);
-    expect(responses[0].status).toBe(200);
-    expect(responses[0].data).toMatchObject({});
-  });
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+  })
 })

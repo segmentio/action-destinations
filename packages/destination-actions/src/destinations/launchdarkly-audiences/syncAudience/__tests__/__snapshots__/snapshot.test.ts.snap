@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination action: Audience entered 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "cohortId": "test_audience",
+      "cohortName": "Test audience",
+      "userId": "&bUSudpNPsUWT",
+      "value": true,
+    },
+  ],
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
+}
+`;
+
+exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination action: Audience entered 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "api-key",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
+    ],
+    "user-agent": Array [
+      "SegmentSyncAudiences/1.0.0",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination action: Audience exited 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "cohortId": "test_audience",
+      "cohortName": "Test audience",
+      "userId": "&bUSudpNPsUWT",
+      "value": false,
+    },
+  ],
+  "contextKind": "customContextKind",
+  "environmentId": "environment-id",
+}
+`;
+
+exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination action: Audience exited 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "api-key",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "ld-api-version": Array [
+      "20220603",
+    ],
+    "user-agent": Array [
+      "SegmentSyncAudiences/1.0.0",
+    ],
+  },
+}
+`;

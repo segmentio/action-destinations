@@ -72,6 +72,12 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       required: false,
       default: true
     },
+    sendBasedOnOptOut: {
+      label: 'Send OptOut',
+      description: 'Send to any subscription status other than unsubscribed',
+      type: 'boolean',
+      default: false
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',

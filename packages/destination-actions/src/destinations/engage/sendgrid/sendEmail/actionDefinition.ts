@@ -119,6 +119,12 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    sendBasedOnOptOut: {
+      label: 'Send OptOut',
+      description: 'Send to any subscription status other than unsubscribed',
+      type: 'boolean',
+      default: false
+    },
     apiLookups: {
       label: 'API Lookups',
       description: 'Any API lookup configs that are needed to send the template',

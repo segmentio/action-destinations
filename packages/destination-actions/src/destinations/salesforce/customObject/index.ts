@@ -9,7 +9,8 @@ import {
   customFields,
   validateLookup,
   enable_batching,
-  recordMatcherOperator
+  recordMatcherOperator,
+  batch_size
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 import { PayloadValidationError } from '@segment/actions-core'
@@ -22,6 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
+    batch_size: batch_size,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,

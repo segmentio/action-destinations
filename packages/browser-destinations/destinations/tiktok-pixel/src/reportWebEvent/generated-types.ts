@@ -6,6 +6,10 @@ export interface Payload {
    */
   event: string
   /**
+   * Any hashed ID that can identify a unique user/session.
+   */
+  event_id?: string
+  /**
    * Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.
    */
   phone_number?: string

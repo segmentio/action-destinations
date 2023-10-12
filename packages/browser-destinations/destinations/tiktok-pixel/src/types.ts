@@ -22,6 +22,11 @@ export interface TikTokPixel {
       value: number
       description: string | undefined
       query: string | undefined
+    },
+    {
+      event_id
+    }: {
+      event_id: string | undefined
     }
   ) => void
 }

@@ -67,4 +67,11 @@ export interface Payload {
    * The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).
    */
   push_subscribe?: string
+  /**
+   * A list of subscription group IDs and states to set. Subscription group states can be either "subscribed" or "unsubscribed". Subscription Group IDs are found in the Braze dashboard.
+   */
+  subscription_groups?: {
+    subscription_group_id: string
+    subscription_group_state: string
+  }[]
 }

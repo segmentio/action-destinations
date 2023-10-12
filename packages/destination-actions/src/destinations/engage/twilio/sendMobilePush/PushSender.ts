@@ -106,10 +106,10 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
     const parsedTemplateContent = await this.parseContent(
       {
         title: this.payload.customizations?.title,
-        body: this.payload.customizations?.body,
-        media: this.payload.customizations?.media,
-        link: this.payload.customizations?.link,
-        ...templateTypes
+        // let fields media & body take precedence over content template
+        body: this.payload.customizations?.body || templateTypes?.body,
+        media: this.payload.customizations?.media || templateTypes?.media,
+        link: this.payload.customizations?.link
       },
       profile
     )
@@ -168,10 +168,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
 
       return { requestBody, customData }
     } catch (error: unknown) {
-      this.rethrowIntegrationError(
-        error,
-        () => new PayloadValidationError('Unable to construct Notify API request body')
-      )
+      this.rethrowIntegrationError(error, () => new PayloadValidationError('Unable to construct Push API request body'))
     }
   }
 

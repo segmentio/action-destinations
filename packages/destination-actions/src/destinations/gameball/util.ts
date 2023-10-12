@@ -64,7 +64,7 @@ export const sendRequest = (
   requestOptions.headers = requestOptions.headers || {}
   requestOptions.headers['APIKey'] = settings.apiKey
   requestOptions.headers['Content-Type'] = 'application/json'
-  requestOptions.headers['x-gb-agent'] = 'GB/Zapier'
+  requestOptions.headers['x-gb-agent'] = 'GB/Segment'
   requestOptions.throwHttpErrors = false
   requestOptions.method = requestOptions.method || 'POST'
   if (addSecretey && settings.secretKey) {

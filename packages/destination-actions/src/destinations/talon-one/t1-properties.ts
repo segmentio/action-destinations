@@ -225,3 +225,12 @@ export const cartItems: InputField = {
     }
   }
 }
+
+export const identifier: InputField = {
+  label: 'Identifier',
+  description:
+    'Session custom identifier that you can set limits on or use inside your rules. For example, you can use IP addresses as identifiers to potentially identify devices and limit discounts abuse in case of customers creating multiple accounts.',
+  type: 'string',
+  multiple: true,
+  required: false
+}
