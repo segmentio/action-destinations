@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identify from './identify'
 import search from './search'
@@ -47,6 +47,15 @@ const destination: DestinationDefinition<Settings> = {
       password: settings.password
     }
   },
+  presets: [
+    {
+      name: 'Send Entire Event',
+      partnerAction: 'sendEntireEvent',
+      subscribe: 'type = "identify" or type = "track" or type = "page" or type = "screen"',
+      mapping: defaultValues(sendEntireEvent.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     identify,
     search,
