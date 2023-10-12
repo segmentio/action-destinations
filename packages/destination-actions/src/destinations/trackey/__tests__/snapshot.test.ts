@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'actions-optimizely-data-platform'
+const destinationSlug = 'actions-trackey'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
@@ -20,9 +20,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const event = createTestEvent({
         properties: eventData
       })
-
-      settingsData['apiKey'] = 'abc123'
-      settingsData['region'] = 'US'
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
@@ -57,9 +54,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const event = createTestEvent({
         properties: eventData
       })
-
-      settingsData['apiKey'] = 'abc123'
-      settingsData['region'] = 'US'
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,

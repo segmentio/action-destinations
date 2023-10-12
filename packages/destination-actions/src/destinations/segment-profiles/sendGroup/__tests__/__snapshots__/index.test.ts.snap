@@ -9,6 +9,7 @@ Object {
       "integrations": Object {
         "All": false,
       },
+      "timestamp": "2023-09-26T09:46:28.290Z",
       "traits": Object {
         "industry": "Technology",
         "name": "Example Corp",
@@ -40,6 +41,7 @@ Object {
   "integrations": Object {
     "All": false,
   },
+  "timestamp": "2023-09-26T09:46:28.290Z",
   "traits": Object {
     "industry": "Technology",
     "name": "Example Corp",
