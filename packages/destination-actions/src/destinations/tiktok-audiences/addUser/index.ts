@@ -74,23 +74,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, logger, statsContext, features }) => {
-    logger?.warn('addUser - features', JSON.stringify(features))
-    logger?.warn(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
-
-    if (features && features[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  perform: async (request, { settings, payload, statsContext }) => {
     statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'add')
   },
-  performBatch: async (request, { settings, payload, logger, statsContext, features }) => {
-    logger?.warn('addUser - features', JSON.stringify(features))
-    logger?.warn(`addUser - features["tiktok-hide-create-audience-action"] ${features?.[MIGRATION_FLAG_NAME]}`)
-
-    if (features && features[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  performBatch: async (request, { settings, payload, statsContext }) => {
     statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'add')
   }

@@ -26,41 +26,31 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
-    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
-
-    logger?.warn('TikTokDebugMode')
-    logger?.warn(`addToAudience - features["actions-migrated-tiktok"] ${features?.[MIGRATION_FLAG_NAME]}`)
-    logger?.warn('addToAudience - features', JSON.stringify(features))
-
-    if (!features?.[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  perform: async (request, { audienceSettings, payload, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
+    if (statsClient) {
+      statsClient?.incr('addToAudience', 1, statsTag)
+    }
 
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { audienceSettings, payload, logger, statsContext, features }) => {
-    statsContext?.statsClient?.incr('addToAudienceInfo', 1, statsContext?.tags)
-
-    logger?.warn('TikTokDebugMode')
-    logger?.warn(`addToAudience - features["actions-migrated-tiktok"] ${features?.[MIGRATION_FLAG_NAME]}`)
-    logger?.warn('addToAudience - features', JSON.stringify(features))
-
-    if (features && !features[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
+    const statsClient = statsContext?.statsClient
+    const statsTag = statsContext?.tags
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
+    if (statsClient) {
+      statsClient?.incr('addToAudience', 1, statsTag)
+    }
 
     return processPayload(request, audienceSettings, payload, 'add')
   }
