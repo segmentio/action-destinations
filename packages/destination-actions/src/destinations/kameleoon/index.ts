@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Actions Kameleoon',
   slug: 'actions-kameleoon',
   mode: 'cloud',
-
+  description: 'Send Segment events to Kameleoon',
   authentication: {
     scheme: 'custom',
     fields: {
