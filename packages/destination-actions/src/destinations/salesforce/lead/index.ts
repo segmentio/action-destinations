@@ -166,7 +166,7 @@ const action: ActionDefinition<Settings, Payload> = {
           data = (await sf.createRecord(payload, OBJECT_NAME)).data
         } catch (e) {
           return {
-            errorMessage: (e as Error).message ?? 'Error creating lead, please retry',
+            message: (e as Error).message ?? 'Error creating lead, please retry',
             code: (e as Error).name ?? '400',
           }
         }
@@ -183,7 +183,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload }) => {
     if (!payload.onSubscriptionSaved?.success) {
-      // just for PoC purposes
+      // just for PoC purposesy
       throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
     }
 
