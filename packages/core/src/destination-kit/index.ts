@@ -1,7 +1,15 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
 import { EventEmitterSlug } from '@segment/action-emitters'
 import type { JSONSchema4 } from 'json-schema'
-import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
+import {
+  Action,
+  ActionDefinition,
+  ActionHookError,
+  ActionHookResponse,
+  BaseActionDefinition,
+  RequestFn,
+  ExecuteDynamicFieldInput
+} from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -17,7 +25,7 @@ import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
-export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
+export type { BaseActionDefinition, ActionDefinition, ActionHookResponse, ActionHookError, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
