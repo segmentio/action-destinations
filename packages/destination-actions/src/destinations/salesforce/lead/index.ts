@@ -167,22 +167,22 @@ const action: ActionDefinition<Settings, Payload> = {
         } catch (e) {
           return {
             message: (e as Error).message ?? 'Error creating lead, please retry',
-            code: (e as Error).name ?? '400',
+            code: (e as Error).name ?? '400'
           }
         }
 
         return {
-        successMessage: `Lead ${data.id} created successfully`,
-        savedData: {
-          id: data.id,
-          success: data.success
+          successMessage: `Lead ${data.id} created successfully`,
+          savedData: {
+            id: data.id,
+            success: data.success
           }
         }
       }
     }
   },
   perform: async (request, { settings, payload }) => {
-    if (!payload.onSubscriptionSaved?.success) {
+    if (!payload.onSubscriptionSavedValue?.success) {
       // just for PoC purposesy
       throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
     }

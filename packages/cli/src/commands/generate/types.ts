@@ -14,7 +14,7 @@ import { RESERVED_FIELD_NAMES } from '../../constants'
 import { AudienceDestinationDefinition } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
-
+const hookNameToHookValue = new Map<string, string>([['on-subscription-save', 'onSubscriptionSavedValue']])
 export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
 
@@ -134,16 +134,17 @@ export default class GenerateTypes extends Command {
       let fields = action.fields
 
       //This doesn't work yet but good enough for a PoC
-      if (action.hasHookSupport) {
-        console.log('has hooks')
+      if (action.hooks) {
         const hooks = action.hooks
-        console.log(hooks)
+
         for (const [hookName, hook] of Object.entries(hooks)) {
-          console.log(hookName)
-          console.log(hook)
-          fields = { ...fields, [hookName]: hook.fields }
+          const hookValueName = hookNameToHookValue.get(hookName)
+          if (!hookValueName) {
+            continue
+          }
+
+          fields = { ...fields, [hookValueName]: hook.fields }
         }
-        console.log('fields', fields)
       }
 
       const types = await generateTypes(fields, 'Payload')
