@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description:
           'Kameleoon API key. You can generate one using the link in the help doc (https://help.kameleoon.com/setting-up-segment/).',
-        type: 'string',
+        type: 'password',
         required: true
       },
       sitecode: {

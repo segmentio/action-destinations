@@ -4,17 +4,21 @@ export interface Payload {
   /**
    * The event name
    */
-  event: string
+  event?: string
   /**
    * The type of the event
    */
   type: string
   /**
-   * Properties to send with the event
+   * Additional event Properties or user Traits to send with the event
    */
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Kameleoon Visitor Code - a unique identifier for the user
+   */
+  kameleoonVisitorCode: string
   /**
    * The timestamp of the event
    */

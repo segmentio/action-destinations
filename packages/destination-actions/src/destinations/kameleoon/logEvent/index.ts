@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { BASE_URL } from '../propeties'
+import { BASE_URL } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event',
@@ -10,10 +10,16 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     event: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The event name',
       label: 'Event Name',
-      default: { '@path': '$.event' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
+      }
     },
     type: {
       label: 'Type',
@@ -27,9 +33,28 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: {
       type: 'object',
       required: false,
-      description: 'Properties to send with the event',
-      label: 'Event properties',
-      default: { '@path': '$.properties' }
+      description: 'Additional event Properties or user Traits to send with the event',
+      label: 'Event properties or user traits',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
+    },
+    kameleoonVisitorCode: {
+      type: 'string',
+      required: true,
+      description: 'Kameleoon Visitor Code - a unique identifier for the user',
+      label: 'Kameleoon Visitor Code',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.kameleoonVisitorCode' },
+          then: { '@path': '$.properties.kameleoonVisitorCode' },
+          else: { '@path': '$.traits.kameleoonVisitorCode' }
+        }
+      }
     },
     timestamp: {
       type: 'string',

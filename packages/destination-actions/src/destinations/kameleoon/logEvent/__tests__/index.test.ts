@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL } from '../../propeties'
+import { BASE_URL } from '../../properties'
 
 const SITE_CODE = 'mysitecode'
 const VISITOR_CODE = 'visitorCode'
