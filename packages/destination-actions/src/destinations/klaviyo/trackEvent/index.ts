@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { IntegrationError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,18 +17,15 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         email: {
           label: 'Email',
-          type: 'string',
-          allowNull: true
+          type: 'string'
         },
         phone_number: {
           label: 'Phone Number',
-          type: 'string',
-          allowNull: true
+          type: 'string'
         },
         other_properties: {
           label: 'Other Properties',
-          type: 'object',
-          allowNull: true
+          type: 'object'
         }
       },
       required: true
@@ -76,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       `,
       type: 'string',
       default: {
-        '@path': '$.event'
+        '@path': '$.messageId'
       }
     }
   },
@@ -84,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { email, phone_number } = payload.profile
 
     if (!email && !phone_number) {
-      throw new IntegrationError('One of Phone Number or Email is required.', 'Missing required fields', 400)
+      throw new PayloadValidationError('One of Phone Number or Email is required.')
     }
 
     const eventData = {

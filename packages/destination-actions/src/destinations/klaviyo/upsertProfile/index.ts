@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
-import { IntegrationError } from '@segment/actions-core'
+import { APIError, PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     external_id: {
       label: 'External ID',
-      description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.`,
+      description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Phone Number and Email required.`,
       type: 'string'
     },
     first_name: {
@@ -126,11 +126,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { email, external_id, phone_number, ...otherAttributes } = payload
 
     if (!email && !phone_number && !external_id) {
-      throw new IntegrationError(
-        'One of External ID, Phone Number and Email is required.',
-        'Missing required fields',
-        400
-      )
+      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
 
     const profileData: ProfileData = {
@@ -169,7 +165,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      throw new Error('An error occurred while processing the request')
+      throw new APIError('An error occurred while processing the request', 400)
     }
   }
 }

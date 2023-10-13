@@ -12,10 +12,6 @@ export interface Payload {
     }
   }
   /**
-   * Name of the event. Must be less than 128 characters.
-   */
-  metric_name: string
-  /**
    * Properties of this event.
    */
   properties: {

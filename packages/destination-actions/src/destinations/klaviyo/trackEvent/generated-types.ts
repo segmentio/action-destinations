@@ -5,11 +5,11 @@ export interface Payload {
    * Properties of the profile that triggered this event.
    */
   profile: {
-    email?: string | null
-    phone_number?: string | null
+    email?: string
+    phone_number?: string
     other_properties?: {
       [k: string]: unknown
-    } | null
+    }
   }
   /**
    * Name of the event. Must be less than 128 characters.

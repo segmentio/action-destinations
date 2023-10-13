@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 
@@ -74,15 +74,6 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       required: true
     },
-    metric_name: {
-      label: 'Metric Name',
-      description: 'Name of the event. Must be less than 128 characters.',
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      },
-      required: true
-    },
     properties: {
       description: `Properties of this event.`,
       label: 'Properties',
@@ -117,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
       `,
       type: 'string',
       default: {
-        '@path': '$.event'
+        '@path': '$.messageId'
       }
     },
     products: {
@@ -144,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { email, phone_number } = payload.profile
 
     if (!email && !phone_number) {
-      throw new IntegrationError('One of Phone Number or Email is required.', 'Missing required fields', 400)
+      throw new PayloadValidationError('One of Phone Number or Email is required.')
     }
 
     const eventData = createEventData(payload)
