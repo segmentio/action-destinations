@@ -16,14 +16,12 @@ export const testAction = async (actionName: string, event: SegmentEvent): Promi
   const responses = await testDestination.testAction(actionName, input)
   expect(responses.length).toBe(1)
   const request = responses[0].request
-  expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiToken}`)
+  expect(request.headers.get('X-Auth-Token')).toBe(settings.apiToken)
   const rawBody = await request.text()
   return JSON.parse(rawBody)
 }
 
 export const testBatchAction = async (actionName: string, events: SegmentEvent[]): Promise<any> => {
-  const batchUrl = getEventUrl(eventType(events[0]))
-  console.log('batchUrl', batchUrl)
   nock(getEventUrl(eventType(events[0])))
     .post('')
     .reply(200, {})
@@ -31,7 +29,7 @@ export const testBatchAction = async (actionName: string, events: SegmentEvent[]
   const responses = await testDestination.testBatchAction(actionName, input)
   expect(responses.length).toBe(1)
   const request = responses[0].request
-  expect(request.headers.get('Authorization')).toBe(`Bearer ${settings.apiToken}`)
+  expect(request.headers.get('X-Auth-Token')).toBe(settings.apiToken)
   const rawBody = await request.text()
   return JSON.parse(rawBody)
 }

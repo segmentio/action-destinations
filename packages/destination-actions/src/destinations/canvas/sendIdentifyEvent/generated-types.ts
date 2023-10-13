@@ -8,6 +8,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Sends events in bulk to Canvas. Highly recommended.
+   */
+  enable_batching: boolean
+  /**
    * Event context as it appears in Segment
    */
   context?: {
@@ -36,5 +40,5 @@ export interface Payload {
   /**
    * The user's id
    */
-  user_id: string
+  user_id?: string
 }
