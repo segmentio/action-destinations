@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, statsContext }) => {
-    statsContext?.statsClient?.incr('actions-tiktok-audiences.createAudience.legacy', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('createAudience.legacy', 1, statsContext?.tags)
     return createAudience(request, payload)
   }
 }

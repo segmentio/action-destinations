@@ -37,7 +37,9 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       const { dataFileUrl } = settings
-      return request(dataFileUrl)
+      return request(dataFileUrl, {
+        skipResponseCloning: true
+      })
     }
   },
   onDelete: async (request, { settings }) => {

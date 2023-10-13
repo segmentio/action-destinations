@@ -13,7 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_audience_key: {
       label: 'Audience Key',
       description: 'Segment Audience key to which user identifier should be added or removed',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -23,7 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Computation Action',
       description:
         "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_class'
@@ -41,21 +43,24 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_user_id: {
       label: 'Segment User ID',
       description: 'The Segment userId value.',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: false,
       default: { '@path': '$.userId' }
     },
     segment_anonymous_id: {
       label: 'Segment Anonymous ID',
       description: 'The Segment anonymousId value.',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: false,
       default: { '@path': '$.anonymousId' }
     },
     user_email: {
       label: 'Email address',
       description: "The user's email address",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: false,
       default: {
         '@if': {
@@ -92,10 +97,19 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch events',
+      description:
+        'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
+      required: false,
+      default: true
+    },
     audience_action: {
       label: 'Audience Action',
       description: 'Indicates if the user will be added or removed from the Audience',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       choices: [
         { label: CONSTANTS.ADD as AudienceAction, value: CONSTANTS.ADD as AudienceAction },
         { label: CONSTANTS.REMOVE as AudienceAction, value: CONSTANTS.REMOVE as AudienceAction }

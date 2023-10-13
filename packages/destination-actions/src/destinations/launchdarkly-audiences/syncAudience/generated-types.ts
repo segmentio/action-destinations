@@ -36,6 +36,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.
+   */
+  enable_batching?: boolean
+  /**
    * Indicates if the user will be added or removed from the Audience
    */
   audience_action?: string

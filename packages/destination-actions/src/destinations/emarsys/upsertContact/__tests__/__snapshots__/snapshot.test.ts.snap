@@ -4,9 +4,6 @@ exports[`Testing snapshot for Emarsys's upsertContact destination action: all fi
 Object {
   "contacts": Array [
     Object {
-      "1": "UAl@hlNFqwIzyXq",
-      "2": "UAl@hlNFqwIzyXq",
-      "3": "UAl@hlNFqwIzyXq",
       "UAl@hlNFqwIzyXq": "UAl@hlNFqwIzyXq",
     },
   ],

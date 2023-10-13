@@ -29,6 +29,10 @@ export class EngageStats extends OperationStats {
       `settings_region:${this.actionPerformer.settings.region}`,
       `channel:${this.actionPerformer.getChannelType()}`
     )
+    const correlation_id =
+      this.actionPerformer.payload.customArgs?.correlation_id ||
+      this.actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
+    if (correlation_id) ctx.sharedContext.tags.push(`correlation_id:${correlation_id}`)
 
     //for operations like request which can be used in multiple places, we need to have operation_path tag that will show where this operation is invoked from
     const parentOperation = (ctx as OperationContext).parent
@@ -57,8 +61,8 @@ export class EngageStats extends OperationStats {
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
-      statsMethod ||
-      'incr' // have to do this to avoid issues with JS bundler/minifier
+        statsMethod ||
+        'incr' // have to do this to avoid issues with JS bundler/minifier
       ) {
         case 'incr':
           statsFunc = this.statsClient?.incr.bind(this.statsClient)

@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
-import { FLAGON_EVENT_STREAMS_ONBOARDING } from '../utils'
+
+const defaultTags = JSON.stringify({})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
@@ -135,8 +136,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           },
           mappingOmitKeys: ['body']
         })
-      ).rejects.toThrowError('Unable to fetch content template')
-      expectErrorLogged('getContentTemplateTypes failed', 'Unable to fetch content template')
+      ).rejects.toThrowError('Not Found')
+      expectErrorLogged('getContentTemplateTypes failed', 'Not Found')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -158,7 +159,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -205,7 +207,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
-        MediaUrl: 'http://myimg.com'
+        MediaUrl: 'http://myimg.com',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -242,6 +245,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       twilioContentResponse.types['twilio/media'].media.forEach((media) => {
         expectedTwilioRequest.append('MediaUrl', media)
+        expectedTwilioRequest.append('Tags', defaultTags)
       })
 
       const twilioContentRequest = nock('https://content.twilio.com')
@@ -271,7 +275,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -293,6 +298,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: '+1234567891',
         ShortenUrls: 'true',
+        Tags: defaultTags,
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -346,7 +352,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -375,7 +382,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -400,7 +408,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -427,7 +436,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -454,7 +464,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -478,7 +489,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -504,7 +516,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
         To: '+1234567891',
-        ShortenUrls: 'true'
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -529,7 +542,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
       To: '+1234567891',
-      ShortenUrls: 'true'
+      ShortenUrls: 'true',
+      Tags: defaultTags
     })
 
     nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -556,8 +570,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to get profile traits')
-      expectErrorLogged('Unable to get profile traits')
+      ).rejects.toThrowError('Internal Server Error')
+      expectErrorLogged('Internal Server Error')
     })
 
     it('should get profile traits successfully', async () => {
@@ -623,7 +637,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
           To: '+1234567891',
-          ShortenUrls: 'true'
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -643,104 +658,38 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
   })
 
-  describe('events stream onboarding feature flag', () => {
-    it('add webhookURL when feature undefined', async () => {
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true',
-        StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
-      })
-      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
+  it('add tags to body', async () => {
+    const expectedTwilioRequest = new URLSearchParams({
+      Body: 'Hello world, jane!',
+      From: 'MG1111222233334444',
+      To: '+1234567891',
+      ShortenUrls: 'true',
+      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
+    })
+    const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+      .post('/Messages.json', expectedTwilioRequest.toString())
+      .reply(201, {})
 
-      const responses = await testAction({
-        mappingOverrides: { customArgs: { foo: 'bar' } },
-        settingsOverrides: {
-          webhookUrl: 'http://localhost',
-          connectionOverrides: 'rp=all&rc=5'
+    const responses = await testAction({
+      mappingOverrides: {
+        customArgs: {
+          audience_id: '1',
+          correlation_id: '1',
+          journey_name: 'j-1',
+          step_name: '2',
+          campaign_name: 'c-3',
+          campaign_key: '4',
+          user_id: 'u-5',
+          message_id: 'm-6'
         }
-      })
-
-      expect(responses.length).toBeGreaterThan(0)
-      expect(responses.map((response) => response.url)).toStrictEqual([
-        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
-      ])
-      expect(twilioRequest.isDone()).toEqual(true)
-      expect(responses.length).toBeGreaterThan(0)
+      }
     })
 
-    it('add webhookURL when feature flag off', async () => {
-      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: false }
-
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true',
-        StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
-      })
-      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
-
-      const responses = await testAction({
-        features,
-        mappingOverrides: { customArgs: { foo: 'bar' } },
-        settingsOverrides: {
-          webhookUrl: 'http://localhost',
-          connectionOverrides: 'rp=all&rc=5'
-        }
-      })
-
-      expect(responses.length).toBeGreaterThan(0)
-      expect(responses.map((response) => response.url)).toStrictEqual([
-        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
-      ])
-      expect(twilioRequest.isDone()).toEqual(true)
-      expect(responses.length).toBeGreaterThan(0)
-    })
-
-    it('add tags when feature flag on', async () => {
-      const features = { [FLAGON_EVENT_STREAMS_ONBOARDING]: true }
-
-      const expectedTwilioRequest = new URLSearchParams({
-        Body: 'Hello world, jane!',
-        From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true',
-        Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
-      })
-      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
-        .post('/Messages.json', expectedTwilioRequest.toString())
-        .reply(201, {})
-
-      const responses = await testAction({
-        features,
-        mappingOverrides: {
-          customArgs: {
-            audience_id: '1',
-            correlation_id: '1',
-            journey_name: 'j-1',
-            step_name: '2',
-            campaign_name: 'c-3',
-            campaign_key: '4',
-            user_id: 'u-5',
-            message_id: 'm-6'
-          }
-        }
-      })
-
-      expect(responses.length).toBeGreaterThan(0)
-      expect(responses.map((response) => response.url)).toStrictEqual([
-        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
-      ])
-      expect(twilioRequest.isDone()).toEqual(true)
-      expect(responses.length).toBeGreaterThan(0)
-    })
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses.map((response) => response.url)).toStrictEqual([
+      'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+    ])
+    expect(twilioRequest.isDone()).toEqual(true)
+    expect(responses.length).toBeGreaterThan(0)
   })
 })

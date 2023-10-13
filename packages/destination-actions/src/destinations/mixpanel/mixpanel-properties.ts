@@ -387,6 +387,55 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Batch Data to Mixpanel',
     description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
     default: true
+  },
+  userAgentData: {
+    label: 'User Agent Data',
+    type: 'object',
+    description: 'The user agent data of device sending the event',
+    properties: {
+      mobile: {
+        label: 'Mobile',
+        type: 'boolean'
+      },
+      platform: {
+        label: 'Platform',
+        type: 'string'
+      },
+      architecture: {
+        label: 'Architecture',
+        type: 'string'
+      },
+      bitness: {
+        label: 'Bitness',
+        type: 'string'
+      },
+      model: {
+        label: 'Model',
+        type: 'string'
+      },
+      platformVersion: {
+        label: 'PlatformVersion',
+        type: 'string'
+      },
+      uaFullVersion: {
+        label: 'UaFullVersion',
+        type: 'string'
+      },
+      wow64: {
+        label: 'wow64',
+        type: 'boolean'
+      }
+    },
+    default: {
+      mobile: { '@path': '$.context.userAgentData.mobile' },
+      platform: { '@path': '$.context.userAgentData.platform' },
+      architecture: { '@path': '$.context.userAgentData.architecture' },
+      bitness: { '@path': '$.context.userAgentData.bitness' },
+      model: { '@path': '$.context.userAgentData.model' },
+      platformVersion: { '@path': '$.context.userAgentData.platformVersion' },
+      uaFullVersion: { '@path': '$.context.userAgentData.uaFullVersion' },
+      wow64: { '@path': '$.context.userAgentData.wow64' }
+    }
   }
 }
 
