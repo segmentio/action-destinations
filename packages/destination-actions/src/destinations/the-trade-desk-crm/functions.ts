@@ -170,3 +170,29 @@ async function uploadCRMDataToDropEndpoint(request: RequestClient, endpoint: str
     body: users
   })
 }
+
+export async function getAllDataSegments(request: RequestClient, advertiserId: string, authToken: string) {
+  const allDataSegments: Segments[] = []
+  // initial call to get first page
+  let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment/${advertiserId}`, {
+    method: 'GET'
+  })
+  let segments = response.data.Segments
+  // pagingToken leads you to the next page
+  let pagingToken = response.data.PagingToken
+  // keep iterating through pages until the last empty page
+  while (segments.length > 0) {
+    allDataSegments.push(...segments)
+    response = await request(`${BASE_URL}/crmdata/segment/${advertiserId}?pagingToken=${pagingToken}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': authToken
+      }
+    })
+
+    segments = response.data.Segments
+    pagingToken = response.data.PagingToken
+  }
+  return allDataSegments
+}
