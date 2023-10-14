@@ -46,22 +46,50 @@ jobs:
       - name: Test (Affected)
         run: yarn nx affected -t test --parallel=3 # nx recipe
 
-      - name: Lint
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
-        run: yarn lint
-
-      - name: Validate
-        run: yarn validate
-
-      - name: Assert generated types are up-to-date
-        run: bash scripts/assert-types-updated.sh
-
       - name: destination-subscriptions size
         run: |
           if $(lerna changed | grep -q destination-subscriptions); then
             yarn subscriptions size
           fi
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # nx recipe
+
+      - uses: actions/setup-node@v3
+        with:
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+
+      - uses: nrwl/nx-set-shas@v3 # nx recipe
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
+        run: NODE_ENV=production yarn build # nx recipe
+
+      - name: Validate
+        run: yarn validate
+
+      - name: Lint
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: yarn lint
+
+      - name: Assert generated types are up-to-date
+        run: bash scripts/assert-types-updated.sh
 
   # browser-tests-destination:
   #   # env: # Disable saucelabs - we blew through our quota.
