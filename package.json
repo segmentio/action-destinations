@@ -22,7 +22,7 @@
     "build:browser-destinations": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
-    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache --debug",
+    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "nx run-many -t test",
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
