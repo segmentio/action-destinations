@@ -15,7 +15,7 @@
     },
     "build-web": { "dependsOn": ["build"], "outputs": ["{workspaceRoot}/dist"] },
     "test": {
-      "dependsOn": ["build", "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)"]
+      "dependsOn": ["build"]
     }
   },
   "affected": {
