@@ -344,9 +344,10 @@ function setupRoutes(def: DestinationDefinition | null): void {
       }
     }
 
-    if (typeof definition.mappingSetup === 'function') {
+    if (definition.hooks) {
+      //TODO iterate over all hooks generically
       router.post(
-        `/${actionSlug}/mappingSetup`,
+        `/${actionSlug}/on-subscription-save`,
         asyncHandler(async (req: express.Request, res: express.Response) => {
           try {
             const data = {
@@ -357,7 +358,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
               audienceSettings: req.body.audienceSettings || {}
             }
             const action = destination.actions[actionSlug]
-            const result = await action.executeMappingSetup(data)
+            //TODO make generic
+            const result = await action.executeHook('on-subscription-save', data)
 
             return res.status(200).json(result)
           } catch (err) {

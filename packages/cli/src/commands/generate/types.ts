@@ -1,6 +1,10 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type {
+  InputField,
+  DestinationDefinition as CloudDestinationDefinition,
+  ActionDefinition
+} from '@segment/actions-core'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
@@ -135,7 +139,7 @@ export default class GenerateTypes extends Command {
 
       //This doesn't work yet but good enough for a PoC
       if (action.hooks) {
-        const hooks = action.hooks
+        const hooks: ActionDefinition<any> = action.hooks
 
         for (const [hookName, hook] of Object.entries(hooks)) {
           const hookValueName = hookNameToHookValue.get(hookName)
