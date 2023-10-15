@@ -170,7 +170,7 @@ jobs:
   #         yarn test:sauce
 
   browser-tests-core:
-    name: 'Integration tests: actions-core'
+    name: 'Browser tests: actions-core'
     runs-on: ubuntu-20.04
 
     timeout-minutes: 10
