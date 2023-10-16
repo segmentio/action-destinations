@@ -1,11 +1,11 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import upsertProfile from './upsertProfile'
 import { API_URL, REVISION_DATE } from './config'
-
+import upsertProfile from './upsertProfile'
+import addProfileToList from './addProfileToList'
+import removeProfileToList from './removeProfileToList'
 import trackEvent from './trackEvent'
-
 import orderCompleted from './orderCompleted'
 
 const destination: DestinationDefinition<Settings> = {
@@ -61,6 +61,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     upsertProfile,
+    addProfileToList,
+    removeProfileToList,
     trackEvent,
     orderCompleted
   }
