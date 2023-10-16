@@ -36,7 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
-
       const list = await executeProfileList(request, 'POST', listData, list_id)
       return list
     } catch (error) {
@@ -61,6 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
         batch_data.data.push({ type: 'profile', id: data.profile_id })
       })
       const list = await executeProfileList(request, 'POST', batch_data, payload[0].list_id)
+
       return list
     } catch (error) {
       throw new Error('An error occurred while processing the request')

@@ -39,4 +39,33 @@ export interface listData {
     type: string
     id?: string
   }[]
+
+export interface EventData {
+  data: {
+    type: string
+    attributes: {
+      properties?: object
+      time?: string | number
+      value?: number
+      metric: {
+        data: {
+          type: string
+          attributes: {
+            name?: string
+          }
+        }
+      }
+      profile: {
+        data: {
+          type: string
+          attributes: {
+            email?: string
+            phone_number?: string
+            other_properties?: object
+          }
+        }
+      }
+    }
+  }
+}
 }

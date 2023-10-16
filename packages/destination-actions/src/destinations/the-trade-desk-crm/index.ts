@@ -25,7 +25,7 @@ export interface Segments {
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'The Trade Desk CRM',
+  name: 'The Trade Desk Crm',
   slug: 'actions-the-trade-desk-crm',
   mode: 'cloud',
 
@@ -74,7 +74,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     region: {
       type: 'string',
       label: 'Region',
-      description: 'Region of your audience.'
+      description:
+        'The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)',
+      required: true
     }
   },
   audienceConfig: {

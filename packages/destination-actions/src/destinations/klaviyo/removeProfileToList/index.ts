@@ -13,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     profile_id: { ...profile_id },
     list_id: { ...list_id },
     enable_batching: { ...enable_batching }
+
   },
   dynamicFields: {
     list_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
