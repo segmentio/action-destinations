@@ -17,7 +17,7 @@ declare global {
 const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
 
 export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
-  name: 'Jimo',
+  name: 'Jimo (Actions)',
   slug: 'actions-jimo',
   mode: 'device',
   description: 'Load Jimo SDK and send user profile data to Jimo',
