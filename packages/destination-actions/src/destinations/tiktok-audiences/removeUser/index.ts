@@ -73,11 +73,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, logger }) => {
+    logger?.error('actions-tiktok-audiences CALLING REMOVE')
     statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
+  performBatch: async (request, { settings, payload, statsContext, logger }) => {
+    logger?.error('actions-tiktok-audiences CALLING REMOVE')
     statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'delete')
   }
