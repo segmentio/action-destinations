@@ -85,8 +85,8 @@ export interface GlobalSetting {
 /** The supported field type names */
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
-/** The shape of an input field definition */
-export interface InputField {
+/** Properties of an InputField which are involved in creating the generated-types.ts file */
+export interface InputFieldJSONSchema {
   /** A short, human-friendly label for the field */
   label: string
   /** A human-friendly description of the field */
@@ -101,10 +101,6 @@ export interface InputField {
   additionalProperties?: boolean
   /** An optional default value for the field */
   default?: FieldValue
-  /** A placeholder display value that suggests what to input */
-  placeholder?: string
-  /** Whether or not the field supports dynamically fetching options */
-  dynamic?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -145,7 +141,13 @@ export interface InputField {
     | 'uuid' // Universally Unique IDentifier according to RFC4122.
     | 'password' // hint to the UI to hide/obfuscate input strings
     | 'text' // longer strings
+}
 
+export interface InputField extends InputFieldJSONSchema {
+  /** A placeholder display value that suggests what to input */
+  placeholder?: string
+  /** Whether or not the field supports dynamically fetching options */
+  dynamic?: boolean
   /**
    * Determines the UI representation of the object field. Only applies to object types.
    * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
