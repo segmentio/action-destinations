@@ -1,6 +1,10 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type {
+  InputField,
+  DestinationDefinition as CloudDestinationDefinition,
+  ActionDefinition
+} from '@segment/actions-core'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
@@ -14,7 +18,7 @@ import { RESERVED_FIELD_NAMES } from '../../constants'
 import { AudienceDestinationDefinition } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
-
+const hookNameToHookValue = new Map<string, string>([['on-subscription-save', 'onSubscriptionSavedValue']])
 export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
 
@@ -131,7 +135,23 @@ export default class GenerateTypes extends Command {
 
     // TODO how to load directory structure consistently?
     for (const [slug, action] of Object.entries(destination.actions)) {
-      const types = await generateTypes(action.fields, 'Payload')
+      let fields = action.fields
+
+      //This doesn't work yet but good enough for a PoC
+      if (action.hooks) {
+        const hooks: ActionDefinition<any> = action.hooks
+
+        for (const [hookName, hook] of Object.entries(hooks)) {
+          const hookValueName = hookNameToHookValue.get(hookName)
+          if (!hookValueName) {
+            continue
+          }
+
+          fields = { ...fields, [hookValueName]: hook.fields }
+        }
+      }
+
+      const types = await generateTypes(fields, 'Payload')
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
         fs.writeFileSync(path.join(parentDir, slug, 'generated-types.ts'), types)
       } else {

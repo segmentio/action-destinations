@@ -13,6 +13,8 @@ import {
   batch_size
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
+import { ActionHookResponse } from '@segment/actions-core/src/destination-kit/action'
+import { ActionHookError } from '@segment/actions-core/src/destination-kit/action'
 
 const OBJECT_NAME = 'Lead'
 
@@ -138,7 +140,53 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
+  hooks: {
+    'on-subscription-save': {
+      label: 'Create a Lead record, just to demo things',
+      description:
+        'This implementation of the on-subscription-save hook will create a new Lead record in Salesforce. It will then save the ID of the newly created record to payload.onSubscriptionSavedValue.id.',
+      fields: {
+        id: {
+          label: 'ID',
+          description: 'The ID of the newly created lead.',
+          type: 'string'
+        },
+        success: {
+          label: 'Success',
+          description: 'Whether or not the lead was successfully created.',
+          type: 'boolean'
+        }
+      },
+      performHook: async (request, { settings, payload }): Promise<ActionHookResponse | ActionHookError> => {
+        const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+        // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
+
+        let data
+        try {
+          data = (await sf.createRecord(payload, OBJECT_NAME)).data
+        } catch (e) {
+          return {
+            message: (e as Error).message ?? 'Error creating lead, please retry',
+            code: (e as Error).name ?? '400'
+          }
+        }
+
+        return {
+          successMessage: `Lead ${data.id} created successfully`,
+          savedData: {
+            id: data.id,
+            success: data.success
+          }
+        }
+      }
+    }
+  },
   perform: async (request, { settings, payload }) => {
+    if (!payload.onSubscriptionSavedValue?.success) {
+      // just for PoC purposesy
+      throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
+    }
+
     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {

@@ -97,4 +97,7 @@ export interface Payload {
   customFields?: {
     [k: string]: unknown
   }
+  onSubscriptionSavedValue?: {
+    [k: string]: unknown
+  }
 }

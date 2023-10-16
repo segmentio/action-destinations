@@ -63,6 +63,11 @@ interface SalesforceError {
   }
 }
 
+interface CreateResponse {
+  id: string
+  success: boolean
+}
+
 type SOQLOperator = 'OR' | 'AND'
 
 export default class Salesforce {
@@ -81,7 +86,7 @@ export default class Salesforce {
   createRecord = async (payload: GenericPayload, sobject: string) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
+    return this.request<CreateResponse>(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
       json: json
     })
