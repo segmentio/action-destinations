@@ -83,16 +83,7 @@ export interface GlobalSetting {
 }
 
 /** The supported field type names */
-export type FieldTypeName =
-  | 'string'
-  | 'text'
-  | 'number'
-  | 'integer'
-  | 'datetime'
-  | 'boolean'
-  | 'password'
-  | 'object'
-  | 'hidden'
+export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** Properties of an InputField which are involved in creating the generated-types.ts file */
 export interface InputFieldJSONSchema {

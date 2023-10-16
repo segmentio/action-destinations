@@ -28,7 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
     email: {
       label: 'User Email',
       description: "The user's email address to send to LinkedIn.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
       default: {
         '@path': '$.context.traits.email'
       }
@@ -36,7 +37,8 @@ const action: ActionDefinition<Settings, Payload> = {
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's Google Advertising ID to send to LinkedIn.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.advertisingId'
       }
@@ -45,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'LinkedIn Source Segment ID',
       description:
         "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
       default: {
         '@path': '$.properties.audience_key'
       }
@@ -60,7 +63,8 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
       default: {
         '@path': '$.event'
       }

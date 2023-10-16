@@ -7,9 +7,11 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn build:esm && yarn build:cjs",
-    "build:esm": "tsc --outDir ./dist/esm",
-    "build:cjs": "tsc  --module commonjs --outDir ./dist/cjs"
+    "build-ts": "yarn tsc -p tsconfig.build.json",
+    "build": "yarn build-ts && yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc -p tsconfig.build.json --outDir ./dist/esm",
+    "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir ./dist/cjs",
+    "clean": "tsc -b tsconfig.build.json --clean"
   },
   "exports": {
     ".": {
@@ -67,5 +69,17 @@
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+    }
   }
 }

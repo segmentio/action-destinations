@@ -50,9 +50,9 @@ export const destination: BrowserDestinationDefinition<Settings, CDPResolution> 
     }
   },
 
-  initialize: async () => {
+  initialize: async (_, deps) => {
     window.cdpResolution = {
-      sync: (endpoint: string, clientIdentifier: string, anonymousId: string): void => {
+      sync: async (endpoint: string, clientIdentifier: string, anonymousId: string): Promise<void> => {
         let cdpcookieset = ''
         const name = 'cdpresolutionset' + '='
         const ca = document.cookie.split(';')
@@ -82,7 +82,7 @@ export const destination: BrowserDestinationDefinition<Settings, CDPResolution> 
 
         if (cdpcookieset == '') {
           document.cookie = 'cdpresolutionset=true'
-          void fetch(endpointUrl, { mode: 'no-cors' })
+          await deps.loadScript(endpointUrl)
           return
         }
       }
