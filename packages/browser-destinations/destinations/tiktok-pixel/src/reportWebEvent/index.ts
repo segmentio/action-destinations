@@ -136,7 +136,8 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
     if (payload.email || payload.phone_number) {
       ttq.identify({
         email: payload.email,
-        phone_number: formatPhone(payload.phone_number)
+        phone_number: formatPhone(payload.phone_number),
+        external_id: payload.external_id
       })
     }
 
