@@ -9,4 +9,8 @@ export interface Payload {
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
   list_id?: string
+  /**
+   * Enable batching of requests to the Klaviyo.
+   */
+  enable_batching?: boolean
 }

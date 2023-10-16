@@ -35,10 +35,8 @@ export interface ProfileData {
 }
 
 export interface listData {
-  data: [
-    {
-      type: string
-      id?: string
-    }
-  ]
+  data: {
+    type: string
+    id?: string
+  }[]
 }
