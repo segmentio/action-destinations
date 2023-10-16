@@ -95,9 +95,9 @@ export const ios_push_subscription_status: InputField = {
 }
 
 export const subscription_groups: InputField = {
-  label: 'Subscription Groups',
+  label: 'Email Subscription Groups',
   description:
-    'Subscription status for the groups. Object containing group names as keys and statuses as values. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.',
+    'Group Subscription statuses are supported for the email channel. Contains group names as keys and statuses as values: true (subscribed), false (unsubscribed), and did_not_subscribe (did_not_subscribe).',
   type: 'object',
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
