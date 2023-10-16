@@ -6,7 +6,6 @@ function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema
     case 'string':
     case 'text':
     case 'password':
-    case 'hidden':
       return 'string'
     case 'datetime':
       return ['string', 'number']

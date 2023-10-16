@@ -8,8 +8,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Trackey',
   slug: 'actions-trackey',
   mode: 'cloud',
-  description: 'Send Segment events to Trackey to create custom surveys for each user.',
-
+  description: 'Send Segment events to Trackey',
   authentication: {
     scheme: 'custom',
     fields: {

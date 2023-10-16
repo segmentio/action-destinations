@@ -23,7 +23,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
+    "build": "yarn tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",

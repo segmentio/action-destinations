@@ -42,7 +42,8 @@ export const custom_audience_name: InputField = {
 export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to TikTok.",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
+  type: 'string',
+  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
   default: {
     '@path': '$.context.traits.email'
   }
@@ -58,7 +59,8 @@ export const send_email: InputField = {
 export const advertising_id: InputField = {
   label: 'User Advertising ID',
   description: "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+  type: 'string',
+  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
   default: {
     '@path': '$.context.device.advertisingId'
   }
@@ -75,7 +77,8 @@ export const send_advertising_id: InputField = {
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'The name of the current Segment event.',
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+  type: 'string',
+  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
   default: {
     '@path': '$.event'
   }
@@ -91,7 +94,8 @@ export const enable_batching: InputField = {
 export const external_audience_id: InputField = {
   label: 'External Audience ID',
   description: "The Audience ID in TikTok's DB.",
-  type: 'hidden',
+  type: 'string',
+  unsafe_hidden: true,
   default: {
     '@path': '$.context.personas.external_audience_id'
   }

@@ -7,6 +7,7 @@ export type BatchContactListItem = {
   firstname: string
   lastname: string
   lifecyclestage?: string | undefined
+  additionalemail?: string | null
 }
 
 export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) =>
@@ -51,6 +52,7 @@ export const generateBatchReadResponse = (batchContactList: BatchContactListItem
         properties: {
           createdate: '2023-07-06T12:47:47.626Z',
           email: contact.email,
+          hs_additional_emails: contact?.additionalemail ?? null,
           hs_object_id: contact.id,
           lastmodifieddate: '2023-07-06T12:48:02.784Z'
         }
