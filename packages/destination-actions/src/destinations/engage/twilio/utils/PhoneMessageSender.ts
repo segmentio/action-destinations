@@ -3,8 +3,6 @@
 import { TwilioMessageSender, TwilioPayloadBase } from './TwilioMessageSender'
 import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../../utils'
 
-export const FLAGON_EVENT_STREAMS_ONBOARDING = 'event-streams-onboarding'
-
 /**
  * Base class for sending sms/mms
  */
@@ -57,6 +55,8 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
     if (webhookUrlWithParams) {
       body.append('StatusCallback', webhookUrlWithParams)
     }
+
+    this.logError('EventStreamsSevTest', body)
 
     this.statsSet('message_body_size', body?.toString().length)
 

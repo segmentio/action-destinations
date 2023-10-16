@@ -42,6 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const list = await executeProfileList(request, 'DELETE', listData, list_id)
       return list
     } catch (error) {
+      console.log(error)
       throw new Error('An error occurred while processing the request')
     }
   },
