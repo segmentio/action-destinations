@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.14.1-onSubscriptionSave.1",
+  "version": "1.14.1-onSubscriptionSave.51+039dfafe",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.83.1-onSubscriptionSave.1"
+    "@segment/actions-core": "^3.83.1-onSubscriptionSave.51+039dfafe"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
@@ -81,5 +81,6 @@
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  }
+  },
+  "gitHead": "039dfafe27f764e15cffa7a3dae802a845089c71"
 }

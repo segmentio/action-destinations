@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-commandbar",
-  "version": "1.15.1-onSubscriptionSave.1",
+  "version": "1.15.1-onSubscriptionSave.51+039dfafe",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,10 +15,11 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.83.1-onSubscriptionSave.1",
-    "@segment/browser-destination-runtime": "^1.14.1-onSubscriptionSave.1"
+    "@segment/actions-core": "^3.83.1-onSubscriptionSave.51+039dfafe",
+    "@segment/browser-destination-runtime": "^1.14.1-onSubscriptionSave.51+039dfafe"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
-  }
+  },
+  "gitHead": "039dfafe27f764e15cffa7a3dae802a845089c71"
 }
