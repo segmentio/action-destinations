@@ -1,6 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import omit from 'lodash/omit'
+
 import { BASE_URL } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -45,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     kameleoonVisitorCode: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'Kameleoon Visitor Code - a unique identifier for the user',
       label: 'Kameleoon Visitor Code',
       default: {
@@ -80,13 +82,20 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
+    const payload = {
+      ...omit(data.payload, ['kameleoonVisitorCode']),
+      properties: {
+        ...(data.payload.properties || {}),
+        kameleoonVisitorCode: data.payload.kameleoonVisitorCode
+      }
+    }
     return request(BASE_URL, {
       headers: {
         authorization: `Basic ${data.settings.apiKey}`,
         'x-segment-settings': data.settings.sitecode
       },
       method: 'post',
-      json: data.payload
+      json: payload
     })
   }
 }

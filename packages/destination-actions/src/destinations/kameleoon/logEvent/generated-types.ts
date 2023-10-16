@@ -18,7 +18,7 @@ export interface Payload {
   /**
    * Kameleoon Visitor Code - a unique identifier for the user
    */
-  kameleoonVisitorCode: string
+  kameleoonVisitorCode?: string
   /**
    * The timestamp of the event
    */

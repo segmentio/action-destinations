@@ -6,9 +6,9 @@ Object {
     "testType": "wNACk[QgaEuFPK",
   },
   "event": "wNACk[QgaEuFPK",
-  "kameleoonVisitorCode": "wNACk[QgaEuFPK",
   "messageId": "wNACk[QgaEuFPK",
   "properties": Object {
+    "kameleoonVisitorCode": "wNACk[QgaEuFPK",
     "testType": "wNACk[QgaEuFPK",
   },
   "timestamp": Any<String>,
@@ -18,8 +18,8 @@ Object {
 
 exports[`Testing snapshot for Kameleoon's logEvent destination action: required fields 1`] = `
 Object {
-  "kameleoonVisitorCode": "wNACk[QgaEuFPK",
   "messageId": "wNACk[QgaEuFPK",
+  "properties": Object {},
   "timestamp": Any<String>,
   "type": "wNACk[QgaEuFPK",
 }

@@ -1,6 +1,8 @@
 import { createTestIntegration } from '@segment/actions-core'
+import nock from 'nock'
 import Definition from '../index'
 import type { Settings } from '../generated-types'
+import { BASE_URL } from '../properties'
 
 const CLIENT_ID = 'CLIENT_ID'
 const CLIENT_SECRET = 'CLIENT_SECRET'
@@ -9,7 +11,11 @@ const testDestination = createTestIntegration(Definition)
 
 describe('Kameleoon', () => {
   describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
+    it('should validate cation inputs', async () => {
+      nock(BASE_URL + '/getapikey')
+        .get(/.*/)
+        .reply(200, {})
+
       const apiKey = {
         id: CLIENT_ID,
         secret: CLIENT_SECRET

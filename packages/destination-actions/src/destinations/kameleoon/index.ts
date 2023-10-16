@@ -3,6 +3,7 @@ import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import logEvent from './logEvent'
+import { BASE_URL } from './properties'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -58,17 +59,18 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (_request, { settings }) => {
-      try {
-        JSON.parse(Buffer.from(settings.apiKey, 'base64').toString('ascii'))
-      } catch (e) {
-        throw new Error('Invalid project API Key. Please check your API Key')
-      }
-      if (settings.sitecode.toString().length === 10) {
-        return true
-      } else {
+    testAuthentication: (request, { settings }) => {
+      if (settings.sitecode.toString().length !== 10) {
         throw new Error('Invalid project sitecode. Please check your sitecode')
       }
+
+      const apiKey = Object.entries(JSON.parse(Buffer.from(settings.apiKey, 'base64').toString('ascii')))
+        .map(([key, value]) => key + '=' + value)
+        .join('&')
+
+      return request(BASE_URL + '/getapikey?' + apiKey, {
+        method: 'GET'
+      })
     }
   },
   presets,
