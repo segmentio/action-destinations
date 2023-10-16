@@ -1,5 +1,87 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`HubSpot.upsertContactBatch Should update contact on the basis of secondary email if it's not getting mapped with Primary email addresses 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\",\\"hs_additional_emails\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"secondaryemail@gmail.com\\"}]}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "json": Object {
+    "idProperty": "email",
+    "inputs": Array [
+      Object {
+        "id": "secondaryemail@gmail.com",
+      },
+    ],
+    "properties": Array [
+      "email",
+      "lifecyclestage",
+      "hs_additional_emails",
+    ],
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "skipResponseCloning": true,
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`HubSpot.upsertContactBatch Should update contact on the basis of secondary email if it's not getting mapped with Primary email addresses 2`] = `
+Object {
+  "errors": Array [],
+  "numErrors": 0,
+  "results": Array [
+    Object {
+      "id": "113",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "userthree@somecompany.com",
+        "hs_additional_emails": "secondaryemail@gmail.com;secondaryemail+2@gmail.com",
+        "hs_object_id": "113",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
+exports[`HubSpot.upsertContactBatch Should update contact on the basis of secondary email if it's not getting mapped with Primary email addresses 3`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": "113",
+      "properties": Object {
+        "createdate": "2023-07-06T12:47:47.626Z",
+        "email": "secondaryemail@gmail.com",
+        "firstname": "User",
+        "lastmodifieddate": "2023-07-06T12:48:02.784Z",
+        "lastname": "Three",
+        "lifecyclestage": "subscriber",
+      },
+    },
+  ],
+  "status": "COMPLETE",
+}
+`;
+
 exports[`HubSpot.upsertContactBatch should create and update contact successfully 1`] = `
 Object {
   "afterResponse": Array [
@@ -10,7 +92,7 @@ Object {
   "beforeRequest": Array [
     [Function],
   ],
-  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"},{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\",\\"hs_additional_emails\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"},{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
   "headers": Headers {
     Symbol(map): Object {
       "authorization": Array [
@@ -40,6 +122,7 @@ Object {
     "properties": Array [
       "email",
       "lifecyclestage",
+      "hs_additional_emails",
     ],
   },
   "method": "POST",
@@ -73,6 +156,7 @@ Object {
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
         "email": "userthree@somecompany.com",
+        "hs_additional_emails": null,
         "hs_object_id": "103",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -82,6 +166,7 @@ Object {
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
         "email": "userfour@somecompany.com",
+        "hs_additional_emails": null,
         "hs_object_id": "104",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -161,7 +246,7 @@ Object {
   "beforeRequest": Array [
     [Function],
   ],
-  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"}]}",
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\",\\"hs_additional_emails\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"},{\\"id\\":\\"usertwo@somecompany.com\\"}]}",
   "headers": Headers {
     Symbol(map): Object {
       "authorization": Array [
@@ -185,6 +270,7 @@ Object {
     "properties": Array [
       "email",
       "lifecyclestage",
+      "hs_additional_emails",
     ],
   },
   "method": "POST",
@@ -257,7 +343,7 @@ Object {
   "beforeRequest": Array [
     [Function],
   ],
-  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"}]}",
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\",\\"hs_additional_emails\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userone@somecompany.com\\"}]}",
   "headers": Headers {
     Symbol(map): Object {
       "authorization": Array [
@@ -278,6 +364,7 @@ Object {
     "properties": Array [
       "email",
       "lifecyclestage",
+      "hs_additional_emails",
     ],
   },
   "method": "POST",
@@ -299,6 +386,7 @@ Object {
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
         "email": "userone@somecompany.com",
+        "hs_additional_emails": null,
         "hs_object_id": "103",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -375,7 +463,7 @@ Object {
   "beforeRequest": Array [
     [Function],
   ],
-  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
+  "body": "{\\"properties\\":[\\"email\\",\\"lifecyclestage\\",\\"hs_additional_emails\\"],\\"idProperty\\":\\"email\\",\\"inputs\\":[{\\"id\\":\\"userthree@somecompany.com\\"},{\\"id\\":\\"userfour@somecompany.com\\"}]}",
   "headers": Headers {
     Symbol(map): Object {
       "authorization": Array [
@@ -399,6 +487,7 @@ Object {
     "properties": Array [
       "email",
       "lifecyclestage",
+      "hs_additional_emails",
     ],
   },
   "method": "POST",
@@ -420,6 +509,7 @@ Object {
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
         "email": "userthree@somecompany.com",
+        "hs_additional_emails": null,
         "hs_object_id": "103",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
@@ -429,6 +519,7 @@ Object {
       "properties": Object {
         "createdate": "2023-07-06T12:47:47.626Z",
         "email": "userfour@somecompany.com",
+        "hs_additional_emails": null,
         "hs_object_id": "104",
         "lastmodifieddate": "2023-07-06T12:48:02.784Z",
       },
