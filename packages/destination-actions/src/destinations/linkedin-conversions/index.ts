@@ -8,7 +8,7 @@ import { LINKEDIN_API_VERSION } from './constants'
 import streamConversion from './streamConversion'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Linkedin Conversions Api',
+  name: 'LinkedIn Conversions API',
   slug: 'actions-linkedin-conversions',
   mode: 'cloud',
 
