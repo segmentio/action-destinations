@@ -4,7 +4,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { getAllDataSegments } from './functions'
 
 import syncAudience from './syncAudience'
-const API_VERSION = 'v3'
+export const API_VERSION = 'v3'
 const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
 export interface CreateApiResponse {
@@ -129,7 +129,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       })
 
-      if (!segmentExists) {
+      if (segmentExists.length != 1) {
         throw new IntegrationError(
           `No CRM Data Segment with Id ${crmDataId} found for advertiser ${advertiserId}`,
           'INVALID_REQUEST_DATA',

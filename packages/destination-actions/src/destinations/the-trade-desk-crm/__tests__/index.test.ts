@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../index'
+import { API_VERSION } from '../index'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -37,7 +38,7 @@ describe('The Trade Desk CRM', () => {
     })
 
     it('should create a new Trade Desk CRM Data Segment', async () => {
-      nock(`https://api.thetradedesk.com/v3/crmdata/segment`).post(/.*/).reply(200, {
+      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment`).post(/.*/).reply(200, {
         CrmDataId: 'test_audience'
       })
 
@@ -51,17 +52,20 @@ describe('The Trade Desk CRM', () => {
 
   describe('getAudience', () => {
     it('should fail if Trade Desk replies with an error', async () => {
+      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+        .get(/.*/)
+        .reply(400, { Segments: [], PagingToken: null })
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it('should succeed when Segment External ID matches Data Segment in TikTok', async () => {
-      nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id`)
+      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id`)
         .get(/.*/)
         .reply(200, {
           Segments: [{ SegmentName: 'not_test_audience', CrmDataId: 'crm_data_id' }],
           PagingToken: 'paging_token'
         })
-      nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
         .get(/.*/)
         .reply(200, { Segments: [], PagingToken: null })
 

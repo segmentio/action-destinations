@@ -2,6 +2,7 @@ import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segmen
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
+import { IntegrationError } from '@segment/actions-core'
 
 import { sendEventToAWS } from './awsClient'
 
@@ -177,6 +178,10 @@ export async function getAllDataSegments(request: RequestClient, advertiserId: s
   let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment/${advertiserId}`, {
     method: 'GET'
   })
+
+  if (response.status != 200 || !response.data.Segments) {
+    throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+  }
   let segments = response.data.Segments
   // pagingToken leads you to the next page
   let pagingToken = response.data.PagingToken
