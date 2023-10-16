@@ -17,9 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {},
     testAuthentication: async (request, { auth }) => {
       if (!auth?.accessToken) {
-        throw new InvalidAuthenticationError(
-          'Please authenticate via Oauth before updating other settings and/or enabling the destination.'
-        )
+        throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
 
       const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
@@ -27,8 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       try {
         // GET the current user's id from LinkedIn's profile API: https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api?context=linkedin%2Fcompliance%2Fcontext&view=li-lms-unversioned&preserve-view=true#request
         // We request `r_basicprofile` scope when a user oauths into LinkedIn, so we retrieve the "Basic Profile Fields": https://learn.microsoft.com/en-us/linkedin/shared/references/v2/profile/basic-profile
-        const data = await linkedinApiClient.getProfile()
-        return data
+        return await linkedinApiClient.getProfile()
       } catch (e: any) {
         const error = e as LinkedInTestAuthenticationError
         if (error.message === 'Unauthorized') {
