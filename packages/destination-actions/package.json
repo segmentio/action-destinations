@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.221.1-onSubscriptionSave-actions.0",
+  "version": "3.221.1-onSubscriptionSave-actions.13+40113491",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -40,8 +40,8 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.83.1-onSubscriptionSave-actions.0",
-    "@segment/actions-shared": "^1.65.1-onSubscriptionSave-actions.0",
+    "@segment/actions-core": "^3.83.1-onSubscriptionSave-actions.42+40113491",
+    "@segment/actions-shared": "^1.65.1-onSubscriptionSave-actions.42+40113491",
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
@@ -77,5 +77,5 @@
       "__tests__/__helpers__/"
     ]
   },
-  "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"
+  "gitHead": "4011349196960e468be4fb8de18965746e54a2da"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-amplitude-plugins",
-  "version": "1.15.1-onSubscriptionSave-actions.0",
+  "version": "1.15.1-onSubscriptionSave-actions.42+40113491",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,9 +15,10 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.14.1-onSubscriptionSave-actions.0"
+    "@segment/browser-destination-runtime": "^1.14.1-onSubscriptionSave-actions.42+40113491"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
-  }
+  },
+  "gitHead": "4011349196960e468be4fb8de18965746e54a2da"
 }
