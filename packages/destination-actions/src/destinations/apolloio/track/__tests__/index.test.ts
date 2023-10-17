@@ -1,13 +1,12 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { baseURL } from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
 describe('Apolloio.track', () => {
   it('should work', async () => {
-    nock(baseURL).post('').reply(200, {})
+    nock('https://apollo.io/').post(/.*/).reply(200, {})
 
     const responses = await testDestination.testAction('track', {
       mapping: {

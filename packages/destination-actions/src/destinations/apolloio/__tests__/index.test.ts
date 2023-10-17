@@ -12,7 +12,7 @@ const MOCK_TOKEN_RESPONSE = { healthy: true, is_logged_in: true }
 describe('Apolloio', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://api.apollo.io/').get(/.*/).reply(200, MOCK_TOKEN_RESPONSE)
+      nock('https://apollo.io/').get(/.*/).reply(200, MOCK_TOKEN_RESPONSE)
       const settings = VALID_SETTINGS
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
