@@ -25,9 +25,9 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
 ) => MaybePromise<Return>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
