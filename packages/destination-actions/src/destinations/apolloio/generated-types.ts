@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * API token for authorization.
+   * API Token for authorization.
    */
   apiToken: string
 }

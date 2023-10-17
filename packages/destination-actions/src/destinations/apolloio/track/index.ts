@@ -5,14 +5,13 @@ import { baseURL } from '..'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
-  description: 'Tracks user events',
+  description: 'Send user analytics events to Apollo.io',
   defaultSubscription: 'type = "track"',
   fields: {
     anonymousId: {
       type: 'string',
       description: 'An anonymous identifier',
       label: 'Anonymous ID',
-      required: true,
       default: { '@path': '$.anonymousId' }
     },
     event: {
@@ -55,7 +54,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The ID associated with the user',
       label: 'User ID',
-      required: true,
       default: { '@path': '$.userId' }
     },
     campaign: {

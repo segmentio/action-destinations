@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * An anonymous identifier
    */
-  anonymousId: string
+  anonymousId?: string
   /**
    * Event name
    */
@@ -30,7 +30,7 @@ export interface Payload {
   /**
    * The ID associated with the user
    */
-  userId: string
+  userId?: string
   /**
    * UTM campaign information.
    */
