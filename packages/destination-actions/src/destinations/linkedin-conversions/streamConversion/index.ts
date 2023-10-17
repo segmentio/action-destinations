@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type { Payload, ActionHookTypes } from './generated-types'
 
 interface ConversionRuleCreationResponse {
   id: string
@@ -8,7 +8,7 @@ interface ConversionRuleCreationResponse {
   type: string
 }
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload, ActionHookTypes> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   fields: {},
