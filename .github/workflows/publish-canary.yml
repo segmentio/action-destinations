@@ -63,7 +63,7 @@ jobs:
       - name: Publish Canary Packages
         id: publish-packages
         run: |
-          yarn lerna publish -y --canary --preid "$(git branch --show-current).$(git rev-parse --short HEAD)" --no-push --no-git-tag-version --summary-file
+          yarn lerna publish -y --canary --preid "$(git branch --show-current)-$(git rev-parse --short HEAD)" --no-push --no-git-tag-version --summary-file
           echo "ACTION_DESTINATIONS_VERSION=$(jq -r '.[] | select(.packageName == "@segment/action-destinations") | .version' lerna-publish-summary.json)" >> "$GITHUB_OUTPUT"
           echo "ACTIONS_CORE_VERSION=$(jq -r '.[] | select(.packageName == "@segment/actions-core") | .version' lerna-publish-summary.json)" >> "$GITHUB_OUTPUT"
 
@@ -77,10 +77,10 @@ jobs:
           --url "${{ vars.BUILDKITE_PIPELINE_URL }}" \
           --header 'Authorization: Bearer ${{ secrets.BUILDKITE_TOKEN }}' \
           --header 'Content-Type: application/json' \
-          --data '{"commit":"HEAD","branch":"ci-test", "message": "Triggered from :github: run ${{ github.run_id }}: Upgrade action-destination packages ${{ env.ACTION_DESTINATION_VERSION }}","env":{
+          --data '{"commit":"HEAD","branch":"ci-test", "message": ":github: Triggered from Github Actions Run: ${{ github.run_id }}","env":{
           "BRANCH_TO_UPDATE": "${{ github.ref_name }}", "ACTIONS_RELEASE": "true", "CREATE_PR": "false", "UPGRADE_ACTION_DESTINATIONS": "true", "ACTION_DESTINATIONS_VERSION": "${{ env.ACTION_DESTINATIONS_VERSION }}", "ACTIONS_CORE_VERSION": "${{ env.ACTIONS_CORE_VERSION }}", "ACTIONS_RUN_ID": "${{ github.run_id }}" },"meta_data":{}}')
           BUILDKITE_URL=$(echo $result | jq -r '.web_url')
-          if [[ ${BUILDKITE_URL} -eq null ]]; then
+          if [[ "${BUILDKITE_URL}" -eq null ]]; then
              echo "Failed to trigger Buildkite pipeline. Reason:$(echo $result | jq -r '.message')"
              exit 1
           else
