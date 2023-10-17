@@ -95,8 +95,10 @@ export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
   label: string
   /** A description of what this hook does. */
   description: string
-  /** The fields that this field will populate. */
-  fields: Record<string, InputFieldJSONSchema>
+  /** The configuration fields that are used when executing the hook. The values will be provided by users in the app. */
+  inputFields?: Record<string, InputFieldJSONSchema>
+  /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
+  outputFields?: Record<string, { name: string; type: string; required: boolean }>
   /** The operation to perform when this hook is triggered. */
   performHook: RequestFn<Settings, Payload, ActionHookResponse | ActionHookError, AudienceSettings>
 }
