@@ -2196,6 +2196,25 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@^3.86.0":
+  version "3.86.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.86.0.tgz#4a11bae0b3bad680fd8bb15c0490b1cfcae69e0f"
+  integrity sha512-Vd8n5LSy3EGD2McNZc6FlDKBcaSBGdMQtM9Hp5iFkevp6IAosRQQeIeaGmxtTGaf1MPs+SeL+8i19JcR4qDQWg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.1.2"
+    "@segment/ajv-human-errors" "^2.11.3"
+    "@segment/destination-subscriptions" "^3.30.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
@@ -2236,6 +2255,13 @@
   dependencies:
     unfetch "^3.1.1"
 
+"@segment/browser-destination-runtime@^1.6.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.17.0.tgz#ceea9d173e15fd556ff767383f86dbef5e071a57"
+  integrity sha512-PF8prSQu+nT8IxW/6AZy8Q9zRYQCS9gZUKyvt+NGQ+NA8M0oN2Q63Ev8J5wdmzcArdy1ehrEQGMIy5xuUvo8rQ==
+  dependencies:
+    "@segment/actions-core" "^3.86.0"
+
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
   resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#e5cd6e7cd335cf00640e43a5ece17a290e003ddd"
@@ -2246,6 +2272,13 @@
     lodash "^4.17.15"
     path-to-regexp "^6.1.0"
     querystring "^0.2.0"
+
+"@segment/destination-subscriptions@^3.30.0":
+  version "3.30.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.30.0.tgz#e4e3d301be2549c452665691b96359d984b17acd"
+  integrity sha512-8thyA0ThOzSwrNDCaFancDjug/Iyev6mTKurPVWYZjHyyZjL/0kpna8SH6w3cyJFhVUj1nzg6h9mMEHKWHh4tQ==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
