@@ -16,7 +16,7 @@ export interface Result {
   data?: JSONObject | null
 }
 
-export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {
+export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown, ActionHookInputs = any> {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
@@ -25,6 +25,8 @@ export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {
   readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
+  /** Inputs into an actions hook performHook method */
+  hookInputs?: ActionHookInputs
   /** The page used in dynamic field requests */
   page?: string
   /** The data needed in OAuth requests */
