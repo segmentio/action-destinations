@@ -1,6 +1,6 @@
-import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import type { Settings } from './generated-types'
 import { RipeSDK } from './types'
 
 import group from './group'
