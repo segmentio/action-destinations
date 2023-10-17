@@ -10,35 +10,71 @@ const action: ActionDefinition<Settings, Payload> = {
     'on-subscription-save': {
       label: 'Create a Conversion Rule',
       description: 'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
-      fields: {
-        id: {
-          type: 'string',
-          label: 'ID',
-          description: 'The ID of the conversion rule.'
-        },
+      inputFields: {
         name: {
           type: 'string',
           label: 'Name',
-          description: 'The name of the conversion rule.'
+          description: 'The name of the conversion rule.',
+          required: true
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
-          description: 'The type of conversion rule.'
+          description: 'The type of conversion rule.',
+          required: true
+        },
+        account: {
+          type: 'string',
+          label: 'Account',
+          description: 'The account to associate this conversion rule with.',
+          required: true,
+        },
+        attribution_type: {
+          label: 'Attribution Type',
+          description: 'The attribution type for the conversion rule.',
+          type: 'string',
+          required: true,
         }
       },
-      performHook: async (request, { settings, payload }) => {
-        // https://api.linkedin.com/rest/conversions
-        /**
-         * 
-        "name": "Conversion API Segment 1",
-        "account": "urn:li:sponsoredAccount:507525021",
-        "conversionMethod": "CONVERSIONS_API",
-        "postClickAttributionWindowSize": 30,
-        "viewThroughAttributionWindowSize": 7,
-        "attributionType": "LAST_TOUCH_BY_CAMPAIGN",
-        "type": "LEAD"
-         */
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the conversion rule.',
+          required: true
+        },
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the conversion rule.',
+          required: true
+        },
+        conversionType: {
+          type: 'string',
+          label: 'Conversion Type',
+          description: 'The type of conversion rule.',
+          required: true
+        }
+      },
+      performHook: async (request, { settings, payload, inputValues }) => {
+        const res = await request('https://api.linkedin.com/rest/conversions', {
+          method: 'post',
+          json: {
+            name: inputValues.name,
+            account: inputValues.account,
+            conversionMethod: 'CONVERSIONS_API',
+            postClickAttributionWindowSize: 30,
+            viewThroughAttributionWindowSize: 7,
+            attributionType: inputValues.attribution_type,
+            type: inputValues.conversionType
+          }
+        })
+
+        return {
+          id: res.id,
+          name: res.name,
+          conversionType: res.type
+        }
       }
     }
   },

@@ -145,16 +145,18 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Create a Lead record, just to demo things',
       description:
         'This implementation of the on-subscription-save hook will create a new Lead record in Salesforce. It will then save the ID of the newly created record to payload.onSubscriptionSavedValue.id.',
-      fields: {
+      outputTypes: {
         id: {
           label: 'ID',
           description: 'The ID of the newly created lead.',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         success: {
           label: 'Success',
           description: 'Whether or not the lead was successfully created.',
-          type: 'boolean'
+          type: 'boolean',
+          required: false
         }
       },
       performHook: async (request, { settings, payload }): Promise<ActionHookResponse | ActionHookError> => {
