@@ -23,7 +23,7 @@ Array [
     "properties": Object {
       "testType": "#ZEj!sso)8ImNKQTntip",
     },
-    "timestamp": "2111-12-22T10:07:50.244Z",
+    "timestamp": Any<String>,
     "timezone": "#ZEj!sso)8ImNKQTntip",
     "userId": "#ZEj!sso)8ImNKQTntip",
   },
@@ -36,7 +36,7 @@ Array [
     "event": "#ZEj!sso)8ImNKQTntip",
     "ipAddress": "#ZEj!sso)8ImNKQTntip",
     "page": Object {},
-    "timestamp": "2111-12-22T10:07:50.244Z",
+    "timestamp": Any<String>,
   },
 ]
 `;

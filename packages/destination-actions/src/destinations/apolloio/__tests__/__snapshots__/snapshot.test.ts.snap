@@ -23,7 +23,7 @@ Array [
     "properties": Object {
       "testType": "K^dN1og#eoXC$",
     },
-    "timestamp": "2072-07-29T00:31:43.190Z",
+    "timestamp": Any<String>,
     "timezone": "K^dN1og#eoXC$",
     "userId": "K^dN1og#eoXC$",
   },
@@ -36,7 +36,7 @@ Array [
     "event": "K^dN1og#eoXC$",
     "ipAddress": "K^dN1og#eoXC$",
     "page": Object {},
-    "timestamp": "2072-07-29T00:31:43.190Z",
+    "timestamp": Any<String>,
   },
 ]
 `;
