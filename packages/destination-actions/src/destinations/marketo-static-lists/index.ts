@@ -4,9 +4,8 @@ import type { Settings } from './generated-types'
 import addToList from './addToList'
 import removeFromList from './removeFromList'
 
-// For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings> = {
-  name: 'Marketo Static Lists',
+  name: 'Marketo Static Lists (Actions)',
   slug: 'actions-marketo-static-lists',
   mode: 'cloud',
 
