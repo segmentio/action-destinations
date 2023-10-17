@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-launchdarkly-audiences destination: syncAu
 Object {
   "batch": Array [
     Object {
-      "cohortId": "test_audience",
+      "cohortId": "uKRBKG",
       "cohortName": "Test audience",
       "userId": "uKRBKG",
       "value": true,
