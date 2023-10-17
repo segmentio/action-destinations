@@ -7,17 +7,9 @@ on:
   push:
     branches:
       # Remove before merging to master
-      - add-tar-release-pipeline
       - staging
   # Manual trigger
   workflow_dispatch:
-    # branches:
-    #   - add-tar-release-pipeline
-    # # inputs:
-    # #   service_branch:
-    # #     description: 'The service branch to update. If a branch is not present, a new branch will be created.'
-    # #     required: true
-    # #     default: 'stage'
 
 jobs:
   build-and-publish:
@@ -32,6 +24,11 @@ jobs:
         node-version: [18.x]
 
     steps:
+      - name: Fail if branch is main
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        run: |
+          echo "This workflow should not be triggered with workflow_dispatch on the main branch"
+          exit 1
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_PAT }}
@@ -78,7 +75,7 @@ jobs:
           --header 'Authorization: Bearer ${{ secrets.BUILDKITE_TOKEN }}' \
           --header 'Content-Type: application/json' \
           --data '{"commit":"HEAD","branch":"ci-test", "message": ":github: Triggered from Github Actions Run: ${{ github.run_id }}","env":{
-          "BRANCH_TO_UPDATE": "${{ github.ref_name }}", "ACTIONS_RELEASE": "true", "CREATE_PR": "true", "UPGRADE_ACTION_DESTINATIONS": "true", "ACTION_DESTINATIONS_VERSION": "${{ env.ACTION_DESTINATIONS_VERSION }}", "ACTIONS_CORE_VERSION": "${{ env.ACTIONS_CORE_VERSION }}", "ACTIONS_RUN_ID": "${{ github.run_id }}" },"meta_data":{}}')
+          "BRANCH_TO_UPDATE": "${{ github.ref_name }}", "ACTIONS_RELEASE": "false", "CREATE_PR": "false", "UPGRADE_ACTION_DESTINATIONS": "true", "ACTION_DESTINATIONS_VERSION": "${{ env.ACTION_DESTINATIONS_VERSION }}", "ACTIONS_CORE_VERSION": "${{ env.ACTIONS_CORE_VERSION }}"},"meta_data":{}}')
           BUILDKITE_URL=$(echo $result | jq -r '.web_url')
           if [[ "${BUILDKITE_URL}" = "null" ]]; then
              echo "Failed to trigger Buildkite pipeline. Reason:$(echo $result | jq -r '.message')"
