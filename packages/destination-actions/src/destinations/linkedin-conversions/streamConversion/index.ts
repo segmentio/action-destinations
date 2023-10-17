@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload, ActionHookTypes } from './generated-types'
+import type { Payload, SubscriptionSaveInputs, SubscriptionSaveOutputs } from './generated-types'
 
 interface ConversionRuleCreationResponse {
   id: string
@@ -8,7 +8,7 @@ interface ConversionRuleCreationResponse {
   type: string
 }
 
-const action: ActionDefinition<Settings, Payload, ActionHookTypes> = {
+const action: ActionDefinition<Settings, Payload, undefined, SubscriptionSaveOutputs, SubscriptionSaveInputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   fields: {},
@@ -63,6 +63,10 @@ const action: ActionDefinition<Settings, Payload, ActionHookTypes> = {
         }
       },
       performHook: async (request, { hookInputs }) => {
+        if (!hookInputs) {
+          throw new Error('No hook inputs provided')
+        }
+
         const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
           method: 'post',
           json: {
