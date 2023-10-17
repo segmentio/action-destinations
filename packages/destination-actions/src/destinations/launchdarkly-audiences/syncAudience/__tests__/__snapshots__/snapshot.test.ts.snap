@@ -4,7 +4,7 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Object {
   "batch": Array [
     Object {
-      "cohortId": "test_audience",
+      "cohortId": "ld_segment_audience_id",
       "cohortName": "Test audience",
       "userId": "&bUSudpNPsUWT",
       "value": true,
@@ -38,7 +38,7 @@ exports[`Testing snapshot for LaunchDarklyAudiences's syncAudience destination a
 Object {
   "batch": Array [
     Object {
-      "cohortId": "test_audience",
+      "cohortId": "ld_segment_audience_id",
       "cohortName": "Test audience",
       "userId": "&bUSudpNPsUWT",
       "value": false,
