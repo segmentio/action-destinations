@@ -74,7 +74,7 @@ jobs:
           --url "${{ vars.BUILDKITE_PIPELINE_URL }}" \
           --header 'Authorization: Bearer ${{ secrets.BUILDKITE_TOKEN }}' \
           --header 'Content-Type: application/json' \
-          --data '{"commit":"HEAD","branch":"ci-test", "message": ":github: Triggered from Github Actions Run: ${{ github.run_id }}","env":{
+          --data '{"commit":"HEAD","branch":"master", "message": ":github: Triggered from Github Actions Run: ${{ github.run_id }}","env":{
           "BRANCH_TO_UPDATE": "${{ github.ref_name }}", "ACTIONS_RELEASE": "false", "CREATE_PR": "false", "UPGRADE_ACTION_DESTINATIONS": "true", "ACTION_DESTINATIONS_VERSION": "${{ env.ACTION_DESTINATIONS_VERSION }}", "ACTIONS_CORE_VERSION": "${{ env.ACTIONS_CORE_VERSION }}"},"meta_data":{}}')
           BUILDKITE_URL=$(echo $result | jq -r '.web_url')
           if [[ "${BUILDKITE_URL}" = "null" ]]; then
