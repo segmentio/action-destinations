@@ -2,6 +2,12 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+interface ConversionRuleCreationResponse {
+  id: string
+  name: string
+  type: string
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
@@ -56,24 +62,27 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
-      performHook: async (request, { settings, payload, inputValues }) => {
-        const res = await request('https://api.linkedin.com/rest/conversions', {
+      performHook: async (request, { hookInputs }) => {
+        const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
           method: 'post',
           json: {
-            name: inputValues.name,
-            account: inputValues.account,
+            name: hookInputs.name,
+            account: hookInputs.account,
             conversionMethod: 'CONVERSIONS_API',
             postClickAttributionWindowSize: 30,
             viewThroughAttributionWindowSize: 7,
-            attributionType: inputValues.attribution_type,
-            type: inputValues.conversionType
+            attributionType: hookInputs.attribution_type,
+            type: hookInputs.conversionType
           }
         })
 
         return {
-          id: res.id,
-          name: res.name,
-          conversionType: res.type
+          successMessage: `Conversion rule ${data.id} created successfully!`,
+          savedData: {
+            id: data.id,
+            name: data.name,
+            conversionType: data.type
+          }
         }
       }
     }
