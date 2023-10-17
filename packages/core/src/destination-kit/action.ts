@@ -57,7 +57,7 @@ export interface BaseActionDefinition {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ActionDefinition<Settings, Payload = any, AudienceSettings = any> extends BaseActionDefinition {
+export interface ActionDefinition<Settings, Payload = any, AudienceSettings = any, GeneratedActionHookOutputs = undefined, GeneratedActionHookTypesInputs = undefined> extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
@@ -72,7 +72,7 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
-  hooks?: Record<ActionHookType, ActionHookDefinition<Settings, Payload, AudienceSettings>>
+  hooks?: Record<ActionHookType, ActionHookDefinition<Settings, Payload, AudienceSettings, GeneratedActionHookOutputs, GeneratedActionHookTypesInputs>>
 }
 
 /**
@@ -80,17 +80,17 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
  * on-subscription-save: Called when a subscription is saved.
  */
 export type ActionHookType = 'on-subscription-save' // | 'on-subscription-delete' | 'on-subscription-update'
-
-export interface ActionHookResponse {
+export type GenericHookPayload = { inputs: object, outputs: object }
+export interface ActionHookResponse<GeneratedActionHookOutputs> {
   successMessage?: string
-  savedData: any
+  savedData: GeneratedActionHookOutputs
 }
 
 export interface ActionHookError {
   message: string
   code: string
 }
-export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
+export interface ActionHookDefinition<Settings, Payload, AudienceSettings, GeneratedActionHookOutputs, GeneratedActionHookTypesInputs> {
   /** The display title for this hook. */
   label: string
   /** A description of what this hook does. */
@@ -100,7 +100,7 @@ export interface ActionHookDefinition<Settings, Payload, AudienceSettings> {
   /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
   outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean; }>
   /** The operation to perform when this hook is triggered. */
-  performHook: RequestFn<Settings, Payload, ActionHookResponse | ActionHookError, AudienceSettings>
+  performHook: RequestFn<Settings, Payload, ActionHookResponse<GeneratedActionHookOutputs> | ActionHookError, AudienceSettings, GeneratedActionHookTypesInputs>
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
