@@ -5,6 +5,7 @@ import {
   Action,
   ActionDefinition,
   ActionHookError,
+  ActionHookType,
   ActionHookResponse,
   BaseActionDefinition,
   RequestFn,
@@ -25,7 +26,7 @@ import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
-export type { BaseActionDefinition, ActionDefinition, ActionHookResponse, ActionHookError, ExecuteInput, RequestFn }
+export type { BaseActionDefinition, ActionDefinition, ActionHookResponse, ActionHookError, ActionHookType, ExecuteInput, RequestFn }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
