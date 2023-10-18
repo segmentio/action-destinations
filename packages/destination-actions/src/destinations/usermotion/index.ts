@@ -6,6 +6,8 @@ import identify from './identify'
 
 import group from './group'
 
+import track from './track'
+
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify User',
@@ -19,6 +21,13 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "group"',
     partnerAction: 'group',
     mapping: defaultValues(group.fields),
+    type: 'automatic'
+  },
+  {
+    name: 'Track Analytics Event',
+    subscribe: 'type = "track" or type = "page"',
+    partnerAction: 'track',
+    mapping: defaultValues(track.fields),
     type: 'automatic'
   }
 ]
@@ -50,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
   presets,
   actions: {
     identify,
-    group
+    group,
+    track
   }
 }
 
