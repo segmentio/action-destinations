@@ -148,10 +148,10 @@ export const product: InputField = {
     }
   },
   default: {
-    id: { '@path': '$.product_id' },
-    title: { '@path': '$.name' },
-    price: { '@path': '$.price' },
-    url: { '@path': '$.url' }
+    id: { '@path': '$.properties.product_id' },
+    title: { '@path': '$.properties.name' },
+    price: { '@path': '$.properties.price' },
+    url: { '@path': '$.properties.url' }
   }
 }
 
