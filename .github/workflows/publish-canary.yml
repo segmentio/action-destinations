@@ -6,14 +6,15 @@ name: Publish Canary
 on:
   push:
     branches:
-      # Remove before merging to master
       - staging
-      - add-tar-release-pipeline-1
   # Manual trigger
   workflow_dispatch:
     inputs:
       buildkite_branch:
         description: 'Branch to trigger the Buildkite pipeline on'
+        default: 'staging'
+      branch_to_update:
+        description: 'Branch to update with the new package versions. If a branch with the name is not found, new branch will be created with base as master'
         default: 'staging'
 
 jobs:
@@ -74,8 +75,8 @@ jobs:
         env:
           ACTION_DESTINATIONS_VERSION: ${{ steps.publish-packages.outputs.ACTION_DESTINATIONS_VERSION }}
           ACTIONS_CORE_VERSION: ${{ steps.publish-packages.outputs.ACTIONS_CORE_VERSION }}
-          BRANCH_TO_UPDATE: ${{ github.ref_name }}
-          BUILDKITE_BRANCH: ci-test
+          BRANCH_TO_UPDATE: ${{ github.event.inputs.branch_to_update }}
+          BUILDKITE_BRANCH: ${{ github.event.inputs.buildkite_branch }}
           RUN_ID: ${{ github.run_id }}
           BUILDKITE_TOKEN: ${{ secrets.BUILDKITE_TOKEN }}
           BUILDKITE_PIPELINE_URL: ${{ secrets.BUILDKITE_PIPELINE_URL }}
