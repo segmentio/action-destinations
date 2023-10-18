@@ -156,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Success',
           description: 'Whether or not the lead was successfully created.',
           type: 'boolean',
-          required: false
+          required: true
         }
       },
       performHook: async (request, { settings, payload }): Promise<ActionHookResponse | ActionHookError> => {

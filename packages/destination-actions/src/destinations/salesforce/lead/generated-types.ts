@@ -97,7 +97,16 @@ export interface Payload {
   customFields?: {
     [k: string]: unknown
   }
-  onSubscriptionSavedValue?: {
-    [k: string]: unknown
-  }
+}
+// Generated outputs for the on-subscription-save hook. DO NOT MODIFY IT BY HAND.
+
+export interface SubscriptionSaveOutputs {
+  /**
+   * The ID of the newly created lead.
+   */
+  id: string
+  /**
+   * Whether or not the lead was successfully created.
+   */
+  success: boolean
 }
