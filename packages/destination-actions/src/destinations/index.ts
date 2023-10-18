@@ -134,6 +134,8 @@ register('651c1db19de92d8e595ff55d', './hyperengage')
 register('65256052ac030f823df6c1a5', './trackey')
 register('652e765dbea0a2319209d193', './linkedin-conversions')
 register('652ea51a327a62b351aa12c0', './kameleoon')
+register('65302a514ce4a2f0f14cd426', './marketo-static-lists')
+register('65302a3acb309a8a3d5593f2', './display-video-360')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
