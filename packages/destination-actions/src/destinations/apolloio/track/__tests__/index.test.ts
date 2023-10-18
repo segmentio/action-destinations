@@ -13,7 +13,7 @@ describe('Apolloio.track', () => {
         anonymousId: '#ZEj!sso)8ImNKQTntip',
         event: 'click',
         ipAddress: '127.0.0.1',
-        timestamp: '2111-12-22T04:37:50.244Z',
+        timestamp: '2021-05-20T12:00:00.000Z',
         userId: 'SampleUser123',
         page: {}
       },
@@ -24,7 +24,7 @@ describe('Apolloio.track', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toContain('anonymousId')
-    expect(responses[0].options.body).toContain('2111-12-22T04:37:50.244Z')
+    expect(responses[0].options.body).toContain('2021-05-20T12:00:00.000Z')
     expect(responses[0].options.body).toContain('anonymousId')
     expect(responses[0].options.body).toContain('event')
     expect(responses[0].options.body).toContain('click')
