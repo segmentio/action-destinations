@@ -100,7 +100,7 @@ const destination = {
 
 ## OAuth 2.0 Managed Authentication Scheme
 
-OAuth2 Authentication scheme is the model to be used for destination APIs which support [OAuth 2.0](https://oauth.net/2/). You’ll be able to define a `refreshAccessToken` function if you want the framework to refresh expired tokens.
+OAuth 2.0 Managed Authentication scheme is the model to be used for destination APIs which support [OAuth 2.0](https://oauth.net/2/). You’ll be able to define a `refreshAccessToken` function if you want the framework to refresh expired tokens.
 
 You will have a new `auth` object available in `extendRequest` and `refreshAccessToken` which will surface your destination’s accessToken, refreshToken, clientId and clientSecret (these last two only available in `refreshAccessToken`). Most destination APIs expect the access token to be used as part of the authorization header in every request. You can use `extendRequest` to define that header.
 
