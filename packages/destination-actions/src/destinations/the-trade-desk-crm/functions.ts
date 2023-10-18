@@ -176,7 +176,11 @@ export async function getAllDataSegments(request: RequestClient, advertiserId: s
   const allDataSegments: Segments[] = []
   // initial call to get first page
   let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment/${advertiserId}`, {
-    method: 'GET'
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'TTD-Auth': authToken
+    }
   })
 
   if (response.status != 200 || !response.data.Segments) {
