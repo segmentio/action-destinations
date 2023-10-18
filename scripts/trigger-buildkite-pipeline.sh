@@ -3,7 +3,7 @@
 payload=$(cat <<EOF
 {  
 "commit":"HEAD",
-"branch":"${BUILDKITE_BRANCH:-staging}",, 
+"branch":"${BUILDKITE_BRANCH:-staging}", 
 "message": ":github: Triggered from Github Actions Run: $RUN_ID",
 "env":{
        "BRANCH_TO_UPDATE": "${BRANCH_TO_UPDATE:-staging}", 
