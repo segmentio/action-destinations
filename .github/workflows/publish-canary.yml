@@ -8,6 +8,7 @@ on:
     branches:
       # Remove before merging to master
       - staging
+      - add-tar-release-pipeline-1
   # Manual trigger
   workflow_dispatch:
 
@@ -69,17 +70,10 @@ jobs:
         env:
           ACTION_DESTINATIONS_VERSION: ${{ steps.publish-packages.outputs.ACTION_DESTINATIONS_VERSION }}
           ACTIONS_CORE_VERSION: ${{ steps.publish-packages.outputs.ACTIONS_CORE_VERSION }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          RUN_ID: ${{ github.run_id }}
+          BUILDKITE_TOKEN: ${{ secrets.BUILDKITE_TOKEN }}
+          BUILDKITE_PIPELINE_URL: ${{ secrets.BUILDKITE_PIPELINE_URL }}
         run: |
-          result=$(curl --request POST \
-          --url "${{ vars.BUILDKITE_PIPELINE_URL }}" \
-          --header 'Authorization: Bearer ${{ secrets.BUILDKITE_TOKEN }}' \
-          --header 'Content-Type: application/json' \
-          --data '{"commit":"HEAD","branch":"master", "message": ":github: Triggered from Github Actions Run: ${{ github.run_id }}","env":{
-          "BRANCH_TO_UPDATE": "${{ github.ref_name }}", "ACTIONS_RELEASE": "false", "CREATE_PR": "false", "UPGRADE_ACTION_DESTINATIONS": "true", "ACTION_DESTINATIONS_VERSION": "${{ env.ACTION_DESTINATIONS_VERSION }}", "ACTIONS_CORE_VERSION": "${{ env.ACTIONS_CORE_VERSION }}"},"meta_data":{}}')
-          BUILDKITE_URL=$(echo $result | jq -r '.web_url')
-          if [[ "${BUILDKITE_URL}" = "null" ]]; then
-             echo "Failed to trigger Buildkite pipeline. Reason:$(echo $result | jq -r '.message')"
-             exit 1
-          else
-            echo "Buildkite pipeline triggered successfully."
-          fi
+          chmod +x ./scripts/trigger-buildkite-pipeline.sh
+          ./scripts/trigger-buildkite-pipeline.sh
