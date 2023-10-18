@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# It is used by Github Actions to trigger a buildkite pipeline for updating action-destination packages.
+# BUILDKITE_BRANCH is the name of the branch to trigger the pipeline for. Defaults to staging. This branch should already exist.
+# BRANCH_TO_UPDATE is the branch to update the packages in. Defaults to staging. This branch will be created if it doesn't exist.
+
 payload=$(cat <<EOF
 {  
 "commit":"HEAD",
