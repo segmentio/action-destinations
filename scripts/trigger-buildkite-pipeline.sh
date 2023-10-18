@@ -11,9 +11,6 @@ payload=$(cat <<EOF
 "message": ":github: Triggered from Github Actions Run: $RUN_ID",
 "env":{
        "BRANCH_TO_UPDATE": "${BRANCH_TO_UPDATE:-staging}", 
-       "ACTIONS_RELEASE": "false", 
-       "CREATE_PR": "false", 
-       "UPGRADE_ACTION_DESTINATIONS": "true", 
        "ACTION_DESTINATIONS_VERSION": "$ACTION_DESTINATIONS_VERSION", 
        "ACTIONS_CORE_VERSION": "$ACTIONS_CORE_VERSION"
     },
