@@ -11,6 +11,10 @@ on:
       - add-tar-release-pipeline-1
   # Manual trigger
   workflow_dispatch:
+    inputs:
+      buildkite_branch:
+        description: 'Branch to trigger the Buildkite pipeline on'
+        default: 'staging'
 
 jobs:
   build-and-publish:
@@ -70,7 +74,8 @@ jobs:
         env:
           ACTION_DESTINATIONS_VERSION: ${{ steps.publish-packages.outputs.ACTION_DESTINATIONS_VERSION }}
           ACTIONS_CORE_VERSION: ${{ steps.publish-packages.outputs.ACTIONS_CORE_VERSION }}
-          BRANCH_NAME: ${{ github.ref_name }}
+          BRANCH_TO_UPDATE: ${{ github.ref_name }}
+          BUILDKITE_BRANCH: ci-test
           RUN_ID: ${{ github.run_id }}
           BUILDKITE_TOKEN: ${{ secrets.BUILDKITE_TOKEN }}
           BUILDKITE_PIPELINE_URL: ${{ secrets.BUILDKITE_PIPELINE_URL }}
