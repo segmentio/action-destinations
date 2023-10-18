@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - staging
+      - add-tar-release-pipeline-1
   # Manual trigger
   workflow_dispatch:
     inputs:
