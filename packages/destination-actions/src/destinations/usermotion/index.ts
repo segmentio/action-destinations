@@ -4,12 +4,21 @@ import { defaultValues } from '@segment/actions-core'
 
 import identify from './identify'
 
+import group from './group'
+
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify User',
     subscribe: 'type = "identify"',
     partnerAction: 'identify',
     mapping: defaultValues(identify.fields),
+    type: 'automatic'
+  },
+  {
+    name: 'Identify Group',
+    subscribe: 'type = "group"',
+    partnerAction: 'group',
+    mapping: defaultValues(group.fields),
     type: 'automatic'
   }
 ]
@@ -40,7 +49,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    identify
+    identify,
+    group
   }
 }
 
