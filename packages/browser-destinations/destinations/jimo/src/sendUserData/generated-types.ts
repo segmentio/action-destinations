@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The users's id provided by segment
+   * The unique user identifier
    */
   userId?: string | null
   /**

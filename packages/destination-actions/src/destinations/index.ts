@@ -133,6 +133,7 @@ register('6512d7f86bdccc3829fc4ac3', './optimizely-data-platform')
 register('651c1db19de92d8e595ff55d', './hyperengage')
 register('65256052ac030f823df6c1a5', './trackey')
 register('652e765dbea0a2319209d193', './linkedin-conversions')
+register('652ea51a327a62b351aa12c0', './kameleoon')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
