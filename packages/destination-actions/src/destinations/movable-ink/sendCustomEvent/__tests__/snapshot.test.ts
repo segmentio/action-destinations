@@ -11,7 +11,7 @@ const seedName = `${destinationSlug}#${actionSlug}`
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    const [eventData] = generateTestData(seedName, destination, action, true)
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -24,7 +24,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: {
+        movable_ink_url: 'https://www.test.com',
+        username: 'test',
+        password: 'test'
+      },
       auth: undefined
     })
 
