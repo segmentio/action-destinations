@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Klaviyo's upsertProfile destination action: all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "email": "el@ocbidoj.gw",
+      "external_id": "56GUhWJiuibf",
+      "first_name": "56GUhWJiuibf",
+      "image": "56GUhWJiuibf",
+      "last_name": "56GUhWJiuibf",
+      "location": Object {
+        "address1": "56GUhWJiuibf",
+        "address2": "56GUhWJiuibf",
+        "city": "56GUhWJiuibf",
+        "country": "56GUhWJiuibf",
+        "latitude": "56GUhWJiuibf",
+        "longitude": "56GUhWJiuibf",
+        "region": "56GUhWJiuibf",
+        "zip": "56GUhWJiuibf",
+      },
+      "organization": "56GUhWJiuibf",
+      "phone_number": "56GUhWJiuibf",
+      "properties": Object {
+        "testType": "56GUhWJiuibf",
+      },
+      "title": "56GUhWJiuibf",
+    },
+    "type": "profile",
+  },
+}
+`;

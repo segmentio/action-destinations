@@ -3,7 +3,7 @@ import { HTTPError } from '@segment/actions-core/request-client'
 export interface ResponseError extends HTTPError {
   response: HTTPError['response'] & {
     data: {
-      code: string
+      code: string | number
       message: string
       more_info: string
       status?: number
@@ -18,8 +18,14 @@ export interface ResponseError extends HTTPError {
   status?: number
 }
 
+export interface ErrorDetails {
+  message: string
+  code: string
+  status?: number
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getErrorDetails(error: any) {
+export function getErrorDetails(error: any): ErrorDetails {
   //example of errors are here: https://segment.atlassian.net/browse/CHANNELS-819
   // each API may have its own response.data structure. E.g. Twilio has code, message, more_info, status, while Sendgrid has array of errors where each has `message`, `field`, `help`.
   const respError = error as ResponseError
@@ -31,7 +37,7 @@ export function getErrorDetails(error: any) {
 
   const code = respError.code || respError.response?.data?.code
   // || respError.response?.statusText // e.g. 'Not Found' for 404
-
+  
   const message = [
     respError.name || respError.constructor?.name,
     respError.message,
@@ -45,5 +51,5 @@ export function getErrorDetails(error: any) {
   ]
     .filter(Boolean)
     .join('; ')
-  return { status, code, message }
+  return { status, code: code?.toString(), message }
 }

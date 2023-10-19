@@ -10,6 +10,16 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sync Engage Audiences to LaunchDarkly segments',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
+    segment_audience_id: {
+      label: 'Audience ID',
+      description: 'Segment Audience ID to which user identifier should be added or removed',
+      type: 'string',
+      unsafe_hidden: true,
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     segment_audience_key: {
       label: 'Audience Key',
       description: 'Segment Audience key to which user identifier should be added or removed',
@@ -89,6 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A computed object for track and identify events. This field should not need to be edited.',
       type: 'object',
       required: true,
+      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties' },
