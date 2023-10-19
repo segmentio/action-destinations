@@ -28,6 +28,17 @@ const event = createTestEvent({
   }
 })
 
+const eventNoQuery = createTestEvent({
+  type: 'track',
+  event: 'Search',
+  userId: 'user1234',
+  anonymousId: '72d7bed1-4f42-4f2f-8955-72677340546b',
+  timestamp: '2022-03-30T17:24:58Z',
+  properties: {
+    url: 'https://www.transformertoys.com'
+  }
+})
+
 describe('MovableInk.search', () => {
   it('should send search event to Movable Ink if properties.query provided', async () => {
     nock(settings.movable_ink_url as string).post(/.*/).reply(200)
@@ -89,14 +100,14 @@ describe('MovableInk.search', () => {
     )
   })
 
-  it('should throw an error if no url in settings or payload', async () => {
+  it('should throw an error if no query in payload', async () => {
     await expect(
       testDestination.testAction('search', {
-        event: event,
+        event: eventNoQuery,
         useDefaultMappings: true,
-        settings: settingsNoMovableInkURL
+        settings: settings
       })
-    ).rejects.toThrowError('"Movable Ink URL" setting or "Movable Ink URL" field must be populated')
+    ).rejects.toThrowError("The root value is missing the required field 'query'.")
   })
 
 })
