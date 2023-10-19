@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { MixpanelEventProperties } from '../mixpanel-types'
-import { getBrowser, getBrowserVersion, cheapGuid } from '../utils'
+import { getBrowser, getBrowserVersion, cheapGuid } from '../common/utils'
 
 const mixpanelReservedProperties = ['time', 'id', '$anon_id', 'distinct_id', '$group_id', '$insert_id', '$user_id']
 

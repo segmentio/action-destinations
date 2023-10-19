@@ -45,6 +45,9 @@ export function getBrowser(userAgent: string): string {
   } else if (userAgent.includes('FxiOS')) {
     return 'Firefox iOS'
   } else if (userAgent.includes('Safari')) {
+    if (userAgent.includes('iPhone')) {
+      return `Mobile Safari`
+    }
     return 'Safari'
   } else if (userAgent.includes('Android')) {
     return 'Android Mobile'
@@ -63,23 +66,24 @@ export function getBrowser(userAgent: string): string {
 
 export function getBrowserVersion(userAgent: string) {
   const browser = getBrowser(userAgent)
+
   const versionRegexs: { [browser: string]: RegExp } = {
-    'Internet Explorer Mobile': /rv:(\d+(\.\d+)?)/,
-    'Microsoft Edge': /Edge?\/(\d+(\.\d+)?)/,
-    Chrome: /Chrome\/(\d+(\.\d+)?)/,
-    'Chrome iOS': /CriOS\/(\d+(\.\d+)?)/,
-    'UC Browser': /(UCBrowser|UCWEB)\/(\d+(\.\d+)?)/,
-    Safari: /Version\/(\d+(\.\d+)?)/,
-    'Mobile Safari': /Version\/(\d+(\.\d+)?)/,
-    Opera: /(Opera|OPR)\/(\d+(\.\d+)?)/,
-    Firefox: /Firefox\/(\d+(\.\d+)?)/,
-    'Firefox iOS': /FxiOS\/(\d+(\.\d+)?)/,
-    Konqueror: /Konqueror:(\d+(\.\d+)?)/,
-    BlackBerry: /BlackBerry (\d+(\.\d+)?)/,
-    'Android Mobile': /android\s(\d+(\.\d+)?)/,
-    'Samsung Internet': /SamsungBrowser\/(\d+(\.\d+)?)/,
-    'Internet Explorer': /(rv:|MSIE )(\d+(\.\d+)?)/,
-    Mozilla: /rv:(\d+(\.\d+)?)/
+    'Internet Explorer Mobile': /rv:(\d+(\.\d+)+)/,
+    'Microsoft Edge': /Edge?\/(\d+(\.\d+)+)/,
+    Chrome: /Chrome\/(\d+(\.\d+)+)/,
+    'Chrome iOS': /CriOS\/(\d+(\.\d+)+)/,
+    'UC Browser': /(UCBrowser|UCWEB)\/(\d+(\.\d+)+)/,
+    Safari: /Version\/(\d+(\.\d+)+)/,
+    'Mobile Safari': /Version\/(\d+(\.\d+)+)/,
+    Opera: /(Opera|OPR)\/(\d+(\.\d+)+)/,
+    Firefox: /Firefox\/(\d+(\.\d+)+)/,
+    'Firefox iOS': /FxiOS\/(\d+(\.\d+)+)/,
+    Konqueror: /Konqueror:(\d+(\.\d+)+)/,
+    BlackBerry: /BlackBerry (\d+(\.\d+)+)/,
+    'Android Mobile': /android\s(\d+(\.\d+)+)/,
+    'Samsung Internet': /SamsungBrowser\/(\d+(\.\d+)+)/,
+    'Internet Explorer': /(rv:|MSIE )(\d+(\.\d+)+)/,
+    Mozilla: /rv:(\d+(\.\d+)+)/
   }
   const regex = versionRegexs[browser]
   if (!regex) return regex
@@ -87,6 +91,7 @@ export function getBrowserVersion(userAgent: string) {
   if (!matches) {
     return undefined
   }
+
   return matches[matches.length - 2]
 }
 
