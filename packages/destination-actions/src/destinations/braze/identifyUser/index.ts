@@ -37,7 +37,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).',
       type: 'string',
-      choices: ['none', 'merge']
+      choices: [
+        { value: 'none', label: 'None' },
+        { value: 'merge', label: 'Merge' }
+      ]
     }
   },
   perform: (request, { settings, payload }) => {
