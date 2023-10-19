@@ -3,12 +3,8 @@ import type { Settings } from './generated-types'
 import { IntegrationError, defaultValues } from '@segment/actions-core'
 
 import track from './track'
-export const baseURL = process?.env?.ACTIONS_APOLLOIO_BASE_URL_SECRET
-  ? `${process.env.ACTIONS_APOLLOIO_BASE_URL_SECRET}`
-  : 'https://apollo.io/'
-export const authURL = process?.env?.ACTIONS_APOLLOIO_AUTH_URL_SECRET
-  ? `${process.env.ACTIONS_APOLLOIO_AUTH_URL_SECRET}`
-  : 'https://apollo.io/'
+export const baseURL = process?.env?.ACTIONS_APOLLOIO_BASE_URL_SECRET ?? 'https://apollo.io/'
+export const authURL = process?.env?.ACTIONS_APOLLOIO_AUTH_URL_SECRET ?? 'https://apollo.io/'
 export const headerSecret = `${process.env.ACTIONS_APOLLOIO_HEADER_SECRET}`
 
 const destination: DestinationDefinition<Settings> = {
