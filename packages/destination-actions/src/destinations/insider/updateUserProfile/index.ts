@@ -8,14 +8,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: "Action used to update a User's attribute in Insider InOne.",
   defaultSubscription: 'type = "identify"',
   fields: {
-    enable_batching: {
-      type: 'boolean',
-      label: 'Send Batch Request',
-      description:
-        'When enabled, the action will send a batch request to Insider. Batches can contain up to 1000 records in a request.',
-      required: true,
-      default: false
-    },
     email_as_identifier: {
       label: 'Treat Email as Identifier',
       type: 'boolean',
