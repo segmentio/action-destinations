@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Audience',
-  description: '',
+  description: 'Add users into an audience',
   fields: {},
   perform: () => {
     return
