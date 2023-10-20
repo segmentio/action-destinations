@@ -327,6 +327,47 @@ export function sendBulkTrackEvents(
   const bulkPayload: upsertUserPayload[] = []
 
   dataArray.forEach((data) => {
+    const addEventParameters = function (
+      event: insiderEvent,
+      data:
+        | {
+            url?: string
+            product_id?: string
+            taxonomy?: string
+            name?: string
+            currency?: string
+            variant_id?: number
+            unit_sale_price?: number
+            unit_price?: number
+            quantity?: number
+            product_image_url?: string
+            event_group_id?: string
+            referrer?: string
+            user_agent?: string
+            [p: string]: unknown
+          }
+        | undefined,
+      parameter: string
+    ) {
+      parameter = parameter.toString().toLowerCase().trim().split(' ').join('_')
+
+      if (parameter === 'taxonomy') {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.event_params[parameter] = [data[parameter]]
+      } else if (defaultEvents.indexOf(parameter) > -1) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.event_params[parameter] = data[parameter]
+      } else if (data) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.event_params.custom[parameter] = data[parameter]
+      }
+
+      return event
+    }
+
     const identifiers = {
       uuid: data.uuid,
       custom: {
@@ -356,19 +397,70 @@ export function sendBulkTrackEvents(
       events: []
     }
 
+    const defaultAttributes = [
+      'email',
+      'phone',
+      'age',
+      'birthday',
+      'name',
+      'gender',
+      'surname',
+      'city',
+      'country',
+      'app_version',
+      'idfa',
+      'model',
+      'last_ip',
+      'carrier',
+      'os_version',
+      'platform',
+      'timezone',
+      'locale'
+    ]
+    const defaultEvents = [
+      'campaign_id',
+      'campaign_name',
+      'url',
+      'product_id',
+      'user_agent',
+      'taxonomy',
+      'name',
+      'variant_id',
+      'unit_sale_price',
+      'unit_price',
+      'quantity',
+      'product_image_url',
+      'event_group_id',
+      'referrer',
+      'currency'
+    ]
+
     for (const key of Object.keys(data.attributes || {})) {
-      const attributeName = key.toString().toLowerCase().trim().split(' ').join('_').toString()
-      if (data.attributes) {
+      const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
+
+      if (attributeName === 'locale' && data.attributes) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        payload.attributes.custom[attributeName] = data.attributes[attributeName]
+        payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
+          ?.split('-')
+          .join('_')
+      } else if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
+      } else if (data.attributes) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
+          data.attributes[attributeName]
       }
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const eventName = event_name || data.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
-    const event: insiderEvent = {
+
+    let event: insiderEvent = {
       event_name: eventName,
       timestamp: data.timestamp.toString(),
       event_params: {
@@ -383,11 +475,7 @@ export function sendBulkTrackEvents(
     for (const key of Object.keys(data.parameters || {})) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if (data.parameters) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        event.event_params.custom[key] = data.parameters[key]
-      }
+      event = addEventParameters(event, data.parameters, key)
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -396,14 +484,12 @@ export function sendBulkTrackEvents(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       for (const product of data.products) {
-        const productEvent = { ...event }
+        let productEvent = event
+
         for (const key of Object.keys(product || {})) {
-          if (product) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            productEvent.event_params.custom[key] = product[key]
-          }
+          productEvent = addEventParameters(productEvent, product, key)
         }
+
         payload.events.push(productEvent)
       }
     } else {
