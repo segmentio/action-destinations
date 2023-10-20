@@ -47,8 +47,9 @@ export const destination: BrowserDestinationDefinition<Settings, ReplayBird> = {
     await deps.loadScript(`https://cdn.replaybird.com/agent/latest/replaybird.js`)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'replaybird'), 100)
 
-    if (window.replaybird && settings.apiKey) {
+    if (settings.apiKey) {
       window.replaybird.init(settings.apiKey, {})
+      window.replaybird.apiKey = settings.apiKey
     }
     return window.replaybird
   },
