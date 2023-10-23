@@ -87,5 +87,5 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 5000
+  default: 1000 // values < 4000 will disable bulk batching
 }
