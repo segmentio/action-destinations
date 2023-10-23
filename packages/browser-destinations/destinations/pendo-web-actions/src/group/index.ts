@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { PendoSDK, identifyPayload } from '../types'
+import type { PendoSDK, PendoOptions } from '../types'
 
 const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   title: 'Send Group Event',
@@ -47,21 +47,21 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     }
   },
   perform: (pendo, event) => {
-    const payload: identifyPayload = {
+    const payload: PendoOptions = {
       visitor: {
         id: event.payload.visitorId
       }
     }
-    if (event.payload.accountId || event.settings.accountId) {
+    if (event.payload.accountId) {
       payload.account = {
-        id: event.payload.accountId ?? (event.settings.accountId as string),
-        ...event.payload.accountData
+        ...event.payload.accountData,
+        id: event.payload.accountId
       }
     }
-    if (event.payload.parentAccountId || event.settings.parentAccountId) {
+    if (event.payload.parentAccountId) {
       payload.parentAccount = {
-        id: (event.payload.parentAccountId as string) ?? (event.settings.parentAccountId as string),
-        ...event.payload.parentAccountData
+        ...event.payload.parentAccountData,
+        id: event.payload.parentAccountId
       }
     }
     pendo.identify(payload)

@@ -2,7 +2,8 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { loadPendo } from './loadScript'
-import { InitializeData, PendoSDK } from './types'
+import { PendoOptions, PendoSDK } from './types'
+import { ID } from '@segment/analytics-next'
 
 import identify from './identify'
 import track from './track'
@@ -28,20 +29,6 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
       type: 'string',
       required: true
     },
-    accountId: {
-      label: 'Set Pendo Account ID on Load',
-      description:
-        'Segment can set the Pendo Account ID upon page load. This can be overridden via the Account ID field in the Send Identify/Group Actions',
-      type: 'string',
-      required: false
-    },
-    parentAccountId: {
-      label: 'Set Pendo Parent Account ID on Load',
-      description:
-        'Segment can set the Pendo Parent Account ID upon page load. This can be overridden via the Parent Account ID field in the Send Identify/Group Actions. Note: Contact Pendo to request enablement of Parent Account feature.',
-      type: 'string',
-      required: false
-    },
     region: {
       label: 'Region',
       type: 'string',
@@ -49,23 +36,10 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
       required: true,
       default: 'io',
       choices: [
-        { value: 'io', label: 'io' },
-        { value: 'eu', label: 'eu' }
+        { value: 'io', label: 'app.pendo.io' },
+        { value: 'eu', label: 'app.eu.pendo.io' },
+        { value: 'us1', label: 'us1.app.pendo.io' }
       ]
-    },
-    setVisitorIdOnLoad: {
-      label: 'Set Vistor ID on Load',
-      description:
-        'Segment can set the Pendo Visitor ID upon page load to either the Segment userId or anonymousId. This can be overridden via the Visitor ID field in the Send Identify/Group Actions',
-      type: 'string',
-      default: 'disabled',
-      choices: [
-        { value: 'disabled', label: 'Do not set Visitor ID on load' },
-        { value: 'userIdOnly', label: 'Set Visitor ID to userId on load' },
-        { value: 'userIdOrAnonymousId', label: 'Set Visitor ID to userId or anonymousId on load' },
-        { value: 'anonymousIdOnly', label: 'Set Visitor ID to anonymousId on load' }
-      ],
-      required: true
     }
   },
 
@@ -74,44 +48,44 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
 
     await deps.resolveWhen(() => window.pendo != null, 100)
 
-    const initialData: InitializeData = {}
+    let visitorId: ID = null
+    let accountId: ID = null
 
-    if (settings.setVisitorIdOnLoad) {
-      let vistorId: string | null = null
-
-      switch (settings.setVisitorIdOnLoad) {
-        case 'disabled':
-          vistorId = null
-          break
-        case 'userIdOnly':
-          vistorId = analytics.user().id() ?? null
-          break
-        case 'userIdOrAnonymousId':
-          vistorId = analytics.user().id() ?? analytics.user().anonymousId() ?? null
-          break
-        case 'anonymousIdOnly':
-          vistorId = analytics.user().anonymousId() ?? null
-          break
-      }
-
-      if (vistorId) {
-        initialData.visitor = {
-          id: vistorId
-        }
-      }
-    }
-    if (settings.accountId) {
-      initialData.account = {
-        id: settings.accountId
-      }
-    }
-    if (settings.parentAccountId) {
-      initialData.parentAccount = {
-        id: settings.parentAccountId
-      }
+    if (analytics.user().id()) {
+      visitorId = analytics.user().id()
+    } else if (analytics.user().anonymousId()) {
+      // Append Pendo anonymous visitor tag
+      // https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/pendo/lib/index.js#L114
+      visitorId = '_PENDO_T_' + analytics.user().anonymousId()
     }
 
-    window.pendo.initialize(initialData)
+    if (analytics.group().id()) {
+      accountId = analytics.group().id()
+    }
+
+    const options: PendoOptions = {
+      visitor: {
+        ...analytics.user().traits(),
+        id: visitorId
+      },
+      ...(accountId
+        ? {
+            account: {
+              ...analytics.group().traits(),
+              id: accountId
+            }
+          }
+        : {})
+    }
+
+    // If parentAccount exists in group traits, lift it out of account properties into options properties
+    // https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/pendo/lib/index.js#L136
+    if (options.account?.parentAccount) {
+      options.parentAccount = options.account.parentAccount
+      delete options.account.parentAccount
+    }
+
+    window.pendo.initialize(options)
 
     return window.pendo
   },

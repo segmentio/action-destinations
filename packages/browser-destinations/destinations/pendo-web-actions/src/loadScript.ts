@@ -16,7 +16,10 @@ export function loadPendo(apiKey, region) {
       })(v[w])
     y = e.createElement(n)
     y.async = !0
-    y.src = `https://cdn.pendo.${region}/agent/static/` + apiKey + '/pendo.js'
+    y.src =
+      `https://${region === 'us1' ? 'us1.' : ''}cdn.${region === 'eu' ? 'eu.' : ''}pendo.io/agent/static/` +
+      apiKey +
+      '/pendo.js'
     z = e.getElementsByTagName(n)[0]
     z.parentNode.insertBefore(y, z)
   })(window, document, 'script', 'pendo')

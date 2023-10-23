@@ -6,19 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Segment can set the Pendo Account ID upon page load. This can be overridden via the Account ID field in the Send Identify/Group Actions
-   */
-  accountId?: string
-  /**
-   * Segment can set the Pendo Parent Account ID upon page load. This can be overridden via the Parent Account ID field in the Send Identify/Group Actions. Note: Contact Pendo to request enablement of Parent Account feature.
-   */
-  parentAccountId?: string
-  /**
    * The Pendo Region you'd like to send data to
    */
   region: string
-  /**
-   * Segment can set the Pendo Visitor ID upon page load to either the Segment userId or anonymousId. This can be overridden via the Visitor ID field in the Send Identify/Group Actions
-   */
-  setVisitorIdOnLoad: string
 }
