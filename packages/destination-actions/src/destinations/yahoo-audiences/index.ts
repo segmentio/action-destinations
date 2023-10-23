@@ -61,11 +61,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       try {
         rt_client_key = JSON.parse(auth.clientId)['rt_api']
         rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
-        console.log('its a JSON')
       } catch (err) {
         rt_client_key = auth.clientId
         rt_client_secret = auth.clientSecret
-        console.log('its a string')
       }
 
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
