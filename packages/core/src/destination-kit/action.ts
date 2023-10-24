@@ -56,8 +56,23 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 }
 
+type GenericActionHookInputs = Record<string, string | boolean>
+type GenericActionHookOutputs = Record<string, string | boolean>
+
+interface GenericActionHookBundle {
+  mappingSave: {
+    inputs?: GenericActionHookInputs
+    outputs?: GenericActionHookOutputs
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ActionDefinition<Settings, Payload = any, AudienceSettings = any, GeneratedActionHookOutputs = undefined, GeneratedActionHookTypesInputs = undefined> extends BaseActionDefinition {
+export interface ActionDefinition<
+  Settings,
+  Payload = any,
+  AudienceSettings = any,
+  GeneratedActionHookBundle extends GenericActionHookBundle = any
+> extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
@@ -72,15 +87,23 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
-  hooks?: Record<ActionHookType, ActionHookDefinition<Settings, Payload, AudienceSettings, GeneratedActionHookOutputs, GeneratedActionHookTypesInputs>>
+  hooks?: {
+    'on-mapping-save': ActionHookDefinition<
+      Settings,
+      Payload,
+      AudienceSettings,
+      GeneratedActionHookBundle['mappingSave']['outputs'],
+      GeneratedActionHookBundle['mappingSave']['inputs']
+    >
+  }
 }
 
 /**
  * The supported actions hooks.
- * on-subscription-save: Called when a subscription is saved.
+ * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
  */
-export type ActionHookType = 'on-subscription-save' // | 'on-subscription-delete' | 'on-subscription-update'
-export type GenericHookPayload = { inputs: object, outputs: object }
+export type ActionHookType = 'on-mapping-save' // | 'on-mapping-delete' | 'on-mapping-update'
+export type GenericHookPayload = { inputs: object; outputs: object }
 export interface ActionHookResponse<GeneratedActionHookOutputs> {
   successMessage?: string
   savedData: GeneratedActionHookOutputs
@@ -90,7 +113,13 @@ export interface ActionHookError {
   message: string
   code: string
 }
-export interface ActionHookDefinition<Settings, Payload, AudienceSettings, GeneratedActionHookOutputs, GeneratedActionHookTypesInputs> {
+export interface ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  GeneratedActionHookOutputs,
+  GeneratedActionHookTypesInputs
+> {
   /** The display title for this hook. */
   label: string
   /** A description of what this hook does. */
@@ -98,9 +127,15 @@ export interface ActionHookDefinition<Settings, Payload, AudienceSettings, Gener
   /** The configuration fields that are used when executing the hook. The values will be provided by users in the app. */
   inputFields?: Record<string, InputFieldJSONSchema>
   /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
-  outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean; }>
+  outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean }>
   /** The operation to perform when this hook is triggered. */
-  performHook: RequestFn<Settings, Payload, ActionHookResponse<GeneratedActionHookOutputs> | ActionHookError, AudienceSettings, GeneratedActionHookTypesInputs>
+  performHook: RequestFn<
+    Settings,
+    Payload,
+    ActionHookResponse<GeneratedActionHookOutputs> | ActionHookError,
+    AudienceSettings,
+    GeneratedActionHookTypesInputs
+  >
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
@@ -111,12 +146,13 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   auth?: AuthTokens
 }
 
-interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any> {
+interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
   data: Data
   settings: T
   audienceSettings?: AudienceSettings
   mapping: JSONObject
   auth: AuthTokens | undefined
+  hookOutputs?: Record<ActionHookType, ActionHookValues>
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
@@ -188,7 +224,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       logger: bundle.logger,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
-      audienceSettings: bundle.audienceSettings
+      audienceSettings: bundle.audienceSettings,
+      hookOutputs: bundle.hookOutputs
     }
 
     // Construct the request client and perform the action

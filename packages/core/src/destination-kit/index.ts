@@ -4,6 +4,7 @@ import type { JSONSchema4 } from 'json-schema'
 import {
   Action,
   ActionDefinition,
+  ActionHookDefinition,
   ActionHookError,
   ActionHookType,
   ActionHookResponse,
@@ -26,7 +27,16 @@ import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
-export type { BaseActionDefinition, ActionDefinition, ActionHookResponse, ActionHookError, ActionHookType, ExecuteInput, RequestFn }
+export type {
+  BaseActionDefinition,
+  ActionDefinition,
+  ActionHookDefinition,
+  ActionHookResponse,
+  ActionHookError,
+  ActionHookType,
+  ExecuteInput,
+  RequestFn
+}
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 

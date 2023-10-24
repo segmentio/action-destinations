@@ -1,4 +1,4 @@
-import { StateContext, Logger, StatsContext, TransactionContext } from './index'
+import { StateContext, Logger, StatsContext, TransactionContext, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -16,7 +16,13 @@ export interface Result {
   data?: JSONObject | null
 }
 
-export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown, ActionHookInputs = any> {
+export interface ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings = unknown,
+  ActionHookInputs = any,
+  ActionHookOutputs = any
+> {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
@@ -27,6 +33,8 @@ export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown, Act
   payload: Payload
   /** Inputs into an actions hook performHook method */
   hookInputs?: ActionHookInputs
+  /** Stored outputs from an invokation of an actions hook */
+  hookOutputs?: Record<ActionHookType, ActionHookOutputs>
   /** The page used in dynamic field requests */
   page?: string
   /** The data needed in OAuth requests */
