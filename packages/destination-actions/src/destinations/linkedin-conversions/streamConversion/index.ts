@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload, SubscriptionSaveInputs, SubscriptionSaveOutputs } from './generated-types'
+import type { Payload, HookBundle } from './generated-types'
 
 interface ConversionRuleCreationResponse {
   id: string
@@ -8,14 +8,15 @@ interface ConversionRuleCreationResponse {
   type: string
 }
 
-const action: ActionDefinition<Settings, Payload, undefined, SubscriptionSaveOutputs, SubscriptionSaveInputs> = {
+const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   fields: {},
   hooks: {
-    'on-subscription-save': {
+    'on-mapping-save': {
       label: 'Create a Conversion Rule',
-      description: 'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
+      description:
+        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
       inputFields: {
         name: {
           type: 'string',
@@ -33,13 +34,13 @@ const action: ActionDefinition<Settings, Payload, undefined, SubscriptionSaveOut
           type: 'string',
           label: 'Account',
           description: 'The account to associate this conversion rule with.',
-          required: true,
+          required: true
         },
         attribution_type: {
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
-          required: true,
+          required: true
         }
       },
       outputTypes: {
@@ -94,7 +95,9 @@ const action: ActionDefinition<Settings, Payload, undefined, SubscriptionSaveOut
   perform: (request, data) => {
     return request('https://example.com', {
       method: 'post',
-      json: data.payload
+      json: {
+        conversion: data.hookOutputs?.['on-mapping-save']?.id
+      }
     })
   }
 }

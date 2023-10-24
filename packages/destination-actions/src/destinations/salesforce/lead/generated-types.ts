@@ -98,15 +98,22 @@ export interface Payload {
     [k: string]: unknown
   }
 }
-// Generated outputs for the on-subscription-save hook. DO NOT MODIFY IT BY HAND.
+// Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.
 
-export interface SubscriptionSaveOutputs {
-  /**
-   * The ID of the newly created lead.
-   */
-  id: string
-  /**
-   * Whether or not the lead was successfully created.
-   */
-  success: boolean
+export interface HookBundle {
+  mappingSave: {
+    inputs?: {
+      [k: string]: unknown
+    }
+    outputs?: {
+      /**
+       * The ID of the newly created lead.
+       */
+      id: string
+      /**
+       * Whether or not the lead was successfully created.
+       */
+      success: boolean
+    }
+  }
 }
