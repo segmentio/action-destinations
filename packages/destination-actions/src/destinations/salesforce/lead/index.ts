@@ -13,8 +13,6 @@ import {
   batch_size
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
-import { ActionHookResponse } from '@segment/actions-core/src/destination-kit/action'
-import { ActionHookError } from '@segment/actions-core/src/destination-kit/action'
 
 const OBJECT_NAME = 'Lead'
 
@@ -141,10 +139,10 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
   hooks: {
-    'on-subscription-save': {
+    'on-mapping-save': {
       label: 'Create a Lead record, just to demo things',
       description:
-        'This implementation of the on-subscription-save hook will create a new Lead record in Salesforce. It will then save the ID of the newly created record to payload.onSubscriptionSavedValue.id.',
+        'This implementation of the on-mapping-save hook will create a new Lead record in Salesforce. It will then save the ID of the newly created record to payload.onSubscriptionSavedValue.id.',
       outputTypes: {
         id: {
           label: 'ID',
@@ -159,7 +157,7 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
-      performHook: async (request, { settings, payload }): Promise<ActionHookResponse | ActionHookError> => {
+      performHook: async (request, { settings, payload }) => {
         const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
         // const time = Math.floor(Date.now() / 1000) // for uniqueness of record
 
@@ -183,9 +181,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    if (!payload.onSubscriptionSavedValue?.success) {
-      // just for PoC purposesy
+  perform: async (request, { settings, payload, hookOutputs }) => {
+    if (!hookOutputs?.['on-mapping-save']?.id) {
+      // just for PoC purposes
       throw new IntegrationError('MappingSetup Failed', 'MappingSetup Failed', 400)
     }
 
