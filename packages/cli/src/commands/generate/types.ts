@@ -1,10 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type {
-  InputField,
-  DestinationDefinition as CloudDestinationDefinition,
-  ActionDefinition
-} from '@segment/actions-core'
+import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
@@ -16,10 +12,10 @@ import prettier from 'prettier'
 import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
 import { RESERVED_FIELD_NAMES } from '../../constants'
 import { AudienceDestinationDefinition, ActionHookType } from '@segment/actions-core/destination-kit'
-import { ActionHookDefinition } from '@segment/actions-core/destination-kitaction'
+import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
-const hookNameToHookValue = new Map<ActionHookType, string>([['on-subscription-save', 'SubscriptionSave']])
+const hookNameToHookValue = new Map<ActionHookType, string>([['on-mapping-save', 'mappingSave']])
 
 export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
@@ -142,17 +138,19 @@ export default class GenerateTypes extends Command {
       let types = await generateTypes(fields, 'Payload')
 
       if (action.hooks) {
-        const hooks: ActionHookDefinition<any, any, any> = action.hooks
+        const hooks: ActionHookDefinition<any, any, any, any, any> = action.hooks
+        let hookBundle = ''
+        const hookFields: Record<string, any> = {}
         for (const [hookName, hook] of Object.entries(hooks)) {
           // TODO: I wish I could do something like `hookname instanceof ActionHookType`
-          if (!(['on-subscription-save'].includes(hookName))) {
+          if (!['on-mapping-save'].includes(hookName)) {
             throw new Error(`Hook name ${hookName} is not a valid ActionHookType`)
           }
 
           const inputs = hook.inputFields
           const outputs = hook.outputTypes
-          if (!inputs && !outputs) { 
-            continue 
+          if (!inputs && !outputs) {
+            continue
           }
 
           const hookType = hookNameToHookValue.get(hookName as ActionHookType)
@@ -160,21 +158,30 @@ export default class GenerateTypes extends Command {
             throw new Error(`No generated type name for ${hookName}`)
           }
 
-          if (inputs) {
-            const hookInputs = await generateTypes(
-              inputs, 
-              `${hookType}Inputs`,
-              `// Generated inputs for the ${hookName} hook. DO NOT MODIFY IT BY HAND.`)
-            types += hookInputs
+          const hookSchema = {
+            type: 'object',
+            required: true,
+            properties: {
+              inputs: {
+                label: `${hookName} hook inputs`,
+                type: 'object',
+                properties: inputs
+              },
+              outputs: {
+                label: `${hookName} hook outputs`,
+                type: 'object',
+                properties: outputs
+              }
+            }
           }
-          if (outputs) {
-            const hookOutputs = await generateTypes(
-              outputs,
-              `${hookType}Outputs`,
-              `// Generated outputs for the ${hookName} hook. DO NOT MODIFY IT BY HAND.`)
-            types += hookOutputs
-          }
+          hookFields[hookType] = hookSchema
         }
+        hookBundle = await generateTypes(
+          hookFields,
+          'HookBundle',
+          `// Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.`
+        )
+        types += hookBundle
       }
 
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
