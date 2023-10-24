@@ -14,7 +14,7 @@ import sendCustomEvent from './sendCustomEvent'
 import sendEntireEvent from './sendEntireEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Movable Ink',
+  name: 'Movable Ink (Actions)',
   slug: 'actions-movable-ink',
   mode: 'cloud',
   description: 'Send Segment analytics events to Movable Ink',
