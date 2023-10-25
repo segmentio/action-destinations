@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
 
@@ -511,6 +512,10 @@ Keep in mind a few important things about how batching works:
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
+
+## Action Hooks
+
+** Note: This feature is not yet complete and released **
 
 ## Audience Support (Pilot)
 
