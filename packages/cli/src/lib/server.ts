@@ -358,7 +358,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 audienceSettings: req.body.audienceSettings || {},
                 hookInputs: req.body.hookInputs || {}
               }
-              console.log('data', data)
+
               const action = destination.actions[actionSlug]
               const result = await action.executeHook(hookName as ActionHookType, data)
 

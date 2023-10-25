@@ -324,9 +324,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.hookSchemas?.[hookType]) {
-      console.log('hook schema detected')
       const schema = this.hookSchemas[hookType]
-      console.log('schema', schema)
       validateSchema(data.hookInputs, schema)
     }
 
