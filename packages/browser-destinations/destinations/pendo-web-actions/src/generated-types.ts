@@ -6,7 +6,11 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * The Pendo Region you'd like to send data to
+   * The region for your Pendo subscription.
    */
   region: string
+  /**
+   * If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.
+   */
+  cnameContentHost?: string
 }

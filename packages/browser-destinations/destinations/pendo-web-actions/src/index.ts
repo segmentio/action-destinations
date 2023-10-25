@@ -41,11 +41,22 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
         { value: 'https://us1.cdn.pendo.io', label: 'US restricted' },
         { value: 'https://cdn.jpn.pendo.io', label: 'Japan' }
       ]
+    },
+    cnameContentHost: {
+      label: 'Optional CNAME content host',
+      description:
+        "If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.",
+      type: 'string',
+      required: false
     }
   },
 
   initialize: async ({ settings, analytics }, deps) => {
-    loadPendo(settings.apiKey, settings.region)
+    if (settings.cnameContentHost && !/^https?:/.exec(settings.cnameContentHost) && settings.cnameContentHost.length) {
+      settings.cnameContentHost = 'https://' + settings.cnameContentHost
+    }
+
+    loadPendo(settings.apiKey, settings.region, settings.cnameContentHost)
 
     await deps.resolveWhen(() => window.pendo != null, 100)
 
