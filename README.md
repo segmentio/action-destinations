@@ -38,7 +38,13 @@ For more detailed instruction, see the following READMEs:
 
 ### Local development
 
-This is a monorepo with multiple packages leveraging [`lerna`](https://github.com/lerna/lerna) with [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces):
+This is a monorepo with multiple packages leveraging:
+
+- [`lerna`](https://github.com/lerna/lerna) for publishing
+- [`nx`](https://nx.dev) for dependency-tree aware building, linting, testing, and caching (migration away from `lerna` in progress!).
+- [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces) for package symlinking and hoisting.
+
+Structure:
 
 - `packages/ajv-human-errors` - a wrapper around [AJV](https://ajv.js.org/) errors to produce more friendly validation messages
 - `packages/browser-destinations` - destination definitions that run on device via Analytics 2.0
@@ -66,9 +72,8 @@ yarn login
 
 # Requires node 18.12.1, optionally: nvm use 18.12.1
 yarn --ignore-optional
-yarn bootstrap
-yarn build
 yarn install
+yarn build
 
 # Run unit tests to ensure things are working! For partners who don't have access to internal packages, you can run:
 yarn test-partners

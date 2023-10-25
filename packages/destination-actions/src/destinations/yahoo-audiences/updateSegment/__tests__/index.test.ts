@@ -186,7 +186,7 @@ describe('YahooAudiences.updateSegment', () => {
             customer_desc: CUST_DESC
           }
         })
-      ).rejects.toThrow('Email and / or Advertising Id not available in the profile(s)')
+      ).rejects.toThrow('Selected identifier(s) not available in the event(s)')
     })
   })
 })

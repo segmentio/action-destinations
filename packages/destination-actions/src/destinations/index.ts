@@ -136,6 +136,9 @@ register('652e765dbea0a2319209d193', './linkedin-conversions')
 register('652ea51a327a62b351aa12c0', './kameleoon')
 register('65302a514ce4a2f0f14cd426', './marketo-static-lists')
 register('65302a3acb309a8a3d5593f2', './display-video-360')
+register('6537b4236b16986dba32583e', './apolloio')
+register('6537b55db9e94b2e110c9cf9', './movable-ink')
+register('6537b5da8f27fd20713a5ba8', './usermotion')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
