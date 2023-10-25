@@ -195,13 +195,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
     // Generate a json schema for each defined hook based on the field definitions
     if (definition.hooks) {
-      for (const hook of Object.values(definition.hooks)) {
+      for (const hookName in definition.hooks) {
+        const hook = definition.hooks[hookName as ActionHookType]
         if (hook.inputFields) {
           if (!this.hookSchemas) {
             this.hookSchemas = {}
           }
 
-          this.hookSchemas[hook.label] = fieldsToJsonSchema(hook.inputFields)
+          this.hookSchemas[hookName] = fieldsToJsonSchema(hook.inputFields)
         }
       }
     }
