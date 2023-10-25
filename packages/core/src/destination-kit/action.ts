@@ -169,6 +169,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
+  readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
@@ -191,6 +192,18 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
+    }
+    // Generate a json schema for each defined hook based on the field definitions
+    if (definition.hooks) {
+      for (const hook of Object.values(definition.hooks)) {
+        if (hook.inputFields) {
+          if (!this.hookSchemas) {
+            this.hookSchemas = {}
+          }
+
+          this.hookSchemas[hook.label] = fieldsToJsonSchema(hook.inputFields)
+        }
+      }
     }
   }
 
@@ -224,8 +237,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       logger: bundle.logger,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
-      audienceSettings: bundle.audienceSettings,
-      hookOutputs: bundle.hookOutputs
+      audienceSettings: bundle.audienceSettings
     }
 
     // Construct the request client and perform the action
@@ -308,6 +320,13 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     if (!hookFn) {
       throw new IntegrationError(`This action does not support the ${hookType} hook.`, 'NotImplemented', 501)
+    }
+
+    if (this.hookSchemas?.[hookType]) {
+      console.log('hook schema detected')
+      const schema = this.hookSchemas[hookType]
+      console.log('schema', schema)
+      validateSchema(data.hookInputs, schema)
     }
 
     return await this.performRequest(hookFn, data)
