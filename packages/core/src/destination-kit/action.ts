@@ -5,7 +5,14 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  InputFieldJSONSchema
+} from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -18,9 +25,9 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
 ) => MaybePromise<Return>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,8 +56,23 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 }
 
+type GenericActionHookInputs = Record<string, string | boolean>
+type GenericActionHookOutputs = Record<string, string | boolean>
+
+interface GenericActionHookBundle {
+  mappingSave: {
+    inputs?: GenericActionHookInputs
+    outputs?: GenericActionHookOutputs
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ActionDefinition<Settings, Payload = any, AudienceSettings = any> extends BaseActionDefinition {
+export interface ActionDefinition<
+  Settings,
+  Payload = any,
+  AudienceSettings = any,
+  GeneratedActionHookBundle extends GenericActionHookBundle = any
+> extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
@@ -64,6 +86,56 @@ export interface ActionDefinition<Settings, Payload = any, AudienceSettings = an
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
+
+  hooks?: {
+    'on-mapping-save': ActionHookDefinition<
+      Settings,
+      Payload,
+      AudienceSettings,
+      GeneratedActionHookBundle['mappingSave']['outputs'],
+      GeneratedActionHookBundle['mappingSave']['inputs']
+    >
+  }
+}
+
+/**
+ * The supported actions hooks.
+ * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
+ */
+export type ActionHookType = 'on-mapping-save' // | 'on-mapping-delete' | 'on-mapping-update'
+export type GenericHookPayload = { inputs: object; outputs: object }
+export interface ActionHookResponse<GeneratedActionHookOutputs> {
+  successMessage?: string
+  savedData: GeneratedActionHookOutputs
+}
+
+export interface ActionHookError {
+  message: string
+  code: string
+}
+export interface ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  GeneratedActionHookOutputs,
+  GeneratedActionHookTypesInputs
+> {
+  /** The display title for this hook. */
+  label: string
+  /** A description of what this hook does. */
+  description: string
+  /** The configuration fields that are used when executing the hook. The values will be provided by users in the app. */
+  inputFields?: Record<string, InputFieldJSONSchema>
+  /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
+  outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean }>
+  /** The operation to perform when this hook is triggered. */
+  performHook: RequestFn<
+    Settings,
+    Payload,
+    ActionHookResponse<GeneratedActionHookOutputs> | ActionHookError,
+    AudienceSettings,
+    GeneratedActionHookTypesInputs
+  >
 }
 
 export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
@@ -74,12 +146,13 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   auth?: AuthTokens
 }
 
-interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any> {
+interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
   data: Data
   settings: T
   audienceSettings?: AudienceSettings
   mapping: JSONObject
   auth: AuthTokens | undefined
+  hookOutputs?: Record<ActionHookType, ActionHookValues>
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
@@ -96,7 +169,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
+  readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
+  readonly hasHookSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -113,10 +188,23 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.destinationName = destinationName
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
-
+    this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
+    }
+    // Generate a json schema for each defined hook based on the field definitions
+    if (definition.hooks) {
+      for (const hookName in definition.hooks) {
+        const hook = definition.hooks[hookName as ActionHookType]
+        if (hook.inputFields) {
+          if (!this.hookSchemas) {
+            this.hookSchemas = {}
+          }
+
+          this.hookSchemas[hookName] = fieldsToJsonSchema(hook.inputFields)
+        }
+      }
     }
   }
 
@@ -223,6 +311,26 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
     return (await this.performRequest(fn, data)) as DynamicFieldResponse
+  }
+
+  async executeHook(hookType: ActionHookType, data: ExecuteInput<Settings, Payload, AudienceSettings>) {
+    if (!this.hasHookSupport) {
+      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
+    }
+    const hookFn = this.definition.hooks?.[hookType]?.performHook
+
+    if (!hookFn) {
+      throw new IntegrationError(`This action does not support the ${hookType} hook.`, 'NotImplemented', 501)
+    }
+
+    if (this.hookSchemas?.[hookType]) {
+      console.log('hook schema detected')
+      const schema = this.hookSchemas[hookType]
+      console.log('schema', schema)
+      validateSchema(data.hookInputs, schema)
+    }
+
+    return await this.performRequest(hookFn, data)
   }
 
   /**
