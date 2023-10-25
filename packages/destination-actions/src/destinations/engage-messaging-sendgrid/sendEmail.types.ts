@@ -78,6 +78,10 @@ export interface Payload {
    */
   byPassSubscription?: boolean
   /**
+   * Send email with an ip pool
+   */
+  ipPool?: string
+  /**
    * Send to any subscription status other than unsubscribed
    */
   sendBasedOnOptOut?: boolean
