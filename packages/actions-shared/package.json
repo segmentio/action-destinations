@@ -46,6 +46,11 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
