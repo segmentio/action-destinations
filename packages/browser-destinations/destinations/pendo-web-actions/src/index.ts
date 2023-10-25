@@ -32,14 +32,14 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
     region: {
       label: 'Region',
       type: 'string',
-      description:
-        'The region for your Pendo subscription.  If you access Pendo at https://us1.app.pendo.io/ then choose us-only.',
+      description: 'The region for your Pendo subscription.',
       required: true,
       default: 'https://cdn.pendo.io',
       choices: [
-        { value: 'https://cdn.pendo.io', label: 'io' },
-        { value: 'https://cdn.eu.pendo.io', label: 'eu' },
-        { value: 'https://us1.cdn.pendo.io', label: 'us-only' }
+        { value: 'https://cdn.pendo.io', label: 'US (default)' },
+        { value: 'https://cdn.eu.pendo.io', label: 'EU' },
+        { value: 'https://us1.cdn.pendo.io', label: 'US restricted' },
+        { value: 'https://cdn.jpn.pendo.io', label: 'Japan' }
       ]
     }
   },
