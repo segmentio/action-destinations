@@ -18,7 +18,7 @@
     "cli-internal": "yarn workspace @segment/actions-cli-internal",
     "core": "yarn workspace @segment/actions-core",
     "bootstrap": "lerna bootstrap",
-    "build": "nx run-many -t build",
+    "build": "nx run-many -t build && yarn build:browser-bundles",
     "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
