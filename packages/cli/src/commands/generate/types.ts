@@ -11,9 +11,11 @@ import path from 'path'
 import prettier from 'prettier'
 import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
 import { RESERVED_FIELD_NAMES } from '../../constants'
-import { AudienceDestinationDefinition } from '@segment/actions-core/destination-kit'
+import { AudienceDestinationDefinition, ActionHookType } from '@segment/actions-core/destination-kit'
+import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
+const hookNameToHookValue = new Map<ActionHookType, string>([['on-mapping-save', 'mappingSave']])
 
 export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
@@ -131,7 +133,57 @@ export default class GenerateTypes extends Command {
 
     // TODO how to load directory structure consistently?
     for (const [slug, action] of Object.entries(destination.actions)) {
-      const types = await generateTypes(action.fields, 'Payload')
+      const fields = action.fields
+
+      let types = await generateTypes(fields, 'Payload')
+
+      if (action.hooks) {
+        const hooks: ActionHookDefinition<any, any, any, any, any> = action.hooks
+        let hookBundle = ''
+        const hookFields: Record<string, any> = {}
+        for (const [hookName, hook] of Object.entries(hooks)) {
+          // TODO: I wish I could do something like `hookname instanceof ActionHookType`
+          if (!['on-mapping-save'].includes(hookName)) {
+            throw new Error(`Hook name ${hookName} is not a valid ActionHookType`)
+          }
+
+          const inputs = hook.inputFields
+          const outputs = hook.outputTypes
+          if (!inputs && !outputs) {
+            continue
+          }
+
+          const hookType = hookNameToHookValue.get(hookName as ActionHookType)
+          if (!hookType) {
+            throw new Error(`No generated type name for ${hookName}`)
+          }
+
+          const hookSchema = {
+            type: 'object',
+            required: true,
+            properties: {
+              inputs: {
+                label: `${hookName} hook inputs`,
+                type: 'object',
+                properties: inputs
+              },
+              outputs: {
+                label: `${hookName} hook outputs`,
+                type: 'object',
+                properties: outputs
+              }
+            }
+          }
+          hookFields[hookType] = hookSchema
+        }
+        hookBundle = await generateTypes(
+          hookFields,
+          'HookBundle',
+          `// Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.`
+        )
+        types += hookBundle
+      }
+
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
         fs.writeFileSync(path.join(parentDir, slug, 'generated-types.ts'), types)
       } else {
@@ -141,11 +193,11 @@ export default class GenerateTypes extends Command {
   }
 }
 
-async function generateTypes(fields: Record<string, InputField> = {}, name: string) {
+async function generateTypes(fields: Record<string, InputField> = {}, name: string, bannerComment?: string) {
   const schema = prepareSchema(fields)
 
   return compile(schema, name, {
-    bannerComment: '// Generated file. DO NOT MODIFY IT BY HAND.',
+    bannerComment: bannerComment ?? '// Generated file. DO NOT MODIFY IT BY HAND.',
     style: pretterOptions ?? undefined
   })
 }
