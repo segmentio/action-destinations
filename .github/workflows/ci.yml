@@ -10,9 +10,7 @@ jobs:
   test:
     name: Unit tests
     runs-on: ubuntu-20.04
-
     timeout-minutes: 30
-
     strategy:
       matrix:
         node-version: [18.x]
@@ -51,14 +49,20 @@ jobs:
     name: Lint
     runs-on: ubuntu-20.04
     timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
           fetch-depth: 0 # nx recipe
 
-      - uses: actions/setup-node@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
+          node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -84,14 +88,20 @@ jobs:
     name: Validate
     runs-on: ubuntu-20.04
     timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
           fetch-depth: 0 # nx recipe
 
-      - uses: actions/setup-node@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
+          node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -104,6 +114,9 @@ jobs:
         run: yarn install --frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Assert yarn.lock is up-to-date
+        run: bash scripts/assert-lockfile-updated.sh
 
       - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
         run: NODE_ENV=production yarn build # nx recipe
@@ -120,54 +133,46 @@ jobs:
       - name: Assert generated types are up-to-date
         run: bash scripts/assert-types-updated.sh
 
-  # browser-tests-destination:
-  #   # env: # Disable saucelabs - we blew through our quota.
-  #   #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-  #   #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+  browser-destination-bundle-qa:
+    name: Browser Destination Bundle QA
+    # env: # Disable saucelabs - we blew through our quota.
+    #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+    #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
 
-  #   runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
-  #   timeout-minutes: 20
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
 
-  #   strategy:
-  #     matrix:
-  #       node-version: [18.x]
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
-  #   steps:
-  #     - uses: actions/checkout@master
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  #     - name: Use Node.js ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         registry-url: 'https://registry.npmjs.org'
+      - name: Build
+        run: NODE_ENV=production yarn build:browser-bundles
 
-  #     - name: Get yarn cache directory path
-  #       id: yarn-cache-dir-path
-  #       run: echo "::set-output name=dir::$(yarn cache dir)"
-
-  #     - uses: actions/cache@v2
-  #       id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-  #       with:
-  #         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-yarn-
-
-  #     - name: Install Dependencies
-  #       run: yarn install --frozen-lockfile
-  #       env:
-  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  #     - name: Build
-  #       run: NODE_ENV=production yarn build:browser-destinations && yarn browser build-web
-
-  #     - name: Run Saucelabs Tests
-  #       working-directory: packages/browser-destinations-integration-tests
-  #       shell: bash
-  #       run: |
-  #         yarn start-destination-server &
-  #         yarn test:sauce
+      # - name: Run Saucelabs Tests
+      #   working-directory: packages/browser-destinations-integration-tests
+      #   shell: bash
+      #   run: |
+      #     yarn start-destination-server &
+      #     yarn test:sauce
 
   browser-tests-core:
     name: 'Browser tests: actions-core'

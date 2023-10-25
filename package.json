@@ -19,7 +19,7 @@
     "core": "yarn workspace @segment/actions-core",
     "bootstrap": "lerna bootstrap",
     "build": "nx run-many -t build",
-    "build:browser-destinations": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
+    "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
     "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
