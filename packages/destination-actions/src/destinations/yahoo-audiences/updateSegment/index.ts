@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -7,7 +7,7 @@ import { gen_update_segment_payload } from '../utils-rt'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
-  defaultSubscription: 'type = "identify"',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_audience_id: {
       label: 'Segment Audience Id', // Maps to Yahoo Taxonomy Segment Id
@@ -56,20 +56,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       },
       choices: [{ label: 'audience', value: 'audience' }]
     },
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching of requests',
-      type: 'boolean', // We should always batch Yahoo requests
-      default: true,
-      unsafe_hidden: true
-    },
-    batch_size: {
-      label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
-      type: 'number',
-      unsafe_hidden: true,
-      default: 1000
-    },
     email: {
       label: 'User Email',
       description: 'Email address of a user',
@@ -80,7 +66,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
-          else: { '@path': '$.properties.email' }
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
@@ -93,6 +79,20 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@path': '$.context.device.advertisingId'
       },
       required: false
+    },
+    phone: {
+      label: 'User Phone',
+      description: 'Phone number of a user',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.context.traits.phone' }
+        }
+      }
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
@@ -113,7 +113,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       choices: [
         { value: 'email', label: 'Send email' },
         { value: 'maid', label: 'Send MAID' },
-        { value: 'email_maid', label: 'Send email and/or MAID' }
+        { value: 'phone', label: 'Send phone' },
+        { value: 'email_maid', label: 'Send email and/or MAID' },
+        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
+        { value: 'email_phone', label: 'Send email and/or phone' },
+        { value: 'phone_maid', label: 'Send phone and/or MAID' }
       ]
     },
     gdpr_flag: {
@@ -132,44 +136,50 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: (request, { payload, auth, audienceSettings }) => {
+  perform: (request, { payload, auth, audienceSettings, statsContext }) => {
     const rt_access_token = auth?.accessToken
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    const body = gen_update_segment_payload([payload], audienceSettings)
-    // Send request to Yahoo only when the event includes selected Ids
-    if (body.data.length > 0) {
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-    } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
-    }
+    return process_payload(request, [payload], rt_access_token, audienceSettings, statsContext)
   },
-  performBatch: (request, { payload, audienceSettings, auth }) => {
+  performBatch: (request, { payload, audienceSettings, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
-    const body = gen_update_segment_payload(payload, audienceSettings)
-    // Send request to Yahoo only when all events in the batch include selected Ids
-    if (body.data.length > 0) {
-      return request('https://dataxonline.yahoo.com/online/audience/', {
-        method: 'POST',
-        json: body,
-        headers: {
-          Authorization: `Bearer ${rt_access_token}`
-        }
-      })
-    } else {
-      throw new PayloadValidationError('Email and / or Advertising Id not available in the profile(s)')
+    return process_payload(request, payload, rt_access_token, audienceSettings, statsContext)
+  }
+}
+
+async function process_payload(
+  request: RequestClient,
+  payload: Payload[],
+  token: string | undefined,
+  audienceSettings: AudienceSettings,
+  statsContext: StatsContext | undefined
+) {
+  const body = gen_update_segment_payload(payload, audienceSettings)
+  const statsClient = statsContext?.statsClient
+  const statsTag = statsContext?.tags
+  // Send request to Yahoo only when all events in the batch include selected Ids
+  if (body.data.length > 0) {
+    if (statsClient && statsTag) {
+      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentTriggered'])
+      statsClient?.incr('yahoo_audiences', body.data.length, [...statsTag, 'action:updateSegmentRecordsSent'])
     }
+    return request('https://dataxonline.yahoo.com/online/audience/', {
+      method: 'POST',
+      json: body,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  } else {
+    if (statsClient && statsTag) {
+      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentDiscarded'])
+    }
+    throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
   }
 }
 

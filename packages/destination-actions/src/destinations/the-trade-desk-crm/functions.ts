@@ -109,8 +109,7 @@ function extractUsers(payloads: Payload[]): string {
     }
 
     if (payload.pii_type == 'EmailHashedUnifiedId2') {
-      const normalizedEmail = normalizeEmail(payload.email)
-      const hashedEmail = hash(normalizedEmail)
+      const hashedEmail = hash(payload.email)
       users += `${hashedEmail}\n`
     }
   })
@@ -139,8 +138,20 @@ function normalizeEmail(email: string) {
 }
 
 export const hash = (value: string): string => {
+  const isSha256HashedEmail = /^[a-f0-9]{64}$/i.test(value)
+  const isBase64Hashed = /^[A-Za-z0-9+/]*={0,2}$/i.test(value)
+
+  if (isSha256HashedEmail) {
+    return Buffer.from(value, 'hex').toString('base64')
+  }
+
+  if (isBase64Hashed) {
+    return value
+  }
+
+  const normalizedEmail = normalizeEmail(value)
   const hash = createHash('sha256')
-  hash.update(value)
+  hash.update(normalizedEmail)
   return hash.digest('base64')
 }
 
@@ -176,7 +187,11 @@ export async function getAllDataSegments(request: RequestClient, advertiserId: s
   const allDataSegments: Segments[] = []
   // initial call to get first page
   let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment/${advertiserId}`, {
-    method: 'GET'
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'TTD-Auth': authToken
+    }
   })
 
   if (response.status != 200 || !response.data.Segments) {

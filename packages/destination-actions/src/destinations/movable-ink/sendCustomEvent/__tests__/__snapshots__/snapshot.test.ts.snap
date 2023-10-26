@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MovableInk's sendCustomEvent destination action: all fields 1`] = `
+Object {
+  "anonymous_id": "c8y8]u!YY]qV)]",
+  "categories": Array [
+    Object {
+      "id": "c8y8]u!YY]qV)]",
+      "url": "c8y8]u!YY]qV)]",
+    },
+  ],
+  "event_name": "c8y8]u!YY]qV)]",
+  "metadata": Object {
+    "testType": "c8y8]u!YY]qV)]",
+  },
+  "order_id": "c8y8]u!YY]qV)]",
+  "products": Array [
+    Object {
+      "id": "c8y8]u!YY]qV)]",
+      "price": 11571987134545.92,
+      "quantity": 1157198713454592,
+      "title": "c8y8]u!YY]qV)]",
+      "url": "c8y8]u!YY]qV)]",
+    },
+  ],
+  "revenue": 11571987134545.92,
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timezone": "c8y8]u!YY]qV)]",
+  "user_id": "c8y8]u!YY]qV)]",
+}
+`;
+
+exports[`Testing snapshot for MovableInk's sendCustomEvent destination action: required fields 1`] = `
+Object {
+  "anonymous_id": "c8y8]u!YY]qV)]",
+  "event_name": "c8y8]u!YY]qV)]",
+  "metadata": Object {},
+  "order_id": "c8y8]u!YY]qV)]",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "c8y8]u!YY]qV)]",
+}
+`;
