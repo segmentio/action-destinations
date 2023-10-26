@@ -1,22 +1,49 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import replaybird, { destination } from '../../index'
-import { trackSubscription, REPLAYBIRD_SITE_KEY } from '../../utils'
+import replaybird from '../../index'
+import {
+  trackSubscription,
+  REPLAYBIRD_API_KEY,
+  createMockedReplaybirdJsSdk,
+  mockReplaybirdJsHttpRequest
+} from '../../utils'
 
 describe('replaybird.track', () => {
-  it('Send events to replaybird', async () => {
+  // let event: Plugin
+  // let trackSpy: jest.SpyInstance
+
+  // beforeAll(async () => {
+  //   mockReplaybirdJsHttpRequest()
+  //   window.replaybird = createMockedReplaybirdJsSdk()
+
+  //   event = (await replaybird({
+  //     apiKey: REPLAYBIRD_API_KEY,
+  //     subscriptions: [trackSubscription]
+  //   }))[0]
+  //   await event.load(Context.system(), {} as Analytics)
+  //   trackSpy = jest.spyOn(window.replaybird, 'capture')
+  // })
+
+  // beforeEach(() => {
+  //   jest.resetAllMocks()
+  // })
+
+  it('Should send events to replaybird', async () => {
+    mockReplaybirdJsHttpRequest()
+    window.replaybird = createMockedReplaybirdJsSdk()
+
     const [event] = await replaybird({
-      apiKey: REPLAYBIRD_SITE_KEY,
+      apiKey: REPLAYBIRD_API_KEY,
       subscriptions: [trackSubscription]
     })
 
-    jest.spyOn(destination.actions.trackEvent, 'perform')
-    // jest.spyOn(destination, 'initialize')
     await event.load(Context.system(), {} as Analytics)
-
     const trackSpy = jest.spyOn(window.replaybird, 'capture')
-    const name = 'signup'
+
+    const name = 'Signup'
     const properties = {
-      userName: 'mathew'
+      email: 'user@example.com',
+      name: 'Mathew',
+      country: 'USA'
     }
 
     await event.track?.(

@@ -1,19 +1,21 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import replaybird, { destination } from '../index'
-import { subscriptions, REPLAYBIRD_SITE_KEY } from '../utils'
+import { subscriptions, REPLAYBIRD_API_KEY, mockReplaybirdJsHttpRequest, createMockedReplaybirdJsSdk } from '../utils'
 
 describe('Replaybird', () => {
   test('Load replaybird cdn script file', async () => {
+    jest.spyOn(destination, 'initialize')
+
+    mockReplaybirdJsHttpRequest()
+    window.replaybird = createMockedReplaybirdJsSdk()
+
     const [event] = await replaybird({
-      apiKey: REPLAYBIRD_SITE_KEY,
+      apiKey: REPLAYBIRD_API_KEY,
       subscriptions: subscriptions
     })
 
-    // jest.spyOn(destination.actions.trackEvent, 'perform')
-    jest.spyOn(destination, 'initialize')
-
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
-    expect(window.replaybird.apiKey).toEqual(REPLAYBIRD_SITE_KEY)
+    expect(window.replaybird.apiKey).toEqual(REPLAYBIRD_API_KEY)
   })
 })

@@ -1,4 +1,5 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
+import nock from 'nock'
 
 export const trackSubscription: Subscription = {
   partnerAction: 'trackEvent',
@@ -30,5 +31,20 @@ export const identifySubscription: Subscription = {
   }
 }
 
-export const REPLAYBIRD_SITE_KEY = 'secret'
+export const REPLAYBIRD_API_KEY = 'secret'
+
+export const createMockedReplaybirdJsSdk = (): ReplaybirdApi => {
+  return {
+    apiKey: REPLAYBIRD_API_KEY,
+    init: jest.fn(),
+    capture: jest.fn(),
+    identify: jest.fn()
+  }
+}
+
+// https://cdn.replaybird.com/agent/latest/replaybird.js
+export const mockReplaybirdJsHttpRequest = (): void => {
+  nock('https://cdn.replaybird.com').get(`/agent/latest/replaybird.js`).reply(200, {})
+}
+
 export const subscriptions = [trackSubscription, identifySubscription]
