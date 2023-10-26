@@ -13,7 +13,7 @@ export type Account = {
 export type PendoOptions = {
   visitor?: Visitor
   account?: Account
-  [propName: string]: unknown
+  parentAccount?: Account
 }
 
 export type PendoSDK = {

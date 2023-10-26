@@ -90,13 +90,6 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
         : {})
     }
 
-    // If parentAccount exists in group traits, lift it out of account properties into options properties
-    // https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/pendo/lib/index.js#L136
-    if (options.account?.parentAccount) {
-      options.parentAccount = options.account.parentAccount
-      delete options.account.parentAccount
-    }
-
     window.pendo.initialize(options)
 
     return window.pendo

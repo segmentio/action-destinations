@@ -34,6 +34,22 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       required: false,
       default: { '@path': '$.traits' },
       readOnly: true
+    },
+    parentAccountData: {
+      label: 'Parent Account Metadata',
+      description:
+        'Additional Parent Account data to send. Note: Contact Pendo to request enablement of Parent Account feature.',
+      type: 'object',
+      properties: {
+        id: {
+          label: 'Parent Account ID',
+          type: 'string',
+          required: true
+        }
+      },
+      additionalProperties: true,
+      default: { '@path': '$.traits.parentAccount' },
+      required: false
     }
   },
   perform: (pendo, event) => {
@@ -47,11 +63,8 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       }
     }
 
-    // If parentAccount exists in group traits, lift it out of account properties into options properties
-    // https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/pendo/lib/index.js#L136
-    if (payload.account?.parentAccount) {
-      payload.parentAccount = payload.account.parentAccount
-      delete payload.account.parentAccount
+    if (event.payload.parentAccountData) {
+      payload.parentAccount = event.payload.parentAccountData
     }
 
     pendo.identify(payload)

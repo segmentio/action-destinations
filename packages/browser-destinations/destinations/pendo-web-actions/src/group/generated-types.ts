@@ -15,4 +15,11 @@ export interface Payload {
   accountData?: {
     [k: string]: unknown
   }
+  /**
+   * Additional Parent Account data to send. Note: Contact Pendo to request enablement of Parent Account feature.
+   */
+  parentAccountData?: {
+    id: string
+    [k: string]: unknown
+  }
 }
