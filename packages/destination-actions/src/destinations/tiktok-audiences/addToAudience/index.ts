@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     if (statsClient) {
-      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+      statsClient?.incr('addToAudience', 1, statsTag)
     }
 
     return processPayload(request, audienceSettings, [payload], 'add')
@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     if (statsClient) {
-      statsClient?.incr('actions-tiktok-audiences.addToAudience', 1, statsTag)
+      statsClient?.incr('addToAudience', 1, statsTag)
     }
 
     return processPayload(request, audienceSettings, payload, 'add')

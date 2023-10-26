@@ -10,9 +10,21 @@ export interface Payload {
    */
   timestamp: string | number
   /**
-   * User ID, ideally mappable to external ref of a Rev User.
+   * User ID as received from Segment.
    */
   userId?: string
+  /**
+   * User Ref, ideally mappable to external ref of a Rev User.
+   */
+  userRef?: string
+  /**
+   * Account Ref, ideally mappable to external ref of a Rev Account.
+   */
+  accountRef?: string
+  /**
+   * Workspace Ref, ideally mappable to external ref of a Rev Workspace.
+   */
+  workspaceRef?: string
   /**
    * The email of the contact associated with this event.
    */

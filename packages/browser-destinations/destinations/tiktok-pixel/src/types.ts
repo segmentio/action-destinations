@@ -1,6 +1,14 @@
 export interface TikTokPixel {
   page: () => void
-  identify: ({ email, phone_number }: { email: string | undefined; phone_number: string | undefined }) => void
+  identify: ({
+    email,
+    phone_number,
+    external_id
+  }: {
+    email: string | undefined
+    phone_number: string | undefined
+    external_id: string | undefined
+  }) => void
   track: (
     event: string,
     {
@@ -22,6 +30,11 @@ export interface TikTokPixel {
       value: number
       description: string | undefined
       query: string | undefined
+    },
+    {
+      event_id
+    }: {
+      event_id: string | undefined
     }
   ) => void
 }

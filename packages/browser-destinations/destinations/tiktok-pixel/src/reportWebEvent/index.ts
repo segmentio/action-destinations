@@ -18,6 +18,14 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
       description:
         'Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Pixel documentation](https://ads.tiktok.com/marketing_api/docs?id=1739585696931842) for accepted event names.'
     },
+    event_id: {
+      label: 'Event ID',
+      type: 'string',
+      description: 'Any hashed ID that can identify a unique user/session.',
+      default: {
+        '@path': '$.messageId'
+      }
+    },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_number: {
       label: 'Phone Number',
@@ -128,17 +136,24 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
     if (payload.email || payload.phone_number) {
       ttq.identify({
         email: payload.email,
-        phone_number: formatPhone(payload.phone_number)
+        phone_number: formatPhone(payload.phone_number),
+        external_id: payload.external_id
       })
     }
 
-    ttq.track(payload.event, {
-      contents: payload.contents ? payload.contents : [],
-      currency: payload.currency ? payload.currency : 'USD', // default to 'USD'
-      value: payload.value ? payload.value : 0, //default to 0
-      description: payload.description,
-      query: payload.query
-    })
+    ttq.track(
+      payload.event,
+      {
+        contents: payload.contents ? payload.contents : [],
+        currency: payload.currency ? payload.currency : 'USD', // default to 'USD'
+        value: payload.value ? payload.value : 0, //default to 0
+        description: payload.description,
+        query: payload.query
+      },
+      {
+        event_id: payload.event_id
+      }
+    )
   }
 }
 

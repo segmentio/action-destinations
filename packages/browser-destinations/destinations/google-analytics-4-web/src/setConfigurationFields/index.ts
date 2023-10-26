@@ -4,12 +4,15 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties } from '../ga4-properties'
 import { updateUser } from '../ga4-functions'
 
+type ConsentParamsArg = 'granted' | 'denied' | undefined
+
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
   description: 'Set custom values for the GA4 configuration fields.',
   platform: 'web',
   defaultSubscription: 'type = "identify" or type = "page"',
+  lifecycleHook: 'before',
   fields: {
     user_id: user_id,
     user_properties: user_properties,
@@ -96,8 +99,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
-        ad_storage: payload.ads_storage_consent_state,
-        analytics_storage: payload.analytics_storage_consent_state
+        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
+        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
       })
     }
     type ConfigType = { [key: string]: unknown }
@@ -118,6 +121,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (payload.user_id) {
       config.user_id = payload.user_id
+    }
+    if (payload.user_properties) {
+      config.user_properties = payload.user_properties
     }
     if (payload.page_title) {
       config.page_title = payload.page_title

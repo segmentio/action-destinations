@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-movable-ink's productAdded destination action: all fields 1`] = `
+Object {
+  "anonymous_id": "C6eQ7krEG8NsPiQOr",
+  "categories": Array [
+    Object {
+      "id": "C6eQ7krEG8NsPiQOr",
+      "url": "C6eQ7krEG8NsPiQOr",
+    },
+  ],
+  "event_name": "Cart Add",
+  "metadata": Object {
+    "testType": "C6eQ7krEG8NsPiQOr",
+  },
+  "product": Object {
+    "id": "C6eQ7krEG8NsPiQOr",
+    "price": 45880264370421.76,
+    "quantity": 4588026437042176,
+    "title": "C6eQ7krEG8NsPiQOr",
+    "url": "C6eQ7krEG8NsPiQOr",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timezone": "C6eQ7krEG8NsPiQOr",
+  "user_id": "C6eQ7krEG8NsPiQOr",
+}
+`;
+
+exports[`Testing snapshot for actions-movable-ink's productAdded destination action: required fields 1`] = `
+Object {
+  "anonymous_id": "C6eQ7krEG8NsPiQOr",
+  "event_name": "Cart Add",
+  "metadata": Object {},
+  "product": Object {
+    "id": "C6eQ7krEG8NsPiQOr",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "C6eQ7krEG8NsPiQOr",
+}
+`;

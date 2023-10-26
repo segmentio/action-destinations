@@ -19,7 +19,10 @@ const defaultIdentifyMapping = {
   traits: {
     '@path': '$.traits'
   },
-  engage_space: 'engage-space-writekey'
+  engage_space: 'engage-space-writekey',
+  timestamp: {
+    '@path': '$.timestamp'
+  }
 }
 
 describe('Segment.sendIdentify', () => {
@@ -76,7 +79,8 @@ describe('Segment.sendIdentify', () => {
         email: 'test-user@test-company.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      anonymousId: 'arky4h2sh7k',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendIdentify', {
@@ -93,7 +97,7 @@ describe('Segment.sendIdentify', () => {
     expect(responses[0].options.json).toMatchSnapshot()
   })
 
-  test('Should not send event if actions-segment-profiles-tapi-internal flag is enabled', async () => {
+  test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
     const event = createTestEvent({
       type: 'identify',
       traits: {
@@ -101,7 +105,8 @@ describe('Segment.sendIdentify', () => {
         email: 'test-user@test-company.com'
       },
       userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
+      anonymousId: 'arky4h2sh7k',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendIdentify', {
@@ -111,7 +116,7 @@ describe('Segment.sendIdentify', () => {
         endpoint: DEFAULT_SEGMENT_ENDPOINT
       },
       features: {
-        'actions-segment-profiles-tapi-internal': true
+        'actions-segment-profiles-tapi-internal-enabled': true
       }
     })
     const results = testDestination.results

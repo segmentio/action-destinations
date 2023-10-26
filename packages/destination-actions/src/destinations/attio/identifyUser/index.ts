@@ -19,31 +19,35 @@ const email_address: InputField = {
   }
 }
 
+const user_id: InputField = {
+  type: 'string',
+  label: 'ID',
+  description: 'The ID of the User',
+  format: 'text',
+  required: true,
+  default: { '@path': '$.userId' }
+}
+
 const user_attributes: InputField = {
   type: 'object',
   label: 'Additional User attributes',
   description:
-    'Additional attributes to either set or update on the Attio User Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio User Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
   additionalProperties: true,
-  properties: {
-    name: {
-      label: 'Name',
-      type: 'string'
-    }
-  },
-  default: {
-    name: { '@path': '$.traits.name' }
-  }
+  properties: {},
+  default: {}
 }
 
 const person_attributes: InputField = {
   type: 'object',
   label: 'Additional Person attributes',
   description:
-    'Additional attributes to either set or update on the Attio Person Record. The keys on the left should be ' +
-    'Attio Attribute IDs or Slugs, and the values on the right are Segment attributes or custom text.',
+    'Additional attributes to either set or update on the Attio Person Record. The values on the left should be ' +
+    'Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. ' +
+    'For example: traits.name → name',
   defaultObjectUI: 'keyvalue:only',
   default: {}
 }
@@ -54,33 +58,31 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {
     email_address,
+    user_id,
     user_attributes,
     person_attributes
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { email_address, user_attributes, person_attributes }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     await client.assertRecord({
       object: 'people',
       matching_attribute: 'email_addresses',
       values: {
-        email_addresses: email_address,
-        ...(person_attributes ?? {})
+        email_addresses: payload.email_address,
+        ...(payload.person_attributes ?? {})
       }
     })
 
     return await client.assertRecord({
       object: 'users',
-      matching_attribute: 'primary_email_address',
+      matching_attribute: 'user_id',
       values: {
-        primary_email_address: email_address,
-        person: email_address,
-        ...(user_attributes ?? {})
+        primary_email_address: payload.email_address,
+        person: payload.email_address,
+        user_id: payload.user_id,
+        ...(payload.user_attributes ?? {})
       }
     })
   }

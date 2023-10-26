@@ -18,7 +18,7 @@ export interface Payload {
    */
   s3_aws_region?: string
   /**
-   * Identifies the user within the entered audience.
+   * Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.
    */
   audience_key: string
   /**

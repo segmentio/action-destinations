@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     traits
   },
-  perform: (request, { payload, settings, features }) => {
+  perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
@@ -81,7 +81,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw InvalidEndpointSelectedThrowableError
     }
 
-    if (features && features['actions-segment-tapi-internal']) {
+    // Return transformed payload without sending it to TAPI endpoint
+    if (features && features['actions-segment-tapi-internal-enabled']) {
+      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendIdentify'])
       const payload = { ...identifyPayload, type: 'identify' }
       return { batch: [payload] }
     }

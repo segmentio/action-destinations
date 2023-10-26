@@ -93,7 +93,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     uuid: {
       label: 'Unique ID',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       description: 'Unique ID for the event',
       required: true,
       default: {

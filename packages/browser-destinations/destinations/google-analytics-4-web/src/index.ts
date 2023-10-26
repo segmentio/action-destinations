@@ -30,6 +30,8 @@ declare global {
   }
 }
 
+type ConsentParamsArg = 'granted' | 'denied' | undefined
+
 const presets: DestinationDefinition['presets'] = [
   {
     name: `Set Configuration Fields`,
@@ -153,8 +155,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     window.gtag('js', new Date())
     if (settings.enableConsentMode) {
       window.gtag('consent', 'default', {
-        ad_storage: settings.defaultAdsStorageConsentState,
-        analytics_storage: settings.defaultAnalyticsStorageConsentState,
+        ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
+        analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg,
         wait_for_update: settings.waitTimeToUpdateConsentStage
       })
     }

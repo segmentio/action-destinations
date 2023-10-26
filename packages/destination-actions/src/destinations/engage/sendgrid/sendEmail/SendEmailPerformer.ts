@@ -94,6 +94,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }
+
   async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
@@ -118,7 +119,18 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [parsedSubject, apiLookupData] = await Promise.all([
+    const [
+      parsedFromEmail,
+      parsedFromName,
+      parsedFromReplyToEmail,
+      parsedFromReplyToName,
+      parsedSubject,
+      apiLookupData
+    ] = await Promise.all([
+      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
       this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
       this.performApiLookups(this.payload.apiLookups, profile)
     ])
@@ -145,12 +157,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         }
       ],
       from: {
-        email: this.payload.fromEmail,
-        name: this.payload.fromName
+        email: parsedFromEmail,
+        name: parsedFromName
       },
       reply_to: {
-        email: this.payload.replyToEmail,
-        name: this.payload.replyToName
+        email: parsedFromReplyToEmail,
+        name: parsedFromReplyToName
       },
       subject: parsedSubject,
       content: [
@@ -201,6 +213,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   @track()
+  async getBodyTemplateFromS3(bodyUrl: string) {
+    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    return content
+  }
+
+  @track()
   async getBodyHtml(
     profile: Profile,
     apiLookupData: Record<string, unknown>,
@@ -217,7 +235,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   ) {
     let parsedBodyHtml
     if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
-      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      const body = await this.getBodyTemplateFromS3(this.payload.bodyUrl)
       const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
       parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
     } else {
@@ -361,7 +379,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   onResponse(args: { response?: Response; error?: ResponseError; operation: OperationContext }) {
-    const headers = args.response?.headers || args.error?.response.headers
+    const headers = args.response?.headers || args.error?.response?.headers
     // if we need to investigate with sendgrid, we'll need this: https://docs.sendgrid.com/glossary/message-id
     const sgMsgId = headers?.get('X-Message-ID')
     if (sgMsgId) args.operation.logs.push('[sendgrid]X-Message-ID: ' + sgMsgId)

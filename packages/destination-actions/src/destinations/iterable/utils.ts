@@ -4,9 +4,10 @@ import { CommerceItem, DataCenterLocation } from './shared-fields'
 
 // Regular expression for matching ISO date strings in various formats
 // Taken from https://github.com/segmentio/isodate/blob/master/lib/index.js
+//const isoDateRegExp =
+//  /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/
 const isoDateRegExp =
-  /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ // eslint-disable-line no-useless-escape
-
+  /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ // eslint-disable-line no-useless-escape
 /**
  * Converts a given ISO date string to the format accepted by Iterable's API.
  * @param {string} isoDateStr - An ISO date string, such as "2022-05-13T10:30:52.853Z".

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`SegmentProfiles.sendGroup Should not send event if actions-segment-profiles-tapi-internal flag is enabled 1`] = `
+exports[`SegmentProfiles.sendGroup Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled 1`] = `
 Object {
   "batch": Array [
     Object {
@@ -9,11 +9,12 @@ Object {
       "integrations": Object {
         "All": false,
       },
+      "timestamp": "2023-09-26T09:46:28.290Z",
       "traits": Object {
         "industry": "Technology",
         "name": "Example Corp",
       },
-      "type": "identify",
+      "type": "group",
       "userId": "test-user-ufi5bgkko5",
     },
   ],
@@ -40,6 +41,7 @@ Object {
   "integrations": Object {
     "All": false,
   },
+  "timestamp": "2023-09-26T09:46:28.290Z",
   "traits": Object {
     "industry": "Technology",
     "name": "Example Corp",

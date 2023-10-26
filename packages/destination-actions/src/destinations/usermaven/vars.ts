@@ -1,1 +1,5 @@
-export const generateId = () => Math.random().toString(36).substring(2, 12)
+import random from 'lodash/random'
+
+export const generateId = () => {
+  return random(1000000000, 9999999999).toString()
+}

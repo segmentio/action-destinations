@@ -45,6 +45,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ auth }) {
     return {
+      skipResponseCloning: true,
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
       }

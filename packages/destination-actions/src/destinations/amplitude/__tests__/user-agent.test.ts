@@ -5,9 +5,14 @@ describe('amplitude - custom user agent parsing', () => {
     //This is borrowed from amplitude tests so we know its parsable:
     // https://github.com/amplitude/ua-parser-js/blob/master/test/device-test.json#L138
     const userAgent =
-      '"Mozilla/5.0 (Linux; Android 5.0.1; Lenovo TAB 2 A7-30HC Build/LRX21M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.157 Safari/537.36"'
+      '"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.0.0 Safari/537.36"'
 
-    const result = parseUserAgentProperties(userAgent)
+    const userAgentData = {
+      model: 'TAB 2 A7',
+      platformVersion: '5.0.1'
+    }
+
+    const result = parseUserAgentProperties(userAgent, userAgentData)
 
     expect(result).toEqual({
       os_name: 'Android',
@@ -25,12 +30,31 @@ describe('amplitude - custom user agent parsing', () => {
       device_model: 'Mac OS',
       device_type: undefined,
       os_name: 'Mac OS',
-      os_version: '10.15.7'
+      os_version: '93'
     })
   })
 
   it('should return an empty object when there is no user agent', () => {
     const result = parseUserAgentProperties(undefined)
     expect(result).toEqual({})
+  })
+
+  it('should parse custom user agent and use userAgentData for os_version and device_model', () => {
+    const userAgent =
+      '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"'
+
+    const userAgentData = {
+      model: 'SM-J710FN',
+      platformVersion: '12.6.1'
+    }
+
+    const result = parseUserAgentProperties(userAgent, userAgentData)
+
+    expect(result).toEqual({
+      device_model: 'SM-J710FN',
+      device_type: undefined,
+      os_name: 'Mac OS',
+      os_version: '12.6.1'
+    })
   })
 })
