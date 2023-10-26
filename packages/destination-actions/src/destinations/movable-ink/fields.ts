@@ -59,10 +59,10 @@ export const meta: InputField = {
   label: 'Metadata',
   description: 'A map of meta data to provide additional context about the event.',
   type: 'object',
-  defaultObjectUI: 'keyvalue',
+  defaultObjectUI: 'object',
   additionalProperties: true,
   required: false,
-  default: { '@path': '$.properties' }
+  default: { '@path': '$.properties.metadata' }
 }
 
 export const query_url: InputField = {
@@ -169,7 +169,7 @@ export const product_with_quantity: InputField = {
   },
   default: {
     ...(product.default as object),
-    quantity: { '@path': '$.quantity' }
+    quantity: { '@path': '$.properties.quantity' }
   }
 }
 

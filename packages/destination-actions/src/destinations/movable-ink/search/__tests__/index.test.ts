@@ -43,7 +43,7 @@ const eventWithMetadata = createTestEvent({
   properties: {
     query: 'transformer toys',
     url: 'https://www.transformertoys.com',
-    random_field: 'random_field_value'
+    metadata: { random_field: 'random_field_value' }
   }
 })
 

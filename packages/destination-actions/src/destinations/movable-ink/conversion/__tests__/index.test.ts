@@ -71,7 +71,7 @@ const eventWithMetadata = createTestEvent({
     order_id: 'order_1',
     revenue: 100,
     products: [{ product_id: 'pid_1' }],
-    random_field: 'random_field_value'
+    metadata: { random_field: 'random_field_value' }
   }
 })
 
