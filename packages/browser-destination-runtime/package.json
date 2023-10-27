@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.17.1-staging.2",
+  "version": "1.17.1-staging.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.86.1-staging.2"
+    "@segment/actions-core": "^3.86.1-staging.3"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
