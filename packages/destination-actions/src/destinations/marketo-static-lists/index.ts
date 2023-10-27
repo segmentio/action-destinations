@@ -121,7 +121,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       // Get access token
       const access_token = await getAccessToken(request, getAudienceInput.settings)
 
-      const response = await request<MarketoResonse>(`${endpoint}/rest/asset/v1/staticList/${list_id}`, {
+      const response = await request<MarketoResonse>(`${endpoint}/rest/asset/v1/staticList/${list_id}.json`, {
         method: 'GET',
         headers: {
           authorization: `Bearer ${access_token}`
