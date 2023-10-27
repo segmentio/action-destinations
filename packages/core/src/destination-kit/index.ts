@@ -252,6 +252,7 @@ interface EventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly requestCache?: RequestCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -266,6 +267,7 @@ interface BatchEventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly requestCache?: RequestCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -332,6 +334,11 @@ export interface Logger {
   crit(...message: string[]): void
   log(...message: string[]): void
   withTags(extraTags: any): void
+}
+
+export interface RequestCache {
+  setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
+  getRequestResponse(requestId: string): Promise<string>
 }
 
 export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
@@ -510,6 +517,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
+      requestCache,
       transactionContext,
       stateContext
     }: EventInput<Settings>
@@ -533,6 +541,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
+      requestCache,
       transactionContext,
       stateContext
     })
@@ -548,6 +557,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
+      requestCache,
       transactionContext,
       stateContext
     }: BatchEventInput<Settings>
@@ -572,6 +582,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
+      requestCache,
       transactionContext,
       stateContext
     })
