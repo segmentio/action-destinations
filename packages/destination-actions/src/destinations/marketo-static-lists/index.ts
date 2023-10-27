@@ -118,8 +118,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const statsClient = getAudienceInput?.statsContext?.statsClient
       const statsTags = getAudienceInput?.statsContext?.tags
 
+      // Get access token
+      const access_token = await getAccessToken(request, getAudienceInput.settings)
+
       const response = await request<MarketoResonse>(`${endpoint}/rest/asset/v1/staticList/${list_id}`, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          authorization: `Bearer ${access_token}`
+        }
       })
 
       if (!response.data.success && response.data.errors) {
