@@ -5,6 +5,7 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
+import { buildListTypeMap } from './listManagement'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -46,6 +47,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Advertiser ID',
       description:
         'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
+    },
+    listType: {
+      type: 'string',
+      label: 'List Type',
+      description: 'The type of audience list you want to create.',
+      choices: [
+        { label: 'Basic User List', value: 'basicUserList' },
+        { label: 'Customer Match List', value: 'customerMatchList' }
+      ]
     }
   },
   audienceConfig: {
@@ -56,6 +66,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const advertiserId = createAudienceInput.audienceSettings?.advertiserId
+      const listType = createAudienceInput.audienceSettings?.listType
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
 
@@ -66,6 +77,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!advertiserId) {
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
+
+      const listTypeMap = buildListTypeMap(listType)
 
       const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
       let response
@@ -81,11 +94,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             operations: [
               {
                 create: {
-                  basicUserList: {},
+                  ...listTypeMap,
                   name: audienceName,
                   description: 'Created by Segment',
-                  membershipStatus: 'OPEN',
-                  type: 'REMARKETING',
                   membershipLifeSpan: '540'
                 }
               }
