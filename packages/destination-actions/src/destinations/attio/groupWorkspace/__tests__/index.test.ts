@@ -36,7 +36,7 @@ describe('Attio.groupWorkspace', () => {
     }
 
     nock('https://api.attio.com')
-      .put('/v2/objects/companies/records/simple?matching_attribute=domains', {
+      .put('/v2/objects/companies/records/simple?matching_attribute=domains&append_to_existing_values=true', {
         data: {
           values: {
             domains: domain
@@ -46,7 +46,7 @@ describe('Attio.groupWorkspace', () => {
       .reply(200, companyResponse)
 
     nock('https://api.attio.com')
-      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id', {
+      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id&append_to_existing_values=true', {
         data: {
           values: {
             company: 'record_id',
@@ -82,7 +82,7 @@ describe('Attio.groupWorkspace', () => {
     }
 
     nock('https://api.attio.com')
-      .put('/v2/objects/companies/records/simple?matching_attribute=domains', {
+      .put('/v2/objects/companies/records/simple?matching_attribute=domains&append_to_existing_values=true', {
         data: {
           values: {
             domains: domain
@@ -92,7 +92,7 @@ describe('Attio.groupWorkspace', () => {
       .reply(200, companyResponse)
 
     nock('https://api.attio.com')
-      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id', {
+      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id&append_to_existing_values=true', {
         data: {
           values: {
             company: 'record_id',
@@ -127,7 +127,7 @@ describe('Attio.groupWorkspace', () => {
     }
 
     nock('https://api.attio.com')
-      .put('/v2/objects/companies/records/simple?matching_attribute=domains', {
+      .put('/v2/objects/companies/records/simple?matching_attribute=domains&append_to_existing_values=true', {
         data: {
           values: {
             domains: domain
@@ -137,7 +137,7 @@ describe('Attio.groupWorkspace', () => {
       .reply(200, companyResponse)
 
     nock('https://api.attio.com')
-      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id', {
+      .put('/v2/objects/workspaces/records/simple?matching_attribute=workspace_id&append_to_existing_values=true', {
         data: {
           values: {
             company: 'record_id',
@@ -163,7 +163,7 @@ describe('Attio.groupWorkspace', () => {
 
   it('fails to assert a Company and returns', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/companies/records/simple?matching_attribute=domains', {
+      .put('/v2/objects/companies/records/simple?matching_attribute=domains&append_to_existing_values=true', {
         data: {
           values: {
             domains: domain
