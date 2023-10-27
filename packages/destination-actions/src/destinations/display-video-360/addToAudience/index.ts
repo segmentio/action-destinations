@@ -3,7 +3,7 @@ import { IntegrationError } from '@segment/actions-core'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { handleUpdate } from './shared'
+import { handleUpdate } from '../shared'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Add to Audience',

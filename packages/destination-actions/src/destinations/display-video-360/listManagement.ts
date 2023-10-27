@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core/dist/cjs'
+import { IntegrationError } from '@segment/actions-core'
 
 type BasicListTypeMap = { basicUserList: any; [key: string]: any } | { crmBasedUserList: any; [key: string]: any }
 
