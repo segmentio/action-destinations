@@ -15,9 +15,6 @@ const subscriptions: Subscription[] = [
       },
       visitorData: {
         '@path': '$.traits'
-      },
-      accountId: {
-        '@path': '$.context.group_id'
       }
     }
   }
@@ -26,7 +23,6 @@ const subscriptions: Subscription[] = [
 describe('Pendo.identify', () => {
   const settings = {
     apiKey: 'abc123',
-    setVisitorIdOnLoad: 'disabled',
     region: 'io'
   }
 
@@ -60,15 +56,11 @@ describe('Pendo.identify', () => {
       userId: 'testUserId',
       traits: {
         first_name: 'Jimbo'
-      },
-      context: {
-        group_id: 'company_id_1'
       }
     })
     await identifyAction.identify?.(context)
 
     expect(mockPendo.identify).toHaveBeenCalledWith({
-      account: { id: 'company_id_1' },
       visitor: { first_name: 'Jimbo', id: 'testUserId' }
     })
   })
