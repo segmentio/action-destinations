@@ -93,7 +93,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         json: {
           ...extras,
-          audienceName,
+          audienceNameTest: audienceName,
           audienceSettings: createAudienceInput.audienceSettings
         }
       })
