@@ -45,6 +45,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     advertiserId: {
       type: 'string',
       label: 'Advertiser ID',
+      required: true,
       description:
         'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
     },
@@ -52,6 +53,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'List Type',
       description: 'The type of audience list you want to create.',
+      required: true,
       choices: [
         { label: 'Basic User List', value: 'basicUserList' },
         { label: 'Customer Match List', value: 'customerMatchList' }

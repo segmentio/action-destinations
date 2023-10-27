@@ -1,4 +1,4 @@
-import type { AudienceSettings } from '../generated-types'
+import type { AudienceSettings } from './generated-types'
 import { OFFLINE_DATA_JOB_URL } from './constants'
 import { RequestClient } from '@segment/actions-core'
 type ListOperation = 'add' | 'remove'
