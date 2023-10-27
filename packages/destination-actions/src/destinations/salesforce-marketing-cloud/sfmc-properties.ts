@@ -87,5 +87,10 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 5000
+  /**
+   * SFMC has very low limits on maximum batch size.
+   * See: https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/postDataExtensionRowsetByKey.html
+   * And: inc-sev3-6609-sfmc-timeouts-in-bulk-batching-2023-10-23
+   *  */
+  default: 50
 }
