@@ -6,7 +6,7 @@ import { Logger, StatsClient, RequestCache } from '@segment/actions-core/destina
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile } from '../Profile'
-import { ResponseError } from '@segment/actions-core/create-request-client'
+import { ResponseError } from '../../utils'
 
 const Liquid = new LiquidJs()
 
