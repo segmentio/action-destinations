@@ -94,6 +94,7 @@ export const performApiLookup = async (
     const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
     datafeedTags.push(`cache_request_id:${requestId}`)
 
+    // Check cache first to see if there's a previous valid response
     if (cacheTtl > 0) {
       const cachedResponse = await requestCache?.getRequestResponse(requestId)
       if (cachedResponse) {
@@ -104,6 +105,7 @@ export const performApiLookup = async (
       datafeedTags.push('cache-hit:false')
     }
 
+    // If not then call the 3rd party api
     let data
     try {
       const res = await request(renderedUrl, {
@@ -117,7 +119,6 @@ export const performApiLookup = async (
     } catch (error: any) {
       const respError = error.response as ResponseError
       logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
-      console.log(error)
       datafeedTags.push(
         `error:true`,
         `error_message:${error.message}`,
@@ -128,37 +129,38 @@ export const performApiLookup = async (
       throw error
     }
 
-    try {
-      const size = Buffer.byteLength(data as string, 'utf-8')
-      datafeedTags.push(`response_size:${size}`)
-      if (cacheTtl > 0 && size > 1000000) {
-        datafeedTags.push('cache-set:false')
-      } else {
+    const dataString = JSON.stringify(data)
+    const size = Buffer.byteLength(dataString, 'utf-8')
+    datafeedTags.push(`response_size:${size}`)
+
+    // Save the response to the cache
+    if (cacheTtl > 0) {
+      if (size <= 1000000) {
         try {
-          await requestCache?.setRequestResponse(requestId, data as string, cacheTtl)
+          await requestCache?.setRequestResponse(requestId, dataString, cacheTtl)
           datafeedTags.push('cache-set:true')
         } catch (err) {
+          logger?.error(
+            `TE Messaging: Email api lookup cache set failure - api lookup id: ${id} - ${settings.spaceId} - [${err}]`
+          )
           datafeedTags.push('cache-set:false')
           datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${err?.message}`)
           throw err
         }
+      } else {
+        datafeedTags.push('cache-set:false')
       }
-    } catch (error) {
-      logger?.error(
-        `TE Messaging: Email api lookup cache set failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`
-      )
-      statsClient?.incr('actions-personas-messaging-sendgrid-error', 1, tags)
     }
 
     return data
-  } catch (err) {
+  } catch (error) {
     const isErrorCapturedInTags = datafeedTags.find((str) => str.includes('error:true'))
     if (!isErrorCapturedInTags) {
-      datafeedTags.push('error:true', `error_message:${err?.message}`, 'reason:unknown')
+      datafeedTags.push('error:true', `error_message:${error?.message}`, 'reason:unknown')
     }
     tags.push('reason:datafeed_failure')
-    logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${err}]`)
-    throw err
+    logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
+    throw error
   } finally {
     console.log(datafeedTags)
     statsClient?.incr('datafeed-execution', 1, datafeedTags)
