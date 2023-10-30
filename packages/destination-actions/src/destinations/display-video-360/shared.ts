@@ -1,20 +1,20 @@
+import { IntegrationError, RequestClient } from '@segment/actions-core'
+
+import { prepareOfflineDataJobCreationParams, buildAddListOperation, buildRemoveListOperation } from './listManagement'
 import type { AudienceSettings } from './generated-types'
 import { OFFLINE_DATA_JOB_URL } from './constants'
-import { RequestClient } from '@segment/actions-core'
-type ListOperation = 'add' | 'remove'
 
-import type { Payload } from './generated-types'
+import { UpdateHandlerPayload, ListAddOperation, ListRemoveOperation, ListOperation } from './types'
 
-const createOfflineDataJob = async (request: RequestClient, audienceId: string) => {
-  const r = await request(`${OFFLINE_DATA_JOB_URL}:create`, {
+const MULTI_STATUS_ERROR_CODES_ENABLED = true
+
+const createOfflineDataJob = async (request: RequestClient, audienceSettings: AudienceSettings, listId: string) => {
+  const advertiserDataJobUrl = OFFLINE_DATA_JOB_URL.replace('advertiserID', audienceSettings?.advertiserId)
+  const dataJobParams = prepareOfflineDataJobCreationParams(audienceSettings?.listType, listId)
+  const r = await request(`${advertiserDataJobUrl}:create`, {
     method: 'POST',
     json: {
-      job: {
-        type: 'DATA_MANAGEMENT_PLATFORM_USER_LIST',
-        dataManagementPlatformUserListMetadata: {
-          userList: audienceId
-        }
-      }
+      dataJobParams
     }
   })
 
@@ -34,27 +34,27 @@ const createOfflineDataJob = async (request: RequestClient, audienceId: string) 
 
 const populateOfflineDataJob = async (
   request: RequestClient,
-  payload: Payload,
+  payload: UpdateHandlerPayload[],
   operation: ListOperation,
-  jobId: string
+  jobId: string,
+  listType: string
 ) => {
-  const operationPerId = payload.userIdentifiers.map((identifier: string) => {
-    return {
-      operations: [
-        {
-          create: {
-            userIdentifiers: [{ publisher_provided_id: identifier }] // TODO: Will depend on matcher
-          }
-        }
-      ]
+  const operations: ListAddOperation[] & ListRemoveOperation[] = []
+  payload.forEach((p) => {
+    // Create and remove operations can't be mixed in the same job request.
+    // However, the payloads are fairly similar so we can use the same function to build the operations.
+    if (operation === 'add') {
+      operations.push(buildAddListOperation(p, listType))
+    } else {
+      operations.push(buildRemoveListOperation(p, listType))
     }
   })
 
   const r = await request(`${OFFLINE_DATA_JOB_URL}/${jobId}:${operation}Operations`, {
     method: 'POST',
     json: {
-      ...operationPerId,
-      enablePartialFailure: true
+      operations: operations,
+      enablePartialFailure: MULTI_STATUS_ERROR_CODES_ENABLED
     }
   })
 
@@ -73,10 +73,23 @@ const performOfflineDataJob = async (request: RequestClient, jobId: string) => {
 export const handleUpdate = async (
   request: RequestClient,
   audienceSettings: AudienceSettings,
-  payload: Payload,
+  payload: UpdateHandlerPayload[],
   operation: 'add' | 'remove'
 ) => {
-  const jobId = await createOfflineDataJob(request, audienceSettings.audienceId)
-  await populateOfflineDataJob(request, payload, operation, jobId)
+  let jobId
+  try {
+    jobId = await createOfflineDataJob(request, audienceSettings, payload[0]?.external_audience_id)
+  } catch (error) {
+    // Any error here would discard the entire batch, therefore, we shall retry everything.
+    throw new IntegrationError('Unable to create data job', 'RETRYABLE_ERROR', 500)
+  }
+
+  try {
+    await populateOfflineDataJob(request, payload, operation, jobId, audienceSettings.listType)
+  } catch (error) {
+    // This method can return multiple status codes. Nothing shall be retried.
+    throw new IntegrationError('Unable to populate data job', 'PAYLOAD_VALIDATION_FAILED', 400)
+  }
+
   await performOfflineDataJob(request, jobId)
 }

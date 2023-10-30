@@ -80,8 +80,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const listTypeMap = buildListTypeMap(listType)
+      if (!listType) {
+        throw new IntegrationError('Missing list type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
 
+      const listTypeMap = buildListTypeMap(listType)
       const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
       let response
       try {
