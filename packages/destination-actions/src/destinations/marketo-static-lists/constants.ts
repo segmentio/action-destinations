@@ -16,7 +16,7 @@ export interface MarketoResonse {
   result: [
     {
       name: string
-      id: string
+      id: number
     }
   ]
 }

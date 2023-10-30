@@ -106,10 +106,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
         throw new IntegrationError(`${create_list_response.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
       }
 
-      statsClient?.incr('createAudience.success', 1, statsTags)
+      const external_id = create_list_response.data.result[0].id.toString()
+      if (external_id) {
+        statsClient?.incr('createAudience.success', 1, statsTags)
+      }
 
       return {
-        externalId: create_list_response.data.result[0].id
+        externalId: external_id
       }
     },
     async getAudience(request, getAudienceInput) {
