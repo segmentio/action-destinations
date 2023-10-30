@@ -1,8 +1,7 @@
-import { Analytics, Context, JSONObject, Plugin} from '@segment/analytics-next'
-import snap, { destination } from '..'
+import { Analytics, Context, Plugin} from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import browserPluginsDestination from '../..'
-import { clickIdIntegrationFieldName, clickIdQuerystringName, storageSCIDCookieKey, scidIntegrationFieldName }  from '../utils'
+import { clickIdIntegrationFieldName, clickIdQuerystringName, scidCookieName, scidIntegrationFieldName }  from '../utils'
 
 const example: Subscription[] = [
   {
@@ -35,17 +34,18 @@ beforeEach(async () => {
 
 })
 
-
 describe('ajs-integration', () => {
   test('updates the original event with a Snap clientId from the querystring', async () => {
     
     Object.defineProperty(window, 'location', {
       value: {
-        search: `?${clickIdQuerystringName}=dummyValue`,
+        search: `?${clickIdQuerystringName}=dummyQuerystringValue`,
       },
       writable: true,
     });
 
+    document.cookie = `${scidCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+
     await snapPlugin.load(Context.system(), ajs)
 
     const ctx = new Context({
@@ -59,15 +59,13 @@ describe('ajs-integration', () => {
     const updatedCtx = await snapPlugin.track?.(ctx)
 
     let snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
-
-    expect(snapIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyValue')
+    expect(snapIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyQuerystringValue')
 
   })
-
 
   test('updates the original event with a Snap cookie value', async () => {
     
-    document.cookie = `${storageSCIDCookieKey}=dummyValue`;
+    document.cookie = `${scidCookieName}=dummyCookieValue`;
 
     await snapPlugin.load(Context.system(), ajs)
 
@@ -80,14 +78,10 @@ describe('ajs-integration', () => {
     })
 
     const updatedCtx = await snapPlugin.track?.(ctx)
-    console.log('12345678')
- 
 
     let snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
-    expect(snapIntegrationsObj[scidIntegrationFieldName]).toEqual('dummyValue')
+    expect(snapIntegrationsObj[scidIntegrationFieldName]).toEqual('dummyCookieValue')
 
   })
 
-
-  
 })
