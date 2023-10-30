@@ -64,16 +64,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const statsTags = createAudienceInput?.statsContext?.tags
 
       // Get access token
-      const access_token = await getAccessToken(request, createAudienceInput.settings)
+      // const access_token = await getAccessToken(request, createAudienceInput.settings)
 
       // Get folder ID by name
       const get_folder_response = await request<MarketoResonse>(
         `${endpoint}/rest/asset/v1/folder/byName.json?name=${encodeURIComponent(folder)}`,
         {
-          method: 'GET',
-          headers: {
-            authorization: `Bearer ${access_token}`
-          }
+          method: 'GET'
+          // headers: {
+          //   authorization: `Bearer ${access_token}`
+          // }
         }
       )
 
@@ -94,10 +94,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const create_list_response = await request<MarketoResonse>(
         `${endpoint}/rest/asset/v1/staticLists.json?folder=${folder_id}&name=${encodeURIComponent(audience_name)}`,
         {
-          method: 'POST',
-          headers: {
-            authorization: `Bearer ${access_token}`
-          }
+          method: 'POST'
+          // headers: {
+          //   authorization: `Bearer ${access_token}`
+          // }
         }
       )
 
@@ -122,13 +122,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const statsTags = getAudienceInput?.statsContext?.tags
 
       // Get access token
-      const access_token = await getAccessToken(request, getAudienceInput.settings)
+      // const access_token = await getAccessToken(request, getAudienceInput.settings)
 
       const response = await request<MarketoResonse>(`${endpoint}/rest/asset/v1/staticList/${list_id}.json`, {
-        method: 'GET',
-        headers: {
-          authorization: `Bearer ${access_token}`
-        }
+        method: 'GET'
+        // headers: {
+        //   authorization: `Bearer ${access_token}`
+        // }
       })
 
       if (!response.data.success && response.data.errors) {
