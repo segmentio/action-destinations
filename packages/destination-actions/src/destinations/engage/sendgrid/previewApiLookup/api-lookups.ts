@@ -91,16 +91,17 @@ export const performApiLookup = async (
       settings,
       logger
     )
-    const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
-    datafeedTags.push(`cache_request_id:${requestId}`)
 
     // Check cache first to see if there's a previous valid response
+    const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
+    datafeedTags.push(`cache_request_id:${requestId}`)
     if (cacheTtl > 0) {
       const cachedResponse = await requestCache?.getRequestResponse(requestId)
       if (cachedResponse) {
         datafeedTags.push('cache-hit:true')
         datafeedTags.push('error:false')
-        return responseType === 'json' ? JSON.parse(cachedResponse) : cachedResponse
+        // The first JSON.parse() returns any escape characters, second JSON.parse actually parses into an object
+        return responseType === 'json' ? JSON.parse(JSON.parse(cachedResponse)) : cachedResponse
       }
       datafeedTags.push('cache-hit:false')
     }
@@ -115,7 +116,7 @@ export const performApiLookup = async (
         body: renderedBody,
         skipResponseCloning: true
       })
-      data = res.data
+      data = await res.json()
     } catch (error: any) {
       const respError = error.response as ResponseError
       logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
@@ -162,7 +163,6 @@ export const performApiLookup = async (
     logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
     throw error
   } finally {
-    console.log(datafeedTags)
     statsClient?.incr('datafeed-execution', 1, datafeedTags)
   }
 }

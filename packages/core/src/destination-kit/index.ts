@@ -283,6 +283,7 @@ interface OnEventOptions {
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
+  readonly requestCache?: RequestCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
@@ -619,6 +620,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
+      requestCache: options?.requestCache,
       transactionContext: options?.transactionContext,
       stateContext: options?.stateContext
     }
