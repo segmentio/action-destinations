@@ -1,6 +1,6 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
-import browserPluginsDestination from '../..'
+import browserPluginsDestination from '../'
 import { clickIdIntegrationFieldName, clickIdQuerystringName, scidCookieName, scidIntegrationFieldName } from '../utils'
 
 const example: Subscription[] = [
