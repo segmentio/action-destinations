@@ -1,7 +1,7 @@
-import { Analytics, Context, Plugin} from '@segment/analytics-next'
+import { Analytics, Context, Plugin } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import browserPluginsDestination from '../..'
-import { clickIdIntegrationFieldName, clickIdQuerystringName, scidCookieName, scidIntegrationFieldName }  from '../utils'
+import { clickIdIntegrationFieldName, clickIdQuerystringName, scidCookieName, scidIntegrationFieldName } from '../utils'
 
 const example: Subscription[] = [
   {
@@ -27,24 +27,22 @@ beforeEach(async () => {
 
   Object.defineProperty(window, 'location', {
     value: {
-      search: '',
+      search: ''
     },
-    writable: true,
-  });
+    writable: true
+  })
 
+  document.cookie = `${scidCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
 })
 
 describe('ajs-integration', () => {
   test('updates the original event with a Snap clientId from the querystring', async () => {
-    
     Object.defineProperty(window, 'location', {
       value: {
-        search: `?${clickIdQuerystringName}=dummyQuerystringValue`,
+        search: `?${clickIdQuerystringName}=dummyQuerystringValue`
       },
-      writable: true,
-    });
-
-    document.cookie = `${scidCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      writable: true
+    })
 
     await snapPlugin.load(Context.system(), ajs)
 
@@ -58,14 +56,12 @@ describe('ajs-integration', () => {
 
     const updatedCtx = await snapPlugin.track?.(ctx)
 
-    let snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
+    const snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
     expect(snapIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyQuerystringValue')
-
   })
 
   test('updates the original event with a Snap cookie value', async () => {
-    
-    document.cookie = `${scidCookieName}=dummyCookieValue`;
+    document.cookie = `${scidCookieName}=dummyCookieValue`
 
     await snapPlugin.load(Context.system(), ajs)
 
@@ -79,9 +75,7 @@ describe('ajs-integration', () => {
 
     const updatedCtx = await snapPlugin.track?.(ctx)
 
-    let snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
+    const snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
     expect(snapIntegrationsObj[scidIntegrationFieldName]).toEqual('dummyCookieValue')
-
   })
-
 })
