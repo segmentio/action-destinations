@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-movable-ink's categoryView destination action: all fields 1`] = `
+Object {
+  "anonymous_id": "UNSa)YJoVcxD*x",
+  "categories": Array [
+    Object {
+      "id": "UNSa)YJoVcxD*x",
+      "url": "UNSa)YJoVcxD*x",
+    },
+  ],
+  "event_name": "Category View",
+  "metadata": Object {
+    "testType": "UNSa)YJoVcxD*x",
+  },
+  "product": Array [
+    Object {
+      "id": "UNSa)YJoVcxD*x",
+      "price": 17360873282600.96,
+      "quantity": 1736087328260096,
+      "title": "UNSa)YJoVcxD*x",
+      "url": "UNSa)YJoVcxD*x",
+    },
+  ],
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timezone": "UNSa)YJoVcxD*x",
+  "user_id": "UNSa)YJoVcxD*x",
+}
+`;
+
+exports[`Testing snapshot for actions-movable-ink's categoryView destination action: required fields 1`] = `
+Object {
+  "anonymous_id": "UNSa)YJoVcxD*x",
+  "categories": Array [
+    Object {
+      "id": "UNSa)YJoVcxD*x",
+    },
+  ],
+  "event_name": "Category View",
+  "metadata": Object {},
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "UNSa)YJoVcxD*x",
+}
+`;

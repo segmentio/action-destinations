@@ -1,15 +1,17 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.13.0",
+  "version": "1.17.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn build:esm && yarn build:cjs",
-    "build:esm": "tsc --outDir ./dist/esm",
-    "build:cjs": "tsc  --module commonjs --outDir ./dist/cjs"
+    "build-ts": "yarn tsc -p tsconfig.build.json",
+    "build": "yarn build-ts && yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc -p tsconfig.build.json --outDir ./dist/esm",
+    "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir ./dist/cjs",
+    "clean": "tsc -b tsconfig.build.json --clean"
   },
   "exports": {
     ".": {
@@ -60,12 +62,29 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.82.0"
+    "@segment/actions-core": "^3.86.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
   },
   "peerDependencies": {
     "@segment/analytics-next": "*"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+    }
   }
 }

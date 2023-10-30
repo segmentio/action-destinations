@@ -31,7 +31,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         enabled: true,
         subscribe: 'event = "Order Completed"',
         mapping: {
-          messageId: {
+          event_id: {
             '@path': '$.messageId'
           },
           anonymousId: {
@@ -89,6 +89,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
       type: 'track',
       anonymousId: 'anonymousId',
+      userId: 'userId',
       event: 'Order Completed',
       properties: {
         products: [
@@ -125,18 +126,23 @@ describe('TikTokPixel.reportWebEvent', () => {
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
       email: 'aaa@aaa.com',
-      phone_number: '+12345678900'
+      phone_number: '+12345678900',
+      external_id: 'userId'
     })
-    expect(mockTtp.track).toHaveBeenCalledWith('PlaceAnOrder', {
-      contents: [
-        { content_id: '123', content_type: 'product', price: 1, quantity: 1 },
-        { content_id: '456', content_type: 'product', price: 2, quantity: 2 }
-      ],
-      currency: 'USD',
-      description: 'test-description',
-      query: 'test-query',
-      value: 10
-    })
+    expect(mockTtp.track).toHaveBeenCalledWith(
+      'PlaceAnOrder',
+      {
+        contents: [
+          { content_id: '123', content_type: 'product', price: 1, quantity: 1 },
+          { content_id: '456', content_type: 'product', price: 2, quantity: 2 }
+        ],
+        currency: 'USD',
+        description: 'test-description',
+        query: 'test-query',
+        value: 10
+      },
+      { event_id: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6' }
+    )
   })
 
   test('maps properties correctly for "AddToCart" event', async () => {
@@ -147,7 +153,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         enabled: true,
         subscribe: 'event = "Product Added"',
         mapping: {
-          messageId: {
+          event_id: {
             '@path': '$.messageId'
           },
           anonymousId: {
@@ -205,6 +211,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
       type: 'track',
       anonymousId: 'anonymousId',
+      userId: 'userId',
       event: 'Product Added',
       properties: {
         product_id: '123',
@@ -231,15 +238,20 @@ describe('TikTokPixel.reportWebEvent', () => {
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
       email: 'aaa@aaa.com',
-      phone_number: '+12345678900'
+      phone_number: '+12345678900',
+      external_id: 'userId'
     })
-    expect(mockTtp.track).toHaveBeenCalledWith('AddToCart', {
-      contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
-      currency: 'USD',
-      description: 'test-description',
-      query: 'test-query',
-      value: 10
-    })
+    expect(mockTtp.track).toHaveBeenCalledWith(
+      'AddToCart',
+      {
+        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        currency: 'USD',
+        description: 'test-description',
+        query: 'test-query',
+        value: 10
+      },
+      { event_id: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6' }
+    )
   })
 
   test('maps properties correctly for "ViewContent" event', async () => {
@@ -250,7 +262,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         enabled: true,
         subscribe: 'type="page"',
         mapping: {
-          messageId: {
+          event_id: {
             '@path': '$.messageId'
           },
           anonymousId: {
@@ -308,6 +320,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
       type: 'page',
       anonymousId: 'anonymousId',
+      userId: 'userId',
       properties: {
         product_id: '123',
         category: 'product',
@@ -333,14 +346,19 @@ describe('TikTokPixel.reportWebEvent', () => {
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
       email: 'aaa@aaa.com',
-      phone_number: '+12345678900'
+      phone_number: '+12345678900',
+      external_id: 'userId'
     })
-    expect(mockTtp.track).toHaveBeenCalledWith('ViewContent', {
-      contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
-      currency: 'USD',
-      description: 'test-description',
-      query: 'test-query',
-      value: 10
-    })
+    expect(mockTtp.track).toHaveBeenCalledWith(
+      'ViewContent',
+      {
+        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        currency: 'USD',
+        description: 'test-description',
+        query: 'test-query',
+        value: 10
+      },
+      { event_id: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6' }
+    )
   })
 })

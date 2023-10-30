@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Klaviyo's orderCompleted destination action: all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "metric": Object {
+        "data": Object {
+          "attributes": Object {
+            "name": "Order Completed",
+          },
+          "type": "metric",
+        },
+      },
+      "profile": Object {
+        "data": Object {
+          "attributes": Object {
+            "email": "tobul@dij.uz",
+            "other_properties": Object {
+              "testType": "923^%f]tQn]lN2o",
+            },
+            "phone_number": "923^%f]tQn]lN2o",
+          },
+          "type": "profile",
+        },
+      },
+      "properties": Object {
+        "testType": "923^%f]tQn]lN2o",
+      },
+      "time": "2021-02-01T00:00:00.000Z",
+      "value": 28946631197982.72,
+    },
+    "type": "event",
+  },
+}
+`;

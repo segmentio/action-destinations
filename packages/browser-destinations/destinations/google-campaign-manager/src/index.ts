@@ -6,7 +6,7 @@ import salesActivity from './salesActivity'
 
 declare global {
   interface Window {
-    gtag: Function
+    gtag: typeof gtag
     dataLayer: any
   }
 }

@@ -1,17 +1,19 @@
-import {InputField} from "@segment/actions-core";
+import { InputField } from '@segment/actions-core'
 
-export const userIdentityFields : Record<string, InputField> = {
+export const userIdentityFields: Record<string, InputField> = {
   segmentId: {
     label: 'Segment User ID',
     description: 'Segment User ID value',
-    type: 'hidden',
+    type: 'string',
+    unsafe_hidden: true,
     required: false,
     default: { '@path': '$.userId' }
   },
   anonymousId: {
     label: 'Segment Anonymous ID',
     description: 'Segment Anonymous ID value',
-    type: 'hidden',
+    type: 'string',
+    unsafe_hidden: true,
     required: false,
     default: { '@path': '$.anonymousId' }
   },
@@ -22,7 +24,7 @@ export const userIdentityFields : Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue:only'
-  },
+  }
 }
 
-export default userIdentityFields;
+export default userIdentityFields

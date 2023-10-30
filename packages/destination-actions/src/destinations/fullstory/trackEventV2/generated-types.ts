@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The user's id
    */
-  userId: string
+  userId?: string
   /**
    * The name of the event.
    */

@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.28.3",
+  "version": "3.30.0",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
@@ -9,7 +9,7 @@
     "directory": "packages/destination-subscriptions"
   },
   "scripts": {
-    "build": "yarn clean && yarn build:cjs && yarn build:esm",
+    "build": "yarn build:cjs && yarn build:esm",
     "build:cjs": "yarn tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
     "build:esm": "yarn tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
     "clean": "tsc -b tsconfig.build.json --clean",
@@ -38,6 +38,11 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"

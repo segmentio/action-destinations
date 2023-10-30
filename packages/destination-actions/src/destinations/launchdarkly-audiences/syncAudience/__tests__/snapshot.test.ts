@@ -13,11 +13,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData['segment_audience_key'] = 'test_audience'
+    eventData['segment_audience_id'] = 'ld_segment_audience_id'
     eventData['segment_computation_action'] = 'audience'
     eventData['traits_or_props'] = { [eventData['segment_audience_key']]: true }
 
     setStaticDataForSnapshot(eventData, 'context_kind', 'customContextKind')
     setStaticDataForSnapshot(eventData, 'context_key', 'user_id_only')
+    setStaticDataForSnapshot(eventData, 'context_id', 'ld_segment_audience_id')
 
     setStaticDataForSnapshot(settingsData, 'clientId', 'environment-id')
     setStaticDataForSnapshot(settingsData, 'apiKey', 'api-key')
@@ -50,6 +52,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     eventData['segment_audience_key'] = 'test_audience'
+    eventData['segment_audience_id'] = 'ld_segment_audience_id'
     eventData['segment_computation_action'] = 'audience'
     eventData['traits_or_props'] = { [eventData['segment_audience_key']]: false }
 

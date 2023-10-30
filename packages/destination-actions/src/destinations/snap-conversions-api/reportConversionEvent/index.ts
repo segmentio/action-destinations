@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
+  products,
   event_type,
   event_conversion_type,
   event_tag,
@@ -14,6 +15,7 @@ import {
   user_agent,
   ip_address,
   item_category,
+  brands,
   item_ids,
   description,
   number_items,
@@ -40,6 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description:
     'Report events directly to Snapchat. Data shared can power Snap solutions such as custom audience targeting, campaign optimization, Dynamic Ads, and more.',
   fields: {
+    products: products,
     event_type: { ...event_type, required: true },
     event_conversion_type: { ...event_conversion_type, required: true },
     event_tag: event_tag,
@@ -52,6 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent: user_agent,
     ip_address: ip_address,
     item_category: item_category,
+    brands: brands,
     item_ids: item_ids,
     description: description,
     number_items: number_items,

@@ -127,6 +127,18 @@ register('64edec5a4f881f992e432b81', './acoustic-s3tc')
 register('64edeb2bee24614fe52ede34', './optimizely-advanced-audience-targeting')
 register('64ede9fe67158afa8de61480', './dynamic-yield-audiences')
 register('64f703d1f6e9aa0a283ae3e2', './absmartly')
+register('6514281004d549fae3fd086a', './yahoo-audiences')
+register('650bdf1a62fb34ef0a8058e1', './klaviyo')
+register('6512d7f86bdccc3829fc4ac3', './optimizely-data-platform')
+register('651c1db19de92d8e595ff55d', './hyperengage')
+register('65256052ac030f823df6c1a5', './trackey')
+register('652e765dbea0a2319209d193', './linkedin-conversions')
+register('652ea51a327a62b351aa12c0', './kameleoon')
+register('65302a514ce4a2f0f14cd426', './marketo-static-lists')
+register('65302a3acb309a8a3d5593f2', './display-video-360')
+register('6537b4236b16986dba32583e', './apolloio')
+register('6537b55db9e94b2e110c9cf9', './movable-ink')
+register('6537b5da8f27fd20713a5ba8', './usermotion')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
