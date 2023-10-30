@@ -7,7 +7,7 @@ import snapPlugin from './snapPlugin'
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
-  name: 'Snap Conversions API Plugin',
+  name: 'Snap Conversions API Plugin', 
   mode: 'device',
   initialize: async ({ analytics }) => {
 
@@ -27,6 +27,7 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
 
     return {}
   },
+  settings: {},
   actions: {
     snapPlugin
   }

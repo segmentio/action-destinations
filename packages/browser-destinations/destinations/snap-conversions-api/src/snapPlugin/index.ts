@@ -16,13 +16,15 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     const storage = analytics.storage as UniversalStorage<Record<string, string>> ?? storageFallback
 
+    console.log('got to here 1')
+
     const scid: string | null = storage.get(storageSCIDCookieKey)
 
     const clickId : string | null = storage.get(storageClickIdKey)
 
     if (scid || clickId) {
       const integrationsData: Record<string, string> = {};
-    
+      console.log('got to here 2')
       if (clickId) {
         integrationsData[clickIdIntegrationFieldName] = clickId
       }
