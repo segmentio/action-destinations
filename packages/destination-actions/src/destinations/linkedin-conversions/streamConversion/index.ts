@@ -14,6 +14,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   fields: {},
   hooks: {
     'on-mapping-save': {
+      type: 'on-mapping-save',
       label: 'Create a Conversion Rule',
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',

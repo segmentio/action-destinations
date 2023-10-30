@@ -5,8 +5,8 @@ import {
   Action,
   ActionDefinition,
   ActionHookDefinition,
-  ActionHookError,
   ActionHookType,
+  hookTypeStrings,
   ActionHookResponse,
   BaseActionDefinition,
   RequestFn,
@@ -32,11 +32,11 @@ export type {
   ActionDefinition,
   ActionHookDefinition,
   ActionHookResponse,
-  ActionHookError,
   ActionHookType,
   ExecuteInput,
   RequestFn
 }
+export { hookTypeStrings }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 

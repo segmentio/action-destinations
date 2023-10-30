@@ -30,7 +30,6 @@ export type {
   BaseActionDefinition,
   ActionDefinition,
   ActionHookResponse,
-  ActionHookError,
   BaseDefinition,
   DestinationDefinition,
   AudienceDestinationDefinition,

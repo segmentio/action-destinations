@@ -4,7 +4,7 @@ export interface Payload {}
 // Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.
 
 export interface HookBundle {
-  mappingSave: {
+  'on-mapping-save': {
     inputs?: {
       /**
        * The name of the conversion rule.

@@ -17,7 +17,11 @@ import {
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
-import { ActionHookType, AudienceDestinationConfigurationWithCreateGet } from '@segment/actions-core/destination-kit'
+import {
+  ActionHookType,
+  ActionHookResponse,
+  AudienceDestinationConfigurationWithCreateGet
+} from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
 }
@@ -360,7 +364,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
               }
 
               const action = destination.actions[actionSlug]
-              const result = await action.executeHook(hookName as ActionHookType, data)
+              const result: ActionHookResponse<any> = await action.executeHook(hookName as ActionHookType, data)
 
               if (result.error) {
                 throw result.error

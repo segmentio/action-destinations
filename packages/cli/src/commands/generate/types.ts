@@ -12,10 +12,9 @@ import prettier from 'prettier'
 import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
 import { RESERVED_FIELD_NAMES } from '../../constants'
 import { AudienceDestinationDefinition, ActionHookType } from '@segment/actions-core/destination-kit'
-import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
+import { ActionHookDefinition, hookTypeStrings } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
-const hookNameToHookValue = new Map<ActionHookType, string>([['on-mapping-save', 'mappingSave']])
 
 export default class GenerateTypes extends Command {
   static description = `Generates TypeScript definitions for an integration.`
@@ -142,8 +141,7 @@ export default class GenerateTypes extends Command {
         let hookBundle = ''
         const hookFields: Record<string, any> = {}
         for (const [hookName, hook] of Object.entries(hooks)) {
-          // TODO: I wish I could do something like `hookname instanceof ActionHookType`
-          if (!['on-mapping-save'].includes(hookName)) {
+          if (!hookTypeStrings.includes(hookName as ActionHookType)) {
             throw new Error(`Hook name ${hookName} is not a valid ActionHookType`)
           }
 
@@ -151,11 +149,6 @@ export default class GenerateTypes extends Command {
           const outputs = hook.outputTypes
           if (!inputs && !outputs) {
             continue
-          }
-
-          const hookType = hookNameToHookValue.get(hookName as ActionHookType)
-          if (!hookType) {
-            throw new Error(`No generated type name for ${hookName}`)
           }
 
           const hookSchema = {
@@ -174,7 +167,7 @@ export default class GenerateTypes extends Command {
               }
             }
           }
-          hookFields[hookType] = hookSchema
+          hookFields[hookName] = hookSchema
         }
         hookBundle = await generateTypes(
           hookFields,

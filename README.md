@@ -515,7 +515,105 @@ Additionally, you’ll need to coordinate with Segment’s R&D team for the time
 
 ## Action Hooks
 
-** Note: This feature is not yet complete and released **
+**Note: This feature is not yet released.**
+
+Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
+
+**Inputs**
+
+Builders may define a set of `inputFields` that are used when performing the request to the destination.
+
+**`performHook`**
+
+Similar to the `perform` method, the `performHook` method allows builders to trigger a request to the destination whenever the criteria for that hook to be triggered is met. This method uses the `inputFields` defined as request parameters.
+
+**Outputs**
+
+Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping.
+
+### Example (LinkedIn Conversions API)
+
+This example has been shorted for brevity. The full code can be seen in the LinkedIn Conversions API 'streamConversion' action.
+
+```js
+const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
+  title: 'Stream Conversion Event',
+  ...
+  hooks: {
+        'on-mapping-save': {
+      type: 'on-mapping-save',
+      label: 'Create a Conversion Rule',
+      description:
+        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
+      inputFields: {
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the conversion rule.',
+          required: true
+        },
+        conversionType: {
+          type: 'string',
+          label: 'Conversion Type',
+          description: 'The type of conversion rule.',
+          required: true
+        },
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the conversion rule.',
+          required: true
+        },
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the conversion rule.',
+          required: true
+        },
+      },
+      performHook: async (request, { hookInputs }) => {
+        if (!hookInputs) {
+          throw new Error('No hook inputs provided')
+        }
+
+        const { data } =
+          await request<ConversionRuleCreationResponse>
+          ('https://api.linkedin.com/rest/conversions', {
+          method: 'post',
+          json: {
+            name: hookInputs.name,
+            type: hookInputs.conversionType
+          }
+        })
+
+        return {
+          successMessage:
+          `Conversion rule ${data.id} created successfully!`,
+          savedData: {
+            id: data.id,
+            name: data.name,
+          }
+        }
+      }
+    }
+  },
+    perform: (request, data) => {
+    return request('https://example.com', {
+      method: 'post',
+      json: {
+        conversion: data.hookOutputs?.['on-mapping-save']?.id,
+        name: data.hookOutputs?.['on-mapping-save']?.name
+      }
+    })
+  }
+  }
+```
+
+### `on-mapping-save` hook
+
+The `on-mapping-save` hook is triggered any time a user saves a mapping.
 
 ## Audience Support (Pilot)
 

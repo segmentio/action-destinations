@@ -56,13 +56,13 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 }
 
-type GenericActionHookInputs = Record<string, string | boolean>
-type GenericActionHookOutputs = Record<string, string | boolean>
+type HookValueTypes = string | boolean | number
+type GenericActionHookValues = Record<string, HookValueTypes>
 
-interface GenericActionHookBundle {
-  mappingSave: {
-    inputs?: GenericActionHookInputs
-    outputs?: GenericActionHookOutputs
+type GenericActionHookBundle = {
+  [K in ActionHookType]: {
+    inputs?: GenericActionHookValues
+    outputs?: GenericActionHookValues
   }
 }
 
@@ -87,32 +87,39 @@ export interface ActionDefinition<
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
 
+  /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
+   * destination using the provided inputs and return a response. The response may then optionally be stored
+   * in the mapping for later use in the action.
+   */
   hooks?: {
-    'on-mapping-save': ActionHookDefinition<
+    [K in ActionHookType]: ActionHookDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      GeneratedActionHookBundle['mappingSave']['outputs'],
-      GeneratedActionHookBundle['mappingSave']['inputs']
+      GeneratedActionHookBundle[K]['outputs'],
+      GeneratedActionHookBundle[K]['inputs']
     >
   }
 }
 
+export const hookTypeStrings = ['on-mapping-save'] as const
 /**
  * The supported actions hooks.
  * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
  */
-export type ActionHookType = 'on-mapping-save' // | 'on-mapping-delete' | 'on-mapping-update'
-export type GenericHookPayload = { inputs: object; outputs: object }
+export type ActionHookType = typeof hookTypeStrings[number]
 export interface ActionHookResponse<GeneratedActionHookOutputs> {
+  /** A user-friendly message to be shown when the hook is successfully executed. */
   successMessage?: string
-  savedData: GeneratedActionHookOutputs
+  /** After successfully executing a hook, savedData will be persisted for later use in the action. */
+  savedData?: GeneratedActionHookOutputs
+  error?: {
+    /** A user-friendly message to be shown when the hook errors. */
+    message: string
+    code: string
+  }
 }
 
-export interface ActionHookError {
-  message: string
-  code: string
-}
 export interface ActionHookDefinition<
   Settings,
   Payload,
@@ -120,6 +127,7 @@ export interface ActionHookDefinition<
   GeneratedActionHookOutputs,
   GeneratedActionHookTypesInputs
 > {
+  type: ActionHookType
   /** The display title for this hook. */
   label: string
   /** A description of what this hook does. */
@@ -132,7 +140,7 @@ export interface ActionHookDefinition<
   performHook: RequestFn<
     Settings,
     Payload,
-    ActionHookResponse<GeneratedActionHookOutputs> | ActionHookError,
+    ActionHookResponse<GeneratedActionHookOutputs>,
     AudienceSettings,
     GeneratedActionHookTypesInputs
   >
@@ -313,14 +321,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return (await this.performRequest(fn, data)) as DynamicFieldResponse
   }
 
-  async executeHook(hookType: ActionHookType, data: ExecuteInput<Settings, Payload, AudienceSettings>) {
+  async executeHook(
+    hookType: ActionHookType,
+    data: ExecuteInput<Settings, Payload, AudienceSettings>
+  ): Promise<ActionHookResponse<any>> {
     if (!this.hasHookSupport) {
       throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
     }
     const hookFn = this.definition.hooks?.[hookType]?.performHook
 
     if (!hookFn) {
-      throw new IntegrationError(`This action does not support the ${hookType} hook.`, 'NotImplemented', 501)
+      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
     }
 
     if (this.hookSchemas?.[hookType]) {
@@ -328,7 +339,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       validateSchema(data.hookInputs, schema)
     }
 
-    return await this.performRequest(hookFn, data)
+    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
   }
 
   /**
