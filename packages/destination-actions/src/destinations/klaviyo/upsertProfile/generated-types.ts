@@ -52,4 +52,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
+   */
+  list_id?: string
 }
