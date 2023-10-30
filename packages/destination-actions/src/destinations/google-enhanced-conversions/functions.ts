@@ -18,7 +18,7 @@ import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 
-export const API_VERSION = 'v12'
+export const API_VERSION = 'v13'
 export const CANARY_API_VERSION = 'v13'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
