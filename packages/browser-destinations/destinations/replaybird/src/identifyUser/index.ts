@@ -30,8 +30,9 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
     }
   },
   perform: (replaybird, event) => {
-    if (event.payload.userId) {
-      replaybird.identify(event.payload.userId, event.payload.traits)
+    const payload = event.payload || {}
+    if (payload.userId) {
+      replaybird.identify(payload.userId, payload.traits || {})
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import nock from 'nock'
+import { ReplayBird } from './types'
 
 export const trackSubscription: Subscription = {
   partnerAction: 'trackEvent',
@@ -33,7 +34,7 @@ export const identifySubscription: Subscription = {
 
 export const REPLAYBIRD_API_KEY = 'secret'
 
-export const createMockedReplaybirdJsSdk = (): ReplaybirdApi => {
+export const createMockedReplaybirdJsSdk = (): ReplayBird => {
   return {
     apiKey: REPLAYBIRD_API_KEY,
     init: jest.fn(),
