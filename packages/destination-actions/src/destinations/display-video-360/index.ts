@@ -6,13 +6,39 @@ import removeFromAudience from './removeFromAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
 
+interface RefreshTokenResponse {
+  access_token: string
+}
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
   slug: 'actions-display-video-360',
   mode: 'cloud',
-  extendRequest() {
+  authentication: {
+    scheme: 'oauth2',
+    fields: {
+      // TODO: Fields is required, but I don't think we need anything here
+    },
+    refreshAccessToken: async (request, { auth }) => {
+      const { data } = await request<RefreshTokenResponse>('https://accounts.google.com/o/oauth2/token', {
+        method: 'POST',
+        body: new URLSearchParams({
+          refresh_token: auth.refreshToken,
+          client_id: auth.clientId,
+          client_secret: auth.clientSecret,
+          grant_type: 'refresh_token'
+        })
+      })
+      return { accessToken: data.access_token }
+    }
+  },
+  extendRequest({ auth }) {
     // TODO: extendRequest doesn't work within createAudience and getAudience
-    return {}
+    return {
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`
+      }
+    }
   },
   audienceFields: {
     advertiserId: {
