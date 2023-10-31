@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendTrackPurchase } from '../utils'
+import { sendTrackPurchase, sendBatchedTrackPurchase } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -106,6 +106,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     return sendTrackPurchase(request, settings, payload)
+  },
+  performBatch: (request, { settings, payload }) => {
+    return sendBatchedTrackPurchase(request, settings, payload)
   }
 }
 
