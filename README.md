@@ -613,7 +613,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
 ### `on-mapping-save` hook
 
-The `on-mapping-save` hook is triggered any time a user saves a mapping.
+The `on-mapping-save` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.['on-mapping-save']?.<key>`.
 
 ## Audience Support (Pilot)
 
