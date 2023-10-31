@@ -63,6 +63,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
 
+      if (!audience_name) {
+        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       // Get access token
       const access_token = await getAccessToken(request, createAudienceInput.settings)
 
@@ -101,15 +105,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
         }
       )
 
-      if (!create_list_response.data.success && create_list_response.data.errors) {
+      if (!create_list_response.data.success || create_list_response.data.errors || !create_list_response.data.result) {
         statsClient?.incr('createAudience.error', 1, statsTags)
         throw new IntegrationError(`${create_list_response.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
       }
 
       const external_id = create_list_response.data.result[0].id.toString()
-      if (external_id) {
-        statsClient?.incr('createAudience.success', 1, statsTags)
-      }
+      statsClient?.incr('createAudience.success', 1, statsTags)
 
       return {
         externalId: external_id
@@ -131,7 +133,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         }
       })
 
-      if (!response.data.success && response.data.errors) {
+      if (!response.data.success || response.data.errors || !response.data.result) {
         statsClient?.incr('getAudience.error', 1, statsTags)
         throw new IntegrationError(`${response.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
       }
