@@ -367,6 +367,7 @@ export function updateBatchedUserProfile(
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
+    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
       attributes: payload
     }
