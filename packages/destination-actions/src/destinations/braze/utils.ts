@@ -134,3 +134,63 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     }
   })
 }
+
+export function sendBatchedTrackPurchase(request: RequestClient, settings: Settings, payloads: TrackPurchasePayload[]) {
+  const payload = payloads
+    .map((payload) => {
+      const { braze_id, external_id } = payload
+      // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+      const user_alias = getUserAlias(payload.user_alias)
+
+      // Disable errors until Actions Framework has a multistatus support
+      // if (!braze_id && !user_alias && !external_id) {
+      //   throw new IntegrationError(
+      //     'One of "external_id" or "user_alias" or "braze_id" is required.',
+      //     'Missing required fields',
+      //     400
+      //   )
+      // }
+
+      // Skip when there are no products to send to Braze
+      if (payload.products.length === 0) {
+        return
+      }
+
+      return {
+        reservedKeys: Object.keys(action.fields.products.properties ?? {}),
+        event_properties: omit(payload.properties, ['products']),
+        base: {
+          braze_id,
+          external_id,
+          user_alias,
+          app_id: settings.app_id,
+          time: toISO8601(payload.time),
+          _update_existing_only: payload._update_existing_only
+        },
+        products: payload.products
+      }
+    })
+    .filter((notFalsy) => notFalsy)
+
+  return request(`${settings.endpoint}/users/track`, {
+    method: 'post',
+    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    json: {
+      purchases: payload.map(function (productPayload) {
+        productPayload?.products.map(function (product) {
+          return {
+            ...productPayload.base,
+            product_id: product.product_id,
+            currency: product.currency ?? 'USD',
+            price: product.price,
+            quantity: product.quantity,
+            properties: {
+              ...omit(product, productPayload.reservedKeys),
+              ...productPayload.event_properties
+            }
+          }
+        })
+      })
+    }
+  })
+}
