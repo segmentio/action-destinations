@@ -67,19 +67,3 @@ jobs:
         id: publish-packages
         run: |
           yarn lerna publish -y --canary --preid "$(git branch --show-current)-$(git rev-parse --short HEAD)" --no-push --no-git-tag-version --summary-file
-          echo "ACTION_DESTINATIONS_VERSION=$(jq -r '.[] | select(.packageName == "@segment/action-destinations") | .version' lerna-publish-summary.json)" >> "$GITHUB_OUTPUT"
-          echo "ACTIONS_CORE_VERSION=$(jq -r '.[] | select(.packageName == "@segment/actions-core") | .version' lerna-publish-summary.json)" >> "$GITHUB_OUTPUT"
-
-      - name: Trigger Buildkite Pipeline
-        if: ${{ steps.publish-packages.outputs.ACTION_DESTINATIONS_VERSION != null && steps.publish-packages.outputs.ACTIONS_CORE_VERSION != null }}
-        env:
-          ACTION_DESTINATIONS_VERSION: ${{ steps.publish-packages.outputs.ACTION_DESTINATIONS_VERSION }}
-          ACTIONS_CORE_VERSION: ${{ steps.publish-packages.outputs.ACTIONS_CORE_VERSION }}
-          BRANCH_TO_UPDATE: ${{ github.event.inputs.branch_to_update }}
-          BUILDKITE_BRANCH: ${{ github.event.inputs.buildkite_branch }}
-          RUN_ID: ${{ github.run_id }}
-          BUILDKITE_TOKEN: ${{ secrets.BUILDKITE_TOKEN }}
-          BUILDKITE_PIPELINE_URL: ${{ secrets.BUILDKITE_PIPELINE_URL }}
-        run: |
-          chmod +x ./scripts/trigger-buildkite-pipeline.sh
-          ./scripts/trigger-buildkite-pipeline.sh
