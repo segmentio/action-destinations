@@ -73,7 +73,17 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'User Ids',
           type: 'object',
           multiple: true,
-          required: true
+          required: true,
+          properties: {
+            idType: {
+              label: 'idType',
+              type: 'string'
+            },
+            idValue: {
+              label: 'idValue',
+              type: 'string'
+            }
+          }
         },
         userInfo: {
           label: 'User Info',
