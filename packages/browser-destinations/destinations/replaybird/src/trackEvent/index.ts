@@ -11,12 +11,16 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: {
     name: {
-      description: 'The name of the event.',
-      label: 'Name',
+      description: 'The track() event name or page() name for the event.',
+      label: 'Event Name',
       required: true,
       type: 'string',
       default: {
-        '@path': '$.event'
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
       }
     },
     properties: {
@@ -28,13 +32,35 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    userId: {
+      description: 'A unique ID for a known user',
+      label: 'User ID',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      description: 'A unique ID for a anonymous user',
+      label: 'Anonymous ID',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (replaybird, event) => {
     // Invoke Partner SDK here
     const payload = event.payload
     if (payload) {
-      replaybird.capture(payload.name, payload.properties ?? {})
+      replaybird.capture(payload.name, {
+        ...payload.properties,
+        userId: payload.userId,
+        anonymousId: payload.anonymousId
+      })
     }
   }
 }

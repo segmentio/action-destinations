@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The name of the event.
+   * The track() event name or page() name for the event.
    */
   name: string
   /**
@@ -11,4 +11,12 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * A unique ID for a known user
+   */
+  userId?: string
+  /**
+   * A unique ID for a anonymous user
+   */
+  anonymousId?: string
 }
