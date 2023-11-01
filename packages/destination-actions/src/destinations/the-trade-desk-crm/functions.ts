@@ -110,6 +110,12 @@ function extractUsers(payloads: Payload[]): string {
 
     if (payload.pii_type == 'EmailHashedUnifiedId2') {
       const hashedEmail = hash(payload.email)
+
+      // Drop invalid emails
+      if (!hashedEmail) {
+        return
+      }
+
       users += `${hashedEmail}\n`
     }
   })
@@ -137,9 +143,10 @@ function normalizeEmail(email: string) {
   return email
 }
 
-export const hash = (value: string): string => {
+export const hash = (value: string): string | undefined => {
   const isSha256HashedEmail = /^[a-f0-9]{64}$/i.test(value)
-  const isBase64Hashed = /^[A-Za-z0-9+/]*={0,2}$/i.test(value)
+  const isBase64Hashed = /^[A-Za-z0-9+/]*={1,2}$/i.test(value)
+  const isValidEmail = /^\S+@\S+\.\S+$/i.test(value)
 
   if (isSha256HashedEmail) {
     return Buffer.from(value, 'hex').toString('base64')
@@ -147,6 +154,10 @@ export const hash = (value: string): string => {
 
   if (isBase64Hashed) {
     return value
+  }
+
+  if (!isValidEmail) {
+    return
   }
 
   const normalizedEmail = normalizeEmail(value)
