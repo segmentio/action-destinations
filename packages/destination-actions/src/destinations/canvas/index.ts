@@ -11,6 +11,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Canvas',
   slug: 'actions-canvas',
   mode: 'cloud',
+  description: 'Send your Segment data to Canvas',
 
   authentication: {
     scheme: 'custom',

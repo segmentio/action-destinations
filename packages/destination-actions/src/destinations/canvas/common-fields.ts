@@ -38,8 +38,17 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       '@path': '$.timestamp'
     }
   },
+  original_timestamp: {
+    label: 'Original timestamp',
+    description: 'Device-time when the event was created.',
+    type: 'datetime',
+    required: true,
+    default: {
+      '@path': '$.sentAt'
+    }
+  },
   received_at: {
-    label: 'Time',
+    label: 'Received at',
     description: 'When the event was received.',
     type: 'datetime',
     required: true,
@@ -48,12 +57,12 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     }
   },
   sent_at: {
-    label: 'Time',
-    description: 'When the event was sent.',
+    label: 'Sent at',
+    description: 'Device-time when the event was sent.',
     type: 'datetime',
     required: true,
     default: {
-      '@path': '$.receivedAt'
+      '@path': '$.sentAt'
     }
   },
   user_id: {
