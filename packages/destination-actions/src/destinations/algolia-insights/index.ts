@@ -8,6 +8,10 @@ import { conversionEvents, conversionPresets } from './conversionEvents'
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
 
+import { productAddedEvents, productAddedPresets } from './productAddedEvents'
+
+import { productListFilteredEvents, productListFilteredPresets } from './productListFilteredEvents'
+
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
 const destination: DestinationDefinition<Settings> = {
@@ -52,11 +56,19 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   // TODO: figure out how to pass multiple presets
-  presets: [productClickPresets, conversionPresets, productViewedPresets],
+  presets: [
+    productClickPresets,
+    conversionPresets,
+    productViewedPresets,
+    productAddedPresets,
+    productListFilteredPresets
+  ],
   actions: {
     productClickedEvents,
     conversionEvents,
-    productViewedEvents
+    productViewedEvents,
+    productAddedEvents,
+    productListFilteredEvents
   }
 }
 

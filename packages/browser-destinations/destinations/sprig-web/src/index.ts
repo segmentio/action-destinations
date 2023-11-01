@@ -25,25 +25,29 @@ export const destination: BrowserDestinationDefinition<Settings, Sprig> = {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Sign Out User',
       subscribe: 'type = "track" and event = "Signed Out"',
       partnerAction: 'signoutUser',
-      mapping: defaultValues(signoutUser.fields)
+      mapping: defaultValues(signoutUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Event',
       subscribe: 'type = "track" and event != "Signed Out"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Update User ID',
       subscribe: 'type = "alias"',
       partnerAction: 'updateUserId',
-      mapping: defaultValues(updateUserId.fields)
+      mapping: defaultValues(updateUserId.fields),
+      type: 'automatic'
     }
   ],
 

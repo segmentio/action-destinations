@@ -55,4 +55,4 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose
+          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest

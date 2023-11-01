@@ -13,7 +13,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
       settingsData.endpoint = 'https://go.airship.com'
-      nock(/.*/).persist().get(/.*/).reply(200)
+      // nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/)
+        .persist()
+        .post('/api/channels/email')
+        .reply(200, { ok: true, channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06' })
+      nock(/.*/).persist().post('/api/named_users/associate').reply(200, { ok: true })
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
@@ -48,7 +53,21 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
       settingsData.endpoint = 'https://go.airship.com'
 
-      nock(/.*/).persist().get(/.*/).reply(200)
+      nock(/.*/)
+        .persist()
+        .get(/.*/)
+        .reply(200, {
+          // content: {
+          ok: true,
+          channel: {
+            channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06'
+          }
+          // }
+        })
+      nock(/.*/)
+        .persist()
+        .post('/api/channels/email')
+        .reply(200, { ok: true, channel_id: '6be90795-a7d7-4657-b959-6a5afc199b06' })
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 

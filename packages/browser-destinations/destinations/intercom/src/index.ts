@@ -24,19 +24,22 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify" or type = "page"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Company',
       subscribe: 'type = "group"',
       partnerAction: 'identifyCompany',
-      mapping: defaultValues(identifyCompany.fields)
+      mapping: defaultValues(identifyCompany.fields),
+      type: 'automatic'
     }
   ],
   settings: {

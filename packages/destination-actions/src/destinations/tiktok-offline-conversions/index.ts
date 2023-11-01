@@ -54,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackPaymentOfflineConversion.fields),
         event: 'CompletePayment'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Contact',
@@ -63,7 +64,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'Contact'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Subscribe',
@@ -72,7 +74,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'Subscribe'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Submit Form',
@@ -81,7 +84,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'SubmitForm'
-      }
+      },
+      type: 'automatic'
     }
   ],
   actions: {

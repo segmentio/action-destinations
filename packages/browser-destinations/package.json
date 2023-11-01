@@ -32,8 +32,8 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
+    "@types/gtag.js": "^0.0.13",
     "@types/jest": "^27.0.0",
-    "babel-jest": "^27.3.1",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.3.0",
     "globby": "^11.0.2",
@@ -62,8 +62,13 @@
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
       "@segment/browser-destination-runtime/(.*)": "<rootDir>/../browser-destination-runtime/src/$1"
     },
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
+      "^.+\\.[t|j]sx?$": "ts-jest"
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!(@segment/analytics-next|@braze/web-sdk/)).+\\.js$"

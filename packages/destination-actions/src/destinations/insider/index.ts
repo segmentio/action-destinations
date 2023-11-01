@@ -18,7 +18,8 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Create or Update a User Profile',
     subscribe: 'type = "identify"',
     partnerAction: 'updateUserProfile',
-    mapping: defaultValues(updateUserProfile.fields)
+    mapping: defaultValues(updateUserProfile.fields),
+    type: 'automatic'
   }
 ]
 

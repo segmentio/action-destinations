@@ -27,19 +27,22 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       name: 'Track Custom Behavioral Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackCustomBehavioralEvent',
-      mapping: defaultValues(trackCustomBehavioralEvent.fields)
+      mapping: defaultValues(trackCustomBehavioralEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Upsert Contact',
       subscribe: 'type = "identify"',
       partnerAction: 'upsertContact',
-      mapping: defaultValues(upsertContact.fields)
+      mapping: defaultValues(upsertContact.fields),
+      type: 'automatic'
     },
     {
       name: 'Track Page View',
       subscribe: 'type = "page"',
       partnerAction: 'trackPageView',
-      mapping: defaultValues(trackPageView.fields)
+      mapping: defaultValues(trackPageView.fields),
+      type: 'automatic'
     }
   ],
   settings: {
@@ -56,20 +59,23 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       required: false
     },
     flushIdentifyImmediately: {
-      description: 'Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.',
+      description:
+        'Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.',
       label: 'Flush Identify Calls Immediately',
       type: 'boolean',
       required: false
     },
     formatCustomBehavioralEventNames: {
-      description: 'Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).',
+      description:
+        'Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).',
       label: 'Format Custom Behavioral Event Names',
       type: 'boolean',
       required: false,
       default: true
     },
     loadFormsSDK: {
-      description: 'Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.',
+      description:
+        'Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.',
       label: 'Load Forms SDK',
       type: 'boolean',
       required: false,

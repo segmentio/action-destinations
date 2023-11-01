@@ -29,4 +29,8 @@ export interface Payload {
    * The name of the current Segment event.
    */
   event_name?: string
+  /**
+   * A Segment specific key used to define action type.
+   */
+  dmp_user_action?: string
 }

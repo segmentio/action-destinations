@@ -45,25 +45,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Submit Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'submitTrackEvent',
-      mapping: defaultValues(submitTrackEvent.fields)
+      mapping: defaultValues(submitTrackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Submit Identify Event',
       subscribe: 'type = "identify"',
       partnerAction: 'submitIdentifyEvent',
-      mapping: defaultValues(submitIdentifyEvent.fields)
+      mapping: defaultValues(submitIdentifyEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Submit Page Event',
       subscribe: 'type = "page"',
       partnerAction: 'submitPageEvent',
-      mapping: defaultValues(submitPageEvent.fields)
+      mapping: defaultValues(submitPageEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Submit Screen Event',
       subscribe: 'type = "screen"',
       partnerAction: 'submitScreenEvent',
-      mapping: defaultValues(submitScreenEvent.fields)
+      mapping: defaultValues(submitScreenEvent.fields),
+      type: 'automatic'
     }
   ],
 

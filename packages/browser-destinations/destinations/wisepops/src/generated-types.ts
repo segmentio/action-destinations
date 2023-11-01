@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://app.wisepops.com/f/settings/websites).
+   * The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://id.wisepops.com/r/id/workspaces/_workspaceId_/settings/setup-code).
    */
   websiteId: string
 }

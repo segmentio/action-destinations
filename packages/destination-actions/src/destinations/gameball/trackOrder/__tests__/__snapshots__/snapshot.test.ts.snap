@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gameball's trackOrder destination action: all fields 1`] = `
+Object {
+  "branchId": "![r@Ajo",
+  "branchName": "![r@Ajo",
+  "discountCodes": Array [
+    "![r@Ajo",
+  ],
+  "email": "hunako@cemvouf.ht",
+  "extra": Object {
+    "testType": "![r@Ajo",
+  },
+  "guest": true,
+  "holdReference": "![r@Ajo",
+  "lineItems": Array [
+    Object {
+      "category": Array [
+        "![r@Ajo",
+      ],
+      "collection": Array [
+        "![r@Ajo",
+      ],
+      "discount": -63119588736368.64,
+      "price": -63119588736368.64,
+      "productId": "![r@Ajo",
+      "quantity": -63119588736368.64,
+      "sku": "![r@Ajo",
+      "tags": Array [
+        "![r@Ajo",
+      ],
+      "taxes": -63119588736368.64,
+      "title": "![r@Ajo",
+      "vendor": "![r@Ajo",
+      "weight": -63119588736368.64,
+    },
+  ],
+  "merchant": Object {
+    "branch": Object {
+      "name": "![r@Ajo",
+      "uniqueId": "![r@Ajo",
+    },
+    "name": "![r@Ajo",
+    "uniqueId": "![r@Ajo",
+  },
+  "merchantId": "![r@Ajo",
+  "merchantName": "![r@Ajo",
+  "mobile": "![r@Ajo",
+  "orderDate": "2021-02-01T00:00:00.000Z",
+  "orderId": "![r@Ajo",
+  "playerUniqueId": "![r@Ajo",
+  "redeemedAmount": -63119588736368.64,
+  "totalDiscount": -63119588736368.64,
+  "totalPaid": -63119588736368.64,
+  "totalPrice": -63119588736368.64,
+  "totalShipping": -63119588736368.64,
+  "totalTax": -63119588736368.64,
+}
+`;
+
+exports[`Testing snapshot for actions-gameball's trackOrder destination action: required fields 1`] = `
+Object {
+  "orderDate": "2021-02-01T00:00:00.000Z",
+  "orderId": "![r@Ajo",
+  "playerUniqueId": "![r@Ajo",
+  "totalPaid": -63119588736368.64,
+  "totalPrice": -63119588736368.64,
+}
+`;

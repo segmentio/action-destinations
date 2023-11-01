@@ -3,7 +3,9 @@ import { defaultValues, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
-import { listOperationsRequestParams, deleteUserRequestParams } from './request-params'
+import identifyUserV2 from './identifyUserV2'
+import trackEventV2 from './trackEventV2'
+import { deleteUserRequestParams, meRequestParams } from './request-params'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Fullstory Cloud Mode (Actions)',
@@ -14,13 +16,15 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     }
   ],
   authentication: {
@@ -35,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
     },
 
     testAuthentication: (request, { settings }) => {
-      const { url, options } = listOperationsRequestParams(settings)
+      const { url, options } = meRequestParams(settings)
       return request(url, options)
     }
   },
@@ -50,7 +54,9 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     trackEvent,
-    identifyUser
+    identifyUser,
+    trackEventV2,
+    identifyUserV2
   }
 }
 
