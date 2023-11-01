@@ -20,6 +20,16 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_key'
       }
     },
+    segment_audience_id: {
+      label: 'Audience ID',
+      description: 'Segment Audience ID',
+      type: 'string',
+      unsafe_hidden: true,
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     segment_computation_action: {
       label: 'Segment Computation Action',
       description:
@@ -69,6 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const payload = data.payload
     const settings = data.settings
     const audienceName = payload.segment_audience_key
+    const audienceID = payload.segment_audience_id
     const audienceValue = d?.rawData?.properties?.[audienceName] ?? d?.rawData?.traits?.[audienceName]
 
     const URL = getUpsertURL(settings)
@@ -77,6 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         audienceValue,
         audienceName,
+        audienceID,
         identifier: payload.segment_user_id ?? payload.segment_anonymous_id,
         email: payload.user_email ? hashAndEncode(payload.user_email) : undefined,
         sectionId: settings.sectionId,
