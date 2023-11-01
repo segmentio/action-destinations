@@ -14,9 +14,9 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
-  name: 'Bucket (Browser SDK)',
+  name: 'Bucket Web (Actions)',
   description:
-    'Loads the Bucket browser SDK, tracks identify, group and track-events and enabled live satisfaction connections',
+    'Loads the Bucket browser SDK, maps identify-, group- and track-events and enables LiveSatisfaction connections',
   slug: 'bucket-web',
   mode: 'device',
 
@@ -30,13 +30,13 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
     },
     {
       name: 'Group',
-      subscribe: 'type = "group"',
+      subscribe: 'type = "group" and userId != null',
       partnerAction: 'group',
       type: 'automatic'
     },
     {
       name: 'Track Event',
-      subscribe: 'type = "track"',
+      subscribe: 'type = "track" and userId != null',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
@@ -67,7 +67,7 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
     // If the analytics client already has a logged in user from a
     // previous session or page, consider the user logged in.
     // In this case we need to call `bucket.user()` to set the persisted
-    // user id in bucket and initialize LiveSatisfaction
+    // user id in bucket and initialize Live Satisfaction
     const segmentPersistedUserId = analytics.user().id()
     if (segmentPersistedUserId) {
       void window.bucket.user(segmentPersistedUserId, {}, { active: false })

@@ -8,7 +8,7 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
   lifecycleHook: 'destination',
   description: 'Creates or updates a Company in Bucket and associates the user with it',
   platform: 'web',
-  defaultSubscription: 'type = "group"',
+  defaultSubscription: 'type = "group" and userId != null',
   fields: {
     groupId: {
       type: 'string',
