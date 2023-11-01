@@ -114,7 +114,6 @@ function extractUsers(payloads: Payload[]): string {
 
     if (payload.pii_type == 'EmailHashedUnifiedId2') {
       const hashedEmail = hash(payload.email)
-
       users += `${hashedEmail}\n`
     }
   })
