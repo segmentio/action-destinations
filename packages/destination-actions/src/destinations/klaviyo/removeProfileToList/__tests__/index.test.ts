@@ -13,13 +13,13 @@ export const settings = {
 const listId = 'XAXAXA'
 
 describe('Remove List from Profile', () => {
-  it('should throw error if no list_id is provided', async () => {
+  it('should throw error if no list_id/email is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
     })
 
-    await expect(testDestination.testAction('addProfileToList', { event, settings })).rejects.toThrowError(
+    await expect(testDestination.testAction('removeProfileToList', { event, settings })).rejects.toThrowError(
       IntegrationError
     )
   })
@@ -34,15 +34,24 @@ describe('Remove List from Profile', () => {
       ]
     }
 
+    const email = 'demo@example.com'
+
+    nock(`${API_URL}/profiles`).get(`/?filter=equals(email,"${email}")`).reply(200, {})
+
     nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200, {})
 
     const event = createTestEvent({
       type: 'track',
-      userId: '123'
+      userId: '123',
+      traits: {
+        email: 'demo@example.com'
+      }
     })
     const mapping = {
       list_id: listId,
-      profile_id: 'demo-profile-id'
+      email: {
+        '@path': '$.traits.email'
+      }
     }
 
     await expect(

@@ -1,17 +1,11 @@
 import { RequestClient, DynamicFieldResponse, APIError } from '@segment/actions-core'
 import { API_URL } from './config'
-import { listData } from './types'
+import { GetProfileResponseData, ListIdResponse, ProfileData, listData } from './types'
 
-export async function getListIdDynamicData(request: RequestClient, settings: any): Promise<DynamicFieldResponse> {
+export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
-    const result: any = await request(`${API_URL}/lists/`, {
-      method: 'get',
-      headers: {
-        Authorization: `Klaviyo-API-Key ${settings.api_key}`,
-        Accept: 'application/json',
-        revision: new Date().toISOString().slice(0, 10)
-      },
-      skipResponseCloning: true
+    const result: ListIdResponse = await request(`${API_URL}/lists/`, {
+      method: 'get'
     })
     const choices = JSON.parse(result.content).data.map((list: { id: string; attributes: { name: string } }) => {
       return { value: list.id, label: list.attributes.name }
@@ -46,4 +40,33 @@ export async function executeProfileList(
   } catch (error) {
     throw new Error('An error occurred while processing the request')
   }
+}
+
+export async function getProfile(request: RequestClient, email: string): Promise<GetProfileResponseData> {
+  try {
+    const profileId: GetProfileResponseData = await request(`${API_URL}/profiles/?filter=equals(email,"${email}")`, {
+      method: 'GET'
+    })
+    return profileId
+  } catch (error) {
+    console.log(error)
+    throw new Error('An error occurred while processing the request')
+  }
+}
+
+export async function createProfile(request: RequestClient, email: string): Promise<GetProfileResponseData> {
+  const profileData: ProfileData = {
+    data: {
+      type: 'profile',
+      attributes: {
+        email
+      }
+    }
+  }
+
+  const profile: GetProfileResponseData = await request(`${API_URL}/profiles/`, {
+    method: 'POST',
+    json: profileData
+  })
+  return profile
 }

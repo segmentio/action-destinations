@@ -13,7 +13,7 @@ export const settings = {
 const listId = 'demo-list-id'
 
 describe('Add List To Profile', () => {
-  it('should throw error if no list_id is provided', async () => {
+  it('should throw error if no list_id/email is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
@@ -34,17 +34,32 @@ describe('Add List To Profile', () => {
       ]
     }
 
+    const profileData = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'demo@segment.com'
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/profiles/', profileData).reply(200, {})
+
     nock(`${API_URL}/lists/${listId}`).post('/relationships/profiles/', requestBody).reply(200, {})
 
     const event = createTestEvent({
       type: 'track',
-      userId: '123'
+      userId: '123',
+      traits: {
+        email: 'demo@segment.com'
+      }
     })
     const mapping = {
       list_id: listId,
-      profile_id: 'demo-profile-id'
+      email: {
+        '@path': '$.traits.email'
+      }
     }
-
     await expect(
       testDestination.testAction('addProfileToList', { event, mapping, settings })
     ).resolves.not.toThrowError()
