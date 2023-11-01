@@ -17,7 +17,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      // TODO: Fields is required, but I don't think we need anything here
+      //Fields is required, so this is left empty
     },
     refreshAccessToken: async (request, { auth }) => {
       const { data } = await request<RefreshTokenResponse>('https://accounts.google.com/o/oauth2/token', {
