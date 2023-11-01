@@ -8,7 +8,7 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
   title: 'Track Event',
   description: 'Track events',
   platform: 'web',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" || type = "page"',
   fields: {
     name: {
       description: 'The track() event name or page() name for the event.',

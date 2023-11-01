@@ -13,8 +13,8 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
     userId: {
       type: 'string',
       required: true,
-      description: "The user's identity",
-      label: 'Identity',
+      description: 'A unique ID for a known user',
+      label: 'User Id',
       default: {
         '@path': '$.userId'
       }
@@ -23,7 +23,7 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
       type: 'object',
       required: false,
       description: 'The Segment traits to be forwarded to replaybird',
-      label: 'Traits',
+      label: 'User Traits',
       default: {
         '@path': '$.traits'
       }

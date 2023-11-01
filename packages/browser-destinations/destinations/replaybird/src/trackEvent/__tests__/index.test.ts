@@ -8,25 +8,6 @@ import {
 } from '../../utils'
 
 describe('replaybird.track', () => {
-  // let event: Plugin
-  // let trackSpy: jest.SpyInstance
-
-  // beforeAll(async () => {
-  //   mockReplaybirdJsHttpRequest()
-  //   window.replaybird = createMockedReplaybirdJsSdk()
-
-  //   event = (await replaybird({
-  //     apiKey: REPLAYBIRD_API_KEY,
-  //     subscriptions: [trackSubscription]
-  //   }))[0]
-  //   await event.load(Context.system(), {} as Analytics)
-  //   trackSpy = jest.spyOn(window.replaybird, 'capture')
-  // })
-
-  // beforeEach(() => {
-  //   jest.resetAllMocks()
-  // })
-
   it('Should send events to replaybird', async () => {
     mockReplaybirdJsHttpRequest()
     window.replaybird = createMockedReplaybirdJsSdk()
