@@ -27,3 +27,45 @@ export class LinkedInRefreshTokenError extends HTTPError {
     }
   }
 }
+
+export interface GetAdAccountsAPIResponse {
+  paging: {
+    count: number
+    links: Array<any>
+    start: number
+    total: number
+  }
+  elements: [Accounts]
+}
+
+export interface Accounts {
+  account: string
+  changeAuditStamps: object
+  role: string
+  user: string
+  version: object
+}
+
+export interface AccountsErrorInfo {
+  response: {
+    data: {
+      message?: string
+      code?: string
+    }
+  }
+}
+
+export interface GetConversionListAPIResponse {
+  paging: {
+    count: number
+    links: Array<any>
+    start: number
+    total: number
+  }
+  elements: [Conversions]
+}
+
+export interface Conversions {
+  name: string
+  id: string
+}
