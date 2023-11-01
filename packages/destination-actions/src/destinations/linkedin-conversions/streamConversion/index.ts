@@ -77,11 +77,13 @@ const action: ActionDefinition<Settings, Payload> = {
           properties: {
             idType: {
               label: 'idType',
-              type: 'string'
+              type: 'string',
+              required: true
             },
             idValue: {
               label: 'idValue',
-              type: 'string'
+              type: 'string',
+              required: true
             }
           }
         },

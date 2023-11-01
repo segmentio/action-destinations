@@ -35,8 +35,8 @@ export interface Payload {
    */
   user: {
     userIds: {
-      idType?: string
-      idValue?: string
+      idType: string
+      idValue: string
     }[]
     userInfo?: {
       [k: string]: unknown
