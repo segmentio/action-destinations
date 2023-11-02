@@ -2,10 +2,9 @@
   "name": "@segment/analytics-browser-actions-snap-conversions-api",
   "version": "1.0.0",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/browser-destinations/destinations/snap-conversions-api"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "main": "./dist/cjs",
   "module": "./dist/esm",
@@ -16,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.17.0"
+    "@segment/browser-destination-runtime": "^1.17.1-staging.4"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

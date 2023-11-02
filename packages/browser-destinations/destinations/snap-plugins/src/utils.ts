@@ -17,25 +17,25 @@ export const scidIntegrationFieldName = 'uuid_c1'
 export const clickIdIntegrationFieldName = 'click_id'
 
 export const getCookieValue = (cookieName: string): string | null => {
-    const name = cookieName + "="
-    const decodedCookie = decodeURIComponent(document.cookie)
-    const cookieArray = decodedCookie.split('; ')
+  const name = cookieName + '='
+  const decodedCookie = decodeURIComponent(document.cookie)
+  const cookieArray = decodedCookie.split('; ')
 
-    for (const cookie of cookieArray) {
-        if (cookie.startsWith(name)) {
-         return cookie.substring(name.length)
-        }
+  for (const cookie of cookieArray) {
+    if (cookie.startsWith(name)) {
+      return cookie.substring(name.length)
     }
+  }
 
-    return null
+  return null
 }
 
 export const storageFallback = {
-    get: (key: string) => {
-      const data = window.localStorage.getItem(key)
-      return data
-    },
-    set: (key: string, value: string) => {
-      return window.localStorage.setItem(key, value)
-    }
+  get: (key: string) => {
+    const data = window.localStorage.getItem(key)
+    return data
+  },
+  set: (key: string, value: string) => {
+    return window.localStorage.setItem(key, value)
+  }
 }
