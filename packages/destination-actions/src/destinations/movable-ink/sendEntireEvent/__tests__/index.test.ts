@@ -29,9 +29,7 @@ const event = createTestEvent({
 
 describe('MovableInk.sendEntireEvent', () => {
   it('should send entire payload to Movable Ink', async () => {
-    nock(settings.movable_ink_url as string)
-      .post(/.*/)
-      .reply(200)
+    nock(settings.movable_ink_url).post(/.*/).reply(200)
 
     const responses = await testDestination.testAction(actionSlug, {
       event,
