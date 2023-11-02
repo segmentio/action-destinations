@@ -1,4 +1,4 @@
-# @segment/analytics-browser-actions-snap-snap-plugins
+# @segment/analytics-browser-actions-snap-plugins
 
 The Snap Browser Plugins browser action destination for use with @segment/analytics-next.
 
