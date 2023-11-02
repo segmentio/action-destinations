@@ -1,5 +1,5 @@
 {
-  "name": "@segment/analytics-browser-actions-snap-conversions-api",
+  "name": "@segment/analytics-browser-actions-snap-plugins",
   "version": "1.0.0",
   "license": "MIT",
   "publishConfig": {

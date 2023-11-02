@@ -1,6 +1,6 @@
-# @segment/analytics-browser-actions-snap-conversions-api
+# @segment/analytics-browser-actions-snap-snap-plugins
 
-The Snap Conversions Api browser action destination for use with @segment/analytics-next.
+The Snap Browser Plugins browser action destination for use with @segment/analytics-next.
 
 ## License
 
