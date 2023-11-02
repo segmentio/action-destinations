@@ -15,6 +15,11 @@ const settings = {
 }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  beforeAll(() => {
+    const mockDate = new Date(12345)
+    jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
+  })
+
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
