@@ -16,7 +16,7 @@ const settings = {
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   beforeAll(() => {
-    const mockDate = new Date(12345)
+    const mockDate = new Date('2000-01-01T00:00:00Z')
     jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
   })
 
@@ -62,7 +62,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      properties: eventData,
+      receivedAt
     })
 
     const responses = await testDestination.testAction(actionSlug, {
