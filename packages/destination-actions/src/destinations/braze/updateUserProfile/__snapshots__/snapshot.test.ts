@@ -16,7 +16,7 @@ const settings = {
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   beforeAll(() => {
-    const mockDate = new Date('2000-01-05T00:00:00Z')
+    const mockDate = new Date('2000-01-05T12:00:00Z')
     jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
   })
 
