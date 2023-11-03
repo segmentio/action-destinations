@@ -313,13 +313,14 @@ export function updateBatchedUserProfile(
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
 
-    if (!braze_id && !user_alias && !external_id) {
-      throw new IntegrationError(
-        'One of "external_id" or "user_alias" or "braze_id" is required.',
-        'Missing required fields',
-        400
-      )
-    }
+    // Disable errors until Actions Framework has a multistatus support
+    // if (!braze_id && !user_alias && !external_id) {
+    //   throw new IntegrationError(
+    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
+    //     'Missing required fields',
+    //     400
+    //   )
+    // }
 
     // Since we are merge reserved keys on top of custom_attributes we need to remove them
     // to respect the customers mappings that might resolve `undefined`, without this we'd

@@ -15,11 +15,6 @@ const settings = {
 }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  beforeAll(() => {
-    const mockDate = new Date('2000-01-05T12:00:00Z')
-    jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
-  })
-
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -88,6 +83,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('it should work with batched events', async () => {
     nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
+    // ISO String can be obtained from new Date().toISOString()
+    const isoString = '2000-01-05T12:00:00.00Z'
+
     const events: SegmentEvent[] = [
       createTestEvent({
         event: 'Test Event 1',
@@ -126,6 +124,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         products: {
           '@path': '$.properties.products'
         },
+        date_of_first_session: isoString,
+        date_of_last_session: isoString,
+        marked_email_as_spam_at: isoString,
         enable_batching: true,
         _update_existing_only: true
       },
