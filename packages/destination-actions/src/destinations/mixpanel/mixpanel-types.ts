@@ -36,7 +36,7 @@ export type MixpanelEventProperties = {
   $screen_width?: number
   $user_id?: string
   $wifi_enabled?: boolean
-  $source: 'segment'
+  $source: string // 'segment'
   distinct_id?: string | null // 'test_segment_user'
   id?: string | null // this is just to maintain backwards compatibility  with the classic segment integration, I'm not completely sure what the purpose of this was.
   mp_country_code?: string // 'US'
@@ -48,9 +48,38 @@ export type MixpanelEventProperties = {
   utm_medium?: string // 'email'
   utm_source?: string // 'Newsletter'
   utm_term?: string // 'tps reports'
+  advertising_id?: string
+  ad_tracking_enabled?: string
+  timezone?: string
+  app_platform?: string
+  event_original_name?: string
+  $mobile?: boolean
+  $platform?: string
+  $architecture?: string
+  $bitness?: string
+  $platformVersion?: string
+  $uaFullVersion?: string
+  $wow64?: boolean
 }
 
 export type MixpanelEvent = {
   event: string
   properties: MixpanelEventProperties
+}
+
+export type MixpanelEngageSet = {
+  $created?: unknown
+  $email?: unknown
+  $first_name?: unknown
+  $last_name?: unknown
+  $name?: unknown
+  $username?: unknown
+  $phone?: unknown
+} & { [key: string]: unknown }
+
+export type MixpanelEngageProperties = {
+  $token: string
+  $distinct_id?: string | null
+  $ip?: string
+  $set?: MixpanelEngageSet
 }

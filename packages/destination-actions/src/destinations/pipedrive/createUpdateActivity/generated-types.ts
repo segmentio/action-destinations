@@ -42,7 +42,7 @@ export interface Payload {
    */
   description?: string
   /**
-   * Note of the Activity (HTML format)
+   * Note of the Activity (Accepts plain text and HTML)
    */
   note?: string
   /**
@@ -50,7 +50,7 @@ export interface Payload {
    */
   due_date?: string
   /**
-   * Due time of the Activity in UTC. Format: HH:MM
+   * Due time of the Activity. Format: HH:MM
    */
   due_time?: string
   /**

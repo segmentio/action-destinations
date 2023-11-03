@@ -2,13 +2,18 @@ import { IntegrationError } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
 import camelCase from 'lodash/camelCase'
 
+type CSVData = string | number | boolean
+
 const isSettingsKey = new Set<string>([
   'operation',
   'traits',
   'enable_batching',
   'customFields',
   'bulkUpsertExternalId',
-  'bulkUpdateRecordId'
+  'bulkUpdateRecordId',
+  'recordMatcherOperator',
+  'customObjectName',
+  'batch_size'
 ])
 
 const NO_VALUE = `#N/A`
@@ -23,6 +28,14 @@ const validateHeaderField = (field: string): void => {
   }
 }
 
+// Salesforce bulk API CSVs require double quotes to be escaped with another double quote.
+// https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/datafiles_csv_valid_record_rows.htm
+const escapeDoubleQuotes = (value: CSVData): CSVData => {
+  if (typeof value !== 'string') return value
+
+  return value.replace(/"/g, '""')
+}
+
 /**
  * Iterates over each payload in the batch, and creates a map which represents each column in the CSV file.
  *
@@ -31,8 +44,8 @@ const validateHeaderField = (field: string): void => {
  * map of each column in the CSV file. The index is the index of the payload in the batch and is used
  * to maintain ordering when the CSV is generated.
  */
-const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, number]]> => {
-  const headerMap = new Map<string, [[string, number]]>()
+const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[CSVData, number]]> => {
+  const headerMap = new Map<string, [[CSVData, number]]>()
 
   //iterate in reverse over payloads to use each headerMap array as a queue.
   for (let i = payloads.length - 1; i >= 0; i--) {
@@ -40,7 +53,7 @@ const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, numbe
     Object.entries(payload).forEach(([key, value]) => {
       if (!isSettingsKey.has(key)) {
         const pascalKey = snakeCaseToPascalCase(key)
-        const actualValue = value as string
+        const actualValue = value as CSVData
         if (headerMap.has(pascalKey)) {
           headerMap.get(pascalKey)?.push([actualValue, i])
         } else {
@@ -71,7 +84,7 @@ const buildHeaderMap = (payloads: GenericPayload[]): Map<string, [[string, numbe
  * @param headerMap A map representing each column in the CSV file.
  * @returns The first row of the CSV file, which contains the header names.
  */
-const buildHeaders = (headerMap: Map<string, [[string, number]]>): string => {
+const buildHeaders = (headerMap: Map<string, [[CSVData, number]]>): string => {
   let headers = ''
   for (const [key, _] of headerMap.entries()) {
     headers += `${key},`
@@ -92,24 +105,20 @@ const buildHeaders = (headerMap: Map<string, [[string, number]]>): string => {
  */
 const buildCSVFromHeaderMap = (
   payloads: GenericPayload[],
-  headerMap: Map<string, [[string, number]]>,
+  headerMap: Map<string, [[CSVData, number]]>,
   n: number
 ): string => {
   let rows = ''
 
   for (let i = 0; i < n; i++) {
     let row = ''
-    for (const [key, _] of headerMap.entries()) {
+    for (const column of headerMap.values()) {
       let noValueFound = true
-      if (headerMap.has(key)) {
-        const column = headerMap.get(key) as [[string, number]]
-
-        if (column !== undefined && column.length > 0 && column[column.length - 1][1] === i) {
-          const value = column.pop()
-          if (value !== undefined) {
-            row += `"${value[0]}",`
-            noValueFound = false
-          }
+      if (column != null && column.length > 0 && column[column.length - 1][1] === i) {
+        const valueTuple = column.pop()
+        if (valueTuple != null && valueTuple[0] != null) {
+          row += `"${escapeDoubleQuotes(valueTuple[0])}",`
+          noValueFound = false
         }
       }
 
@@ -138,11 +147,7 @@ const getUniqueIdValue = (payload: GenericPayload): string => {
     return payload.bulkUpdateRecordId
   }
 
-  throw new IntegrationError(
-    `bulk ${payload.operation} is missing the required bulk ID`,
-    `bulk ${payload.operation} is missing the required bulk ID`,
-    400
-  )
+  return NO_VALUE
 }
 
 /**
@@ -165,4 +170,27 @@ export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): 
 const snakeCaseToPascalCase = (key: string): string => {
   const token = camelCase(key)
   return token.charAt(0).toUpperCase() + token.slice(1)
+}
+
+export const validateInstanceURL = (instanceUrl: string): string => {
+  if (instanceUrl === undefined || instanceUrl === '') {
+    throw new IntegrationError(
+      'Empty Salesforce instance URL. Please login through OAuth.',
+      'INVALID_INSTANCE_URL',
+      400
+    )
+  }
+
+  const salesforceRegex = /^(https):\/\/.*\.salesforce\.com/
+  const isValid = salesforceRegex.test(instanceUrl)
+
+  if (isValid) {
+    return instanceUrl
+  }
+
+  throw new IntegrationError(
+    'Invalid Salesforce instance URL. Please login through OAuth again.',
+    'INVALID_INSTANCE_URL',
+    400
+  )
 }

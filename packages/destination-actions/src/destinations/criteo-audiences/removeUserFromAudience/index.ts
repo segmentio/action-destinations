@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { getAudienceId, patchAudience } from '../criteo-audiences'
+import { getAudienceId, patchAudience, hash } from '../criteo-audiences'
 import type { Operation, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -16,10 +16,13 @@ const getOperationFromPayload = async (
   let audience_key = ''
 
   for (const event of payload) {
+    let email = undefined
+
     if (!audience_key && event.audience_key)
       audience_key = event.audience_key
-    if (event.email)
-      remove_user_list.push(event.email)
+
+    email = event.hash_emails ? hash(event.email) : event.email
+    if (email) remove_user_list.push(email)
   }
 
   const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
@@ -75,6 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.traits.email'
       }
+    },
+    hash_emails: {
+      label: 'Hash Emails',
+      description: "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+      type: 'boolean',
+      default: false,
+      required: false
     },
   },
   perform: async (request, { settings, payload }) => {

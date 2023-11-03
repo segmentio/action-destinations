@@ -197,7 +197,7 @@ test('operators - less than', () => {
     }
 
     expect(validate(ast, { properties: { value: 5 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '5' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '5' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 10 } })).toEqual(false)
     expect(validate(ast, { properties: { value: '10' } })).toEqual(false)
   }
@@ -219,9 +219,9 @@ test('operators - less than or equal', () => {
     }
 
     expect(validate(ast, { properties: { value: 5 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '5' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '5' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 10 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '10' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '10' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 11 } })).toEqual(false)
     expect(validate(ast, { properties: { value: '11' } })).toEqual(false)
   }
@@ -243,7 +243,7 @@ test('operators - greater than', () => {
     }
 
     expect(validate(ast, { properties: { value: 11 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '11' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '11' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 10 } })).toEqual(false)
     expect(validate(ast, { properties: { value: '10' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 5 } })).toEqual(false)
@@ -267,9 +267,9 @@ test('operators - greater than or equal', () => {
     }
 
     expect(validate(ast, { properties: { value: 11 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '11' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '11' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 10 } })).toEqual(true)
-    expect(validate(ast, { properties: { value: '10' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: '10' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 5 } })).toEqual(false)
     expect(validate(ast, { properties: { value: '5' } })).toEqual(false)
   }

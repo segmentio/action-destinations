@@ -16,7 +16,8 @@ describe('Cordial.upsertContact', () => {
 
     const settings = {
       apiKey: 'cordialApiKey',
-      endpoint: 'https://api.cordial.io' as const
+      endpoint: 'https://api.cordial.io' as const,
+      segmentIdKey: 'segment_id'
     }
 
     await testDestination.testAction('upsertContact', {

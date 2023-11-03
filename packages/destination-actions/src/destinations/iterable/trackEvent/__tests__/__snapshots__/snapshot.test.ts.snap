@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Iterable's trackEvent destination action: all fields 1`] = `
+Object {
+  "campaignId": -5625955741597696,
+  "createdAt": 1612137600,
+  "dataFields": Object {
+    "testType": ")nhfnX#8",
+  },
+  "email": "ra@hiluh.za",
+  "eventName": ")nhfnX#8",
+  "id": ")nhfnX#8",
+  "templateId": -5625955741597696,
+  "userId": ")nhfnX#8",
+}
+`;

@@ -12,6 +12,20 @@ export interface ConversionCustomVariable {
   }
 }
 
+export interface ConversionActionId {
+  conversionAction: {
+    resourceName: string
+    id: string
+    name: string
+  }
+}
+
+export interface ConversionActionResponse {
+  results: Array<ConversionActionId>
+  fieldMask: string
+  requestId: string
+}
+
 export interface QueryResponse {
   results: Array<ConversionCustomVariable>
 }
@@ -23,5 +37,3 @@ export interface PartialErrorResponse {
   }
   results: {}[]
 }
-
-export const GoogleAdsAPI = 'https://googleads.googleapis.com/v11/customers'

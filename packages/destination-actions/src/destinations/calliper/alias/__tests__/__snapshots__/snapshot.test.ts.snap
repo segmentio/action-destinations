@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Calliper's alias destination action: all fields 1`] = `
+Object {
+  "alias": Object {
+    "new_id": "6vA27CsNzsZPPtMGOQ",
+    "previous_id": "6vA27CsNzsZPPtMGOQ",
+    "time": 1612137600000,
+  },
+  "companyId": "6vA27CsNzsZPPtMGOQ",
+  "key": "6vA27CsNzsZPPtMGOQ",
+}
+`;
+
+exports[`Testing snapshot for Calliper's alias destination action: required fields 1`] = `
+Object {
+  "alias": Object {
+    "new_id": "6vA27CsNzsZPPtMGOQ",
+    "previous_id": "6vA27CsNzsZPPtMGOQ",
+    "time": 1612137600000,
+  },
+  "companyId": "6vA27CsNzsZPPtMGOQ",
+  "key": "6vA27CsNzsZPPtMGOQ",
+}
+`;

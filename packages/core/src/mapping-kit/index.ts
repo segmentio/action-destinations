@@ -100,6 +100,69 @@ registerDirective('@case', (opts, payload) => {
   }
 })
 
+export const MAX_PATTERN_LENGTH = 10
+export const MAX_REPLACEMENT_LENGTH = 10
+registerDirective('@replace', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@replace requires an object with a "pattern" key')
+  }
+
+  if (!opts.pattern) {
+    throw new Error('@replace requires a "pattern" key')
+  }
+
+  // Assume null/missing replacement means empty
+  if (opts.replacement == null) {
+    // Empty replacement string is ok
+    opts.replacement = ''
+  }
+
+  // case sensitive by default if this key is missing
+  if (opts.ignorecase == null) {
+    opts.ignorecase = false
+  }
+
+  // global by default if this key is missing
+  if (opts.global == null) {
+    opts.global = true
+  }
+
+  let pattern = opts.pattern
+  const replacement = opts.replacement
+  const ignorecase = opts.ignorecase
+  const isGlobal = opts.global
+  if (opts.value) {
+    const value = resolve(opts.value, payload)
+    if (
+      typeof value === 'string' &&
+      typeof pattern === 'string' &&
+      typeof replacement === 'string' &&
+      typeof ignorecase === 'boolean' &&
+      typeof isGlobal === 'boolean'
+    ) {
+      if (pattern.length > MAX_PATTERN_LENGTH) {
+        throw new Error(`@replace requires a "pattern" less than ${MAX_PATTERN_LENGTH} characters`)
+      }
+
+      if (replacement.length > MAX_REPLACEMENT_LENGTH) {
+        throw new Error(`@replace requires a "replacement" less than ${MAX_REPLACEMENT_LENGTH} characters`)
+      }
+
+      // We don't want users providing regular expressions for the pattern (for now)
+      // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
+      pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+      let flags = ''
+      if (isGlobal) {
+        flags += 'g'
+      }
+      if (ignorecase) {
+        flags += 'i'
+      }
+      return value.replace(new RegExp(pattern, flags), replacement)
+    }
+  }
+})
+
 registerDirective('@arrayPath', (data, payload) => {
   if (!Array.isArray(data)) {
     throw new Error(`@arrayPath expected array, got ${realTypeOf(data)}`)

@@ -2,22 +2,28 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import PipedriveClient from '../pipedriveApi/pipedrive-client'
-import { createUpdateLead, Lead } from '../pipedriveApi/leads'
+import { createUpdateLead, Lead, LeadValue } from '../pipedriveApi/leads'
 import { IntegrationError } from '@segment/actions-core'
-import { addCustomFieldsFromPayloadToEntity } from '../utils'
 
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create or Update a Lead',
+  title: 'Create or update Lead',
   description: "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
   defaultSubscription: 'type = "identify"',
   fields: {
     lead_id: {
       label: 'Lead ID',
       description: 'ID of Lead in Pipedrive to Update. If left empty, a new one will be created',
-      type: 'integer',
-      required: false
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.lead_id' },
+          then: { '@path': '$.traits.lead_id' },
+          else: { '@path': '$.properties.lead_id' }
+        }
+      }
     },
     person_match_field: {
       label: 'Person match field',
@@ -35,7 +41,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
@@ -49,29 +54,45 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.context.groupId'
       }
     },
-
     title: {
       label: 'Title',
       description: 'The name of the Lead',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.title' },
+          then: { '@path': '$.traits.title' },
+          else: { '@path': '$.properties.title' }
+        }
+      }
     },
-    value: {
-      type: 'object',
-      label: 'Value',
+    amount: {
+      label: 'Amount',
       description: 'Potential value of the lead',
-      properties: {
-        amount: {
-          label: 'Amount',
-          type: 'number'
-        },
-        currency: {
-          label: 'Currency',
-          description: 'Three-letter code of the currency, e.g. USD',
-          type: 'string'
+      type: 'number',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.amount' },
+          then: { '@path': '$.traits.amount' },
+          else: { '@path': '$.properties.amount' }
+        }
+      }
+    },
+    currency: {
+      label: 'Currency',
+      description: 'Three-letter code of the currency, e.g. USD',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.currency' },
+          then: { '@path': '$.traits.currency' },
+          else: { '@path': '$.properties.currency' }
         }
       }
     },
@@ -80,7 +101,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.expected_close_date' },
+          then: { '@path': '$.traits.expected_close_date' },
+          else: { '@path': '$.properties.expected_close_date' }
+        }
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -97,13 +125,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Created At',
       description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
       type: 'datetime',
-      required: false
-    },
-
-    custom_fields: {
-      label: 'Custom fields',
-      description: 'New values for custom fields.',
-      type: 'object',
       required: false
     }
   },
@@ -123,6 +144,11 @@ const action: ActionDefinition<Settings, Payload> = {
       client.getId('organization', organizationSearchField, payload.organization_match_value)
     ])
 
+    const leadValue: LeadValue = {
+      amount: payload.amount,
+      currency: payload.currency
+    }
+
     const lead: Lead = {
       id: payload.lead_id,
       title: payload.title,
@@ -130,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: payload.value,
+      value: payload.amount && payload.currency ? leadValue : undefined,
       add_time: payload.add_time ? `${payload.add_time}` : undefined
     }
 
@@ -141,8 +167,6 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-
-    addCustomFieldsFromPayloadToEntity(payload, lead)
 
     return createUpdateLead(client, lead)
   }

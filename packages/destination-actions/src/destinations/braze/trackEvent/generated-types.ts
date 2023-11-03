@@ -34,4 +34,8 @@ export interface Payload {
    * Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.
    */
   _update_existing_only?: boolean
+  /**
+   * If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.
+   */
+  enable_batching?: boolean
 }

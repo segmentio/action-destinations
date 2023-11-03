@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       type: 'string',
       required: true,
-      description: "The user's previously used anonymous user key.",
+      description: "The user's unauthenticated identifier.",
       default: {
         '@if': {
           exists: { '@path': '$.previousId' },
@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const event = convertPayloadToLDEvent(payload)
 
-    return request(getEventsUrl(settings.client_id), {
+    return request(getEventsUrl(settings), {
       method: 'post',
       json: [event]
     })

@@ -1,8 +1,15 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { convertTimestamp, formatCustomVariables, getCustomVariables, handleGoogleErrors } from '../functions'
-import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import {
+  convertTimestamp,
+  formatCustomVariables,
+  getCustomVariables,
+  getApiVersion,
+  handleGoogleErrors,
+  getConversionActionDynamicData
+} from '../functions'
+import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     caller_id: {
       label: 'Caller ID',
@@ -65,14 +72,18 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: async (request, { auth, settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+
+  dynamicFields: {
+    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth)
+    }
+  },
+  perform: async (request, { auth, settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new IntegrationError(
-        'Customer ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
 
@@ -89,15 +100,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request)
+      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       request_object.customVariables = formatCustomVariables(
         payload.custom_variables,
         customVariableIds.data[0].results
       )
     }
-
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadCallConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadCallConversions`,
       {
         method: 'post',
         headers: {

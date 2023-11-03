@@ -1,0 +1,9 @@
+{
+  "mapping": {
+    "@replace": {
+      "pattern": "waaaaayyytoooooloooong",
+      "value": { "@path": "$.a" }
+    }
+  },
+  "expectError": "/@replace/pattern should be a string of length 10 or less."
+}

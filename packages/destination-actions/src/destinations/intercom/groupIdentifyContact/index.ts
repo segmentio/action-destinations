@@ -127,6 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const companyId = response.data.id
       return attachContactToIntercomCompany(request, contact.id, companyId)
     }
+    return response
   }
 }
 

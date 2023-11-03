@@ -9,9 +9,9 @@ import { addCustomFieldsFromPayloadToEntity } from '../utils'
 const fieldHandler = PipedriveClient.fieldHandler
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create or Update a Deal',
+  title: 'Create or update a Deal',
   description: "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Deal Upserted"',
   fields: {
     deal_match_field: {
       label: 'Deal match field',
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.properties.deal_id'
       }
     },
     person_match_field: {
@@ -45,7 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-
     organization_match_field: {
       label: 'Organization match field',
       description: 'If present, used instead of field in settings to find existing organization in Pipedrive.',
@@ -59,35 +58,46 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.context.groupId'
       }
     },
-
     title: {
       label: 'Title',
       description: 'Deal title  (required for new Leads)',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.properties.title'
+      }
     },
     value: {
       label: 'Value',
       description: 'Value of the deal. If omitted, value will be set to 0.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.value'
+      }
     },
     currency: {
       label: 'Currency',
       description:
         'Currency of the deal. Accepts a 3-character currency code. If omitted, currency will be set to the default currency of the authorized user.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.currency'
+      }
     },
     stage_id: {
       label: 'Stage ID',
       description:
         "The ID of a stage this Deal will be placed in a pipeline (note that you can't supply the ID of the pipeline as this will be assigned automatically based on stage_id). If omitted, the deal will be placed in the first stage of the default pipeline.",
       type: 'number',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.stage_id'
+      }
     },
     status: {
       label: 'Status',
@@ -105,20 +115,29 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Expected Close Date',
       description: 'The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.expected_close_date'
+      }
     },
     probability: {
       label: 'Success Probability',
       description:
         'Deal success probability percentage. Used/shown only when deal_probability for the pipeline of the deal is enabled.',
       type: 'number',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.success_probability'
+      }
     },
     lost_reason: {
       label: 'Lost Reason',
       description: 'Optional message about why the deal was lost (to be used when status=lost)',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.lost_reason'
+      }
     },
     visible_to: {
       label: 'Visible To',
@@ -188,6 +207,10 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
+    if (!deal.id)
+      if (payload.deal_match_field && payload.deal_match_value)
+        // if there's no deal.id then we're doing a create operation, so we should include the deal_match field info so it's recorded on the new entity
+        Object.assign(deal, { [payload.deal_match_field]: payload.deal_match_value })
 
     addCustomFieldsFromPayloadToEntity(payload, deal)
 

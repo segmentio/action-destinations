@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Cordial's addProductToCart destination action: all fields 1`] = `
 Object {
+  "anonymousId": "n%y8UQvAZo",
   "category": "n%y8UQvAZo",
   "description": "n%y8UQvAZo",
   "imageUrl": "n%y8UQvAZo",
@@ -12,6 +13,8 @@ Object {
     "testType": "n%y8UQvAZo",
   },
   "qty": -2972185052315648,
+  "segmentId": "n%y8UQvAZo",
+  "segmentIdKey": "n%y8UQvAZo",
   "sku": "n%y8UQvAZo",
   "url": "n%y8UQvAZo",
   "userIdentities": Object {
@@ -26,9 +29,7 @@ Object {
   "name": "n%y8UQvAZo",
   "productID": "n%y8UQvAZo",
   "qty": -2972185052315648,
+  "segmentIdKey": "n%y8UQvAZo",
   "sku": "n%y8UQvAZo",
-  "userIdentities": Object {
-    "testType": "n%y8UQvAZo",
-  },
 }
 `;

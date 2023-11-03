@@ -1,4 +1,5 @@
 import { IntegrationError, RetryableError, HTTPError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import { SEGMENT_UNIQUE_IDENTIFIER } from './properties'
 
 export class HubSpotError extends HTTPError {
@@ -12,7 +13,7 @@ export class HubSpotError extends HTTPError {
   }
 }
 export const MissingIdentityCallThrowableError = new IntegrationError(
-  'Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination.',
+  'Identify (Upsert Contact) must be called before Group (Upsert Company) for the HubSpot Cloud (Actions) destination if ’Associate Contact with Company’ property is set to Yes (true).',
   'Missing Identity Call',
   400
 )
@@ -23,10 +24,8 @@ export const CompanySearchThrowableError = new IntegrationError(
   400
 )
 
-export const RestrictedPropertyThrowableError = new IntegrationError(
-  `Segment uses ’${SEGMENT_UNIQUE_IDENTIFIER}’ property internally to map Segment Groups to HubSpot Companies. This property shouldn’t be defined explicitly.`,
-  'Payload Validation Failed',
-  400
+export const RestrictedPropertyThrowableError = new PayloadValidationError(
+  `Segment uses ’${SEGMENT_UNIQUE_IDENTIFIER}’ property internally to map Segment Groups to HubSpot Companies. This property shouldn’t be defined explicitly.`
 )
 
 export const MultipleCompaniesInSearchResultThrowableError = new IntegrationError(
@@ -37,6 +36,30 @@ export const MultipleCompaniesInSearchResultThrowableError = new IntegrationErro
 
 export const SegmentUniqueIdentifierMissingRetryableError = new RetryableError(
   `The ’${SEGMENT_UNIQUE_IDENTIFIER}’ property doesn't exist in HubSpot. Segment will attempt to create the property and retry the action.`
+)
+
+export const CustomSearchThrowableError = new IntegrationError(
+  'HubSpot returned 400 error while performing a custom object record search. Please check if Custom Object Record Search Fields’ contains valid properties defined in HubSpot.',
+  'Custom Search Failed',
+  400
+)
+
+export const MultipleCustomRecordsInSearchResultThrowableError = new IntegrationError(
+  `The search criteria defined by Custom Object Record Search Fields returned more than one records. The update request will be rejected.`,
+  'Search Criteria Not Unique',
+  400
+)
+
+export const CustomSearchToAssociateThrowableError = new IntegrationError(
+  "HubSpot returned 400 error while performing a custom object record search to associate. Please check if 'Search Fields to Associate custom Object' contains valid properties defined in HubSpot.",
+  'Custom Search To Associate Failed',
+  400
+)
+
+export const MultipleCustomRecordsInSearchResultToAssociateThrowableError = new IntegrationError(
+  `Upsert Custom Object operation was completed but the association failed as the search association object returned more than one items. Ensure that you use an unique identifier to lookup an association object.`,
+  'Associate Search Criteria Not Unique',
+  400
 )
 
 export function isSegmentUniqueIdentifierPropertyError(

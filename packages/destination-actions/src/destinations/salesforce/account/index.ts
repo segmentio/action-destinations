@@ -8,7 +8,9 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator,
+  batch_size
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -21,6 +23,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     operation: operation,
     enable_batching: enable_batching,
+    batch_size: batch_size,
+    recordMatcherOperator: recordMatcherOperator,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -197,6 +201,10 @@ const action: ActionDefinition<Settings, Payload> = {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {

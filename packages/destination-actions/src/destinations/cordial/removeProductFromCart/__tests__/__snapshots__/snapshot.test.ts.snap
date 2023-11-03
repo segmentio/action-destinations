@@ -2,8 +2,11 @@
 
 exports[`Testing snapshot for Cordial's removeProductFromCart destination action: all fields 1`] = `
 Object {
+  "anonymousId": "F]%Twm",
   "productID": "F]%Twm",
   "qty": -7760764634923008,
+  "segmentId": "F]%Twm",
+  "segmentIdKey": "F]%Twm",
   "userIdentities": Object {
     "testType": "F]%Twm",
   },
@@ -14,8 +17,6 @@ exports[`Testing snapshot for Cordial's removeProductFromCart destination action
 Object {
   "productID": "F]%Twm",
   "qty": -7760764634923008,
-  "userIdentities": Object {
-    "testType": "F]%Twm",
-  },
+  "segmentIdKey": "F]%Twm",
 }
 `;

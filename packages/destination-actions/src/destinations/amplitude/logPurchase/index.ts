@@ -9,6 +9,8 @@ import { convertReferrerProperty } from '../referrer'
 import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { formatSessionId } from '../convert-timestamp'
+import { userAgentData } from '../properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -30,12 +32,17 @@ interface EventRevenue {
 }
 
 function getRevenueProperties(payload: EventRevenue): EventRevenue {
-  if (typeof payload.revenue !== 'number') {
+  let revenue = payload.revenue
+  if (typeof payload.quantity === 'number' && typeof payload.price === 'number') {
+    revenue = payload.quantity * payload.price
+  }
+
+  if (!revenue) {
     return {}
   }
 
   return {
-    revenue: payload.revenue,
+    revenue,
     revenueType: payload.revenueType ?? 'Purchase',
     quantity: typeof payload.quantity === 'number' ? Math.round(payload.quantity) : undefined,
     price: payload.price,
@@ -187,7 +194,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
-    }
+    },
+    userAgentData
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
@@ -198,6 +206,7 @@ const action: ActionDefinition<Settings, Payload> = {
       session_id,
       userAgent,
       userAgentParsing,
+      userAgentData,
       utm_properties,
       referrer,
       min_id_length,
@@ -220,7 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (session_id && dayjs.utc(session_id).isValid()) {
-      properties.session_id = dayjs.utc(session_id).valueOf()
+      properties.session_id = formatSessionId(session_id)
     }
 
     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
@@ -238,7 +247,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         // Conditionally track revenue with main event

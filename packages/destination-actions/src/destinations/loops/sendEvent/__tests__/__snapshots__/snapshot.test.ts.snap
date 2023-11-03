@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Loops's sendEvent destination action: all fields 1`] = `
+Object {
+  "email": "ojzec@futtuda.pa",
+  "eventName": "gJCx1dPfi6rH2R",
+  "userId": "gJCx1dPfi6rH2R",
+}
+`;
+
+exports[`Testing snapshot for Loops's sendEvent destination action: required fields 1`] = `
+Object {
+  "eventName": "gJCx1dPfi6rH2R",
+  "userId": "gJCx1dPfi6rH2R",
+}
+`;

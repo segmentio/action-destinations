@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res.body.access_token }
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {

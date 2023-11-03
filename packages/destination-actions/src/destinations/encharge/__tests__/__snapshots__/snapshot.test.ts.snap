@@ -1,0 +1,390 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for encharge destination: addTag action - all fields 1`] = `
+Object {
+  "email": "vij@muz.ro",
+  "segmentAnonymousId": "$A[On!8K",
+  "tag": "$A[On!8K",
+  "userId": "$A[On!8K",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: addTag action - all fields 2`] = `"{\\"tag\\":\\"$A[On!8K\\",\\"email\\":\\"vij@muz.ro\\",\\"userId\\":\\"$A[On!8K\\",\\"segmentAnonymousId\\":\\"$A[On!8K\\"}"`;
+
+exports[`Testing snapshot for encharge destination: addTag action - required fields 1`] = `
+Object {
+  "segmentAnonymousId": "anonId1234",
+  "tag": "$A[On!8K",
+  "userId": "user1234",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: addTag action - required fields 2`] = `"{\\"tag\\":\\"$A[On!8K\\",\\"userId\\":\\"user1234\\",\\"segmentAnonymousId\\":\\"anonId1234\\"}"`;
+
+exports[`Testing snapshot for encharge destination: addTag action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "$A[On!8K",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - all fields 1`] = `
+Object {
+  "messageId": "BifsxPBCb8aS&*",
+  "previousUserId": "BifsxPBCb8aS&*",
+  "type": "alias",
+  "userId": "BifsxPBCb8aS&*",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - required fields 1`] = `
+Object {
+  "previousUserId": "BifsxPBCb8aS&*",
+  "type": "alias",
+  "userId": "BifsxPBCb8aS&*",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - required fields 2`] = `"{\\"userId\\":\\"BifsxPBCb8aS&*\\",\\"previousUserId\\":\\"BifsxPBCb8aS&*\\",\\"type\\":\\"alias\\"}"`;
+
+exports[`Testing snapshot for encharge destination: aliasUser action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "BifsxPBCb8aS&*",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - all fields 1`] = `
+Object {
+  "objectType": "UOSf$(7b2NNWdC^fasOq",
+  "properties": Object {
+    "externalId": "UOSf$(7b2NNWdC^fasOq",
+    "id": "UOSf$(7b2NNWdC^fasOq",
+    "testType": "UOSf$(7b2NNWdC^fasOq",
+  },
+  "type": "group",
+  "user": Object {
+    "email": "ubcife@mat.it",
+    "userId": "UOSf$(7b2NNWdC^fasOq",
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - all fields 2`] = `"{\\"type\\":\\"group\\",\\"objectType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"properties\\":{\\"testType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"externalId\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"id\\":\\"UOSf$(7b2NNWdC^fasOq\\"},\\"user\\":{\\"email\\":\\"ubcife@mat.it\\",\\"userId\\":\\"UOSf$(7b2NNWdC^fasOq\\"}}"`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 1`] = `
+Object {
+  "objectType": "UOSf$(7b2NNWdC^fasOq",
+  "properties": Object {
+    "id": "UOSf$(7b2NNWdC^fasOq",
+  },
+  "type": "group",
+  "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 2`] = `"{\\"type\\":\\"group\\",\\"objectType\\":\\"UOSf$(7b2NNWdC^fasOq\\",\\"properties\\":{\\"id\\":\\"UOSf$(7b2NNWdC^fasOq\\"},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: createUpdateObject action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "UOSf$(7b2NNWdC^fasOq",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: identifyUser action - all fields 1`] = `
+Object {
+  "context": Object {
+    "campaign": Object {
+      "content": "0$uor",
+      "medium": "0$uor",
+      "name": "0$uor",
+      "source": "0$uor",
+      "term": "0$uor",
+    },
+    "groupId": "0$uor",
+    "ip": "0$uor",
+    "location": Object {
+      "city": "0$uor",
+      "country": "0$uor",
+      "region": "0$uor",
+    },
+    "page": Object {
+      "path": "0$uor",
+      "referrer": "0$uor",
+      "search": "0$uor",
+      "title": "0$uor",
+      "url": "0$uor",
+    },
+    "userAgent": "0$uor",
+  },
+  "email": "utico@iboko.my",
+  "messageId": "0$uor",
+  "segmentAnonymousId": "0$uor",
+  "type": "0$uor",
+  "user": Object {
+    "email": "utico@iboko.my",
+    "segmentAnonymousId": "0$uor",
+    "testType": "0$uor",
+    "userId": "0$uor",
+  },
+  "userId": "0$uor",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 1`] = `
+Object {
+  "context": Object {},
+  "type": "0$uor",
+  "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 2`] = `"{\\"type\\":\\"0$uor\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "0$uor",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - all fields 1`] = `
+Object {
+  "email": "diclujob@cag.br",
+  "segmentAnonymousId": "8HMtY74gvX1",
+  "tag": "8HMtY74gvX1",
+  "userId": "8HMtY74gvX1",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - all fields 2`] = `"{\\"tag\\":\\"8HMtY74gvX1\\",\\"email\\":\\"diclujob@cag.br\\",\\"userId\\":\\"8HMtY74gvX1\\",\\"segmentAnonymousId\\":\\"8HMtY74gvX1\\"}"`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - required fields 1`] = `
+Object {
+  "segmentAnonymousId": "anonId1234",
+  "tag": "8HMtY74gvX1",
+  "userId": "user1234",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - required fields 2`] = `"{\\"tag\\":\\"8HMtY74gvX1\\",\\"userId\\":\\"user1234\\",\\"segmentAnonymousId\\":\\"anonId1234\\"}"`;
+
+exports[`Testing snapshot for encharge destination: removeTag action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "8HMtY74gvX1",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - all fields 1`] = `
+Object {
+  "context": Object {
+    "campaign": Object {
+      "content": "u@9wkfSVEfyjtDD&A",
+      "medium": "u@9wkfSVEfyjtDD&A",
+      "name": "u@9wkfSVEfyjtDD&A",
+      "source": "u@9wkfSVEfyjtDD&A",
+      "term": "u@9wkfSVEfyjtDD&A",
+    },
+    "groupId": "u@9wkfSVEfyjtDD&A",
+    "ip": "u@9wkfSVEfyjtDD&A",
+    "location": Object {
+      "city": "u@9wkfSVEfyjtDD&A",
+      "country": "u@9wkfSVEfyjtDD&A",
+      "region": "u@9wkfSVEfyjtDD&A",
+    },
+    "page": Object {
+      "path": "u@9wkfSVEfyjtDD&A",
+      "referrer": "u@9wkfSVEfyjtDD&A",
+      "search": "u@9wkfSVEfyjtDD&A",
+      "title": "u@9wkfSVEfyjtDD&A",
+      "url": "u@9wkfSVEfyjtDD&A",
+    },
+    "userAgent": "u@9wkfSVEfyjtDD&A",
+  },
+  "email": "sa@dadnot.pg",
+  "event": "u@9wkfSVEfyjtDD&A",
+  "messageId": "u@9wkfSVEfyjtDD&A",
+  "properties": Object {
+    "testType": "u@9wkfSVEfyjtDD&A",
+  },
+  "segmentAnonymousId": "u@9wkfSVEfyjtDD&A",
+  "type": "u@9wkfSVEfyjtDD&A",
+  "user": Object {
+    "email": "sa@dadnot.pg",
+    "segmentAnonymousId": "u@9wkfSVEfyjtDD&A",
+    "testType": "u@9wkfSVEfyjtDD&A",
+    "userId": "u@9wkfSVEfyjtDD&A",
+  },
+  "userFields": Object {
+    "testType": "u@9wkfSVEfyjtDD&A",
+  },
+  "userId": "u@9wkfSVEfyjtDD&A",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - required fields 1`] = `
+Object {
+  "context": Object {},
+  "event": "u@9wkfSVEfyjtDD&A",
+  "type": "u@9wkfSVEfyjtDD&A",
+  "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - required fields 2`] = `"{\\"event\\":\\"u@9wkfSVEfyjtDD&A\\",\\"type\\":\\"u@9wkfSVEfyjtDD&A\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: trackEvent action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "u@9wkfSVEfyjtDD&A",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - all fields 1`] = `
+Object {
+  "context": Object {
+    "campaign": Object {
+      "content": "TdR(O(r",
+      "medium": "TdR(O(r",
+      "name": "TdR(O(r",
+      "source": "TdR(O(r",
+      "term": "TdR(O(r",
+    },
+    "groupId": "TdR(O(r",
+    "ip": "TdR(O(r",
+    "location": Object {
+      "city": "TdR(O(r",
+      "country": "TdR(O(r",
+      "region": "TdR(O(r",
+    },
+    "page": Object {
+      "path": "TdR(O(r",
+      "referrer": "TdR(O(r",
+      "search": "TdR(O(r",
+      "title": "TdR(O(r",
+      "url": "TdR(O(r",
+    },
+    "userAgent": "TdR(O(r",
+  },
+  "email": "giwlejnam@obiefpej.dj",
+  "messageId": "TdR(O(r",
+  "properties": Object {
+    "testType": "TdR(O(r",
+  },
+  "segmentAnonymousId": "TdR(O(r",
+  "type": "TdR(O(r",
+  "user": Object {
+    "email": "giwlejnam@obiefpej.dj",
+    "segmentAnonymousId": "TdR(O(r",
+    "testType": "TdR(O(r",
+    "userId": "TdR(O(r",
+  },
+  "userFields": Object {
+    "testType": "TdR(O(r",
+  },
+  "userId": "TdR(O(r",
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - required fields 1`] = `
+Object {
+  "context": Object {},
+  "type": "TdR(O(r",
+  "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - required fields 2`] = `"{\\"type\\":\\"TdR(O(r\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for encharge destination: trackPageView action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "TdR(O(r",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;

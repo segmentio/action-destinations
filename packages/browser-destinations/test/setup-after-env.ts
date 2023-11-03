@@ -1,4 +1,14 @@
 import { Crypto } from '@peculiar/webcrypto'
+import { TextEncoder, TextDecoder } from 'util'
+import { setImmediate } from 'timers'
+
+// fix: "ReferenceError: TextEncoder is not defined" after upgrading JSDOM
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+// fix: jsdom uses setImmediate under the hood for preflight XHR requests,
+// and jest removed setImmediate, so we need to provide it to prevent console
+// logging ReferenceErrors made by integration tests that call Amplitude.
+global.setImmediate = setImmediate
 
 beforeEach(() => {
   jest.restoreAllMocks()

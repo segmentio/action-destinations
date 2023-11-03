@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Name of the action that a user has performed.
    */
-  event_name?: string
+  event_name: string
   /**
    * Dictionary of information about the current application.
    */
@@ -225,6 +225,12 @@ export interface Payload {
    * Free-form dictionary of properties that describe the screen.
    */
   properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
     [k: string]: unknown
   }
 }

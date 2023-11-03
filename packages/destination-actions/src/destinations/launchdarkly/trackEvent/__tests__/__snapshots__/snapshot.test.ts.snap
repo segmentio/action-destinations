@@ -3,6 +3,10 @@
 exports[`Testing snapshot for Launchdarkly's trackEvent destination action: all fields 1`] = `
 Array [
   Object {
+    "contextKeys": Object {
+      "52YDr": "52YDr",
+      "testType": "52YDr",
+    },
     "creationDate": 1612137600000,
     "data": Object {
       "testType": "52YDr",
@@ -10,9 +14,6 @@ Array [
     "key": "52YDr",
     "kind": "custom",
     "metricValue": -84620425497149.44,
-    "user": Object {
-      "key": "52YDr",
-    },
   },
 ]
 `;
@@ -20,13 +21,13 @@ Array [
 exports[`Testing snapshot for Launchdarkly's trackEvent destination action: required fields 1`] = `
 Array [
   Object {
+    "contextKeys": Object {
+      "user": "52YDr",
+    },
     "creationDate": Any<Number>,
     "data": Object {},
     "key": "52YDr",
     "kind": "custom",
-    "user": Object {
-      "key": "52YDr",
-    },
   },
 ]
 `;

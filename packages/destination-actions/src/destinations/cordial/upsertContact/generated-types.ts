@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
+   * Segment User ID value
+   */
+  segmentId?: string
+  /**
+   * Segment Anonymous ID value
+   */
+  anonymousId?: string
+  /**
    * An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.
    */
-  userIdentities: {
+  userIdentities?: {
     [k: string]: unknown
   }
   /**

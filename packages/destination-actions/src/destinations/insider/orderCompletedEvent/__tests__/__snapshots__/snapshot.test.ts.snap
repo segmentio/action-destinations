@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's orderCompletedEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": -63188217196707.84,
+        "app_version": "^nSY[JM",
+        "birthday": "^nSY[JM",
+        "carrier": "^nSY[JM",
+        "city": "^nSY[JM",
+        "country": "^nSY[JM",
+        "custom": Object {},
+        "email": "ciboba@duzehoc.lt",
+        "gender": "^nSY[JM",
+        "idfa": "^nSY[JM",
+        "last_ip": "^nSY[JM",
+        "locale": "^nSY[JM",
+        "model": "^nSY[JM",
+        "name": "^nSY[JM",
+        "os_version": "^nSY[JM",
+        "phone": "^nSY[JM",
+        "platform": "^nSY[JM",
+        "surname": "^nSY[JM",
+        "timezone": "^nSY[JM",
+      },
+      "events": Array [
+        Object {
+          "event_name": "confirmation_page_view",
+          "event_params": Object {
+            "currency": "QAR",
+            "custom": Object {},
+            "event_group_id": "^nSY[JM",
+            "name": "^nSY[JM",
+            "product_id": "^nSY[JM",
+            "product_image_url": "^nSY[JM",
+            "quantity": -6318821719670784,
+            "taxonomy": Array [
+              "^nSY[JM",
+            ],
+            "unit_price": -63188217196707.84,
+            "unit_sale_price": -63188217196707.84,
+            "url": "^nSY[JM",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "^nSY[JM",
+        },
+        "email": "ciboba@duzehoc.lt",
+        "phone_number": "^nSY[JM",
+        "uuid": "^nSY[JM",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's orderCompletedEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "confirmation_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "^nSY[JM",
+        },
+        "uuid": "^nSY[JM",
+      },
+    },
+  ],
+}
+`;

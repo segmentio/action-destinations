@@ -13,6 +13,22 @@ export const eventProperties: Record<string, InputField> = {
       }
     }
   },
+  anonymous_id: {
+    label: 'Anonymous ID',
+    type: 'string',
+    description: 'A distinct ID randomly generated prior to calling identify.',
+    default: {
+      '@path': '$.anonymousId'
+    }
+  },
+  user_id: {
+    label: 'User ID',
+    type: 'string',
+    description: 'The distinct ID after calling identify.',
+    default: {
+      '@path': '$.userId'
+    }
+  },
   group_id: {
     label: 'Group ID',
     type: 'string',
@@ -24,8 +40,7 @@ export const eventProperties: Record<string, InputField> = {
   insert_id: {
     label: 'Insert ID',
     type: 'string',
-    description:
-      'A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.',
+    description: 'A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.',
     default: {
       '@path': '$.messageId'
     }
@@ -268,6 +283,55 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.context.userAgent'
     }
   },
+  advertising_id: {
+    label: 'Advertising ID',
+    type: 'string',
+    description: 'Advertising ID',
+    required: false,
+    default: {
+      '@path': '$.context.device.advertisingId'
+    }
+  },
+  ad_tracking_enabled: {
+    label: 'Ad Tracking Enabled',
+    type: 'string',
+    description: 'Ad Tracking Enabled (true or false)',
+    required: false,
+    default: {
+      '@path': '$.context.device.adTrackingEnabled'
+    }
+  },
+  timezone: {
+    label: 'Timezone',
+    type: 'string',
+    description: 'The event timezone',
+    required: false,
+    default: {
+      '@path': '$.context.timezone'
+    }
+  },
+  app_platform: {
+    label: 'App Platform',
+    type: 'string',
+    description: 'The App Platform, if applicable',
+    required: false,
+    default: {
+      '@path': '$.context.app.platform'
+    }
+  },
+  name: {
+    label: 'Event Original Name',
+    type: 'string',
+    description: 'The Event Original Name, if applicable',
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.event' },
+        then: { '@path': '$.event' },
+        else: { '@path': '$.name' }
+      }
+    }
+  },
   event_properties: {
     label: 'Event Properties',
     type: 'object',
@@ -276,12 +340,12 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.properties'
     }
   },
-  user_properties: {
-    label: 'User Properties',
+  context: {
+    label: 'Event context',
+    description: 'An object of key-value pairs that provides useful context about the event.',
     type: 'object',
-    description: 'An object of key-value pairs that represent additional data tied to the user.',
     default: {
-      '@path': '$.traits'
+      '@path': '$.context'
     }
   },
   utm_properties: {
@@ -323,6 +387,55 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Batch Data to Mixpanel',
     description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
     default: true
+  },
+  userAgentData: {
+    label: 'User Agent Data',
+    type: 'object',
+    description: 'The user agent data of device sending the event',
+    properties: {
+      mobile: {
+        label: 'Mobile',
+        type: 'boolean'
+      },
+      platform: {
+        label: 'Platform',
+        type: 'string'
+      },
+      architecture: {
+        label: 'Architecture',
+        type: 'string'
+      },
+      bitness: {
+        label: 'Bitness',
+        type: 'string'
+      },
+      model: {
+        label: 'Model',
+        type: 'string'
+      },
+      platformVersion: {
+        label: 'PlatformVersion',
+        type: 'string'
+      },
+      uaFullVersion: {
+        label: 'UaFullVersion',
+        type: 'string'
+      },
+      wow64: {
+        label: 'wow64',
+        type: 'boolean'
+      }
+    },
+    default: {
+      mobile: { '@path': '$.context.userAgentData.mobile' },
+      platform: { '@path': '$.context.userAgentData.platform' },
+      architecture: { '@path': '$.context.userAgentData.architecture' },
+      bitness: { '@path': '$.context.userAgentData.bitness' },
+      model: { '@path': '$.context.userAgentData.model' },
+      platformVersion: { '@path': '$.context.userAgentData.platformVersion' },
+      uaFullVersion: { '@path': '$.context.userAgentData.uaFullVersion' },
+      wow64: { '@path': '$.context.userAgentData.wow64' }
+    }
   }
 }
 
@@ -337,44 +450,37 @@ export const productsProperties: Record<string, InputField> = {
       product_id: {
         label: 'Product Id',
         type: 'string',
-        description:
-          'Database id of the product being viewed.'
+        description: 'Database id of the product being viewed.'
       },
       sku: {
         label: 'SKU',
         type: 'string',
-        description:
-          'Sku of the product being viewed.'
+        description: 'Sku of the product being viewed.'
       },
       category: {
         label: 'Category',
         type: 'string',
-        description:
-          'Product category being viewed.'
+        description: 'Product category being viewed.'
       },
       name: {
         label: 'Name',
         type: 'string',
-        description:
-          'Name of the product being viewed.'
+        description: 'Name of the product being viewed.'
       },
       brand: {
         label: 'Brand',
         type: 'string',
-        description:
-          'Brand associated with the product.'
+        description: 'Brand associated with the product.'
       },
       variant: {
         label: 'Variant',
         type: 'string',
-        description:
-          'Variant of the product.'
+        description: 'Variant of the product.'
       },
       price: {
         label: 'Price',
         type: 'number',
-        description:
-          'Price ($) of the product being viewed.'
+        description: 'Price ($) of the product being viewed.'
       },
       quantity: {
         label: 'Quantity',
@@ -384,26 +490,22 @@ export const productsProperties: Record<string, InputField> = {
       coupon: {
         label: 'Coupon',
         type: 'string',
-        description:
-          'Coupon code associated with a product (for example, MAY_DEALS_3).'
+        description: 'Coupon code associated with a product (for example, MAY_DEALS_3).'
       },
       position: {
         label: 'position',
         type: 'number',
-        description:
-          'Position in the product list (ex. 3).'
+        description: 'Position in the product list (ex. 3).'
       },
       url: {
         label: 'url',
         type: 'string',
-        description:
-          'URL of the product page.'
+        description: 'URL of the product page.'
       },
       image_url: {
         label: 'Image url',
         type: 'string',
-        description:
-          'Image url of the product.'
+        description: 'Image url of the product.'
       }
     },
     default: {

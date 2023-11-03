@@ -3,7 +3,7 @@ import { prompt } from '@segment/actions-cli/lib/prompt'
 import { diffString } from 'json-diff'
 import execa from 'execa'
 import chalk from 'chalk'
-import { manifest } from '@segment/browser-destinations'
+import { manifest } from '@segment/destinations-manifest'
 import ora from 'ora'
 import { assetPath } from '../config'
 import type { RemotePlugin } from '../lib/control-plane-service'
@@ -174,10 +174,10 @@ export default class PushBrowserDestinations extends Command {
 
 async function syncToS3(env: string): Promise<string> {
   if (env === 'production') {
-    return execa.commandSync(`lerna run deploy-prod`).stdout
+    return execa.commandSync(`yarn lerna run deploy-prod`).stdout
   }
 
-  return execa.commandSync(`lerna run deploy-stage`).stdout
+  return execa.commandSync(`yarn lerna run deploy-stage`).stdout
 }
 
 function asJson(obj: unknown) {

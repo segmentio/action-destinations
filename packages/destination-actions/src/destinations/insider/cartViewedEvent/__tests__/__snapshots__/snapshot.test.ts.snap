@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Insider's cartViewedEvent destination action: all fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "age": 22539238469795.84,
+        "app_version": "uh[f!Dz)ZqkDd$x",
+        "birthday": "uh[f!Dz)ZqkDd$x",
+        "carrier": "uh[f!Dz)ZqkDd$x",
+        "city": "uh[f!Dz)ZqkDd$x",
+        "country": "uh[f!Dz)ZqkDd$x",
+        "custom": Object {},
+        "email": "ekukewin@moase.cn",
+        "gender": "uh[f!Dz)ZqkDd$x",
+        "idfa": "uh[f!Dz)ZqkDd$x",
+        "last_ip": "uh[f!Dz)ZqkDd$x",
+        "locale": "uh[f!Dz)ZqkDd$x",
+        "model": "uh[f!Dz)ZqkDd$x",
+        "name": "uh[f!Dz)ZqkDd$x",
+        "os_version": "uh[f!Dz)ZqkDd$x",
+        "phone": "uh[f!Dz)ZqkDd$x",
+        "platform": "uh[f!Dz)ZqkDd$x",
+        "surname": "uh[f!Dz)ZqkDd$x",
+        "timezone": "uh[f!Dz)ZqkDd$x",
+      },
+      "events": Array [
+        Object {
+          "event_name": "cart_page_view",
+          "event_params": Object {
+            "currency": "SRD",
+            "custom": Object {},
+            "event_group_id": "uh[f!Dz)ZqkDd$x",
+            "name": "uh[f!Dz)ZqkDd$x",
+            "product_id": "uh[f!Dz)ZqkDd$x",
+            "product_image_url": "uh[f!Dz)ZqkDd$x",
+            "quantity": 2253923846979584,
+            "taxonomy": Array [
+              "uh[f!Dz)ZqkDd$x",
+            ],
+            "unit_price": 22539238469795.84,
+            "unit_sale_price": 22539238469795.84,
+            "url": "uh[f!Dz)ZqkDd$x",
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "uh[f!Dz)ZqkDd$x",
+        },
+        "uuid": "uh[f!Dz)ZqkDd$x",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Insider's cartViewedEvent destination action: required fields 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "attributes": Object {
+        "custom": Object {},
+      },
+      "events": Array [
+        Object {
+          "event_name": "cart_page_view",
+          "event_params": Object {
+            "custom": Object {},
+          },
+          "timestamp": "2021-02-01T00:00:00.000Z",
+        },
+      ],
+      "identifiers": Object {
+        "custom": Object {
+          "segment_anonymous_id": "uh[f!Dz)ZqkDd$x",
+        },
+        "uuid": "uh[f!Dz)ZqkDd$x",
+      },
+    },
+  ],
+}
+`;

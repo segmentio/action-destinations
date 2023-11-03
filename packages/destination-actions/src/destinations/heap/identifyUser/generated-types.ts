@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * An identity, typically corresponding to an existing user. If no such identity exists, then a new user will be created with that identity. Case-sensitive string, limited to 255 characters.
+   * REQUIRED: A string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify
    */
   user_id?: string | null
   /**

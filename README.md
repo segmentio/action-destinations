@@ -1,4 +1,4 @@
-<p align="center"><a href="https://segment.com"><img src="https://brand.segment.com/site-assets/7b19c1a2/images/brand-guidelines/content/twilio/twilio-segment-logo-2x.png" width="300"></a></p>
+<p align="center"><a href="https://segment.com"><img src="https://github-production-user-asset-6210df.s3.amazonaws.com/316711/254403783-df7b9cdd-1e45-48a8-a255-e1cc087e2196.svg" width="100"/></a></p>
 
 # Action Destinations
 
@@ -19,6 +19,7 @@ For more detailed instruction, see the following READMEs:
 - [Authentication](./docs/authentication.md)
 - [Mapping Kit](./packages/core/src/mapping-kit/README.md)
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
+- [Error Handling](./docs/error-handling.md)
 
 ## Table of Contents:
 
@@ -27,15 +28,23 @@ For more detailed instruction, see the following READMEs:
 - [Example Destination](#example-destination)
 - [Input Fields](#input-fields)
 - [Default Values](#default-values)
+- [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
 - [HTTP Requests](#http-requests)
+- [Support](#support)
 
 ## Get started
 
 ### Local development
 
-This is a monorepo with multiple packages leveraging [`lerna`](https://github.com/lerna/lerna) with [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces):
+This is a monorepo with multiple packages leveraging:
+
+- [`lerna`](https://github.com/lerna/lerna) for publishing
+- [`nx`](https://nx.dev) for dependency-tree aware building, linting, testing, and caching (migration away from `lerna` in progress!).
+- [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces) for package symlinking and hoisting.
+
+Structure:
 
 - `packages/ajv-human-errors` - a wrapper around [AJV](https://ajv.js.org/) errors to produce more friendly validation messages
 - `packages/browser-destinations` - destination definitions that run on device via Analytics 2.0
@@ -49,7 +58,7 @@ This is a monorepo with multiple packages leveraging [`lerna`](https://github.co
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 14.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -61,13 +70,15 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 14.17, optionally: nvm use 14.17
+# Requires node 18.12.1, optionally: nvm use 18.12.1
 yarn --ignore-optional
-yarn bootstrap
-yarn build
 yarn install
+yarn build
 
-# Run unit tests to ensure things are working! All tests should pass :)
+# Run unit tests to ensure things are working! For partners who don't have access to internal packages, you can run:
+yarn test-partners
+
+# For segment employees, you can run:
 yarn test
 ```
 
@@ -378,6 +389,40 @@ const destination = {
 }
 ```
 
+## Presets
+
+Presets are pre-built use cases to enable customers to get started quickly with an action destination. They include everything needed to generate a valid subscription.
+
+There are two types of Presets: `automatic` and `specificEvent`.
+
+Automatic presets generate subscriptions automatically when an action destination is connected to a _non-Engage_ source. Automatic presets are also available for the customer to choose to generate a subscription at any point in the destination's lifecycle. If you are not sure which type of preset to choose, this is probably the right type.
+
+[Experimental] SpecificEvent presets are meant to be used with destinations connected to Segment Engage Sources. A subscription will be created from the preset when a _specific action_ is taken by the customer, as specified by the `eventSlug`. If you think your destination should include a specific event preset, please reach out to us.
+
+```js
+const destination = {
+  // ...other properties
+  presets: [
+    // automatic preset
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    // specific event preset
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'specificEvent'
+      slug: 'warehouse_entity_added_track'
+    },
+  ],
+}
+```
+
 ## The `perform` function
 
 The `perform` function defines what the action actually does. All logic and request handling happens here. Every action MUST have a `perform` function defined.
@@ -393,6 +438,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
+- `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
 
 A basic example:
 
@@ -471,6 +517,64 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
+## Audience Support (Pilot)
+
+In order to support audience destinations, we've introduced a type that extends regular destinations:
+
+```js
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+  // ...other properties
+  audienceFields: {
+    audienceId: {
+      label: 'An audience id required by the destination',
+      description: 'An audience id required by the destination',
+      type: 'string',
+      required: true
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule
+      full_audience_sync: true // If true, we send the entire audience. If false, we just send the delta.
+    }
+  },
+  // These are optional and only needed if you need to create an audience before sending events/users.
+  // Create an audience on the destination side
+  async createAudience(request, { settings, audienceSettings, audienceName }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        new_audience_name: audienceName,
+        some_audience_specific_id: audienceSettings.audienceId // As defined in audienceFields
+      }
+    })
+    const jsonOutput = await response.json()
+    // Segment will save this externalId for subsequent calls
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  },
+  // Right now, this serves mostly as a check to ensure the audience still exists in the destination
+  async getAudience(request, { settings, audienceSettings, externalId }) {
+    const response = await request(YOUR_URL, {
+      method: 'POST',
+      json: {
+        my_audience_id: externalId
+      }
+    })
+    const jsonOutput = await response.json()
+    return {
+      externalId: jsonOutput['my_audience_id']
+    }
+  }
+}
+```
+
+**Other considerations for audience support:**
+
+- It is highly recommended to implement a `performBatch` function in your actions implementation.
+- You should implement actions specific to audiences such as adding and removing a user
+
 ## HTTP Requests
 
 Today, there is only one way to make HTTP requests in a destination: **Manual HTTP Requests**.
@@ -540,11 +644,15 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Support
+
+For any issues, please contact our support team at partner-support@segment.com.
+
 ## License
 
 MIT License
 
-Copyright (c) 2022 Segment
+Copyright (c) 2023 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

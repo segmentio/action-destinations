@@ -29,17 +29,20 @@ Object {
   },
   "properties": Object {
     "action": "%!C)I@n7Uu54P",
+    "anonymousId": "%!C)I@n7Uu54P",
     "context": Object {
       "testType": "%!C)I@n7Uu54P",
     },
     "properties": Object {
       "testType": "%!C)I@n7Uu54P",
     },
+    "segmentId": "%!C)I@n7Uu54P",
     "time": "2021-02-01T00:00:00.000Z",
     "userIdentities": Object {
       "testType": "%!C)I@n7Uu54P",
     },
   },
+  "segmentIdKey": "%!C)I@n7Uu54P",
   "time": "2022-04-04T13:08:53.205Z",
   "userIdentities": Object {
     "channels.email.address": "contact@example.com",
@@ -50,8 +53,6 @@ Object {
 exports[`Testing snapshot for Cordial's createContactactivity destination action: required fields 1`] = `
 Object {
   "action": "%!C)I@n7Uu54P",
-  "userIdentities": Object {
-    "testType": "%!C)I@n7Uu54P",
-  },
+  "segmentIdKey": "%!C)I@n7Uu54P",
 }
 `;

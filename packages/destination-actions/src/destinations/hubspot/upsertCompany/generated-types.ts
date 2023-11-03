@@ -2,19 +2,27 @@
 
 export interface Payload {
   /**
-   * Used for constructing the unique segment_group_id for HubSpot.
+   * A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.
    */
   groupid: string
   /**
+   * If true, Segment will attempt to update an existing company in HubSpot and if no company is found, Segment will create a new company. If false, Segment will only attempt to update an existing company and never create a new company. This is set to true by default.
+   */
+  createNewCompany: boolean
+  /**
+   * If true, Segment will associate the company with the user identified in your payload. If no contact is found in HubSpot, an error is thrown and the company is not created/updated. If false, Segment will not attempt to associate a contact with the company and companies can be created/updated without requiring a contact association. This is set to true by default.
+   */
+  associateContact: boolean
+  /**
    * The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.
    */
-  companysearchfields: {
+  companysearchfields?: {
     [k: string]: unknown
   }
   /**
    * The name of the company.
    */
-  name: string
+  name?: string
   /**
    * A short statement about the company’s mission and goals.
    */

@@ -13,7 +13,7 @@ import type {
   LinkedInTestAuthenticationError
 } from './types'
 import type { ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, ErrorCodes } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".
@@ -123,14 +123,14 @@ const destination: DestinationDefinition<Settings> = {
         if (error.response?.data?.error === 'invalid_grant') {
           throw new IntegrationError(
             `Invalid Authentication: Your refresh token is invalid or expired. Please re-authenticate to fetch a new refresh token.`,
-            'REFRESH_TOKEN_EXPIRED',
+            ErrorCodes.REFRESH_TOKEN_EXPIRED,
             401
           )
         }
 
         throw new IntegrationError(
           `Failed to fetch a new access token. Reason: ${error.response?.data?.error}`,
-          'OAUTH_REFRESH_FAILED',
+          ErrorCodes.OAUTH_REFRESH_FAILED,
           401
         )
       }

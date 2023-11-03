@@ -1,4 +1,4 @@
-import { Logger, StatsContext, TransactionContext } from './index'
+import { StateContext, Logger, StatsContext, TransactionContext } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -12,13 +12,17 @@ export type MaybePromise<T> = T | Promise<T>
 export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
+  // Data to be returned from action
+  data?: JSONObject | null
 }
 
-export interface ExecuteInput<Settings, Payload> {
+export interface ExecuteInput<Settings, Payload, AudienceSettings = unknown> {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
   readonly settings: Settings
+  /** The audience-specific destination settings */
+  readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
   /** The page used in dynamic field requests */
@@ -27,12 +31,13 @@ export interface ExecuteInput<Settings, Payload> {
   readonly auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`,`stats`, `logger` and `transactionContext` are for internal Twilio/Segment use only.
+   * `features`,`stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
   readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
 }
 
 export interface DynamicFieldResponse {
@@ -78,16 +83,7 @@ export interface GlobalSetting {
 }
 
 /** The supported field type names */
-export type FieldTypeName =
-  | 'string'
-  | 'text'
-  | 'number'
-  | 'integer'
-  | 'datetime'
-  | 'boolean'
-  | 'password'
-  | 'object'
-  | 'hidden'
+export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The shape of an input field definition */
 export interface InputField {
@@ -160,6 +156,19 @@ export interface InputField {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+
+  /**
+   * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
+   * some kind of hardcoded internal "setting". For example the `enable_batching` field which is hardcoded to true for some destinations.
+   */
+  unsafe_hidden?: boolean
+
+  /**
+   * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
+   * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
+   * locked out from editing an empty field.
+   */
+  readOnly?: boolean
 }
 
 export type FieldValue = string | number | boolean | object | Directive

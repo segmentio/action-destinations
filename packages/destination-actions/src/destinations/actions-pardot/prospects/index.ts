@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email: {
       label: 'Email Address',
-      description: `The prospect's email address.   
+      description: `The prospect's email address.
         Used to upsert a prospect in Pardot. If multiple prospects have the given email, the prospect with the latest activity is updated. If there's no prospect with the given email, a prospect is created. Please note that Pardot treats email address as case sensitive and will create multiple prospects for casing differences.`,
       type: 'string',
       required: true,
@@ -173,7 +173,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     secondaryDeletedSearch: {
       label: 'Search Deleted Prospects',
-      description: `If true, the request’s search includes deleted records. This property only affects [AMPSEA accounts](https://help.salesforce.com/s/articleView?id=sf.pardot_admin_ampsea_parent.htm&type=5). 
+      description: `If true, the request’s search includes deleted records. This property only affects [AMPSEA accounts](https://help.salesforce.com/s/articleView?id=sf.pardot_admin_ampsea_parent.htm&type=5).
       If all records with a matching email address are deleted, the one with the latest activity is undeleted and updated. Otherwise, a new prospect is created.`,
       type: 'boolean',
       required: true,
@@ -188,6 +188,9 @@ const action: ActionDefinition<Settings, Payload> = {
       return await pa.upsertRecord(payload)
     } catch (err) {
       const error = err as HTTPError
+      if (!error.response) {
+        throw err
+      }
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
       //Json error response handle the error in body payload.
@@ -195,7 +198,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const data = (error.response as ModifiedResponse).data as PardotError
         throw new IntegrationError(
           `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` +
-          `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
+            `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
           'PARDOT_ERROR',
           400
         )
@@ -203,13 +206,13 @@ const action: ActionDefinition<Settings, Payload> = {
       //XML error response handles the error in headers.
       //https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes
       else if (error.response.headers.get('content-type')?.includes('text/xml')) {
-        if (statusCode === 403 || statusCode === 400){
+        if (statusCode === 403 || statusCode === 400) {
           throw new IntegrationError(
-          `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). `+
-          `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
-          'PARDOT_ERROR',
-          403
-        )
+            `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). ` +
+              `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
+            'PARDOT_ERROR',
+            403
+          )
         }
       }
       throw err

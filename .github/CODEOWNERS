@@ -1,27 +1,37 @@
 # These owners will be the default owners for everything in
+
 # the repo. Unless a later match takes precedence, these users
+
 # will be requested for review when someone opens a pull request.
 
 # Actions common lib folder
+
 actions-shared/ @segmentio/build-experience-team
 
 # AJV utils
+
 ajv-human-errors/ @segmentio/build-experience-team
 
 # Browser destinations
+
 browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connections-team @segmentio/build-experience-team
 
 # CLI private libs
+
 cli-internal/ @segmentio/build-experience-team
 
 # CLI binary
+
 cli/ @segmentio/build-experience-team
 
 # Core actions runtime
+
 core/ @segmentio/build-experience-team
 
 # Destination definitions and their actions
-destination-actions/ @segmentio/build-experience-team @segmentio/strategic-connections-team
+
+destination-actions/ @segmentio/strategic-connections-team @segmentio/build-experience-team
 
 # Utilities for event payload validation against an action's subscription AST.
+
 destination-subscriptions/ @segmentio/build-experience-team

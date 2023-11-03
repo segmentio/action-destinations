@@ -3,25 +3,20 @@
 exports[`Testing snapshot for Heap's trackEvent destination action: all fields 1`] = `
 Object {
   "app_id": "xqYHVWXiU0In",
-  "event": "xqYHVWXiU0In",
-  "idempotency_key": "xqYHVWXiU0In",
   "identity": "xqYHVWXiU0In",
   "properties": Object {
-    "segment_library": "xqYHVWXiU0In",
+    "anonymous_id": "xqYHVWXiU0In",
     "testType": "xqYHVWXiU0In",
   },
-  "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;
 
 exports[`Testing snapshot for Heap's trackEvent destination action: required fields 1`] = `
 Object {
   "app_id": "xqYHVWXiU0In",
-  "event": "xqYHVWXiU0In",
-  "idempotency_key": "xqYHVWXiU0In",
   "identity": "xqYHVWXiU0In",
   "properties": Object {
-    "segment_library": "destinations-actions",
+    "anonymous_id": "xqYHVWXiU0In",
   },
 }
 `;

@@ -4,7 +4,10 @@ exports[`Testing snapshot for Heap's identifyUser destination action: all fields
 Object {
   "app_id": "L2yK@YacG",
   "identity": "L2yK@YacG",
-  "user_id": 8717436376099246,
+  "properties": Object {
+    "anonymous_id": "L2yK@YacG",
+    "testType": "L2yK@YacG",
+  },
 }
 `;
 
@@ -12,6 +15,8 @@ exports[`Testing snapshot for Heap's identifyUser destination action: required f
 Object {
   "app_id": "L2yK@YacG",
   "identity": "L2yK@YacG",
-  "user_id": 8717436376099246,
+  "properties": Object {
+    "anonymous_id": "L2yK@YacG",
+  },
 }
 `;

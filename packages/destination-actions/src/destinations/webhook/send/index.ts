@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -27,9 +27,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'POST',
       required: true
     },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 0
+    },
     headers: {
       label: 'Headers',
-      description: 'HTTP headers to send with each request.',
+      description: 'HTTP headers to send with each request. Only ASCII characters are supported.',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     },
@@ -41,21 +48,30 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request(payload.url, {
-      method: payload.method as RequestMethod,
-      headers: payload.headers as Record<string, string>,
-      json: payload.data
-    })
+    try {
+      return request(payload.url, {
+        method: payload.method as RequestMethod,
+        headers: payload.headers as Record<string, string>,
+        json: payload.data
+      })
+    } catch (error) {
+      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
+      throw error
+    }
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
-
-    return request(url, {
-      method: method as RequestMethod,
-      headers: headers as Record<string, string>,
-      json: payload.map(({ data }) => data)
-    })
+    try {
+      return request(url, {
+        method: method as RequestMethod,
+        headers: headers as Record<string, string>,
+        json: payload.map(({ data }) => data)
+      })
+    } catch (error) {
+      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
+      throw error
+    }
   }
 }
 

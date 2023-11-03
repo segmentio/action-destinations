@@ -9,12 +9,13 @@ import addProductToCart from './addProductToCart'
 import removeProductFromCart from './removeProductFromCart'
 import upsertOrder from './upsertOrder'
 
+import mergeContacts from './mergeContacts'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Cordial (Actions)',
   description: 'Sync Segment Users, Groups and Events to Cordial',
   slug: 'actions-cordial',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -32,10 +33,16 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         format: 'uri',
         default: 'https://integrations-ingest-svc.usw1.cordial.com'
+      },
+      segmentIdKey: {
+        label: 'User ID attribute key',
+        description: 'Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' }});
+      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' } })
     }
   },
 
@@ -52,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     removeContactFromList,
     addProductToCart,
     removeProductFromCart,
-    upsertOrder
+    upsertOrder,
+    mergeContacts
   }
 }
 

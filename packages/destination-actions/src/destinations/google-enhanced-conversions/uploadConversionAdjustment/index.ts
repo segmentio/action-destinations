@@ -1,8 +1,15 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp } from '../functions'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  hash,
+  handleGoogleErrors,
+  convertTimestamp,
+  getApiVersion,
+  commonHashedEmailValidation,
+  getConversionActionDynamicData
+} from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { GoogleAdsAPI, PartialErrorResponse } from '../types'
+import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     adjustment_type: {
       label: 'Adjustment Type',
@@ -22,6 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
+        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' },
+        { label: `UNKNOWN`, value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -79,7 +88,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
       type: 'string',
-      format: 'email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -198,14 +206,17 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API 
+  dynamicFields: {
+    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth)
+    }
+  },
+  perform: async (request, { settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
-      throw new IntegrationError(
-        'Customer ID is required for this action. Please set it in destination settings.',
-        'Missing required fields.',
-        400
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
 
@@ -237,7 +248,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+
+      request_object.userIdentifiers.push({
+        hashedEmail: validatedEmail
+      })
     }
 
     if (payload.phone_number) {
@@ -268,7 +283,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${GoogleAdsAPI}/${settings.customerId}:uploadConversionAdjustments`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {

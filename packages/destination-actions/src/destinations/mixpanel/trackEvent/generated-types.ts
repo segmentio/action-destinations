@@ -6,6 +6,10 @@ export interface Payload {
    */
   event: string
   /**
+   * A distinct ID specified by you.
+   */
+  distinct_id?: string
+  /**
    * A distinct ID randomly generated prior to calling identify.
    */
   anonymous_id?: string
@@ -13,10 +17,6 @@ export interface Payload {
    * The distinct ID after calling identify.
    */
   user_id?: string
-  /**
-   * A distinct ID specified by you.
-   */
-  distinct_id?: string
   /**
    * The unique identifier of the group that performed this event.
    */
@@ -142,15 +142,35 @@ export interface Payload {
    */
   userAgent?: string
   /**
+   * Advertising ID
+   */
+  advertising_id?: string
+  /**
+   * Ad Tracking Enabled (true or false)
+   */
+  ad_tracking_enabled?: string
+  /**
+   * The event timezone
+   */
+  timezone?: string
+  /**
+   * The App Platform, if applicable
+   */
+  app_platform?: string
+  /**
+   * The Event Original Name, if applicable
+   */
+  name?: string
+  /**
    * An object of key-value pairs that represent additional data to be sent along with the event.
    */
   event_properties?: {
     [k: string]: unknown
   }
   /**
-   * An object of key-value pairs that represent additional data tied to the user.
+   * An object of key-value pairs that provides useful context about the event.
    */
-  user_properties?: {
+  context?: {
     [k: string]: unknown
   }
   /**
@@ -167,4 +187,17 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
   enable_batching?: boolean
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    mobile?: boolean
+    platform?: string
+    architecture?: string
+    bitness?: string
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: boolean
+  }
 }

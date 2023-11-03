@@ -1,7 +1,7 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
-import { buildCSVData } from './sf-utils'
+import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export const API_VERSION = 'v53.0'
@@ -12,6 +12,19 @@ export const API_VERSION = 'v53.0'
 const throwBulkMismatchError = () => {
   const errorMsg = 'Bulk operation triggered where enable_batching is false.'
   throw new IntegrationError(errorMsg, errorMsg, 400)
+}
+
+const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
+  if (operator !== undefined && operator !== 'OR' && operator !== 'AND') {
+    throw new IntegrationError(`Invalid SOQL operator - ${operator}`, 'Invalid SOQL operator', 400)
+  }
+
+  // 'OR' is the default operator. Therefore, when we encounter 'undefined' we will return 'OR'.
+  if (operator === undefined) {
+    return 'OR'
+  }
+
+  return operator
 }
 
 interface Records {
@@ -50,14 +63,18 @@ interface SalesforceError {
   }
 }
 
+type SOQLOperator = 'OR' | 'AND'
+
 export default class Salesforce {
   instanceUrl: string
   request: RequestClient
 
   constructor(instanceUrl: string, request: RequestClient) {
+    this.instanceUrl = validateInstanceURL(instanceUrl)
+
     // If the instanceUrl does not end with '/' append it to the string.
     // This ensures that all request urls are constructed properly
-    this.instanceUrl = instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
+    this.instanceUrl = this.instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
   }
 
@@ -79,7 +96,8 @@ export default class Salesforce {
       return await this.baseUpdate(payload.traits['Id'] as string, sobject, payload)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       throw err
@@ -93,7 +111,8 @@ export default class Salesforce {
       throw new IntegrationError('Undefined Traits when using upsert operation', 'Undefined Traits', 400)
     }
 
-    const [recordId, err] = await this.lookupTraits(payload.traits, sobject)
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
 
     if (err) {
       if (err.status === 404) {
@@ -102,6 +121,25 @@ export default class Salesforce {
       throw err
     }
     return await this.baseUpdate(recordId, sobject, payload)
+  }
+
+  deleteRecord = async (payload: GenericPayload, sobject: string) => {
+    if (!payload.traits || Object.keys(payload.traits).length === 0) {
+      throw new IntegrationError('Undefined Traits when using delete operation', 'Undefined Traits', 400)
+    }
+
+    if (Object.keys(payload.traits).includes('Id') && payload.traits['Id']) {
+      return await this.baseDelete(payload.traits['Id'] as string, sobject)
+    }
+
+    const soqlOperator: SOQLOperator = validateSOQLOperator(payload.recordMatcherOperator)
+    const [recordId, err] = await this.lookupTraits(payload.traits, sobject, soqlOperator)
+
+    if (err) {
+      throw err
+    }
+
+    return await this.baseDelete(recordId, sobject)
   }
 
   bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
@@ -113,6 +151,14 @@ export default class Salesforce {
       return await this.bulkUpsert(payloads, sobject)
     } else if (payloads[0].operation === 'update') {
       return await this.bulkUpdate(payloads, sobject)
+    }
+
+    if (payloads[0].operation === 'delete') {
+      throw new IntegrationError(
+        `Unsupported operation: Bulk API does not support the delete operation`,
+        'Unsupported operation',
+        400
+      )
     }
 
     throw new IntegrationError(
@@ -169,13 +215,7 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-
-    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
-
-    const csv = buildCSVData(payloads, externalIdFieldName)
-
-    await this.uploadBulkCSV(jobId, csv)
-    return await this.closeBulkJob(jobId)
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
   }
 
   private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
@@ -187,10 +227,31 @@ export default class Salesforce {
       )
     }
 
-    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
-    const csv = buildCSVData(payloads, 'Id')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+  }
 
-    await this.uploadBulkCSV(jobId, csv)
+  private async handleBulkJob(
+    payloads: GenericPayload[],
+    sobject: string,
+    idField: string,
+    operation: string
+  ): Promise<ModifiedResponse<unknown>> {
+    // construct the CSV data to catch errors before creating a bulk job
+    const csv = buildCSVData(payloads, idField)
+    const jobId = await this.createBulkJob(sobject, idField, operation)
+    try {
+      await this.uploadBulkCSV(jobId, csv)
+    } catch (err) {
+      // always close the "bulk job" otherwise it will get
+      // stuck in "pending".
+      //
+      // run in background to ensure this service has time to respond
+      // with useful information before the connection closes.
+      this.closeBulkJob(jobId).catch((_) => {
+        // ignore close error to avoid masking the root error
+      })
+      throw err
+    }
     return await this.closeBulkJob(jobId)
   }
 
@@ -244,6 +305,12 @@ export default class Salesforce {
     })
   }
 
+  private baseDelete = async (recordId: string, sobject: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+      method: 'delete'
+    })
+  }
+
   private buildJSONData = (payload: GenericPayload, sobject: string) => {
     let baseShape = {}
 
@@ -283,7 +350,7 @@ export default class Salesforce {
     }
   }
 
-  private buildQuery = (traits: object, sobject: string) => {
+  private buildQuery = (traits: object, sobject: string, soqlOperator: SOQLOperator) => {
     let soql = `SELECT Id FROM ${sobject} WHERE `
 
     const entries = Object.entries(traits)
@@ -292,17 +359,22 @@ export default class Salesforce {
       let token = `${this.removeInvalidChars(key)} = ${this.typecast(value)}`
 
       if (i < entries.length - 1) {
-        token += ' OR '
+        token += ' ' + soqlOperator + ' '
       }
 
       soql += token
       i += 1
     }
+
     return soql
   }
 
-  private lookupTraits = async (traits: object, sobject: string): Promise<[string, IntegrationError | undefined]> => {
-    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject))
+  private lookupTraits = async (
+    traits: object,
+    sobject: string,
+    soqlOperator: SOQLOperator
+  ): Promise<[string, IntegrationError | undefined]> => {
+    const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,

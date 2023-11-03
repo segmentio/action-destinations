@@ -116,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = settings.use_test_endpoint
       ? `https://tagger-test.opecloud.com/${settings.client_id}/v2/native/event`
-      : `https://tagger.opecloud.com/${settings.client_id}/v2/native/event`
+      : `https://${settings.client_id}.tagger.opecloud.com/${settings.client_id}/v2/native/event`
 
     return request(endpoint, {
       method: 'post',

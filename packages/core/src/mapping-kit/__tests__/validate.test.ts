@@ -38,9 +38,11 @@ describe('validation', () => {
         expect(fixture.expectError).toBeDefined()
         expect(typeof fixture.expectError === 'string' || Array.isArray(fixture.expectError)).toBe(true)
 
+        let hasError = false
         try {
           validate(fixture.mapping)
         } catch (error) {
+          hasError = true
           if (typeof fixture.expectError === 'string') {
             expect(error.message).toMatch(fixture.expectError)
           } else {
@@ -49,6 +51,7 @@ describe('validation', () => {
             }
           }
         }
+        expect(hasError).toBeTruthy()
       })
     }
   })

@@ -6,7 +6,7 @@ const testDestination = createTestIntegration(Destination)
 
 const PIPEDRIVE_API_KEY = 'random string'
 const PIPEDRIVE_DOMAIN = 'companydomain'
-const LEAD_ID = 31337
+const LEAD_ID = '31337'
 
 describe('Pipedrive.createUpdateLead', () => {
   it('should create lead', async () => {
@@ -34,12 +34,12 @@ describe('Pipedrive.createUpdateLead', () => {
 
   it('should update lead', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
-      .put(`/leads/${LEAD_ID}`, {
+      .patch(`/leads/${LEAD_ID}`, {
         title: 'New Title',
         organization_id: 520,
         value: {
-          currency: 'EUR',
-          amount: 3256.41
+          amount: 3256.41,
+          currency: 'EUR'
         }
       })
       .query({ api_token: PIPEDRIVE_API_KEY })
@@ -59,10 +59,8 @@ describe('Pipedrive.createUpdateLead', () => {
         title: 'New Title',
         organization_match_field: 'someOrgField',
         organization_match_value: 'Pipedrive OÜ',
-        value: {
-          currency: 'EUR',
-          amount: 3256.41
-        },
+        amount: 3256.41,
+        currency: 'EUR',
         lead_id: LEAD_ID
       },
       settings: { apiToken: PIPEDRIVE_API_KEY, domain: PIPEDRIVE_DOMAIN }

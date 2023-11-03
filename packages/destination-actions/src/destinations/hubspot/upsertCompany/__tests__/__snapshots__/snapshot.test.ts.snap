@@ -23,7 +23,6 @@ Object {
 exports[`Testing snapshot for HubSpot's upsertCompany destination action: required fields 1`] = `
 Object {
   "properties": Object {
-    "name": "F9hZOtvgHY(T6dF5vS7",
     "segment_group_id": "F9hZOtvgHY(T6dF5vS7",
   },
 }

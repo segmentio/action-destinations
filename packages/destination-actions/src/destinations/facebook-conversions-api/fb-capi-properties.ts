@@ -1,5 +1,5 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
+import { InputField } from '@segment/actions-core/destination-kit/types'
+import { PayloadValidationError } from '@segment/actions-core'
 
 // Implementation of the facebook pixel object properties.
 // https://developers.facebook.com/docs/facebook-pixel/reference#object-properties
@@ -119,21 +119,19 @@ export const data_processing_options_state: InputField = {
   ]
 }
 
-export const validateContents = (contents: Content[]): IntegrationError | false => {
+export const validateContents = (contents: Content[]): PayloadValidationError | false => {
   const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
 
   for (let i = 0; i < contents.length; i++) {
     const item = contents[i]
 
     if (!item.id) {
-      return new IntegrationError(`contents[${i}] must include an 'id' parameter.`, 'Misconfigured required field', 400)
+      return new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
     }
 
     if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
-      return new IntegrationError(
-        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`,
-        'Misconfigured field',
-        400
+      return new PayloadValidationError(
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
       )
     }
   }
@@ -180,7 +178,17 @@ export const action_source: InputField = {
   label: 'Action Source',
   description:
     'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
-  type: 'string'
+  type: 'string',
+  choices: [
+    { label: 'EMAIL', value: 'email' },
+    { label: 'WEBSITE', value: 'website' },
+    { label: 'APP', value: 'app' },
+    { label: 'PHONE CALL', value: 'phone_call' },
+    { label: 'CHAT', value: 'chat' },
+    { label: 'PHYSICAL STORE', value: 'physical_store' },
+    { label: 'SYSTEM GENERATED', value: 'system_generated' },
+    { label: 'OTHER', value: 'other' }
+  ]
 }
 
 export const event_source_url: InputField = {

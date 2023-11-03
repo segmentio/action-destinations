@@ -2,9 +2,19 @@
 
 export interface Payload {
   /**
-   * Email address for the contact.
+   * Date the contact was created.
    */
-  email: string
+  createdAt?: string | number
+  /**
+   * Attributes maintained by your team.
+   */
+  customAttributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Email address for the contact. This is required when creating new contacts.
+   */
+  email?: string
   /**
    * The contact's given name.
    */
@@ -17,6 +27,10 @@ export interface Payload {
    * The contact's source.
    */
   source?: string
+  /**
+   * Whether the contact is subscribed to email.
+   */
+  subscribed?: boolean
   /**
    * The contact's user group.
    */

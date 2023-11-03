@@ -8,7 +8,9 @@ import {
   operation,
   traits,
   validateLookup,
-  enable_batching
+  enable_batching,
+  recordMatcherOperator,
+  batch_size
 } from '../sf-properties'
 import Salesforce from '../sf-operations'
 
@@ -19,7 +21,9 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create, update, or upsert cases in Salesforce.',
   fields: {
     operation: operation,
+    recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
+    batch_size: batch_size,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -45,6 +49,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.operation === 'upsert') {
       return await sf.upsertRecord(payload, OBJECT_NAME)
+    }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
   performBatch: async (request, { settings, payload }) => {

@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Iterable's updateCart destination action: all fields 1`] = `
+Object {
+  "items": Array [
+    Object {
+      "categories": Array [
+        "EhReIu7NIsg#8O6D",
+      ],
+      "dataFields": Object {
+        "description": "EhReIu7NIsg#8O6D",
+      },
+      "description": "EhReIu7NIsg#8O6D",
+      "id": "EhReIu7NIsg#8O6D",
+      "imageUrl": "EhReIu7NIsg#8O6D",
+      "name": "EhReIu7NIsg#8O6D",
+      "price": 35023809014661.12,
+      "quantity": 3502380901466112,
+      "sku": "EhReIu7NIsg#8O6D",
+      "url": "EhReIu7NIsg#8O6D",
+    },
+  ],
+  "user": Object {
+    "dataFields": Object {
+      "phoneNumber": "EhReIu7NIsg#8O6D",
+      "testType": "EhReIu7NIsg#8O6D",
+    },
+    "email": "vaz@zuzjagmoj.bh",
+    "mergeNestedObjects": false,
+    "userId": "EhReIu7NIsg#8O6D",
+  },
+}
+`;

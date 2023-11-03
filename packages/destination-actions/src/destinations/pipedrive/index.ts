@@ -1,6 +1,6 @@
 import createUpdateOrganization from './createUpdateOrganization'
 import createUpdatePerson from './createUpdatePerson'
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import createUpdateActivity from './createUpdateActivity'
@@ -78,7 +78,30 @@ const destination: DestinationDefinition<Settings> = {
     createUpdateDeal,
     createUpdateLead,
     createUpdateNote
-  }
+  },
+  presets: [
+    {
+      name: 'Create or Update a Person',
+      subscribe: 'type = "identify"',
+      partnerAction: 'createUpdatePerson',
+      mapping: defaultValues(createUpdatePerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Create or Update an Organization',
+      subscribe: 'type = "group"',
+      partnerAction: 'createUpdateOrganization',
+      mapping: defaultValues(createUpdateOrganization.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Create or Update an Activity',
+      subscribe: 'type = "track" and event = "Activity Upserted"',
+      partnerAction: 'createUpdateActivity',
+      mapping: defaultValues(createUpdateActivity.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination

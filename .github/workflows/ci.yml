@@ -7,19 +7,185 @@ on:
   pull_request:
 
 jobs:
-  test-and-build:
-    runs-on: ubuntu-latest
+  test:
+    name: Unit tests
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      # See nx recipe: https://nx.dev/recipes/ci/monorepo-ci-github-actions
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # nx recipe
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+
+      - uses: nrwl/nx-set-shas@v3 # nx recipe
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build (Affected)
+        run: NODE_ENV=production yarn nx affected -t build --parallel=3 # nx recipe
+
+      - name: Test (Affected)
+        run: yarn nx affected -t test --parallel=3 # nx recipe
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # nx recipe
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+
+      - uses: nrwl/nx-set-shas@v3 # nx recipe
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
+        run: NODE_ENV=production yarn build # nx recipe
+
+      - name: Lint
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: yarn lint
+
+  validate:
+    name: Validate
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # nx recipe
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+
+      - uses: nrwl/nx-set-shas@v3 # nx recipe
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Assert yarn.lock is up-to-date
+        run: bash scripts/assert-lockfile-updated.sh
+
+      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
+        run: NODE_ENV=production yarn build # nx recipe
+
+      - name: Validate Definitions
+        run: yarn validate
+
+      - name: Destination Subscription Size
+        run: |
+          if $(lerna changed | grep -q destination-subscriptions); then
+            yarn subscriptions size
+          fi
+
+      - name: Assert generated types are up-to-date
+        run: bash scripts/assert-types-updated.sh
+
+  browser-destination-bundle-qa:
+    name: Browser Destination Bundle QA
+    # env: # Disable saucelabs - we blew through our quota.
+    #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+    #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Use Github Personal Access Token
+        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build
+        run: NODE_ENV=production yarn build:browser-bundles
+
+      # - name: Run Saucelabs Tests
+      #   working-directory: packages/browser-destinations-integration-tests
+      #   shell: bash
+      #   run: |
+      #     yarn start-destination-server &
+      #     yarn test:sauce
+
+  browser-tests-core:
+    name: 'Browser tests: actions-core'
+    runs-on: ubuntu-20.04
 
     timeout-minutes: 10
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -47,32 +213,24 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Install Browser Dependencies
+        run: npx playwright install-deps
+
       - name: Build
-        run: NODE_ENV=production yarn build
+        run: NODE_ENV=production yarn lerna run build --scope=@segment/actions-core --include-dependencies --stream
 
-      - name: Lint
-        run: yarn lint
-
-      - name: Validate
-        run: yarn validate
-
-      - name: Test
-        run: yarn test
-
-      - name: destination-subscriptions size
-        run: |
-          if $(lerna changed | grep -q destination-subscriptions); then
-            yarn subscriptions size
-          fi
+      - name: Browser Test
+        run: yarn test-browser
 
   snyk:
-    runs-on: ubuntu-latest
+    name: Snyk
+    runs-on: ubuntu-20.04
 
     timeout-minutes: 5
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -83,7 +241,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

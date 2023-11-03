@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Emarsys's removeFromContactList destination action: all fields 1`] = `
+Object {
+  "contactlistid": 2204312625217536,
+  "external_ids": Array [
+    "cc%KG4p)Ar0bgD",
+  ],
+  "key_id": "cc%KG4p)Ar0bgD",
+}
+`;
+
+exports[`Testing snapshot for Emarsys's removeFromContactList destination action: required fields 1`] = `
+Object {
+  "contactlistid": 2204312625217536,
+  "external_ids": Array [
+    "cc%KG4p)Ar0bgD",
+  ],
+  "key_id": "cc%KG4p)Ar0bgD",
+}
+`;
