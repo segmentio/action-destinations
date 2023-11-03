@@ -91,13 +91,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const events: SegmentEvent[] = [
       createTestEvent({
         event: 'Test Event 1',
-        type: 'track',
+        type: 'identify',
         receivedAt,
         properties: {}
       }),
       createTestEvent({
         event: 'Test Event 2',
-        type: 'track',
+        type: 'identify',
         receivedAt,
         properties: {}
       })
@@ -146,22 +146,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const events: SegmentEvent[] = [
       createTestEvent({
         event: 'Test Event 1',
-        type: 'track',
+        type: 'identify',
         receivedAt,
-        properties: {
-          products: [
-            {
-              quantity: 1,
-              product_id: 'Bowflex Treadmill 10',
-              price: 100
-            },
-            {
-              quantity: 2,
-              product_id: 'Bowflex Treadmill 20',
-              price: 200
-            }
-          ]
-        }
+        properties: {}
       })
     ]
 
@@ -184,9 +171,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         },
         properties: {
           '@path': '$.properties'
-        },
-        products: {
-          '@path': '$.properties.products'
         },
         enable_batching: true,
         _update_existing_only: true
