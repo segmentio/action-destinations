@@ -15,7 +15,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   description: 'Enriches all Segment payloads with Snap click_id Querystring and _scid Cookie values',
   platform: 'web',
   hidden: false,
-  defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+  defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
   fields: {},
   lifecycleHook: 'enrichment',
   perform: (_, { context, analytics }) => {
