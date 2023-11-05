@@ -36,10 +36,6 @@ export interface Payload {
    */
   device_type?: string
   /**
-   * Specify the identifier(s) to send to Yahoo
-   */
-  identifier: string
-  /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */
   gdpr_flag: boolean
