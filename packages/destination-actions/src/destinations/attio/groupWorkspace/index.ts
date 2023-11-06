@@ -34,6 +34,17 @@ const workspace_id: InputField = {
   }
 }
 
+const user_id: InputField = {
+  type: 'string',
+  label: 'ID',
+  description:
+    "The ID of the User, if you'd like to link them to this Workspace (leave blank to skip). " +
+    'This assumes you will have already called the Attio identifyUser action: unrecognised Users will fail this action otherwise.',
+  format: 'text',
+  required: false,
+  default: { '@path': '$.userId' }
+}
+
 const company_attributes: InputField = {
   type: 'object',
   label: 'Additional Company attributes',
@@ -63,6 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     domain,
     workspace_id,
+    user_id,
     company_attributes,
     workspace_attributes
   },
@@ -85,6 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
       values: {
         workspace_id: payload.workspace_id,
         company: company.data.data.id.record_id,
+        ...(payload.user_id ? { users: [payload.user_id] } : {}),
         ...(payload.workspace_attributes ?? {})
       }
     })
