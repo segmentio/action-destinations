@@ -34,7 +34,7 @@ const nonCachedApiLookup = {
 
 const cachedApiLookup = {
   ...nonCachedApiLookup,
-  cacheTtl: 60
+  cacheTtl: 60000
 }
 
 const createMockRequestStore = () => {
@@ -60,7 +60,7 @@ afterEach(() => {
 describe('api lookups', () => {
   it('liquid renders url and body with profile traits before requesting', async () => {
     const apiLookupRequest = nock(`https://fakeweather.com`)
-      .get(`/api/${profile.traits.lastName}`)
+      .post(`/api/${profile.traits.lastName}`, { firstName: profile.traits.firstName })
       .reply(200, {
         current: {
           temperature: 70
@@ -71,7 +71,9 @@ describe('api lookups', () => {
       request,
       {
         ...nonCachedApiLookup,
-        url: 'https://fakeweather.com/api/{{profile.traits.lastName}}'
+        url: 'https://fakeweather.com/api/{{profile.traits.lastName}}',
+        body: '{ "firstName": "{{profile.traits.firstName}}" }',
+        method: 'post'
       },
       profile,
       undefined,
@@ -116,7 +118,7 @@ describe('api lookups', () => {
       expect(mockRequestCache.setRequestResponse).toHaveBeenCalledWith(
         requestId,
         '{"current":{"temperature":70}}',
-        cachedApiLookup.cacheTtl
+        cachedApiLookup.cacheTtl / 100
       )
       expect(data).toEqual({
         current: {
