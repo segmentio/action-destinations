@@ -49,7 +49,6 @@ export async function getProfile(request: RequestClient, email: string): Promise
     })
     return profileId
   } catch (error) {
-    console.log(error)
     throw new Error('An error occurred while processing the request')
   }
 }

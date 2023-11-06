@@ -1,22 +1,17 @@
-import { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
 import { GetProfileResponseData, listData } from '../types'
-import { executeProfileList, getListIdDynamicData, getProfile } from '../functions'
-import { email, list_id } from '../properties'
+import { executeProfileList, getProfile } from '../functions'
+import { email, external_id } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove profile from list',
   description: 'Remove profile from list',
   fields: {
     email: { ...email },
-    list_id: { ...list_id }
-  },
-  dynamicFields: {
-    list_id: async (request): Promise<DynamicFieldResponse> => {
-      return getListIdDynamicData(request)
-    }
+    list_id: { ...external_id }
   },
   perform: async (request, { payload }) => {
     const { email, list_id } = payload

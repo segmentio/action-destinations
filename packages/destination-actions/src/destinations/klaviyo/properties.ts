@@ -1,10 +1,13 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-export const list_id: InputField = {
-  label: 'List Id',
+export const external_id: InputField = {
+  label: 'External Id',
   description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
   type: 'string',
-  dynamic: true
+  default: {
+    '@path': '$.context.personas.external_id'
+  },
+  unsafe_hidden: true
 }
 
 export const email: InputField = {
