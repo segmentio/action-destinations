@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest: ({ settings }) => {
     return {
       headers: {
-        'api-key': settings.apiKey,
+        api_key: settings.apiKey,
         'Content-Type': 'application/json'
       }
     }
