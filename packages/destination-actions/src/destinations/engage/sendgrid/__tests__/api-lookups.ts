@@ -53,7 +53,7 @@ const createMockRequestStore = () => {
 const request = createRequestClient({})
 
 afterEach(() => {
-  jest.clearAllMocks() // to clear all mock calls
+  jest.clearAllMocks()
   nock.cleanAll()
 })
 
