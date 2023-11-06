@@ -77,6 +77,7 @@ export const handleUpdate = async (
   operation: 'add' | 'remove'
 ) => {
   let jobId
+
   try {
     jobId = await createOfflineDataJob(request, audienceSettings, payload[0]?.external_audience_id)
   } catch (error) {
@@ -87,9 +88,10 @@ export const handleUpdate = async (
   try {
     await populateOfflineDataJob(request, payload, operation, jobId, audienceSettings.listType)
   } catch (error) {
-    // This method can return multiple status codes. Nothing shall be retried.
-    throw new IntegrationError('Unable to populate data job', 'PAYLOAD_VALIDATION_FAILED', 400)
+    // Any error here would discard the entire batch, therefore, we shall retry everything.
+    throw new IntegrationError('Unable to populate data job', 'RETRYABLE_ERROR', 500)
   }
 
+  // Successful batches return 200. Bogus ones return an error but at this point we can't examine individual errors.
   await performOfflineDataJob(request, jobId)
 }
