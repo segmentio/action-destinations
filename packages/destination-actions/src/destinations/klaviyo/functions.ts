@@ -69,3 +69,23 @@ export async function createProfile(request: RequestClient, email: string): Prom
   })
   return profile
 }
+
+export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
+  const listData = {
+    data: [
+      {
+        type: 'profile',
+        id: profileId
+      }
+    ]
+  }
+
+  try {
+    await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
+      method: 'POST',
+      json: listData
+    })
+  } catch (error) {
+    throw new APIError('An error occurred while processing the request', 400)
+  }
+}

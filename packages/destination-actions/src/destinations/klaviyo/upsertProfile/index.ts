@@ -1,11 +1,11 @@
-import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
 import { APIError, PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
-import { addProfileToList, getListIdDynamicData } from '../functions'
+import { addProfileToList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -127,11 +127,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
       type: 'string',
       dynamic: true
-    }
-  },
-  dynamicFields: {
-    list_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
-      return getListIdDynamicData(request, settings)
     }
   },
   perform: async (request, { payload }) => {
