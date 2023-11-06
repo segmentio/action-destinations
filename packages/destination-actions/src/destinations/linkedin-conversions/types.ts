@@ -69,3 +69,18 @@ export interface Conversions {
   name: string
   id: string
 }
+
+export interface GetCampaignsListAPIResponse {
+  paging: {
+    count: number
+    links: Array<any>
+    start: number
+    total: number
+  }
+  elements: [Campaigns]
+}
+
+export interface Campaigns {
+  name: string
+  id: string
+}

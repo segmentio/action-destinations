@@ -116,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const event = convertPayloadToLDEvent(payload)
-    return request(getEventsUrl(settings.client_id), {
+    return request(getEventsUrl(settings), {
       method: 'post',
       json: [event]
     })

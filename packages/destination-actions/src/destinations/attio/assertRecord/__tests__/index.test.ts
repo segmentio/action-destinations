@@ -32,7 +32,7 @@ const mapping = {
 describe('Attio.assertRecord', () => {
   it('asserts a Record', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/vehicles/records/simple?matching_attribute=name', {
+      .put('/v2/objects/vehicles/records/simple?matching_attribute=name&append_to_existing_values=true', {
         data: {
           values: {
             name: 'Stair car',
