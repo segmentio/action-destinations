@@ -56,12 +56,36 @@ const renderLiquidFields = async (
   }
 }
 
-const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) => {
+export const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) => {
   const requestHash = createHash('sha256')
   // We hash the request to make the key smaller and to prevent storage of any sensitive data within the config
   requestHash.update(`${method}${url}${body}${headers}`)
   const requestId = requestHash.digest('hex')
   return requestId
+}
+
+export const getCachedResponse = async (
+  { responseType }: ApiLookupConfig,
+  requestId: string,
+  requestCache: RequestCache,
+  datafeedTags: string[]
+) => {
+  const cachedResponse = await requestCache?.getRequestResponse(requestId)
+  if (!cachedResponse) {
+    datafeedTags.push('cache_hit:false')
+    return
+  }
+
+  datafeedTags.push('cache_hit:true')
+  if (responseType === 'json') {
+    let parsedCachedResponse = JSON.parse(cachedResponse)
+    if (typeof parsedCachedResponse === 'string') {
+      // Sometimes need to parse again in case there are escape characters. First parse removes the escape characters, second actually converts to object
+      parsedCachedResponse = JSON.parse(parsedCachedResponse)
+    }
+    return parsedCachedResponse
+  }
+  return cachedResponse
 }
 
 export const performApiLookup = async (
@@ -74,13 +98,13 @@ export const performApiLookup = async (
   logger?: Logger | undefined,
   requestCache?: RequestCache | undefined
 ) => {
-  const { id, method, headers, cacheTtl, responseType, name } = apiLookupConfig
+  const { id, method, headers, cacheTtl, name } = apiLookupConfig
   const datafeedTags = [
     ...tags,
     `datafeed_id:${id}`,
     `datafeed_name:${name}`,
     `space_id:${settings.spaceId}`,
-    `cache_ttl:${cacheTtl}`
+    `cache_ttl_greater_than_0:${cacheTtl > 0}`
   ]
 
   try {
@@ -92,21 +116,23 @@ export const performApiLookup = async (
       logger
     )
 
-    // Check cache first to see if there's a previous valid response
     const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
-    datafeedTags.push(`cache_request_id:${requestId}`)
-    if (cacheTtl > 0) {
-      const cachedResponse = await requestCache?.getRequestResponse(requestId)
+
+    // First check cache
+    if (cacheTtl > 0 && requestCache) {
+      const cachedResponse = await getCachedResponse(
+        { ...apiLookupConfig, url: renderedUrl, body: renderedBody },
+        requestId,
+        requestCache,
+        datafeedTags
+      )
       if (cachedResponse) {
-        datafeedTags.push('cache-hit:true')
         datafeedTags.push('error:false')
-        // The first JSON.parse() returns any escape characters, second JSON.parse actually parses into an object
-        return responseType === 'json' ? JSON.parse(JSON.parse(cachedResponse)) : cachedResponse
+        return cachedResponse
       }
-      datafeedTags.push('cache-hit:false')
     }
 
-    // If not then call the 3rd party api
+    // If not cached then call the 3rd party api
     let data
     try {
       const res = await request(renderedUrl, {
@@ -116,7 +142,7 @@ export const performApiLookup = async (
         body: renderedBody,
         skipResponseCloning: true
       })
-      data = await res.json()
+      data = await res.data
     } catch (error: any) {
       const respError = error.response as ResponseError
       logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
@@ -132,24 +158,24 @@ export const performApiLookup = async (
 
     const dataString = JSON.stringify(data)
     const size = Buffer.byteLength(dataString, 'utf-8')
-    datafeedTags.push(`response_size:${size}`)
+    datafeedTags.push(`response_size_greater_than_mb:${size > 1000000}`)
 
-    // Save the response to the cache
+    // Then save the response to the cache
     if (cacheTtl > 0) {
       if (size <= 1000000) {
         try {
-          await requestCache?.setRequestResponse(requestId, dataString, cacheTtl)
-          datafeedTags.push('cache-set:true')
+          await requestCache?.setRequestResponse(requestId, dataString, cacheTtl / 100)
+          datafeedTags.push('cache_set:true')
         } catch (err) {
           logger?.error(
             `TE Messaging: Email api lookup cache set failure - api lookup id: ${id} - ${settings.spaceId} - [${err}]`
           )
-          datafeedTags.push('cache-set:false')
+          datafeedTags.push('cache_set:false')
           datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${err?.message}`)
           throw err
         }
       } else {
-        datafeedTags.push('cache-set:false')
+        datafeedTags.push('cache_set:false')
       }
     }
 
