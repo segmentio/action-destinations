@@ -93,6 +93,13 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       }
+    },
+    campaignId: {
+      label: 'Campaign',
+      type: 'string',
+      required: true,
+      dynamic: true,
+      description: 'A dynamic field dropdown which fetches all active campaigns.'
     }
   },
   dynamicFields: {
@@ -103,13 +110,22 @@ const action: ActionDefinition<Settings, Payload> = {
     conversionId: async (request, { payload }) => {
       const linkedIn = new LinkedInConversions(request)
       return await linkedIn.getConversionRulesList(payload.adAccountId)
+    },
+    campaignId: async (request, { payload }) => {
+      const linkedIn = new LinkedInConversions(request)
+      return await linkedIn.getCampaignsList(payload.adAccountId)
     }
   },
   perform: async (request, { payload }) => {
     validate(payload)
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
-    return linkedinApiClient.streamConversionEvent(payload)
+    try {
+      await linkedinApiClient.associateCampignToConversion(payload)
+      return linkedinApiClient.streamConversionEvent(payload)
+    } catch (error) {
+      return error
+    }
   }
 }
 

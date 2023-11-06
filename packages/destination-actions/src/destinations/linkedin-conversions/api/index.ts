@@ -6,7 +6,9 @@ import type {
   Accounts,
   AccountsErrorInfo,
   GetConversionListAPIResponse,
-  Conversions
+  Conversions,
+  GetCampaignsListAPIResponse,
+  Campaigns
 } from '../types'
 import type { Payload } from '../streamConversion/generated-types'
 export class LinkedInConversions {
@@ -59,7 +61,6 @@ export class LinkedInConversions {
   }
 
   getConversionRulesList = async (adAccountId: string): Promise<DynamicFieldResponse> => {
-    adAccountId = 'urn:li:sponsoredAccount:510987882'
     if (!adAccountId || !adAccountId.length) {
       return {
         choices: [],
@@ -106,6 +107,55 @@ export class LinkedInConversions {
     }
   }
 
+  getCampaignsList = async (adAccountId: string): Promise<DynamicFieldResponse> => {
+    if (!adAccountId || !adAccountId.length) {
+      return {
+        choices: [],
+        error: {
+          message: 'Please select Ad Account first to get list of Conversion Rules.',
+          code: 'FIELD_NOT_SELECTED'
+        }
+      }
+    }
+
+    try {
+      const response: Array<Campaigns> = []
+      const result = await this.request<GetCampaignsListAPIResponse>(
+        `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE)))`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Restli-Protocol-Version': '2.0.0'
+          }
+        }
+      )
+
+      result.data.elements.forEach((item) => {
+        response.push(item)
+      })
+
+      const choices = response?.map((item) => {
+        return {
+          label: item.name,
+          value: item.id
+        }
+      })
+
+      return {
+        choices: choices
+      }
+    } catch (err) {
+      return {
+        choices: [],
+        error: {
+          message:
+            (err as AccountsErrorInfo).response?.data?.message ?? 'An error occurred while fetching conversion rules.',
+          code: (err as AccountsErrorInfo).response?.data?.code?.toString() ?? 'FETCH_CONVERSIONS_ERROR'
+        }
+      }
+    }
+  }
+
   async streamConversionEvent(payload: Payload): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
@@ -118,4 +168,21 @@ export class LinkedInConversions {
       }
     })
   }
+
+  async associateCampignToConversion(payload: Payload): Promise<ModifiedResponse> {
+    return this.request(
+      `https://api.linkedin.com/rest/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`,
+      {
+        method: 'PUT',
+        headers: {
+          'X-Restli-Protocol-Version': '2.0.0'
+        },
+        body: JSON.stringify({
+          campaign: `urn:li:sponsoredCampaign:${payload.campaignId}`,
+          conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`
+        })
+      }
+    )
+  }
 }
+;``
