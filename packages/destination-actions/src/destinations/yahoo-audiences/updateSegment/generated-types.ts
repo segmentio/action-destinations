@@ -20,14 +20,6 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
-   * Enable batching of requests
-   */
-  enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
-  /**
    * Email address of a user
    */
   email?: string
@@ -35,6 +27,10 @@ export interface Payload {
    * User's mobile advertising Id
    */
   advertising_id?: string
+  /**
+   * Phone number of a user
+   */
+  phone?: string
   /**
    * User's mobile device type
    */
