@@ -6,11 +6,11 @@ export interface Settings {
    */
   username: string
   /**
-   * Your Movable Ink password.
+   * Your Movable Ink Access Secret.
    */
   password: string
   /**
-   * The Movable Ink URL to send data to. This URL can also be specified at the Action level via the "Movable Ink URL" Action field
+   * The Movable Ink URL to send data to.
    */
-  movable_ink_url?: string
+  movable_ink_url: string
 }

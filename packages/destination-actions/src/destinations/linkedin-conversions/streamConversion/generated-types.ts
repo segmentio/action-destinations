@@ -42,4 +42,8 @@ export interface Payload {
       [k: string]: unknown
     }
   }
+  /**
+   * A dynamic field dropdown which fetches all active campaigns.
+   */
+  campaignId: string
 }

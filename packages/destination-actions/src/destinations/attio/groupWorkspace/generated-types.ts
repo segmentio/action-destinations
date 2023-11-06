@@ -10,6 +10,10 @@ export interface Payload {
    */
   workspace_id: string
   /**
+   * The ID of the User, if you'd like to link them to this Workspace (leave blank to skip). This assumes you will have already called the Attio identifyUser action: unrecognised Users will fail this action otherwise.
+   */
+  user_id?: string
+  /**
    * Additional attributes to either set or update on the Attio Company Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name
    */
   company_attributes?: {

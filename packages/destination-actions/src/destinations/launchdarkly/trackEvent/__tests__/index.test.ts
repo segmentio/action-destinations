@@ -43,6 +43,41 @@ describe('LaunchDarkly.trackEvent', () => {
     ])
   })
 
+  it('should send custom events to a custom host when specified in the settings', async () => {
+    const customEventsHost = 'events2.launchdarkly.com'
+    const settingsWithCustomHost = { ...testSettings, events_host_name: customEventsHost }
+    nock(`https://${customEventsHost}`).post(`/events/bulk/${testSettings.client_id}`).reply(202)
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Test Event',
+      userId: 'user1234',
+      anonymousId: '72d7bed1-4f42-4f2f-8955-72677340546b',
+      timestamp: '2022-03-30T17:24:58Z',
+      properties: {
+        revenue: 123.456
+      }
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event,
+      settings: settingsWithCustomHost,
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(202)
+    expect(responses[0].options.json).toMatchObject([
+      {
+        key: 'Test Event',
+        contextKeys: { user: 'user1234', unauthenticatedUser: '72d7bed1-4f42-4f2f-8955-72677340546b' },
+        kind: 'custom',
+        metricValue: 123.456,
+        creationDate: 1648661098000
+      }
+    ])
+  })
+
   it('should use custom context kinds if provided', async () => {
     nock('https://events.launchdarkly.com').post(`/events/bulk/${testSettings.client_id}`).reply(202)
 

@@ -28,7 +28,7 @@ const mapping = {
 describe('Attio.identifyUser', () => {
   it('asserts a Person and then a User', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses', {
+      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses&append_to_existing_values=true', {
         data: {
           values: {
             email_addresses: email
@@ -38,7 +38,7 @@ describe('Attio.identifyUser', () => {
       .reply(200, {})
 
     nock('https://api.attio.com')
-      .put('/v2/objects/users/records/simple?matching_attribute=user_id', {
+      .put('/v2/objects/users/records/simple?matching_attribute=user_id&append_to_existing_values=true', {
         data: {
           values: {
             user_id: '9',
@@ -63,7 +63,7 @@ describe('Attio.identifyUser', () => {
 
   it('fails to assert a Person and returns', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses', {
+      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses&append_to_existing_values=true', {
         data: {
           values: {
             email_addresses: email
