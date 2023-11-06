@@ -1,21 +1,13 @@
 import { RequestClient, DynamicFieldResponse, APIError } from '@segment/actions-core'
-import { API_URL, REVISION_DATE } from './config'
-import { GetListResultContent } from './types'
-import { Settings } from './generated-types'
+import { API_URL } from './config'
+import { GetProfileResponseData, ListIdResponse, ProfileData, listData } from './types'
 
-export async function getListIdDynamicData(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
+export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
-    const result = await request(`${API_URL}/lists/`, {
-      method: 'get',
-      headers: {
-        Authorization: `Klaviyo-API-Key ${settings.api_key}`,
-        Accept: 'application/json',
-        revision: REVISION_DATE
-      },
-      skipResponseCloning: true
+    const result: ListIdResponse = await request(`${API_URL}/lists/`, {
+      method: 'get'
     })
-    const parsedContent = JSON.parse(result.content) as GetListResultContent
-    const choices = parsedContent.data.map((list: { id: string; attributes: { name: string } }) => {
+    const choices = JSON.parse(result.content).data.map((list: { id: string; attributes: { name: string } }) => {
       return { value: list.id, label: list.attributes.name }
     })
     return {
@@ -33,22 +25,47 @@ export async function getListIdDynamicData(request: RequestClient, settings: Set
   }
 }
 
-export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
-  const listData = {
-    data: [
-      {
-        type: 'profile',
-        id: profileId
+export async function executeProfileList(
+  request: RequestClient,
+  method: 'DELETE' | 'POST',
+  payload: listData,
+  list_id: string
+) {
+  try {
+    const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+      method: method,
+      json: payload
+    })
+    return list
+  } catch (error) {
+    throw new Error('An error occurred while processing the request')
+  }
+}
+
+export async function getProfile(request: RequestClient, email: string): Promise<GetProfileResponseData> {
+  try {
+    const profileId: GetProfileResponseData = await request(`${API_URL}/profiles/?filter=equals(email,"${email}")`, {
+      method: 'GET'
+    })
+    return profileId
+  } catch (error) {
+    throw new Error('An error occurred while processing the request')
+  }
+}
+
+export async function createProfile(request: RequestClient, email: string): Promise<GetProfileResponseData> {
+  const profileData: ProfileData = {
+    data: {
+      type: 'profile',
+      attributes: {
+        email
       }
-    ]
+    }
   }
 
-  try {
-    await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
-      method: 'POST',
-      json: listData
-    })
-  } catch (error) {
-    throw new APIError('An error occurred while processing the request', 400)
-  }
+  const profile: GetProfileResponseData = await request(`${API_URL}/profiles/`, {
+    method: 'POST',
+    json: profileData
+  })
+  return profile
 }
