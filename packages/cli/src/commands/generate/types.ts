@@ -172,7 +172,7 @@ export default class GenerateTypes extends Command {
         hookBundle = await generateTypes(
           hookFields,
           'HookBundle',
-          `// Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.`
+          `// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.`
         )
         types += hookBundle
       }
