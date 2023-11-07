@@ -35,8 +35,30 @@ export const prepareOfflineDataJobCreationParams = (listType: string, listId: st
   }
 }
 
+const getIdentifierKey = (key: string): string => {
+  let k = 'publisherProvidedId'
+
+  switch (key) {
+    case 'email':
+      k = 'hashedEmail'
+      break
+    case 'phone':
+      k = 'hashedPhoneNumber'
+      break
+    case 'mobile':
+      k = 'mobileId'
+      break
+  }
+
+  return k
+}
+
 // TODO: Implement operations for customerMatch list
-export const buildAddListOperation = (payload: UpdateHandlerPayload, listType: string): ListAddOperation => {
+export const buildAddListOperation = (
+  payload: UpdateHandlerPayload,
+  listType: string,
+  key: string
+): ListAddOperation => {
   let op: ListAddOperation = {
     create: {
       userIdentifiers: {}
@@ -46,10 +68,11 @@ export const buildAddListOperation = (payload: UpdateHandlerPayload, listType: s
   switch (listType) {
     case 'basicUserList':
       op = op as BasicListAddTypeOperation
-      op.create.userIdentifiers['publisher_provided_id'] = payload?.user_identifier
+      op.create.userIdentifiers['publisherProvidedId'] = payload?.user_identifier
       break
     case 'customerMatchList':
-      // TODO: Implement this
+      // @ts-ignore TODO: Remove after testing
+      op.create.userIdentifiers[getIdentifierKey(key)] = payload?.user_identifier
       break
     default:
       throw new IntegrationError('Invalid list type', 'INVALID_REQUEST_DATA', 400)
@@ -68,7 +91,7 @@ export const buildRemoveListOperation = (payload: UpdateHandlerPayload, listType
   switch (listType) {
     case 'basicUserList':
       op = op as BasicListRemoveTypeOperation
-      op.remove.userIdentifiers['publisher_provided_id'] = payload.user_identifier
+      op.remove.userIdentifiers['publisherProvidedId'] = payload.user_identifier
       break
     case 'customerMatchList':
       // TODO: Implement this

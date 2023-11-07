@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The identifier for the user to add to the audience.
+   * The identifier for the user to add to the audience. Can only be one of the following. Basic User Lists only support Publisher Provided ID. Customer Match Lists support all four identifiers.
    */
   user_identifier: string
   /**

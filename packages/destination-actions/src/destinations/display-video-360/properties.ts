@@ -2,14 +2,19 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const user_identifier: InputField = {
   label: 'User Identifier',
-  description: 'The identifier for the user to add to the audience.',
+  description:
+    'The identifier for the user to add to the audience. Can only be one of the following. Basic User Lists only support Publisher Provided ID. Customer Match Lists support all four identifiers.',
   type: 'string',
   required: true,
-  default: 'publisherProvidedId',
   choices: [
-    { label: 'Publisher Provided ID', value: 'publisherProvidedId' },
-    { label: 'Email', value: 'email' }
-  ]
+    { label: 'Publisher Provided ID', value: '$.anonymousId' },
+    { label: 'Hashed Email', value: '$.email' },
+    { label: 'Hashed Phone Number', value: '$.phoneNumber' },
+    { label: 'Mobile ID', value: '$.context.device' } // TODO: Fix
+  ],
+  default: {
+    '@path': '$.anonymousId'
+  }
 }
 
 export const enable_batching: InputField = {

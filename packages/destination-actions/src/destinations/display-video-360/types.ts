@@ -11,7 +11,7 @@ export type BasicListTypeMap =
 export type BasicListAddTypeOperation = {
   create: {
     userIdentifiers: {
-      publisher_provided_id: string
+      publisherProvidedId: string
     }
   }
 }
@@ -19,7 +19,7 @@ export type BasicListAddTypeOperation = {
 export type BasicListRemoveTypeOperation = {
   remove: {
     userIdentifiers: {
-      publisher_provided_id: string
+      publisherProvidedId: string
     }
   }
 }
@@ -28,12 +28,9 @@ export type CustomerMatchAddListOperation = {
   create: {
     userIdentifiers: {
       hashedEmail?: string
-      addressInfo?: {
-        hashedFirstName: string
-        hashedLastName: string
-        countryCode: string
-        postalCode: string
-      }
+      hashedPhoneNumber?: string
+      mobileId?: string
+      publisherProvidedId?: string
     }
   }
 }
@@ -42,12 +39,9 @@ export type CustomerMatchRemoveListOperation = {
   remove: {
     userIdentifiers: {
       hashedEmail?: string
-      addressInfo?: {
-        hashedFirstName: string
-        hashedLastName: string
-        countryCode: string
-        postalCode: string
-      }
+      hashedPhoneNumber?: string
+      mobileId?: string
+      publisherProvidedId?: string
     }
   }
 }
