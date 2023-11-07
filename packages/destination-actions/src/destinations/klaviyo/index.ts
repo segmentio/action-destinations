@@ -1,5 +1,5 @@
 import { IntegrationError, AudienceDestinationDefinition } from '@segment/actions-core'
-import type { Settings, AudienceSettings } from './generated-types'
+import type { Settings } from './generated-types'
 
 import { API_URL, REVISION_DATE } from './config'
 import upsertProfile from './upsertProfile'
@@ -8,7 +8,7 @@ import removeProfileToList from './removeProfileToList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
 
-const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
   mode: 'cloud',
@@ -58,20 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
-  audienceFields: {
-    list_name: {
-      type: 'string',
-      label: 'A List Name is required by the destination',
-      description: 'A List Name is required by the destination',
-      required: true
-    },
-    api_key: {
-      type: 'string',
-      label: 'A Api Key is required by the destination',
-      description: 'A Api Key is required by the destination',
-      required: true
-    }
-  },
+  audienceFields: {},
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -79,18 +66,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const listName = createAudienceInput.audienceSettings?.list_name
-      const apiKey = createAudienceInput.audienceSettings?.api_key
+      const apiKey = createAudienceInput.settings?.api_key
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!apiKey) {
         throw new IntegrationError('Missing Api Key value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!listName) {
-        throw new IntegrationError('Missing List Name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const response = await request(`${API_URL}/lists`, {
@@ -102,7 +84,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         json: {
-          data: { type: 'list', attributes: { name: createAudienceInput.audienceSettings?.list_name } }
+          data: { type: 'list', attributes: { name: audienceName } }
         }
       })
       const r = await response.json()
