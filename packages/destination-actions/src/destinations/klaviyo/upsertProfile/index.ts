@@ -124,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     list_id: {
       label: 'List Id',
-      description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
+      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().`,
       type: 'string',
       dynamic: true
     }
