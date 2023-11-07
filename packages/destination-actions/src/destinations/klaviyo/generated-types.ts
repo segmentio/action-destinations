@@ -6,15 +6,3 @@ export interface Settings {
    */
   api_key: string
 }
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface AudienceSettings {
-  /**
-   * A List Name is required by the destination
-   */
-  list_name: string
-  /**
-   * A Api Key is required by the destination
-   */
-  api_key: string
-}
