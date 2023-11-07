@@ -27,17 +27,31 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
       default: {
         '@path': '$.traits.email'
       }
+    },
+    traits: {
+      label: 'User Traits',
+      description: 'A list of attributes coming from segment traits',
+      type: 'object',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   defaultSubscription: 'type = "identify"',
   perform: (jimo, { payload }) => {
+    console.log(payload)
+    console.log(window.jimo)
     if (payload.userId != null) {
+      console.log('coucou')
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:id', [payload.userId]])
     }
     if (payload.email != null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:email', [payload.email]])
+    }
+    if (payload.traits != null) {
+      jimo.push(['set', 'user:attributes', [payload.traits, false, true]])
     }
   }
 }
