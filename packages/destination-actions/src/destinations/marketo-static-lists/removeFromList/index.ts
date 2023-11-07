@@ -6,7 +6,7 @@ import { removeFromList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove From List',
-  description: 'Remove users a list in Marketo.',
+  description: 'Remove users from a list in Marketo.',
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
     external_id: { ...external_id },

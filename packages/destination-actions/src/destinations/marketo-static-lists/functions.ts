@@ -2,10 +2,19 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as AddToListPayload } from './addToList/generated-types'
 import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
-import { CSV_LIMIT, BULK_IMPORT_ENDPOINT, MarketoBulkImportResponse } from './constants'
+import {
+  CSV_LIMIT,
+  BULK_IMPORT_ENDPOINT,
+  MarketoBulkImportResponse,
+  GET_LEADS_ENDPOINT,
+  MarketoGetLeadsResponse,
+  MarketoLeads,
+  MarketoDeleteLeadsResponse,
+  REMOVE_USERS_ENDPOINT
+} from './constants'
 
 export async function addToList(request: RequestClient, settings: Settings, payloads: AddToListPayload[]) {
-  const csvData = getCSV(payloads)
+  const csvData = extractCSV(payloads)
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
@@ -28,31 +37,47 @@ export async function addToList(request: RequestClient, settings: Settings, payl
 }
 
 export async function removeFromList(request: RequestClient, settings: Settings, payloads: RemoveFromListPayload[]) {
-  const csvData = getCSV(payloads)
-  const csvSize = Buffer.byteLength(csvData, 'utf8')
-  if (csvSize > CSV_LIMIT) {
-    throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
-  }
+  const emailsToRemove = extractEmails(payloads)
 
-  const url = settings.api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id)
+  const getLeadsUrl =
+    settings.api_endpoint + GET_LEADS_ENDPOINT.replace('emailsToFilter', encodeURIComponent(emailsToRemove))
 
-  const response = await request<MarketoBulkImportResponse>(url, {
-    method: 'POST',
+  // Get lead ids from Marketo
+  const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
+    method: 'GET',
     headers: {
-      'Content-Type': 'multipart/form-data; boundary=--SEGMENT-DATA--'
-    },
-    body: createFormData(csvData)
+      'Content-Type': 'application/json'
+    }
   })
 
-  if (!response.data.success) {
-    throw new IntegrationError(response.data.errors[0].message, 'INVALID_RESPONSE', 400)
+  if (!getLeadsResponse.data.success) {
+    throw new IntegrationError(getLeadsResponse.data.errors[0].message, 'INVALID_RESPONSE', 400)
   }
-  return response.data
+
+  const leadIds = extractLeadIds(getLeadsResponse.data.result)
+
+  const deleteLeadsUrl =
+    settings.api_endpoint +
+    REMOVE_USERS_ENDPOINT.replace('listId', payloads[0].external_id).replace('idsToDelete', leadIds)
+
+  // DELETE lead ids from list in Marketo
+  const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+
+  if (!deleteLeadsResponse.data.success) {
+    throw new IntegrationError(getLeadsResponse.data.errors[0].message, 'INVALID_RESPONSE', 400)
+  }
+
+  return deleteLeadsResponse.data
 }
 
-function getCSV(payloads: AddToListPayload[]) {
+function extractCSV(payloads: AddToListPayload[]) {
   const header = 'Email\n'
-  const csvData = payloads.map((payload) => `${payload.email}\n`).join('')
+  const csvData = payloads.map((payload) => `${payload.email}`).join('\n')
   return header + csvData
 }
 
@@ -60,4 +85,14 @@ function createFormData(csvData: string) {
   const boundary = '--SEGMENT-DATA--'
   const formData = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="leads.csv"\r\nContent-Type: text/csv\r\n\r\n${csvData}\r\n--${boundary}--\r\n`
   return formData
+}
+
+function extractEmails(payloads: AddToListPayload[]) {
+  const emails = payloads.map((payload) => `${payload.email}`).join(',')
+  return emails
+}
+
+function extractLeadIds(leads: MarketoLeads[]) {
+  const ids = leads.map((lead) => `${lead.id}`).join(',')
+  return ids
 }

@@ -5,7 +5,7 @@ import type { Settings } from './generated-types'
 import addToList from './addToList'
 import removeFromList from './removeFromList'
 import {
-  MarketoResponse,
+  MarketoListResponse,
   getAccessToken,
   GET_FOLDER_ENDPOINT,
   GET_LIST_ENDPOINT,
@@ -79,7 +79,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const getFolderUrl = endpoint + GET_FOLDER_ENDPOINT.replace('folderName', encodeURIComponent(folder))
 
       // Get folder ID by name
-      const getFolderResponse = await request<MarketoResponse>(getFolderUrl, {
+      const getFolderResponse = await request<MarketoListResponse>(getFolderUrl, {
         method: 'GET',
         headers: {
           authorization: `Bearer ${accessToken}`
@@ -104,7 +104,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         CREATE_LIST_ENDPOINT.replace('folderId', folderId).replace('listName', encodeURIComponent(audienceName))
 
       // Create list in given folder
-      const createListResponse = await request<MarketoResponse>(createListUrl, {
+      const createListResponse = await request<MarketoListResponse>(createListUrl, {
         method: 'POST',
         headers: {
           authorization: `Bearer ${accessToken}`
@@ -134,7 +134,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       const getListUrl = endpoint + GET_LIST_ENDPOINT.replace('listId', listId)
 
-      const getListResponse = await request<MarketoResponse>(getListUrl, {
+      const getListResponse = await request<MarketoListResponse>(getListUrl, {
         method: 'GET',
         headers: {
           authorization: `Bearer ${accessToken}`
