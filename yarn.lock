@@ -2235,6 +2235,25 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
+"@segment/actions-core@^3.87.0":
+  version "3.87.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.87.0.tgz#591a4b2f37253b26e1418833d48aa358453058e5"
+  integrity sha512-/imGo+s7o3+WUcKeFdiUxbkWfhFDhZBowtyiL4SLf7W3047kBsC05nbEBuw8u/peTgjmdmlDq9XF2IiPJu8Njg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.1.2"
+    "@segment/ajv-human-errors" "^2.11.3"
+    "@segment/destination-subscriptions" "^3.31.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/actions-shared@^1.68.0":
   version "1.68.0"
   resolved "https://registry.npmjs.org/@segment/actions-shared/-/actions-shared-1.68.0.tgz#9cc9baea8cdbb0d06933426d19f194ab6a3592ac"
@@ -2242,6 +2261,19 @@
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
     "@segment/actions-core" "^3.86.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+
+"@segment/actions-shared@^1.69.0":
+  version "1.69.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.69.0.tgz#e130ee807dfd26a4eada1a43f04a54c505352ec7"
+  integrity sha512-eFXS86rzTOi3/WV+SXFp4MYa+dV47TXmFYHk+5n4Srgks6bOAqakOzEgiUWcRC7w356gO9TxRJZvxZ1RDiJRqg==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.87.0"
     cheerio "^1.0.0-rc.10"
     dayjs "^1.10.7"
     escape-goat "^3"
@@ -2310,6 +2342,13 @@
   version "3.30.0"
   resolved "https://registry.npmjs.org/@segment/destination-subscriptions/-/destination-subscriptions-3.30.0.tgz#e4e3d301be2549c452665691b96359d984b17acd"
   integrity sha512-8thyA0ThOzSwrNDCaFancDjug/Iyev6mTKurPVWYZjHyyZjL/0kpna8SH6w3cyJFhVUj1nzg6h9mMEHKWHh4tQ==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
+
+"@segment/destination-subscriptions@^3.31.0":
+  version "3.31.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.31.0.tgz#d5cb5aab0cb494219d767a7d7f1701e13062ea3d"
+  integrity sha512-2hOPv2HHabhvkFA0X89ow2t25PhAlrMRUpVlAspvpDlzIPn713m6xQs3sGknFtl8tDO1D7XJ1yNBgNYn0+gAag==
   dependencies:
     "@segment/fql-ts" "^1.10.1"
 

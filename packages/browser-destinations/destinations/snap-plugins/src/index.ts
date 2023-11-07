@@ -14,7 +14,7 @@ import snapPlugin from './snapPlugin'
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
-  name: 'Snap Browser Plugins',
+  name: 'Snap Conversions Api',
   mode: 'device',
   initialize: async ({ analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
