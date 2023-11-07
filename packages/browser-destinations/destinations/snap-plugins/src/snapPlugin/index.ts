@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   perform: (_, { context, analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
 
-    console.log('got to here A')
+    console.log('got to here AA')
 
     const scid: string | null = storage.get(storageSCIDCookieKey)
 
@@ -29,7 +29,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     if (scid || clickId) {
       const integrationsData: Record<string, string> = {}
-      console.log('got to here B')
+      console.log('got to here BB')
       if (clickId) {
         integrationsData[clickIdIntegrationFieldName] = clickId
       }
