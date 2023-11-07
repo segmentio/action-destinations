@@ -39,10 +39,7 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
   },
   defaultSubscription: 'type = "identify"',
   perform: (jimo, { payload }) => {
-    console.log(payload)
-    console.log(window.jimo)
     if (payload.userId != null) {
-      console.log('coucou')
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:id', [payload.userId]])
     }
