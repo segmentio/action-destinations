@@ -1,12 +1,5 @@
 import { IntegrationError } from '@segment/actions-core'
-import {
-  UpdateHandlerPayload,
-  BasicListTypeMap,
-  BasicListAddTypeOperation,
-  BasicListRemoveTypeOperation,
-  ListAddOperation,
-  ListRemoveOperation
-} from './types'
+import { IdType, UpdateHandlerPayload, BasicListTypeMap, ListAddOperation, ListRemoveOperation } from './types'
 
 export const buildListTypeMap = (listType: string): BasicListTypeMap => {
   switch (listType) {
@@ -34,70 +27,27 @@ export const prepareOfflineDataJobCreationParams = (listType: string, listId: st
       throw new IntegrationError('Invalid list type', 'INVALID_REQUEST_DATA', 400)
   }
 }
+export const buildAddListOperation = (payload: UpdateHandlerPayload): ListAddOperation => {
+  const key = payload.user_identifier as IdType
+  const value = payload.identifier_value
 
-const getIdentifierKey = (key: string): string => {
-  let k = 'publisherProvidedId'
-
-  switch (key) {
-    case 'email':
-      k = 'hashedEmail'
-      break
-    case 'phone':
-      k = 'hashedPhoneNumber'
-      break
-    case 'mobile':
-      k = 'mobileId'
-      break
-  }
-
-  return k
-}
-
-// TODO: Implement operations for customerMatch list
-export const buildAddListOperation = (
-  payload: UpdateHandlerPayload,
-  listType: string,
-  key: string
-): ListAddOperation => {
-  let op: ListAddOperation = {
+  const op: ListAddOperation = {
     create: {
-      userIdentifiers: {}
+      userIdentifiers: [{ [key]: value }]
     }
-  }
-
-  switch (listType) {
-    case 'basicUserList':
-      op = op as BasicListAddTypeOperation
-      op.create.userIdentifiers['publisherProvidedId'] = payload?.user_identifier
-      break
-    case 'customerMatchList':
-      // @ts-ignore TODO: Remove after testing
-      op.create.userIdentifiers[getIdentifierKey(key)] = payload?.user_identifier
-      break
-    default:
-      throw new IntegrationError('Invalid list type', 'INVALID_REQUEST_DATA', 400)
   }
 
   return op
 }
 
-export const buildRemoveListOperation = (payload: UpdateHandlerPayload, listType: string): ListRemoveOperation => {
-  let op: ListRemoveOperation = {
-    remove: {
-      userIdentifiers: {}
-    }
-  }
+export const buildRemoveListOperation = (payload: UpdateHandlerPayload): ListRemoveOperation => {
+  const key = payload.user_identifier as IdType
+  const value = payload.identifier_value
 
-  switch (listType) {
-    case 'basicUserList':
-      op = op as BasicListRemoveTypeOperation
-      op.remove.userIdentifiers['publisherProvidedId'] = payload.user_identifier
-      break
-    case 'customerMatchList':
-      // TODO: Implement this
-      break
-    default:
-      throw new IntegrationError('Invalid list type', 'INVALID_REQUEST_DATA', 400)
+  const op: ListRemoveOperation = {
+    remove: {
+      userIdentifiers: [{ [key]: value }]
+    }
   }
 
   return op

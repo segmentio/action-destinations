@@ -5,13 +5,14 @@ import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { handleUpdate } from '../shared'
 
-import { user_identifier, enable_batching, external_audience_id } from '../properties'
+import { user_identifier, enable_batching, external_audience_id, identifier_value } from '../properties'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Add to Audience',
   description: 'Add a user to a Display & Video 360 audience.',
   fields: {
     user_identifier: { ...user_identifier },
+    identifier_value: { ...identifier_value },
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },

@@ -57,17 +57,22 @@ const populateOfflineDataJob = async (
     }
   })
 
-  const r = await request(`${OFFLINE_DATA_JOB_URL}/${jobId}:${operation}Operations`, {
+  // TODO: How to handle multi status errors?
+  const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace(
+    'advertiserID',
+    audienceSettings?.advertiserId
+  )}/${jobId}:${operation}Operations`
+  const r = await request(advertiserDataJobUrl, {
     method: 'POST',
-    json: {
-      operations: operations,
-      enablePartialFailure: MULTI_STATUS_ERROR_CODES_ENABLED
-    },
     headers: {
       'Content-Type': 'application/json',
       // @ts-ignore -- TODO: Remove
       Authorization: `Bearer ${audienceSettings?.authToken}`,
       'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${audienceSettings?.advertiserId}`
+    },
+    json: {
+      operations: operations,
+      enablePartialFailure: MULTI_STATUS_ERROR_CODES_ENABLED
     }
   })
 
@@ -76,9 +81,21 @@ const populateOfflineDataJob = async (
   }
 }
 
-const performOfflineDataJob = async (request: RequestClient, jobId: string) => {
-  console.log('Running Datajob', jobId)
-  const r = await request(`${OFFLINE_DATA_JOB_URL}/${jobId}:run`)
+const performOfflineDataJob = async (request: RequestClient, jobId: string, audienceSettings: AudienceSettings) => {
+  const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace(
+    'advertiserID',
+    audienceSettings?.advertiserId
+  )}/${jobId}:run`
+  const r = await request(advertiserDataJobUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // @ts-ignore -- TODO: Remove
+      Authorization: `Bearer ${audienceSettings?.authToken}`,
+      'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${audienceSettings?.advertiserId}`
+    }
+  })
+
   if (r.status !== 200) {
     throw new Error(`Failed to run offline data job: ${r.text}`)
   }
@@ -92,6 +109,7 @@ export const handleUpdate = async (
 ) => {
   let jobId
 
+  // Should we bundle everythin into a transaction in order to handle error in a better way?
   try {
     jobId = await createOfflineDataJob(request, audienceSettings, payload[0]?.external_audience_id)
   } catch (error) {
@@ -108,10 +126,15 @@ export const handleUpdate = async (
   try {
     await populateOfflineDataJob(request, payload, operation, jobId, audienceSettings.listType, audienceSettings)
   } catch (error) {
+    if (error.response.status === 400) {
+      throw new IntegrationError(error.response.data.error.message, 'INTEGRATION_ERROR', 400)
+    }
+
     // Any error here would discard the entire batch, therefore, we shall retry everything.
-    throw new IntegrationError('Unable to populate data job', 'RETRYABLE_ERROR', 500)
+    const errorMessage = JSON.parse(error.response.content).error.message
+    throw new IntegrationError(errorMessage, 'RETRYABLE_ERROR', 500)
   }
 
   // Successful batches return 200. Bogus ones return an error but at this point we can't examine individual errors.
-  await performOfflineDataJob(request, jobId)
+  await performOfflineDataJob(request, jobId, audienceSettings)
 }
