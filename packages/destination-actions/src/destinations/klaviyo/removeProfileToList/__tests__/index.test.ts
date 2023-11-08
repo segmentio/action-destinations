@@ -34,28 +34,39 @@ describe('Remove List from Profile', () => {
       ]
     }
 
-    const email = 'demo@example.com'
-
+    const email = 'test@example.com'
     nock(`${API_URL}/profiles`).get(`/?filter=equals(email,"${email}")`).reply(200, {})
 
-    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200, {})
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: {
+            data: [
+              {
+                id: 'demo-profile-id'
+              }
+            ]
+          }
+        })
+      )
 
     const event = createTestEvent({
       type: 'track',
       userId: '123',
       traits: {
-        email: 'demo@example.com'
+        email: 'test@example.com'
+      },
+      context: {
+        personas: {
+          external_id: listId
+        }
       }
     })
-    const mapping = {
-      list_id: listId,
-      email: {
-        '@path': '$.traits.email'
-      }
-    }
 
     await expect(
-      testDestination.testAction('removeProfileToList', { event, mapping, settings })
+      testDestination.testAction('removeProfileToList', { event, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
   })
 })
