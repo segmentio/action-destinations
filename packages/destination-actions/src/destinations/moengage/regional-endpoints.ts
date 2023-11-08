@@ -3,6 +3,7 @@ export const endpoints = {
   DC_02: 'https://api-02.moengage.com',
   DC_03: 'https://api-03.moengage.com',
   DC_04: 'https://api-04.moengage.com'
+  DC_05: 'https://api-05.moengage.com'
 }
 
 type Region = 'DC_01' | 'DC_02'
