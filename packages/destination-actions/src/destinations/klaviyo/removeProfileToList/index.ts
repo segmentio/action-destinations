@@ -25,12 +25,13 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const profileData: GetProfileResponseData = await getProfile(request, email)
       const v = JSON.parse(profileData.content)
-      if (!v && v.data[0] != undefined) {
+      if (Object.keys(v).length !== 0) {
+        console.log(v)
         const listData: listData = {
           data: [
             {
               type: 'profile',
-              id: v.id
+              id: v.data[0].id
             }
           ]
         }
@@ -40,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return
     } catch (error) {
+      console.log(error)
       throw new Error('An error occurred while processing the request')
     }
   }

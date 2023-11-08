@@ -13,5 +13,8 @@ export const external_id: InputField = {
 export const email: InputField = {
   label: 'Email',
   description: 'Email of User',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.traits.email'
+  }
 }
