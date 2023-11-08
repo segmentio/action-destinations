@@ -1,6 +1,10 @@
 import type { Payload as AddToAudiencePayload } from './addToAudience/generated-types'
 import type { Payload as RemoveFromAudiencePayload } from './removeFromAudience/generated-types'
 
+export interface RefreshTokenResponse {
+  access_token: string
+}
+
 export type ListOperation = 'add' | 'remove'
 
 export type UpdateHandlerPayload = AddToAudiencePayload & RemoveFromAudiencePayload
@@ -11,7 +15,7 @@ export type SupportedIdentifiers = {
   [key in IdType]?: string
 }
 
-// TODO Remove any
+// TODO: Remove any
 export type BasicListTypeMap =
   | { basicUserList: any; [key: string]: any }
   | { crmBasedUserList: any; [key: string]: any }

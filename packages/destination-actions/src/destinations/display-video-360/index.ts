@@ -1,15 +1,14 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+
 import type { Settings, AudienceSettings } from './generated-types'
+import type { RefreshTokenResponse } from './types'
 
 import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
+import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
 import { buildListTypeMap } from './listManagement'
-
-interface RefreshTokenResponse {
-  access_token: string
-}
+import { buildHeaders } from './shared'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
@@ -17,11 +16,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
-    fields: {
-      //Fields is required, so this is left empty
-    },
+    fields: {}, // Fields is required, so this is left empty
     refreshAccessToken: async (request, { auth }) => {
-      const { data } = await request<RefreshTokenResponse>('https://accounts.google.com/o/oauth2/token', {
+      const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -33,14 +30,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { accessToken: data.access_token }
     }
   },
-  extendRequest({ auth }) {
-    // TODO: extendRequest doesn't work within createAudience and getAudience
-    return {
-      headers: {
-        authorization: `Bearer ${auth?.accessToken}`
-      }
-    }
-  },
   audienceFields: {
     advertiserId: {
       type: 'string',
@@ -49,14 +38,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description:
         'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
     },
-    listType: {
+    accountType: {
       type: 'string',
-      label: 'List Type',
-      description: 'The type of audience list you want to create.',
+      label: 'Account Type',
+      description: 'The type of the advertiser account you have linked to this Display & Video 360 destination.',
       required: true,
       choices: [
-        { label: 'Basic User List', value: 'basicUserList' },
-        { label: 'Customer Match List', value: 'customerMatchList' }
+        { label: 'DISPLAY_VIDEO_ADVERTISER', value: 'DISPLAY_VIDEO_ADVERTISER' },
+        { label: 'DISPLAY_VIDEO_PARTNER', value: 'DISPLAY_VIDEO_PARTNER' },
+        { label: 'DFP_BY_GOOGLE or GOOGLE_AD_MANAGER', value: 'GOOGLE_AD_MANAGER' }
       ]
     }
   },
@@ -66,11 +56,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: true
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
-      const advertiserId = createAudienceInput.audienceSettings?.advertiserId
-      const listType = createAudienceInput.audienceSettings?.listType
-      const statsClient = createAudienceInput?.statsContext?.statsClient
-      const statsTags = createAudienceInput?.statsContext?.tags
+      const { audienceName, audienceSettings, statsContext } = createAudienceInput
+      const { advertiserId, accountType, listType } = audienceSettings || {}
+      const { statsClient, tags: statsTags } = statsContext || {}
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -84,17 +72,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing list type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      if (!accountType) {
+        throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       const listTypeMap = buildListTypeMap(listType)
-      const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
+      const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
+        'accountType',
+        accountType
+      )
+
       let response
       try {
         response = await request(partnerCreateAudienceUrl, {
           method: 'POST',
-          headers: {
-            // 'Authorization': `Bearer ${authToken}`, // TODO: Replace with auth token
-            'Content-Type': 'application/json',
-            'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}`
-          },
+          headers: buildHeaders(createAudienceInput.audienceSettings),
           json: {
             operations: [
               {
@@ -122,21 +114,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const statsClient = getAudienceInput?.statsContext?.statsClient
-      const statsTags = getAudienceInput?.statsContext?.tags
-      const advertiserId = getAudienceInput.audienceSettings?.advertiserId
+      const { statsContext, audienceSettings } = getAudienceInput
+      const { statsClient, tags: statsTags } = statsContext || {}
+      const { advertiserId, accountType } = audienceSettings || {}
 
       if (!advertiserId) {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
+      if (!accountType) {
+        throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
+        'accountType',
+        accountType
+      )
+
       const response = await request(advertiserGetAudienceUrl, {
-        headers: {
-          // 'Authorization': `Bearer ${authToken}`, // TODO: Replace with auth token
-          'Content-Type': 'application/json',
-          'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}`
-        },
+        headers: buildHeaders(getAudienceInput.audienceSettings),
         method: 'POST',
         json: {
           query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`

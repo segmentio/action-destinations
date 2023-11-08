@@ -17,7 +17,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     external_audience_id: { ...external_audience_id }
   },
   perform: async (request, { payload, audienceSettings, statsContext }) => {
-    console.log('Adding to the audience in regular')
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
 
     if (!audienceSettings) {
@@ -27,7 +26,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return handleUpdate(request, audienceSettings, [payload], 'add')
   },
   performBatch: async (request, { payload, audienceSettings, statsContext }) => {
-    console.log('Adding to the audience in  batch ')
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
 
     if (!audienceSettings) {

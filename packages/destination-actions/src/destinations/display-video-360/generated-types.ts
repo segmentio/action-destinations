@@ -9,7 +9,7 @@ export interface AudienceSettings {
    */
   advertiserId: string
   /**
-   * The type of audience list you want to create.
+   * The type of the advertiser account you have linked to this Display & Video 360 destination.
    */
-  listType: string
+  accountType: string
 }

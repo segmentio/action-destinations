@@ -1,25 +1,33 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 
 import { prepareOfflineDataJobCreationParams, buildAddListOperation, buildRemoveListOperation } from './listManagement'
-import type { AudienceSettings } from './generated-types'
-import { OFFLINE_DATA_JOB_URL } from './constants'
-
 import { UpdateHandlerPayload, ListAddOperation, ListRemoveOperation, ListOperation } from './types'
+import type { AudienceSettings } from './generated-types'
+import { OFFLINE_DATA_JOB_URL, MULTI_STATUS_ERROR_CODES_ENABLED } from './constants'
 
-const MULTI_STATUS_ERROR_CODES_ENABLED = true
+export const buildHeaders = (audienceSettings: AudienceSettings | undefined) => {
+  if (!audienceSettings) {
+    throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+  }
+
+  return {
+    // @ts-ignore -- Given the custom headers we have, we are option out from using extendRequest.
+    Authorization: `Bearer ${audienceSettings?.authToken}`,
+    'Content-Type': 'application/json',
+    'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
+  }
+}
 
 const createOfflineDataJob = async (request: RequestClient, audienceSettings: AudienceSettings, listId: string) => {
-  const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace('advertiserID', audienceSettings?.advertiserId)}:create`
+  const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace(
+    'advertiserID',
+    audienceSettings?.advertiserId
+  )}:create`.replace('accountType', audienceSettings.accountType)
   const dataJobParams = prepareOfflineDataJobCreationParams(audienceSettings?.listType, listId)
   const r = await request(advertiserDataJobUrl, {
     method: 'POST',
     json: dataJobParams,
-    headers: {
-      'Content-Type': 'application/json',
-      // @ts-ignore -- TODO: Remove
-      Authorization: `Bearer ${audienceSettings?.authToken}`,
-      'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${audienceSettings?.advertiserId}`
-    }
+    headers: buildHeaders(audienceSettings)
   })
 
   if (r.status !== 200) {
@@ -43,7 +51,6 @@ const populateOfflineDataJob = async (
   payload: UpdateHandlerPayload[],
   operation: ListOperation,
   jobId: string,
-  listType: string,
   audienceSettings: AudienceSettings
 ) => {
   const operations: ListAddOperation[] & ListRemoveOperation[] = []
@@ -51,9 +58,9 @@ const populateOfflineDataJob = async (
     // Create and remove operations can't be mixed in the same job request.
     // However, the payloads are fairly similar so we can use the same function to build the operations.
     if (operation === 'add') {
-      operations.push(buildAddListOperation(p, listType))
+      operations.push(buildAddListOperation(p))
     } else {
-      operations.push(buildRemoveListOperation(p, listType))
+      operations.push(buildRemoveListOperation(p))
     }
   })
 
@@ -61,15 +68,11 @@ const populateOfflineDataJob = async (
   const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace(
     'advertiserID',
     audienceSettings?.advertiserId
-  )}/${jobId}:${operation}Operations`
+  )}/${jobId}:${operation}Operations`.replace('accountType', audienceSettings.accountType)
+
   const r = await request(advertiserDataJobUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // @ts-ignore -- TODO: Remove
-      Authorization: `Bearer ${audienceSettings?.authToken}`,
-      'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${audienceSettings?.advertiserId}`
-    },
+    headers: buildHeaders(audienceSettings),
     json: {
       operations: operations,
       enablePartialFailure: MULTI_STATUS_ERROR_CODES_ENABLED
@@ -85,15 +88,11 @@ const performOfflineDataJob = async (request: RequestClient, jobId: string, audi
   const advertiserDataJobUrl = `${OFFLINE_DATA_JOB_URL.replace(
     'advertiserID',
     audienceSettings?.advertiserId
-  )}/${jobId}:run`
+  )}/${jobId}:run`.replace('accountType', audienceSettings.accountType)
+
   const r = await request(advertiserDataJobUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // @ts-ignore -- TODO: Remove
-      Authorization: `Bearer ${audienceSettings?.authToken}`,
-      'Login-Customer-Id': `products/DISPLAY_VIDEO_ADVERTISER/customers/${audienceSettings?.advertiserId}`
-    }
+    headers: buildHeaders(audienceSettings)
   })
 
   if (r.status !== 200) {
@@ -113,7 +112,9 @@ export const handleUpdate = async (
   try {
     jobId = await createOfflineDataJob(request, audienceSettings, payload[0]?.external_audience_id)
   } catch (error) {
-    // Any error here would discard the entire batch, therefore, we shall retry everything.
+    if (error.response.status === 401) {
+      throw new IntegrationError(error.response.data.error.message, 'AUTHENTICATION_ERROR', 401)
+    }
 
     if (error.response.status === 400) {
       throw new IntegrationError(error.response.data.error.message, 'INTEGRATION_ERROR', 400)
@@ -124,7 +125,7 @@ export const handleUpdate = async (
   }
 
   try {
-    await populateOfflineDataJob(request, payload, operation, jobId, audienceSettings.listType, audienceSettings)
+    await populateOfflineDataJob(request, payload, operation, jobId, audienceSettings)
   } catch (error) {
     if (error.response.status === 400) {
       throw new IntegrationError(error.response.data.error.message, 'INTEGRATION_ERROR', 400)
