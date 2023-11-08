@@ -12,16 +12,14 @@ import { UniversalStorage } from '@segment/analytics-next'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Snap Browser Plugin',
-  description: 'Enriches Segment payloads with Snap click_id Querystring and _scid Cookie values',
+  description: 'Enriches all Segment payloads with Snap click_id Querystring and _scid Cookie values',
   platform: 'web',
   hidden: false,
-  defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+  defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
   fields: {},
   lifecycleHook: 'enrichment',
   perform: (_, { context, analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
-
-    console.log('got to here 1')
 
     const scid: string | null = storage.get(storageSCIDCookieKey)
 
@@ -29,11 +27,9 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     if (scid || clickId) {
       const integrationsData: Record<string, string> = {}
-      console.log('got to here 2')
       if (clickId) {
         integrationsData[clickIdIntegrationFieldName] = clickId
       }
-
       if (scid) {
         integrationsData[scidIntegrationFieldName] = scid
       }
