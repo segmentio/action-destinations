@@ -68,21 +68,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         }
       },
       performHook: async (request, { hookInputs }) => {
-        if (!hookInputs) {
-          throw new Error('No hook inputs provided')
-        }
-
         try {
           const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
             method: 'post',
             json: {
-              name: hookInputs.name,
-              account: hookInputs.account,
+              name: hookInputs?.name,
+              account: hookInputs?.account,
               conversionMethod: 'CONVERSIONS_API',
               postClickAttributionWindowSize: 30,
               viewThroughAttributionWindowSize: 7,
-              attributionType: hookInputs.attribution_type,
-              type: hookInputs.conversionType
+              attributionType: hookInputs?.attribution_type,
+              type: hookInputs?.conversionType
             }
           })
 
