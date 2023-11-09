@@ -8,6 +8,10 @@ interface ConversionRuleCreationResponse {
   type: string
 }
 
+interface LinkedInError {
+  message: string
+}
+
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
@@ -69,25 +73,31 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           throw new Error('No hook inputs provided')
         }
 
-        const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
-          method: 'post',
-          json: {
-            name: hookInputs.name,
-            account: hookInputs.account,
-            conversionMethod: 'CONVERSIONS_API',
-            postClickAttributionWindowSize: 30,
-            viewThroughAttributionWindowSize: 7,
-            attributionType: hookInputs.attribution_type,
-            type: hookInputs.conversionType
-          }
-        })
+        try {
+          const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
+            method: 'post',
+            json: {
+              name: hookInputs.name,
+              account: hookInputs.account,
+              conversionMethod: 'CONVERSIONS_API',
+              postClickAttributionWindowSize: 30,
+              viewThroughAttributionWindowSize: 7,
+              attributionType: hookInputs.attribution_type,
+              type: hookInputs.conversionType
+            }
+          })
 
-        return {
-          successMessage: `Conversion rule ${data.id} created successfully!`,
-          savedData: {
-            id: data.id,
-            name: data.name,
-            conversionType: data.type
+          return {
+            successMessage: `Conversion rule ${data.id} created successfully!`,
+            savedData: {
+              id: data.id,
+              name: data.name,
+              conversionType: data.type
+            }
+          }
+        } catch (e) {
+          return {
+            errorMessage: `Failed to create conversion rule: ${(e as LinkedInError)?.message ?? JSON.stringify(e)}`
           }
         }
       }
