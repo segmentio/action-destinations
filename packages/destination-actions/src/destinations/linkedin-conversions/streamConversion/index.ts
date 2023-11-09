@@ -105,15 +105,15 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     adAccountId: async (request) => {
       const linkedIn = new LinkedInConversions(request)
-      return await linkedIn.getAdAccounts()
+      return linkedIn.getAdAccounts()
     },
     conversionId: async (request, { payload }) => {
       const linkedIn = new LinkedInConversions(request)
-      return await linkedIn.getConversionRulesList(payload.adAccountId)
+      return linkedIn.getConversionRulesList(payload.adAccountId)
     },
     campaignId: async (request, { payload }) => {
       const linkedIn = new LinkedInConversions(request)
-      return await linkedIn.getCampaignsList(payload.adAccountId)
+      return linkedIn.getCampaignsList(payload.adAccountId)
     }
   },
   perform: async (request, { payload }) => {

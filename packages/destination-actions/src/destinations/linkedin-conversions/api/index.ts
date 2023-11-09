@@ -107,7 +107,10 @@ export class LinkedInConversions {
     }
   }
 
-  getCampaignsList = async (adAccountId: string): Promise<DynamicFieldResponse> => {
+  getCampaignsList = async (adAccountUrn: string): Promise<DynamicFieldResponse> => {
+    const parts = adAccountUrn.split(':')
+    const adAccountId = parts.pop()
+
     if (!adAccountId || !adAccountId.length) {
       return {
         choices: [],
