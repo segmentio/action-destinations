@@ -8,14 +8,15 @@ jest.mock('../event')
 describe('sendExposure()', () => {
   const settings = { collectorEndpoint: 'http://test.com', environment: 'dev', apiKey: 'testkey' }
   const payload: ExposurePayload = {
-    publishedAt: '2023-01-01T00:00:00.3Z',
     application: 'testapp',
     agent: 'test-sdk',
+    exposedAt: '2023-01-01T00:00:00.000000Z',
     exposure: {
+      publishedAt: 1672531200900,
       units: [{ type: 'anonymousId', value: 'testid' }],
-      exposures: [{ experiment: 'testexp', variant: 'testvar' }],
+      exposures: [{ experiment: 'testexp', variant: 'testvar', exposedAt: 1672531200300 }],
       goals: [],
-      attributes: [{ name: 'testattr', value: 'testval', setAt: 1238128318 }]
+      attributes: [{ name: 'testattr', value: 'testval', setAt: 1672531200300 }]
     }
   }
 
@@ -84,23 +85,23 @@ describe('sendExposure()', () => {
     ).toThrowError(PayloadValidationError)
   })
 
-  it('should throw on invalid publishedAt', async () => {
+  it('should throw on invalid exposedAt', async () => {
     const request = jest.fn()
 
-    expect(() => sendExposure(request, { ...payload, publishedAt: 0 }, settings)).toThrowError(PayloadValidationError)
+    expect(() => sendExposure(request, { ...payload, exposedAt: 0 }, settings)).toThrowError(PayloadValidationError)
     expect(() =>
       sendExposure(
         request,
         {
           ...payload,
-          publishedAt: 'invalid date'
+          exposedAt: 'invalid date'
         },
         settings
       )
     ).toThrowError(PayloadValidationError)
   })
 
-  it('should pass-through the exposure payload with adjusted publishedAt', async () => {
+  it('should pass-through the exposure payload with adjusted timestamps', async () => {
     const request = jest.fn()
 
     await sendExposure(request, payload, settings)
@@ -108,7 +109,13 @@ describe('sendExposure()', () => {
     expect(sendEvent).toHaveBeenCalledWith(
       request,
       settings,
-      { ...payload.exposure, publishedAt: 1672531200300 },
+      {
+        ...payload.exposure,
+        historic: true,
+        publishedAt: 1672531200000,
+        exposures: [{ ...payload.exposure.exposures[0], exposedAt: 1672531199400 }],
+        attributes: [{ ...payload.exposure.attributes[0], setAt: 1672531199400 }]
+      },
       payload.agent,
       payload.application
     )

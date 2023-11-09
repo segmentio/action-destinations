@@ -5,10 +5,21 @@ import { isValidTimestamp, unixTimestampOf } from './timestamp'
 import { Data } from 'ws'
 
 export interface ExposurePayload extends DefaultPayload {
+  exposedAt: string | number
   exposure: Record<string, unknown>
 }
 
 export const defaultExposureFields: Record<string, InputField> = {
+  exposedAt: {
+    label: 'Exposure Time',
+    type: 'datetime',
+    required: true,
+    description:
+      'Exact timestamp when the exposure was recorded. Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
+    default: {
+      '@path': '$.timestamp'
+    }
+  },
   exposure: {
     label: 'ABsmartly Exposure Payload',
     type: 'object',
@@ -23,8 +34,15 @@ export const defaultExposureFields: Record<string, InputField> = {
   ...defaultEventFields
 }
 
-function isValidExposure(exposure?: PublishRequestEvent | Record<string, unknown>): exposure is PublishRequestEvent {
+function isValidExposureRequest(
+  exposure?: PublishRequestEvent | Record<string, unknown>
+): exposure is PublishRequestEvent {
   if (exposure == null || typeof exposure != 'object') {
+    return false
+  }
+
+  const publishedAt = exposure['publishedAt']
+  if (!isValidTimestamp(publishedAt)) {
     return false
   }
 
@@ -35,6 +53,10 @@ function isValidExposure(exposure?: PublishRequestEvent | Record<string, unknown
 
   const exposures = exposure['exposures']
   if (!Array.isArray(exposures) || exposures.length === 0) {
+    return false
+  }
+
+  if (exposures.some((x) => typeof x['exposedAt'] !== 'number' || !isValidTimestamp(x['exposedAt']))) {
     return false
   }
 
@@ -56,29 +78,42 @@ export function sendExposure(
   payload: ExposurePayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
-  if (!isValidTimestamp(payload.publishedAt)) {
+  if (!isValidTimestamp(payload.exposedAt)) {
     throw new PayloadValidationError(
-      'Exposure `publishedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
+      'Exposure `exposedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
     )
   }
 
-  const exposure = payload.exposure
-  if (exposure == null || typeof exposure != 'object') {
+  const exposureRequest = payload.exposure as PublishRequestEvent
+  if (exposureRequest == null || typeof exposureRequest != 'object') {
     throw new PayloadValidationError('Field `exposure` is required to be an object when tracking exposures')
   }
 
-  if (!isValidExposure(exposure)) {
+  if (!isValidExposureRequest(exposureRequest)) {
     throw new PayloadValidationError(
       'Field `exposure` is malformed or contains goals. Ensure you are sending a valid ABsmartly exposure payload without goals.'
     )
   }
 
+  const publishedAt = unixTimestampOf(payload.exposedAt)
+  const exposures = exposureRequest.exposures?.map((x) => ({
+    ...x,
+    exposedAt: publishedAt - (exposureRequest.publishedAt - x.exposedAt)
+  }))
+  const attributes = exposureRequest.attributes?.map((x) => ({
+    ...x,
+    setAt: publishedAt - (exposureRequest.publishedAt - x.setAt)
+  }))
+
   return sendEvent(
     request,
     settings,
     {
-      ...exposure,
-      publishedAt: unixTimestampOf(payload.publishedAt)
+      ...exposureRequest,
+      historic: true,
+      publishedAt,
+      exposures,
+      attributes
     },
     payload.agent,
     payload.application

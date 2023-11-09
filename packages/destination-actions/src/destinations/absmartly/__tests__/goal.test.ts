@@ -2,6 +2,7 @@ import { GoalPayload, sendGoal } from '../goal'
 import { PayloadValidationError } from '@segment/actions-core'
 import { mapUnits } from '../unit'
 import { sendEvent } from '../event'
+import { unixTimestampOf } from '../timestamp'
 
 jest.mock('../event')
 
@@ -12,7 +13,6 @@ describe('sendGoal()', () => {
       anonymousId: 'testid'
     },
     name: 'testgoal',
-    publishedAt: '2023-01-01T00:00:00.3Z',
     achievedAt: '2023-01-01T00:00:00.000000Z',
     application: 'testapp',
     agent: 'test-sdk',
@@ -42,22 +42,6 @@ describe('sendGoal()', () => {
           ...payload,
           name: undefined
         } as unknown as GoalPayload,
-        settings
-      )
-    ).toThrowError(PayloadValidationError)
-  })
-
-  it('should throw on invalid publishedAt', async () => {
-    const request = jest.fn()
-
-    expect(() => sendGoal(request, { ...payload, publishedAt: 0 }, settings)).toThrowError(PayloadValidationError)
-    expect(() =>
-      sendGoal(
-        request,
-        {
-          ...payload,
-          publishedAt: 'invalid date'
-        },
         settings
       )
     ).toThrowError(PayloadValidationError)
@@ -109,16 +93,18 @@ describe('sendGoal()', () => {
 
     await sendGoal(request, payload, settings)
 
+    const timestmap = unixTimestampOf(payload.achievedAt)
     expect(sendEvent).toHaveBeenCalledWith(
       request,
       settings,
       {
-        publishedAt: 1672531200300,
+        historic: true,
+        publishedAt: timestmap,
         units: mapUnits(payload),
         goals: [
           {
             name: payload.name,
-            achievedAt: 1672531200000,
+            achievedAt: timestmap,
             properties: payload.properties ?? null
           }
         ]

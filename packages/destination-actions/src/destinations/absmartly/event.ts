@@ -6,6 +6,7 @@ import { PublishRequestGoal } from './goal'
 import { Data } from 'ws'
 
 export interface PublishRequestEvent {
+  historic?: boolean
   publishedAt: number
   units: PublishRequestUnit[]
   goals?: PublishRequestGoal[]
@@ -14,22 +15,11 @@ export interface PublishRequestEvent {
 }
 
 export interface DefaultPayload {
-  publishedAt: string | number
   agent?: string
   application?: string
 }
 
 export const defaultEventFields: Record<string, InputField> = {
-  publishedAt: {
-    label: 'Event Sent Time',
-    type: 'datetime',
-    required: true,
-    description:
-      'Exact timestamp when the event was sent (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
-    default: {
-      '@path': '$.sentAt'
-    }
-  },
   agent: {
     label: 'Agent',
     type: 'string',

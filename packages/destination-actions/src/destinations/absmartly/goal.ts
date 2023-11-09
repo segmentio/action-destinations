@@ -48,9 +48,9 @@ export const defaultGoalFields: Record<string, InputField> = {
     type: 'datetime',
     required: true,
     description:
-      'Exact timestamp when the goal was achieved (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
+      'Exact timestamp when the goal was achieved. Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
     default: {
-      '@path': '$.originalTimestamp'
+      '@path': '$.timestamp'
     }
   },
   properties: {
@@ -74,12 +74,6 @@ export function sendGoal(
     throw new PayloadValidationError('Goal `name` is required to be a non-empty string')
   }
 
-  if (!isValidTimestamp(payload.publishedAt)) {
-    throw new PayloadValidationError(
-      'Goal `publishedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
-  }
-
   if (!isValidTimestamp(payload.achievedAt)) {
     throw new PayloadValidationError(
       'Goal `achievedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
@@ -91,7 +85,8 @@ export function sendGoal(
   }
 
   const event: PublishRequestEvent = {
-    publishedAt: unixTimestampOf(payload.publishedAt),
+    historic: true,
+    publishedAt: unixTimestampOf(payload.achievedAt),
     units: mapUnits(payload),
     goals: [
       {
