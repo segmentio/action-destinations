@@ -30,7 +30,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Update existing users only',
       type: 'boolean',
       description: 'Setting this to true will not create new users in MoEngage. Only existing users will be updated',
-      default: false
+      default: {
+        '@path': '$.update_existing_only'
+      }
     },
     anonymousId: {
       label: 'Anonymous ID',
@@ -98,7 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
         library: { version: payload.library_version }
       },
       anonymous_id: payload.anonymousId,
-      timestamp: payload.timestamp
+      timestamp: payload.timestamp,
+      update_existing_only: payload.update_existing_only || false
     }
 
     const endpoint = getEndpointByRegion(settings.region)
