@@ -102,7 +102,7 @@ export interface ActionDefinition<
   }
 }
 
-export const hookTypeStrings = ['on-mapping-save'] as const
+export const hookTypeStrings = ['onMappingSave'] as const
 /**
  * The supported actions hooks.
  * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
@@ -127,7 +127,6 @@ export interface ActionHookDefinition<
   GeneratedActionHookOutputs,
   GeneratedActionHookTypesInputs
 > {
-  type: ActionHookType
   /** The display title for this hook. */
   label: string
   /** A description of what this hook does. */

@@ -17,8 +17,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   description: 'Directly streams conversion events to a specific conversion rule.',
   fields: {},
   hooks: {
-    'on-mapping-save': {
-      type: 'on-mapping-save',
+    onMappingSave: {
       label: 'Create a Conversion Rule',
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
@@ -107,7 +106,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     return request('https://example.com', {
       method: 'post',
       json: {
-        conversion: data.hookOutputs?.['on-mapping-save']?.id
+        conversion: data.hookOutputs?.onMappingSave?.id
       }
     })
   }
