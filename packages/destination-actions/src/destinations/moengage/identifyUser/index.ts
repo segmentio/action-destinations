@@ -30,6 +30,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Update existing users only',
       type: 'boolean',
       description: 'Setting this to true will not create new users in MoEngage. Only existing users will be updated',
+      required: false,
       default: false
     },
     anonymousId: {
