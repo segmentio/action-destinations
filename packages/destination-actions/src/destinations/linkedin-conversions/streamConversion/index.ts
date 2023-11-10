@@ -15,13 +15,33 @@ interface LinkedInError {
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
-  fields: {},
+  fields: {
+    adAccountId: {
+      label: 'Ad Account',
+      description: 'A dynamic field dropdown which fetches all adAccounts.',
+      type: 'string',
+      required: true,
+      dynamic: true
+    }
+  },
   hooks: {
     onMappingSave: {
       label: 'Create a Conversion Rule',
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
       inputFields: {
+        /**
+         * The configuration fields for a LinkedIn CAPI conversion rule.
+         * Detailed information on these parameters can be found at
+         * https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversion-tracking?view=li-lms-2023-07&tabs=https#create-a-conversion
+         */
+        conversionRuleId: {
+          type: 'string',
+          label: 'Existing Conversion Rule ID',
+          description:
+            'The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.',
+          required: false
+        },
         name: {
           type: 'string',
           label: 'Name',
@@ -32,19 +52,27 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
-          required: true
-        },
-        account: {
-          type: 'string',
-          label: 'Account',
-          description: 'The account to associate this conversion rule with.',
-          required: true
+          required: true,
+          choices: [
+            { label: 'Add to Cart', value: 'ADD_TO_CART' },
+            { label: 'Download', value: 'DOWNLOAD' },
+            { label: 'Install', value: 'INSTALL' },
+            { label: 'Key Page View', value: 'KEY_PAGE_VIEW' },
+            { label: 'Lead', value: 'LEAD' },
+            { label: 'Purchase', value: 'PURCHASE' },
+            { label: 'Sign Up', value: 'SIGN_UP' },
+            { label: 'Other', value: 'OTHER' }
+          ]
         },
         attribution_type: {
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
-          required: true
+          required: true,
+          choices: [
+            { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
+            { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
+          ]
         }
       },
       outputTypes: {
@@ -67,13 +95,24 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: true
         }
       },
-      performHook: async (request, { hookInputs }) => {
+      performHook: async (request, { payload, hookInputs }) => {
+        if (hookInputs?.conversionRuleId) {
+          return {
+            successMessage: `Using existing Conversion Rule: ${hookInputs.conversionRuleId} `,
+            savedData: {
+              id: hookInputs.conversionRuleId,
+              name: hookInputs.name,
+              conversionType: hookInputs.conversionType
+            }
+          }
+        }
+
         try {
           const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
             method: 'post',
             json: {
               name: hookInputs?.name,
-              account: hookInputs?.account,
+              account: payload?.adAccountId,
               conversionMethod: 'CONVERSIONS_API',
               postClickAttributionWindowSize: 30,
               viewThroughAttributionWindowSize: 7,

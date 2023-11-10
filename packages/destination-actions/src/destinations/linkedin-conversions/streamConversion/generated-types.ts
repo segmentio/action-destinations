@@ -1,11 +1,20 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface Payload {}
+export interface Payload {
+  /**
+   * A dynamic field dropdown which fetches all adAccounts.
+   */
+  adAccountId: string
+}
 // Generated bundle for the hooks. DO NOT MODIFY IT BY HAND.
 
 export interface HookBundle {
   onMappingSave: {
     inputs?: {
+      /**
+       * The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.
+       */
+      conversionRuleId?: string
       /**
        * The name of the conversion rule.
        */
@@ -14,10 +23,6 @@ export interface HookBundle {
        * The type of conversion rule.
        */
       conversionType: string
-      /**
-       * The account to associate this conversion rule with.
-       */
-      account: string
       /**
        * The attribution type for the conversion rule.
        */
