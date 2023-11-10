@@ -5,14 +5,7 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type {
-  DynamicFieldResponse,
-  InputField,
-  RequestExtension,
-  ExecuteInput,
-  Result,
-  InputFieldJSONSchema
-} from './types'
+import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -132,7 +125,7 @@ export interface ActionHookDefinition<
   /** A description of what this hook does. */
   description: string
   /** The configuration fields that are used when executing the hook. The values will be provided by users in the app. */
-  inputFields?: Record<string, InputFieldJSONSchema>
+  inputFields?: Record<string, InputField>
   /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
   outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean }>
   /** The operation to perform when this hook is triggered. */
