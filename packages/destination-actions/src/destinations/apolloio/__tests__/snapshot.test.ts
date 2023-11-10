@@ -9,6 +9,7 @@ const destinationSlug = 'actions-apolloio'
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
+      
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
