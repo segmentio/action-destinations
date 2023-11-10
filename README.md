@@ -545,8 +545,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   ...
   hooks: {
-        'on-mapping-save': {
-      type: 'on-mapping-save',
+        'onMappingSave': {
+      type: 'onMappingSave',
       label: 'Create a Conversion Rule',
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
@@ -579,10 +579,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         },
       },
       performHook: async (request, { hookInputs }) => {
-        if (!hookInputs) {
-          throw new Error('No hook inputs provided')
-        }
-
         const { data } =
           await request<ConversionRuleCreationResponse>
           ('https://api.linkedin.com/rest/conversions', {
@@ -608,17 +604,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     return request('https://example.com', {
       method: 'post',
       json: {
-        conversion: data.hookOutputs?.['on-mapping-save']?.id,
-        name: data.hookOutputs?.['on-mapping-save']?.name
+        conversion: data.hookOutputs?.onMappingSave?.id,
+        name: data.hookOutputs?.onMappingSave?.name
       }
     })
   }
   }
 ```
 
-### `on-mapping-save` hook
+### `onMappingSave` hook
 
-The `on-mapping-save` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.['on-mapping-save']?.<key>`.
+The `onMappingSave` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.onMappingSave?.<key>`.
 
 ## Audience Support (Pilot)
 
