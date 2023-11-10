@@ -19,6 +19,7 @@ Object {
     "testType": "UQmlPo5)xL",
   },
   "type": "UQmlPo5)xL",
+  "update_existing_only": true,
   "user_id": "UQmlPo5)xL",
 }
 `;
@@ -31,5 +32,6 @@ Object {
     "os": Object {},
   },
   "type": "UQmlPo5)xL",
+  "update_existing_only": false,
 }
 `;
