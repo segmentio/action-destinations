@@ -17,6 +17,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
+    eventData.user.userIds = [
+      {
+        idType: 'SHA256_EMAIL',
+        idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
+      }
+    ]
+
+    eventData.conversionHappenedAt = '1698764171467'
+
     const event = createTestEvent({
       properties: eventData
     })
@@ -49,6 +58,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+
+    eventData.user.userIds = [
+      {
+        idType: 'SHA256_EMAIL',
+        idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
+      }
+    ]
+
+    eventData.conversionHappenedAt = '1698764171467'
 
     const event = createTestEvent({
       properties: eventData
