@@ -238,3 +238,5 @@ export const apiLookupActionFields: Record<string, InputField> = {
 }
 
 export const apiLookupLiquidKey = 'lookups'
+
+export const FLAGON_NAME_DATA_FEEDS = 'is-datafeeds-enabled'

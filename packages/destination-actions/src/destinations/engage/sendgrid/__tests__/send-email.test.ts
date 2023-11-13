@@ -5,13 +5,14 @@ import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
+import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
 function createDefaultActionProps() {
   return {
-    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true },
+    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true, [FLAGON_NAME_DATA_FEEDS]: true },
     logger: loggerMock
   }
 }
@@ -1870,6 +1871,7 @@ describe.each([
         })
 
       const responses = await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
@@ -1919,6 +1921,7 @@ describe.each([
 
       await expect(
         sendgrid.testAction('sendEmail', {
+          ...defaultActionProps,
           event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
@@ -1943,8 +1946,7 @@ describe.each([
               cacheTtl: 0,
               responseType: 'json'
             }
-          }),
-          ...defaultActionProps
+          })
         })
       ).rejects.toThrowError('Too Many Requests')
 
