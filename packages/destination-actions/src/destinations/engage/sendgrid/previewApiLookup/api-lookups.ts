@@ -78,12 +78,7 @@ export const getCachedResponse = async (
 
   datafeedTags.push('cache_hit:true')
   if (responseType === 'json') {
-    let parsedCachedResponse = JSON.parse(cachedResponse)
-    if (typeof parsedCachedResponse === 'string') {
-      // Sometimes need to parse again in case there are escape characters. First parse removes the escape characters, second actually converts to object
-      parsedCachedResponse = JSON.parse(parsedCachedResponse)
-    }
-    return parsedCachedResponse
+    return JSON.parse(cachedResponse)
   }
   return cachedResponse
 }
