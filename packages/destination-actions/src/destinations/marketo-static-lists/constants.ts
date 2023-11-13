@@ -15,7 +15,7 @@ export interface RefreshTokenResponse {
   access_token: string
 }
 
-interface MarketoResponse {
+export interface MarketoResponse {
   requestId: string
   success: boolean
   errors: [

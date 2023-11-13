@@ -10,7 +10,8 @@ import {
   MarketoGetLeadsResponse,
   MarketoLeads,
   MarketoDeleteLeadsResponse,
-  REMOVE_USERS_ENDPOINT
+  REMOVE_USERS_ENDPOINT,
+  MarketoResponse
 } from './constants'
 
 export async function addToList(request: RequestClient, settings: Settings, payloads: AddToListPayload[]) {
@@ -31,7 +32,7 @@ export async function addToList(request: RequestClient, settings: Settings, payl
   })
 
   if (!response.data.success) {
-    throw new IntegrationError(response.data.errors[0].message, 'INVALID_RESPONSE', 400)
+    parseErrorResponse(response.data)
   }
   return response.data
 }
@@ -51,7 +52,7 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!getLeadsResponse.data.success) {
-    throw new IntegrationError(getLeadsResponse.data.errors[0].message, 'INVALID_RESPONSE', 400)
+    parseErrorResponse(getLeadsResponse.data)
   }
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
@@ -69,7 +70,7 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!deleteLeadsResponse.data.success) {
-    throw new IntegrationError(getLeadsResponse.data.errors[0].message, 'INVALID_RESPONSE', 400)
+    parseErrorResponse(deleteLeadsResponse.data)
   }
 
   return deleteLeadsResponse.data
@@ -95,4 +96,11 @@ function extractEmails(payloads: AddToListPayload[]) {
 function extractLeadIds(leads: MarketoLeads[]) {
   const ids = leads.map((lead) => `${lead.id}`).join(',')
   return ids
+}
+
+function parseErrorResponse(response: MarketoResponse) {
+  if (response.errors[0].code === '601') {
+    throw new IntegrationError(response.errors[0].message, 'INVALID_OAUTH_TOKEN', 401)
+  }
+  throw new IntegrationError(response.errors[0].message, 'INVALID_RESPONSE', 400)
 }
