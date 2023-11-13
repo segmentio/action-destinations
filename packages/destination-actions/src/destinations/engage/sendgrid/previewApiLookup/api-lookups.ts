@@ -59,7 +59,7 @@ const renderLiquidFields = async (
 export const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) => {
   const requestHash = createHash('sha256')
   // We hash the request to make the key smaller and to prevent storage of any sensitive data within the config
-  requestHash.update(`${method}${url}${body}${headers}`)
+  requestHash.update(`${method}${url}${body}${JSON.stringify(headers)}`)
   const requestId = requestHash.digest('hex')
   return requestId
 }
