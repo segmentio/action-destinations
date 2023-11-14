@@ -123,8 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     list_id: {
-      label: 'List Id',
-      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().`,
+      label: 'List',
+      description: `The Klaviyo list to add the profile to.`,
       type: 'string',
       dynamic: true
     }
