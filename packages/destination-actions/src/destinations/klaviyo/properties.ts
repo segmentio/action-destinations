@@ -15,6 +15,6 @@ export const email: InputField = {
   description: 'Email of User',
   type: 'string',
   default: {
-    '@path': '$.traits.email'
+    '@path': '$.context.traits.email'
   }
 }

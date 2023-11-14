@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import { API_URL, REVISION_DATE } from './config'
 import upsertProfile from './upsertProfile'
 import addProfileToList from './addProfileToList'
-import removeProfileToList from './removeProfileToList'
+import removeProfileFromList from './removeProfileFromList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
 
@@ -122,7 +122,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
   actions: {
     upsertProfile,
     addProfileToList,
-    removeProfileToList,
+    removeProfileFromList,
     trackEvent,
     orderCompleted
   }

@@ -33,10 +33,6 @@ export interface ProfileData {
   }
 }
 
-export interface GetProfileResponseData {
-  content: string
-}
-
 export interface EventData {
   data: {
     type: string

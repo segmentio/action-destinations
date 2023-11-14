@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { GetProfileResponseData, listData } from '../types'
+import { listData } from '../types'
 import { executeProfileList, getProfile } from '../functions'
 import { email, external_id } from '../properties'
 
@@ -16,14 +16,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     const { email, external_id } = payload
     if (!email || !external_id) {
-      throw new IntegrationError(
-        "Insert the ID of the default list that you'd like to subscribe users",
-        'Missing required fields',
-        400
-      )
+      throw new IntegrationError('Missing List Id', 'Missing required fields', 400)
     }
     try {
-      const profileData: GetProfileResponseData = await getProfile(request, email)
+      const profileData = await getProfile(request, email)
       const v = JSON.parse(profileData.content)
       if (Object.keys(v).length !== 0) {
         const listData: listData = {
@@ -40,7 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return
     } catch (error) {
-      console.log(error)
       throw new Error('An error occurred while processing the request')
     }
   }

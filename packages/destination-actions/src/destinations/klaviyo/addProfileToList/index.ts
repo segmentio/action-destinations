@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { GetProfileResponseData, KlaviyoAPIError, listData } from '../types'
+import { KlaviyoAPIError, listData } from '../types'
 import { createProfile, executeProfileList } from '../functions'
 import { email, external_id } from '../properties'
 
@@ -15,11 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     const { email, external_id } = payload
     if (!external_id || !email) {
-      throw new IntegrationError(
-        "Insert the ID of the default list that you'd like to subscribe users",
-        'Missing required fields',
-        400
-      )
+      throw new IntegrationError('Missing List Id', 'Missing required fields', 400)
     }
     const listData: listData = {
       data: [
@@ -30,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     try {
-      const profileData: GetProfileResponseData = await createProfile(request, email)
+      const profileData = await createProfile(request, email)
       const id = JSON.parse(profileData?.content)?.data?.id
 
       if (id) {
@@ -50,7 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
           return await executeProfileList(request, 'POST', listData, external_id)
         }
       }
-
       throw new Error('An error occurred while processing the request')
     }
   }

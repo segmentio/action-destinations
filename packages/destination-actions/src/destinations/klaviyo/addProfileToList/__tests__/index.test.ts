@@ -45,7 +45,14 @@ describe('Add List To Profile', () => {
 
     nock(`${API_URL}`).post('/profiles/', profileData).reply(200, {})
 
-    nock(`${API_URL}/lists/${listId}`).post('/relationships/profiles/', requestBody).reply(200, {})
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
 
     const event = createTestEvent({
       type: 'track',
