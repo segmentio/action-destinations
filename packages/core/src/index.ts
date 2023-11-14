@@ -1,7 +1,29 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
-export * from './mapping-kit/value-keys'
+export {
+  ArrayPathDirective,
+  CaseDirective,
+  Directive,
+  DirectiveMetadata,
+  FieldValue,
+  IfDirective,
+  LiteralDirective,
+  PathDirective,
+  PrimitiveValue,
+  ReplaceDirective,
+  TemplateDirective,
+  getFieldValue,
+  getFieldValueKeys,
+  isArrayPathDirective,
+  isCaseDirective,
+  isDirective,
+  isIfDirective,
+  isLiteralDirective,
+  isPathDirective,
+  isReplaceDirective,
+  isTemplateDirective
+} from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
 export { default as createInstance } from './request-client'
