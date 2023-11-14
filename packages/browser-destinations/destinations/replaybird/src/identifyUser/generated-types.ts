@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The user's identity
+   * A unique ID for a known user
    */
   userId: string
   /**
