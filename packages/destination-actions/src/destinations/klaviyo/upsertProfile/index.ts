@@ -1,10 +1,11 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
 import { APIError, PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
+import { addProfileToList, getListIdDynamicData } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -120,10 +121,21 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    list_id: {
+      label: 'List',
+      description: `The Klaviyo list to add the profile to.`,
+      type: 'string',
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    list_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
+      return getListIdDynamicData(request, settings)
     }
   },
   perform: async (request, { payload }) => {
-    const { email, external_id, phone_number, ...otherAttributes } = payload
+    const { email, external_id, phone_number, list_id, ...otherAttributes } = payload
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
@@ -146,6 +158,11 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'POST',
         json: profileData
       })
+      if (list_id) {
+        const content = JSON.parse(profile?.content)
+        const id = content.data.id
+        await addProfileToList(request, id, list_id)
+      }
       return profile
     } catch (error) {
       const { response } = error as KlaviyoAPIError
@@ -161,6 +178,10 @@ const action: ActionDefinition<Settings, Payload> = {
             method: 'PATCH',
             json: profileData
           })
+
+          if (list_id) {
+            await addProfileToList(request, id, list_id)
+          }
           return profile
         }
       }

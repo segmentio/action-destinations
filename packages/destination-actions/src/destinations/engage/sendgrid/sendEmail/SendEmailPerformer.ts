@@ -193,6 +193,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       mailContent = mailContentSubscriptionHonored
       this.statsClient?.incr('request.dont_pass_subscription', 1)
     }
+    // Check if ip pool name is provided and sends the email with the ip pool name if it is
+    if (this.payload.ipPool) {
+      mailContent = {
+        ...mailContent,
+        ip_pool_name: this.payload.ipPool
+      }
+      this.statsClient?.incr('request.ip_pool_name_provided', 1)
+    } else {
+      this.statsClient?.incr('request.ip_pool_name_not_provided', 1)
+    }
     const req: RequestOptions = {
       method: 'post',
       headers: {
@@ -379,7 +389,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   onResponse(args: { response?: Response; error?: ResponseError; operation: OperationContext }) {
-    const headers = args.response?.headers || args.error?.response.headers
+    const headers = args.response?.headers || args.error?.response?.headers
     // if we need to investigate with sendgrid, we'll need this: https://docs.sendgrid.com/glossary/message-id
     const sgMsgId = headers?.get('X-Message-ID')
     if (sgMsgId) args.operation.logs.push('[sendgrid]X-Message-ID: ' + sgMsgId)

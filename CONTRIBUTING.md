@@ -36,7 +36,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
 
 3. Spec out the integration. If you want some guidance, you can use this [template](https://docs.google.com/document/d/1dIJxYge9N700U9Nhawapy25WMD8pUuey72S5qo3uejA/edit#heading=h.92w309fjzhti), which will prompt you to think about: whether you want to build a cloud-mode or device-mode destination, the method of authentication, the settings, and the Actions and default Field Mappings that you want to build.
 
-4. Join the Segment Partners Slack workspace. We’ll send you an invite. The **#dev-center-pilot** channel is the space for questions - partners can share their advice with each other, and the Segment team is there to answer any tricky questions.
+4. If you have any questions during the build process, please contact us at partner-support@segment.com.
 
 ## Build your integration
 

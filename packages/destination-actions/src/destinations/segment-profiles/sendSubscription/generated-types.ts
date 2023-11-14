@@ -18,11 +18,11 @@ export interface Payload {
    */
   email?: string
   /**
-   * Global status of the email subscription. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Global status of the email subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   email_subscription_status?: string | null
   /**
-   * Subscription status for the groups. Object containing group names as keys and statuses as values. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Group Subscription statuses are supported for the email channel. This object contains group names as keys and statuses as values. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   subscription_groups?: {
     [k: string]: unknown
@@ -32,11 +32,11 @@ export interface Payload {
    */
   phone?: string
   /**
-   * Global status of the SMS subscription. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Global status of the SMS subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   sms_subscription_status?: string | null
   /**
-   * Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   whatsapp_subscription_status?: string | null
   /**
@@ -44,7 +44,7 @@ export interface Payload {
    */
   android_push_token?: string
   /**
-   * Global status of the android push subscription. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Global status of the android push subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   android_push_subscription_status?: string | null
   /**
@@ -52,7 +52,7 @@ export interface Payload {
    */
   ios_push_token?: string
   /**
-   * Global status of the ios push subscription. True is subscribed, false is unsubscribed and did-not-subscribe is did-not-subscribe.
+   * Global status of the ios push subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.
    */
   ios_push_subscription_status?: string | null
   /**

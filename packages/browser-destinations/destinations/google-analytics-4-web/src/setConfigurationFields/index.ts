@@ -12,6 +12,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   description: 'Set custom values for the GA4 configuration fields.',
   platform: 'web',
   defaultSubscription: 'type = "identify" or type = "page"',
+  lifecycleHook: 'before',
   fields: {
     user_id: user_id,
     user_properties: user_properties,

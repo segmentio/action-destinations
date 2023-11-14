@@ -244,8 +244,6 @@ describe('SegmentProfiles.sendSubscription', () => {
       }
     })
 
-    console.log('edwuy: ', event)
-
     const responses = await testDestination.testAction('sendSubscription', {
       event,
       mapping: defaultSubscriptionMapping,

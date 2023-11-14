@@ -57,7 +57,7 @@ export default class Serve extends Command {
       })
 
       const { selectedDestination } = await autoPrompt<{ selectedDestination: { name: string } }>(flags, {
-        type: 'select',
+        type: 'autocomplete',
         name: 'selectedDestination',
         message: 'Which destination?',
         choices: integrationDirs.map((integrationPath) => {

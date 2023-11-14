@@ -50,12 +50,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
-      await update_taxonomy('', tx_creds, request, body_form_data)
+      // The last 2 params are undefined because we don't have statsContext.statsClient and statsContext.tags in testAuthentication()
+      await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Refresh Realtime API token (Oauth2 client_credentials)
-      const rt_client_key = JSON.parse(auth.clientId)['rt_api']
-      const rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+      let rt_client_key = ''
+      let rt_client_secret = ''
+      // Added try-catch in a case we don't update the vault
+      try {
+        rt_client_key = JSON.parse(auth.clientId)['rt_api']
+        rt_client_secret = JSON.parse(auth.clientSecret)['rt_api']
+      } catch (err) {
+        rt_client_key = auth.clientId
+        rt_client_secret = auth.clientSecret
+      }
+
       const jwt = generate_jwt(rt_client_key, rt_client_secret)
       const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
         'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
@@ -96,7 +106,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       choices: [
         { value: 'email', label: 'Send email' },
         { value: 'maid', label: 'Send MAID' },
-        { value: 'email_maid', label: 'Send email and/or MAID' }
+        { value: 'phone', label: 'Send phone' },
+        { value: 'email_maid', label: 'Send email and/or MAID' },
+        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
+        { value: 'email_phone', label: 'Send email and/or phone' },
+        { value: 'phone_maid', label: 'Send phone and/or MAID' }
       ]
     }
   },
@@ -117,17 +131,35 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
       const identifier = createAudienceInput.audienceSettings?.identifier
+      const statsClient = createAudienceInput?.statsContext?.statsClient
+      const statsTags = createAudienceInput?.statsContext?.tags
       // The 3 errors below will be removed once we have Payload accessible by createAudience()
       if (!audience_id) {
-        throw new IntegrationError('Create Audience: missing audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "audience Id"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!audience_key) {
-        throw new IntegrationError('Create Audience: missing audience key value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "audience key"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!engage_space_id) {
-        throw new IntegrationError('Create Audience: missing Engage space Id type value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!identifier) {
+        throw new IntegrationError(
+          'Create Audience: missing audience setting "Identifier"',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
@@ -135,9 +167,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID) {
         throw new IntegrationError('Missing Taxonomy API client Id', 'MISSING_REQUIRED_FIELD', 400)
-      }
-      if (!identifier) {
-        throw new IntegrationError('Create Audience: missing Identifier type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const input = {
@@ -154,7 +183,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags)
 
       return { externalId: audience_id }
     },
