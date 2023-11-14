@@ -14,10 +14,6 @@ import {
   testWorkspaceRef
 } from '../../mocks'
 
-jest.mock('@lukeed/uuid', () => ({
-  v4: jest.fn(() => 'test-event-id')
-}))
-
 const testDestination = createTestIntegration(Destination)
 
 describe('Devrev.streamEvent', () => {
@@ -60,7 +56,7 @@ describe('Devrev.streamEvent', () => {
       events_list: [
         {
           name: testEventPayload.event as string,
-          event_id: 'test-event-id',
+          event_id: testMessageId,
           event_time: testEventPayload.timestamp as string,
           payload: {
             eventName: testEventPayload.event,

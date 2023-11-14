@@ -123,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
         {
           name: eventName,
           event_time: timestamp.toString(),
-          event_id: uuidv4(),
+          event_id: payload.messageId || uuidv4(),
           payload: {
             // add mapped data to payload
             ...payload,
