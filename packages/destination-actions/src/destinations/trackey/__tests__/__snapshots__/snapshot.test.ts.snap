@@ -1,69 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-trackey destination: group action - all fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: identifyUser action - all fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "^Vvf$jtvC",
-  },
-  "messageId": "^Vvf$jtvC",
-  "timestamp": "^Vvf$jtvC",
+  "messageId": "4lC*xBPj6Zf^iE3J1PF",
+  "timestamp": "4lC*xBPj6Zf^iE3J1PF",
   "traits": Object {
-    "testType": "^Vvf$jtvC",
+    "testType": "4lC*xBPj6Zf^iE3J1PF",
   },
-  "userId": "^Vvf$jtvC",
+  "userId": "4lC*xBPj6Zf^iE3J1PF",
 }
 `;
 
-exports[`Testing snapshot for actions-trackey destination: group action - required fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: identifyUser action - required fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "^Vvf$jtvC",
-  },
-  "timestamp": "^Vvf$jtvC",
-  "userId": "^Vvf$jtvC",
+  "timestamp": "4lC*xBPj6Zf^iE3J1PF",
+  "userId": "4lC*xBPj6Zf^iE3J1PF",
 }
 `;
 
-exports[`Testing snapshot for actions-trackey destination: identify action - all fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: registerCompany action - all fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "6aniX&1",
-  },
-  "messageId": "6aniX&1",
-  "timestamp": "6aniX&1",
+  "groupId": "dv8xxzqiX16YI!L#st",
+  "messageId": "dv8xxzqiX16YI!L#st",
+  "timestamp": "dv8xxzqiX16YI!L#st",
   "traits": Object {
-    "testType": "6aniX&1",
+    "testType": "dv8xxzqiX16YI!L#st",
   },
-  "userId": "6aniX&1",
+  "userId": "dv8xxzqiX16YI!L#st",
 }
 `;
 
-exports[`Testing snapshot for actions-trackey destination: identify action - required fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: registerCompany action - required fields 1`] = `
 Object {
-  "timestamp": "6aniX&1",
-  "userId": "6aniX&1",
+  "groupId": "dv8xxzqiX16YI!L#st",
+  "timestamp": "dv8xxzqiX16YI!L#st",
+  "userId": "dv8xxzqiX16YI!L#st",
 }
 `;
 
-exports[`Testing snapshot for actions-trackey destination: track action - all fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: trackEvent action - all fields 1`] = `
 Object {
-  "event": "eT[K8ft@uBryp",
+  "event": "qnx]3%$)][Qxz",
   "groupId": Object {
-    "testType": "eT[K8ft@uBryp",
+    "testType": "qnx]3%$)][Qxz",
   },
-  "messageId": "eT[K8ft@uBryp",
+  "messageId": "qnx]3%$)][Qxz",
   "properties": Object {
-    "testType": "eT[K8ft@uBryp",
+    "testType": "qnx]3%$)][Qxz",
   },
-  "timestamp": "eT[K8ft@uBryp",
-  "userId": "eT[K8ft@uBryp",
+  "timestamp": "qnx]3%$)][Qxz",
+  "userId": "qnx]3%$)][Qxz",
 }
 `;
 
-exports[`Testing snapshot for actions-trackey destination: track action - required fields 1`] = `
+exports[`Testing snapshot for actions-trackey destination: trackEvent action - required fields 1`] = `
 Object {
-  "event": "eT[K8ft@uBryp",
-  "timestamp": "eT[K8ft@uBryp",
-  "userId": "eT[K8ft@uBryp",
+  "event": "qnx]3%$)][Qxz",
+  "timestamp": "qnx]3%$)][Qxz",
+  "userId": "qnx]3%$)][Qxz",
 }
 `;
