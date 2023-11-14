@@ -11,11 +11,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Remove profile from list',
   fields: {
     email: { ...email },
-    list_id: { ...external_id }
+    external_id: { ...external_id }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id } = payload
-    if (!email || !list_id) {
+    const { email, external_id } = payload
+    if (!email || !external_id) {
       throw new IntegrationError(
         "Insert the ID of the default list that you'd like to subscribe users",
         'Missing required fields',
@@ -26,7 +26,6 @@ const action: ActionDefinition<Settings, Payload> = {
       const profileData: GetProfileResponseData = await getProfile(request, email)
       const v = JSON.parse(profileData.content)
       if (Object.keys(v).length !== 0) {
-        console.log(v)
         const listData: listData = {
           data: [
             {
@@ -36,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
           ]
         }
 
-        const list = await executeProfileList(request, 'DELETE', listData, list_id)
+        const list = await executeProfileList(request, 'DELETE', listData, external_id)
         return list
       }
       return

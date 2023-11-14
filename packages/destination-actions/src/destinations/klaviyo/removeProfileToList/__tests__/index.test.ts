@@ -55,12 +55,12 @@ describe('Remove List from Profile', () => {
     const event = createTestEvent({
       type: 'track',
       userId: '123',
-      traits: {
-        email: 'test@example.com'
-      },
       context: {
         personas: {
-          external_id: listId
+          external_audience_id: listId
+        },
+        traits: {
+          email: 'test@example.com'
         }
       }
     })

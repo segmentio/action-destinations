@@ -55,7 +55,7 @@ describe('Add List To Profile', () => {
       }
     })
     const mapping = {
-      list_id: listId,
+      external_id: listId,
       email: {
         '@path': '$.traits.email'
       }

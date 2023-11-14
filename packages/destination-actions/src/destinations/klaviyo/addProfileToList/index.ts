@@ -10,11 +10,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Add to list',
   fields: {
     email: { ...email },
-    list_id: { ...external_id }
+    external_id: { ...external_id }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id } = payload
-    if (!list_id || !email) {
+    const { email, external_id } = payload
+    if (!external_id || !email) {
       throw new IntegrationError(
         "Insert the ID of the default list that you'd like to subscribe users",
         'Missing required fields',
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (id) {
         listData.data[0].id = id
-        return await executeProfileList(request, 'POST', listData, list_id)
+        return await executeProfileList(request, 'POST', listData, external_id)
       }
     } catch (error) {
       const { response } = error as KlaviyoAPIError
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (id) {
           listData.data[0].id = id
 
-          return await executeProfileList(request, 'POST', listData, list_id)
+          return await executeProfileList(request, 'POST', listData, external_id)
         }
       }
 

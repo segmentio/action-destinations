@@ -54,7 +54,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       headers: {
         Authorization: `Klaviyo-API-Key ${settings.api_key}`,
         Accept: 'application/json',
-        revision: REVISION_DATE
+        revision: REVISION_DATE,
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     }
   },
@@ -78,10 +79,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const response = await request(`${API_URL}/lists`, {
         method: 'POST',
         headers: {
-          Authorization: `Klaviyo-API-Key ${apiKey}`,
-          Accept: 'application/json',
-          revision: REVISION_DATE,
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Authorization: `Klaviyo-API-Key ${apiKey}`
         },
         json: {
           data: { type: 'list', attributes: { name: audienceName } }
@@ -98,10 +96,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
         headers: {
-          Authorization: `Klaviyo-API-Key ${apiKey}`,
-          Accept: 'application/json',
-          revision: REVISION_DATE,
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Authorization: `Klaviyo-API-Key ${apiKey}`
         }
       })
 
