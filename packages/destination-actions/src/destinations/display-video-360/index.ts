@@ -9,6 +9,7 @@ import removeFromAudience from './removeFromAudience'
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
 import { buildListTypeMap } from './listManagement'
 import { buildHeaders } from './shared'
+import { handleRequestError } from './errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
@@ -16,7 +17,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
-    fields: {}, // Fields is required, so this is left empty
+    fields: {}, // Fields is required. Left empty on purpose.
     refreshAccessToken: async (request, { auth }) => {
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
@@ -31,6 +32,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
+    listType: {
+      type: 'string',
+      label: 'List Type',
+      required: true,
+      description:
+        'The type of list you will be creating and pushing data into. This cannot be changed after the list is created. CRM Recommended for most use cases.',
+      choices: [
+        { label: 'Basic User List', value: 'basicUserList' },
+        { label: 'CRM Based User List', value: 'crmBasedUserList' }
+      ]
+    },
     advertiserId: {
       type: 'string',
       label: 'Advertiser ID',
@@ -56,7 +68,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: true
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, statsContext } = createAudienceInput
+      const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType, listType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
 
@@ -85,8 +97,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       let response
       try {
         response = await request(partnerCreateAudienceUrl, {
+          headers: buildHeaders(createAudienceInput.audienceSettings, settings),
           method: 'POST',
-          headers: buildHeaders(createAudienceInput.audienceSettings),
           json: {
             operations: [
               {
@@ -100,21 +112,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             ]
           }
         })
+
+        const r = await response?.json()
+        statsClient?.incr('createAudience.success', 1, statsTags)
+
+        return {
+          externalId: r['results'][0]['resourceName']
+        }
       } catch (error) {
-        const errorMessage = await JSON.parse(error.response.content).error.details[0].errors[0].message
         statsClient?.incr('createAudience.error', 1, statsTags)
-        throw new IntegrationError(errorMessage, 'INVALID_RESPONSE', 400)
-      }
-
-      const r = await response.json()
-      statsClient?.incr('createAudience.success', 1, statsTags)
-
-      return {
-        externalId: r['results'][0]['resourceName']
+        throw handleRequestError(error)
       }
     },
     async getAudience(request, getAudienceInput) {
-      const { statsContext, audienceSettings } = getAudienceInput
+      const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
 
@@ -131,34 +142,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         accountType
       )
 
-      const response = await request(advertiserGetAudienceUrl, {
-        headers: buildHeaders(getAudienceInput.audienceSettings),
-        method: 'POST',
-        json: {
-          query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
+      try {
+        const response = await request(advertiserGetAudienceUrl, {
+          headers: buildHeaders(audienceSettings, settings),
+          method: 'POST',
+          json: {
+            query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
+          }
+        })
+
+        const r = await response.json()
+
+        const externalId = r[0]?.results[0]?.userList?.resourceName
+
+        if (externalId !== getAudienceInput.externalId) {
+          throw new IntegrationError(
+            "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
+            'INVALID_REQUEST_DATA',
+            400
+          )
         }
-      })
 
-      const r = await response.json()
-
-      if (response.status !== 200) {
+        statsClient?.incr('getAudience.success', 1, statsTags)
+        return {
+          externalId: externalId
+        }
+      } catch (error) {
         statsClient?.incr('getAudience.error', 1, statsTags)
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-      }
-
-      const externalId = r[0]?.results[0]?.userList?.resourceName
-
-      if (externalId !== getAudienceInput.externalId) {
-        throw new IntegrationError(
-          "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
-          'INVALID_REQUEST_DATA',
-          400
-        )
-      }
-
-      statsClient?.incr('getAudience.success', 1, statsTags)
-      return {
-        externalId: externalId
+        throw handleRequestError(error)
       }
     }
   },

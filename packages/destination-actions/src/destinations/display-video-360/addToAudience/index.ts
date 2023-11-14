@@ -16,23 +16,23 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { payload, audienceSettings, statsContext }) => {
+  perform: async (request, { payload, audienceSettings, statsContext, settings }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    return handleUpdate(request, audienceSettings, [payload], 'add')
+    return handleUpdate(request, audienceSettings, [payload], 'add', settings, statsContext)
   },
-  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
+  performBatch: async (request, { payload, audienceSettings, statsContext, settings }) => {
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
 
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    return handleUpdate(request, audienceSettings, payload, 'add')
+    return handleUpdate(request, audienceSettings, payload, 'add', settings, statsContext)
   }
 }
 
