@@ -6,6 +6,7 @@ import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
+import { getFieldValueKeys } from './value-keys'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -230,7 +231,7 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
  */
-export function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
+function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
     throw new Error(`data must be an object, got ${realType}`)
@@ -251,7 +252,7 @@ export function transform(mapping: JSONLikeObject, data: InputData | undefined =
  * @param mapping - the directives and raw values
  * @param data - the array input data to apply to directives
  */
-export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
+function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
   const realType = realTypeOf(data)
   if (!isArray(data)) {
     throw new Error(`data must be an array, got ${realType}`)
@@ -265,3 +266,5 @@ export function transformBatch(mapping: JSONLikeObject, data: Array<InputData> |
   // Cast because we know there are no `undefined` values after `removeUndefined`
   return removeUndefined(resolved) as JSONObject[]
 }
+
+export { transform, transformBatch, getFieldValueKeys }
