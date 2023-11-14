@@ -1,6 +1,7 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
-export { transform, getFieldValueKeys } from './mapping-kit'
+export { transform } from './mapping-kit'
+export * from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
 export { default as createInstance } from './request-client'

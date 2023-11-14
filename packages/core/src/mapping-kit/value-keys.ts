@@ -4,14 +4,14 @@ import _ from 'lodash'
 
 type ValueType = 'enrichment' | 'function' | 'literal' | 'variable'
 
-interface DirectiveMetadata {
+export interface DirectiveMetadata {
   _metadata?: {
     label?: string
     type: ValueType
   }
 }
 
-function isDirective(value: FieldValue): value is Directive {
+export function isDirective(value: FieldValue): value is Directive {
   return (
     value !== null &&
     typeof value === 'object' &&
@@ -21,26 +21,34 @@ function isDirective(value: FieldValue): value is Directive {
   )
 }
 
-interface LiteralDirective extends DirectiveMetadata {
+export interface LiteralDirective extends DirectiveMetadata {
   '@literal': PrimitiveValue | Record<string, FieldValue>
 }
 
-function isLiteralDirective(value: FieldValue): value is LiteralDirective {
+export function isLiteralDirective(value: FieldValue): value is LiteralDirective {
   return isDirective(value) && '@literal' in value
 }
-interface TemplateDirective extends DirectiveMetadata {
+export interface TemplateDirective extends DirectiveMetadata {
   '@template': string
 }
 
-function isTemplateDirective(value: FieldValue): value is TemplateDirective {
+export function isTemplateDirective(value: FieldValue): value is TemplateDirective {
   return isDirective(value) && '@template' in value
 }
 
-interface PathDirective extends DirectiveMetadata {
+export function getFieldValue(value: FieldValue): any {
+  if (isTemplateDirective(value)) {
+    return value['@template']
+  }
+
+  return value
+}
+
+export interface PathDirective extends DirectiveMetadata {
   '@path': string
 }
 
-function isPathDirective(value: FieldValue): value is PathDirective {
+export function isPathDirective(value: FieldValue): value is PathDirective {
   return isDirective(value) && '@path' in value
 }
 
@@ -49,7 +57,7 @@ type RequireOnlyOne<T, Keys extends keyof T = keyof T> = {
 }[Keys] &
   Pick<T, Exclude<keyof T, Keys>>
 
-interface IfDirective extends DirectiveMetadata {
+export interface IfDirective extends DirectiveMetadata {
   '@if': RequireOnlyOne<
     {
       blank?: FieldValue
@@ -61,7 +69,7 @@ interface IfDirective extends DirectiveMetadata {
   >
 }
 
-function isIfDirective(value: FieldValue): value is IfDirective {
+export function isIfDirective(value: FieldValue): value is IfDirective {
   return (
     isDirective(value) &&
     '@if' in value &&
@@ -71,22 +79,22 @@ function isIfDirective(value: FieldValue): value is IfDirective {
   )
 }
 
-interface ArrayPathDirective extends DirectiveMetadata {
+export interface ArrayPathDirective extends DirectiveMetadata {
   '@arrayPath': [Directive | string, { [key: string]: FieldValue } | undefined] | [Directive | string]
 }
 
-function isArrayPathDirective(value: FieldValue): value is ArrayPathDirective {
+export function isArrayPathDirective(value: FieldValue): value is ArrayPathDirective {
   return isDirective(value) && '@arrayPath' in value && Array.isArray(value['@arrayPath'])
 }
 
-interface CaseDirective extends DirectiveMetadata {
+export interface CaseDirective extends DirectiveMetadata {
   '@case': {
     operator: string
     value?: FieldValue
   }
 }
 
-function isCaseDirective(value: FieldValue): value is CaseDirective {
+export function isCaseDirective(value: FieldValue): value is CaseDirective {
   return (
     isDirective(value) &&
     '@case' in value &&
@@ -96,7 +104,7 @@ function isCaseDirective(value: FieldValue): value is CaseDirective {
   )
 }
 
-interface ReplaceDirective extends DirectiveMetadata {
+export interface ReplaceDirective extends DirectiveMetadata {
   '@replace': {
     global: PrimitiveValue
     ignorecase: PrimitiveValue
@@ -106,7 +114,7 @@ interface ReplaceDirective extends DirectiveMetadata {
   }
 }
 
-function isReplaceDirective(value: FieldValue): value is ReplaceDirective {
+export function isReplaceDirective(value: FieldValue): value is ReplaceDirective {
   return (
     isDirective(value) &&
     '@replace' in value &&
@@ -150,7 +158,7 @@ function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>)
   return null
 }
 
-type Directive =
+export type Directive =
   | ArrayPathDirective
   | CaseDirective
   | IfDirective
@@ -158,8 +166,8 @@ type Directive =
   | PathDirective
   | ReplaceDirective
   | TemplateDirective
-type PrimitiveValue = boolean | number | string | null
-type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
+export type PrimitiveValue = boolean | number | string | null
+export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
 
 /**
  * @param value

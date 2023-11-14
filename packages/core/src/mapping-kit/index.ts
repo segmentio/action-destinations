@@ -6,7 +6,6 @@ import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
-import { getFieldValueKeys } from './value-keys'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -267,4 +266,4 @@ function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefi
   return removeUndefined(resolved) as JSONObject[]
 }
 
-export { transform, transformBatch, getFieldValueKeys }
+export { transform, transformBatch }
