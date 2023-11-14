@@ -115,12 +115,7 @@ export const performApiLookup = async (
 
     // First check cache
     if (cacheTtl > 0 && requestCache) {
-      const cachedResponse = await getCachedResponse(
-        { ...apiLookupConfig, url: renderedUrl, body: renderedBody },
-        requestId,
-        requestCache,
-        datafeedTags
-      )
+      const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, requestCache, datafeedTags)
       if (cachedResponse) {
         datafeedTags.push('error:false')
         return cachedResponse
@@ -132,7 +127,7 @@ export const performApiLookup = async (
     try {
       const res = await request(renderedUrl, {
         headers: (headers as Record<string, string>) ?? undefined,
-        timeout: 2000,
+        timeout: 3000,
         method: method as RequestOptions['method'],
         body: renderedBody,
         skipResponseCloning: true
