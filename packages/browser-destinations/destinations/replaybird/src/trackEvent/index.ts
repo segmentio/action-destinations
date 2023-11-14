@@ -5,10 +5,10 @@ import { ReplayBird } from '../types'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
-  title: 'Track Event',
-  description: 'Track events',
+  title: 'Send Track Events',
+  description: 'Send Segment track() events and / or Segment page() events to ReplayBird',
   platform: 'web',
-  defaultSubscription: 'type = "track" || type = "page"',
+  defaultSubscription: 'type = "track" or type = "page"',
   fields: {
     name: {
       description: 'The track() event name or page() name for the event.',

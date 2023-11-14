@@ -6,7 +6,7 @@ import { ReplayBird } from '../types'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
   title: 'Identify User',
-  description: 'Sets user identity',
+  description: 'Sets user identifier and user profile details',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {
@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, ReplayBird, Payload> = {
     traits: {
       type: 'object',
       required: false,
-      description: 'The Segment traits to be forwarded to replaybird',
+      description: 'The Segment traits to be forwarded to ReplayBird',
       label: 'User Traits',
       default: {
         '@path': '$.traits'

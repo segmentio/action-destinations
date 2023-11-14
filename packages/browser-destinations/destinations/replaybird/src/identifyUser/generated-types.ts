@@ -6,7 +6,7 @@ export interface Payload {
    */
   userId: string
   /**
-   * The Segment traits to be forwarded to replaybird
+   * The Segment traits to be forwarded to ReplayBird
    */
   traits?: {
     [k: string]: unknown

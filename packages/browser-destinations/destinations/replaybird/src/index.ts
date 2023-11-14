@@ -20,7 +20,7 @@ export const destination: BrowserDestinationDefinition<Settings, ReplayBird> = {
   presets: [
     {
       name: 'Track Event',
-      subscribe: 'type = "track"',
+      subscribe: 'type = "track" or type = "page"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
