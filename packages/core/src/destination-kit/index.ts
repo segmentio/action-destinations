@@ -252,7 +252,7 @@ interface EventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly requestCache?: RequestCache
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -267,7 +267,7 @@ interface BatchEventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly requestCache?: RequestCache
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -283,7 +283,7 @@ interface OnEventOptions {
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
-  readonly requestCache?: RequestCache
+  readonly dataFeedCache?: DataFeedCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
@@ -337,7 +337,7 @@ export interface Logger {
   withTags(extraTags: any): void
 }
 
-export interface RequestCache {
+export interface DataFeedCache {
   setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
   getRequestResponse(requestId: string): Promise<string>
 }
@@ -518,7 +518,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      requestCache,
+      dataFeedCache,
       transactionContext,
       stateContext
     }: EventInput<Settings>
@@ -542,7 +542,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      requestCache,
+      dataFeedCache,
       transactionContext,
       stateContext
     })
@@ -558,7 +558,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      requestCache,
+      dataFeedCache,
       transactionContext,
       stateContext
     }: BatchEventInput<Settings>
@@ -583,7 +583,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      requestCache,
+      dataFeedCache,
       transactionContext,
       stateContext
     })
@@ -620,7 +620,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
-      requestCache: options?.requestCache,
+      dataFeedCache: options?.dataFeedCache,
       transactionContext: options?.transactionContext,
       stateContext: options?.stateContext
     }

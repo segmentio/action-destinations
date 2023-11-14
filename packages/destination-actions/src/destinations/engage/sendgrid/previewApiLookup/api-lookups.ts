@@ -2,13 +2,15 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
-import { Logger, StatsClient, RequestCache } from '@segment/actions-core/destination-kit'
+import { Logger, StatsClient, DataFeedCache } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile } from '../Profile'
 import { ResponseError } from '../../utils'
 
 const Liquid = new LiquidJs()
+
+const maxResponseSizeBytes = 1000000
 
 export type ApiLookupConfig = {
   id?: string | undefined
@@ -67,10 +69,10 @@ export const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) =>
 export const getCachedResponse = async (
   { responseType }: ApiLookupConfig,
   requestId: string,
-  requestCache: RequestCache,
+  dataFeedCache: DataFeedCache,
   datafeedTags: string[]
 ) => {
-  const cachedResponse = await requestCache?.getRequestResponse(requestId)
+  const cachedResponse = await dataFeedCache?.getRequestResponse(requestId)
   if (!cachedResponse) {
     datafeedTags.push('cache_hit:false')
     return
@@ -91,7 +93,7 @@ export const performApiLookup = async (
   tags: string[],
   settings: Settings,
   logger?: Logger | undefined,
-  requestCache?: RequestCache | undefined
+  dataFeedCache?: DataFeedCache | undefined
 ) => {
   const { id, method, headers, cacheTtl, name } = apiLookupConfig
   const datafeedTags = [
@@ -114,8 +116,8 @@ export const performApiLookup = async (
     const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
 
     // First check cache
-    if (cacheTtl > 0 && requestCache) {
-      const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, requestCache, datafeedTags)
+    if (cacheTtl > 0 && dataFeedCache) {
+      const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, dataFeedCache, datafeedTags)
       if (cachedResponse) {
         datafeedTags.push('error:false')
         return cachedResponse
@@ -148,13 +150,13 @@ export const performApiLookup = async (
 
     const dataString = JSON.stringify(data)
     const size = Buffer.byteLength(dataString, 'utf-8')
-    datafeedTags.push(`response_size_greater_than_mb:${size > 1000000}`)
+    datafeedTags.push(`response_size_greater_than_mb:${size > maxResponseSizeBytes}`)
 
     // Then save the response to the cache
     if (cacheTtl > 0) {
-      if (size <= 1000000) {
+      if (size <= maxResponseSizeBytes) {
         try {
-          await requestCache?.setRequestResponse(requestId, dataString, cacheTtl / 100)
+          await dataFeedCache?.setRequestResponse(requestId, dataString, cacheTtl / 1000)
           datafeedTags.push('cache_set:true')
         } catch (err) {
           logger?.error(
