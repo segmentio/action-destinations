@@ -29,6 +29,7 @@ export { default as fetch, Request, Response, Headers } from './fetch'
 export type {
   BaseActionDefinition,
   ActionDefinition,
+  ActionHookResponse,
   BaseDefinition,
   DestinationDefinition,
   AudienceDestinationDefinition,

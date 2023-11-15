@@ -132,6 +132,7 @@ describe.each([
       traitEnrichment: true,
       groupId: '',
       byPassSubscription: false,
+      ipPool: '',
       sendBasedOnOptOut: false,
       toEmail: '',
       externalIds: {
@@ -1494,6 +1495,119 @@ describe.each([
         expectInfoLogged(`Bypassing subscription`)
       }
     )
+  })
+
+  describe('ip pool', () => {
+    beforeEach(() => {
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: {
+            firstName: userData.firstName,
+            lastName: userData.lastName
+          }
+        })
+    })
+
+    it('sends the email to ip pool when name is specified', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: 'testPoolName' })
+      })
+
+      expect(responses[0].options.body).toContain('"ip_pool_name":"testPoolName"')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is null', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: null })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: undefined })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is empty string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: '' })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is not specified', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping()
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
   })
 
   describe('subscription groups', () => {
