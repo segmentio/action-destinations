@@ -43,6 +43,8 @@
     "@segment/analytics-browser-actions-vwo": "^1.21.0",
     "@segment/analytics-browser-actions-wiseops": "^1.20.0",
     "@segment/analytics-browser-hubble-web": "^1.6.0",
+    "@segment/analytics-browser-actions-snap-plugins": "^1.1.0",
+    "@segment/analytics-browser-actions-replaybird": "^1.1.0",
     "@segment/browser-destination-runtime": "^1.19.0"
   }
 }

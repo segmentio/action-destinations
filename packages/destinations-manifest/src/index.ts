@@ -62,3 +62,4 @@ register('649adeaa719bd3f55fe81bef', '@segment/analytics-browser-actions-devrev'
 register('651aac880f2c3b5a8736e0cc', '@segment/analytics-browser-hubble-web')
 register('652d4cf5e00c0147e6eaf5e7', '@segment/analytics-browser-actions-jimo')
 register('6261a8b6cb4caa70e19116e8', '@segment/analytics-browser-actions-snap-plugins')
+register('6554e468e280fb14fbb4433c', '@segment/analytics-browser-actions-replaybird')
