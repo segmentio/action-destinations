@@ -24,7 +24,7 @@ describe('Trackey.identify', () => {
         }
       })
 
-    const response = await testDestination.testAction('identifyUser', {
+    const response = await testDestination.testAction('identify', {
       event,
       useDefaultMappings: true,
       settings: {

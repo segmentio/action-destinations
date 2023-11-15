@@ -26,7 +26,7 @@ describe('Trackey.track', () => {
         }
       })
 
-    const response = await testDestination.testAction('registerCompany', {
+    const response = await testDestination.testAction('group', {
       event,
       useDefaultMappings: true,
       settings: {
