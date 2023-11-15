@@ -20,8 +20,7 @@ const createAudienceInput = {
   audienceName: '',
   audienceSettings: {
     audience_key: AUDIENCE_KEY,
-    audience_id: AUDIENCE_ID,
-    identifier: ''
+    audience_id: AUDIENCE_ID
   }
 }
 
@@ -48,7 +47,7 @@ describe('Yahoo Audiences', () => {
           anything: '123'
         })
 
-        createAudienceInput.audienceSettings.identifier = 'anything'
+        //createAudienceInput.audienceSettings.identifier = 'anything'
         const result = await testDestination.createAudience(createAudienceInput)
         expect(result.externalId).toBe(AUDIENCE_ID)
       })
@@ -79,18 +78,12 @@ describe('Yahoo Audiences', () => {
 
   describe('gen_update_segment_payload() function', () => {
     describe('Success cases', () => {
-      const audienceSettings = {
-        audience_key: AUDIENCE_KEY,
-        audience_id: AUDIENCE_ID,
-        identifier: 'email'
-      }
-
       it('trivial', () => {
         // Given
         const payloads: Payload[] = [{ gdpr_flag: false } as Payload]
 
         // When
-        const result = gen_update_segment_payload(payloads, audienceSettings)
+        const result = gen_update_segment_payload(payloads)
 
         // Then
         expect(result).toBeTruthy()
@@ -141,7 +134,7 @@ describe('Yahoo Audiences', () => {
         ]
 
         // When
-        const result = gen_update_segment_payload(payloads, audienceSettings)
+        const result = gen_update_segment_payload(payloads)
 
         // Then
         expect(result).toBeTruthy()

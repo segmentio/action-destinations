@@ -14,15 +14,9 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * Company profile information
+   * User profile information
    */
   traits?: {
-    [k: string]: unknown
-  }
-  /**
-   * Company ID associated with the event
-   */
-  groupId: {
     [k: string]: unknown
   }
 }

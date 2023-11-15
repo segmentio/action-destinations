@@ -26,7 +26,6 @@ interface GoogleError {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Enhanced Conversion (Legacy)',
   description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
-  hidden: true,
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -211,7 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
     but not for the Google Ads API. */
     if (!settings.conversionTrackingId) {
       throw new PayloadValidationError(

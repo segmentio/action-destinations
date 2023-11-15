@@ -53,6 +53,8 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
+    await deps.resolveWhen(() => typeof window.jimo.push === 'function', 100)
+
     return window.jimo as JimoSDK
   },
   actions: {
