@@ -255,7 +255,7 @@ export function sendTrackEvent(
   }
 
   payload.not_append = !data.append_arrays
-
+  
   return { users: [payload], platform: 'segment' }
 }
 

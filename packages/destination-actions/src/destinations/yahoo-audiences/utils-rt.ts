@@ -2,7 +2,6 @@ import { createHmac, createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
-import { AudienceSettings } from './generated-types'
 
 /**
  * Creates a SHA256 hash from the input
@@ -53,6 +52,9 @@ export function generate_jwt(client_id: string, client_secret: string): string {
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
+/*
+// TODO: remove this function. We inherit the id_schema from the payload. Once a user has mapped an 
+// identifier in Configurable Id sync, we can use the identifier from the payload.
 export function get_id_schema(
   payload: Payload,
   audienceSettings: AudienceSettings
@@ -95,7 +97,7 @@ export function get_id_schema(
 
   return schema
 }
-
+*/
 export function validate_phone(phone: string) {
   /*
   Phone must match E.164 format: a number up to 15 digits in length starting with a ‘+’
@@ -117,8 +119,8 @@ export function validate_phone(phone: string) {
  * @param payloads
  * @returns {YahooPayload} The Yahoo payload.
  */
-export function gen_update_segment_payload(payloads: Payload[], audienceSettings: AudienceSettings): YahooPayload {
-  const schema = get_id_schema(payloads[0], audienceSettings)
+export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
+  //const schema = get_id_schema(payloads[0], audienceSettings)
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -130,12 +132,12 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
   //
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
-    if (schema.email === true && event.email) {
+    if (event.email) {
       hashed_email = create_hash(event.email.toLowerCase())
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
-    if (schema.maid === true && event.advertising_id) {
+    if (event.advertising_id) {
       switch (event.device_type) {
         case 'ios':
           idfa = event.advertising_id
@@ -146,7 +148,7 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
       }
     }
     let hashed_phone: string | undefined = ''
-    if (schema.phone === true && event.phone) {
+    if (event.phone) {
       const phone = validate_phone(event.phone)
       if (phone !== '') {
         hashed_phone = create_hash(phone)
