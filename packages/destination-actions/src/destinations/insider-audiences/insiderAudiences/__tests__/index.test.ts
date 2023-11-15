@@ -46,7 +46,8 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })
@@ -88,7 +89,8 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })
@@ -132,7 +134,8 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })
@@ -168,7 +171,8 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })
@@ -211,7 +215,8 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })
@@ -248,7 +253,8 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        platform: 'segment'
       }
     })
   })

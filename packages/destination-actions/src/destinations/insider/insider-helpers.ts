@@ -69,7 +69,8 @@ export function userProfilePayload(data: UserPayload) {
           custom: data.custom
         }
       }
-    ]
+    ],
+    platform: 'segment'
   }
 }
 
@@ -251,7 +252,7 @@ export function sendTrackEvent(
     payload.events.push(event)
   }
 
-  return { users: [payload] }
+  return { users: [payload], platform: 'segment' }
 }
 
 export function bulkUserProfilePayload(data: UserPayload[]) {
@@ -308,7 +309,7 @@ export function bulkUserProfilePayload(data: UserPayload[]) {
     return { identifiers, attributes }
   })
 
-  return { users: batchPayload }
+  return { users: batchPayload, platform: 'segment' }
 }
 
 export function sendBulkTrackEvents(
@@ -499,5 +500,5 @@ export function sendBulkTrackEvents(
     bulkPayload.push(payload)
   })
 
-  return { users: bulkPayload }
+  return { users: bulkPayload, platform: 'segment' }
 }
