@@ -197,7 +197,10 @@ export function getFieldValueKeys(value: FieldValue): string[] {
   return []
 }
 
-function getRawKeys(input: FieldValue): string[] {
+/**
+ * Function to get raw keys from a FieldValue
+ */
+export function getRawKeys(input: FieldValue): string[] {
   if (isDirective(input)) {
     return getFieldValueKeys(input)
   } else if (_.isObject(input)) {
@@ -209,7 +212,7 @@ function getRawKeys(input: FieldValue): string[] {
 /**
  * Function to grab all values between any set of {{}} in a string
  */
-function getTemplateKeys(input: string): string[] {
+export function getTemplateKeys(input: string): string[] {
   const regex = /{{(.*?)}}/g
   return Array.from(input.matchAll(regex), (m) => m[1])
 }
