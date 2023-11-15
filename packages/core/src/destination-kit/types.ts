@@ -1,4 +1,4 @@
-import { StateContext, Logger, StatsContext, TransactionContext, ActionHookType } from './index'
+import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -46,6 +46,7 @@ export interface ExecuteInput<
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
