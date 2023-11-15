@@ -6,7 +6,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const timestamp = '2023-02-22T15:21:15.449Z'
 
-describe('Trackey.registerCompany', () => {
+describe('Trackey.group', () => {
   it('Sends company data correctly', async () => {
     const event = createTestEvent({
       type: 'group',

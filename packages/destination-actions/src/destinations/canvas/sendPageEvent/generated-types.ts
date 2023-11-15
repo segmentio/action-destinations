@@ -38,7 +38,7 @@ export interface Payload {
    */
   received_at: string | number
   /**
-   * When the event was sent.
+   * Device-time when the event was sent.
    */
   sent_at: string | number
   /**

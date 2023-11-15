@@ -6,7 +6,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const timestamp = '2023-02-22T15:21:15.449Z'
 
-describe('Trackey.identifyUser', () => {
+describe('Trackey.identify', () => {
   it('Sends an account profile succesfully', async () => {
     const event = createTestEvent({
       type: 'identify',

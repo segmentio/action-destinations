@@ -1,8 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import identifyUser from './identify'
-import trackEvent from './track'
-import registerCompany from './group'
+import identify from './identify'
+import track from './track'
+import group from './group'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Trackey',
@@ -29,9 +29,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    identifyUser,
-    trackEvent,
-    registerCompany
+    identify,
+    track,
+    group
   }
 }
 
