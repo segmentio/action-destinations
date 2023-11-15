@@ -1,7 +1,6 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import { _1Flow } from '../api'
 import type { Settings } from '../generated-types'
-import { filterCustomTraits } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
@@ -19,20 +18,41 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
         '@path': '$.userId'
       }
     },
+    anonymous_id: {
+      description: "An anonymous identifier for the user.",
+      label: 'Anonymous ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     traits: {
       description: "The user's custom attributes.",
       label: 'Custom Attributes',
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue',
+      default: {
+        '@path': '$.traits'
+      }
     },
-    name: {
-      description: "The user's name.",
-      label: 'Name',
+    first_name: {
+      description: "The user's first name.",
+      label: 'First Name',
       type: 'string',
       required: false,
       default: {
-        '@path': '$.userId'
+        '@path': '$.traits.first_name'
+      }
+    },
+    last_name: {
+      description: "The user's last name.",
+      label: 'First Name',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.traits.last_name'
       }
     },
     phone: {
@@ -56,19 +76,14 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
     }
   },
   perform: (_1Flow, event) => {
-    // remove properties that require extra handling
-    const { user_id, traits } = event.payload
+    const { user_id, anonymous_id, traits, first_name, last_name, phone, email } = event.payload
 
-    // Ensure the user_id is provided and non-empty
-    if (!user_id) {
-      throw new Error('User ID is required.')
-    }
-    // drop custom objects & arrays
-    const filteredCustomTraits = filterCustomTraits(traits)
-
-    // API call
-    _1Flow('identify', user_id, {
-      ...filteredCustomTraits
+    _1Flow('identify', user_id, anonymous_id, {
+      traits: traits,
+      first_name: first_name,
+      last_name: last_name,
+      phone: phone,
+      email: email
     })
   }
 }

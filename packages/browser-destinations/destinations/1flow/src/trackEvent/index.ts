@@ -17,16 +17,47 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
       default: {
         '@path': '$.event'
       }
+    },
+    user_id: {
+      description: 'A unique identifier for the user.',
+      label: 'User ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymous_id: {
+      description: "An anonymous identifier for the user.",
+      label: 'Anonymous ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    properties: {
+      description: 'Information associated with the event',
+      label: 'Event Properties',
+      type: 'object',
+      required: false,
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (_1Flow, event) => {
-    const { event_name } = event.payload
-    const richLinkProperties = _1Flow.richLinkProperties ? _1Flow.richLinkProperties : []
-    //API call
+    const { event_name, user_id, anonymous_id, properties } = event.payload;
     _1Flow('track', event_name, {
-      ...richLinkProperties
+      userId: user_id,
+      anonymousId: anonymous_id,
+      properties: properties
     })
   }
 }
 
 export default action
+
+
+
+

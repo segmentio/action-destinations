@@ -1,11 +1,20 @@
-// Generated file. DO NOT MODIFY IT BY HAND.
-
 export interface Payload {
-  settings?: {
+  /**
+   * Event to be tracked
+   */
+  event: string
+  /**
+   * Object containing the attributes (properties) of the event
+   */
+  attributes?: {
     [k: string]: unknown
   }
   /**
-   * The name of the event.
+   * Unique identifer of the user
    */
-  event_name: string
+  userId?: string
+  /**
+   * Anonymous identifier of the user
+   */
+  anonymousId?: string
 }

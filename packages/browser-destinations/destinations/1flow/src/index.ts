@@ -5,6 +5,7 @@ import trackEvent from './trackEvent'
 import { initScript } from './1flow'
 import { _1Flow } from './api'
 import identifyUser from './identifyUser'
+import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     _1Flow: _1Flow
@@ -24,13 +25,29 @@ export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
       required: true
     }
   },
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
+    }
+  ],
 
-  initialize: async ({ settings }) => {
+  initialize: async ({ settings }, deps) => {
     const projectApiKey = settings.projectApiKey
     initScript({ projectApiKey })
+    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, '_1Flow'), 100)
     return window._1Flow
   },
-
   actions: {
     trackEvent,
     identifyUser
