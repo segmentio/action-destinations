@@ -45,9 +45,9 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@if': {
-      exists: { '@path': '$.context.traits.phone' },
-      then: { '@path': '$.context.traits.phone' },
-      else: { '@path': '$.properties.phone' }
+      exists: { '@path': '$.context.traits.email' },
+      then: { '@path': '$.context.traits.email' },
+      else: { '@path': '$.properties.email' }
     }
   }
 }
