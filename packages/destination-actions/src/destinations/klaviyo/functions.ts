@@ -57,3 +57,19 @@ export async function createProfile(request: RequestClient, email: string) {
   })
   return profile.json()
 }
+
+export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
+  const listData = {
+    data: [
+      {
+        type: 'profile',
+        id: profileId
+      }
+    ]
+  }
+
+  await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
+    method: 'POST',
+    json: listData
+  })
+}

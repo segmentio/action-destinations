@@ -10,7 +10,8 @@ const goodTrackEvent = createTestEvent({
   context: {
     personas: {
       computation_class: 'audience',
-      computation_key: 'ld_segment_test'
+      computation_key: 'ld_segment_test',
+      computation_id: 'ld_segment_audience_id'
     },
     traits: {
       email: 'test@email.com'
@@ -27,7 +28,8 @@ const goodIdentifyEvent = createTestEvent({
   context: {
     personas: {
       computation_class: 'audience',
-      computation_key: 'ld_segment_test'
+      computation_key: 'ld_segment_test',
+      computation_id: 'ld_segment_audience_id'
     }
   },
   traits: {
@@ -40,7 +42,8 @@ const goodIdentifyEvent = createTestEvent({
 const badEvent = createTestEvent({
   context: {
     personas: {
-      computation_key: 'ld_segment_test'
+      computation_key: 'ld_segment_test',
+      computation_id: 'ld_segment_audience_id'
     },
     traits: {
       email: 'test@email.com'

@@ -61,6 +61,7 @@ export interface EventData {
     }
   }
 }
+
 export interface listData {
   data: {
     type: string
@@ -70,4 +71,12 @@ export interface listData {
 
 export interface ListIdResponse {
   content: string
+}
+export interface GetListResultContent {
+  data: {
+    id: string
+    attributes: {
+      name: string
+    }
+  }[]
 }

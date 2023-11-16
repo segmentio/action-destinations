@@ -9,7 +9,7 @@ import {
   user_attributes,
   uuid
 } from '../insider-properties'
-import { API_BASE, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
+import { API_BASE, sendBulkTrackEvents, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Registered Event',
@@ -27,6 +27,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: sendTrackEvent(data.payload, 'sign_up_confirmation')
+    })
+  },
+  performBatch: (request, data) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: sendBulkTrackEvents(data.payload, 'sign_up_confirmation')
     })
   }
 }
