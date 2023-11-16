@@ -13,9 +13,11 @@ import type {
 import type { Payload } from '../streamConversion/generated-types'
 export class LinkedInConversions {
   request: RequestClient
+  conversionRuleId?: string
 
-  constructor(request: RequestClient) {
+  constructor(request: RequestClient, conversionRuleId?: string) {
     this.request = request
+    this.conversionRuleId = conversionRuleId
   }
 
   async getProfile(): Promise<ModifiedResponse<ProfileAPIResponse>> {
@@ -176,7 +178,7 @@ export class LinkedInConversions {
         method: 'PUT',
         body: JSON.stringify({
           campaign: `urn:li:sponsoredCampaign:${payload.campaignId}`,
-          conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`
+          conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
         })
       }
     )

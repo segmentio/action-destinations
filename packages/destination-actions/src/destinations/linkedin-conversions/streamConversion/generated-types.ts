@@ -6,10 +6,6 @@ export interface Payload {
    */
   adAccountId: string
   /**
-   * Fetches a list of conversion rules given an ad account id.
-   */
-  conversionId?: string
-  /**
    * Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.
    */
   conversionHappenedAt: number

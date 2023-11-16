@@ -17,13 +17,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true
     },
-    conversionId: {
-      label: 'Conversion Rule',
-      description: 'Fetches a list of conversion rules given an ad account id.',
-      type: 'string',
-      required: false,
-      dynamic: true
-    },
     conversionHappenedAt: {
       label: 'Timestamp',
       description:
@@ -143,10 +136,19 @@ const action: ActionDefinition<Settings, Payload> = {
       return linkedIn.getCampaignsList(payload.adAccountId)
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, hookOutputs }) => {
     validate(payload)
 
-    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
+    let conversionRuleId = ''
+    if (hookOutputs?.onMappingSave?.outputs?.id) {
+      conversionRuleId = hookOutputs?.onMappingSave.outputs?.id
+    }
+
+    if (!conversionRuleId) {
+      throw new PayloadValidationError('Conversion Rule ID is required.')
+    }
+
+    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
       await linkedinApiClient.associateCampignToConversion(payload)
       return linkedinApiClient.streamConversionEvent(payload)
