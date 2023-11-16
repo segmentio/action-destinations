@@ -157,8 +157,6 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function validate(payload: Payload) {
-  console.log('hewj: ', payload.user.userIds)
-
   const dateFromTimestamp = new Date(payload.conversionHappenedAt)
   if (isNaN(dateFromTimestamp.getTime())) {
     throw new PayloadValidationError('Timestamp field should be valid timestamp.')
