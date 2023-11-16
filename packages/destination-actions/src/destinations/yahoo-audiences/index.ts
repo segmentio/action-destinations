@@ -96,7 +96,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: 'Segment Audience Key',
       type: 'string',
       required: true
-    },
+    }
+    /*,
     identifier: {
       label: 'User Identifier',
       description: 'Specify the identifier(s) to send to Yahoo',
@@ -112,7 +113,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         { value: 'email_phone', label: 'Send email and/or phone' },
         { value: 'phone_maid', label: 'Send phone and/or MAID' }
       ]
-    }
+    }*/
   },
   audienceConfig: {
     mode: {
@@ -130,7 +131,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_id = createAudienceInput.audienceSettings?.audience_id
       const audience_key = createAudienceInput.audienceSettings?.audience_key
       const engage_space_id = createAudienceInput.settings?.engage_space_id
-      const identifier = createAudienceInput.audienceSettings?.identifier
+      //const identifier = createAudienceInput.audienceSettings?.identifier
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
       // The 3 errors below will be removed once we have Payload accessible by createAudience()
@@ -153,14 +154,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!engage_space_id) {
         throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
       }
-
-      if (!identifier) {
-        throw new IntegrationError(
-          'Create Audience: missing audience setting "Identifier"',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
-      }
+      // Removed since identifier is inherited from the payload. Required Ids are sent when they're mapped in Configurable Id sync
+      // if (!identifier) {
+      //   throw new IntegrationError(
+      //     'Create Audience: missing audience setting "Identifier"',
+      //     'MISSING_REQUIRED_FIELD',
+      //     400
+      //   )
+      // }
 
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
         throw new IntegrationError('Missing Taxonomy API client secret', 'MISSING_REQUIRED_FIELD', 400)
@@ -172,8 +173,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const input = {
         segment_audience_id: audience_id,
         segment_audience_key: audience_key,
-        engage_space_id: engage_space_id,
-        identifier: identifier
+        engage_space_id: engage_space_id
       }
 
       const body_form_data = gen_segment_subtaxonomy_payload(input)

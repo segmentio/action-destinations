@@ -30,5 +30,5 @@ export interface YahooSubTaxonomy {
   segment_audience_id: string
   segment_audience_key: string
   engage_space_id: string
-  identifier: string
+  //identifier: string
 }

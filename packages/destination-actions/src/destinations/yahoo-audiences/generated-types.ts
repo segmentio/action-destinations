@@ -25,8 +25,4 @@ export interface AudienceSettings {
    * Segment Audience Key
    */
   audience_key: string
-  /**
-   * Specify the identifier(s) to send to Yahoo
-   */
-  identifier: string
 }

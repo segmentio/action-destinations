@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TrackEventsPublishBody, devrevApiPaths, getBaseUrl } from '../utils'
 import { RequestOptions } from '@segment/actions-core'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Stream Event',
@@ -122,6 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
         {
           name: eventName,
           event_time: timestamp.toString(),
+          event_id: payload.messageId || uuidv4(),
           payload: {
             // add mapped data to payload
             ...payload,
