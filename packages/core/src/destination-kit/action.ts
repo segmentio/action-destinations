@@ -12,7 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext, RequestCache } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -157,7 +157,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
-  dataFeedCache?: DataFeedCache | undefined
+  requestCache?: RequestCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
 }
@@ -227,6 +227,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -237,10 +248,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      dataFeedCache: bundle.dataFeedCache,
+      requestCache: bundle.requestCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
-      audienceSettings: bundle.audienceSettings
+      audienceSettings: bundle.audienceSettings,
+      hookOutputs
     }
 
     // Construct the request client and perform the action
@@ -288,7 +300,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        dataFeedCache: bundle.dataFeedCache,
+        requestCache: bundle.requestCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext
       }
