@@ -27,20 +27,27 @@ export interface Payload {
    */
   eventId?: string
   /**
-   * The user(s) to associate this conversion to. `userId` array or `userInfo` combination is required.
+   * Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".
    */
-  user: {
-    userIds: {
-      idType: string
-      idValue: string
-    }[]
-    userInfo?: {
-      firstName?: string
-      lastName?: string
-      companyName?: string
-      title?: string
-      countryCode?: string
-    }
+  userIds?: {
+    /**
+     * Valid values are: SHA256_EMAIL, LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID, ACXIOM_ID, ORACLE_MOAT_ID
+     */
+    idType: string
+    /**
+     * The value of the identifier.
+     */
+    idValue: string
+  }[]
+  /**
+   * Object containing additional fields for user matching.
+   */
+  userInfo?: {
+    firstName?: string
+    lastName?: string
+    companyName?: string
+    title?: string
+    countryCode?: string
   }
   /**
    * A dynamic field dropdown which fetches all active campaigns.

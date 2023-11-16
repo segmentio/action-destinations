@@ -179,61 +179,57 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         '@path': '$.messageId'
       }
     },
-    user: {
-      label: 'User',
-      description: 'The user(s) to associate this conversion to. `userId` array or `userInfo` combination is required.',
+    userIds: {
+      label: 'User Ids',
+      description:
+        'Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".',
       type: 'object',
-      required: true,
+      multiple: true,
       properties: {
-        userIds: {
-          label: 'User Ids',
-          type: 'object',
-          multiple: true,
-          required: true,
-          properties: {
-            idType: {
-              label: 'idType',
-              type: 'string',
-              required: true
-            },
-            idValue: {
-              label: 'idValue',
-              type: 'string',
-              required: true
-            }
-          }
+        idType: {
+          label: 'ID Type',
+          description: `Valid values are: ${SUPPORTED_ID_TYPE.join(', ')}`,
+          type: 'string',
+          required: true
         },
-        userInfo: {
-          label: 'User Info',
-          type: 'object',
-          required: false,
-          properties: {
-            firstName: {
-              label: 'First Name',
-              type: 'string',
-              required: false
-            },
-            lastName: {
-              label: 'Last Name',
-              type: 'string',
-              required: false
-            },
-            companyName: {
-              label: 'Company Name',
-              type: 'string',
-              required: false
-            },
-            title: {
-              label: 'Title',
-              type: 'string',
-              required: false
-            },
-            countryCode: {
-              label: 'Country Code',
-              type: 'string',
-              required: false
-            }
-          }
+        idValue: {
+          label: 'ID Value',
+          description: 'The value of the identifier.',
+          type: 'string',
+          required: true
+        }
+      }
+    },
+    userInfo: {
+      label: 'User Info',
+      description: 'Object containing additional fields for user matching.',
+      type: 'object',
+      required: false,
+      properties: {
+        firstName: {
+          label: 'First Name',
+          type: 'string',
+          required: false
+        },
+        lastName: {
+          label: 'Last Name',
+          type: 'string',
+          required: false
+        },
+        companyName: {
+          label: 'Company Name',
+          type: 'string',
+          required: false
+        },
+        title: {
+          label: 'Title',
+          type: 'string',
+          required: false
+        },
+        countryCode: {
+          label: 'Country Code',
+          type: 'string',
+          required: false
         }
       }
     },
