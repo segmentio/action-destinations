@@ -227,6 +227,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -240,7 +251,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       dataFeedCache: bundle.dataFeedCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
-      audienceSettings: bundle.audienceSettings
+      audienceSettings: bundle.audienceSettings,
+      hookOutputs
     }
 
     // Construct the request client and perform the action

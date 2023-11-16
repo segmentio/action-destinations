@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: all fields 1`] = `Object {}`;
+exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: all fields 1`] = `
+Object {
+  "campaign": "urn:li:sponsoredCampaign:RK^DrO",
+  "conversion": "urn:lla:llaPartnerConversion:RK^DrO",
+}
+`;
 
-exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: required fields 1`] = `Object {}`;
+exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: required fields 1`] = `
+Object {
+  "campaign": "urn:li:sponsoredCampaign:RK^DrO",
+  "conversion": "urn:lla:llaPartnerConversion:undefined",
+}
+`;
