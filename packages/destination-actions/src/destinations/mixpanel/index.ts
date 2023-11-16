@@ -7,7 +7,7 @@ import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
 
 import alias from './alias'
-import { ApiRegions, StrictMode } from './utils'
+import { ApiRegions, StrictMode } from './common/utils'
 
 import trackPurchase from './trackPurchase'
 

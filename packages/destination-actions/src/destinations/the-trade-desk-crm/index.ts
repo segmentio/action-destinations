@@ -1,9 +1,10 @@
 import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
+import { getAllDataSegments } from './functions'
 
 import syncAudience from './syncAudience'
-const API_VERSION = 'v3'
+export const API_VERSION = 'v3'
 const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
 export interface CreateApiResponse {
@@ -120,33 +121,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const advertiserId = getAudienceInput.settings.advertiser_id
       const authToken = getAudienceInput.settings.auth_token
 
-      const response: ModifiedResponse<GetApiResponse> = await request(
-        `${BASE_URL}/crmdata/segment/${advertiserId}/${crmDataId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'TTD-Auth': authToken
-          }
+      const allDataSegments = await getAllDataSegments(request, advertiserId, authToken)
+
+      const segmentExists = allDataSegments.filter(function (segment: Segments) {
+        if (segment.CrmDataId == crmDataId) {
+          return segment
         }
-      )
+      })
 
-      if (response.status !== 200) {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-      }
-
-      const externalId = response.data.CrmDataId
-
-      if (externalId !== getAudienceInput.externalId) {
+      if (segmentExists.length != 1) {
         throw new IntegrationError(
-          "Unable to verify ownership over audience. Segment Audience ID doesn't match The Trade Desk's Audience ID.",
+          `No CRM Data Segment with Id ${crmDataId} found for advertiser ${advertiserId}`,
           'INVALID_REQUEST_DATA',
           400
         )
       }
 
       return {
-        externalId: externalId
+        externalId: crmDataId
       }
     }
   },

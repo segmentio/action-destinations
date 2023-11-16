@@ -1,6 +1,29 @@
-import { APIError, RequestClient } from '@segment/actions-core'
+import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL } from './config'
-import { KlaviyoAPIError, ProfileData, listData } from './types'
+import { KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
+
+export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
+  try {
+    const result: ListIdResponse = await request(`${API_URL}/lists/`, {
+      method: 'get'
+    })
+    const choices = JSON.parse(result.content).data.map((list: { id: string; attributes: { name: string } }) => {
+      return { value: list.id, label: list.attributes.name }
+    })
+    return {
+      choices
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: (err as APIError).message ?? 'Unknown error',
+        code: (err as APIError).status + '' ?? 'Unknown error'
+      }
+    }
+  }
+}
 
 export async function addProfileToList(request: RequestClient, method: 'DELETE' | 'POST', id: string, list_id: string) {
   const listData: listData = {
@@ -57,3 +80,19 @@ export async function createProfile(request: RequestClient, email: string) {
   })
   return profile.json()
 }
+
+// export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
+//   const listData = {
+//     data: [
+//       {
+//         type: 'profile',
+//         id: profileId
+//       }
+//     ]
+//   }
+
+//   await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
+//     method: 'POST',
+//     json: listData
+//   })
+// }
