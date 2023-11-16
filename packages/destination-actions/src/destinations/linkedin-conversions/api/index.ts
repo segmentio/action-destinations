@@ -162,7 +162,7 @@ export class LinkedInConversions {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
-        conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+        conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
         conversionHappenedAt: payload.conversionHappenedAt,
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
@@ -173,7 +173,7 @@ export class LinkedInConversions {
 
   async associateCampignToConversion(payload: Payload): Promise<ModifiedResponse> {
     return this.request(
-      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`,
+      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
       {
         method: 'PUT',
         body: JSON.stringify({
