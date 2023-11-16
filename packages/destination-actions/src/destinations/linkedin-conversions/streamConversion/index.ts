@@ -157,6 +157,8 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function validate(payload: Payload) {
+  console.log('hewj: ', payload.user.userIds)
+
   const dateFromTimestamp = new Date(payload.conversionHappenedAt)
   if (isNaN(dateFromTimestamp.getTime())) {
     throw new PayloadValidationError('Timestamp field should be valid timestamp.')
@@ -174,12 +176,12 @@ function validate(payload: Payload) {
   ) {
     throw new PayloadValidationError('Either userIds array or userInfo with firstName and lastName should be present.')
   } else if (payload.user.userIds.length !== 0) {
-    const isValidUserIds = payload.user.userIds.some((obj) => {
+    const isValidUserIds = payload.user.userIds.every((obj) => {
       return SUPPORTED_ID_TYPE.includes(obj.idType)
     })
 
     if (!isValidUserIds) {
-      throw new PayloadValidationError('Invalid idType in userIds field.')
+      throw new PayloadValidationError(`Invalid idType in userIds field. Allowed idType will be: ${SUPPORTED_ID_TYPE}`)
     }
   }
 }
