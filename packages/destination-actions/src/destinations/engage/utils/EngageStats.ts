@@ -35,6 +35,11 @@ export class EngageStats extends OperationStats {
       this.actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
     if (correlation_id) ctx.sharedContext.tags.push(`correlation_id:${correlation_id}`)
 
+    const audience_id =
+      this.actionPerformer.payload.customArgs?.audience_id ||
+      this.actionPerformer.payload.customArgs?.__segment_internal_audience_id__
+    if (audience_id) ctx.sharedContext.tags.push(`audience_id:${audience_id}`)
+
     //for operations like request which can be used in multiple places, we need to have operation_path tag that will show where this operation is invoked from
     const parentOperation = (ctx as OperationContext).parent
     if (parentOperation) {
