@@ -166,7 +166,10 @@ export class LinkedInConversions {
         conversionHappenedAt: payload.conversionHappenedAt,
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
-        user: payload.user
+        user: {
+          userIds: payload.userIds,
+          userInfo: payload.userInfo
+        }
       }
     })
   }

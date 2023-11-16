@@ -290,12 +290,14 @@ function validate(payload: Payload) {
   }
 
   if (
-    payload.user.userIds.length === 0 &&
-    (!payload.user.userInfo || !(payload.user.userInfo.firstName && payload.user.userInfo.lastName))
+    payload.userIds &&
+    Array.isArray(payload.userIds) &&
+    payload.userIds?.length === 0 &&
+    (!payload.userInfo || !(payload.userInfo.firstName && payload.userInfo.lastName))
   ) {
     throw new PayloadValidationError('Either userIds array or userInfo with firstName and lastName should be present.')
-  } else if (payload.user.userIds.length !== 0) {
-    const isValidUserIds = payload.user.userIds.every((obj) => {
+  } else if (payload.userIds && payload.userIds.length !== 0) {
+    const isValidUserIds = payload.userIds.every((obj) => {
       return SUPPORTED_ID_TYPE.includes(obj.idType)
     })
 
