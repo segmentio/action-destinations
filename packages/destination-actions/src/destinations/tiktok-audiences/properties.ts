@@ -43,9 +43,12 @@ export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to TikTok.",
   type: 'string',
-  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
   default: {
-    '@path': '$.context.traits.email'
+    '@if': {
+      exists: { '@path': '$.context.traits.phone' },
+      then: { '@path': '$.context.traits.phone' },
+      else: { '@path': '$.properties.phone' }
+    }
   }
 }
 
@@ -56,11 +59,30 @@ export const send_email: InputField = {
   default: true
 }
 
+export const phone: InputField = {
+  label: 'User Phone Number',
+  description: "The user's phone number to send to TikTok.",
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.phone' },
+      then: { '@path': '$.context.traits.phone' },
+      else: { '@path': '$.properties.phone' }
+    }
+  }
+}
+
+export const send_phone: InputField = {
+  label: 'Send Phone Number',
+  description: 'Send phone number to TikTok. Segment will hash this value before sending',
+  type: 'boolean',
+  default: true
+}
+
 export const advertising_id: InputField = {
   label: 'User Advertising ID',
   description: "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
   type: 'string',
-  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
   default: {
     '@path': '$.context.device.advertisingId'
   }

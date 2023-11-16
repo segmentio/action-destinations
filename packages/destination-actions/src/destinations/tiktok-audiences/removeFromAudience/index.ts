@@ -4,7 +4,9 @@ import type { Payload } from './generated-types'
 import { processPayload } from '../functions'
 import {
   email,
+  phone,
   send_email,
+  send_phone,
   send_advertising_id,
   advertising_id,
   event_name,
@@ -19,8 +21,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
     email: { ...email },
+    phone: { ...phone },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
+    send_phone: { ...send_phone },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching },

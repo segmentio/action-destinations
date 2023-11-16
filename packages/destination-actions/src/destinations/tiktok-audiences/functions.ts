@@ -85,6 +85,9 @@ export function getIDSchema(payload: GenericPayload): string[] {
   if (payload.send_email === true) {
     id_schema.push('EMAIL_SHA256')
   }
+  if (payload.send_phone === true) {
+    id_schema.push('PHONE_SHA256')
+  }
   if (payload.send_advertising_id === true) {
     id_schema.push('IDFA_SHA256')
   }
@@ -125,6 +128,17 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
         }
       }
       user_ids.push(email_id)
+    }
+
+    if (payload.send_phone === true) {
+      let phone_id = {}
+      if (payload.phone) {
+        phone_id = {
+          id: createHash('sha256').update(payload.phone).digest('hex'),
+          audience_ids: [external_audience_id]
+        }
+      }
+      user_ids.push(phone_id)
     }
 
     if (payload.send_advertising_id === true) {
