@@ -250,10 +250,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       const linkedIn = new LinkedInConversions(request)
       return linkedIn.getAdAccounts()
     },
-    conversionId: async (request, { payload }) => {
-      const linkedIn = new LinkedInConversions(request)
-      return linkedIn.getConversionRulesList(payload.adAccountId)
-    },
+    // conversionId: async (request, { payload }) => {
+    //   const linkedIn = new LinkedInConversions(request)
+    //   return linkedIn.getConversionRulesList(payload.adAccountId)
+    // },
     campaignId: async (request, { payload }) => {
       const linkedIn = new LinkedInConversions(request)
       return linkedIn.getCampaignsList(payload.adAccountId)
