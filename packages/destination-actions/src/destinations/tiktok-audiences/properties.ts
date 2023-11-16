@@ -45,15 +45,15 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@if': {
-      exists: { '@path': '$.context.traits.email' },
-      then: { '@path': '$.context.traits.email' },
-      else: { '@path': '$.properties.email' }
+      exists: { '@path': '$.context.traits.phone' },
+      then: { '@path': '$.context.traits.phone' },
+      else: { '@path': '$.properties.phone' }
     }
   }
 }
 
 export const send_email: InputField = {
-  label: 'Send Email?',
+  label: 'Send Email',
   description: 'Send email to TikTok. Segment will hash this value before sending',
   type: 'boolean',
   default: true
@@ -73,7 +73,7 @@ export const phone: InputField = {
 }
 
 export const send_phone: InputField = {
-  label: 'Send Phone Number?',
+  label: 'Send Phone Number',
   description: 'Send phone number to TikTok. Segment will hash this value before sending',
   type: 'boolean',
   default: true
@@ -89,7 +89,7 @@ export const advertising_id: InputField = {
 }
 
 export const send_advertising_id: InputField = {
-  label: 'Send Mobile Advertising ID?',
+  label: 'Send Mobile Advertising ID',
   description:
     'Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.',
   type: 'boolean',
@@ -110,8 +110,7 @@ export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching of requests to the TikTok Audiences.',
   type: 'boolean',
-  default: true,
-  unsafe_hidden: true
+  default: true
 }
 
 export const external_audience_id: InputField = {
