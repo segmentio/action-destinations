@@ -138,6 +138,16 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       multiple: true,
       properties: apiLookupActionFields
     },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      unsafe_hidden: true,
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
