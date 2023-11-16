@@ -14,7 +14,7 @@ export interface Payload {
    */
   conversionHappenedAt: number
   /**
-   * The monetary value for this conversion. Example: [“currencyCode”: “USD”, “amount”: “50.0”].
+   * The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.
    */
   conversionValue?: {
     /**
@@ -31,7 +31,7 @@ export interface Payload {
    */
   eventId?: string
   /**
-   * userId or userInfo Combination is REQUIRED.
+   * The user(s) to associate this conversion to. `userId` array or `userInfo` combination is required.
    */
   user: {
     userIds: {
@@ -39,7 +39,11 @@ export interface Payload {
       idValue: string
     }[]
     userInfo?: {
-      [k: string]: unknown
+      firstName?: string
+      lastName?: string
+      companyName?: string
+      title?: string
+      countryCode?: string
     }
   }
   /**

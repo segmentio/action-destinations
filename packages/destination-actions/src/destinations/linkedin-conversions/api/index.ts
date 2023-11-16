@@ -40,13 +40,13 @@ export class LinkedInConversions {
 
       const choices = response?.map((item) => {
         return {
-          label: item.role,
+          label: item.user,
           value: item.account
         }
       })
 
       return {
-        choices: choices
+        choices
       }
     } catch (err) {
       return {
@@ -93,7 +93,7 @@ export class LinkedInConversions {
       })
 
       return {
-        choices: choices
+        choices
       }
     } catch (err) {
       return {
@@ -126,10 +126,7 @@ export class LinkedInConversions {
       const result = await this.request<GetCampaignsListAPIResponse>(
         `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE)))`,
         {
-          method: 'GET',
-          headers: {
-            'X-Restli-Protocol-Version': '2.0.0'
-          }
+          method: 'GET'
         }
       )
 
@@ -145,7 +142,7 @@ export class LinkedInConversions {
       })
 
       return {
-        choices: choices
+        choices
       }
     } catch (err) {
       return {
@@ -174,12 +171,9 @@ export class LinkedInConversions {
 
   async associateCampignToConversion(payload: Payload): Promise<ModifiedResponse> {
     return this.request(
-      `https://api.linkedin.com/rest/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`,
+      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`,
       {
         method: 'PUT',
-        headers: {
-          'X-Restli-Protocol-Version': '2.0.0'
-        },
         body: JSON.stringify({
           campaign: `urn:li:sponsoredCampaign:${payload.campaignId}`,
           conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`
@@ -188,4 +182,3 @@ export class LinkedInConversions {
     )
   }
 }
-;``

@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     conversionValue: {
       label: 'Conversion Value',
-      description: 'The monetary value for this conversion. Example: [“currencyCode”: “USD”, “amount”: “50.0”].',
+      description: 'The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.',
       type: 'object',
       required: false,
       properties: {
@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user: {
       label: 'User',
-      description: 'userId or userInfo Combination is REQUIRED.',
+      description: 'The user(s) to associate this conversion to. `userId` array or `userInfo` combination is required.',
       type: 'object',
       required: true,
       properties: {
@@ -90,7 +90,34 @@ const action: ActionDefinition<Settings, Payload> = {
         userInfo: {
           label: 'User Info',
           type: 'object',
-          required: false
+          required: false,
+          properties: {
+            firstName: {
+              label: 'First Name',
+              type: 'string',
+              required: false
+            },
+            lastName: {
+              label: 'Last Name',
+              type: 'string',
+              required: false
+            },
+            companyName: {
+              label: 'Company Name',
+              type: 'string',
+              required: false
+            },
+            title: {
+              label: 'Title',
+              type: 'string',
+              required: false
+            },
+            countryCode: {
+              label: 'Country Code',
+              type: 'string',
+              required: false
+            }
+          }
         }
       }
     },
