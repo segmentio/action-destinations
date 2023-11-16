@@ -69,9 +69,13 @@ export async function createAudience(
 }
 
 export function validate(payloads: GenericPayload[]): void {
-  if (payloads[0].send_email === false && payloads[0].send_advertising_id === false) {
+  if (
+    payloads[0].send_email === false &&
+    payloads[0].send_advertising_id === false &&
+    payloads[0].send_phone === false
+  ) {
     throw new IntegrationError(
-      'At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.',
+      'At least one of `Send Email`, `Send Phone` or `Send Advertising ID` must be set to `true`.',
       'INVALID_SETTINGS',
       400
     )
