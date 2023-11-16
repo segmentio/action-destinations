@@ -9,4 +9,10 @@ export interface Payload {
    * The email of the user
    */
   email?: string | null
+  /**
+   * A list of attributes coming from segment traits
+   */
+  traits?: {
+    [k: string]: unknown
+  }
 }

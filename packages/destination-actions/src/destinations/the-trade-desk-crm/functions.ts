@@ -49,6 +49,10 @@ const TTD_MIN_RECORD_COUNT = 1500
 export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'
 export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
 
+const sha256HashedRegex = /^[a-f0-9]{64}$/i
+const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
+const validEmailRegex = /^\S+@\S+\.\S+$/i
+
 export async function processPayload(input: ProcessPayloadInput) {
   let crmID
   if (!input.payloads[0].external_id) {
@@ -100,7 +104,7 @@ export async function processPayload(input: ProcessPayloadInput) {
 function extractUsers(payloads: Payload[]): string {
   let users = ''
   payloads.forEach((payload: Payload) => {
-    if (!payload.email) {
+    if (!payload.email || !validateEmail(payload.email, payload.pii_type)) {
       return
     }
 
@@ -114,6 +118,17 @@ function extractUsers(payloads: Payload[]): string {
     }
   })
   return users
+}
+
+function validateEmail(email: string, pii_type: string): boolean {
+  const isSha256HashedEmail = sha256HashedRegex.test(email)
+  const isBase64Hashed = base64HashedRegex.test(email)
+  const isValidEmail = validEmailRegex.test(email)
+
+  if (pii_type == 'Email') {
+    return isValidEmail
+  }
+  return isSha256HashedEmail || isBase64Hashed || isValidEmail
 }
 
 // More info about email normalization: https://api.thetradedesk.com/v3/portal/data/doc/DataPiiNormalization#email-normalize
@@ -138,8 +153,8 @@ function normalizeEmail(email: string) {
 }
 
 export const hash = (value: string): string => {
-  const isSha256HashedEmail = /^[a-f0-9]{64}$/i.test(value)
-  const isBase64Hashed = /^[A-Za-z0-9+/]*={0,2}$/i.test(value)
+  const isSha256HashedEmail = sha256HashedRegex.test(value)
+  const isBase64Hashed = base64HashedRegex.test(value)
 
   if (isSha256HashedEmail) {
     return Buffer.from(value, 'hex').toString('base64')

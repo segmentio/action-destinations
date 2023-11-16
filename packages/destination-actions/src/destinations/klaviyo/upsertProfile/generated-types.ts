@@ -52,4 +52,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * The Klaviyo list to add the profile to.
+   */
+  list_id?: string
 }

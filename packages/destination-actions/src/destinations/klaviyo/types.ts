@@ -62,3 +62,12 @@ export interface EventData {
     }
   }
 }
+
+export interface GetListResultContent {
+  data: {
+    id: string
+    attributes: {
+      name: string
+    }
+  }[]
+}

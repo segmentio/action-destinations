@@ -5,13 +5,14 @@ import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
+import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
 function createDefaultActionProps() {
   return {
-    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true },
+    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true, [FLAGON_NAME_DATA_FEEDS]: true },
     logger: loggerMock
   }
 }
@@ -1953,91 +1954,6 @@ describe.each([
   })
 
   describe('api lookups', () => {
-    it('liquid renders url with profile traits before requesting', async () => {
-      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-
-      const apiLookupRequest = nock(`https://fakeweather.com`)
-        .get(`/api/${userData.lastName}`)
-        .reply(200, {
-          current: {
-            temperature: 70
-          }
-        })
-
-      await sendgrid.testAction('sendEmail', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId,
-          external_ids: [
-            {
-              collection: 'users',
-              encoding: 'none',
-              id: userData.email,
-              isSubscribed: true,
-              type: 'email'
-            }
-          ]
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          apiLookups: {
-            id: '1',
-            name: 'weather',
-            url: 'https://fakeweather.com/api/{{profile.traits.lastName}}',
-            method: 'get',
-            cacheTtl: 0,
-            responseType: 'json'
-          }
-        })
-      })
-
-      expect(apiLookupRequest.isDone()).toBe(true)
-    })
-
-    it('liquid renders body with profile traits before requesting', async () => {
-      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-
-      const apiLookupRequest = nock(`https://fakeweather.com`)
-        .post(`/api`, `lastName is ${userData.lastName}`)
-        .reply(200, {
-          current: {
-            temperature: 70
-          }
-        })
-
-      await sendgrid.testAction('sendEmail', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId,
-          external_ids: [
-            {
-              collection: 'users',
-              encoding: 'none',
-              id: userData.email,
-              isSubscribed: true,
-              type: 'email'
-            }
-          ]
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          apiLookups: {
-            id: '1',
-            name: 'weather',
-            url: 'https://fakeweather.com/api',
-            body: 'lastName is {{profile.traits.lastName}}',
-            method: 'post',
-            cacheTtl: 0,
-            responseType: 'json'
-          }
-        })
-      })
-
-      expect(apiLookupRequest.isDone()).toBe(true)
-    })
-
     it('are called and responses are passed to email body liquid renderer before sending', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', {
@@ -2069,6 +1985,7 @@ describe.each([
         })
 
       const responses = await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
@@ -2118,6 +2035,7 @@ describe.each([
 
       await expect(
         sendgrid.testAction('sendEmail', {
+          ...defaultActionProps,
           event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
@@ -2142,8 +2060,7 @@ describe.each([
               cacheTtl: 0,
               responseType: 'json'
             }
-          }),
-          ...defaultActionProps
+          })
         })
       ).rejects.toThrowError('Too Many Requests')
 

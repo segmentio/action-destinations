@@ -1,10 +1,10 @@
 import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
-import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
-import type { Settings, AudienceSettings } from '../generated-types'
+import { PayloadValidationError } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { gen_update_segment_payload } from '../utils-rt'
 
-const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
+const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To Yahoo Ads Segment',
   description: 'Sync Segment Audience to Yahoo Ads Segment',
   defaultSubscription: 'type = "identify" or type = "track"',
@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
-          else: { '@path': '$.context.traits.email' }
+          else: { '@path': '$.context.traits.email' } // Phone is sent as identify's trait or track's context.trait
         }
       }
     },
@@ -89,8 +89,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         '@if': {
           exists: { '@path': '$.traits.phone' },
-          then: { '@path': '$.traits.phone' },
-          else: { '@path': '$.context.traits.phone' }
+          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
+          else: { '@path': '$.properties.phone' }
         }
       }
     },
@@ -104,22 +104,22 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       },
       required: false
     },
-    identifier: {
-      label: 'User Identifier',
-      description: 'Specify the identifier(s) to send to Yahoo',
-      type: 'string',
-      required: true,
-      default: 'email',
-      choices: [
-        { value: 'email', label: 'Send email' },
-        { value: 'maid', label: 'Send MAID' },
-        { value: 'phone', label: 'Send phone' },
-        { value: 'email_maid', label: 'Send email and/or MAID' },
-        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
-        { value: 'email_phone', label: 'Send email and/or phone' },
-        { value: 'phone_maid', label: 'Send phone and/or MAID' }
-      ]
-    },
+    // identifier: {
+    //   label: 'User Identifier',
+    //   description: 'Specify the identifier(s) to send to Yahoo',
+    //   type: 'string',
+    //   required: true,
+    //   default: 'email',
+    //   choices: [
+    //     { value: 'email', label: 'Send email' },
+    //     { value: 'maid', label: 'Send MAID' },
+    //     { value: 'phone', label: 'Send phone' },
+    //     { value: 'email_maid', label: 'Send email and/or MAID' },
+    //     { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
+    //     { value: 'email_phone', label: 'Send email and/or phone' },
+    //     { value: 'phone_maid', label: 'Send phone and/or MAID' }
+    //   ]
+    // },
     gdpr_flag: {
       label: 'GDPR Flag',
       description: 'Set to true to indicate that audience data is subject to GDPR regulations',
@@ -136,30 +136,26 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: (request, { payload, auth, audienceSettings, statsContext }) => {
+  perform: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-    return process_payload(request, [payload], rt_access_token, audienceSettings, statsContext)
+    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
+    return process_payload(request, [payload], rt_access_token, statsContext)
   },
-  performBatch: (request, { payload, audienceSettings, auth, statsContext }) => {
+  performBatch: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-    return process_payload(request, payload, rt_access_token, audienceSettings, statsContext)
+    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
+    return process_payload(request, payload, rt_access_token, statsContext)
   }
 }
 
+// Makes a request to Yahoo Realtime API to populate an audience
 async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  audienceSettings: AudienceSettings,
   statsContext: StatsContext | undefined
 ) {
-  const body = gen_update_segment_payload(payload, audienceSettings)
+  const body = gen_update_segment_payload(payload)
   const statsClient = statsContext?.statsClient
   const statsTag = statsContext?.tags
   // Send request to Yahoo only when all events in the batch include selected Ids

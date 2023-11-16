@@ -119,21 +119,19 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [
-      parsedFromEmail,
-      parsedFromName,
-      parsedFromReplyToEmail,
-      parsedFromReplyToName,
-      parsedSubject,
-      apiLookupData
-    ] = await Promise.all([
-      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
-      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
-      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
-      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
-      this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
-      this.performApiLookups(this.payload.apiLookups, profile)
-    ])
+    const [parsedFromEmail, parsedFromName, parsedFromReplyToEmail, parsedFromReplyToName, parsedSubject] =
+      await Promise.all([
+        this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+        this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+        this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+        this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
+        this.parseTemplating(this.payload.subject, { profile }, 'Subject')
+      ])
+
+    let apiLookupData = {}
+    if (this.isFeatureActive('is-datafeeds-enabled')) {
+      apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+    }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
 
@@ -316,7 +314,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.statsClient.statsClient,
           this.tags,
           this.settings,
-          this.logger.loggerClient
+          this.logger.loggerClient,
+          this.dataFeedCache
         )
         return { name: apiLookup.name, data }
       })

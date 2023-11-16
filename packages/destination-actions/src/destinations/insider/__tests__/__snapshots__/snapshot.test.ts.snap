@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -59,6 +60,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -86,6 +88,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -143,6 +146,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -170,6 +174,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -227,6 +232,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -254,6 +260,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -311,6 +318,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -338,6 +346,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -388,6 +397,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -415,6 +425,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -474,6 +485,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -501,6 +513,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -560,6 +573,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -587,6 +601,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -647,6 +662,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -674,6 +690,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -710,6 +727,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {},
@@ -726,6 +744,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -773,6 +792,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
