@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Email of User
+   * The user's email to send to Klavio.
    */
   email?: string
   /**

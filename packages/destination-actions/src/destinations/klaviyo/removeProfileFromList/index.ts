@@ -1,9 +1,8 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { listData } from '../types'
-import { executeProfileList, getProfile } from '../functions'
+import { addProfileToList, getProfile } from '../functions'
 import { email, external_id } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -16,23 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     const { email, external_id } = payload
     if (!email || !external_id) {
-      throw new IntegrationError('Missing List Id', 'Missing required fields', 400)
+      throw new PayloadValidationError('Missing Email or List Id')
     }
     try {
       const profileData = await getProfile(request, email)
-      const v = JSON.parse(profileData.content)
-      if (Object.keys(v).length !== 0) {
-        const listData: listData = {
-          data: [
-            {
-              type: 'profile',
-              id: v.data[0].id
-            }
-          ]
-        }
-
-        const list = await executeProfileList(request, 'DELETE', listData, external_id)
-        return list
+      const v = profileData.content
+      if (v && Object.keys(v).length !== 0) {
+        return await addProfileToList(request, 'DELETE', v.data[0].id, external_id)
       }
       return
     } catch (error) {

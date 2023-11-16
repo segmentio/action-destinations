@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { API_URL } from '../../config'
 
@@ -10,17 +10,17 @@ const apiKey = 'fake-api-key'
 export const settings = {
   api_key: apiKey
 }
-const listId = 'XAXAXA'
+const listId = 'XYZABC'
 
 describe('Remove List from Profile', () => {
-  it('should throw error if no list_id/email is provided', async () => {
+  it('should throw error if no external_id/email is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
     })
 
     await expect(testDestination.testAction('removeProfileFromList', { event, settings })).rejects.toThrowError(
-      IntegrationError
+      PayloadValidationError
     )
   })
 
@@ -29,13 +29,22 @@ describe('Remove List from Profile', () => {
       data: [
         {
           type: 'profile',
-          id: 'demo-profile-id'
+          id: 'XYZABC'
         }
       ]
     }
 
     const email = 'test@example.com'
-    nock(`${API_URL}/profiles`).get(`/?filter=equals(email,"${email}")`).reply(200, {})
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=equals(email,"${email}")`)
+      .reply(
+        200,
+        JSON.stringify({
+          content: {
+            data: [{ id: 'XYZABC' }]
+          }
+        })
+      )
 
     nock(`${API_URL}/lists/${listId}`)
       .delete('/relationships/profiles/', requestBody)
@@ -45,7 +54,7 @@ describe('Remove List from Profile', () => {
           content: {
             data: [
               {
-                id: 'demo-profile-id'
+                id: 'XYZABC'
               }
             ]
           }

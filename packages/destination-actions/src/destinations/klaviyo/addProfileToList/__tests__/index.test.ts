@@ -10,7 +10,7 @@ const apiKey = 'fake-api-key'
 export const settings = {
   api_key: apiKey
 }
-const listId = 'demo-list-id'
+const listId = 'XYZABC'
 
 describe('Add List To Profile', () => {
   it('should throw error if no list_id/email is provided', async () => {
@@ -29,7 +29,7 @@ describe('Add List To Profile', () => {
       data: [
         {
           type: 'profile',
-          id: 'demo-profile-id'
+          id: 'XYZABC'
         }
       ]
     }
@@ -43,7 +43,13 @@ describe('Add List To Profile', () => {
       }
     }
 
-    nock(`${API_URL}`).post('/profiles/', profileData).reply(200, {})
+    nock(`${API_URL}`)
+      .post('/profiles/', profileData)
+      .reply(200, {
+        data: {
+          id: 'XYZABC'
+        }
+      })
 
     nock(`${API_URL}/lists/${listId}`)
       .post('/relationships/profiles/', requestBody)

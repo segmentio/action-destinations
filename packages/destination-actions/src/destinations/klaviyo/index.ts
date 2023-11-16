@@ -1,4 +1,4 @@
-import { IntegrationError, AudienceDestinationDefinition } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import { API_URL, REVISION_DATE } from './config'
@@ -67,13 +67,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const apiKey = createAudienceInput.settings?.api_key
+      const apiKey = createAudienceInput.settings.api_key
       if (!audienceName) {
-        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new PayloadValidationError('Missing audience name value')
       }
 
       if (!apiKey) {
-        throw new IntegrationError('Missing Api Key value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new PayloadValidationError('Missing Api Key value')
       }
 
       const response = await request(`${API_URL}/lists`, {
