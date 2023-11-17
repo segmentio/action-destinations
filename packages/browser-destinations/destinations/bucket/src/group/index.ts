@@ -5,7 +5,6 @@ import type { Bucket } from '../types'
 
 const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
   title: 'Identify Company',
-  lifecycleHook: 'destination',
   description: 'Creates or updates a Company in Bucket and associates the user with it',
   platform: 'web',
   defaultSubscription: 'type = "group" and userId != null',
@@ -35,18 +34,6 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
       label: 'Company Attributes',
       default: {
         '@path': '$.traits'
-      },
-      additionalProperties: true,
-      properties: {
-        name: {
-          type: 'string',
-          required: false,
-          label: 'Name',
-          description: 'The company name',
-          default: {
-            '@path': '$.traits.name'
-          }
-        }
       }
     }
   },

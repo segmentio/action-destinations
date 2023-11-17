@@ -16,7 +16,7 @@ declare global {
 export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
   name: 'Bucket Web (Actions)',
   description:
-    'Loads the Bucket browser SDK, maps identify-, group- and track-events and enables LiveSatisfaction connections',
+    'Loads the Bucket browser SDK, maps identify(), group() and track() events and enables LiveSatisfaction connections',
   slug: 'bucket-web',
   mode: 'device',
 
@@ -32,6 +32,7 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
       name: 'Group',
       subscribe: 'type = "group" and userId != null',
       partnerAction: 'group',
+      mapping: defaultValues(group.fields),
       type: 'automatic'
     },
     {
