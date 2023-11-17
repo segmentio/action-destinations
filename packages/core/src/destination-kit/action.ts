@@ -208,7 +208,24 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             this.hookSchemas = {}
           }
 
-          this.hookSchemas[hookName] = fieldsToJsonSchema(hook.inputFields)
+          const castedInputFields: Record<string, InputField> = {}
+          for (const key in hook.inputFields) {
+            const field = hook.inputFields[key]
+
+            if (field.dynamic) {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: true
+              }
+            } else {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: false
+              }
+            }
+          }
+
+          this.hookSchemas[hookName] = fieldsToJsonSchema(castedInputFields)
         }
       }
     }
