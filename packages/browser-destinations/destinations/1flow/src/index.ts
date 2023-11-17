@@ -19,7 +19,8 @@ export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
 
   settings: {
     projectApiKey: {
-      description: 'The app_id of your 1Flow app which will indicate where to store any data.',
+      description:
+        'This is the unique app_id for your 1Flow application, serving as the identifier for data storage and retrieval. This field is mandatory.',
       label: 'Project API Key',
       type: 'string',
       required: true

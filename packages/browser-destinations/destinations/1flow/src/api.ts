@@ -2,7 +2,6 @@ type method = 'track' | 'identify'
 
 type _1FlowApi = {
   richLinkProperties: string[] | undefined
-  appId: string
   activator: string | undefined
   projectApiKey: string
 }

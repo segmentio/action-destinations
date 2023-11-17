@@ -78,7 +78,7 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
   perform: (_1Flow, event) => {
     const { userId, anonymousId, traits, first_name, last_name, phone, email } = event.payload
     _1Flow('identify', userId, anonymousId, {
-      traits: traits,
+      ...traits,
       first_name: first_name,
       last_name: last_name,
       phone: phone,

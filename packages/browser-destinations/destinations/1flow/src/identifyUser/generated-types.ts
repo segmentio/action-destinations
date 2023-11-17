@@ -1,32 +1,34 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
 export interface Payload {
   /**
-   * The user's id
+   * A unique identifier for the user.
    */
   userId?: string
   /**
-   * The user's anonymous id
+   * An anonymous identifier for the user.
    */
   anonymousId?: string
   /**
-   * The user's first_name
-   */
-  first_name?: string
-  /**
-   * The user's last_name
-   */
-  last_name?: string
-  /**
-   * The user's phone
-   */
-  phone?: string
-  /**
-   * The user's email
-   */
-  email?: string
-  /**
-   * The Segment traits to be forwarded to 1Flow
+   * The user's custom attributes.
    */
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The user's first name.
+   */
+  first_name?: string
+  /**
+   * The user's last name.
+   */
+  last_name?: string
+  /**
+   * The user's phone number.
+   */
+  phone?: string
+  /**
+   * The user's email address.
+   */
+  email?: string
 }
