@@ -158,12 +158,12 @@ export class LinkedInConversions {
     }
   }
 
-  async streamConversionEvent(payload: Payload): Promise<ModifiedResponse> {
+  async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
         conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
-        conversionHappenedAt: payload.conversionHappenedAt,
+        conversionHappenedAt: conversionTime,
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
         user: {

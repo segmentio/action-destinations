@@ -148,7 +148,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       label: 'Timestamp',
       description:
         'Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.',
-      type: 'integer',
+      type: 'string',
       required: true,
       default: {
         '@path': '$.timestamp'
@@ -256,7 +256,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
-    validate(payload)
+    const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
+      ? convertToEpochMillis(payload.conversionHappenedAt)
+      : Number(payload.conversionHappenedAt)
+    validate(payload, conversionTime)
 
     let conversionRuleId = ''
     if (hookOutputs?.onMappingSave?.outputs?.id) {
@@ -270,22 +273,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
       await linkedinApiClient.associateCampignToConversion(payload)
-      return linkedinApiClient.streamConversionEvent(payload)
+      return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       return error
     }
   }
 }
 
-function validate(payload: Payload) {
-  const dateFromTimestamp = new Date(payload.conversionHappenedAt)
-  if (isNaN(dateFromTimestamp.getTime())) {
-    throw new PayloadValidationError('Timestamp field should be valid timestamp.')
-  }
-
+function validate(payload: Payload, conversionTime: number) {
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
-  if (payload.conversionHappenedAt < ninetyDaysAgo) {
+  if (conversionTime < ninetyDaysAgo) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
@@ -305,6 +303,23 @@ function validate(payload: Payload) {
       throw new PayloadValidationError(`Invalid idType in userIds field. Allowed idType will be: ${SUPPORTED_ID_TYPE}`)
     }
   }
+}
+
+function isNotEpochTimestampInMilliseconds(timestamp: string) {
+  if (typeof timestamp === 'string' && !isNaN(Number(timestamp))) {
+    const convertedTimestamp = Number(timestamp)
+    const startDate = new Date('1970-01-01T00:00:00Z').getTime()
+    const endDate = new Date('2100-01-01T00:00:00Z').getTime()
+    if (Number.isSafeInteger(convertedTimestamp) && convertedTimestamp >= startDate && convertedTimestamp <= endDate) {
+      return false
+    }
+  }
+  return true
+}
+
+function convertToEpochMillis(timestamp: string) {
+  const date = new Date(timestamp)
+  return date.getTime()
 }
 
 export default action
