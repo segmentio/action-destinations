@@ -35,7 +35,11 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           label: 'Existing Conversion Rule ID',
           description:
             'The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.',
-          required: false
+          required: false,
+          dynamic: async (request, { payload }) => {
+            const linkedIn = new LinkedInConversions(request)
+            return linkedIn.getConversionRulesList(payload.adAccountId)
+          }
         },
         name: {
           type: 'string',
@@ -246,10 +250,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       const linkedIn = new LinkedInConversions(request)
       return linkedIn.getAdAccounts()
     },
-    // conversionId: async (request, { payload }) => {
-    //   const linkedIn = new LinkedInConversions(request)
-    //   return linkedIn.getConversionRulesList(payload.adAccountId)
-    // },
     campaignId: async (request, { payload }) => {
       const linkedIn = new LinkedInConversions(request)
       return linkedIn.getCampaignsList(payload.adAccountId)
