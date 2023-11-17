@@ -82,8 +82,7 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       label: 'Segment Computation ID',
       description: 'Segment computation ID',
       type: 'string',
-      unsafe_hidden: true,
-      required: true,
+      required: false,
       default: {
         '@path': '$.context.personas.computation_id'
       }
