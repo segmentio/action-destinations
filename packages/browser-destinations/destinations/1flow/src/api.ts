@@ -4,6 +4,7 @@ type _1FlowApi = {
   richLinkProperties: string[] | undefined
   appId: string
   activator: string | undefined
+  projectApiKey: string
 }
 
 type _1FlowFunction = (method: method, ...args: unknown[]) => void

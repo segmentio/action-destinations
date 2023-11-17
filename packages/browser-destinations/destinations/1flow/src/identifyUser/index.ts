@@ -9,7 +9,7 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
-    user_id: {
+    userId: {
       description: 'A unique identifier for the user.',
       label: 'User ID',
       type: 'string',
@@ -18,8 +18,8 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymous_id: {
-      description: "An anonymous identifier for the user.",
+    anonymousId: {
+      description: 'An anonymous identifier for the user.',
       label: 'Anonymous ID',
       type: 'string',
       required: false,
@@ -76,9 +76,8 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
     }
   },
   perform: (_1Flow, event) => {
-    const { user_id, anonymous_id, traits, first_name, last_name, phone, email } = event.payload
-
-    _1Flow('identify', user_id, anonymous_id, {
+    const { userId, anonymousId, traits, first_name, last_name, phone, email } = event.payload
+    _1Flow('identify', userId, anonymousId, {
       traits: traits,
       first_name: first_name,
       last_name: last_name,

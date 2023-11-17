@@ -18,7 +18,7 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
         '@path': '$.event'
       }
     },
-    user_id: {
+    userId: {
       description: 'A unique identifier for the user.',
       label: 'User ID',
       type: 'string',
@@ -27,8 +27,8 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymous_id: {
-      description: "An anonymous identifier for the user.",
+    anonymousId: {
+      description: 'An anonymous identifier for the user.',
       label: 'Anonymous ID',
       type: 'string',
       required: false,
@@ -47,17 +47,13 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
     }
   },
   perform: (_1Flow, event) => {
-    const { event_name, user_id, anonymous_id, properties } = event.payload;
+    const { event_name, userId, anonymousId, properties } = event.payload
     _1Flow('track', event_name, {
-      userId: user_id,
-      anonymousId: anonymous_id,
+      userId: userId,
+      anonymousId: anonymousId,
       properties: properties
     })
   }
 }
 
 export default action
-
-
-
-
