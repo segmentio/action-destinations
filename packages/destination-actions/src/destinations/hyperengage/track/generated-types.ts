@@ -10,15 +10,15 @@ export interface Payload {
    */
   user_id: string
   /**
+   * The account id, to uniquely identify the account associated with the user
+   */
+  account_id?: string
+  /**
    * The properties of the track call
    */
   properties?: {
     [k: string]: unknown
   }
-  /**
-   * The account id, to uniquely identify the account associated with the user
-   */
-  account_id?: string
   /**
    * User Anonymous id
    */

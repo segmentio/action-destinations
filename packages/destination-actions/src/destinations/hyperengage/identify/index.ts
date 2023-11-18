@@ -91,7 +91,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The timestamp when the user was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".',
       label: 'Created at',
-      default: { '@path': '$.traits.created_at' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.created_at' },
+          then: { '@path': '$.traits.created_at' },
+          else: { '@path': '$.traits.createdAt' }
+        }
+      }
     },
     traits: {
       type: 'object',
