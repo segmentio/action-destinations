@@ -56,6 +56,20 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       choices: [{ label: 'audience', value: 'audience' }]
     },
+    phone: {
+      label: 'User Phone',
+      description: 'Phone number of a user',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
+          else: { '@path': '$.properties.phone' }
+        }
+      }
+    },
     email: {
       label: 'User Email',
       description: 'Email address of a user',
@@ -80,20 +94,6 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       required: false
     },
-    phone: {
-      label: 'User Phone',
-      description: 'Phone number of a user',
-      type: 'string',
-      unsafe_hidden: true,
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.phone' },
-          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
-          else: { '@path': '$.properties.phone' }
-        }
-      }
-    },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "User's mobile device type",
@@ -104,22 +104,32 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       required: false
     },
-    // identifier: {
-    //   label: 'User Identifier',
-    //   description: 'Specify the identifier(s) to send to Yahoo',
-    //   type: 'string',
-    //   required: true,
-    //   default: 'email',
-    //   choices: [
-    //     { value: 'email', label: 'Send email' },
-    //     { value: 'maid', label: 'Send MAID' },
-    //     { value: 'phone', label: 'Send phone' },
-    //     { value: 'email_maid', label: 'Send email and/or MAID' },
-    //     { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
-    //     { value: 'email_phone', label: 'Send email and/or phone' },
-    //     { value: 'phone_maid', label: 'Send phone and/or MAID' }
-    //   ]
-    // },
+    ios_advertising_id: {
+      label: 'User iOS Advertising ID', // This field is used with trait enrichment for iOS advertising Id
+      description: 'User iOS advertising Id',
+      type: 'string',
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.ios_advertising_id' },
+          then: { '@path': '$.traits.ios_advertising_id' },
+          else: { '@path': '$.properties.ios_advertising_id' }
+        }
+      }
+    },
+    android_advertising_id: {
+      label: 'User Android Advertising ID', // This field is used with trait enrichment for Android advertising Id
+      description: 'User Android advertising Id',
+      type: 'string',
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.android_advertising_id' },
+          then: { '@path': '$.traits.android_advertising_id' },
+          else: { '@path': '$.properties.android_advertising_id' }
+        }
+      }
+    },
     gdpr_flag: {
       label: 'GDPR Flag',
       description: 'Set to true to indicate that audience data is subject to GDPR regulations',
@@ -161,8 +171,8 @@ async function process_payload(
   // Send request to Yahoo only when all events in the batch include selected Ids
   if (body.data.length > 0) {
     if (statsClient && statsTag) {
-      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentTriggered'])
-      statsClient?.incr('yahoo_audiences', body.data.length, [...statsTag, 'action:updateSegmentRecordsSent'])
+      statsClient?.incr('updateSegmentTriggered', 1, statsTag)
+      statsClient?.incr('updateSegmentRecordsSent', body.data.length, statsTag)
     }
     return request('https://dataxonline.yahoo.com/online/audience/', {
       method: 'POST',
@@ -173,7 +183,7 @@ async function process_payload(
     })
   } else {
     if (statsClient && statsTag) {
-      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentDiscarded'])
+      statsClient?.incr('updateSegmentDiscarded', 1, statsTag)
     }
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
   }

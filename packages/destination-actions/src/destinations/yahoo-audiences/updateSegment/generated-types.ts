@@ -20,6 +20,10 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * Phone number of a user
+   */
+  phone?: string
+  /**
    * Email address of a user
    */
   email?: string
@@ -28,13 +32,17 @@ export interface Payload {
    */
   advertising_id?: string
   /**
-   * Phone number of a user
-   */
-  phone?: string
-  /**
    * User's mobile device type
    */
   device_type?: string
+  /**
+   * User iOS advertising Id
+   */
+  ios_advertising_id?: string
+  /**
+   * User Android advertising Id
+   */
+  android_advertising_id?: string
   /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */
