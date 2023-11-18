@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Klaviyo's trackEvent destination action: all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "metric": Object {
+        "data": Object {
+          "attributes": Object {
+            "name": "]DD4LgSzT#hw(U]@J$a",
+          },
+          "type": "metric",
+        },
+      },
+      "profile": Object {
+        "data": Object {
+          "attributes": Object {
+            "email": "so@uzwumiz.wf",
+            "other_properties": Object {
+              "testType": "]DD4LgSzT#hw(U]@J$a",
+            },
+            "phone_number": "]DD4LgSzT#hw(U]@J$a",
+          },
+          "type": "profile",
+        },
+      },
+      "properties": Object {
+        "testType": "]DD4LgSzT#hw(U]@J$a",
+      },
+      "time": "2021-02-01T00:00:00.000Z",
+      "value": 71505359625256.95,
+    },
+    "type": "event",
+  },
+}
+`;

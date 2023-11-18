@@ -6,7 +6,6 @@ const testDestination = createTestIntegration(Definition)
 
 describe('Optimizely Data Platform', () => {
   describe('testAuthentication', () => {
-
     it('should validate authentication inputs', async () => {
       nock('https://function.zaius.app/twilio_segment').post('/auth').reply(200)
 

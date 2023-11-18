@@ -1,10 +1,10 @@
 import {
-  listOperationsRequestParams,
   customEventRequestParams,
   setUserPropertiesRequestParams,
   deleteUserRequestParams,
   createUserRequestParams,
-  createEventRequestParams
+  createEventRequestParams,
+  meRequestParams
 } from '../request-params'
 import {
   anonymousId,
@@ -19,14 +19,14 @@ import {
 } from './fullstory.test'
 
 describe('requestParams', () => {
-  describe('listOperations', () => {
-    it(`returns expected request params`, () => {
-      const { url, options } = listOperationsRequestParams(settings)
+  describe('me', () => {
+    it('returns expected request params', () => {
+      const { url, options } = meRequestParams(settings)
       expect(options.method).toBe('get')
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/operations/v1?limit=1`)
+      expect(url).toBe(`${baseUrl}/me`)
     })
   })
 
@@ -129,7 +129,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/v2beta/users?uid=${urlEncodedUserId}`)
+      expect(url).toBe(`${baseUrl}/v2/users?uid=${urlEncodedUserId}`)
     })
   })
 
@@ -148,7 +148,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/v2beta/users?${integrationSourceQueryParam}`)
+      expect(url).toBe(`${baseUrl}/v2/users`)
       expect(options.json).toEqual(requestBody)
     })
   })
@@ -173,7 +173,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/v2beta/events?${integrationSourceQueryParam}`)
+      expect(url).toBe(`${baseUrl}/v2/events`)
       expect(options.json).toEqual({
         name: requestValues.eventName,
         properties: requestValues.properties,
@@ -199,7 +199,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/v2beta/events?${integrationSourceQueryParam}`)
+      expect(url).toBe(`${baseUrl}/v2/events`)
       expect(options.json).toEqual({
         name: requestValues.eventName,
         properties: requestValues.properties,
@@ -221,7 +221,7 @@ describe('requestParams', () => {
       expect(options.headers!['Content-Type']).toBe('application/json')
       expect(options.headers!['Authorization']).toBe(`Basic ${settings.apiKey}`)
       expect(options.headers!['Integration-Source']).toBe(integrationSource)
-      expect(url).toBe(`${baseUrl}/v2beta/events?${integrationSourceQueryParam}`)
+      expect(url).toBe(`${baseUrl}/v2/events`)
       expect(options.json).toEqual({
         name: requestValues.eventName,
         properties: requestValues.properties,

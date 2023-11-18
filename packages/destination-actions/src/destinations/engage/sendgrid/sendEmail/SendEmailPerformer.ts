@@ -94,6 +94,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }
+
   async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
@@ -118,21 +119,19 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [
-      parsedFromEmail,
-      parsedFromName,
-      parsedFromReplyToEmail,
-      parsedFromReplyToName,
-      parsedSubject,
-      apiLookupData
-    ] = await Promise.all([
-      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
-      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
-      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
-      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
-      this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
-      this.performApiLookups(this.payload.apiLookups, profile)
-    ])
+    const [parsedFromEmail, parsedFromName, parsedFromReplyToEmail, parsedFromReplyToName, parsedSubject] =
+      await Promise.all([
+        this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+        this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+        this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+        this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
+        this.parseTemplating(this.payload.subject, { profile }, 'Subject')
+      ])
+
+    let apiLookupData = {}
+    if (this.isFeatureActive('is-datafeeds-enabled')) {
+      apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+    }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
 
@@ -192,6 +191,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       mailContent = mailContentSubscriptionHonored
       this.statsClient?.incr('request.dont_pass_subscription', 1)
     }
+    // Check if ip pool name is provided and sends the email with the ip pool name if it is
+    if (this.payload.ipPool) {
+      mailContent = {
+        ...mailContent,
+        ip_pool_name: this.payload.ipPool
+      }
+      this.statsClient?.incr('request.ip_pool_name_provided', 1)
+    } else {
+      this.statsClient?.incr('request.ip_pool_name_not_provided', 1)
+    }
     const req: RequestOptions = {
       method: 'post',
       headers: {
@@ -212,6 +221,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   @track()
+  async getBodyTemplateFromS3(bodyUrl: string) {
+    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    return content
+  }
+
+  @track()
   async getBodyHtml(
     profile: Profile,
     apiLookupData: Record<string, unknown>,
@@ -228,7 +243,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   ) {
     let parsedBodyHtml
     if (this.payload.bodyUrl && this.settings.unlayerApiKey) {
-      const { content: body } = await this.request(this.payload.bodyUrl, { method: 'GET', skipResponseCloning: true })
+      const body = await this.getBodyTemplateFromS3(this.payload.bodyUrl)
       const bodyHtml = this.payload.bodyType === 'html' ? body : await this.generateEmailHtml(body)
       parsedBodyHtml = await this.parseTemplating(bodyHtml, { profile, [apiLookupLiquidKey]: apiLookupData }, 'Body')
     } else {
@@ -299,7 +314,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.statsClient.statsClient,
           this.tags,
           this.settings,
-          this.logger.loggerClient
+          this.logger.loggerClient,
+          this.dataFeedCache
         )
         return { name: apiLookup.name, data }
       })
@@ -372,7 +388,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   onResponse(args: { response?: Response; error?: ResponseError; operation: OperationContext }) {
-    const headers = args.response?.headers || args.error?.response.headers
+    const headers = args.response?.headers || args.error?.response?.headers
     // if we need to investigate with sendgrid, we'll need this: https://docs.sendgrid.com/glossary/message-id
     const sgMsgId = headers?.get('X-Message-ID')
     if (sgMsgId) args.operation.logs.push('[sendgrid]X-Message-ID: ' + sgMsgId)

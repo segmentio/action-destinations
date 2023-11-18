@@ -22,7 +22,10 @@ const defaultGroupMapping = {
   traits: {
     '@path': '$.traits'
   },
-  engage_space: 'engage-space-writekey'
+  engage_space: 'engage-space-writekey',
+  timestamp: {
+    '@path': '$.timestamp'
+  }
 }
 
 describe('SegmentProfiles.sendGroup', () => {
@@ -81,7 +84,8 @@ describe('SegmentProfiles.sendGroup', () => {
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
+      groupId: 'test-group-ks2i7e',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendGroup', {
@@ -106,7 +110,8 @@ describe('SegmentProfiles.sendGroup', () => {
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
+      groupId: 'test-group-ks2i7e',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendGroup', {

@@ -33,7 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_audience_name: {
       label: 'Custom Audience Name',
       description: 'Name of custom audience to add or remove the user from',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -42,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_computation_action: {
       label: 'Segment Computation Action',
       description: 'Segment computation class used to determine payload is for an Audience',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_class'
@@ -52,7 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_computation_id: {
       label: 'Segment Computation ID',
       description: 'Segment computation ID',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_id'
@@ -73,7 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Timestamp',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       description: 'Timestamp indicates when the user was added or removed from the Audience',
       default: {

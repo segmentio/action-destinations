@@ -34,12 +34,11 @@ const defaultRequestParams = (settings: Settings, relativeUrl: string): RequestP
 }
 
 /**
- * Returns {@link RequestParams} for the list operations HTTP API endpoint.
+ * Returns {@link RequestParams} for the me HTTP API endpoint.
  *
  * @param settings Settings configured for the cloud mode destination.
  */
-export const listOperationsRequestParams = (settings: Settings): RequestParams =>
-  defaultRequestParams(settings, `operations/v1?limit=1`)
+export const meRequestParams = (settings: Settings): RequestParams => defaultRequestParams(settings, 'me')
 
 /**
  * Returns {@link RequestParams} for the V1 custom events HTTP API endpoint.
@@ -130,7 +129,7 @@ export const setUserPropertiesRequestParams = (
  * @param userId The id of the user to delete.
  */
 export const deleteUserRequestParams = (settings: Settings, userId: string): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `v2beta/users?uid=${encodeURIComponent(userId)}`)
+  const defaultParams = defaultRequestParams(settings, `v2/users?uid=${encodeURIComponent(userId)}`)
 
   return {
     ...defaultParams,
@@ -148,7 +147,7 @@ export const deleteUserRequestParams = (settings: Settings, userId: string): Req
  * @param requestBody The request body containing user properties to set.
  */
 export const createUserRequestParams = (settings: Settings, requestBody: Object): RequestParams => {
-  const defaultParams = defaultRequestParams(settings, `v2beta/users?${integrationSourceQueryParam}`)
+  const defaultParams = defaultRequestParams(settings, `v2/users`)
 
   return {
     ...defaultParams,
@@ -169,7 +168,7 @@ export const createUserRequestParams = (settings: Settings, requestBody: Object)
 export const createEventRequestParams = (
   settings: Settings,
   requestValues: {
-    userId: string
+    userId?: string
     eventName: string
     properties: {}
     timestamp?: string
@@ -178,7 +177,7 @@ export const createEventRequestParams = (
   }
 ): RequestParams => {
   const { userId, eventName, properties: eventData, timestamp, useRecentSession, sessionUrl } = requestValues
-  const defaultParams = defaultRequestParams(settings, `v2beta/events?${integrationSourceQueryParam}`)
+  const defaultParams = defaultRequestParams(settings, `v2/events`)
 
   const requestBody: Record<string, any> = {
     name: eventName,

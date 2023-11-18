@@ -11,7 +11,7 @@ import {
   user_attributes,
   uuid
 } from '../insider-properties'
-import { API_BASE, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
+import { API_BASE, sendBulkTrackEvents, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Checkout Event',
@@ -31,6 +31,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: sendTrackEvent(data.payload, 'checkout_page_view')
+    })
+  },
+  performBatch: (request, data) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: sendBulkTrackEvents(data.payload, 'checkout_page_view')
     })
   }
 }

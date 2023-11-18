@@ -30,6 +30,7 @@ import {
 } from '../errors'
 import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
 import { SEGMENT_ENDPOINTS } from '../properties'
+import { timestamp } from '../segment-properties'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
 interface SubscriptionStatusConfig {
@@ -40,7 +41,7 @@ interface SubscriptionStatusConfig {
 const subscriptionStatusConfig: SubscriptionStatusConfig[] = [
   { status: 'SUBSCRIBED', matchingStatuses: ['true', 'subscribed'] },
   { status: 'UNSUBSCRIBED', matchingStatuses: ['false', 'unsubscribed'] },
-  { status: 'DID-NOT-SUBSCRIBE', matchingStatuses: ['did-not-subscribe', 'did_not_subscribe'] }
+  { status: 'DID_NOT_SUBSCRIBE', matchingStatuses: ['did-not-subscribe', 'did_not_subscribe'] }
 ]
 
 interface SupportedChannelsConfig {
@@ -279,7 +280,8 @@ const action: ActionDefinition<Settings, Payload> = {
     android_push_subscription_status,
     ios_push_token,
     ios_push_subscription_status,
-    traits
+    traits,
+    timestamp
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     const statsClient = statsContext?.statsClient
@@ -307,6 +309,7 @@ const action: ActionDefinition<Settings, Payload> = {
         externalIds,
         messaging_subscriptions_retl: true
       },
+      timestamp: payload?.timestamp,
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
         // to any destinations which is connected to the Segment Profiles space
