@@ -130,8 +130,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    list_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
-      return getListIdDynamicData(request, settings)
+    list_id: async (request): Promise<DynamicFieldResponse> => {
+      return getListIdDynamicData(request)
     }
   },
   perform: async (request, { payload }) => {
@@ -180,7 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
           })
 
           if (list_id) {
-            await addProfileToList(request, id, list_id)
+            await addProfileToList(request, 'POST', id, list_id)
           }
           return profile
         }

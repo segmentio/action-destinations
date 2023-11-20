@@ -260,6 +260,6 @@ describe('Upsert Profile', () => {
       testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
 
-    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
+    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), 'POST', profileId, listId)
   })
 })
