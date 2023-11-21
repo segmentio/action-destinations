@@ -1,7 +1,8 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
 import { API_URL } from '../../config'
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -20,7 +21,7 @@ describe('Remove List from Profile', () => {
     })
 
     await expect(testDestination.testAction('removeProfileFromList', { event, settings })).rejects.toThrowError(
-      PayloadValidationError
+      AggregateAjvError
     )
   })
 

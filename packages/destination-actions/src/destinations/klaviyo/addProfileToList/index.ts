@@ -1,4 +1,4 @@
-import { APIError, ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { createProfile, addProfileToList } from '../functions'
@@ -13,17 +13,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload }) => {
     const { email, external_id } = payload
-    if (!external_id || !email) {
-      throw new PayloadValidationError('Missing Email or List Id')
+    if (!email) {
+      throw new PayloadValidationError('Missing Email')
     }
-
-    try {
-      const profileData = await createProfile(request, email)
-      const id = profileData?.data?.id
-      return await addProfileToList(request, 'POST', id, external_id)
-    } catch (error) {
-      throw new APIError('An error occured while adding profile to list', 400)
-    }
+    const profileData = await createProfile(request, email)
+    const id = profileData?.data?.id
+    return await addProfileToList(request, id, external_id)
   }
 }
 

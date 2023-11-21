@@ -161,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (list_id) {
         const content = JSON.parse(profile?.content)
         const id = content.data.id
-        await addProfileToList(request, 'POST', id, list_id)
+        await addProfileToList(request, id, list_id)
       }
       return profile
     } catch (error) {
@@ -180,7 +180,7 @@ const action: ActionDefinition<Settings, Payload> = {
           })
 
           if (list_id) {
-            await addProfileToList(request, 'POST', id, list_id)
+            await addProfileToList(request, id, list_id)
           }
           return profile
         }

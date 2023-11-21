@@ -25,7 +25,7 @@ export async function getListIdDynamicData(request: RequestClient): Promise<Dyna
   }
 }
 
-export async function addProfileToList(request: RequestClient, method: 'DELETE' | 'POST', id: string, list_id: string) {
+export async function addProfileToList(request: RequestClient, id: string, list_id: string | undefined) {
   const listData: listData = {
     data: [
       {
@@ -37,23 +37,43 @@ export async function addProfileToList(request: RequestClient, method: 'DELETE' 
 
   try {
     const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
-      method: method,
+      method: 'POST',
       json: listData
     })
     return list
   } catch (error) {
     const { response } = error as KlaviyoAPIError
     if (response?.status === 409) {
-      const content = JSON.parse(response?.content)
-      const id = content?.errors[0]?.meta?.duplicate_profile_id
       listData.data[0].id = id
       const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
-        method: method,
+        method: 'POST',
         json: listData
       })
       return list
     }
-    throw new APIError('An error occured while adding profile to list', 400)
+    throw new APIError('An error occured while adding profile to list', response.status)
+  }
+}
+
+export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
+  try {
+    const listData: listData = {
+      data: [
+        {
+          type: 'profile',
+          id: id
+        }
+      ]
+    }
+    const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+      method: 'DELETE',
+      json: listData
+    })
+
+    return list
+  } catch (error) {
+    const { response } = error as KlaviyoAPIError
+    throw new APIError('An error occured while adding profile to list', response.status)
   }
 }
 
@@ -86,6 +106,6 @@ export function buildHeaders(authKey: string) {
     Authorization: `Klaviyo-API-Key ${authKey}`,
     Accept: 'application/json',
     revision: REVISION_DATE,
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'Content-Type': 'application/json'
   }
 }

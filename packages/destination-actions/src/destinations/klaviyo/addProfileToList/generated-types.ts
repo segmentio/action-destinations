@@ -8,5 +8,5 @@ export interface Payload {
   /**
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
-  external_id?: string
+  external_id: string
 }

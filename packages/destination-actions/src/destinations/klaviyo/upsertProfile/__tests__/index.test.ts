@@ -195,7 +195,7 @@ describe('Upsert Profile', () => {
       testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
 
-    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), 'POST', profileId, listId)
+    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
   })
 
   it('should add an existing profile to a list if list_id is provided', async () => {
@@ -260,6 +260,6 @@ describe('Upsert Profile', () => {
       testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
 
-    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), 'POST', profileId, listId)
+    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
   })
 })

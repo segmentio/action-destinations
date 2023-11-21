@@ -7,7 +7,8 @@ export const external_id: InputField = {
   default: {
     '@path': '$.context.personas.external_audience_id'
   },
-  unsafe_hidden: true
+  unsafe_hidden: true,
+  required: true
 }
 
 export const email: InputField = {
