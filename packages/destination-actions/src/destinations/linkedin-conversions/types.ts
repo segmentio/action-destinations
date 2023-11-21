@@ -84,3 +84,9 @@ export interface Campaigns {
   name: string
   id: string
 }
+
+export interface ConversionRuleCreationResponse {
+  id: string
+  name: string
+  type: string
+}

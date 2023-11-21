@@ -1,4 +1,4 @@
-import type { RequestClient, ModifiedResponse, DynamicFieldResponse } from '@segment/actions-core'
+import type { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
 import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
@@ -8,9 +8,10 @@ import type {
   GetConversionListAPIResponse,
   Conversions,
   GetCampaignsListAPIResponse,
-  Campaigns
+  Campaigns,
+  ConversionRuleCreationResponse
 } from '../types'
-import type { Payload } from '../streamConversion/generated-types'
+import type { Payload, HookBundle } from '../streamConversion/generated-types'
 export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
@@ -24,6 +25,71 @@ export class LinkedInConversions {
     return this.request(`${BASE_URL}/me`, {
       method: 'GET'
     })
+  }
+
+  upsertConversionRule = async (
+    payload: Payload,
+    hookInputs: HookBundle['onMappingSave']['inputs']
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    if (hookInputs?.conversionRuleId) {
+      // Verify conversion ID exists, and pull it's metadata
+      // GET https://api.linkedin.com/rest/conversions/{conversionId}?account={sponsoredAccountUrn}
+      try {
+        const { data } = await this.request<any>(`https://api.linkedin.com/rest/conversions/${this.conversionRuleId}`, {
+          method: 'get',
+          searchParams: {
+            account: payload?.adAccountId
+          }
+        })
+
+        return {
+          successMessage: `Using existing Conversion Rule: ${hookInputs.conversionRuleId} `,
+          savedData: {
+            id: hookInputs.conversionRuleId,
+            name: data.name,
+            conversionType: data.type
+          }
+        }
+      } catch (e) {
+        return {
+          error: {
+            message: `Failed to verify conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
+            code: 'CONVERSION_RULE_FAILURE'
+          }
+        }
+      }
+    }
+
+    try {
+      const { data } = await this.request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
+        method: 'post',
+        json: {
+          name: hookInputs?.name,
+          account: payload?.adAccountId,
+          conversionMethod: 'CONVERSIONS_API',
+          postClickAttributionWindowSize: 30,
+          viewThroughAttributionWindowSize: 7,
+          attributionType: hookInputs?.attribution_type,
+          type: hookInputs?.conversionType
+        }
+      })
+
+      return {
+        successMessage: `Conversion rule ${data.id} created successfully!`,
+        savedData: {
+          id: data.id,
+          name: data.name,
+          conversionType: data.type
+        }
+      }
+    } catch (e) {
+      return {
+        error: {
+          message: `Failed to create conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
+          code: 'CONVERSION_RULE_FAILURE'
+        }
+      }
+    }
   }
 
   getAdAccounts = async (): Promise<DynamicFieldResponse> => {

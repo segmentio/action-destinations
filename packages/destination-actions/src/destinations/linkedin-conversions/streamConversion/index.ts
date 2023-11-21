@@ -5,16 +5,6 @@ import { LinkedInConversions } from '../api'
 import { SUPPORTED_ID_TYPE } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 
-interface ConversionRuleCreationResponse {
-  id: string
-  name: string
-  type: string
-}
-
-interface LinkedInError {
-  message: string
-}
-
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
@@ -95,44 +85,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         }
       },
       performHook: async (request, { payload, hookInputs }) => {
-        if (hookInputs?.conversionRuleId) {
-          return {
-            successMessage: `Using existing Conversion Rule: ${hookInputs.conversionRuleId} `,
-            savedData: {
-              id: hookInputs.conversionRuleId,
-              name: hookInputs.name,
-              conversionType: hookInputs.conversionType
-            }
-          }
-        }
-
-        try {
-          const { data } = await request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
-            method: 'post',
-            json: {
-              name: hookInputs?.name,
-              account: payload?.adAccountId,
-              conversionMethod: 'CONVERSIONS_API',
-              postClickAttributionWindowSize: 30,
-              viewThroughAttributionWindowSize: 7,
-              attributionType: hookInputs?.attribution_type,
-              type: hookInputs?.conversionType
-            }
-          })
-
-          return {
-            successMessage: `Conversion rule ${data.id} created successfully!`,
-            savedData: {
-              id: data.id,
-              name: data.name,
-              conversionType: data.type
-            }
-          }
-        } catch (e) {
-          return {
-            errorMessage: `Failed to create conversion rule: ${(e as LinkedInError)?.message ?? JSON.stringify(e)}`
-          }
-        }
+        const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
+        return await linkedIn.upsertConversionRule(payload, hookInputs)
       }
     }
   },
