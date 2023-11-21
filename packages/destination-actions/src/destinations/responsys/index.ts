@@ -67,7 +67,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `${auth?.authToken}`,
+        authorization: `${auth.authToken}`,
         'Content-Type': 'application/json'
       }
     }

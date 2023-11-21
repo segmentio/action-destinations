@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The Map Template in Responsys that can be used to map Field Names of the Profile List to Column Names.',
       type: 'string',
-      default: null
+      default: ''
     },
     defaultPermissionStatus: {
       label: 'Default Permission Status',
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: true, value: true },
         { label: false, value: false }
       ],
-      default: 'true'
+      default: true
     },
     matchColumnName1: {
       label: 'First Column Match',
@@ -132,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //   method: 'post',
     //   json: data.payload
     // })
-
+    console.log(`auth : ${JSON.stringify(auth)}`)
     const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${payload.profileListName}/listExtensions/${payload.profileExtensionTable}/members`
     console.log(`endpoint : ${endpoint}`)
     console.log(payload)
@@ -158,7 +158,7 @@ const action: ActionDefinition<Settings, Payload> = {
       updateOnMatch: payload.updateOnMatch
     }
     console.log(`requestBody : ${JSON.stringify(requestBody)}`)
-    const token = auth?.authToken
+    const token = auth.authToken
     request = {
       method: 'POST',
       headers: {
