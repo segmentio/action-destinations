@@ -43,15 +43,8 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     const row: string[] = [enquoteIdentifier(payload.audience_key)]
-    if (payload.identifier_data) {
-      for (const key in payload.identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key)) {
-          headers.add(key)
-          row.push(enquoteIdentifier(String(payload.identifier_data[key])))
-        }
-      }
-    }
 
+    // Process unhashed_identifier_data first
     if (payload.unhashed_identifier_data) {
       for (const key in payload.unhashed_identifier_data) {
         if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
@@ -60,6 +53,17 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
         }
       }
     }
+
+    // Process identifier_data, skipping keys that have already been processed
+    if (payload.identifier_data) {
+      for (const key in payload.identifier_data) {
+        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key) && !headers.has(key)) {
+          headers.add(key)
+          row.push(enquoteIdentifier(String(payload.identifier_data[key])))
+        }
+      }
+    }
+
     rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }
 
