@@ -1,12 +1,13 @@
 import { IntegrationError, AudienceDestinationDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import { API_URL, REVISION_DATE } from './config'
+import { API_URL } from './config'
 import upsertProfile from './upsertProfile'
 import addProfileToList from './addProfileToList'
 import removeProfileFromList from './removeProfileFromList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
+import { buildHeaders } from './functions'
 
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
@@ -51,12 +52,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      headers: {
-        Authorization: `Klaviyo-API-Key ${settings.api_key}`,
-        Accept: 'application/json',
-        revision: REVISION_DATE,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+      headers: buildHeaders(settings.api_key)
     }
   },
   audienceFields: {},
@@ -78,9 +74,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       const response = await request(`${API_URL}/lists`, {
         method: 'POST',
-        headers: {
-          Authorization: `Klaviyo-API-Key ${apiKey}`
-        },
+        headers: buildHeaders(apiKey),
         json: {
           data: { type: 'list', attributes: { name: audienceName } }
         }
@@ -95,14 +89,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const apiKey = getAudienceInput.settings.api_key
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: {
-          Authorization: `Klaviyo-API-Key ${apiKey}`
-        }
+        headers: buildHeaders(apiKey)
       })
-
-      if (response.status !== 200) {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-      }
       const r = await response.json()
       const externalId = r.data.id
 

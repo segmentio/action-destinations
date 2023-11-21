@@ -1,5 +1,5 @@
 import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
-import { API_URL } from './config'
+import { API_URL, REVISION_DATE } from './config'
 import { KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
@@ -81,18 +81,11 @@ export async function createProfile(request: RequestClient, email: string) {
   return profile.json()
 }
 
-// export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
-//   const listData = {
-//     data: [
-//       {
-//         type: 'profile',
-//         id: profileId
-//       }
-//     ]
-//   }
-
-//   await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
-//     method: 'POST',
-//     json: listData
-//   })
-// }
+export function buildHeaders(authKey: string) {
+  return {
+    Authorization: `Klaviyo-API-Key ${authKey}`,
+    Accept: 'application/json',
+    revision: REVISION_DATE,
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+}
