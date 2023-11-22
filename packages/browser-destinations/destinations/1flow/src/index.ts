@@ -16,7 +16,7 @@ export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
   name: '1Flow',
   slug: 'actions-1flow',
   mode: 'device',
-  description: 'Send analytics from 1Flow to Segment',
+  description: 'Send analytics from Segment to 1Flow',
   settings: {
     projectApiKey: {
       description:
