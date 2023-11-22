@@ -9,7 +9,8 @@ import type {
   Conversions,
   GetCampaignsListAPIResponse,
   Campaigns,
-  ConversionRuleCreationResponse
+  ConversionRuleCreationResponse,
+  GetConversionRuleResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
 export class LinkedInConversions {
@@ -32,36 +33,37 @@ export class LinkedInConversions {
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     if (hookInputs?.conversionRuleId) {
-      // Verify conversion ID exists, and pull it's metadata
-      // GET https://api.linkedin.com/rest/conversions/{conversionId}?account={sponsoredAccountUrn}
       try {
-        const { data } = await this.request<any>(`https://api.linkedin.com/rest/conversions/${this.conversionRuleId}`, {
-          method: 'get',
-          searchParams: {
-            account: payload?.adAccountId
+        const { data } = await this.request<GetConversionRuleResponse>(
+          `${BASE_URL}/conversions/${this.conversionRuleId}`,
+          {
+            method: 'get',
+            searchParams: {
+              account: payload?.adAccountId
+            }
           }
-        })
+        )
 
         return {
           successMessage: `Using existing Conversion Rule: ${hookInputs.conversionRuleId} `,
           savedData: {
             id: hookInputs.conversionRuleId,
-            name: data.name,
-            conversionType: data.type
+            name: data.name || `No name returned for rule: ${hookInputs.conversionRuleId}`,
+            conversionType: data.type || `No type returned for rule: ${hookInputs.conversionRuleId}`
           }
         }
       } catch (e) {
         return {
           error: {
             message: `Failed to verify conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
-            code: 'CONVERSION_RULE_FAILURE'
+            code: 'CONVERSION_RULE_VERIFICATION_FAILURE'
           }
         }
       }
     }
 
     try {
-      const { data } = await this.request<ConversionRuleCreationResponse>('https://api.linkedin.com/rest/conversions', {
+      const { data } = await this.request<ConversionRuleCreationResponse>(`${BASE_URL}/conversions`, {
         method: 'post',
         json: {
           name: hookInputs?.name,
@@ -86,7 +88,7 @@ export class LinkedInConversions {
       return {
         error: {
           message: `Failed to create conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
-          code: 'CONVERSION_RULE_FAILURE'
+          code: 'CONVERSION_RULE_CREATION_FAILURE'
         }
       }
     }
