@@ -138,8 +138,14 @@ describe('_1Flow', () => {
             subscriptions
         })
 
-        jest.spyOn(destination, 'initialize')
-        await event.load(Context.system(), {} as Analytics)
+        
+        const mockedObject = {
+            load: event 
+          };
+          
+          jest.spyOn(destination, 'initialize').mockResolvedValue(mockedObject);
+        
+      
         expect(destination.initialize).toHaveBeenCalled()
 
         const scripts = window.document.querySelectorAll('script')

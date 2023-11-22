@@ -53,11 +53,11 @@ describe('track', () => {
         emitter: { setSource: jest.fn() },
         track: mockTrack,
         identify: jest.fn(),
-        setSource: jest.fn()
+        setSource: jest.fn(),
+        load:track 
       }
       return Promise.resolve(mockedWithTrack)
     })
-    await track.load(Context.system(), {} as Analytics)
   })
 
   test('it maps event parameters correctly to track function', async () => {

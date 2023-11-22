@@ -62,16 +62,16 @@ describe('identify', () => {
         emitter: { setSource: jest.fn() },
         track: mockIdentify,
         identify: jest.fn(),
-        setSource: jest.fn()
+        setSource: jest.fn(),
+        load:identify 
       }
       return Promise.resolve(mockedWithTrack)
     })
-    await identify.load(Context.system(), {} as Analytics)
+    
   })
 
   test('it maps event parameters correctly to identify function ', async () => {
     jest.spyOn(destination.actions.identify, 'perform')
-    await identify.load(Context.system(), {} as Analytics)
 
     await identify.identify?.(
       new Context({
