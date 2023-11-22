@@ -1,7 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import mergeProfileListMembers from './mergeProfileListMembers'
+import asyncMergeProfileListMembers from './asyncMergeProfileListMembers'
+
+import asyncMergePetRecords from './asyncMergePetRecords'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Responsys',
@@ -80,7 +82,8 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    mergeProfileListMembers
+    asyncMergeProfileListMembers,
+    asyncMergePetRecords
   }
 }
 

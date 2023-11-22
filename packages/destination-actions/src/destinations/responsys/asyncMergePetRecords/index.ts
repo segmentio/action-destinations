@@ -7,7 +7,7 @@ import {
 } from '../rsp-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Merge Profile List Members',
+  title: 'Async Merge PET Records',
   description: '',
   fields: {
     profileListName: {
@@ -145,17 +145,19 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const requestBody = {
       recordData: recordData,
-      // defaultPermissionStatus: payload.defaultPermissionStatus,
-      // htmlValue: payload.htmlValue,
-      insertOnNoMatch: payload.insertOnNoMatch,
-      matchColumnName1: payload.matchColumnName1,
-      matchColumnName2: payload.matchColumnName2,
-      // matchOperator: payload.matchOperator,
-      // optinValue: payload.optinValue,
-      // optoutValue: payload.optoutValue,
-      // rejectRecordIfChannelEmpty: payload.rejectRecordIfChannelEmpty,
-      // textValue: payload.textValue,
-      updateOnMatch: payload.updateOnMatch
+      mergeRule: {
+        defaultPermissionStatus: payload.defaultPermissionStatus,
+        htmlValue: payload.htmlValue,
+        insertOnNoMatch: payload.insertOnNoMatch,
+        matchColumnName1: payload.matchColumnName1,
+        matchColumnName2: payload.matchColumnName2,
+        matchOperator: payload.matchOperator,
+        optinValue: payload.optinValue,
+        optoutValue: payload.optoutValue,
+        rejectRecordIfChannelEmpty: payload.rejectRecordIfChannelEmpty,
+        textValue: payload.textValue,
+        updateOnMatch: payload.updateOnMatch
+      }
     }
     console.log(`requestBody : ${JSON.stringify(requestBody)}`)
     const token = auth.authToken

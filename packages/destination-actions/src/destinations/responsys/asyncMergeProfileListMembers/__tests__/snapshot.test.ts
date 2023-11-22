@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'mergeProfileListMembers'
+const actionSlug = 'asyncMergeProfileListMembers'
 const destinationSlug = 'Responsys'
 const seedName = `${destinationSlug}#${actionSlug}`
 
