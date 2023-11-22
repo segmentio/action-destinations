@@ -33,7 +33,7 @@ export const validateInput = (
   // Resolve local_tz_offset property, we can get local_tz_offset from the input context.timezone
   if (input?.timezone) {
     const offset = new Date()
-      .toLocaleString('en-US', { timeZone: input.timezone, timeZoneName: 'shortOffset' })
+      .toLocaleString('en-US', { timeZone: input.timezone, timeZoneName: 'short' })
       .split(' ')[3]
       .slice(3)
     properties.local_tz_offset = parseInt(offset) * 60
