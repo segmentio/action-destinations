@@ -46,7 +46,8 @@ describe('Pendo.group', () => {
         initialize: jest.fn(),
         isReady: jest.fn(),
         track: jest.fn(),
-        identify: jest.fn()
+        identify: jest.fn(),
+        flushNow: jest.fn()
       }
       return Promise.resolve(mockPendo)
     })
