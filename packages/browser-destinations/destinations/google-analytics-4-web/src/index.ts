@@ -89,7 +89,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       description: `Specifies the subpath used to store the analytics cookie.`,
       label: 'Cookie Path',
       type: 'string',
-      multiple: true
+      multiple: true,
+      default: '/'
     },
     cookiePrefix: {
       description: `Specifies a prefix to prepend to the analytics cookie name.`,
