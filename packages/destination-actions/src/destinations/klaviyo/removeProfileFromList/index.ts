@@ -8,6 +8,7 @@ import { email, external_id } from '../properties'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove profile from list',
   description: 'Remove profile from list',
+  defaultSubscription: 'event = "Audience Exited"',
   fields: {
     email: { ...email },
     external_id: { ...external_id }
@@ -22,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
     if (v && Object.keys(v).length !== 0) {
       return await removeProfileFromList(request, v.data[0].id, external_id)
     }
-    return
   }
 }
 

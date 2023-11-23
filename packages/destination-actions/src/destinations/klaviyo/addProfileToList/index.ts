@@ -5,8 +5,9 @@ import { createProfile, addProfileToList } from '../functions'
 import { email, external_id } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add To List',
-  description: 'Add to list',
+  title: 'Add Profile To List',
+  description: 'Add Profile To List',
+  defaultSubscription: 'event = "Audience Entered"',
   fields: {
     email: { ...email },
     external_id: { ...external_id }
