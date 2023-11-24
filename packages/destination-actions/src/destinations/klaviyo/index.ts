@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       api_key: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: `You can find this by going to Klaviyo's UI and clicking Account > Settings > API Keys > Create API Key`,
         required: true
