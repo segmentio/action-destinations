@@ -165,7 +165,6 @@ async function createDmpSegment(
   payload: Payload,
   statsContext: StatsContext | undefined
 ) {
-  console.log('Oauth_supported-destination')
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
