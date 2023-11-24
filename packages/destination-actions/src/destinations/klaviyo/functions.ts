@@ -42,7 +42,6 @@ export async function addProfileToList(request: RequestClient, id: string, list_
 }
 
 export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
-  ß
   const listData: listData = {
     data: [
       {
