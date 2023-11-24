@@ -55,7 +55,7 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     type: 'profile-bulk-import-job',
     attributes: {
       profiles: {
-        data: profiles.map(({ list_id, ...attributes }) => ({
+        data: profiles.map(({ list_id, enable_batching, ...attributes }) => ({
           type: 'profile',
           attributes
         }))

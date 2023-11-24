@@ -19,6 +19,11 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       default: { '@path': '$.traits.email' }
     },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Klaviyo',
+      description: 'When enabled, the action will use the klaviyo batch API.'
+    },
     phone_number: {
       label: 'Phone Number',
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
@@ -135,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, external_id, phone_number, list_id, ...otherAttributes } = payload
+    const { email, external_id, phone_number, list_id, enable_batching, ...otherAttributes } = payload
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
@@ -192,10 +197,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
-    console.log(payload)
     const profilesWithList = payload.filter((profile) => profile.list_id)
     const profilesWithoutList = payload.filter((profile) => !profile.list_id)
-    console.log(profilesWithList, profilesWithoutList)
 
     let importResponseWithList
     let importResponseWithoutList
