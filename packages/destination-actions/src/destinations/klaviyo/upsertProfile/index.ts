@@ -197,8 +197,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
+    console.log(payload)
     const profilesWithList = payload.filter((profile) => profile.list_id)
     const profilesWithoutList = payload.filter((profile) => !profile.list_id)
+    console.log(profilesWithList, profilesWithoutList)
 
     let importResponseWithList
     let importResponseWithoutList
