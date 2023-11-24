@@ -17,9 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email) {
       throw new PayloadValidationError('Missing Email')
     }
-    const profileData = await createProfile(request, email)
-    const id = profileData?.data?.id
-    return await addProfileToList(request, id, external_id)
+    const profileId = await createProfile(request, email)
+    return await addProfileToList(request, profileId, external_id)
   }
 }
 

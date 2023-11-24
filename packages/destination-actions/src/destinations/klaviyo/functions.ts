@@ -34,25 +34,11 @@ export async function addProfileToList(request: RequestClient, id: string, list_
       }
     ]
   }
-
-  try {
-    const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
-      method: 'POST',
-      json: listData
-    })
-    return list
-  } catch (error) {
-    const { response } = error as KlaviyoAPIError
-    if (response?.status === 409) {
-      listData.data[0].id = id
-      const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
-        method: 'POST',
-        json: listData
-      })
-      return list
-    }
-    throw new APIError('An error occured while adding profile to list', response.status)
-  }
+  const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+    method: 'POST',
+    json: listData
+  })
+  return list
 }
 
 export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
@@ -85,20 +71,29 @@ export async function getProfile(request: RequestClient, email: string) {
 }
 
 export async function createProfile(request: RequestClient, email: string) {
-  const profileData: ProfileData = {
-    data: {
-      type: 'profile',
-      attributes: {
-        email
+  try {
+    const profileData: ProfileData = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email
+        }
       }
     }
-  }
 
-  const profile = await request(`${API_URL}/profiles/`, {
-    method: 'POST',
-    json: profileData
-  })
-  return profile.json()
+    const profile = await request(`${API_URL}/profiles/`, {
+      method: 'POST',
+      json: profileData
+    })
+    const rs = await profile.json()
+    return rs.data.id
+  } catch (error) {
+    const { response } = error as KlaviyoAPIError
+    if (response.status == 409) {
+      const rs = await response.json()
+      return rs.errors[0].meta.duplicate_profile_id
+    }
+  }
 }
 
 export function buildHeaders(authKey: string) {

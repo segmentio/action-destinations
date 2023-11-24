@@ -38,29 +38,19 @@ describe('Remove List from Profile', () => {
     const email = 'test@example.com'
     nock(`${API_URL}/profiles`)
       .get(`/?filter=equals(email,"${email}")`)
-      .reply(
-        200,
-        JSON.stringify({
-          content: {
-            data: [{ id: 'XYZABC' }]
-          }
-        })
-      )
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
 
     nock(`${API_URL}/lists/${listId}`)
       .delete('/relationships/profiles/', requestBody)
-      .reply(
-        200,
-        JSON.stringify({
-          content: {
-            data: [
-              {
-                id: 'XYZABC'
-              }
-            ]
+      .reply(200, {
+        data: [
+          {
+            id: 'XYZABC'
           }
-        })
-      )
+        ]
+      })
 
     const event = createTestEvent({
       type: 'track',
