@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Phone',
       description: 'Phone number of a user',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: false,
       default: {
         '@if': {
@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Email',
       description: 'Email address of a user',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: false,
       default: {
         '@if': {
@@ -88,46 +88,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Mobile Advertising ID',
       description: "User's mobile advertising Id",
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
+      required: false,
       default: {
         '@path': '$.context.device.advertisingId'
-      },
-      required: false
+      }
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "User's mobile device type",
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
+      required: false,
       default: {
         '@path': '$.context.device.type'
-      },
-      required: false
-    },
-    ios_advertising_id: {
-      label: 'User iOS Advertising ID', // This field is used with trait enrichment for iOS advertising Id
-      description: 'User iOS advertising Id',
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.ios_advertising_id' },
-          then: { '@path': '$.traits.ios_advertising_id' },
-          else: { '@path': '$.properties.ios_advertising_id' }
-        }
-      }
-    },
-    android_advertising_id: {
-      label: 'User Android Advertising ID', // This field is used with trait enrichment for Android advertising Id
-      description: 'User Android advertising Id',
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.android_advertising_id' },
-          then: { '@path': '$.traits.android_advertising_id' },
-          else: { '@path': '$.properties.android_advertising_id' }
-        }
       }
     },
     gdpr_flag: {
@@ -148,12 +122,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
     return process_payload(request, [payload], rt_access_token, statsContext)
   },
   performBatch: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
     return process_payload(request, payload, rt_access_token, statsContext)
   }
 }

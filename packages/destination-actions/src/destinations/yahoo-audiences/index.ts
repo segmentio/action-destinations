@@ -55,7 +55,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
       // The last 2 params are undefined because we don't have statsContext.statsClient and statsContext.tags in testAuthentication()
-      await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
+      return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Refresh Realtime API token (Oauth2 client_credentials)
@@ -112,7 +112,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_id = personas.computation_id
       const audience_key = personas.computation_key
 
-      console.log(audience_id, audience_key)
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
 

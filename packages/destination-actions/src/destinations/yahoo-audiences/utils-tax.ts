@@ -89,14 +89,13 @@ export async function update_taxonomy(
       }
     })
     if (statsClient && statsTags) {
-      statsClient.incr('update_taxonomy_success', 1, statsTags)
+      statsClient.incr('update_taxonomy.success', 1, statsTags)
     }
     return await add_segment_node.json()
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
     if (statsClient && statsTags) {
-      // TODO Incapsulate error codes into severar stats
-      statsClient.incr('util:update_taxonomy.error', 1, statsTags)
+      statsClient.incr('update_taxonomy.error', 1, statsTags)
     }
     // If Taxonomy API returned 401, throw Integration error w/status 400 to prevent refreshAccessToken from firing
     // Otherwise throw the original error

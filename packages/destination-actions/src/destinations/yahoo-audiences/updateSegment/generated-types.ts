@@ -36,14 +36,6 @@ export interface Payload {
    */
   device_type?: string
   /**
-   * User iOS advertising Id
-   */
-  ios_advertising_id?: string
-  /**
-   * User Android advertising Id
-   */
-  android_advertising_id?: string
-  /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */
   gdpr_flag: boolean

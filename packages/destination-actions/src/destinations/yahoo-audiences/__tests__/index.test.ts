@@ -19,8 +19,10 @@ const createAudienceInput = {
   },
   audienceName: '',
   audienceSettings: {
-    audience_key: AUDIENCE_KEY,
-    audience_id: AUDIENCE_ID
+    personas: {
+      computation_key: AUDIENCE_KEY,
+      computation_id: AUDIENCE_ID
+    }
   }
 }
 
@@ -28,7 +30,6 @@ describe('Yahoo Audiences', () => {
   describe('createAudience() function', () => {
     let testDestination: any
     const OLD_ENV = process.env
-
     beforeEach(() => {
       jest.resetModules() // Most important - it clears the cache
       process.env = { ...OLD_ENV } // Make a copy
@@ -53,24 +54,8 @@ describe('Yahoo Audiences', () => {
       })
     })
     describe('Failure cases', () => {
-      it('should throw an error when audience_id setting is missing', async () => {
-        createAudienceInput.settings.engage_space_id = 'acme_corp_engage_space'
-        createAudienceInput.audienceSettings.audience_key = 'sneakeres_buyers'
-        createAudienceInput.audienceSettings.audience_id = ''
-        await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
-      })
-
-      it('should throw an error when audience_key setting is missing', async () => {
-        createAudienceInput.settings.engage_space_id = 'acme_corp_engage_space'
-        createAudienceInput.audienceSettings.audience_key = ''
-        createAudienceInput.audienceSettings.audience_id = 'aud_12345'
-        await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
-      })
-
       it('should throw an error when engage_space_id setting is missing', async () => {
         createAudienceInput.settings.engage_space_id = ''
-        createAudienceInput.audienceSettings.audience_key = 'sneakeres_buyers'
-        createAudienceInput.audienceSettings.audience_id = 'aud_123456789012345678901234567'
         await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
       })
     })
