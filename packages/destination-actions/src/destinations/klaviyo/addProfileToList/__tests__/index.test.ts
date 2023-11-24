@@ -78,4 +78,62 @@ describe('Add List To Profile', () => {
       testDestination.testAction('addProfileToList', { event, mapping, settings })
     ).resolves.not.toThrowError()
   })
+
+  it('should add to list if profile is already created', async () => {
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    const profileData = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'demo@segment.com'
+        }
+      }
+    }
+
+    nock(`${API_URL}`)
+      .post('/profiles/', profileData)
+      .reply(409, {
+        errors: [
+          {
+            meta: {
+              duplicate_profile_id: 'XYZABC'
+            }
+          }
+        ]
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      traits: {
+        email: 'demo@segment.com'
+      }
+    })
+    const mapping = {
+      external_id: listId,
+      email: {
+        '@path': '$.traits.email'
+      }
+    }
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
 })

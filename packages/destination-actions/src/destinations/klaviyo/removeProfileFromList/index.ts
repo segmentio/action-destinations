@@ -19,9 +19,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Missing Email')
     }
     const profileData = await getProfile(request, email)
-    const v = profileData.content
-    if (v && Object.keys(v).length !== 0) {
-      return await removeProfileFromList(request, v.data[0].id, external_id)
+    const v = profileData.data
+    if (v && v.length !== 0) {
+      return await removeProfileFromList(request, v[0].id, external_id)
     }
   }
 }
