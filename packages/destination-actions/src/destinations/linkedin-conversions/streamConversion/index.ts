@@ -147,6 +147,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         idType: {
           label: 'ID Type',
           description: `Valid values are: ${SUPPORTED_ID_TYPE.join(', ')}`,
+          choices: SUPPORTED_ID_TYPE,
           type: 'string',
           required: true
         },
