@@ -10,7 +10,7 @@ export interface Payload {
    */
   phone_number_as_identifier?: boolean
   /**
-   * If enabled, new data for array fields will be appended to the existing values in Insider. For example, if field=[1,2] and new data is [3,4], the result will be [1,2,3,4]. If disabled, existing values will be replaced, resulting in [3,4].
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
    */
   append_arrays?: boolean
   /**
