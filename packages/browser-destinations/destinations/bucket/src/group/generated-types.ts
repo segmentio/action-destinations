@@ -13,10 +13,6 @@ export interface Payload {
    * Additional information to associate with the Company in Bucket
    */
   traits?: {
-    /**
-     * The company name
-     */
-    name?: string
     [k: string]: unknown
   }
 }

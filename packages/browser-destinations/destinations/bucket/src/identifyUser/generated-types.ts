@@ -9,14 +9,6 @@ export interface Payload {
    * Additional information to associate with the User in Bucket
    */
   traits?: {
-    /**
-     * The User's full name
-     */
-    name?: string
-    /**
-     * The User's e-mail address
-     */
-    email?: string
     [k: string]: unknown
   }
 }
