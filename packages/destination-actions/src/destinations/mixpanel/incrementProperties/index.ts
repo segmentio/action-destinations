@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { MixpanelEngageProperties } from '../mixpanel-types'
 import { getApiServerUrl } from '../utils'
@@ -62,10 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.increment && Object.keys(payload.increment).length > 0) {
       const keys = Object.keys(payload.increment)
       if (keys.length > 100) {
-        throw new IntegrationError(
-          'Exceeded maximum of 20 properties for increment call',
-          'exceeded increment limit',
-          400
+        throw new PayloadValidationError(
+          'Exceeded maximum of 20 properties for increment call'
         )
       }
       const data: MixpanelEngageProperties = {
