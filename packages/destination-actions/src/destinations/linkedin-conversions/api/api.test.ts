@@ -64,11 +64,11 @@ describe('LinkedIn Conversions', () => {
       expect(getAdAccountsRes).toEqual({
         choices: [
           {
-            label: 'ACCOUNT_BILLING_ADMIN',
+            label: 'urn:li:person:K1RwyVNukt',
             value: 'urn:li:sponsoredAccount:516413367'
           },
           {
-            label: 'ACCOUNT_BILLING_ADMIN',
+            label: 'urn:li:person:K1RwyVNukt',
             value: 'urn:li:sponsoredAccount:516880883'
           }
         ]

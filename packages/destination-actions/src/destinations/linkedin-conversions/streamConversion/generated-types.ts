@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.
    */
-  conversionHappenedAt: number
+  conversionHappenedAt: string
   /**
    * The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.
    */

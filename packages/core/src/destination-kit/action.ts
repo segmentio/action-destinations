@@ -125,7 +125,12 @@ export interface ActionHookDefinition<
   /** A description of what this hook does. */
   description: string
   /** The configuration fields that are used when executing the hook. The values will be provided by users in the app. */
-  inputFields?: Record<string, InputField>
+  inputFields?: Record<
+    string,
+    Omit<InputField, 'dynamic'> & {
+      dynamic?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings, GeneratedActionHookTypesInputs>
+    }
+  >
   /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
   outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean }>
   /** The operation to perform when this hook is triggered. */
@@ -203,7 +208,24 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             this.hookSchemas = {}
           }
 
-          this.hookSchemas[hookName] = fieldsToJsonSchema(hook.inputFields)
+          const castedInputFields: Record<string, InputField> = {}
+          for (const key in hook.inputFields) {
+            const field = hook.inputFields[key]
+
+            if (field.dynamic) {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: true
+              }
+            } else {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: false
+              }
+            }
+          }
+
+          this.hookSchemas[hookName] = fieldsToJsonSchema(castedInputFields)
         }
       }
     }
@@ -310,9 +332,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
   async executeDynamicField(
     field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>
+    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
+    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   ): Promise<DynamicFieldResponse> {
-    const fn = this.definition.dynamicFields?.[field]
+    let fn
+    if (dynamicFn && typeof dynamicFn === 'function') {
+      fn = dynamicFn
+    } else {
+      fn = this.definition.dynamicFields?.[field]
+    }
+
     if (typeof fn !== 'function') {
       return Promise.resolve({
         choices: [],
