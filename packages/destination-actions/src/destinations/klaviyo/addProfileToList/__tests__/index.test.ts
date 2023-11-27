@@ -13,6 +13,24 @@ export const settings = {
 }
 const listId = 'XYZABC'
 
+const requestBody = {
+  data: [
+    {
+      type: 'profile',
+      id: 'XYZABC'
+    }
+  ]
+}
+
+const profileData = {
+  data: {
+    type: 'profile',
+    attributes: {
+      email: 'demo@segment.com'
+    }
+  }
+}
+
 describe('Add List To Profile', () => {
   it('should throw error if no list_id/email is provided', async () => {
     const event = createTestEvent({
@@ -26,24 +44,6 @@ describe('Add List To Profile', () => {
   })
 
   it('should add profile to list if successful', async () => {
-    const requestBody = {
-      data: [
-        {
-          type: 'profile',
-          id: 'XYZABC'
-        }
-      ]
-    }
-
-    const profileData = {
-      data: {
-        type: 'profile',
-        attributes: {
-          email: 'demo@segment.com'
-        }
-      }
-    }
-
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
       .reply(200, {
@@ -80,24 +80,6 @@ describe('Add List To Profile', () => {
   })
 
   it('should add to list if profile is already created', async () => {
-    const requestBody = {
-      data: [
-        {
-          type: 'profile',
-          id: 'XYZABC'
-        }
-      ]
-    }
-
-    const profileData = {
-      data: {
-        type: 'profile',
-        attributes: {
-          email: 'demo@segment.com'
-        }
-      }
-    }
-
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
       .reply(409, {
