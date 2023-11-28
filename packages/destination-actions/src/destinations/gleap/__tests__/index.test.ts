@@ -1,4 +1,4 @@
-import { createTestEvent, createTestIntegration, DecoratedResponse } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Definition from '../index'
 
@@ -38,9 +38,8 @@ describe('Gleap (actions)', () => {
         const response = await testDestination.onDelete(event, {
           apiToken: '1234'
         })
-        const resp = response as DecoratedResponse
-        expect(resp.status).toBe(200)
-        expect(resp.data).toMatchObject({})
+        expect(response.status).toBe(200)
+        expect(response.data).toMatchObject({})
       }
     })
   })
