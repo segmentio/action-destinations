@@ -1,7 +1,7 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-export const external_id: InputField = {
-  label: 'External Id',
+export const list_id: InputField = {
+  label: 'List Id',
   description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
   type: 'string',
   default: {
@@ -19,4 +19,10 @@ export const email: InputField = {
     '@path': '$.context.traits.email'
   },
   readOnly: true
+}
+
+export const external_id: InputField = {
+  label: 'External ID',
+  description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Phone Number and Email required.`,
+  type: 'string'
 }

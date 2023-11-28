@@ -25,7 +25,7 @@ describe('Remove List from Profile', () => {
     )
   })
 
-  it('should remove profile from list if successful', async () => {
+  it('should remove profile from list if successful with email address only', async () => {
     const requestBody = {
       data: [
         {
@@ -67,6 +67,55 @@ describe('Remove List from Profile', () => {
 
     await expect(
       testDestination.testAction('removeProfileFromList', { event, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should remove profile from list if successful with External Id only', async () => {
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    const external_id = 'testing_123'
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=equals(external_id,"${external_id}")`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', requestBody)
+      .reply(200, {
+        data: [
+          {
+            id: 'XYZABC'
+          }
+        ]
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        }
+      },
+      properties: {
+        external_id: 'testing_123'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      external_id: 'testing_123'
+    }
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, mapping, settings })
     ).resolves.not.toThrowError()
   })
 })
