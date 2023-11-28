@@ -278,9 +278,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: phoneNumber,
+        To: '+1 (505) 555-4555',
         ShortenUrls: 'true',
-        Tags: defaultTags
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: '+1 (505) 555-4555'
+        })
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -289,7 +292,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const responses = await testAction({ settingsOverrides: { twilioHostname } })
+      const responses = await testAction({
+        settingsOverrides: { twilioHostname },
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1 (505) 555-4555', subscriptionStatus: true, channelType: 'sms' }]
+        }
+      })
       expect(responses.map((response) => response.url)).toStrictEqual([
         `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
       ])
