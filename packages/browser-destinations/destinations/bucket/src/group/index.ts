@@ -7,7 +7,7 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
   title: 'Identify Company',
   description: 'Creates or updates a Company in Bucket and associates the user with it',
   platform: 'web',
-  defaultSubscription: 'type = "group" and userId != null',
+  defaultSubscription: 'type = "group"',
   fields: {
     groupId: {
       type: 'string',
@@ -21,6 +21,7 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
     userId: {
       type: 'string',
       required: true,
+      allowNull: false,
       description: 'Unique identifier for the user',
       label: 'User ID',
       default: {

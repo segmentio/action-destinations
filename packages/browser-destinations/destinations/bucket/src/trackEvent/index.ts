@@ -7,7 +7,7 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
   title: 'Track Event',
   description: 'Map a Segment track() event to Bucket',
   platform: 'web',
-  defaultSubscription: 'type = "track" and userId != null',
+  defaultSubscription: 'type = "track"',
   fields: {
     name: {
       description: 'The event name',
@@ -21,6 +21,7 @@ const action: BrowserActionDefinition<Settings, Bucket, Payload> = {
     userId: {
       type: 'string',
       required: true,
+      allowNull: false,
       description: 'Unique identifier for the user',
       label: 'User ID',
       default: {

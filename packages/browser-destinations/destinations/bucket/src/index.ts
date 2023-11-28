@@ -30,14 +30,14 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
     },
     {
       name: 'Group',
-      subscribe: 'type = "group" and userId != null',
+      subscribe: 'type = "group"',
       partnerAction: 'group',
       mapping: defaultValues(group.fields),
       type: 'automatic'
     },
     {
       name: 'Track Event',
-      subscribe: 'type = "track" and userId != null',
+      subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
