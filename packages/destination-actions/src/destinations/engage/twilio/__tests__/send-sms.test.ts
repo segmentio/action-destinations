@@ -2,7 +2,11 @@ import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 
-const defaultTags = JSON.stringify({})
+const phoneNumber = '+1234567891'
+const defaultTags = JSON.stringify({
+  external_id_type: 'phone',
+  external_id_value: phoneNumber
+})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const contentSid = 'g'
@@ -19,7 +23,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'true', channelType: 'sms' }
+        { type: 'phone', id: phoneNumber, subscriptionStatus: 'true', channelType: 'sms' }
       ],
       sendBasedOnOptOut: false
     })
@@ -158,7 +162,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags
       })
@@ -205,7 +209,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         MediaUrl: 'http://myimg.com',
         Tags: defaultTags
@@ -239,7 +243,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true'
       })
 
@@ -274,7 +278,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags
       })
@@ -296,7 +300,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags,
         StatusCallback:
@@ -351,7 +355,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags
       })
@@ -381,7 +385,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags
       })
@@ -392,7 +396,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }]
         }
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -407,7 +411,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
+          To: phoneNumber,
           ShortenUrls: 'true',
           Tags: defaultTags
         })
@@ -418,7 +422,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
             sendBasedOnOptOut: true
           }
         })
@@ -435,7 +439,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
+          To: phoneNumber,
           ShortenUrls: 'true',
           Tags: defaultTags
         })
@@ -446,7 +450,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
             sendBasedOnOptOut: undefined
           }
         })
@@ -463,7 +467,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
+          To: phoneNumber,
           ShortenUrls: 'true',
           Tags: defaultTags
         })
@@ -474,7 +478,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }]
           }
         })
         expect(responses).toHaveLength(0)
@@ -488,7 +492,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
+          To: phoneNumber,
           ShortenUrls: 'true',
           Tags: defaultTags
         })
@@ -499,7 +503,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
             sendBasedOnOptOut: undefined
           }
         })
@@ -515,7 +519,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
         Tags: defaultTags
       })
@@ -526,7 +530,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }],
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
           sendBasedOnOptOut: true
         }
       })
@@ -541,7 +545,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     const expectedTwilioRequest = new URLSearchParams({
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
-      To: '+1234567891',
+      To: phoneNumber,
       ShortenUrls: 'true',
       Tags: defaultTags
     })
@@ -552,7 +556,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     const responses = await testAction({
       mappingOverrides: {
-        externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+        externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus: randomSubscriptionStatusPhrase }]
       }
     })
     expect(responses).toHaveLength(0)
@@ -636,7 +640,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
+          To: phoneNumber,
           ShortenUrls: 'true',
           Tags: defaultTags
         })
@@ -662,9 +666,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     const expectedTwilioRequest = new URLSearchParams({
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
-      To: '+1234567891',
+      To: phoneNumber,
       ShortenUrls: 'true',
-      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6"}'
+      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6","external_id_type":"phone","external_id_value":"+1234567891"}'
     })
     const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
       .post('/Messages.json', expectedTwilioRequest.toString())
