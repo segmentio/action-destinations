@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-klaviyo destination: addProfileToList action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "email": "mudwoz@zo.ad",
+    },
+    "type": "profile",
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-klaviyo destination: orderCompleted action - all fields 1`] = `
 Object {
   "data": Object {
@@ -34,6 +45,8 @@ Object {
   },
 }
 `;
+
+exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - all fields 1`] = `""`;
 
 exports[`Testing snapshot for actions-klaviyo destination: trackEvent action - all fields 1`] = `
 Object {
