@@ -84,4 +84,36 @@ describe('Iterable.updateUser', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
+
+  it('should allow passing null values for phoneNumber', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      userId: 'user1234',
+      traits: {
+        phone: null,
+        trait1: null
+      }
+    })
+
+    nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
+
+    const responses = await testDestination.testAction('updateUser', {
+      event,
+      mapping: {
+        dataFields: {
+          '@path': '$.traits'
+        }
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].options.json).toMatchObject({
+      userId: 'user1234',
+      dataFields: {
+        phoneNumber: null,
+        trait1: null
+      }
+    })
+  })
 })

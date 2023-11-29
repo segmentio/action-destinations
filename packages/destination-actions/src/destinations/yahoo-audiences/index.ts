@@ -4,7 +4,11 @@ import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
 import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
-
+type PersonasSettings = {
+  computation_id: string
+  computation_key: string
+  parent_id: string
+}
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -51,7 +55,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
       // The last 2 params are undefined because we don't have statsContext.statsClient and statsContext.tags in testAuthentication()
-      await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
+      return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Refresh Realtime API token (Oauth2 client_credentials)
@@ -85,34 +89,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    audience_id: {
-      type: 'string',
-      label: 'Audience Id',
-      description: 'Segment Audience Id (aud_...)',
-      required: true
-    },
-    audience_key: {
-      label: 'Audience key',
-      description: 'Segment Audience Key',
-      type: 'string',
-      required: true
-    },
-    identifier: {
-      label: 'User Identifier',
-      description: 'Specify the identifier(s) to send to Yahoo',
-      type: 'string',
-      required: true,
-      default: 'email',
-      choices: [
-        { value: 'email', label: 'Send email' },
-        { value: 'maid', label: 'Send MAID' },
-        { value: 'phone', label: 'Send phone' },
-        { value: 'email_maid', label: 'Send email and/or MAID' },
-        { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
-        { value: 'email_phone', label: 'Send email and/or phone' },
-        { value: 'phone_maid', label: 'Send phone and/or MAID' }
-      ]
+    placeholder: {
+      type: 'boolean',
+      label: 'Placeholder Setting',
+      description: 'Placeholder field to allow the audience to be created. Do not change this',
+      default: true
     }
+    // This is a required object, but we don't need to define any fields
+    // Placeholder setting will be removed once we make AudienceSettings optional
   },
   audienceConfig: {
     mode: {
@@ -121,45 +105,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      // const tax_client_key = JSON.parse(auth.clientId)['tax_api']
-
-      //engage_space_id, audience_id and audience_key will be removed once we have Payload accessible by createAudience()
-      //context.personas.computation_id
-      //context.personas.computation_key
-      //context.personas.namespace
-      const audience_id = createAudienceInput.audienceSettings?.audience_id
-      const audience_key = createAudienceInput.audienceSettings?.audience_key
+      const audienceSettings = createAudienceInput.audienceSettings
+      // @ts-ignore type is not defined, and we will define it later
+      const personas = audienceSettings.personas as PersonasSettings
       const engage_space_id = createAudienceInput.settings?.engage_space_id
-      const identifier = createAudienceInput.audienceSettings?.identifier
+      const audience_id = personas.computation_id
+      const audience_key = personas.computation_key
+
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
-      // The 3 errors below will be removed once we have Payload accessible by createAudience()
-      if (!audience_id) {
-        throw new IntegrationError(
-          'Create Audience: missing audience setting "audience Id"',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
-      }
-
-      if (!audience_key) {
-        throw new IntegrationError(
-          'Create Audience: missing audience setting "audience key"',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
-      }
 
       if (!engage_space_id) {
         throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!identifier) {
-        throw new IntegrationError(
-          'Create Audience: missing audience setting "Identifier"',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
       }
 
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
@@ -172,8 +129,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const input = {
         segment_audience_id: audience_id,
         segment_audience_key: audience_key,
-        engage_space_id: engage_space_id,
-        identifier: identifier
+        engage_space_id: engage_space_id
       }
 
       const body_form_data = gen_segment_subtaxonomy_payload(input)
@@ -188,7 +144,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: audience_id }
     },
     async getAudience(_, getAudienceInput) {
-      const audience_id = getAudienceInput.audienceSettings?.audience_id
+      // getAudienceInput.externalId represents audience ID that was created in createAudience
+      const audience_id = getAudienceInput.externalId
       if (!audience_id) {
         throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
       }

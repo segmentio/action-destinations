@@ -17,7 +17,11 @@ import {
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
-import { AudienceDestinationConfigurationWithCreateGet } from '@segment/actions-core/destination-kit'
+import {
+  ActionHookType,
+  ActionHookResponse,
+  AudienceDestinationConfigurationWithCreateGet
+} from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
 }
@@ -297,6 +301,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           if (Array.isArray(eventParams.data)) {
             // If no mapping or default mapping is provided, default to using the first payload across all events.
             eventParams.mapping = mapping || eventParams.data[0] || {}
+            eventParams.audienceSettings = req.body.payload[0]?.context?.personas?.audience_settings || {}
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)
@@ -330,6 +335,37 @@ function setupRoutes(def: DestinationDefinition | null): void {
               }
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)
+
+              if (result.error) {
+                throw result.error
+              }
+
+              return res.status(200).json(result)
+            } catch (err) {
+              return res.status(500).json([err])
+            }
+          })
+        )
+      }
+    }
+
+    if (definition.hooks) {
+      for (const hookName in definition.hooks) {
+        router.post(
+          `/${actionSlug}/hooks/${hookName}`,
+          asyncHandler(async (req: express.Request, res: express.Response) => {
+            try {
+              const data = {
+                settings: req.body.settings || {},
+                payload: req.body.payload || {},
+                page: req.body.page || 1,
+                auth: req.body.auth || {},
+                audienceSettings: req.body.audienceSettings || {},
+                hookInputs: req.body.hookInputs || {}
+              }
+
+              const action = destination.actions[actionSlug]
+              const result: ActionHookResponse<any> = await action.executeHook(hookName as ActionHookType, data)
 
               if (result.error) {
                 throw result.error

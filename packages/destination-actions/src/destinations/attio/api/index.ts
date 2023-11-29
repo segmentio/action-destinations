@@ -30,7 +30,8 @@ export class AttioClient {
   }
 
   /**
-   * Either create or update a Record in the Attio system.
+   * Either create or update a Record in the Attio system. Multi-select attribute values
+   * are always appended, never replaced.
    *
    * @param matching_attribute The Attribute to match the Record on (e.g. an email address)
    * @param object The Attio Object (id / api_slug) that this Record should belong to (e.g. "people")
@@ -49,7 +50,7 @@ export class AttioClient {
     requestOptions?: Partial<RequestOptions>
   }): Promise<ModifiedResponse<AssertResponse>> {
     return await this.request(
-      `${this.api_url}/v2/objects/${object}/records/simple?matching_attribute=${matching_attribute}`,
+      `${this.api_url}/v2/objects/${object}/records/simple?matching_attribute=${matching_attribute}&append_to_existing_values=true`,
       {
         method: 'put',
         json: { data: { values } },

@@ -29,14 +29,6 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       label: 'Id',
       type: 'string',
       required: true
-    },
-    manualInit: {
-      label: 'Initialize Jimo manually',
-      description:
-        'Toggling to true will prevent Jimo from initializing automatically. For more information, check out: https://help.usejimo.com/knowledge-base/for-developers/sdk-guides/manual-initialization',
-      type: 'boolean',
-      required: false,
-      default: false
     }
   },
   presets: [
@@ -52,6 +44,8 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
     initScript(settings)
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
+
+    await deps.resolveWhen(() => Array.isArray(window.jimo), 100)
 
     return window.jimo as JimoSDK
   },

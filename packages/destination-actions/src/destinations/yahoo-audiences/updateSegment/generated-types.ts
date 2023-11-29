@@ -20,6 +20,10 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * Phone number of a user
+   */
+  phone?: string
+  /**
    * Email address of a user
    */
   email?: string
@@ -28,17 +32,9 @@ export interface Payload {
    */
   advertising_id?: string
   /**
-   * Phone number of a user
-   */
-  phone?: string
-  /**
    * User's mobile device type
    */
   device_type?: string
-  /**
-   * Specify the identifier(s) to send to Yahoo
-   */
-  identifier: string
   /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */

@@ -18,15 +18,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Segment Audience Id (aud_...)
+   * Placeholder field to allow the audience to be created. Do not change this
    */
-  audience_id: string
-  /**
-   * Segment Audience Key
-   */
-  audience_key: string
-  /**
-   * Specify the identifier(s) to send to Yahoo
-   */
-  identifier: string
+  placeholder?: boolean
 }
