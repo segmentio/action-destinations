@@ -13,7 +13,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
-  name: '1Flow',
+  name: '1Flow Web (Actions)',
   slug: 'actions-1flow',
   mode: 'device',
   description: 'Send analytics from Segment to 1Flow',
