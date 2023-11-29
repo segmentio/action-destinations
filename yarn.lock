@@ -2253,12 +2253,51 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.190.0":
+  version "3.229.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.229.0.tgz#372578565b5a3b3b0be267683fb955849e4a939d"
+  integrity sha512-QeuA+SlhtxtIZikbGGyTzFVtwXOp6PZMP852yOPn0wK3/42Ht4sgYACGYYtK3y19SzoEtvVi4t9O6hqOjaOuZA==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.88.0"
+    "@segment/actions-shared" "^1.70.0"
+    "@types/node" "^18.11.15"
+    ajv-formats "^2.1.1"
+    aws4 "^1.12.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    google-libphonenumber "^3.2.31"
+    liquidjs "^9.37.0"
+    lodash "^4.17.21"
+    ssh2-sftp-client "^9.1.0"
+
 "@segment/action-emitters@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.1.2.tgz#962527ecc014a1123ac5614ef10419b7d9371730"
   integrity sha512-U6+ljitpZZHsp+BAF53pZix9ARJlHUW5NqMCuQqVHWK9w64aS7UvrfFnd5pFI/NxlmMRw068q6kIJ+fB8XFfOA==
   dependencies:
     "@types/node" "^18.11.15"
+
+"@segment/actions-core@^3.76.0", "@segment/actions-core@^3.88.0":
+  version "3.88.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.88.0.tgz#618671598d73890339571dfb8b0c7d0c8a25482f"
+  integrity sha512-4QFH66kl0gO1tz0nTcm9NmtrD8V6iLYSTbuuWYSRK774PB1CsHG1+wx7a6jgO0MqLx0z7V/7YPTun8wL4FZ6tg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.1.2"
+    "@segment/ajv-human-errors" "^2.11.3"
+    "@segment/destination-subscriptions" "^3.31.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
 
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
