@@ -20,6 +20,10 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * Phone number of a user
+   */
+  phone?: string
+  /**
    * Email address of a user
    */
   email?: string
@@ -27,10 +31,6 @@ export interface Payload {
    * User's mobile advertising Id
    */
   advertising_id?: string
-  /**
-   * Phone number of a user
-   */
-  phone?: string
   /**
    * User's mobile device type
    */
