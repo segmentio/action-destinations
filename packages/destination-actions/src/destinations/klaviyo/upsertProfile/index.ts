@@ -203,20 +203,15 @@ const action: ActionDefinition<Settings, Payload> = {
     let importResponseWithList
     let importResponseWithoutList
 
-    try {
-      if (profilesWithList.length > 0) {
-        const listId = profilesWithList[0].list_id
-        const importJobPayload = createImportJobPayload(profilesWithList, listId)
-        importResponseWithList = await sendImportJobRequest(request, importJobPayload)
-      }
+    if (profilesWithList.length > 0) {
+      const listId = profilesWithList[0].list_id
+      const importJobPayload = createImportJobPayload(profilesWithList, listId)
+      importResponseWithList = await sendImportJobRequest(request, importJobPayload)
+    }
 
-      if (profilesWithoutList.length > 0) {
-        const importJobPayload = createImportJobPayload(profilesWithoutList)
-        importResponseWithoutList = await sendImportJobRequest(request, importJobPayload)
-      }
-    } catch (error) {
-      console.error('Error processing batch:', error)
-      throw new Error('An error occurred while processing the request')
+    if (profilesWithoutList.length > 0) {
+      const importJobPayload = createImportJobPayload(profilesWithoutList)
+      importResponseWithoutList = await sendImportJobRequest(request, importJobPayload)
     }
 
     return {
