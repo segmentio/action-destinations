@@ -84,3 +84,23 @@ export interface Campaigns {
   name: string
   id: string
 }
+
+export interface ConversionRuleCreationResponse {
+  id: string
+  name: string
+  type: string
+}
+
+/**
+ * The shape of the response from LinkedIn when fetching a conversion rule by id.
+ * Not all properties in this type are used, but they are included if needed in the future.
+ */
+export interface GetConversionRuleResponse {
+  conversionMethod?: string
+  type?: string
+  enabled?: boolean
+  name?: string
+  id?: string
+  attributionType?: string
+  account?: string
+}

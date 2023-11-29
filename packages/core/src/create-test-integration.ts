@@ -1,13 +1,13 @@
 import { createTestEvent } from './create-test-event'
 import { StateContext, Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
-import type { DestinationDefinition, StatsContext, Logger, DataFeedCache } from './destination-kit'
+import type { DestinationDefinition, StatsContext, Logger, DataFeedCache, RequestFn } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
 import { ExecuteDynamicFieldInput } from './destination-kit/action'
-import { Result } from './destination-kit/types'
+import { DynamicFieldResponse, Result } from './destination-kit/types'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {}
@@ -56,8 +56,13 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     super(destination)
   }
 
-  async testDynamicField(action: string, fieldKey: string, data: ExecuteDynamicFieldInput<T, object>) {
-    return await super.executeDynamicField(action, fieldKey, data)
+  async testDynamicField(
+    action: string,
+    fieldKey: string,
+    data: ExecuteDynamicFieldInput<T, object>,
+    dynamicFn?: RequestFn<any, any, DynamicFieldResponse, AudienceSettings>
+  ) {
+    return await super.executeDynamicField(action, fieldKey, data, dynamicFn)
   }
 
   /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
