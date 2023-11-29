@@ -175,7 +175,10 @@ export const uuid_c1: InputField = {
   label: 'uuid_c1 Cookie',
   description:
     'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.uuid_c1'
+  }
 }
 
 export const idfv: InputField = {
@@ -351,7 +354,10 @@ export const click_id: InputField = {
   label: 'Click ID',
   description:
     "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.click_id'
+  }
 }
 
 //Check to see what ids need to be passed depending on the event_conversion_type
