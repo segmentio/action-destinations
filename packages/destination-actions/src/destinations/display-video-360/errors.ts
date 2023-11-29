@@ -1,5 +1,4 @@
-import { ErrorCodes, IntegrationError } from '@segment/actions-core'
-import { InvalidAuthenticationError } from '@segment/actions-core/*'
+import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 
 import { GoogleAPIError } from './types'
 
