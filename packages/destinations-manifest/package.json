@@ -45,6 +45,8 @@
     "@segment/analytics-browser-actions-vwo": "^1.22.0",
     "@segment/analytics-browser-actions-wiseops": "^1.21.0",
     "@segment/analytics-browser-hubble-web": "^1.7.0",
+    "@segment/analytics-browser-actions-jimo": "^1.7.0",
+    "@segment/analytics-browser-actions-1flow": "^1.1.0",
     "@segment/browser-destination-runtime": "^1.20.0"
   }
 }
