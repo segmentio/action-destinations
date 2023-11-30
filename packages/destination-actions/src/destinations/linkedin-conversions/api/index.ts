@@ -28,7 +28,7 @@ export class LinkedInConversions {
     })
   }
 
-  upsertConversionRule = async (
+  createConversionRule = async (
     payload: Payload,
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {

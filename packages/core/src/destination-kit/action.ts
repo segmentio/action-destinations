@@ -333,6 +333,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   async executeDynamicField(
     field: string,
     data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
     dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   ): Promise<DynamicFieldResponse> {
     let fn

@@ -622,6 +622,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     actionSlug: string,
     fieldKey: string,
     data: ExecuteDynamicFieldInput<Settings, object>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
     dynamicFn?: RequestFn<Settings, any, DynamicFieldResponse, AudienceSettings>
   ) {
     const action = this.actions[actionSlug]
