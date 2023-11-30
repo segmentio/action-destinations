@@ -16,7 +16,7 @@ const oneMockPayload: UpdateHandlerPayload = {
   external_audience_id: 'products/DISPLAY_VIDEO_ADVERTISER/customers/123/userLists/456',
   google_gid: 'CAESEHIV8HXNp0pFdHgi2rElMfk',
   mobile_advertising_id: '3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5',
-  anonymous_id: 'my-anon-id-42',
+  partner_provided_id: 'my-anon-id-42',
   enable_batching: true
 }
 
@@ -26,7 +26,7 @@ const manyMockPayloads: UpdateHandlerPayload[] = [
   oneMockPayload,
   {
     external_audience_id: 'products/DISPLAY_VIDEO_ADVERTISER/customers/123/userLists/456',
-    anonymous_id: 'my-anon-id-43',
+    partner_provided_id: 'my-anon-id-43',
     enable_batching: true
   },
   {
@@ -79,7 +79,7 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
       errorInfo.errorCode = getRandomError()
       errorInfo.userListId = BigInt(p.external_audience_id.split('/').pop() || '-1')
       errorInfo.userIdType = 0
-      errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.anonymous_id || ''
+      errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.partner_provided_id || ''
       return errorInfo
     })
 
@@ -101,7 +101,7 @@ describe('shared', () => {
       }
       const settings: Settings = {
         oauth: {
-          accessToken: 'real-token'
+          access_token: 'real-token'
         }
       }
       const result = buildHeaders(audienceSettings, settings)
