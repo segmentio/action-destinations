@@ -48,25 +48,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Group',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     },
     {
       name: 'Page',
       subscribe: 'type = "page"',
       partnerAction: 'page',
-      mapping: defaultValues(page.fields)
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
     }
   ],
   actions: {

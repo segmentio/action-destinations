@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Podscribe's page destination action: all fields 1`] = `"https://verifi.podscribe.com/tag?action=view&advertiser=JyC801Hwa%5DRTOeags&timestamp=FIXED_TIMESTAMP&device_id=JyC801Hwa%5DRTOeags&referrer=JyC801Hwa%5DRTOeags&url=http%3A%2F%2Fkewolbu.mm%2Fcacpo&ip=JyC801Hwa%5DRTOeags&user_agent=JyC801Hwa%5DRTOeags"`;
+exports[`Testing snapshot for Podscribe's page destination action: all fields 1`] = `"https://verifi.podscribe.com/tag?action=view&advertiser=JyC801Hwa%5DRTOeags&timestamp=FIXED_TIMESTAMP&device_id=JyC801Hwa%5DRTOeags&referrer=JyC801Hwa%5DRTOeags&url=http%3A%2F%2Fkewolbu.mm%2Fcacpo&ip=JyC801Hwa%5DRTOeags&user_agent=JyC801Hwa%5DRTOeags&library=%7B%22testType%22%3A%22JyC801Hwa%5DRTOeags%22%7D"`;
 
 exports[`Testing snapshot for Podscribe's page destination action: required fields 1`] = `"https://verifi.podscribe.com/tag?action=view&advertiser=JyC801Hwa%5DRTOeags&timestamp=FIXED_TIMESTAMP&ip=JyC801Hwa%5DRTOeags"`;
 

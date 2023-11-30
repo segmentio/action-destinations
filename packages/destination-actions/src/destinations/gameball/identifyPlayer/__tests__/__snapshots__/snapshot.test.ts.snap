@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gameball's identifyPlayer destination action: all fields 1`] = `
+Object {
+  "deviceToken": "EZF$i$UL)#Y77)",
+  "email": "dop@vivdi.tr",
+  "levelOrder": 17948362481336.32,
+  "mobile": "EZF$i$UL)#Y77)",
+  "playerAttributes": Object {
+    "avgOrderAmount": 17948362481336.32,
+    "city": "EZF$i$UL)#Y77)",
+    "country": "EZF$i$UL)#Y77)",
+    "dateOfBirth": "2021-02-01T00:00:00.000Z",
+    "deviceToken": "EZF$i$UL)#Y77)",
+    "devices": Array [
+      Object {
+        "device": "EZF$i$UL)#Y77)",
+        "os": "EZF$i$UL)#Y77)",
+        "userAgent": "EZF$i$UL)#Y77)",
+      },
+    ],
+    "displayName": "EZF$i$UL)#Y77)",
+    "email": "dop@vivdi.tr",
+    "firstName": "EZF$i$UL)#Y77)",
+    "gender": "EZF$i$UL)#Y77)",
+    "guest": false,
+    "joinDate": "2021-02-01T00:00:00.000Z",
+    "lastName": "EZF$i$UL)#Y77)",
+    "lastOrderDate": "2021-02-01T00:00:00.000Z",
+    "levelOrder": 17948362481336.32,
+    "mobile": "EZF$i$UL)#Y77)",
+    "playerCustomAttributes": Object {
+      "testType": "EZF$i$UL)#Y77)",
+    },
+    "playerUniqueId": "EZF$i$UL)#Y77)",
+    "preferredLanguage": "EZF$i$UL)#Y77)",
+    "referrerCode": "EZF$i$UL)#Y77)",
+    "tags": "EZF$i$UL)#Y77)",
+    "totalOrders": 17948362481336.32,
+    "totalSpent": 17948362481336.32,
+    "utms": Array [
+      Object {
+        "campaign": "EZF$i$UL)#Y77)",
+        "content": "EZF$i$UL)#Y77)",
+        "medium": "EZF$i$UL)#Y77)",
+        "source": "EZF$i$UL)#Y77)",
+        "term": "EZF$i$UL)#Y77)",
+      },
+    ],
+    "zip": "EZF$i$UL)#Y77)",
+  },
+  "playerCustomAttributes": Object {
+    "testType": "EZF$i$UL)#Y77)",
+  },
+  "playerUniqueId": "EZF$i$UL)#Y77)",
+  "referrerCode": "EZF$i$UL)#Y77)",
+}
+`;
+
+exports[`Testing snapshot for actions-gameball's identifyPlayer destination action: required fields 1`] = `
+Object {
+  "playerAttributes": Object {
+    "playerUniqueId": "EZF$i$UL)#Y77)",
+  },
+  "playerUniqueId": "EZF$i$UL)#Y77)",
+}
+`;

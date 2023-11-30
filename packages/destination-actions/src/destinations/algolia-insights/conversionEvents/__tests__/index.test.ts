@@ -64,7 +64,6 @@ describe('AlgoliaInsights.conversionEvents', () => {
       type: 'track',
       event: 'Order Completed',
       properties: {
-        query_id: '1234',
         search_index: 'fashion_1',
         products: [
           {
@@ -80,5 +79,28 @@ describe('AlgoliaInsights.conversionEvents', () => {
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.timestamp).toBe(new Date(event.timestamp as string).valueOf())
+  })
+
+  it('should pass queryID if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [
+          {
+            product_id: '9876',
+            product_name: 'skirt 1'
+          },
+          {
+            product_id: '5432',
+            product_name: 'skirt 2'
+          }
+        ]
+      }
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.queryID).toBe(event.properties?.query_id)
   })
 })

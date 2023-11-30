@@ -67,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Anonymous ID',
       description: 'Segment Anonymous ID.',
       required: false,
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: {
         '@path': '$.anonymousId'
       }
@@ -103,9 +104,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    if (!settings.clientId || !settings.producerToken) {
-      throw new IntegrationError('Missing client ID or producer token.')
-    }
     return processData(request, settings, [payload])
   }
   // Commented batching until the segment team supports rejecting a single event in a batch

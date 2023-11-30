@@ -1,23 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `
-Object {
-  "email": "geoli@sekuki.mg",
-  "eventName": "NTxWtuPi(z!bOHmgT^*3",
-  "objectId": "NTxWtuPi(z!bOHmgT^*3",
-  "occurredAt": "2021-02-01T00:00:00.000Z",
-  "properties": Object {
-    "testType": "NTxWtuPi(z!bOHmgT^*3",
-  },
-  "utk": "NTxWtuPi(z!bOHmgT^*3",
-}
-`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `
-Object {
-  "eventName": "NTxWtuPi(z!bOHmgT^*3",
-}
-`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: One of the following parameters: email, user token, or objectId is required]`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `
 Object {
@@ -77,14 +64,25 @@ Object {
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - all fields 1`] = `
 Object {
-  "properties": Object {
-    "testType": "jf(2@y*W9WT2r)SLk(*",
-  },
+  "filterGroups": Array [
+    Object {
+      "filters": Array [
+        Object {
+          "operator": "EQ",
+          "propertyName": "testType",
+          "value": "jf(2@y*W9WT2r)SLk(*",
+        },
+      ],
+    },
+  ],
+  "properties": Array [],
+  "sorts": Array [],
 }
 `;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - required fields 1`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "testType": "jf(2@y*W9WT2r)SLk(*",
   },

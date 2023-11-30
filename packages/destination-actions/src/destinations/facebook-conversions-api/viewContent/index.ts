@@ -23,6 +23,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { get_api_version } from '../utils'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
@@ -32,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
+    app_data_field: app_data_field,
     content_category: content_category,
     content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
     content_name: content_name,
@@ -120,6 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 contents: payload.contents,
                 content_category: payload.content_category
               },
+              app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,
               data_processing_options_state: state_code

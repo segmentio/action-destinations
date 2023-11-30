@@ -142,6 +142,26 @@ export interface Payload {
    */
   userAgent?: string
   /**
+   * Advertising ID
+   */
+  advertising_id?: string
+  /**
+   * Ad Tracking Enabled (true or false)
+   */
+  ad_tracking_enabled?: string
+  /**
+   * The event timezone
+   */
+  timezone?: string
+  /**
+   * The App Platform, if applicable
+   */
+  app_platform?: string
+  /**
+   * The Event Original Name, if applicable
+   */
+  name?: string
+  /**
    * An object of key-value pairs that represent additional data to be sent along with the event.
    */
   event_properties?: {
@@ -167,4 +187,17 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Mixpanel in batches.
    */
   enable_batching?: boolean
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    mobile?: boolean
+    platform?: string
+    architecture?: string
+    bitness?: string
+    model?: string
+    platformVersion?: string
+    uaFullVersion?: string
+    wow64?: boolean
+  }
 }

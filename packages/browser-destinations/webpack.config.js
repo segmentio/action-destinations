@@ -6,11 +6,11 @@ const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 
-const files = globby.sync('./src/destinations/*/index.ts')
+const files = globby.sync('./destinations/*/src/index.ts')
 const isProd = process.env.NODE_ENV === 'production'
 
 const entries = files.reduce((acc, current) => {
-  const [_dot, _src, _destinations, destination, ..._rest] = current.split('/')
+  const [_dot, _destinations, destination, ..._rest] = current.split('/')
   return {
     ...acc,
     [destination]: current
@@ -74,6 +74,12 @@ const unobfuscatedOutput = {
   },
   module: {
     rules: [
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
       {
         test: /\.ts$/,
         use: [

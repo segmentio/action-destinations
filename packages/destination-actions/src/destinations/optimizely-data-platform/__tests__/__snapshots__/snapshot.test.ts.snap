@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: customEvent action - all fields 1`] = `
+Object {
+  "action": "p$KWIG5p0vR(@gNw)lv@",
+  "order_id": "p$KWIG5p0vR(@gNw)lv@",
+  "products": Array [
+    Object {
+      "product_id": "p$KWIG5p0vR(@gNw)lv@",
+      "qty": 82827023776481.28,
+    },
+  ],
+  "timestamp": "p$KWIG5p0vR(@gNw)lv@",
+  "total": "p$KWIG5p0vR(@gNw)lv@",
+  "user_identifiers": Object {
+    "anonymousId": "p$KWIG5p0vR(@gNw)lv@",
+    "email": "agijit@cove.ly",
+    "optimizely_vuid": "p$KWIG5p0vR(@gNw)lv@",
+    "userId": "p$KWIG5p0vR(@gNw)lv@",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: customEvent action - required fields 1`] = `
+Object {
+  "action": "p$KWIG5p0vR(@gNw)lv@",
+  "order_id": "p$KWIG5p0vR(@gNw)lv@",
+  "timestamp": "p$KWIG5p0vR(@gNw)lv@",
+  "user_identifiers": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - all fields 1`] = `
+Object {
+  "action": "SjDZyt(p",
+  "campaign": "SjDZyt(p",
+  "campaign_event_value": "SjDZyt(p",
+  "timestamp": "SjDZyt(p",
+  "type": "email",
+  "user_identifiers": Object {
+    "anonymousId": "SjDZyt(p",
+    "email": "avasa@saec.bw",
+    "optimizely_vuid": "SjDZyt(p",
+    "userId": "SjDZyt(p",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: emailEvent action - required fields 1`] = `
+Object {
+  "action": "SjDZyt(p",
+  "campaign": "SjDZyt(p",
+  "campaign_event_value": null,
+  "timestamp": "SjDZyt(p",
+  "type": "email",
+  "user_identifiers": Object {
+    "email": "avasa@saec.bw",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: upsertContact action - all fields 1`] = `
+Object {
+  "address": Object {
+    "city": "WnJP3)h29qx6Q9XcA@qx",
+    "country": "WnJP3)h29qx6Q9XcA@qx",
+    "state": "WnJP3)h29qx6Q9XcA@qx",
+    "street": "WnJP3)h29qx6Q9XcA@qx",
+    "zip": "WnJP3)h29qx6Q9XcA@qx",
+  },
+  "age": 89357760918978.56,
+  "company": "WnJP3)h29qx6Q9XcA@qx",
+  "dob": "2021-02-01T00:00:00.000Z",
+  "first_name": "WnJP3)h29qx6Q9XcA@qx",
+  "gender": "WnJP3)h29qx6Q9XcA@qx",
+  "image_url": "WnJP3)h29qx6Q9XcA@qx",
+  "last_name": "WnJP3)h29qx6Q9XcA@qx",
+  "name": "WnJP3)h29qx6Q9XcA@qx",
+  "phone": "WnJP3)h29qx6Q9XcA@qx",
+  "title": "WnJP3)h29qx6Q9XcA@qx",
+  "user_identifiers": Object {
+    "anonymousId": "WnJP3)h29qx6Q9XcA@qx",
+    "email": "hi@iz.bw",
+    "optimizely_vuid": "WnJP3)h29qx6Q9XcA@qx",
+    "userId": "WnJP3)h29qx6Q9XcA@qx",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: upsertContact action - required fields 1`] = `
+Object {
+  "user_identifiers": Object {},
+}
+`;

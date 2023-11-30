@@ -14,6 +14,8 @@ import * as path from 'path'
 import * as prompt from '../lib/prompt'
 import * as rimraf from 'rimraf'
 
+jest.setTimeout(10000)
+
 describe('cli init command', () => {
   const testDir = path.join('.', 'testResults')
   beforeAll(() => {

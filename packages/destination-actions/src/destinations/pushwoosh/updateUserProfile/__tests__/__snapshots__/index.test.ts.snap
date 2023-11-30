@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pushwoosh.updateUserProfile required fields 1`] = `
+Object {
+  "attributes": Object {},
+  "device_id": "CbYLWanPxPu8BsjtevH)",
+  "user_id": "CbYLWanPxPu8BsjtevH)",
+}
+`;

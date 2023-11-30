@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-apolloio's track destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymousId": "72d7bed1-4f42-4f2f-8955-72677340546b",
+    "campaign": Object {
+      "content": "campaign_content",
+      "medium": "campaign_medium",
+      "name": "campaign_name",
+      "source": "campaign_source",
+      "term": "campaign_term",
+    },
+    "event": "Test Event",
+    "ipAddress": "111.222.333.444",
+    "page": Object {
+      "search": "search_query",
+    },
+    "properties": Object {
+      "product_id": "pid_1",
+    },
+    "timestamp": "2023-07-29T00:00:00.000Z",
+    "userId": "user1234",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-apolloio's track destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymousId": "anonId1234",
+    "campaign": Object {},
+    "event": "Test Event",
+    "ipAddress": "111.222.333.444",
+    "page": Object {
+      "search": "search_query",
+    },
+    "properties": Object {},
+    "timestamp": "2023-07-29T00:00:00.000Z",
+    "userId": "user1234",
+  },
+]
+`;

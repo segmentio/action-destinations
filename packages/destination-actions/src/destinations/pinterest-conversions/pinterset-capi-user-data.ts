@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { createHash } from 'crypto'
 import { Payload } from './reportConversionEvent/generated-types'
 import isEmpty from 'lodash/isEmpty'

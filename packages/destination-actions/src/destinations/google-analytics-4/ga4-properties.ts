@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { DataStreamType } from './ga4-types'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
@@ -356,6 +356,6 @@ export const data_stream_type: InputField = {
   type: 'string',
   choices: [DataStreamType.Web, DataStreamType.MobileApp],
   description:
-    'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).',
+    'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: "Web" (default) and "Mobile App".',
   default: DataStreamType.Web
 }

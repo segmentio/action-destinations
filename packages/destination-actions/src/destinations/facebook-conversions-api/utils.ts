@@ -1,5 +1,5 @@
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
-import { Features } from '@segment/actions-core/src/mapping-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
 import { API_VERSION, CANARY_API_VERSION } from './constants'
 
 const FLAGON_NAME = 'facebook-capi-actions-canary-version'

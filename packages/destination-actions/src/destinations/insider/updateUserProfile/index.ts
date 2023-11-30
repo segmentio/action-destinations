@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
+import { userProfilePayload, API_BASE, UPSERT_ENDPOINT, bulkUserProfilePayload } from '../insider-helpers'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
@@ -110,34 +110,51 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.address.country'
       }
     },
-    emailOptin: {
-      label: 'Email Optin',
+    gdprOptin: {
+      label: 'GDPR Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'Email optin.'
+      description: 'GDPR opt-in.'
+    },
+    emailOptin: {
+      label: 'Email Opt-in',
+      type: 'boolean',
+      default: undefined,
+      description: 'Email opt-in.'
     },
     smsOptin: {
-      label: 'SMS Optin',
+      label: 'SMS Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'SMS optin.'
+      description: 'SMS opt-in.'
     },
     whatsappOptin: {
-      label: 'Whatsapp Optin',
+      label: 'Whatsapp Opt-in',
       type: 'boolean',
       default: undefined,
-      description: 'Whatsapp optin.'
+      description: 'Whatsapp opt-in.'
     },
     language: {
       label: 'Language',
       description: "The user's preferred language.",
       type: 'string'
+    },
+    custom: {
+      label: 'Other Properties',
+      description: "The user's additional information.",
+      type: 'object'
     }
   },
   perform: (request, data) => {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: userProfilePayload(data.payload)
+    })
+  },
+  performBatch: (request, { payload }) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: bulkUserProfilePayload(payload)
     })
   }
 }

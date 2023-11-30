@@ -4,7 +4,7 @@ import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Tiktok Offline Conversions (Actions)',
+  name: 'TikTok Offline Conversions',
   slug: 'actions-tiktok-offline-conversions',
   mode: 'cloud',
 
@@ -54,7 +54,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackPaymentOfflineConversion.fields),
         event: 'CompletePayment'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Contact',
@@ -63,7 +64,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'Contact'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Subscribe',
@@ -72,16 +74,18 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'Subscribe'
-      }
+      },
+      type: 'automatic'
     },
     {
-      name: 'SubmitForm',
+      name: 'Submit Form',
       subscribe: 'type = "track" and event = "Form Submitted"',
       partnerAction: 'trackNonPaymentOfflineConversion',
       mapping: {
         ...defaultValues(trackNonPaymentOfflineConversion.fields),
         event: 'SubmitForm'
-      }
+      },
+      type: 'automatic'
     }
   ],
   actions: {

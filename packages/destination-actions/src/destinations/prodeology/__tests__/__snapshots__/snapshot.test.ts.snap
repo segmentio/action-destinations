@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for prodeology destination: group action - all fields 1`] = `
+Object {
+  "anonymousId": "a71QY4",
+  "groupId": "a71QY4",
+  "messageId": "a71QY4",
+  "timestamp": Any<String>,
+  "traits": Object {
+    "testType": "a71QY4",
+  },
+  "userId": "a71QY4",
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: group action - required fields 1`] = `
+Object {
+  "groupId": "a71QY4",
+  "messageId": "a71QY4",
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: identify action - all fields 1`] = `
+Object {
+  "anonymousId": "!r8gRCxrLk6J)@",
+  "messageId": "!r8gRCxrLk6J)@",
+  "timestamp": Any<String>,
+  "traits": Object {
+    "testType": "!r8gRCxrLk6J)@",
+  },
+  "userId": "!r8gRCxrLk6J)@",
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: identify action - required fields 1`] = `
+Object {
+  "messageId": "!r8gRCxrLk6J)@",
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: page action - all fields 1`] = `
+Object {
+  "anonymousId": "gQ$[^Ym^qN!FR[Wh5",
+  "context": Object {
+    "testType": "gQ$[^Ym^qN!FR[Wh5",
+  },
+  "name": "gQ$[^Ym^qN!FR[Wh5",
+  "properties": Object {
+    "testType": "gQ$[^Ym^qN!FR[Wh5",
+  },
+  "timestamp": Any<String>,
+  "userId": "gQ$[^Ym^qN!FR[Wh5",
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: page action - required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: track action - all fields 1`] = `
+Object {
+  "anonymousId": "FnC)K2zK8xDyxn!Hr",
+  "context": Object {
+    "testType": "FnC)K2zK8xDyxn!Hr",
+  },
+  "event": "FnC)K2zK8xDyxn!Hr",
+  "messageId": "FnC)K2zK8xDyxn!Hr",
+  "properties": Object {
+    "testType": "FnC)K2zK8xDyxn!Hr",
+  },
+  "timestamp": Any<String>,
+  "userId": "FnC)K2zK8xDyxn!Hr",
+}
+`;
+
+exports[`Testing snapshot for prodeology destination: track action - required fields 1`] = `
+Object {
+  "event": "FnC)K2zK8xDyxn!Hr",
+  "messageId": "FnC)K2zK8xDyxn!Hr",
+  "timestamp": Any<String>,
+}
+`;

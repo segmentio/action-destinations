@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubSpot.upsertCustomObjectRecord Should only Upsert Custom Object and would skip association if no record found on the basis of search fields provided to associate 1`] = `
+Object {
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord Should only Upsert Custom Object record and would skip association if anyone of 'toObjectType , associationLabel and searchFieldsToAssociateCustomObjects' is not provided 1`] = `
+Object {
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should create a custom object record and associate with another record on the basis of provided search field to associate 1`] = `
+Object {
+  "associations": Array [
+    Object {
+      "to": Object {
+        "id": "1234567890",
+      },
+      "types": Array [
+        Object {
+          "associationCategory": "HUBSPOT_DEFINED",
+          "associationTypeId": 279,
+        },
+      ],
+    },
+  ],
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom Object with custom Search Field, if record matches 1`] = `
+Object {
+  "filterGroups": Array [
+    Object {
+      "filters": Array [
+        Object {
+          "operator": "EQ",
+          "propertyName": "test_custom_object_type",
+          "value": "new_test_custom_object_type",
+        },
+      ],
+    },
+  ],
+  "properties": Array [],
+  "sorts": Array [],
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom Object with custom Search Field, if record matches 2`] = `
+Object {
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom object record and associate with another record when both search field matches a unique record 1`] = `
+Object {
+  "properties": Object {
+    "coupon_code": "TEST1234",
+    "discount_percent": "TEST1234",
+  },
+}
+`;
+
+exports[`HubSpot.upsertCustomObjectRecord should update a custom object record and associate with another record when both search field matches a unique record 2`] = `
+Array [
+  Object {
+    "associationCategory": "HUBSPOT_DEFINED",
+    "associationTypeId": 279,
+  },
+]
+`;

@@ -9,4 +9,20 @@ export interface Settings {
    * The platform ID of the advertiser for which to retrieve the status of the specified CRM data segment.
    */
   advertiser_id: string
+  /**
+   * Force Full Sync
+   */
+  __segment_internal_engage_force_full_sync: boolean
+  /**
+   * Supports batch sync via ADS
+   */
+  __segment_internal_engage_batch_sync: boolean
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
+  /**
+   * The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)
+   */
+  region: string
 }

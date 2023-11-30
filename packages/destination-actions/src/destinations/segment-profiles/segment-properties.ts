@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const user_id: InputField = {
   label: 'User ID',
@@ -34,4 +34,13 @@ export const engage_space: InputField = {
   type: 'string',
   required: true,
   dynamic: true
+}
+
+export const timestamp: InputField = {
+  label: 'Timestamp',
+  description: 'The timestamp of the event.',
+  type: 'datetime',
+  default: {
+    '@path': '$.timestamp'
+  }
 }
