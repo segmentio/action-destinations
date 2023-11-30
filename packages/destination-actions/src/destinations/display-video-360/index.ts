@@ -44,9 +44,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: 'The type of the advertiser account you have linked to this Display & Video 360 destination.',
       required: true,
       choices: [
-        { label: 'DISPLAY_VIDEO_ADVERTISER', value: 'DISPLAY_VIDEO_ADVERTISER' },
-        { label: 'DISPLAY_VIDEO_PARTNER', value: 'DISPLAY_VIDEO_PARTNER' },
-        { label: 'DFP_BY_GOOGLE or GOOGLE_AD_MANAGER', value: 'GOOGLE_AD_MANAGER' }
+        { label: 'Advertiser', value: 'DISPLAY_VIDEO_ADVERTISER' },
+        { label: 'Partner', value: 'DISPLAY_VIDEO_PARTNER' },
+        { label: 'Publisher', value: 'GOOGLE_AD_MANAGER' }
       ]
     }
   },
@@ -59,6 +59,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
+      statsTags?.push(`slug:${destination.slug}`)
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -112,6 +113,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
+      statsTags?.push(`slug:${destination.slug}`)
 
       if (!advertiserId) {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
