@@ -50,9 +50,9 @@ export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOpe
     })
   }
 
-  if (payload.anonymous_id) {
+  if (payload.partner_provided_id) {
     rawOperations.push({
-      UserId: payload.anonymous_id,
+      UserId: payload.partner_provided_id,
       UserIdType: UserIdType.PARTNER_PROVIDED_ID,
       UserListId: audienceId,
       Delete: isDelete
