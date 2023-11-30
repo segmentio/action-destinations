@@ -78,6 +78,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
+
+      // @ts-ignore AudienceSettings is defined as any. TODO: type it properly.
+      const personasContext = createAudienceInput.audienceSettings?.personas
+
       if (audienceName?.length == 0) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -93,7 +97,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         json: {
           ...extras,
-          audienceName
+          audienceName,
+          personas: personasContext
         }
       })
 
