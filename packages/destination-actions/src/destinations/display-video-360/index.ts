@@ -17,9 +17,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {}, // Fields is required. Left empty on purpose.
-    refreshAccessToken: async (request, { auth, statsContext }) => {
-      statsContext?.statsClient.incr('tokenRefresh')
-
+    refreshAccessToken: async (request, { auth }) => {
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
         body: new URLSearchParams({
@@ -61,12 +59,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
+      const statsName = 'createAudience'
       statsTags?.push(`slug:${destination.slug}`)
 
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
-
-      statsTags?.push(`slug:${destination.slug}`)
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -121,14 +118,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
-      statsTags?.push(`slug:${destination.slug}`)
       const statsName = 'getAudience'
+      statsTags?.push(`slug:${destination.slug}`)
 
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
-
-      statsTags?.push(`slug:${destination.slug}`)
-      const statsName = 'getAudience'
 
       if (!advertiserId) {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
