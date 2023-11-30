@@ -1,8 +1,6 @@
 import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { GetListResultContent, ImportJobPayload } from './types'
-import { Settings } from './generated-types'
-import { Payload } from './upsertProfile/generated-types'
+import { KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -100,37 +98,4 @@ export function buildHeaders(authKey: string) {
     revision: REVISION_DATE,
     'Content-Type': 'application/json'
   }
-}
-
-export const createImportJobPayload = (profiles: Payload[], listId?: string): { data: ImportJobPayload } => ({
-  data: {
-    type: 'profile-bulk-import-job',
-    attributes: {
-      profiles: {
-        data: profiles.map(({ list_id, enable_batching, ...attributes }) => ({
-          type: 'profile',
-          attributes
-        }))
-      }
-    },
-    ...(listId
-      ? {
-          relationships: {
-            lists: {
-              data: [{ type: 'list', id: listId }]
-            }
-          }
-        }
-      : {})
-  }
-})
-
-export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
-  return await request(`${API_URL}/profile-bulk-import-jobs/`, {
-    method: 'POST',
-    headers: {
-      revision: '2023-10-15.pre'
-    },
-    json: importJobPayload
-  })
 }
