@@ -1,5 +1,7 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { USER_UPLOAD_ENDPOINT } from './constants'
+import { OAUTH_URL, USER_UPLOAD_ENDPOINT } from './constants'
+import type { RefreshTokenResponse } from './types'
+import type { OAuth2ClientCredentials } from '@segment/actions-core/destination-kit/oauth2'
 
 import {
   UserIdType,
@@ -12,14 +14,38 @@ import {
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings, Settings } from './generated-types'
 
-export const buildHeaders = (audienceSettings: AudienceSettings | undefined, settings: Settings) => {
-  if (!audienceSettings || !settings) {
+type SettingsWithOauth = Settings & { oauth: OAuth2ClientCredentials }
+
+export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
+  const { oauth } = settings
+  return {
+    clientId: oauth.clientId,
+    clientSecret: oauth.clientSecret
+  } as OAuth2ClientCredentials
+}
+
+export const getAuthToken = async (request: RequestClient, settings: OAuth2ClientCredentials) => {
+  const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
+      client_id: settings.clientId,
+      client_secret: settings.clientSecret,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return data.access_token
+}
+
+export const buildHeaders = (audienceSettings: AudienceSettings | undefined, accessToken: string) => {
+  if (!audienceSettings || !accessToken) {
     throw new IntegrationError('Bad Request', 'INVALID_REQUEST_DATA', 400)
   }
 
   return {
     // @ts-ignore - TS doesn't know about the oauth property
-    Authorization: `Bearer ${settings?.oauth?.access_token}`,
+    Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
@@ -28,7 +54,7 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, set
 export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOperation): UserOperation[] => {
   const rawOperations = []
   const audienceId = parseInt(payload.external_audience_id.split('/').pop() || '-1')
-  const isDelete = operation === 'remove' ? true : false
+  const isDelete = operation === 'remove'
 
   if (payload.google_gid) {
     rawOperations.push({
@@ -131,7 +157,7 @@ export const createUpdateRequest = (
         userId: rawOp.UserId,
         userIdType: rawOp.UserIdType,
         userListId: BigInt(rawOp.UserListId),
-        delete: !!rawOp.Delete
+        delete: rawOp.Delete
       })
 
       if (!op) {

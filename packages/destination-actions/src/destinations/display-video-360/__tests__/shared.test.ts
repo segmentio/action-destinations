@@ -6,7 +6,7 @@ import {
   createUpdateRequest,
   sendUpdateRequest
 } from '../shared'
-import { AudienceSettings, Settings } from '../generated-types'
+import { AudienceSettings } from '../generated-types'
 import { UpdateHandlerPayload } from '../types'
 import { UpdateUsersDataResponse, ErrorCode, ErrorInfo } from '../proto/protofile'
 import { StatsContext, Response } from '@segment/actions-core'
@@ -74,7 +74,7 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
     // Making assumptions about IdType and UserId here because
     // we are not currently testing their content therefore, it doesn't matter.
 
-    const errors = payload.map((p) => {
+    responseHandler.errors = payload.map((p) => {
       const errorInfo = new ErrorInfo()
       errorInfo.errorCode = getRandomError()
       errorInfo.userListId = BigInt(p.external_audience_id.split('/').pop() || '-1')
@@ -82,8 +82,6 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
       errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.partner_provided_id || ''
       return errorInfo
     })
-
-    responseHandler.errors = errors
   }
 
   const b = Buffer.from(responseHandler.toBinary())
@@ -95,16 +93,13 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
 describe('shared', () => {
   describe('buildHeaders', () => {
     it('should build headers correctly', () => {
+      const accessToken = 'real-token'
       const audienceSettings: AudienceSettings = {
         advertiserId: '123',
         accountType: 'DISPLAY_VIDEO_ADVERTISER'
       }
-      const settings: Settings = {
-        oauth: {
-          access_token: 'real-token'
-        }
-      }
-      const result = buildHeaders(audienceSettings, settings)
+
+      const result = buildHeaders(audienceSettings, accessToken)
       expect(result).toEqual({
         Authorization: 'Bearer real-token',
         'Content-Type': 'application/json',
@@ -167,7 +162,7 @@ describe('shared', () => {
 
   // This method is used for both success and error cases.
   // The easiest way to tell if something worked is to check the calls to statsClient
-  // The assumptions made around the payload are based on the error codes described in the protofile.
+  // The assumptions made around the payload are based on the error codes described in the proto file.
   describe('bulkUploaderResponseHandler', () => {
     it('handles success', async () => {
       const mockResponse: Response = createMockResponse(ErrorCode.NO_ERROR, manyMockPayloads)

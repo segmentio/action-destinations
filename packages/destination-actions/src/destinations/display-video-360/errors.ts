@@ -10,12 +10,10 @@ const isGoogleAPIError = (error: unknown): error is GoogleAPIError => {
     return (
       typeof e.response === 'object' &&
       e.response !== null &&
-      typeof e.response.status === 'number' &&
       typeof e.response.data === 'object' &&
       e.response.data !== null &&
       typeof e.response.data.error === 'object' &&
-      e.response.data.error !== null &&
-      typeof e.response.data.error.message === 'string'
+      e.response.data.error !== null
     )
   }
   return false
