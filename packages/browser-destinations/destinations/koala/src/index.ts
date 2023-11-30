@@ -1,11 +1,11 @@
-import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
-import type { KoalaSDK, Koala } from './types'
 import { defaultValues } from '@segment/actions-core'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import type { Settings } from './generated-types'
+import identifyVisitor from './identifyVisitor'
 import { initScript } from './init-script'
 import trackEvent from './trackEvent'
-import identifyVisitor from './identifyVisitor'
+import type { Koala, KoalaSDK } from './types'
 
 declare global {
   interface Window {
@@ -30,7 +30,7 @@ export const destination: BrowserDestinationDefinition<Settings, Koala> = {
 
   initialize: async ({ settings, analytics }, deps) => {
     initScript()
-    await deps.loadScript(`https://cdn.koala.live/v1/${settings.project_slug}/umd.js`)
+    await deps.loadScript(`https://cdn.getkoala.com/v1/${settings.project_slug}/umd.js`)
 
     const ko = await window.KoalaSDK.load({
       project: settings.project_slug,
