@@ -1,11 +1,11 @@
+import type { Settings } from './generated-types'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import type { KoalaSDK, Koala } from './types'
 import { defaultValues } from '@segment/actions-core'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
-import type { Settings } from './generated-types'
-import identifyVisitor from './identifyVisitor'
 import { initScript } from './init-script'
 import trackEvent from './trackEvent'
-import type { Koala, KoalaSDK } from './types'
+import identifyVisitor from './identifyVisitor'
 
 declare global {
   interface Window {
