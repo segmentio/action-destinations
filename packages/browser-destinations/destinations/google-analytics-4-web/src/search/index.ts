@@ -17,8 +17,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params,
     search_term: search_term
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
+  perform: (gtag, { payload, settings }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag, settings.measurementID)
 
     gtag('event', 'search', {
       search_term: payload.search_term,

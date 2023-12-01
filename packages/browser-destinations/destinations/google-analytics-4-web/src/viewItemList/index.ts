@@ -21,8 +21,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
+  perform: (gtag, { payload, settings }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag, settings.measurementID)
 
     gtag('event', 'view_item_list', {
       item_list_id: payload.item_list_id,

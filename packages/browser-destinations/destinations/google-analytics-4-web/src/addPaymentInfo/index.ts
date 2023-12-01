@@ -32,8 +32,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
+  perform: (gtag, { payload, settings }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag, settings.measurementID)
     gtag('event', 'add_payment_info', {
       currency: payload.currency,
       value: payload.value,

@@ -22,8 +22,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params,
     user_properties: user_properties
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
+  perform: (gtag, { payload, settings }) => {
+    updateUser(payload.user_id, payload.user_properties, gtag, settings.measurementID)
 
     gtag('event', 'begin_checkout', {
       currency: payload.currency,

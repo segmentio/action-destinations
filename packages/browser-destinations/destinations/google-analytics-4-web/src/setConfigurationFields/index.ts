@@ -96,7 +96,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
   },
   perform: (gtag, { payload, settings }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
+    updateUser(payload.user_id, payload.user_properties, gtag, settings.measurementID)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
