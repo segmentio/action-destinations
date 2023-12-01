@@ -1,7 +1,16 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userData } from '../rsp-properties'
+
+import { userData, enable_batching, batch_size } from '../rsp-properties'
+
+import {
+  buildRecordData,
+  // buildRecordDataBatch,
+  buildRequestBody,
+  buildFetchRequest,
+  handleFetchResponse
+} from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge Profile List Members',
@@ -115,69 +124,289 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'REPLACE_ALL', value: 'REPLACE_ALL' },
         { label: 'NO_UPDATE', value: 'NO_UPDATE' }
       ]
-    }
+    },
+    enable_batching: enable_batching,
+    batch_size: batch_size
   },
+
   perform: async (request, { /*settings,*/ payload, auth }) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
     console.log(`auth : ${JSON.stringify(auth)}`)
-    const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${payload.profileListName}/members`
-    console.log(`endpoint : ${endpoint}`)
-    console.log(payload)
 
-    const recordData = {
-      records: [Object.values(payload.userData)],
-      fieldNames: Object.keys(payload.userData),
-      mapTemplateName: payload.mapTemplateName || ''
-    }
+    if (payload && payload.profileListName) {
+      // If #1
+      const {
+        profileListName,
+        defaultPermissionStatus,
+        htmlValue,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
+        matchOperator,
+        optinValue,
+        optoutValue,
+        rejectRecordIfChannelEmpty,
+        textValue,
+        updateOnMatch,
+        userData,
+        mapTemplateName
+      } = payload
 
-    const requestBody = {
-      recordData: recordData,
-      mergeRule: {
-        defaultPermissionStatus: payload.defaultPermissionStatus,
-        htmlValue: payload.htmlValue,
-        insertOnNoMatch: payload.insertOnNoMatch,
-        matchColumnName1: payload.matchColumnName1,
-        matchColumnName2: payload.matchColumnName2,
-        matchOperator: payload.matchOperator,
-        optinValue: payload.optinValue,
-        optoutValue: payload.optoutValue,
-        rejectRecordIfChannelEmpty: payload.rejectRecordIfChannelEmpty,
-        textValue: payload.textValue,
-        updateOnMatch: payload.updateOnMatch
+      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
+      console.log(`endpoint ${endpoint}`)
+      const recordData = buildRecordData(userData, mapTemplateName)
+
+      const requestBody = buildRequestBody(payload, recordData, {
+        defaultPermissionStatus,
+        htmlValue,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
+        matchOperator,
+        optinValue,
+        optoutValue,
+        rejectRecordIfChannelEmpty,
+        textValue,
+        updateOnMatch
+      })
+
+      console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+
+      const token = auth.authToken
+      const fetchRequest = buildFetchRequest(token, requestBody)
+
+      console.log(`request : ${JSON.stringify(fetchRequest)}`)
+
+      let response
+      try {
+        response = await fetch(endpoint, fetchRequest)
+      } catch (err) {
+        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
+        throw new Error(`***ERROR STATUS*** : ${err.message}`)
       }
-    }
-    console.log(`requestBody : ${JSON.stringify(requestBody)}`)
-    const token = auth.authToken
-    request = {
-      method: 'POST',
-      headers: {
-        Authorization: `${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    }
 
-    console.log(`request : ${JSON.stringify(request)}`)
+      // const responseBody = await response.json()
+      // console.log(`responseBody : ${JSON.stringify(responseBody)}`)
 
-    let response
-    try {
-      response = await fetch(endpoint, request)
-    } catch (err) {
-      throw new Error(`***ERROR STATUS*** : ${err.message}`)
-    }
-    console.log(`response.status : ${response.status}`)
-    if (response.status >= 500) {
-      throw new Error(
-        `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(response.json())}`
-      )
-    }
-    const responseBody = await response.json()
-    console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+      const responseBody = await handleFetchResponse(endpoint, response)
+      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+    } // End of If #1
+  },
+
+  performBatch: async (request, { /*settings,*/ payload, auth }) => {
+    console.log(`something Payload: ${payload}`)
+    const chunkSize = 2
+    for (let i = 0; i < payload.length; i += chunkSize) {
+      const chunk = payload.slice(i, i + chunkSize)
+      const {
+        profileListName,
+        defaultPermissionStatus,
+        htmlValue,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
+        matchOperator,
+        optinValue,
+        optoutValue,
+        rejectRecordIfChannelEmpty,
+        textValue,
+        updateOnMatch,
+        userData,
+        mapTemplateName
+      } = chunk[0]
+
+      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
+
+      console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
+
+      const recordData = buildRecordData(userData, mapTemplateName)
+
+      const requestBody = buildRequestBody(chunk[0], recordData, {
+        defaultPermissionStatus,
+        htmlValue,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
+        matchOperator,
+        optinValue,
+        optoutValue,
+        rejectRecordIfChannelEmpty,
+        textValue,
+        updateOnMatch
+      })
+
+      console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+
+      const token = auth.authToken
+      const fetchRequest = buildFetchRequest(token, requestBody)
+
+      console.log(`request : ${JSON.stringify(fetchRequest)}`)
+
+      let response
+      try {
+        response = await fetch(endpoint, fetchRequest)
+      } catch (err) {
+        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
+        throw new Error(`***ERROR STATUS*** : ${err.message}`)
+      }
+
+      const responseBody = await handleFetchResponse(endpoint, response)
+      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+    } // End of chunk for loop
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  // perform: async (request, { settings, payload, auth }) => {
+  //   console.log(`auth : ${JSON.stringify(auth)}`)
+  //   const profileListName = payload.profileListName
+  //   const defaultPermissionStatus = payload.defaultPermissionStatus,
+  //   const htmlValue = payload.htmlValue,
+  //   const insertOnNoMatch = payload.insertOnNoMatch,
+  //   const matchColumnName1 = payload.matchColumnName1,
+  //   const matchColumnName2 = payload.matchColumnName2,
+  //   const matchOperator = payload.matchOperator,
+  //   const optinValue = payload.optinValue,
+  //   const optoutValue = payload.optoutValue,
+  //   const rejectRecordIfChannelEmpty = payload.rejectRecordIfChannelEmpty,
+  //   const textValue = payload.textValue,
+  //   const updateOnMatch = payload.updateOnMatch
+  //   const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
+  //   const userData = payload.userData
+  //   const mapTemplateName = payload.mapTemplateName
+
+  //   console.log(`endpoint : ${endpoint}`)
+  //   console.log(payload)
+
+  //   const recordData = {
+  //     records: [Object.values(userData)],
+  //     fieldNames: Object.keys(userData),
+  //     mapTemplateName: mapTemplateName || ''
+  //   }
+
+  //   const requestBody = {
+  //     recordData: recordData,
+  //     mergeRule: {
+  //       defaultPermissionStatus: defaultPermissionStatus,
+  //       htmlValue: htmlValue,
+  //       insertOnNoMatch: insertOnNoMatch,
+  //       matchColumnName1: matchColumnName1,
+  //       matchColumnName2: matchColumnName2,
+  //       matchOperator: matchOperator,
+  //       optinValue: optinValue,
+  //       optoutValue: optoutValue,
+  //       rejectRecordIfChannelEmpty: rejectRecordIfChannelEmpty,
+  //       textValue: textValue,
+  //       updateOnMatch: updateOnMatch
+  //     }
+  //   }
+  //   console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+  //   const token = auth.authToken
+  //   request = {
+  //     method: 'POST',
+  //     headers: {
+  //       Authorization: 'EDFZ-RQU0HzJIp6_YdQh5NvJZD3x-jkDz5Lnkirh4Y27y64Sqg', //`${token}`,
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify(requestBody)
+  //   }
+
+  //   console.log(`request : ${JSON.stringify(request)}`)
+
+  //   let response
+  //   try {
+  //     response = await fetch(endpoint, request)
+  //   } catch (err) {
+  //     throw new Error(`***ERROR STATUS*** : ${err.message}`)
+  //   }
+  //   console.log(`response.status : ${response.status}`)
+  //   if (response.status >= 500) {
+  //     throw new Error(
+  //       `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(response.json())}`
+  //     )
+  //   }
+  //   const responseBody = await response.json()
+  //   console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+  // },
+  // performBatch: async (request, { settings, payload, auth }) => {
+  //   const profileListName = payload[0].profileListName
+  //   const defaultPermissionStatus = payload[0].defaultPermissionStatus,
+  //   const htmlValue = payload[0].htmlValue,
+  //   const insertOnNoMatch = payload[0].insertOnNoMatch,
+  //   const matchColumnName1 = payload[0].matchColumnName1,
+  //   const matchColumnName2 = payload[0].matchColumnName2,
+  //   const matchOperator = payload[0].matchOperator,
+  //   const optinValue = payload[0].optinValue,
+  //   const optoutValue = payload[0].optoutValue,
+  //   const rejectRecordIfChannelEmpty = payload[0].rejectRecordIfChannelEmpty,
+  //   const textValue = payload[0].textValue,
+  //   const updateOnMatch = payload[0].updateOnMatch
+  //   const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
+  //   const userData = payload[0].userData
+  //   const mapTemplateName = payload[0].mapTemplateName
+
+  //   console.log(`Batching Payload: ${JSON.stringify(payload)}`)
+
+  //   const firstObject = userData;
+  //   const keysFromFirstObject = Object.keys(firstObject);
+  //   console.log(`keysFromFirstObject ${keysFromFirstObject}`)
+
+  //   const recordsObj = {
+  //     "keys": keysFromFirstObject,
+  //     "userData": payload.map(obj => Object.values(obj.userData))
+  //   };
+  //   console.log(`recordsObj: ${JSON.stringify(recordsObj)}`)
+
+  //   const recordData = {
+  //     records: Object.values(recordsObj.userData),
+  //     fieldNames: recordsObj.keys,
+  //     mapTemplateName: mapTemplateName || ''
+  //   }
+
+  //   const requestBody = {
+  //     recordData: recordData,
+  //     mergeRule: {
+  //       defaultPermissionStatus: defaultPermissionStatus,
+  //       htmlValue: htmlValue,
+  //       insertOnNoMatch: insertOnNoMatch,
+  //       matchColumnName1: matchColumnName1,
+  //       matchColumnName2: matchColumnName2,
+  //       matchOperator: matchOperator,
+  //       optinValue: optinValue,
+  //       optoutValue: optoutValue,
+  //       rejectRecordIfChannelEmpty: rejectRecordIfChannelEmpty,
+  //       textValue: textValue,
+  //       updateOnMatch: updateOnMatch
+  //     }
+  //   }
+  //   console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+  //   const token = auth.authToken
+  //   request = {
+  //     method: 'POST',
+  //     headers: {
+  //       Authorization: 'EDFZ-RQU0HzJIp6_YdQh5NvJZD3x-jkDz5Lnkirh4Y27y64Sqg', //`${token}`,
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify(requestBody)
+  //   }
+
+  //   console.log(`request : ${JSON.stringify(request)}`)
+
+  //   let response
+  //   try {
+  //     response = await fetch(endpoint, request)
+  //   } catch (err) {
+  //     throw new Error(`***ERROR STATUS*** : ${err.message}`)
+  //   }
+  //   console.log(`response.status : ${response.status}`)
+  //   if (response.status >= 500) {
+  //     throw new Error(
+  //       `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(response.json())}`
+  //     )
+  //   }
+  //   const responseBody = await response.json()
+  //   console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+
+  // }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 export default action
