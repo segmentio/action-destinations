@@ -8,5 +8,4 @@ export function initScript(settings: Settings) {
 
   window.jimo = []
   window['JIMO_PROJECT_ID'] = settings.projectId
-  window['JIMO_MANUAL_INIT'] = settings.manualInit === true
 }

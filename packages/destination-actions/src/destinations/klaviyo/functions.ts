@@ -1,21 +1,13 @@
-import { RequestClient, DynamicFieldResponse, APIError } from '@segment/actions-core'
+import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { GetListResultContent } from './types'
-import { Settings } from './generated-types'
+import { KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
 
-export async function getListIdDynamicData(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
+export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
-    const result = await request(`${API_URL}/lists/`, {
-      method: 'get',
-      headers: {
-        Authorization: `Klaviyo-API-Key ${settings.api_key}`,
-        Accept: 'application/json',
-        revision: REVISION_DATE
-      },
-      skipResponseCloning: true
+    const result: ListIdResponse = await request(`${API_URL}/lists/`, {
+      method: 'get'
     })
-    const parsedContent = JSON.parse(result.content) as GetListResultContent
-    const choices = parsedContent.data.map((list: { id: string; attributes: { name: string } }) => {
+    const choices = JSON.parse(result.content).data.map((list: { id: string; attributes: { name: string } }) => {
       return { value: list.id, label: list.attributes.name }
     })
     return {
@@ -33,18 +25,77 @@ export async function getListIdDynamicData(request: RequestClient, settings: Set
   }
 }
 
-export async function addProfileToList(request: RequestClient, profileId: string, listId: string) {
-  const listData = {
+export async function addProfileToList(request: RequestClient, id: string, list_id: string | undefined) {
+  const listData: listData = {
     data: [
       {
         type: 'profile',
-        id: profileId
+        id: id
       }
     ]
   }
-
-  await request(`${API_URL}/lists/${listId}/relationships/profiles/`, {
+  const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
     method: 'POST',
     json: listData
   })
+  return list
+}
+
+export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
+  const listData: listData = {
+    data: [
+      {
+        type: 'profile',
+        id: id
+      }
+    ]
+  }
+  const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+    method: 'DELETE',
+    json: listData
+  })
+
+  return list
+}
+
+export async function getProfile(request: RequestClient, email: string) {
+  const profile = await request(`${API_URL}/profiles/?filter=equals(email,"${email}")`, {
+    method: 'GET'
+  })
+  return profile.json()
+}
+
+export async function createProfile(request: RequestClient, email: string) {
+  try {
+    const profileData: ProfileData = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email
+        }
+      }
+    }
+
+    const profile = await request(`${API_URL}/profiles/`, {
+      method: 'POST',
+      json: profileData
+    })
+    const rs = await profile.json()
+    return rs.data.id
+  } catch (error) {
+    const { response } = error as KlaviyoAPIError
+    if (response.status == 409) {
+      const rs = await response.json()
+      return rs.errors[0].meta.duplicate_profile_id
+    }
+  }
+}
+
+export function buildHeaders(authKey: string) {
+  return {
+    Authorization: `Klaviyo-API-Key ${authKey}`,
+    Accept: 'application/json',
+    revision: REVISION_DATE,
+    'Content-Type': 'application/json'
+  }
 }
