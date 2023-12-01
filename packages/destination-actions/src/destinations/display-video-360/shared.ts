@@ -19,7 +19,7 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, set
 
   return {
     // @ts-ignore - TS doesn't know about the oauth property
-    Authorization: `Bearer ${settings?.auth?.access_token}`,
+    Authorization: `Bearer ${settings?.auth?.accessToken}`,
     'Content-Type': 'application/json',
     'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
