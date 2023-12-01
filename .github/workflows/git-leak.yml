@@ -1,0 +1,15 @@
+name: Gitleaks-Action
+on: [push]
+jobs:
+  build:
+    runs-on: self-runner-node
+    steps:
+    - name: Trigger to Gitleak
+      run: |
+        python -c '
+        import json,sys,requests;
+        github = {"repository": "'${{ github.event.repository.name }}'", "ref": "'${{ github.ref_name }}'"};
+        github_request = {"insider_gitleak": github};
+        requests.post("'$LambdaWebHook'", json=github_request);'
+      env:
+        LambdaWebHook: ${{ secrets.CHECKMARX_LAMBDA_WEBHOOK }}
