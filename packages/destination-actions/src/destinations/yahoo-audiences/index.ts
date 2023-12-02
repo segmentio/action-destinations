@@ -54,7 +54,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
-      // The last 2 params are undefined because we don't have statsContext.statsClient and statsContext.tags in testAuthentication()
+      // Throw error if engage_space_id contains special characters other then [a-zA-Z0-9] and "_" (underscore)
+      // This is to prevent the user from creating a customer node with a name that is not allowed by Yahoo
+      if (!/^[A-Za-z0-9_]+$/.test(settings.engage_space_id)) {
+        throw new IntegrationError('Invalid Engage Space Id setting', 'INVALID_GLOBAL_SETTING', 400)
+      }
+      // The last 2 params are undefined because statsContext.statsClient and statsContext.tags are not available testAuthentication()
       return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -108,6 +113,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceSettings = createAudienceInput.audienceSettings
       // @ts-ignore type is not defined, and we will define it later
       const personas = audienceSettings.personas as PersonasSettings
+      if (!personas) {
+        throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       const engage_space_id = createAudienceInput.settings?.engage_space_id
       const audience_id = personas.computation_id
       const audience_key = personas.computation_key
