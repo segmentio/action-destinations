@@ -2,7 +2,7 @@ import { mapUnits, Units } from './unit'
 import { InputField, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { sendEvent, PublishRequestEvent, defaultEventFields, DefaultPayload } from './event'
 import { Settings } from './generated-types'
-import { isValidTimestamp, unixTimestampOf } from './timestamp'
+import { unixTimestampOf } from './timestamp'
 import { Data } from 'ws'
 
 export interface PublishRequestGoal {
@@ -13,7 +13,6 @@ export interface PublishRequestGoal {
 
 export interface GoalPayload extends Units, DefaultPayload {
   name: string
-  achievedAt: string | number
   properties?: null | Record<string, unknown>
 }
 
@@ -43,16 +42,6 @@ export const defaultGoalFields: Record<string, InputField> = {
       '@path': '$.event'
     }
   },
-  achievedAt: {
-    label: 'Goal Achievement Time',
-    type: 'datetime',
-    required: true,
-    description:
-      'Exact timestamp when the goal was achieved. Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
-    default: {
-      '@path': '$.timestamp'
-    }
-  },
   properties: {
     label: 'Goal Properties',
     type: 'object',
@@ -67,17 +56,12 @@ export const defaultGoalFields: Record<string, InputField> = {
 
 export function sendGoal(
   request: RequestClient,
+  timestamp: number,
   payload: GoalPayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
   if (typeof payload.name !== 'string' || payload.name.length == 0) {
     throw new PayloadValidationError('Goal `name` is required to be a non-empty string')
-  }
-
-  if (!isValidTimestamp(payload.achievedAt)) {
-    throw new PayloadValidationError(
-      'Goal `achievedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
   }
 
   if (payload.properties != null && typeof payload.properties != 'object') {
@@ -86,12 +70,12 @@ export function sendGoal(
 
   const event: PublishRequestEvent = {
     historic: true,
-    publishedAt: unixTimestampOf(payload.achievedAt),
+    publishedAt: unixTimestampOf(timestamp),
     units: mapUnits(payload),
     goals: [
       {
         name: payload.name,
-        achievedAt: unixTimestampOf(payload.achievedAt),
+        achievedAt: unixTimestampOf(timestamp),
         properties: payload.properties ?? null
       }
     ]

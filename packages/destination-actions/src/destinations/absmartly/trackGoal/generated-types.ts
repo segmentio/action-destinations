@@ -12,10 +12,6 @@ export interface Payload {
    */
   name: string
   /**
-   * Exact timestamp when the goal was achieved. Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number
-   */
-  achievedAt: string | number
-  /**
    * Custom properties of the goal
    */
   properties: {

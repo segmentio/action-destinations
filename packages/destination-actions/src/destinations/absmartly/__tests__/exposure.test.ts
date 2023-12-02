@@ -10,13 +10,12 @@ describe('sendExposure()', () => {
   const payload: ExposurePayload = {
     application: 'testapp',
     agent: 'test-sdk',
-    exposedAt: '2023-01-01T00:00:00.000000Z',
     exposure: {
       publishedAt: 1672531200900,
       units: [{ type: 'anonymousId', value: 'testid' }],
       exposures: [{ experiment: 'testexp', variant: 'testvar', exposedAt: 1672531200300 }],
       goals: [],
-      attributes: [{ name: 'testattr', value: 'testval', setAt: 1672531200300 }]
+      attributes: [{ name: 'testattr', value: 'testval', setAt: 1672531200200 }]
     }
   }
 
@@ -26,6 +25,7 @@ describe('sendExposure()', () => {
     expect(() =>
       sendExposure(
         request,
+        1672531300000,
         {
           ...payload,
           exposure: { ...payload.exposure, units: null }
@@ -36,6 +36,7 @@ describe('sendExposure()', () => {
     expect(() =>
       sendExposure(
         request,
+        1672531300000,
         {
           ...payload,
           exposure: { ...payload.exposure, units: [] }
@@ -51,6 +52,7 @@ describe('sendExposure()', () => {
     expect(() =>
       sendExposure(
         request,
+        1672531300000,
         {
           ...payload,
           exposure: { ...payload.exposure, exposures: null }
@@ -61,6 +63,7 @@ describe('sendExposure()', () => {
     expect(() =>
       sendExposure(
         request,
+        1672531300000,
         {
           ...payload,
           exposure: { ...payload.exposure, exposures: [] }
@@ -76,6 +79,7 @@ describe('sendExposure()', () => {
     expect(() =>
       sendExposure(
         request,
+        1672531300000,
         {
           ...payload,
           exposure: { ...payload.exposure, goals: [{}] }
@@ -85,26 +89,10 @@ describe('sendExposure()', () => {
     ).toThrowError(PayloadValidationError)
   })
 
-  it('should throw on invalid exposedAt', async () => {
-    const request = jest.fn()
-
-    expect(() => sendExposure(request, { ...payload, exposedAt: 0 }, settings)).toThrowError(PayloadValidationError)
-    expect(() =>
-      sendExposure(
-        request,
-        {
-          ...payload,
-          exposedAt: 'invalid date'
-        },
-        settings
-      )
-    ).toThrowError(PayloadValidationError)
-  })
-
   it('should pass-through the exposure payload with adjusted timestamps', async () => {
     const request = jest.fn()
 
-    await sendExposure(request, payload, settings)
+    await sendExposure(request, 1672531300000, payload, settings)
 
     expect(sendEvent).toHaveBeenCalledWith(
       request,
@@ -112,9 +100,9 @@ describe('sendExposure()', () => {
       {
         ...payload.exposure,
         historic: true,
-        publishedAt: 1672531200000,
-        exposures: [{ ...payload.exposure.exposures[0], exposedAt: 1672531199400 }],
-        attributes: [{ ...payload.exposure.attributes[0], setAt: 1672531199400 }]
+        publishedAt: 1672531300000,
+        exposures: [{ ...payload.exposure.exposures[0], exposedAt: 1672531299400 }],
+        attributes: [{ ...payload.exposure.attributes[0], setAt: 1672531299300 }]
       },
       payload.agent,
       payload.application

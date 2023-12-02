@@ -1,25 +1,20 @@
-import { InputField, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  InputField,
+  JSONPrimitive,
+  ModifiedResponse,
+  PayloadValidationError,
+  RequestClient
+} from '@segment/actions-core'
 import { defaultEventFields, DefaultPayload, PublishRequestEvent, sendEvent } from './event'
 import { Settings } from './generated-types'
 import { isValidTimestamp, unixTimestampOf } from './timestamp'
 import { Data } from 'ws'
 
 export interface ExposurePayload extends DefaultPayload {
-  exposedAt: string | number
   exposure: Record<string, unknown>
 }
 
 export const defaultExposureFields: Record<string, InputField> = {
-  exposedAt: {
-    label: 'Exposure Time',
-    type: 'datetime',
-    required: true,
-    description:
-      'Exact timestamp when the exposure was recorded. Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
-    default: {
-      '@path': '$.timestamp'
-    }
-  },
   exposure: {
     label: 'ABsmartly Exposure Payload',
     type: 'object',
@@ -41,7 +36,7 @@ function isValidExposureRequest(
     return false
   }
 
-  const publishedAt = exposure['publishedAt']
+  const publishedAt = exposure['publishedAt'] as JSONPrimitive
   if (!isValidTimestamp(publishedAt)) {
     return false
   }
@@ -75,15 +70,10 @@ function isValidExposureRequest(
 
 export function sendExposure(
   request: RequestClient,
+  timestamp: number,
   payload: ExposurePayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
-  if (!isValidTimestamp(payload.exposedAt)) {
-    throw new PayloadValidationError(
-      'Exposure `exposedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
-  }
-
   const exposureRequest = payload.exposure as PublishRequestEvent
   if (exposureRequest == null || typeof exposureRequest != 'object') {
     throw new PayloadValidationError('Field `exposure` is required to be an object when tracking exposures')
@@ -95,14 +85,14 @@ export function sendExposure(
     )
   }
 
-  const publishedAt = unixTimestampOf(payload.exposedAt)
+  const offset = timestamp - unixTimestampOf(exposureRequest.publishedAt)
   const exposures = exposureRequest.exposures?.map((x) => ({
     ...x,
-    exposedAt: publishedAt - (exposureRequest.publishedAt - x.exposedAt)
+    exposedAt: x.exposedAt + offset
   }))
   const attributes = exposureRequest.attributes?.map((x) => ({
     ...x,
-    setAt: publishedAt - (exposureRequest.publishedAt - x.setAt)
+    setAt: x.setAt + offset
   }))
 
   return sendEvent(
@@ -111,7 +101,7 @@ export function sendExposure(
     {
       ...exposureRequest,
       historic: true,
-      publishedAt,
+      publishedAt: timestamp,
       exposures,
       attributes
     },

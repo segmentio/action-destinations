@@ -2,7 +2,6 @@ import { GoalPayload, sendGoal } from '../goal'
 import { PayloadValidationError } from '@segment/actions-core'
 import { mapUnits } from '../unit'
 import { sendEvent } from '../event'
-import { unixTimestampOf } from '../timestamp'
 
 jest.mock('../event')
 
@@ -13,7 +12,6 @@ describe('sendGoal()', () => {
       anonymousId: 'testid'
     },
     name: 'testgoal',
-    achievedAt: '2023-01-01T00:00:00.000000Z',
     application: 'testapp',
     agent: 'test-sdk',
     properties: {
@@ -24,10 +22,13 @@ describe('sendGoal()', () => {
   it('should throw on missing name', async () => {
     const request = jest.fn()
 
-    expect(() => sendGoal(request, { ...payload, name: '' }, settings)).toThrowError(PayloadValidationError)
+    expect(() => sendGoal(request, 1672531300000, { ...payload, name: '' }, settings)).toThrowError(
+      PayloadValidationError
+    )
     expect(() =>
       sendGoal(
         request,
+        1672531300000,
         {
           ...payload,
           name: null
@@ -38,26 +39,11 @@ describe('sendGoal()', () => {
     expect(() =>
       sendGoal(
         request,
+        1672531300000,
         {
           ...payload,
           name: undefined
         } as unknown as GoalPayload,
-        settings
-      )
-    ).toThrowError(PayloadValidationError)
-  })
-
-  it('should throw on invalid achievedAt', async () => {
-    const request = jest.fn()
-
-    expect(() => sendGoal(request, { ...payload, achievedAt: 0 }, settings)).toThrowError(PayloadValidationError)
-    expect(() =>
-      sendGoal(
-        request,
-        {
-          ...payload,
-          achievedAt: 'invalid date'
-        },
         settings
       )
     ).toThrowError(PayloadValidationError)
@@ -69,6 +55,7 @@ describe('sendGoal()', () => {
     expect(() =>
       sendGoal(
         request,
+        1672531300000,
         {
           ...payload,
           properties: 'bleh'
@@ -79,6 +66,7 @@ describe('sendGoal()', () => {
     expect(() =>
       sendGoal(
         request,
+        1672531300000,
         {
           ...payload,
           properties: 0
@@ -91,20 +79,19 @@ describe('sendGoal()', () => {
   it('should send event with correct format', async () => {
     const request = jest.fn()
 
-    await sendGoal(request, payload, settings)
+    await sendGoal(request, 1672531300000, payload, settings)
 
-    const timestmap = unixTimestampOf(payload.achievedAt)
     expect(sendEvent).toHaveBeenCalledWith(
       request,
       settings,
       {
         historic: true,
-        publishedAt: timestmap,
+        publishedAt: 1672531300000,
         units: mapUnits(payload),
         goals: [
           {
             name: payload.name,
-            achievedAt: timestmap,
+            achievedAt: 1672531300000,
             properties: payload.properties ?? null
           }
         ]
