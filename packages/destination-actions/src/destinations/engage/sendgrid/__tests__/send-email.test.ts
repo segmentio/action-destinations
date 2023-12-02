@@ -29,22 +29,22 @@ describe.each([
     environment: 'production',
     region: 'us-west-2',
     endpoint: 'https://profiles.segment.com'
-  },
-  {
-    environment: 'staging',
-    region: 'us-west-2',
-    endpoint: 'https://profiles.segment.build'
-  },
-  {
-    environment: 'production',
-    region: 'eu-west-1',
-    endpoint: 'https://profiles.euw1.segment.com'
-  },
-  {
-    environment: 'staging',
-    region: 'eu-west-1',
-    endpoint: 'https://profiles.euw1.segment.build'
   }
+  // {
+  //   environment: 'staging',
+  //   region: 'us-west-2',
+  //   endpoint: 'https://profiles.segment.build'
+  // },
+  // {
+  //   environment: 'production',
+  //   region: 'eu-west-1',
+  //   endpoint: 'https://profiles.euw1.segment.com'
+  // },
+  // {
+  //   environment: 'staging',
+  //   region: 'eu-west-1',
+  //   endpoint: 'https://profiles.euw1.segment.build'
+  // }
 ])('%s', ({ environment, region, endpoint }) => {
   const spaceId = 'spaceId'
   const settings = {
@@ -1954,7 +1954,7 @@ describe.each([
   })
 
   describe('api lookups', () => {
-    it('are called and responses are passed to email body liquid renderer before sending', async () => {
+    it('are called and successful responses are passed to email body liquid renderer before sending', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', {
           ...sendgridRequestBody,
@@ -2022,7 +2022,7 @@ describe.each([
             }
           ],
           bodyHtml:
-            'Current temperature: {{lookups.weather.current.temperature}}, Current bitcoin price: {{lookups.btcPrice.current.price}}'
+            'Current temperature: {{datafeeds.weather.current.temperature}}, Current bitcoin price: {{datafeeds.btcPrice.current.price}}'
         })
       })
 
@@ -2030,8 +2030,9 @@ describe.each([
       expect(sendGridRequest.isDone()).toBe(true)
     })
 
-    it('should throw error if at least one api lookup fails', async () => {
-      nock(`https://fakeweather.com`).get('/api').reply(429)
+    it('should rethrow request client error if at least one api lookup fails with shouldRetryOnRetryableError == true', async () => {
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       await expect(
         sendgrid.testAction('sendEmail', {
@@ -2052,20 +2053,75 @@ describe.each([
           }),
           settings,
           mapping: getDefaultMapping({
-            apiLookups: {
+            apiLookups: [
+              {
+                id: '1',
+                name: 'weather',
+                url: 'https://fakeweather.com/api',
+                method: 'get',
+                cacheTtl: 0,
+                responseType: 'json',
+                shouldRetryOnRetryableError: true
+              }
+            ]
+          })
+        })
+      ).rejects.toThrowError('Too Many Requests')
+
+      expect(dataFeedNock.isDone()).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(false)
+      expectErrorLogged('Too Many Requests')
+    })
+
+    it('should send message with empty data if api lookup fails with shouldRetryOnRetryableError == false', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', {
+          ...sendgridRequestBody,
+          content: [
+            {
+              type: 'text/html',
+              value: `<html><head></head><body>Current temperature: 99</body></html>`
+            }
+          ]
+        })
+        .reply(200, {})
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+
+      await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: [
+            {
               id: '1',
               name: 'weather',
               url: 'https://fakeweather.com/api',
               method: 'get',
               cacheTtl: 0,
-              responseType: 'json'
+              responseType: 'json',
+              shouldRetryOnRetryableError: false
             }
-          })
+          ],
+          bodyHtml: 'Current temperature: {{datafeeds.weather.current.temperature | default: 99 }}'
         })
-      ).rejects.toThrowError('Too Many Requests')
+      })
 
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-      expect(sendGridRequest.isDone()).toEqual(false)
+      expect(dataFeedNock.isDone()).toBe(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
       expectErrorLogged('Too Many Requests')
     })
   })

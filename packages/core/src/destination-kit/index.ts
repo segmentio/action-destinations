@@ -358,7 +358,9 @@ export interface Logger {
 
 export interface DataFeedCache {
   setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
-  getRequestResponse(requestId: string): Promise<string>
+  getRequestResponse(requestId: string): Promise<string | null>
+  maxResponseSizeBytes: number
+  maxExpirySeconds: number
 }
 
 export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {

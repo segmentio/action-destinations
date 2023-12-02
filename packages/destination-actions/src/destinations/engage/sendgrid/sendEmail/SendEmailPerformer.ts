@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { Profile } from '../Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
-import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
+import { ApiLookupConfig, FLAGON_NAME_DATA_FEEDS, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
@@ -129,7 +129,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       ])
 
     let apiLookupData = {}
-    if (this.isFeatureActive('is-datafeeds-enabled')) {
+    if (this.isFeatureActive(FLAGON_NAME_DATA_FEEDS)) {
       apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
     }
 

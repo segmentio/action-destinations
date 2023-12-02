@@ -10,8 +10,6 @@ import { ResponseError } from '../../utils'
 
 const Liquid = new LiquidJs()
 
-const maxResponseSizeBytes = 1000000
-
 export type ApiLookupConfig = {
   id?: string | undefined
   name: string
@@ -22,34 +20,33 @@ export type ApiLookupConfig = {
   body?: string | undefined
   headers?: object | undefined
   responseType: string
+  /** Whether the message should be retired (if the error code is retryable) when the data feed fails */
+  shouldRetryOnRetryableError?: boolean
 }
 
+type LogDataFeedError = (message: string, error?: any) => void
+
 const renderLiquidFields = async (
-  { id, url, body }: Pick<ApiLookupConfig, 'id' | 'url' | 'body'>,
+  { url, body }: Pick<ApiLookupConfig, 'url' | 'body'>,
   profile: Profile,
   datafeedTags: string[],
-  settings: Settings,
-  logger?: Logger | undefined
+  logDataFeedError: LogDataFeedError
 ) => {
   let renderedUrl: string
   let renderedBody: string | undefined
   try {
     renderedUrl = await Liquid.parseAndRender(url, { profile })
   } catch (error) {
-    logger?.error(
-      `TE Messaging: Email datafeed url parse failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`
-    )
-    datafeedTags.push('error:true', `error_message:${error?.message}`, 'reason:rendering_failure', 'rendering:url')
-    throw new IntegrationError('Unable to parse email api lookup url', 'api lookup url parse failure', 400)
+    logDataFeedError('URL liquid render failuere', error)
+    datafeedTags.push('error:true', `error_message:${error}`, 'reason:rendering_failure', 'rendering:url')
+    throw new IntegrationError('Unable to parse data feed url', 'DATA_FEED_RENDERING_ERROR', 400)
   }
   try {
     renderedBody = body ? await Liquid.parseAndRender(body, { profile }) : undefined
   } catch (error) {
-    logger?.error(
-      `TE Messaging: Email datafeed body parse failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`
-    )
-    datafeedTags.push('error:true', `error_message:${error?.message}`, 'reason:rendering_failure', 'rendering:body')
-    throw new IntegrationError('Unable to parse email api lookup body', 'api lookup body parse failure', 400)
+    logDataFeedError('Body liquid render failure', error)
+    datafeedTags.push('error:true', `error_message:${error}`, 'reason:rendering_failure', 'rendering:body')
+    throw new IntegrationError('Unable to parse email api lookup body', 'DATA_FEED_RENDERING_ERROR', 400)
   }
 
   return {
@@ -72,7 +69,7 @@ export const getCachedResponse = async (
   dataFeedCache: DataFeedCache,
   datafeedTags: string[]
 ) => {
-  const cachedResponse = await dataFeedCache?.getRequestResponse(requestId)
+  const cachedResponse = await dataFeedCache.getRequestResponse(requestId)
   if (!cachedResponse) {
     datafeedTags.push('cache_hit:false')
     return
@@ -95,27 +92,39 @@ export const performApiLookup = async (
   logger?: Logger | undefined,
   dataFeedCache?: DataFeedCache | undefined
 ) => {
-  const { id, method, headers, cacheTtl, name } = apiLookupConfig
+  const { id, method, headers, cacheTtl, name, shouldRetryOnRetryableError = true } = apiLookupConfig
   const datafeedTags = [
     ...tags,
     `datafeed_id:${id}`,
     `datafeed_name:${name}`,
     `space_id:${settings.spaceId}`,
-    `cache_ttl_greater_than_0:${cacheTtl > 0}`
+    `cache_ttl_greater_than_0:${cacheTtl > 0}`,
+    `retry_enabled:${shouldRetryOnRetryableError}`
   ]
+
+  const logDataFeedError: LogDataFeedError = (message: string, error?: any) => {
+    logger?.error(
+      `TE Messaging: Data feed error - message: ${message} - data feed name: ${name} - data feed id: ${id} - space id: ${settings.spaceId} - raw error: ${error}`
+    )
+  }
 
   try {
     const { renderedUrl, renderedBody } = await renderLiquidFields(
       apiLookupConfig,
       profile,
       datafeedTags,
-      settings,
-      logger
+      logDataFeedError
     )
 
     const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
 
-    // First check cache
+    if (cacheTtl > 0 && !dataFeedCache) {
+      logDataFeedError('Data feed cache not available and cache needed')
+      datafeedTags.push('cache_set:false')
+      throw new IntegrationError('Data feed cache not available and cache needed', 'DATA_FEED_CACHE_NOT_AVAILABLE', 400)
+    }
+
+    // First check for cached response before calling 3rd party api
     if (cacheTtl > 0 && dataFeedCache) {
       const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, dataFeedCache, datafeedTags)
       if (cachedResponse) {
@@ -137,51 +146,60 @@ export const performApiLookup = async (
       data = await res.data
     } catch (error: any) {
       const respError = error.response as ResponseError
-      logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
+      logDataFeedError('Data feed call failure', error)
       datafeedTags.push(
         `error:true`,
         `error_message:${error.message}`,
         `error_status:${respError?.status}`,
         'reason:api_call_failure'
       )
-      // Rethrow error to preserve default http retry logic
-      throw error
+
+      // If retry is enabled for this data feed then rethrow the error to preserve centrifuge default retry logic
+      if (shouldRetryOnRetryableError) {
+        throw error
+      }
+      // Otherwise return empty data for this data feed
+      return {}
     }
 
-    const dataString = JSON.stringify(data)
-    const size = Buffer.byteLength(dataString, 'utf-8')
-    datafeedTags.push(`response_size_greater_than_mb:${size > maxResponseSizeBytes}`)
+    // Then set the response in cache
+    if (cacheTtl > 0 && dataFeedCache) {
+      const dataString = JSON.stringify(data)
+      const size = Buffer.byteLength(dataString, 'utf-8')
 
-    // Then save the response to the cache
-    if (cacheTtl > 0) {
-      if (size <= maxResponseSizeBytes) {
-        try {
-          await dataFeedCache?.setRequestResponse(requestId, dataString, cacheTtl / 1000)
-          datafeedTags.push('cache_set:true')
-        } catch (err) {
-          logger?.error(
-            `TE Messaging: Email api lookup cache set failure - api lookup id: ${id} - ${settings.spaceId} - [${err}]`
-          )
-          datafeedTags.push('cache_set:false')
-          datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${err?.message}`)
-          throw err
-        }
-      } else {
+      if (size > dataFeedCache.maxResponseSizeBytes) {
+        datafeedTags.push('error:true', 'reason:response_size_too_big')
+        logDataFeedError('Data feed response size too big too cache and caching needed, failing send')
+        throw new IntegrationError(
+          'Data feed response size too big too cache and caching needed, failing send',
+          'DATA_FEED_RESPONSE_TOO_BIG',
+          400
+        )
+      }
+
+      try {
+        await dataFeedCache.setRequestResponse(requestId, dataString, cacheTtl / 1000)
+        datafeedTags.push('cache_set:true')
+      } catch (error) {
+        logDataFeedError('Data feed cache set failure', error)
         datafeedTags.push('cache_set:false')
+        datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${error}`)
+        throw error
       }
     }
 
+    datafeedTags.push('error:false')
     return data
   } catch (error) {
     const isErrorCapturedInTags = datafeedTags.find((str) => str.includes('error:true'))
     if (!isErrorCapturedInTags) {
-      datafeedTags.push('error:true', `error_message:${error?.message}`, 'reason:unknown')
+      datafeedTags.push('error:true', `error_message:${error}`, 'reason:unknown')
     }
     tags.push('reason:datafeed_failure')
-    logger?.error(`TE Messaging: Email api lookup failure - api lookup id: ${id} - ${settings.spaceId} - [${error}]`)
+    logDataFeedError('Unexpected data feed error', error)
     throw error
   } finally {
-    statsClient?.incr('datafeed-execution', 1, datafeedTags)
+    statsClient?.incr('datafeed_execution', 1, datafeedTags)
   }
 }
 
@@ -231,9 +249,15 @@ export const apiLookupActionFields: Record<string, InputField> = {
     description: 'The response type of the request. Currently only supporting JSON.',
     type: 'string',
     required: true
+  },
+  shouldRetryOnRetryableError: {
+    label: 'Should Retry',
+    description:
+      'Whether the message should be retired (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead',
+    type: 'boolean'
   }
 }
 
-export const apiLookupLiquidKey = 'lookups'
+export const apiLookupLiquidKey = 'datafeeds'
 
 export const FLAGON_NAME_DATA_FEEDS = 'is-datafeeds-enabled'
