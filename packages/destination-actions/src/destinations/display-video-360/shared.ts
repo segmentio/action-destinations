@@ -17,6 +17,9 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, set
     throw new IntegrationError('Bad Request', 'INVALID_REQUEST_DATA', 400)
   }
 
+  console.log('DV360 - Settings', JSON.stringify(settings))
+  console.log('DV360 - AudienceSettings', JSON.stringify(audienceSettings))
+
   return {
     // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${settings?.auth?.accessToken}`,
