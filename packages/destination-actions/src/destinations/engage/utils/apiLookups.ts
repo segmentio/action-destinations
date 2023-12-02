@@ -3,10 +3,10 @@ import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, DataFeedCache } from '@segment/actions-core/destination-kit'
-import type { Settings } from '../generated-types'
+import type { Settings } from '../sendgrid/generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import { Profile } from '../Profile'
-import { ResponseError } from '../../utils'
+import { Profile } from './Profile'
+import { ResponseError } from './ResponseError'
 
 const Liquid = new LiquidJs()
 
