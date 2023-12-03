@@ -1,7 +1,7 @@
 import nock from 'nock'
-import { ApiLookupConfig, getRequestId, performApiLookup } from './apiLookups'
-import { DataFeedCache } from '../../../../../core/src/destination-kit/index'
-import createRequestClient from '../../../../../core/src/create-request-client'
+import { ApiLookupConfig, getRequestId, performApiLookup } from '../apiLookups'
+import { DataFeedCache } from '../../../../../../core/src/destination-kit/index'
+import createRequestClient from '../../../../../../core/src/create-request-client'
 
 const profile = {
   traits: {
@@ -37,7 +37,7 @@ const cachedApiLookup = {
   cacheTtl: 60000
 }
 
-const createMockRequestStore = () => {
+const createMockRequestStore = (overrides?: Partial<DataFeedCache>) => {
   const mockStore: Record<string, any> = {}
   const mockDataFeedCache: DataFeedCache = {
     setRequestResponse: jest.fn(async (requestId, response) => {
@@ -47,7 +47,8 @@ const createMockRequestStore = () => {
       return mockStore[requestId]
     }),
     maxExpirySeconds: 600000,
-    maxResponseSizeBytes: 1000000
+    maxResponseSizeBytes: 1000000,
+    ...overrides
   }
   return mockDataFeedCache
 }
@@ -151,6 +152,23 @@ describe('api lookups', () => {
       ).rejects.toThrowError('Data feed cache not available and cache needed')
 
       expect(apiLookupRequest.isDone()).toEqual(false)
+    })
+
+    it('throws error if response size is too big', async () => {
+      const mockDataFeedCache = createMockRequestStore({ maxResponseSizeBytes: 1 })
+      const apiLookupRequest = nock(`https://fakeweather.com`)
+        .get(`/api/current`)
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      await expect(
+        performApiLookup(request, cachedApiLookup, profile, undefined, [], settings, undefined, mockDataFeedCache)
+      ).rejects.toThrowError('Data feed response size too big too cache and caching needed, failing send')
+
+      expect(apiLookupRequest.isDone()).toEqual(true)
     })
 
     it('sets cache when cache miss', async () => {
