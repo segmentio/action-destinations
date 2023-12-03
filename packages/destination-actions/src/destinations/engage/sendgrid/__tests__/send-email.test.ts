@@ -29,22 +29,22 @@ describe.each([
     environment: 'production',
     region: 'us-west-2',
     endpoint: 'https://profiles.segment.com'
+  },
+  {
+    environment: 'staging',
+    region: 'us-west-2',
+    endpoint: 'https://profiles.segment.build'
+  },
+  {
+    environment: 'production',
+    region: 'eu-west-1',
+    endpoint: 'https://profiles.euw1.segment.com'
+  },
+  {
+    environment: 'staging',
+    region: 'eu-west-1',
+    endpoint: 'https://profiles.euw1.segment.build'
   }
-  // {
-  //   environment: 'staging',
-  //   region: 'us-west-2',
-  //   endpoint: 'https://profiles.segment.build'
-  // },
-  // {
-  //   environment: 'production',
-  //   region: 'eu-west-1',
-  //   endpoint: 'https://profiles.euw1.segment.com'
-  // },
-  // {
-  //   environment: 'staging',
-  //   region: 'eu-west-1',
-  //   endpoint: 'https://profiles.euw1.segment.build'
-  // }
 ])('%s', ({ environment, region, endpoint }) => {
   const spaceId = 'spaceId'
   const settings = {
