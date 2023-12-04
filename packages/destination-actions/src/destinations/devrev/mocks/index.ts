@@ -3,7 +3,7 @@ import * as types from '../utils/types'
 
 interface revUserCreateBody {
   email: string
-  full_name: string
+  display_name: string
   org_id: string
 }
 
@@ -124,7 +124,7 @@ export const revUsersCreateResponse = async (_: never, body: revUserCreateBody) 
     rev_user: {
       id: testRevUserNewer.id,
       created_date: newerCreateDate,
-      display_name: body.full_name,
+      display_name: body.display_name,
       email: body.email,
       rev_org: {
         id: body.org_id,

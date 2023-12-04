@@ -1,5 +1,4 @@
 import { HTTPError } from '@segment/actions-core'
-
 export class KlaviyoAPIError extends HTTPError {
   response: Response & {
     data: {
@@ -63,6 +62,16 @@ export interface EventData {
   }
 }
 
+export interface listData {
+  data: {
+    type: string
+    id?: string
+  }[]
+}
+
+export interface ListIdResponse {
+  content: string
+}
 export interface GetListResultContent {
   data: {
     id: string

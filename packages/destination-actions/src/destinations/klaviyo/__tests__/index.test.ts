@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -10,6 +10,22 @@ const apiKey = 'fake-api-key'
 export const settings = {
   api_key: apiKey
 }
+
+const createAudienceInput = {
+  settings: {
+    api_key: ''
+  },
+  audienceName: ''
+}
+
+const getAudienceInput = {
+  settings: {
+    api_key: apiKey
+  },
+  externalId: 'XYZABC'
+}
+
+const audienceName = 'Klaviyo Audience Name'
 
 describe('Klaviyo (actions)', () => {
   describe('testAuthentication', () => {
@@ -50,6 +66,54 @@ describe('Klaviyo (actions)', () => {
       if (testDestination.onDelete) {
         await expect(testDestination.onDelete(event, settings)).resolves.not.toThrowError()
       }
+    })
+  })
+
+  describe('createAudience', () => {
+    it('should fail if no audience name is set', async () => {
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+    })
+
+    it('should fail if no api key is set in settings', async () => {
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+    })
+
+    it('creates an audience', async () => {
+      createAudienceInput.audienceName = audienceName
+      createAudienceInput.settings.api_key = apiKey
+
+      nock(`${API_URL}`)
+        .post('/lists', { data: { type: 'list', attributes: { name: audienceName } } })
+        .matchHeader('Authorization', `Klaviyo-API-Key ${apiKey}`)
+        .reply(200, {
+          success: true,
+          data: {
+            id: 'XYZABC'
+          }
+        })
+
+      const r = await testDestination.createAudience(createAudienceInput)
+      expect(r).toEqual({
+        externalId: 'XYZABC'
+      })
+    })
+  })
+
+  describe('getAudience', () => {
+    const listId = getAudienceInput.externalId
+    it('should succeed when with valid list id', async () => {
+      nock(`${API_URL}/lists`)
+        .get(`/${listId}`)
+        .reply(200, {
+          success: true,
+          data: {
+            id: 'XYZABC'
+          }
+        })
+      const r = await testDestination.getAudience(getAudienceInput)
+      expect(r).toEqual({
+        externalId: 'XYZABC'
+      })
     })
   })
 })
