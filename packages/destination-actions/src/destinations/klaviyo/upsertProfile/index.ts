@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
-import { APIError, PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
 import { addProfileToList, createImportJobPayload, getListIdDynamicData, sendImportJobRequest } from '../functions'
 
@@ -191,7 +191,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      throw new APIError('An error occurred while processing the request', 400)
+      throw error
     }
   },
 

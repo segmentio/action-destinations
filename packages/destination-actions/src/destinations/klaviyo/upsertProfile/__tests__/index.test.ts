@@ -146,7 +146,7 @@ describe('Upsert Profile', () => {
 
     await expect(
       testDestination.testAction('upsertProfile', { event, settings, useDefaultMappings: true })
-    ).rejects.toThrowError('An error occurred while processing the request')
+    ).rejects.toThrowError('Internal Server Error')
   })
 
   it('should add a profile to a list if list_id is provided', async () => {
