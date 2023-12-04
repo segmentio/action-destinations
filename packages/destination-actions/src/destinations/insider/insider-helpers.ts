@@ -69,7 +69,7 @@ export function userProfilePayload(data: UserPayload) {
           language: data.language?.replace('-', '_'),
           custom: data.custom
         },
-        not_append: !data.append_arrays || true
+        not_append: !data.append_arrays
       }
     ],
     platform: 'segment'
@@ -254,14 +254,14 @@ export function sendTrackEvent(
     payload.events.push(event)
   }
 
-  payload.not_append = !data.append_arrays || true
+  payload.not_append = !data.append_arrays
 
   return { users: [payload], platform: 'segment' }
 }
 
 export function bulkUserProfilePayload(data: UserPayload[]) {
   const batchPayload = data.map((userPayload) => {
-    const not_append = !userPayload.append_arrays || true
+    const not_append = !userPayload.append_arrays
     const identifiers = {
       uuid: userPayload.uuid,
       custom: {
@@ -503,7 +503,7 @@ export function sendBulkTrackEvents(
       payload.events.push(event)
     }
 
-    payload.not_append = !data.append_arrays || true
+    payload.not_append = !data.append_arrays
 
     bulkPayload.push(payload)
   })
