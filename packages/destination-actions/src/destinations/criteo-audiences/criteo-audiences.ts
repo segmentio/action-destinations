@@ -224,5 +224,5 @@ export const createContactList = async (
     throw new CriteoAPIError(`Error while creating the Contact List`, 'Criteo contact list creation error', 400, err)
   }
 
-  return body.data.id
+  return body.data[0].id
 }
