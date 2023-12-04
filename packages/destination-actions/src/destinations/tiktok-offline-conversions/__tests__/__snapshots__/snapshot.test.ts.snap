@@ -15,6 +15,7 @@ Object {
   "event": "fQ92^RLkQyhJ8TU3nYnh",
   "event_id": "fQ92^RLkQyhJ8TU3nYnh",
   "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "limited_data_use": false,
   "partner_name": "Segment",
   "properties": Object {
     "event_channel": "other",
@@ -40,6 +41,7 @@ Object {
   "event": "fQ92^RLkQyhJ8TU3nYnh",
   "event_id": "fQ92^RLkQyhJ8TU3nYnh",
   "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "limited_data_use": false,
   "partner_name": "Segment",
   "properties": Object {
     "event_channel": "other",
@@ -63,6 +65,7 @@ Object {
   "event": "fQ92^RLkQyhJ8TU3nYnh",
   "event_id": "fQ92^RLkQyhJ8TU3nYnh",
   "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "limited_data_use": false,
   "partner_name": "Segment",
   "properties": Object {
     "order_id": "fQ92^RLkQyhJ8TU3nYnh",
@@ -85,6 +88,7 @@ Object {
   "event": "fQ92^RLkQyhJ8TU3nYnh",
   "event_id": "fQ92^RLkQyhJ8TU3nYnh",
   "event_set_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "limited_data_use": false,
   "partner_name": "Segment",
   "properties": Object {
     "order_id": "fQ92^RLkQyhJ8TU3nYnh",
@@ -109,6 +113,7 @@ Object {
   "event": "BkRZ5",
   "event_id": "BkRZ5",
   "event_set_id": "BkRZ5",
+  "limited_data_use": true,
   "partner_name": "Segment",
   "properties": Object {
     "contents": Array [
@@ -146,6 +151,7 @@ Object {
   "event": "BkRZ5",
   "event_id": "BkRZ5",
   "event_set_id": "BkRZ5",
+  "limited_data_use": true,
   "partner_name": "Segment",
   "properties": Object {
     "contents": Array [
@@ -181,6 +187,7 @@ Object {
   "event": "BkRZ5",
   "event_id": "BkRZ5",
   "event_set_id": "BkRZ5",
+  "limited_data_use": true,
   "partner_name": "Segment",
   "properties": Object {
     "currency": "DZD",
@@ -204,6 +211,7 @@ Object {
   "event": "BkRZ5",
   "event_id": "BkRZ5",
   "event_set_id": "BkRZ5",
+  "limited_data_use": true,
   "partner_name": "Segment",
   "properties": Object {
     "currency": "DZD",
