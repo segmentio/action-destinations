@@ -1,7 +1,6 @@
 import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { GetListResultContent, ImportJobPayload, KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
-import { Settings } from './generated-types'
+import { ImportJobPayload, KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
