@@ -80,3 +80,48 @@ export interface GetListResultContent {
     }
   }[]
 }
+
+export interface Location {
+  address1?: string | null
+  address2?: string | null
+  city?: string | null
+  region?: string | null
+  zip?: string | null
+  latitude?: string | null
+  longitude?: string | null
+  country?: string | null
+}
+
+export interface ProfileAttributes {
+  email?: string
+  phone_number?: string
+  external_id?: string
+  first_name?: string
+  last_name?: string
+  organization?: string
+  title?: string
+  image?: string
+  location?: Location | null
+  properties?: Record<string, any>
+  list_id?: string
+}
+
+export interface ImportJobPayload {
+  type: string
+  attributes: {
+    profiles: {
+      data: {
+        type: string
+        attributes: ProfileAttributes
+      }[]
+    }
+  }
+  relationships?: {
+    lists: {
+      data: {
+        type: string
+        id: string
+      }[]
+    }
+  }
+}
