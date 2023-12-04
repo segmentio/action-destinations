@@ -74,7 +74,7 @@ export function sendExposure(
   payload: ExposurePayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
-  const exposureRequest = payload.exposure as PublishRequestEvent
+  const exposureRequest = payload.exposure as unknown as PublishRequestEvent
   if (exposureRequest == null || typeof exposureRequest != 'object') {
     throw new PayloadValidationError('Field `exposure` is required to be an object when tracking exposures')
   }

@@ -1,4 +1,4 @@
-import { InputField, JSONObject, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { InputField, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { PublishRequestUnit } from './unit'
 import { PublishRequestAttribute } from './attribute'
@@ -10,7 +10,13 @@ export interface PublishRequestEvent {
   publishedAt: number
   units: PublishRequestUnit[]
   goals?: PublishRequestGoal[]
-  exposures?: JSONObject[]
+  exposures?: {
+    name: string
+    variant: number
+    exposedAt: number
+    assigned: boolean
+    eligible: boolean
+  }[]
   attributes?: PublishRequestAttribute[]
 }
 
