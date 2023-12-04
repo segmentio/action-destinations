@@ -4,8 +4,9 @@ import identifyContact from './identifyContact'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Gleap',
-  slug: 'gleap',
+  name: 'Gleap (Action)',
+  slug: 'gleap-cloud-actions',
+  description: 'Send Segment analytics events and user profile data to Gleap',
   mode: 'cloud',
 
   authentication: {
@@ -22,17 +23,13 @@ const destination: DestinationDefinition<Settings> = {
       // The auth endpoint checks if the API token is valid
       // https://api.gleap.io/admin/auth.
 
-      try {
-        return await request('https://api.gleap.io/admin/auth')
-      } catch (error) {
-        throw new Error('Test authentication failed')
-      }
+      return await request('https://api.gleap.io/admin/auth')
     }
   },
   extendRequest({ settings }) {
     return {
       headers: {
-        'Api-Token': settings?.apiToken
+        'Api-Token': settings.apiToken
       }
     }
   },
@@ -41,9 +38,9 @@ const destination: DestinationDefinition<Settings> = {
    * Delete a contact from Gleap when a user is deleted in Segment. Use the `userId` to find the contact in Gleap.
    */
   onDelete: async (request, { payload }) => {
-    const external_id = payload.userId as string
-    if (external_id) {
-      return request(`https://api.gleap.io/admin/contacts/${external_id}`, {
+    const userId = payload.userId as string
+    if (userId) {
+      return request(`https://api.gleap.io/admin/contacts/${userId}`, {
         method: 'DELETE'
       })
     } else {

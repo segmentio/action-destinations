@@ -23,7 +23,7 @@ describe('Gleap (actions)', () => {
       }
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
-        new Error('Credentials are invalid:  Test authentication failed')
+        new Error('Credentials are invalid: 404 Not Found')
       )
     })
   })

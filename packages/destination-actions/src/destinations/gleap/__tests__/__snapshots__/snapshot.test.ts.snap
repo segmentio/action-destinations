@@ -6,13 +6,13 @@ Object {
   "companyName": "5(nuZw&pud4S",
   "createdAt": "2021-02-01T00:00:00.000Z",
   "email": "perum@rakunar.dm",
-  "lang": "5(nuzw&pud4s",
+  "lang": "5(nuZw&pud4S",
   "lastActivity": "2021-02-01T00:00:00.000Z",
   "lastPageView": Object {
     "date": "2021-02-01T00:00:00.000Z",
     "page": "5(nuZw&pud4S",
   },
-  "name": "5(nuZw&pud4S",
+  "name": "5(nuZw&pud4S 5(nuZw&pud4S",
   "phone": "5(nuZw&pud4S",
   "plan": "5(nuZw&pud4S",
   "testType": "5(nuZw&pud4S",
@@ -23,7 +23,6 @@ Object {
 
 exports[`Testing snapshot for actions-gleap destination: identifyContact action - required fields 1`] = `
 Object {
-  "lang": "en",
   "userId": "5(nuZw&pud4S",
 }
 `;
@@ -33,10 +32,10 @@ Object {
   "events": Array [
     Object {
       "data": Object {
-        "testType": "5h*@HiWdC&Q2#9YhdZ&0",
+        "page": "5h*@HiWdC&Q2#9YhdZ&0",
       },
       "date": "2021-02-01T00:00:00.000Z",
-      "name": "5h*@HiWdC&Q2#9YhdZ&0",
+      "name": "pageView",
       "userId": "5h*@HiWdC&Q2#9YhdZ&0",
     },
   ],
@@ -47,8 +46,9 @@ exports[`Testing snapshot for actions-gleap destination: trackEvent action - req
 Object {
   "events": Array [
     Object {
+      "data": Object {},
       "date": "2021-02-01T00:00:00.000Z",
-      "name": "5h*@HiWdC&Q2#9YhdZ&0",
+      "name": "pageView",
       "userId": "5h*@HiWdC&Q2#9YhdZ&0",
     },
   ],

@@ -4,9 +4,17 @@ export interface Payload {
   /**
    * The name of the event that occurred. Names are treated as case insensitive. Periods and dollar signs in event names are replaced with hyphens.
    */
-  eventName: string
+  eventName?: string
   /**
-   * The time the event occurred as a UTC Unix timestamp. Segment will convert to Unix if not already converted.
+   * The type of the Segment event
+   */
+  type: string
+  /**
+   * The associated page url of the Segment event
+   */
+  pageUrl?: string
+  /**
+   * The time the event took place in ISO 8601 format. Segment will convert to Unix before sending to Gleap.
    */
   date: string | number
   /**

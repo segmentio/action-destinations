@@ -6,9 +6,13 @@ export interface Payload {
    */
   userId: string
   /**
-   * The contact's name.
+   * The contact's first name.
    */
-  name?: string
+  firstName?: string
+  /**
+   * The contact's last name.
+   */
+  lastName?: string
   /**
    * The contact's email address.
    */

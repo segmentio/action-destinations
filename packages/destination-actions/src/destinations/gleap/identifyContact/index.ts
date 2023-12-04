@@ -1,6 +1,8 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import omit from 'lodash/omit'
+import pick from 'lodash/pick'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Contact',
@@ -16,12 +18,20 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    name: {
+    firstName: {
       type: 'string',
-      description: "The contact's name.",
-      label: 'Name',
+      description: "The contact's first name.",
+      label: 'First name',
       default: {
-        '@path': '$.traits.name'
+        '@path': '$.properties.first_name'
+      }
+    },
+    lastName: {
+      type: 'string',
+      description: "The contact's last name.",
+      label: 'Last name',
+      default: {
+        '@path': '$.properties.last_name'
       }
     },
     email: {
@@ -29,13 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The contact's email address.",
       label: 'Email Address',
       format: 'email',
-      default: {
-        '@if': {
-          exists: { '@path': '$.email' },
-          then: { '@path': '$.email' },
-          else: { '@path': '$.traits.email' }
-        }
-      }
+      default: { '@path': '$.traits.email' }
     },
     phone: {
       label: 'Phone Number',
@@ -66,13 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's language.",
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.language' },
-          then: { '@path': '$.traits.language' },
-          else: 'en'
-        }
-      }
+      default: { '@path': '$.context.locale' }
     },
     plan: {
       label: 'Subscription Plan',
@@ -112,23 +110,45 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Custom Attributes',
       description: 'The custom attributes which are set for the contact.',
       type: 'object',
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   perform: async (request, { payload }) => {
     // Map the payload to the correct format.
-    payload = {
-      ...payload,
-      lang: payload.lang ? payload.lang.toLowerCase() : 'en',
-      ...payload.customAttributes
-    }
+    const defaultUserFields = [
+      'userId',
+      'email',
+      'phone',
+      'companyName',
+      'companyId',
+      'lang',
+      'plan',
+      'value',
+      'createdAt',
+      'lastActivity'
+    ]
 
-    // Remove the customAttributes field from the payload.
-    delete payload.customAttributes
+    const identifyPayload: any = {
+      // Add the name if it exists.
+      ...(payload.firstName || payload.lastName
+        ? {
+            name: `${payload.firstName} ${payload.lastName}`
+          }
+        : {}),
+
+      // Pick the default user fields.
+      ...pick(payload, defaultUserFields),
+
+      // Add custom data but omit the default user fields.
+      ...omit(payload.customAttributes, [...defaultUserFields, 'firstName', 'lastName'])
+    }
 
     // Map the lastPageView and lastActivity to the correct format.
     if (payload.lastPageView) {
-      payload.lastPageView = {
+      identifyPayload.lastPageView = {
         page: payload.lastPageView,
         date: payload.lastActivity
       }
@@ -136,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return request('https://api.gleap.io/admin/identify', {
       method: 'POST',
-      json: payload
+      json: identifyPayload
     })
   }
 }
