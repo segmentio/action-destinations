@@ -135,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // Add the name if it exists.
       ...(payload.firstName || payload.lastName
         ? {
-            name: `${payload.firstName} ${payload.lastName}`
+            name: `${payload.firstName} ${payload.lastName}`.trim()
           }
         : {}),
 
