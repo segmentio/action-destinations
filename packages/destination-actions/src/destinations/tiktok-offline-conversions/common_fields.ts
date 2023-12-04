@@ -84,5 +84,11 @@ export const commonFields: Record<string, InputField> = {
       { label: 'Other', value: 'other' }
     ],
     default: 'in_store'
+  },
+  limited_data_use: {
+    label: 'Enable Limited Data Use',
+    type: 'boolean',
+    description: "Enables TikTok's Limited Data Use feature. This field overrides the global setting of the same name.",
+    default: false
   }
 }

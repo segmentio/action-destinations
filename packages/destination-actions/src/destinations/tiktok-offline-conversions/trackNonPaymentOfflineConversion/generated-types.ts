@@ -33,4 +33,8 @@ export interface Payload {
    * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other. Any other value will be rejected
    */
   event_channel?: string
+  /**
+   * Enables TikTok's Limited Data Use feature. This field overrides the global setting of the same name.
+   */
+  limited_data_use?: boolean
 }

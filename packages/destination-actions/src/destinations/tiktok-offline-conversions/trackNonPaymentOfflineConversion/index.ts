@@ -24,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event: payload.event,
         event_id: payload.event_id ? `${payload.event_id}` : undefined,
         timestamp: payload.timestamp,
+        limited_data_use: payload.limited_data_use ?? settings.limited_data_use ?? false,
         context: {
           user: {
             phone_numbers,

@@ -34,6 +34,10 @@ export interface Payload {
    */
   event_channel?: string
   /**
+   * Enables TikTok's Limited Data Use feature. This field overrides the global setting of the same name.
+   */
+  limited_data_use?: boolean
+  /**
    * Array of product or content items for the offline event.
    */
   contents?: {
