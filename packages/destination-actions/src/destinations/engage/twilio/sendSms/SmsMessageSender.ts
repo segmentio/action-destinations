@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { Payload } from './generated-types'
-import { PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessageSender } from '../utils'
 import { ExtId, track } from '../../utils'
 
@@ -9,6 +9,11 @@ export class SmsMessageSender extends PhoneMessageSender<Payload> {
 
   @track()
   async getBody(phone: string): Promise<URLSearchParams> {
+    // DO NOT MERGE -- this is for testing failures and emitted metrics
+    if (this.payload.from === 'MG2866ebfb98ec079613a7859479c162bf') {
+      throw new IntegrationError('Failed on purpose for Albert test', 'test', 500)
+    }
+
     if (!this.payload.body && !this.payload.contentSid) {
       throw new PayloadValidationError('Unable to process sms, no body provided and no content sid provided')
     }
