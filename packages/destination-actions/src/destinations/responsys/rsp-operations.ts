@@ -1,4 +1,7 @@
-export const buildRecordData = (userData, mapTemplateName) => {
+import { Payload } from './updateSegment/generated-types'
+import { DynamicData, RecordData, MergeRule, RequestBody } from './types'
+
+export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {
   const keysFromFirstObject = Object.keys(userData)
   return {
     records: [Object.values(userData)],
@@ -7,7 +10,7 @@ export const buildRecordData = (userData, mapTemplateName) => {
   }
 }
 
-export const buildRequestBody = (payload, recordData, mergeRule) => {
+export const buildRequestBody = (/*payload: Payload,*/ recordData: RecordData, mergeRule: MergeRule) => {
   return {
     recordData: recordData,
     mergeRule: mergeRule
@@ -15,9 +18,9 @@ export const buildRequestBody = (payload, recordData, mergeRule) => {
 }
 
 // Needed a separate function for PET since mergeRule is not an expected key in request
-export const buildRequestBodyPET = (payload, recordData /*, mergeRule*/) => {
-  const matchColumnName1 = payload.matchColumnName1 ? payload.matchColumnName1 : ''
-  const matchColumnName2 = payload.matchColumnName2 ? payload.matchColumnName2 : ''
+export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*, mergeRule*/) => {
+  const matchColumnName1 = payload.matchColumnName1 ? String(payload.matchColumnName1) : ''
+  const matchColumnName2 = payload.matchColumnName2 ? String(payload.matchColumnName2) : ''
   return {
     recordData: recordData,
     insertOnNoMatch: payload.insertOnNoMatch,
@@ -27,7 +30,7 @@ export const buildRequestBodyPET = (payload, recordData /*, mergeRule*/) => {
   }
 }
 
-export const buildFetchRequest = (authToken, requestBody) => {
+export const buildFetchRequest = (authToken: string, requestBody: RequestBody) => {
   return {
     method: 'POST',
     headers: {
@@ -38,7 +41,7 @@ export const buildFetchRequest = (authToken, requestBody) => {
   }
 }
 
-export const handleFetchResponse = async (endpoint, response) => {
+export const handleFetchResponse = async (endpoint: string, response: DynamicData) => {
   console.log(`response.status: ${response.status}`)
   if (response.status >= 500) {
     throw new Error(

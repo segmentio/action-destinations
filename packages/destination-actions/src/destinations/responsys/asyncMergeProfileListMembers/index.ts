@@ -1,4 +1,4 @@
-import type { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -131,6 +131,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { /*settings,*/ payload, auth }) => {
     console.log(`auth : ${JSON.stringify(auth)}`)
+    console.log(`incoming request : ${JSON.stringify(request)}`)
 
     if (payload && payload.profileListName) {
       // If #1
@@ -155,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName)
 
-      const requestBody = buildRequestBody(payload, recordData, {
+      const requestBody = buildRequestBody(/*payload,*/ recordData, {
         defaultPermissionStatus,
         htmlValue,
         insertOnNoMatch,
@@ -194,6 +195,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { /*settings,*/ payload, auth }) => {
     console.log(`something Payload: ${payload}`)
+    console.log(`incoming request : ${JSON.stringify(request)}`)
     const chunkSize = 2
     for (let i = 0; i < payload.length; i += chunkSize) {
       const chunk = payload.slice(i, i + chunkSize)

@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
@@ -136,6 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { /*settings,*/ payload, auth }) => {
     console.log(`auth : ${JSON.stringify(auth)}`)
+    console.log(`incoming request : ${JSON.stringify(request)}`)
 
     if (payload && payload.profileListName) {
       // If #1
@@ -144,15 +145,15 @@ const action: ActionDefinition<Settings, Payload> = {
         profileExtensionTable,
         // defaultPermissionStatus,
         // htmlValue,
-        insertOnNoMatch,
-        matchColumnName1,
-        matchColumnName2,
+        // insertOnNoMatch,
+        // matchColumnName1,
+        // matchColumnName2,
         // matchOperator,
         // optinValue,
         // optoutValue,
         // rejectRecordIfChannelEmpty,
         // textValue,
-        updateOnMatch,
+        // updateOnMatch,
         userData,
         mapTemplateName
       } = payload
@@ -161,7 +162,7 @@ const action: ActionDefinition<Settings, Payload> = {
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName)
 
-      const requestBody = buildRequestBodyPET(payload, recordData, {
+      const requestBody = buildRequestBodyPET(/*payload,*/ recordData, {
         // defaultPermissionStatus,
         // htmlValue,
         insertOnNoMatch,
@@ -200,6 +201,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { /*settings,*/ payload, auth }) => {
     console.log(`Batching Payload: ${JSON.stringify(payload)}`)
+    console.log(`incoming request : ${JSON.stringify(request)}`)
+
     const chunkSize = 2
     for (let i = 0; i < payload.length; i += chunkSize) {
       const chunk = payload.slice(i, i + chunkSize)
@@ -208,15 +211,15 @@ const action: ActionDefinition<Settings, Payload> = {
         profileExtensionTable,
         // defaultPermissionStatus,
         // htmlValue,
-        insertOnNoMatch,
-        matchColumnName1,
-        matchColumnName2,
+        // insertOnNoMatch,
+        // matchColumnName1,
+        // matchColumnName2,
         // matchOperator,
         // optinValue,
         // optoutValue,
         // rejectRecordIfChannelEmpty,
         // textValue,
-        updateOnMatch,
+        // updateOnMatch,
         userData,
         mapTemplateName
       } = chunk[0]
@@ -227,7 +230,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       const recordData = buildRecordData(userData, mapTemplateName)
 
-      const requestBody = buildRequestBodyPET(chunk[0], recordData, {
+      const requestBody = buildRequestBodyPET(
+        chunk[0],
+        recordData /*{
         // defaultPermissionStatus,
         // htmlValue,
         insertOnNoMatch,
@@ -239,7 +244,8 @@ const action: ActionDefinition<Settings, Payload> = {
         // rejectRecordIfChannelEmpty,
         // textValue,
         updateOnMatch
-      })
+      }*/
+      )
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
