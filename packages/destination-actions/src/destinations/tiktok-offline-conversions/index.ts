@@ -49,7 +49,7 @@ const multiProductContents = {
 
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'Page View', // is it ok to change preset name that is used by live version?
+    name: 'Page View',
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
     mapping: {
