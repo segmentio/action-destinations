@@ -56,8 +56,8 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type="page"',
     partnerAction: 'reportWebEvent',
     mapping: {
-      ...singleProductContents,
-      event: 'ViewContent'
+      ...multiProductContents,
+      event: 'PageView'
     },
     type: 'automatic'
   },
