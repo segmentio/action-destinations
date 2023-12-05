@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userProfilePayload, API_BASE, UPSERT_ENDPOINT, bulkUserProfilePayload } from '../insider-helpers'
+import { append_arrays } from '../insider-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If true, Phone Number will be sent as identifier to Insider',
       default: true
     },
+    append_arrays: { ...append_arrays },
     age: {
       label: 'Age',
       type: 'number',
