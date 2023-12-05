@@ -1,4 +1,4 @@
-import { Payload } from './updateSegment/generated-types'
+import { Payload } from './asyncMergePetRecords/generated-types'
 import { DynamicData, RecordData, MergeRule, RequestBody } from './types'
 
 export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {

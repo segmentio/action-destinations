@@ -60,7 +60,7 @@ export interface MergeRule {
   updateOnMatch?: string
 }
 
-// type RequestBody = RecordData & MergeRule;
+export type RequestBody = RecordData & MergeRule
 
 // interface FetchRequest {
 //   method: string;

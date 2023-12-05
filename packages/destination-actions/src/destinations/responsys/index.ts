@@ -156,18 +156,18 @@ const destination: DestinationDefinition<Settings> = {
       // Return a request that refreshes the access_token if the API supports it
       // let endpoint = `${auth.authUrl}`
       const endpoint = 'https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/api/v1.3/auth/token'
-      request = {
+      const requestOptions: RequestInit = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `user_name=${auth.username}&password=${auth.userPassword}&auth_type=password`
+        body: `user_name=${(auth as any).username}&password=${(auth as any).userPassword}&auth_type=password`
       }
-      console.log(request)
+      console.log(requestOptions)
       let response
       try {
-        response = await fetch(endpoint, request)
-      } catch (err) {
+        response = await fetch(endpoint, requestOptions)
+      } catch (err: any) {
         throw new Error(`***ERROR STATUS*** : ${err.message}`)
       }
       if (response.status >= 500 || response.status === 429) {
@@ -181,11 +181,16 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+
+    if (auth && auth.accessToken) {
+      headers.authorization = `Bearer ${auth.accessToken}`
+    }
+
     return {
-      headers: {
-        authorization: `${auth.authToken}`,
-        'Content-Type': 'application/json'
-      }
+      headers
     }
   },
 

@@ -154,7 +154,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
       console.log(`endpoint ${endpoint}`)
-      const recordData = buildRecordData(userData, mapTemplateName)
+      const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
       const requestBody = buildRequestBody(/*payload,*/ recordData, {
         defaultPermissionStatus,
@@ -172,8 +172,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-      const token = auth.authToken
-      const fetchRequest = buildFetchRequest(token, requestBody)
+      const token = auth?.accessToken ?? '' // Update 'authToken' to 'accessToken'
+      const fetchRequest = buildFetchRequest(token, {
+        records: [],
+        fieldNames: [],
+        mapTemplateName: ''
+      })
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
@@ -182,7 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
         response = await fetch(endpoint, fetchRequest)
       } catch (err) {
         if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${err.message}`)
+        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
       }
 
       // const responseBody = await response.json()
@@ -220,9 +224,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
 
-      const recordData = buildRecordData(userData, mapTemplateName)
+      const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody = buildRequestBody(chunk[0], recordData, {
+      const requestBody = buildRequestBody(/*chunk[0],*/ recordData, {
         defaultPermissionStatus,
         htmlValue,
         insertOnNoMatch,
@@ -238,8 +242,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-      const token = auth.authToken
-      const fetchRequest = buildFetchRequest(token, requestBody)
+      const token = auth?.accessToken ?? ''
+      const fetchRequest = buildFetchRequest(token, {
+        records: [],
+        fieldNames: [],
+        mapTemplateName: ''
+      })
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
@@ -248,7 +256,7 @@ const action: ActionDefinition<Settings, Payload> = {
         response = await fetch(endpoint, fetchRequest)
       } catch (err) {
         if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${err.message}`)
+        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
       }
 
       const responseBody = await handleFetchResponse(endpoint, response)

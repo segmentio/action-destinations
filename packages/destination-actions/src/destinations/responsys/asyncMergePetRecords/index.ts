@@ -2,11 +2,12 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
+import { RequestBody } from '../types'
 
 import {
   buildRecordData,
   // buildRecordDataBatch,
-  buildRequestBodyPET,
+  // buildRequestBodyPET,
   buildFetchRequest,
   handleFetchResponse
 } from '../rsp-operations'
@@ -160,26 +161,22 @@ const action: ActionDefinition<Settings, Payload> = {
 
       const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
       console.log(`endpoint ${endpoint}`)
-      const recordData = buildRecordData(userData, mapTemplateName)
+      const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody = buildRequestBodyPET(/*payload,*/ recordData, {
-        // defaultPermissionStatus,
-        // htmlValue,
+      const requestBody: RequestBody = {
+        records: recordData.records,
+        fieldNames: recordData.fieldNames,
+        mapTemplateName: recordData.mapTemplateName,
         insertOnNoMatch,
+        updateOnMatch,
         matchColumnName1,
-        matchColumnName2,
-        // matchOperator,
-        // optinValue,
-        // optoutValue,
-        // rejectRecordIfChannelEmpty,
-        // textValue,
-        updateOnMatch
-      })
+        matchColumnName2
+      }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-      const token = auth.authToken
-      const fetchRequest = buildFetchRequest(token, requestBody)
+      const token = (auth as { authToken?: string })?.authToken
+      const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
@@ -188,7 +185,7 @@ const action: ActionDefinition<Settings, Payload> = {
         response = await fetch(endpoint, fetchRequest)
       } catch (err) {
         if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${err.message}`)
+        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
       }
 
       // const responseBody = await response.json()
@@ -228,29 +225,45 @@ const action: ActionDefinition<Settings, Payload> = {
 
       console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
 
-      const recordData = buildRecordData(userData, mapTemplateName)
+      // const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody = buildRequestBodyPET(
-        chunk[0],
-        recordData /*{
-        // defaultPermissionStatus,
-        // htmlValue,
-        insertOnNoMatch,
-        matchColumnName1,
-        matchColumnName2,
-        // matchOperator,
-        // optinValue,
-        // optoutValue,
-        // rejectRecordIfChannelEmpty,
-        // textValue,
-        updateOnMatch
-      }*/
-      )
+      // const requestBody = buildRequestBodyPET(
+      //   chunk[0],
+      //   recordData /*{
+      //   // defaultPermissionStatus,
+      //   // htmlValue,
+      //   insertOnNoMatch,
+      //   matchColumnName1,
+      //   matchColumnName2,
+      //   // matchOperator,
+      //   // optinValue,
+      //   // optoutValue,
+      //   // rejectRecordIfChannelEmpty,
+      //   // textValue,
+      //   updateOnMatch
+      // }*/
+      // )
+
+      const token = (auth as { authToken?: string })?.authToken
+      const recordData = buildRecordData(userData, mapTemplateName ?? '')
+      const requestBody: RequestBody = {
+        ...chunk[0],
+        // recordData: {
+        records: recordData.records,
+        fieldNames: recordData.fieldNames,
+        mapTemplateName: recordData.mapTemplateName
+        // },
+        // profileListName: chunk[0].profileListName,
+        // profileExtensionTable: chunk[0].profileExtensionTable,
+        // userData: chunk[0].userData,
+        // mapTemplateName: chunk[0].mapTemplateName ?? '', // Use nullish coalescing operator
+        // batch_size: chunk[0].batch_size,
+        // enable_batching: chunk[0].enable_batching
+      }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-      const token = auth.authToken
-      const fetchRequest = buildFetchRequest(token, requestBody)
+      const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
