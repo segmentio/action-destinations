@@ -18,7 +18,7 @@ const productProperties = {
     '@path': '$.product_id'
   },
   content_name: {
-    '@path': '$.content_name'
+    '@path': '$.name'
   },
   brand: {
     '@path': '$.brand'
@@ -156,6 +156,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Callback Started"',
     partnerAction: 'reportWebEvent',
     mapping: {
+      ...defaultValues(reportWebEvent.fields),
       event: 'Contact'
     },
     type: 'automatic'
@@ -165,6 +166,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Download Link Clicked"',
     partnerAction: 'reportWebEvent',
     mapping: {
+      ...defaultValues(reportWebEvent.fields),
       event: 'Download'
     },
     type: 'automatic'
@@ -174,6 +176,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Form Submitted"',
     partnerAction: 'reportWebEvent',
     mapping: {
+      ...defaultValues(reportWebEvent.fields),
       event: 'SubmitForm'
     },
     type: 'automatic'
@@ -183,6 +186,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Signed Up"',
     partnerAction: 'reportWebEvent',
     mapping: {
+      ...defaultValues(reportWebEvent.fields),
       event: 'CompleteRegistration'
     },
     type: 'automatic'
@@ -192,6 +196,7 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Subscription Created"',
     partnerAction: 'reportWebEvent',
     mapping: {
+      ...defaultValues(reportWebEvent.fields),
       event: 'Subscribe'
     },
     type: 'automatic'

@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.ttp' },
           then: { '@path': '$.properties.ttp' },
-          else: { '@path': '$.traits.ttp' }
+          else: { '@path': '$.integrations.TikTok Pixel.ttp' }
         }
       }
     },
@@ -117,11 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).',
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.locale' },
-          then: { '@path': '$.properties.locale' },
-          else: { '@path': '$.traits.locale' }
-        }
+        '@path': '$.context.locale'
       }
     },
     url: {
@@ -199,7 +195,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Type of the product item. When the `content_id` in the `contents` parameter is specified as `sku_id`, set this field to `product`. When the `content_id` in the `contents` parameter is specified as `item_group_id`, set this field to `product_group`.',
       type: 'string',
-      choices: ['product', 'product_group']
+      choices: ['product', 'product_group'],
+      default: 'product'
     },
     currency: {
       label: 'Currency',
@@ -252,7 +249,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     limited_data_use: {
       label: 'Limited Data Use',
-      type: 'string',
+      type: 'boolean',
       description:
         'Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).',
       default: {
