@@ -52,10 +52,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Indicates what should be done for records where a match is not found.',
       type: 'boolean',
       choices: [
-        { label: true, value: true },
-        { label: false, value: false }
+        { label: 'true', value: 'true' },
+        { label: 'false', value: 'false' }
       ],
-      default: true
+      default: 'true'
     },
     matchColumnName1: {
       label: 'First Column Match',

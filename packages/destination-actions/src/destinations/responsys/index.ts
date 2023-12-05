@@ -152,7 +152,7 @@ const destination: DestinationDefinition<Settings> = {
     // you can remove the `testAuthentication` function, though discouraged.
     // return true
     //},
-    refreshAccessToken: async (request, { auth }) => {
+    refreshAccessToken: async (_request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
       // let endpoint = `${auth.authUrl}`
       const endpoint = 'https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/api/v1.3/auth/token'

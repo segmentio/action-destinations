@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * Indicates what should be done for records where a match is not found.
    */
-  insertOnNoMatch?: boolean
+  insertOnNoMatch?: boolean & string
   /**
    * First match column for determining whether an insert or update should occur.
    */
