@@ -60,12 +60,13 @@ export async function removeProfileFromList(request: RequestClient, id: string, 
 
 export async function getProfile(request: RequestClient, email: string | undefined, external_id: string | undefined) {
   let filter
-  if (email) {
-    filter = `email,"${email}"`
-  }
   if (external_id) {
     filter = `external_id,"${external_id}"`
   }
+  if (email) {
+    filter = `email,"${email}"`
+  }
+  // If both email and external_id are provided. Email will take precedence.
   const profile = await request(`${API_URL}/profiles/?filter=equals(${filter})`, {
     method: 'GET'
   })

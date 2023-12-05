@@ -32,15 +32,15 @@ const profileData = {
 }
 
 describe('Add List To Profile', () => {
-  it('should throw error if no email, or external_id is provided', async () => {
+  it('should throw error if no email or External Id is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
     })
 
-    await expect(testDestination.testAction('addProfileToList', { event, settings })).rejects.toThrowError(
-      AggregateAjvError
-    )
+    await expect(
+      testDestination.testAction('addProfileToList', { event, settings, useDefaultMappings: true })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 
   it('should add profile to list if successful with email only', async () => {
