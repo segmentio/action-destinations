@@ -48,7 +48,9 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       campaign_name: this.payload.customArgs && this.payload.customArgs['campaign_name'],
       campaign_key: this.payload.customArgs && this.payload.customArgs['campaign_key'],
       user_id: this.payload.customArgs && this.payload.customArgs['user_id'],
-      message_id: this.payload.customArgs && this.payload.customArgs['message_id']
+      message_id: this.payload.customArgs && this.payload.customArgs['message_id'],
+      external_id_type: recepient.type,
+      external_id_value: phone
     }
     body.append('Tags', JSON.stringify(tags))
 

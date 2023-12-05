@@ -119,21 +119,19 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [
-      parsedFromEmail,
-      parsedFromName,
-      parsedFromReplyToEmail,
-      parsedFromReplyToName,
-      parsedSubject,
-      apiLookupData
-    ] = await Promise.all([
-      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
-      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
-      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
-      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
-      this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
-      this.performApiLookups(this.payload.apiLookups, profile)
-    ])
+    const [parsedFromEmail, parsedFromName, parsedFromReplyToEmail, parsedFromReplyToName, parsedSubject] =
+      await Promise.all([
+        this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+        this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+        this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+        this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
+        this.parseTemplating(this.payload.subject, { profile }, 'Subject')
+      ])
+
+    let apiLookupData = {}
+    if (this.isFeatureActive('is-datafeeds-enabled')) {
+      apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+    }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
 
@@ -192,6 +190,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     } else {
       mailContent = mailContentSubscriptionHonored
       this.statsClient?.incr('request.dont_pass_subscription', 1)
+    }
+    // Check if ip pool name is provided and sends the email with the ip pool name if it is
+    if (this.payload.ipPool) {
+      mailContent = {
+        ...mailContent,
+        ip_pool_name: this.payload.ipPool
+      }
+      this.statsClient?.incr('request.ip_pool_name_provided', 1)
+    } else {
+      this.statsClient?.incr('request.ip_pool_name_not_provided', 1)
     }
     const req: RequestOptions = {
       method: 'post',
@@ -306,7 +314,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.statsClient.statsClient,
           this.tags,
           this.settings,
-          this.logger.loggerClient
+          this.logger.loggerClient,
+          this.dataFeedCache
         )
         return { name: apiLookup.name, data }
       })
@@ -339,7 +348,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', groupUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', groupUnsubscribeLink)
           _this.logger?.info(`Group Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_group_unsubscribe_link', 1)
         }
@@ -351,7 +361,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', globalUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', globalUnsubscribeLink)
           _this.logger?.info(`Global Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_global_unsubscribe_link', 1)
         }
@@ -369,7 +380,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
         _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
-        $(this).attr('href', preferencesLink)
+        $(this).removeAttr('href')
+        $(this).attr('clicktracking', 'off').attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
         _this.statsClient?.incr('replaced_preferences_link', 1)
       }

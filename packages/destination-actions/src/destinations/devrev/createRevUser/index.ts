@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'post',
         json: {
           email,
-          full_name: name,
+          display_name: name,
           external_ref: email,
           org_id: revOrgId
         }

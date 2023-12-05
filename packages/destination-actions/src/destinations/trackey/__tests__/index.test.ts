@@ -1,22 +1,24 @@
-import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
+import nock from 'nock'
+import { baseUrl } from '../constants'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
-const base = 'https://app.trackey.io'
-const url = '/public-api/integrations/segment/webhook'
 
 describe('Trackey', () => {
-  it('should validate api key', async () => {
-    nock(base).get(url).reply(200, {
-      status: 'success',
-      data: 'Test client'
+  describe('testAuthentication', () => {
+    it('should validate api key', async () => {
+      nock(baseUrl).get('/auth/me').reply(200, {
+        status: 'SUCCESS',
+        data: 'Test client'
+      })
+
+      // This should match your authentication.fields
+      const authData = {
+        apiKey: 'test-api-key'
+      }
+
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
-
-    const authData = {
-      apiKey: 'test-api-key'
-    }
-
-    await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
   })
 })

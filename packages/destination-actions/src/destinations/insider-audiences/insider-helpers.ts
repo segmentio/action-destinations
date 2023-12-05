@@ -30,7 +30,9 @@ const computedTraitsPayloadForIdentifyCall = function (
         identifiers,
         attributes
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -53,7 +55,9 @@ const computedTraitsPayloadForTrackCall = function (
         identifiers,
         events
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -83,7 +87,9 @@ const computedAudiencesPayloadForIdentifyCall = function (
         identifiers,
         attributes
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -106,7 +112,9 @@ const computedAudiencePayloadForTrackCall = function (
         identifiers,
         events
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -130,7 +138,9 @@ const deleteAttributePartial = function (data: Payload) {
           }
         }
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 }
 

@@ -350,7 +350,7 @@ describe('sendMobilePush action', () => {
       expect(responses[0].data).toMatchObject(externalIds[0])
     })
 
-    it('parses links in tapActionButtons', async () => {
+    it('parses links and titles in tapActionButtons', async () => {
       const title = 'buy'
       const body = 'now'
       const tapAction = 'OPEN_DEEP_LINK'
@@ -365,7 +365,7 @@ describe('sendMobilePush action', () => {
         tapActionButtons: [
           {
             id: '1',
-            text: 'open',
+            text: 'open{{profile.traits.fav_color}}',
             onTap: 'deep_link',
             link: 'app://buy-now/{{profile.traits.fav_color}}'
           },
@@ -414,7 +414,7 @@ describe('sendMobilePush action', () => {
           tapActionButtons: [
             {
               id: '1',
-              text: 'open',
+              text: 'openmantis_green',
               onTap: 'deep_link',
               link: 'app://buy-now/mantis_green'
             },

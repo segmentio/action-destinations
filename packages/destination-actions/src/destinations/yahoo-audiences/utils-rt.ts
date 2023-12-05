@@ -2,7 +2,6 @@ import { createHmac, createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
-import { AudienceSettings } from './generated-types'
 
 /**
  * Creates a SHA256 hash from the input
@@ -53,48 +52,6 @@ export function generate_jwt(client_id: string, client_secret: string): string {
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
-export function get_id_schema(
-  payload: Payload,
-  audienceSettings: AudienceSettings
-): { maid: boolean; email: boolean; phone: boolean } {
-  const schema = {
-    email: false,
-    maid: false,
-    phone: false
-  }
-  let id_type
-  audienceSettings.identifier ? (id_type = audienceSettings.identifier) : (id_type = payload.identifier)
-  switch (id_type) {
-    case 'email':
-      schema.email = true
-      break
-    case 'maid':
-      schema.maid = true
-      break
-    case 'phone':
-      schema.phone = true
-      break
-    case 'email_maid':
-      schema.maid = true
-      schema.email = true
-      break
-    case 'email_maid_phone':
-      schema.maid = true
-      schema.email = true
-      schema.phone = true
-      break
-    case 'email_phone':
-      schema.email = true
-      schema.phone = true
-      break
-    case 'phone_maid':
-      schema.phone = true
-      schema.maid = true
-      break
-  }
-
-  return schema
-}
 
 export function validate_phone(phone: string) {
   /*
@@ -117,8 +74,8 @@ export function validate_phone(phone: string) {
  * @param payloads
  * @returns {YahooPayload} The Yahoo payload.
  */
-export function gen_update_segment_payload(payloads: Payload[], audienceSettings: AudienceSettings): YahooPayload {
-  const schema = get_id_schema(payloads[0], audienceSettings)
+export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
+  //const schema = get_id_schema(payloads[0], audienceSettings)
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -130,23 +87,32 @@ export function gen_update_segment_payload(payloads: Payload[], audienceSettings
   //
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
-    if (schema.email === true && event.email) {
+    if (event.email) {
       hashed_email = create_hash(event.email.toLowerCase())
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
-    if (schema.maid === true && event.advertising_id) {
-      switch (event.device_type) {
-        case 'ios':
+    if (event.advertising_id) {
+      if (event.device_type) {
+        switch (event.device_type) {
+          case 'ios':
+            idfa = event.advertising_id
+            break
+          case 'android':
+            gpsaid = event.advertising_id
+            break
+        }
+      } else {
+        if (event.advertising_id === event.advertising_id.toUpperCase()) {
+          // Apple IDFA is always uppercase
           idfa = event.advertising_id
-          break
-        case 'android':
+        } else {
           gpsaid = event.advertising_id
-          break
+        }
       }
     }
     let hashed_phone: string | undefined = ''
-    if (schema.phone === true && event.phone) {
+    if (event.phone) {
       const phone = validate_phone(event.phone)
       if (phone !== '') {
         hashed_phone = create_hash(phone)
