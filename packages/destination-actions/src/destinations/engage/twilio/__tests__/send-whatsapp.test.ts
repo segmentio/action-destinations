@@ -3,7 +3,11 @@ import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpe
 
 const defaultTemplateSid = 'my_template'
 const defaultTo = 'whatsapp:+1234567891'
-const defaultTags = JSON.stringify({})
+const phoneNumber = '+1234567891'
+const defaultTags = JSON.stringify({
+  external_id_type: 'phone',
+  external_id_value: phoneNumber
+})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
@@ -19,7 +23,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+        { type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
       ]
     })
   })
@@ -38,7 +42,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `channelType` in the external ID payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed' }]
         }
       })
 
@@ -137,7 +141,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'whatsapp' }]
         }
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -162,7 +166,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'whatsapp' }]
           }
         })
         expect(responses).toHaveLength(0)
@@ -188,7 +192,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           externalIds: [
             {
               type: 'phone',
-              id: '+1234567891',
+              id: phoneNumber,
               subscriptionStatus: randomSubscriptionStatusPhrase,
               channelType: 'whatsapp'
             }
@@ -205,7 +209,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: from,
         To: 'whatsapp:+19195551234',
-        Tags: defaultTags
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: '(919) 555 1234'
+        })
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')

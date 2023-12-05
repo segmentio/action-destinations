@@ -6,6 +6,10 @@ export interface Payload {
    */
   account_id: string
   /**
+   * The ID associated with the user
+   */
+  user_id?: string
+  /**
    * The Account name
    */
   name: string

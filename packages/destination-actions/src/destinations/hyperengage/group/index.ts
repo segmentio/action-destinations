@@ -22,6 +22,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    user_id: {
+      type: 'string',
+      description: 'The ID associated with the user',
+      label: 'User ID',
+      default: { '@path': '$.userId' }
+    },
     name: {
       type: 'string',
       required: true,
@@ -41,7 +47,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The timestamp when the account was created, represented in the ISO-8601 date format. For instance, "2023-09-26T15:30:00Z".',
       label: 'Account created at',
-      default: { '@path': '$.traits.created_at' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.created_at' },
+          then: { '@path': '$.traits.created_at' },
+          else: { '@path': '$.traits.createdAt' }
+        }
+      }
     },
     traits: {
       type: 'object',
@@ -55,7 +67,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       description: 'Subscription plan the account is associated with',
       label: 'Account subscription plan',
-      default: { '@path': '$.traits.plan' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.plan' },
+          then: { '@path': '$.traits.plan' },
+          else: { '@path': '$.traits.plan_name' }
+        }
+      }
     },
     industry: {
       type: 'string',

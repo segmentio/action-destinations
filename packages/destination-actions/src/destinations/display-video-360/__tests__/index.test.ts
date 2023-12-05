@@ -9,19 +9,22 @@ const testDestination = createTestIntegration(Destination)
 const advertiserCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
 const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
 const expectedExternalID = `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}/userLists/8457147615`
+const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 
 const createAudienceInput = {
   settings: {},
   audienceName: '',
   audienceSettings: {
-    advertiserId: advertiserId
+    advertiserId: advertiserId,
+    accountType: accountType
   }
 }
 
 const getAudienceInput = {
   settings: {},
   audienceSettings: {
-    advertiserId: advertiserId
+    advertiserId: advertiserId,
+    accountType: accountType
   },
   audienceName: audienceName,
   externalId: expectedExternalID
