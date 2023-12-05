@@ -59,20 +59,33 @@ export async function removeProfileFromList(request: RequestClient, id: string, 
   return list
 }
 
-export async function getProfile(request: RequestClient, email: string) {
-  const profile = await request(`${API_URL}/profiles/?filter=equals(email,"${email}")`, {
+export async function getProfile(request: RequestClient, email: string | undefined, external_id: string | undefined) {
+  let filter
+  if (external_id) {
+    filter = `external_id,"${external_id}"`
+  }
+  if (email) {
+    filter = `email,"${email}"`
+  }
+  // If both email and external_id are provided. Email will take precedence.
+  const profile = await request(`${API_URL}/profiles/?filter=equals(${filter})`, {
     method: 'GET'
   })
   return profile.json()
 }
 
-export async function createProfile(request: RequestClient, email: string) {
+export async function createProfile(
+  request: RequestClient,
+  email: string | undefined,
+  external_id: string | undefined
+) {
   try {
     const profileData: ProfileData = {
       data: {
         type: 'profile',
         attributes: {
-          email
+          email,
+          external_id
         }
       }
     }
