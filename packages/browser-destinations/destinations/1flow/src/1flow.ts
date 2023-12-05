@@ -18,5 +18,5 @@ export function initScript({ projectApiKey }) {
     r.setAttribute('data-api-key', k)
     r.src = t
     a.appendChild(r)
-  })(window, document, setTimeout, 'https://cdn-development.1flow.ai/js-sdk/1flow.js', apiKey)
+  })(window, document, setTimeout, 'https://1flow.app/js/1flow.js', apiKey)
 }
