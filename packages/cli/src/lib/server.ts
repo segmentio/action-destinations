@@ -20,7 +20,8 @@ import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-e
 import {
   ActionHookType,
   ActionHookResponse,
-  AudienceDestinationConfigurationWithCreateGet
+  AudienceDestinationConfigurationWithCreateGet,
+  RequestFn
 } from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
@@ -377,6 +378,46 @@ function setupRoutes(def: DestinationDefinition | null): void {
             }
           })
         )
+
+        const inputFields = definition.hooks?.[hookName as ActionHookType]?.inputFields
+        const dynamicInputs: Record<string, Function> = {}
+        if (inputFields) {
+          for (const fieldKey in inputFields) {
+            const field = inputFields[fieldKey]
+            if (field.dynamic && typeof field.dynamic === 'function') {
+              dynamicInputs[fieldKey] = field.dynamic
+            }
+          }
+        }
+
+        for (const fieldKey in dynamicInputs) {
+          router.post(
+            `/${actionSlug}/hooks/${hookName}/dynamic/${fieldKey}`,
+            asyncHandler(async (req: express.Request, res: express.Response) => {
+              try {
+                const data = {
+                  settings: req.body.settings || {},
+                  payload: req.body.payload || {},
+                  page: req.body.page || 1,
+                  auth: req.body.auth || {},
+                  audienceSettings: req.body.audienceSettings || {},
+                  hookInputs: req.body.hookInputs || {}
+                }
+                const action = destination.actions[actionSlug]
+                const dynamicFn = dynamicInputs[fieldKey] as RequestFn<any, any, any, any>
+                const result = await action.executeDynamicField(fieldKey, data, dynamicFn)
+
+                if (result.error) {
+                  throw result.error
+                }
+
+                return res.status(200).json(result)
+              } catch (err) {
+                return res.status(500).json([err])
+              }
+            })
+          )
+        }
       }
     }
   }
