@@ -36,4 +36,11 @@ describe('unixTimestampOf()', () => {
     expect(unixTimestampOf('2023-01-01T00:00:00.00345Z')).toBe(1672531200003)
     expect(unixTimestampOf('2023-01-01T00:00:00.003456Z')).toBe(1672531200003)
   })
+
+  it('should convert Date to number representing Unix timestamp in milliseconds', async () => {
+    expect(unixTimestampOf(new Date('2000-01-01T00:00:00Z'))).toBe(946684800000)
+    expect(unixTimestampOf(new Date('2023-01-01T00:00:00.003Z'))).toBe(1672531200003)
+    expect(unixTimestampOf(new Date('2023-01-01T00:00:00.00345Z'))).toBe(1672531200003)
+    expect(unixTimestampOf(new Date('2023-01-01T00:00:00.003456Z'))).toBe(1672531200003)
+  })
 })

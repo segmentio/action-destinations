@@ -32,44 +32,43 @@ Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
 function generateFile(payloads: s3Payload[] | sftpPayload[]) {
-  const headers: string[] = ['audience_key']
+  // Using a Set to keep track of headers
+  const headers = new Set<string>()
+  headers.add('audience_key')
 
-  // Prepare header row
-  if (payloads[0].identifier_data) {
-    for (const identifier of Object.getOwnPropertyNames(payloads[0].identifier_data)) {
-      headers.push(identifier)
-    }
-  }
-
-  if (payloads[0].unhashed_identifier_data) {
-    for (const identifier of Object.getOwnPropertyNames(payloads[0].unhashed_identifier_data)) {
-      headers.push(identifier)
-    }
-  }
-
-  let rows = Buffer.from(headers.join(payloads[0].delimiter) + '\n')
+  // Declare rows as an empty Buffer
+  let rows = Buffer.from('')
 
   // Prepare data rows
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     const row: string[] = [enquoteIdentifier(payload.audience_key)]
+
+    // Process unhashed_identifier_data first
+    if (payload.unhashed_identifier_data) {
+      for (const key in payload.unhashed_identifier_data) {
+        if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
+          headers.add(key)
+          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
+        }
+      }
+    }
+
+    // Process identifier_data, skipping keys that have already been processed
     if (payload.identifier_data) {
       for (const key in payload.identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key)) {
+        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key) && !headers.has(key)) {
+          headers.add(key)
           row.push(enquoteIdentifier(String(payload.identifier_data[key])))
         }
       }
     }
 
-    if (payload.unhashed_identifier_data) {
-      for (const key in payload.unhashed_identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
-          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
-        }
-      }
-    }
     rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }
+
+  // Add headers to the beginning of the file contents
+  rows = Buffer.concat([Buffer.from(Array.from(headers).join(payloads[0].delimiter) + '\n'), rows])
 
   const filename = payloads[0].filename
   return { filename, fileContents: rows }

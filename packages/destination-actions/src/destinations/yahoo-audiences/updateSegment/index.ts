@@ -56,11 +56,25 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       choices: [{ label: 'audience', value: 'audience' }]
     },
+    phone: {
+      label: 'User Phone',
+      description: 'Phone number of a user',
+      type: 'string',
+      unsafe_hidden: false,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
+          else: { '@path': '$.properties.phone' }
+        }
+      }
+    },
     email: {
       label: 'User Email',
       description: 'Email address of a user',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: false,
       default: {
         '@if': {
@@ -74,52 +88,22 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Mobile Advertising ID',
       description: "User's mobile advertising Id",
       type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@path': '$.context.device.advertisingId'
-      },
-      required: false
-    },
-    phone: {
-      label: 'User Phone',
-      description: 'Phone number of a user',
-      type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.phone' },
-          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
-          else: { '@path': '$.properties.phone' }
-        }
+        '@path': '$.context.device.advertisingId'
       }
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
       description: "User's mobile device type",
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
+      required: false,
       default: {
         '@path': '$.context.device.type'
-      },
-      required: false
+      }
     },
-    // identifier: {
-    //   label: 'User Identifier',
-    //   description: 'Specify the identifier(s) to send to Yahoo',
-    //   type: 'string',
-    //   required: true,
-    //   default: 'email',
-    //   choices: [
-    //     { value: 'email', label: 'Send email' },
-    //     { value: 'maid', label: 'Send MAID' },
-    //     { value: 'phone', label: 'Send phone' },
-    //     { value: 'email_maid', label: 'Send email and/or MAID' },
-    //     { value: 'email_maid_phone', label: 'Send email, MAID and/or phone' },
-    //     { value: 'email_phone', label: 'Send email and/or phone' },
-    //     { value: 'phone_maid', label: 'Send phone and/or MAID' }
-    //   ]
-    // },
     gdpr_flag: {
       label: 'GDPR Flag',
       description: 'Set to true to indicate that audience data is subject to GDPR regulations',
@@ -138,12 +122,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
     return process_payload(request, [payload], rt_access_token, statsContext)
   },
   performBatch: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    //const rt_access_token = 'cc606d91-1786-47a0-87fd-6f48ee70fa7c'
     return process_payload(request, payload, rt_access_token, statsContext)
   }
 }
@@ -161,8 +143,8 @@ async function process_payload(
   // Send request to Yahoo only when all events in the batch include selected Ids
   if (body.data.length > 0) {
     if (statsClient && statsTag) {
-      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentTriggered'])
-      statsClient?.incr('yahoo_audiences', body.data.length, [...statsTag, 'action:updateSegmentRecordsSent'])
+      statsClient?.incr('updateSegmentTriggered', 1, statsTag)
+      statsClient?.incr('updateSegmentRecordsSent', body.data.length, statsTag)
     }
     return request('https://dataxonline.yahoo.com/online/audience/', {
       method: 'POST',
@@ -173,7 +155,7 @@ async function process_payload(
     })
   } else {
     if (statsClient && statsTag) {
-      statsClient?.incr('yahoo_audiences', 1, [...statsTag, 'action:updateSegmentDiscarded'])
+      statsClient?.incr('updateSegmentDiscarded', 1, statsTag)
     }
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
   }
