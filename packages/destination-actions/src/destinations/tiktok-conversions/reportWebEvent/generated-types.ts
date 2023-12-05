@@ -16,15 +16,15 @@ export interface Payload {
   /**
    * Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.
    */
-  phone_number?: string
+  phone_numbers?: string[]
   /**
    * Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok.
    */
-  email?: string
+  emails?: string[]
   /**
    * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok.
    */
-  external_id?: string
+  external_ids?: string[]
   /**
    * The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.
    */

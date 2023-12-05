@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatEmail, formatPhone, formatUserId } from './formatter'
+import { formatEmails, formatPhones, formatUserIds } from './formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Web Event',
@@ -32,11 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
-    phone_number: {
+    phone_numbers: {
       label: 'Phone Number',
       description:
         'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.',
       type: 'string',
+      multiple: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties.phone' },
@@ -45,12 +46,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    email: {
+    emails: {
       label: 'Email',
       description:
         'Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
       type: 'string',
       format: 'email',
+      multiple: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -59,11 +61,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    external_id: {
+    external_ids: {
       label: 'External ID',
       description:
         'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
       type: 'string',
+      multiple: true,
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -265,9 +268,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const userData = {
-      hashedExternalId: formatUserId(payload.external_id),
-      hashedEmail: formatEmail(payload.email),
-      hashedPhoneNumber: formatPhone(payload.phone_number)
+      hashedExternalIds: formatUserIds(payload.external_ids),
+      hashedEmails: formatEmails(payload.emails),
+      hashedPhoneNumbers: formatPhones(payload.phone_numbers)
     }
 
     let payloadUrl, urlTtclid
@@ -297,9 +300,9 @@ const action: ActionDefinition<Settings, Payload> = {
             event_id: payload.event_id ? `${payload.event_id}` : undefined,
             user: {
               ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
-              external_id: userData.hashedExternalId,
-              phone_number: userData.hashedPhoneNumber,
-              email: userData.hashedEmail,
+              external_id: userData.hashedExternalIds,
+              phone_number: userData.hashedPhoneNumbers,
+              email: userData.hashedEmails,
               lead_id: payload.lead_id ? payload.lead_id : undefined,
               ttp: payload.ttp ? payload.ttp : undefined,
               ip: payload.ip ? payload.ip : undefined,
