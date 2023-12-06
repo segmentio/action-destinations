@@ -1,13 +1,13 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
 import { userData, enable_batching, batch_size } from '../rsp-properties'
+import type { RequestBody } from '../types'
 
 import {
   buildRecordData,
   // buildRecordDataBatch,
-  buildRequestBody,
+  // buildRequestBody,
   buildFetchRequest,
   handleFetchResponse
 } from '../rsp-operations'
@@ -52,8 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Indicates what should be done for records where a match is not found.',
       type: 'boolean',
       choices: [
-        { label: 'true', value: 'true' },
-        { label: 'false', value: 'false' }
+        { label: true, value: true },
+        { label: false, value: false }
       ],
       default: 'true'
     },
@@ -120,6 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Update On Match',
       description: 'Controls how the existing record should be updated.',
       type: 'string',
+      required: true,
       choices: [
         { label: 'REPLACE_ALL', value: 'REPLACE_ALL' },
         { label: 'NO_UPDATE', value: 'NO_UPDATE' }
@@ -156,28 +157,44 @@ const action: ActionDefinition<Settings, Payload> = {
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody = buildRequestBody(/*payload,*/ recordData, {
-        defaultPermissionStatus,
-        htmlValue,
-        insertOnNoMatch,
-        matchColumnName1,
-        matchColumnName2,
-        matchOperator,
-        optinValue,
-        optoutValue,
-        rejectRecordIfChannelEmpty,
-        textValue,
-        updateOnMatch
-      })
+      // const requestBody = buildRequestBody(/*payload,*/ recordData, {
+      //   defaultPermissionStatus,
+      //   htmlValue,
+      //   insertOnNoMatch,
+      //   matchColumnName1,
+      //   matchColumnName2,
+      //   matchOperator,
+      //   optinValue,
+      //   optoutValue,
+      //   rejectRecordIfChannelEmpty,
+      //   textValue,
+      //   updateOnMatch
+      // })
+
+      const requestBody: RequestBody = {
+        // records: recordData.records,
+        // fieldNames: recordData.fieldNames,
+        // mapTemplateName: recordData.mapTemplateName,
+        recordData: recordData,
+        mergeRule: {
+          defaultPermissionStatus,
+          htmlValue,
+          insertOnNoMatch,
+          matchColumnName1,
+          matchColumnName2,
+          matchOperator,
+          optinValue,
+          optoutValue,
+          rejectRecordIfChannelEmpty,
+          textValue,
+          updateOnMatch
+        }
+      }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
       const token = auth?.accessToken ?? '' // Update 'authToken' to 'accessToken'
-      const fetchRequest = buildFetchRequest(token, {
-        records: [],
-        fieldNames: [],
-        mapTemplateName: ''
-      })
+      const fetchRequest = buildFetchRequest(token, requestBody)
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
@@ -216,38 +233,55 @@ const action: ActionDefinition<Settings, Payload> = {
         rejectRecordIfChannelEmpty,
         textValue,
         updateOnMatch,
-        userData,
+        // userData,
         mapTemplateName
       } = chunk[0]
 
       const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
 
       console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
-
+      const userData = chunk.map((obj) => obj.userData)
+      //const recs = userData.map(obj => Object.values(obj));
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody = buildRequestBody(/*chunk[0],*/ recordData, {
-        defaultPermissionStatus,
-        htmlValue,
-        insertOnNoMatch,
-        matchColumnName1,
-        matchColumnName2,
-        matchOperator,
-        optinValue,
-        optoutValue,
-        rejectRecordIfChannelEmpty,
-        textValue,
-        updateOnMatch
-      })
+      // const requestBody = buildRequestBody(/*chunk[0],*/ recordData, {
+      //   defaultPermissionStatus,
+      //   htmlValue,
+      //   insertOnNoMatch,
+      //   matchColumnName1,
+      //   matchColumnName2,
+      //   matchOperator,
+      //   optinValue,
+      //   optoutValue,
+      //   rejectRecordIfChannelEmpty,
+      //   textValue,
+      //   updateOnMatch
+      // })
+
+      const requestBody: RequestBody = {
+        // records: recordData.records,
+        // fieldNames: recordData.fieldNames,
+        // mapTemplateName: recordData.mapTemplateName,
+        recordData: recordData,
+        mergeRule: {
+          defaultPermissionStatus,
+          htmlValue,
+          insertOnNoMatch,
+          matchColumnName1,
+          matchColumnName2,
+          matchOperator,
+          optinValue,
+          optoutValue,
+          rejectRecordIfChannelEmpty,
+          textValue,
+          updateOnMatch
+        }
+      }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
       const token = auth?.accessToken ?? ''
-      const fetchRequest = buildFetchRequest(token, {
-        records: [],
-        fieldNames: [],
-        mapTemplateName: ''
-      })
+      const fetchRequest = buildFetchRequest(token, requestBody)
 
       console.log(`request : ${JSON.stringify(fetchRequest)}`)
 

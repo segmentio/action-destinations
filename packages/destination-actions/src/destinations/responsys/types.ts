@@ -60,7 +60,13 @@ export interface MergeRule {
   updateOnMatch?: string
 }
 
-export type RequestBody = RecordData & MergeRule
+export type RequestBody = { recordData: RecordData } & { mergeRule: MergeRule }
+export type RequestBodyPET = { recordData: RecordData } & {
+  insertOnNoMatch: boolean
+  updateOnMatch: string
+  matchColumnName1: string
+  matchColumnName2: string
+}
 
 // interface FetchRequest {
 //   method: string;

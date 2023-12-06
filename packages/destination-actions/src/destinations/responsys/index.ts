@@ -9,6 +9,10 @@ import asyncMergeProfileListMembers from './asyncMergeProfileListMembers'
 
 import asyncMergePetRecords from './asyncMergePetRecords'
 
+interface RefreshTokenResponse {
+  authToken: string
+}
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Responsys',
   slug: 'actions-responsys',
@@ -152,35 +156,50 @@ const destination: DestinationDefinition<Settings> = {
     // you can remove the `testAuthentication` function, though discouraged.
     // return true
     //},
-    refreshAccessToken: async (_request, { auth }) => {
+    refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
       // let endpoint = `${auth.authUrl}`
       const endpoint = 'https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/api/v1.3/auth/token'
-      const requestOptions: RequestInit = {
+      // const requestOptions: RequestInit = {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/x-www-form-urlencoded'
+      //   },
+      //   body: `user_name=${(auth as any).username}&password=${(auth as any).userPassword}&auth_type=password`
+      // }
+      // console.log(requestOptions)
+      // let response
+      // try {
+      //   response = await fetch(endpoint, requestOptions)
+      // } catch (err: any) {
+      //   throw new Error(`***ERROR STATUS*** : ${err.message}`)
+      // }
+      // if (response.status >= 500 || response.status === 429) {
+      //   throw new Error(
+      //     `***ERROR STATUS*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(
+      //       await response.json()
+      //     )}`
+      //   )
+      // }
+
+      const res = await request<RefreshTokenResponse>(`${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: `user_name=${(auth as any).username}&password=${(auth as any).userPassword}&auth_type=password`
-      }
-      console.log(requestOptions)
-      let response
-      try {
-        response = await fetch(endpoint, requestOptions)
-      } catch (err: any) {
-        throw new Error(`***ERROR STATUS*** : ${err.message}`)
-      }
-      if (response.status >= 500 || response.status === 429) {
-        throw new Error(
-          `***ERROR STATUS*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(
-            await response.json()
-          )}`
-        )
-      }
-      return await response.json()
+        // body: new URLSearchParams({
+        //   user_name: (auth as any).username,
+        //   password: (auth as any).userPassword,
+        //   auth_type: 'password',
+        //   // grant_type: 'refresh_token'
+        // })
+      })
+      return { accessToken: res.data.authToken }
     }
   },
   extendRequest({ auth }) {
+    console.log('auth extendRequest', auth)
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     }

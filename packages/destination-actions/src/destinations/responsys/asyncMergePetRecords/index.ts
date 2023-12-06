@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
-import { RequestBody } from '../types'
+import { RequestBodyPET } from '../types'
 
 import {
   buildRecordData,
@@ -58,8 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Indicates what should be done for records where a match is not found.',
       type: 'boolean',
       choices: [
-        { label: 'true', value: 'true' },
-        { label: 'false', value: 'false' }
+        { label: true, value: true },
+        { label: false, value: false }
       ],
       default: 'true'
     },
@@ -126,6 +126,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Update On Match',
       description: 'Controls how the existing record should be updated.',
       type: 'string',
+      required: true,
       choices: [
         { label: 'REPLACE_ALL', value: 'REPLACE_ALL' },
         { label: 'NO_UPDATE', value: 'NO_UPDATE' }
@@ -163,14 +164,15 @@ const action: ActionDefinition<Settings, Payload> = {
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
-      const requestBody: RequestBody = {
-        records: recordData.records,
-        fieldNames: recordData.fieldNames,
-        mapTemplateName: recordData.mapTemplateName,
-        insertOnNoMatch,
-        updateOnMatch,
-        matchColumnName1,
-        matchColumnName2
+      const requestBody: RequestBodyPET = {
+        // records: recordData.records,
+        recordData: recordData,
+        // fieldNames: recordData.fieldNames,
+        // mapTemplateName: recordData.mapTemplateName,
+        insertOnNoMatch: !!insertOnNoMatch,
+        updateOnMatch: updateOnMatch || '',
+        matchColumnName1: matchColumnName1?.replace(/_+$/, '') || '',
+        matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
       }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
@@ -208,16 +210,16 @@ const action: ActionDefinition<Settings, Payload> = {
         profileExtensionTable,
         // defaultPermissionStatus,
         // htmlValue,
-        // insertOnNoMatch,
-        // matchColumnName1,
-        // matchColumnName2,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
         // matchOperator,
         // optinValue,
         // optoutValue,
         // rejectRecordIfChannelEmpty,
         // textValue,
-        // updateOnMatch,
-        userData,
+        updateOnMatch,
+        // userData,
         mapTemplateName
       } = chunk[0]
 
@@ -245,20 +247,17 @@ const action: ActionDefinition<Settings, Payload> = {
       // )
 
       const token = (auth as { authToken?: string })?.authToken
+      const userData = chunk.map((obj) => obj.userData)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
-      const requestBody: RequestBody = {
-        ...chunk[0],
-        // recordData: {
-        records: recordData.records,
-        fieldNames: recordData.fieldNames,
-        mapTemplateName: recordData.mapTemplateName
-        // },
-        // profileListName: chunk[0].profileListName,
-        // profileExtensionTable: chunk[0].profileExtensionTable,
-        // userData: chunk[0].userData,
-        // mapTemplateName: chunk[0].mapTemplateName ?? '', // Use nullish coalescing operator
-        // batch_size: chunk[0].batch_size,
-        // enable_batching: chunk[0].enable_batching
+      const requestBody: RequestBodyPET = {
+        // records: recordData.records,
+        recordData: recordData,
+        // fieldNames: recordData.fieldNames,
+        // mapTemplateName: recordData.mapTemplateName,
+        insertOnNoMatch: !!insertOnNoMatch,
+        updateOnMatch: updateOnMatch || '',
+        matchColumnName1: matchColumnName1?.replace(/_+$/, '') || '',
+        matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
       }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
@@ -272,7 +271,7 @@ const action: ActionDefinition<Settings, Payload> = {
         response = await fetch(endpoint, fetchRequest)
       } catch (err) {
         if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${err.message}`)
+        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
       }
 
       const responseBody = await handleFetchResponse(endpoint, response)

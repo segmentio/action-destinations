@@ -58,7 +58,7 @@ export interface Payload {
   /**
    * Controls how the existing record should be updated.
    */
-  updateOnMatch?: string
+  updateOnMatch: string
   /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */

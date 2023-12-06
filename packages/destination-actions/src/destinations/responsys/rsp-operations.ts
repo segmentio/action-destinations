@@ -1,7 +1,16 @@
 import { Payload } from './asyncMergePetRecords/generated-types'
-import { DynamicData, RecordData, MergeRule, RequestBody } from './types'
+import { DynamicData, RecordData, MergeRule, RequestBody, RequestBodyPET } from './types'
 
 export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {
+  // Check if userData is an array
+  if (Array.isArray(userData)) {
+    const keysFromFirstObject = Object.keys(userData[0])
+    return {
+      records: userData.map((record) => Object.values(record)),
+      fieldNames: keysFromFirstObject,
+      mapTemplateName: mapTemplateName || ''
+    }
+  }
   const keysFromFirstObject = Object.keys(userData)
   return {
     records: [Object.values(userData)],
@@ -30,11 +39,11 @@ export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*,
   }
 }
 
-export const buildFetchRequest = (authToken: string, requestBody: RequestBody) => {
+export const buildFetchRequest = (authToken: string, requestBody: RequestBody | RequestBodyPET) => {
   return {
     method: 'POST',
     headers: {
-      Authorization: `${authToken}`,
+      Authorization: 'Eyg58rmJbOOyY4bpRXLOa0xKUdXtgKwaL1Z129vnrK3rlTYLGM', //`${authToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(requestBody)
