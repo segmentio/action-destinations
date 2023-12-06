@@ -146,7 +146,7 @@ export const createUpdateRequest = (
 
 export const sendUpdateRequest = async (
   request: RequestClient,
-  // updateRequest: UpdateUsersDataRequest,
+  updateRequest: UpdateUsersDataRequest,
   statsName: string,
   statsContext: StatsContext | undefined
 ) => {
