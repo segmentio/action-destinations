@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
-import { RequestBodyPET } from '../types'
+import { RequestBodyPET, RecordData } from '../types'
 
 import {
   buildRecordData,
@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: true, value: true },
         { label: false, value: false }
       ],
-      default: 'true'
+      default: true
     },
     matchColumnName1: {
       label: 'First Column Match',
@@ -166,7 +166,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       const requestBody: RequestBodyPET = {
         // records: recordData.records,
-        recordData: recordData,
+        recordData: recordData as RecordData,
         // fieldNames: recordData.fieldNames,
         // mapTemplateName: recordData.mapTemplateName,
         insertOnNoMatch: !!insertOnNoMatch,
@@ -251,7 +251,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
       const requestBody: RequestBodyPET = {
         // records: recordData.records,
-        recordData: recordData,
+        recordData: recordData as RecordData,
         // fieldNames: recordData.fieldNames,
         // mapTemplateName: recordData.mapTemplateName,
         insertOnNoMatch: !!insertOnNoMatch,

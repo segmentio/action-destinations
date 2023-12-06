@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: true, value: true },
         { label: false, value: false }
       ],
-      default: 'true'
+      default: true
     },
     matchColumnName1: {
       label: 'First Column Match',
