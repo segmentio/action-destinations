@@ -32,10 +32,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
-    phone_numbers: {
+    phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.',
+        'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending phone number(s).',
       type: 'string',
       multiple: true,
       default: {
@@ -46,10 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    emails: {
+    email: {
       label: 'Email',
       description:
-        'Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
+        'Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending email addreess(es).',
       type: 'string',
       format: 'email',
       multiple: true,
@@ -61,10 +61,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    external_ids: {
+    external_id: {
       label: 'External ID',
       description:
-        'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
+        'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).',
       type: 'string',
       multiple: true,
       default: {
@@ -268,9 +268,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const userData = {
-      hashedExternalIds: formatUserIds(payload.external_ids),
-      hashedEmails: formatEmails(payload.emails),
-      hashedPhoneNumbers: formatPhones(payload.phone_numbers)
+      hashedExternalIds: formatUserIds(payload.external_id),
+      hashedEmails: formatEmails(payload.email),
+      hashedPhoneNumbers: formatPhones(payload.phone_number)
     }
 
     let payloadUrl, urlTtclid
