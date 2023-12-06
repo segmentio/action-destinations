@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
-import type { RequestBody } from '../types'
+import type { RecordData, RequestBody } from '../types'
 
 import {
   buildRecordData,
@@ -175,7 +175,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // records: recordData.records,
         // fieldNames: recordData.fieldNames,
         // mapTemplateName: recordData.mapTemplateName,
-        recordData: recordData,
+        recordData: recordData as RecordData,
         mergeRule: {
           defaultPermissionStatus,
           htmlValue,
@@ -262,7 +262,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // records: recordData.records,
         // fieldNames: recordData.fieldNames,
         // mapTemplateName: recordData.mapTemplateName,
-        recordData: recordData,
+        recordData: recordData as RecordData,
         mergeRule: {
           defaultPermissionStatus,
           htmlValue,
