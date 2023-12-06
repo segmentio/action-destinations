@@ -9,7 +9,8 @@ export function isValidTimestamp(timestamp: JSONPrimitive): boolean {
   return false
 }
 
-export function unixTimestampOf(timestamp: JSONPrimitive): number {
+export function unixTimestampOf(timestamp: JSONPrimitive | Date): number {
   if (typeof timestamp === 'number') return timestamp
+  if (timestamp instanceof Date) return timestamp.getTime()
   return Date.parse(timestamp as string)
 }

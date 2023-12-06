@@ -34,7 +34,7 @@ export interface ExecuteInput<
   /** Inputs into an actions hook performHook method */
   hookInputs?: ActionHookInputs
   /** Stored outputs from an invokation of an actions hook */
-  hookOutputs?: Record<ActionHookType, ActionHookOutputs>
+  hookOutputs?: Partial<Record<ActionHookType, ActionHookOutputs>>
   /** The page used in dynamic field requests */
   page?: string
   /** The data needed in OAuth requests */

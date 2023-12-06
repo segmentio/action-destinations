@@ -12,19 +12,11 @@ export interface Payload {
    */
   name: string
   /**
-   * Exact timestamp when the goal was achieved (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number
-   */
-  achievedAt: string | number
-  /**
    * Custom properties of the goal
    */
   properties: {
     [k: string]: unknown
   }
-  /**
-   * Exact timestamp when the event was sent (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number
-   */
-  publishedAt: string | number
   /**
    * Optional agent identifier that originated the event. Used to identify which SDK generated the event.
    */

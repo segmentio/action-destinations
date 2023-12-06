@@ -53,6 +53,7 @@ Object {
         },
         "uuid": "G!)xRN2DwZB33yYCIUOK",
       },
+      "not_append": true,
     },
   ],
 }
@@ -81,6 +82,7 @@ Object {
         },
         "uuid": "G!)xRN2DwZB33yYCIUOK",
       },
+      "not_append": true,
     },
   ],
 }

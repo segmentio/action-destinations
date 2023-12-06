@@ -6,7 +6,11 @@ export interface Payload {
    */
   email?: string
   /**
-   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID or Email required.
+   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.
    */
   external_id?: string
+  /**
+   * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
+   */
+  list_id: string
 }

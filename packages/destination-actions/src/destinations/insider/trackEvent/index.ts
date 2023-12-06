@@ -11,7 +11,8 @@ import {
   segment_anonymous_id,
   timestamp,
   user_attributes,
-  uuid
+  uuid,
+  append_arrays
 } from '../insider-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -21,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email_as_identifier: { ...email_as_identifier },
     phone_number_as_identifier: { ...phone_number_as_identifier },
+    append_arrays: { ...append_arrays },
     uuid: { ...uuid },
     segment_anonymous_id: { ...segment_anonymous_id },
     event_name: { ...event_name },
