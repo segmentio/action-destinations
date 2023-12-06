@@ -218,31 +218,6 @@ const action: ActionDefinition<Settings, Payload> = {
       withList: importResponseWithList,
       withoutList: importResponseWithoutList
     }
-  },
-
-  performBatch: async (request, { payload }) => {
-    payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
-    const profilesWithList = payload.filter((profile) => profile.list_id)
-    const profilesWithoutList = payload.filter((profile) => !profile.list_id)
-
-    let importResponseWithList
-    let importResponseWithoutList
-
-    if (profilesWithList.length > 0) {
-      const listId = profilesWithList[0].list_id
-      const importJobPayload = createImportJobPayload(profilesWithList, listId)
-      importResponseWithList = await sendImportJobRequest(request, importJobPayload)
-    }
-
-    if (profilesWithoutList.length > 0) {
-      const importJobPayload = createImportJobPayload(profilesWithoutList)
-      importResponseWithoutList = await sendImportJobRequest(request, importJobPayload)
-    }
-
-    return {
-      withList: importResponseWithList,
-      withoutList: importResponseWithoutList
-    }
   }
 }
 
