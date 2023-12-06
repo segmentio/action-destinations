@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       },
       performHook: async (request, { payload, hookInputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
-        return await linkedIn.upsertConversionRule(payload, hookInputs)
+        return await linkedIn.createConversionRule(payload, hookInputs)
       }
     }
   },
