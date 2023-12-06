@@ -89,11 +89,11 @@ export const bulkUploaderResponseHandler = async (
     throw new IntegrationError(`Something went wrong unpacking the protobuf response`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  // const responseHandler = new UpdateUsersDataResponse()
+  const responseHandler = new UpdateUsersDataResponse()
   const buffer = await response.arrayBuffer()
   const protobufResponse = Buffer.from(buffer)
 
-  const r = UpdateUsersDataResponse.fromBinary(protobufResponse)
+  const r = responseHandler.fromBinary(protobufResponse)
   const errorCode = r.status as ErrorCode
   const errorCodeString = ErrorCode[errorCode] || 'UNKNOWN_ERROR'
 
@@ -146,16 +146,16 @@ export const createUpdateRequest = (
 
 export const sendUpdateRequest = async (
   request: RequestClient,
-  // updateRequest: UpdateUsersDataRequest,
+  updateRequest: UpdateUsersDataRequest,
   statsName: string,
   statsContext: StatsContext | undefined
 ) => {
-  // const binaryOperation = updateRequest.toBinary()
+  const binaryOperation = updateRequest.toBinary()
 
   try {
     const response = await request(USER_UPLOAD_ENDPOINT, {
       headers: { 'Content-Type': 'application/octet-stream' },
-      // body: binaryOperation,
+      body: binaryOperation,
       method: 'POST'
     })
 
