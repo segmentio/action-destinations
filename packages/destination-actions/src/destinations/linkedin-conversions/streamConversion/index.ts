@@ -26,6 +26,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           description:
             'The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.',
           required: false,
+          // @ts-ignore stage testing
           dynamic: async (request, { payload }) => {
             const linkedIn = new LinkedInConversions(request)
             return linkedIn.getConversionRulesList(payload.adAccountId)

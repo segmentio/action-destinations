@@ -93,6 +93,7 @@ export const bulkUploaderResponseHandler = async (
   const buffer = await response.arrayBuffer()
   const protobufResponse = Buffer.from(buffer)
 
+  // @ts-ignore stage testing
   const r = responseHandler.fromBinary(protobufResponse)
   const errorCode = r.status as ErrorCode
   const errorCodeString = ErrorCode[errorCode] || 'UNKNOWN_ERROR'
@@ -150,6 +151,7 @@ export const sendUpdateRequest = async (
   statsName: string,
   statsContext: StatsContext | undefined
 ) => {
+  // @ts-ignore stage testing
   const binaryOperation = updateRequest.toBinary()
 
   try {
