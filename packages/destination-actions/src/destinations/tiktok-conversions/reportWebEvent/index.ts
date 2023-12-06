@@ -301,7 +301,7 @@ const action: ActionDefinition<Settings, Payload> = {
             user: {
               ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
               external_id: userData.hashedExternalIds,
-              phone_number: userData.hashedPhoneNumbers,
+              phone: userData.hashedPhoneNumbers,
               email: userData.hashedEmails,
               lead_id: payload.lead_id ? payload.lead_id : undefined,
               ttp: payload.ttp ? payload.ttp : undefined,
