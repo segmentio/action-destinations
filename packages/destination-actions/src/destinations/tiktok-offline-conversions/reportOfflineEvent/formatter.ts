@@ -14,6 +14,21 @@ export const formatEmails = (email_addresses: string[] | undefined): string[] =>
 }
 
 /**
+ *
+ * @param userId
+ * @returns Leading/Trailing spaces are trimmed and then userId is hashed.
+ */
+export function formatUserIds(userIds: string[] | undefined): string[] {
+  const result: string[] = []
+  if (userIds) {
+    userIds.forEach((userId: string) => {
+      result.push(hashAndEncode(userId.toLowerCase()))
+    })
+  }
+  return result
+}
+
+/**
  * Convert string to match E.164 phone number pattern (e.g. +1234567890)
  * Note it is up to the advertiser to pass only valid phone numbers and formats.
  * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.

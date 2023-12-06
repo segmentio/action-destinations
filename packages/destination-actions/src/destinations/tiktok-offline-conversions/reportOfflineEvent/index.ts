@@ -1,19 +1,18 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { formatEmails, formatPhones, formatUserIds } from './formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Report Web Event',
-  description:
-    'Report events directly to TikTok. Data shared can power TikTok solutions like dynamic product ads, custom targeting, campaign optimization and attribution.',
+  title: 'Track Payment Offline Conversion',
+  description: 'Send details of an in-store purchase or console purchase to the Tiktok Offline Events API',
   fields: {
     event: {
       label: 'Event Name',
       type: 'string',
       required: true,
       description:
-        'Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.'
+        'Conversion event name. Please refer to the "Offline Standard Events" section on in TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
     },
     event_id: {
       label: 'Event ID',
@@ -33,9 +32,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     // PII Fields - These fields must be hashed using SHA 256 and encoded as websafe-base64.
     phone_numbers: {
-      label: 'Phone Number',
+      label: 'Phone Numbers',
       description:
-        'Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.',
+        'A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number is required if no value is provided in the Emails field.',
       type: 'string',
       multiple: true,
       default: {
@@ -47,11 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     emails: {
-      label: 'Email',
+      label: 'Emails',
       description:
-        'Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
+        'A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email is required if no value is provided in the Phone Numbers field.',
       type: 'string',
-      format: 'email',
       multiple: true,
       default: {
         '@if': {
@@ -267,11 +265,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    const userData = {
-      hashedExternalIds: formatUserIds(payload.external_ids),
-      hashedEmails: formatEmails(payload.emails),
-      hashedPhoneNumbers: formatPhones(payload.phone_numbers)
-    }
+    const phone_numbers = formatPhones(payload.phone_numbers)
+    const emails = formatEmails(payload.emails)
+    const userIds = formatUserIds(payload.external_ids)
+
+    if (phone_numbers.length < 1 && emails.length < 1 && userIds.length < 1)
+      throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number')
 
     let payloadUrl, urlTtclid
     if (payload.url) {
@@ -284,12 +283,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
-    // Request to tiktok Events Web API
     return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'post',
       json: {
-        event_source: 'web',
-        event_source_id: settings.pixelCode,
+        event_source: 'offline',
+        event_source_id: settings.eventSetID,
         partner_name: 'Segment',
         data: [
           {
@@ -300,9 +298,9 @@ const action: ActionDefinition<Settings, Payload> = {
             event_id: payload.event_id ? `${payload.event_id}` : undefined,
             user: {
               ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
-              external_id: userData.hashedExternalIds,
-              phone_number: userData.hashedPhoneNumbers,
-              email: userData.hashedEmails,
+              external_id: userIds,
+              phone_number: phone_numbers,
+              email: emails,
               lead_id: payload.lead_id ? payload.lead_id : undefined,
               ttp: payload.ttp ? payload.ttp : undefined,
               ip: payload.ip ? payload.ip : undefined,

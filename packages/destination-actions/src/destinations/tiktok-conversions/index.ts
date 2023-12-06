@@ -11,11 +11,17 @@ const productProperties = {
   quantity: {
     '@path': '$.quantity'
   },
-  content_type: {
+  content_category: {
     '@path': '$.category'
   },
   content_id: {
     '@path': '$.product_id'
+  },
+  content_name: {
+    '@path': '$.name'
+  },
+  brand: {
+    '@path': '$.brand'
   }
 }
 
@@ -46,12 +52,32 @@ const multiProductContents = {
 /** used in the quick setup */
 const presets: DestinationDefinition['presets'] = [
   {
-    name: 'View Content',
+    name: 'Page View', // is it ok to change preset name that is used by live version?
     subscribe: 'type="page"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...multiProductContents,
+      event: 'PageView'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'View Content',
+    subscribe: 'event = "Product Viewed"',
     partnerAction: 'reportWebEvent',
     mapping: {
       ...singleProductContents,
       event: 'ViewContent'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Click Button',
+    subscribe: 'event = "Product Clicked"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...singleProductContents,
+      event: 'ClickButton'
     },
     type: 'automatic'
   },
@@ -114,6 +140,66 @@ const presets: DestinationDefinition['presets'] = [
       event: 'PlaceAnOrder'
     },
     type: 'automatic'
+  },
+  {
+    name: 'Complete Payment',
+    subscribe: 'event = "Payment Completed"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...multiProductContents,
+      event: 'CompletePayment'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Contact',
+    subscribe: 'event = "Callback Started"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'Contact'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Download',
+    subscribe: 'event = "Download Link Clicked"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'Download'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Submit Form',
+    subscribe: 'event = "Form Submitted"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'SubmitForm'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Complete Registration',
+    subscribe: 'event = "Signed Up"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'CompleteRegistration'
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Subscribe',
+    subscribe: 'event = "Subscription Created"',
+    partnerAction: 'reportWebEvent',
+    mapping: {
+      ...defaultValues(reportWebEvent.fields),
+      event: 'Subscribe'
+    },
+    type: 'automatic'
   }
 ]
 
@@ -159,7 +245,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings }) {
     return {
-      headers: { 'Access-Token': settings.accessToken }
+      headers: {
+        'Access-Token': settings.accessToken,
+        'Content-Type': 'application/json'
+      }
     }
   },
   presets,

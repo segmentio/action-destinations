@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
+   * Conversion event name. Please refer to the "Offline Standard Events" section on in TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.
    */
   event: string
   /**
@@ -14,11 +14,11 @@ export interface Payload {
    */
   timestamp?: string
   /**
-   * Phone number of the user who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to TikTok.
+   * A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number is required if no value is provided in the Emails field.
    */
   phone_numbers?: string[]
   /**
-   * Email address of the user who triggered the conversion event. Segment will hash this value before sending to TikTok.
+   * A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email is required if no value is provided in the Phone Numbers field.
    */
   emails?: string[]
   /**
