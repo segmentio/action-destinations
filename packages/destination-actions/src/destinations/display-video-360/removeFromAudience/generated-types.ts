@@ -10,15 +10,15 @@ export interface Payload {
    */
   external_audience_id: string
   /**
-   * Mobile Advertising ID. This could be a GAID, or IDFA. Remove if not needed.
+   * Anonymous ID
+   */
+  anonymous_id?: string
+  /**
+   * Mobile Advertising ID
    */
   mobile_advertising_id?: string
   /**
-   * Google GID. Remove if not needed.
+   * Google GID
    */
   google_gid?: string
-  /**
-   * Partner Provided ID. Remove if not needed.
-   */
-  partner_provided_id?: string
 }

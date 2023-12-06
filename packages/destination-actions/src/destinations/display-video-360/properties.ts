@@ -1,33 +1,36 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-export const mobile_advertising_id: InputField = {
-  label: 'Mobile Advertising ID',
-  description: 'Mobile Advertising ID. This could be a GAID, or IDFA. Remove if not needed.',
-  type: 'string',
-  required: false,
-  default: {
-    '@path': '$.context.device.advertisingId'
-  }
-}
-
-export const google_gid: InputField = {
-  label: 'Google GID',
-  description: 'Google GID. Remove if not needed.',
-  type: 'string',
-  required: false,
-  default: {
-    '@path': '$.context.traits.google_gid'
-  }
-}
-
-export const partner_provided_id: InputField = {
-  label: 'Partner Provided ID',
-  description: 'Partner Provided ID. Remove if not needed.',
+export const anonymous_id: InputField = {
+  label: 'Anonymous ID',
+  description: 'Anonymous ID',
   type: 'string',
   required: false,
   default: {
     '@path': '$.anonymousId'
-  }
+  },
+  readOnly: true
+}
+
+export const mobile_advertising_id: InputField = {
+  label: 'Mobile Advertising ID',
+  description: 'Mobile Advertising ID',
+  type: 'string',
+  required: false,
+  default: {
+    '@path': '$.context.device.advertisingId'
+  },
+  readOnly: true
+}
+
+export const google_gid: InputField = {
+  label: 'Google GID',
+  description: 'Google GID',
+  type: 'string',
+  required: false,
+  default: {
+    '@path': '$.context.traits.google_gid' // TODO: Double check on this one because it might need to be explicitly set.
+  },
+  readOnly: true
 }
 
 export const enable_batching: InputField = {

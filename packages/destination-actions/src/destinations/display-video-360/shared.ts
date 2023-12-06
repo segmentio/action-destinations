@@ -19,7 +19,7 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, set
 
   return {
     // @ts-ignore - TS doesn't know about the oauth property
-    Authorization: `Bearer ${settings?.oauth?.access_token}`,
+    Authorization: `Bearer ${settings?.oauth?.accessToken}`,
     'Content-Type': 'application/json',
     'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
@@ -50,9 +50,9 @@ export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOpe
     })
   }
 
-  if (payload.partner_provided_id) {
+  if (payload.anonymous_id) {
     rawOperations.push({
-      UserId: payload.partner_provided_id,
+      UserId: payload.anonymous_id,
       UserIdType: UserIdType.PARTNER_PROVIDED_ID,
       UserListId: audienceId,
       Delete: isDelete

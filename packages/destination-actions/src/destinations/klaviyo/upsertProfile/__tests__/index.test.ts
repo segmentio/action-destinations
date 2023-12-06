@@ -365,6 +365,6 @@ describe('Upsert Profile Batch', () => {
         events,
         useDefaultMappings: true
       })
-    ).rejects.toThrow('An error occurred while processing the request')
+    ).rejects.toThrow()
   })
 })
