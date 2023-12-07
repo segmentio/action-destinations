@@ -266,7 +266,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         this.statsClient.incr('insert_preview_fail', 1)
       }
     }
-
     parsedBodyHtml = this.insertUnsubscribeLinks(parsedBodyHtml, emailProfile)
     return parsedBodyHtml
   }
@@ -327,6 +326,54 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }, {})
   }
 
+  validateLinkAndLog(link: string): void {
+    let workspaceId = this.payload.customArgs && this.payload.customArgs['workspace_id']
+    let audienceId =
+      this.payload.customArgs &&
+      (this.payload.customArgs['audience_id'] || this.payload.customArgs['__segment_internal_audience_id__'])
+    workspaceId = JSON.stringify(workspaceId)
+    audienceId = JSON.stringify(audienceId)
+
+    this.logger.info(`Validating the link: ${link} ${workspaceId} ${audienceId}`)
+
+    const parsedLink = new URL(link)
+    const contactId = parsedLink.searchParams.get('contactId')
+    if (!contactId || contactId == '') {
+      this.logger.error(`contactId is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:contactId', `audienceId:${audienceId}`])
+    }
+    const data = parsedLink.searchParams.get('data')
+    if (!data || data == '') {
+      this.logger.error(`contactId is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:data', `audienceId:${audienceId}`])
+    }
+    const code = parsedLink.searchParams.get('code')
+    if (!code || code == '') {
+      this.logger.error(`code is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:code', `audienceId:${audienceId}`])
+    }
+    const spaceId = parsedLink.searchParams.get('spaceId')
+    if (!spaceId || spaceId == '') {
+      this.logger.error(`spaceId is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:spaceId', `audienceId:${audienceId}`])
+    }
+    const wrkspaceId = parsedLink.searchParams.get('workspaceId')
+    if (!wrkspaceId || wrkspaceId == '') {
+      this.logger.error(`wrkspaceId is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:wrkspaceId', `audienceId:${audienceId}`])
+    }
+    const messageId = parsedLink.searchParams.get('messageId')
+    if (!messageId || messageId == '') {
+      this.logger.error(`messageId is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:messageId', `audienceId:${audienceId}`])
+    }
+    const userAgent = parsedLink.searchParams.get('user-agent')
+    if (!userAgent || userAgent == '') {
+      this.logger.error(`userAgent is missing: ${link} ${workspaceId} ${audienceId}`)
+      this.statsClient.incr('missing_query_param', 1, ['param:userAgent', `audienceId:${audienceId}`])
+    }
+  }
+
   @track()
   insertUnsubscribeLinks(html: string, emailProfile: EmailProfile): string {
     const spaceId = this.settings.spaceId
@@ -348,6 +395,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
+          _this.validateLinkAndLog(groupUnsubscribeLink)
           $(this).removeAttr('href')
           $(this).attr('clicktracking', 'off').attr('href', groupUnsubscribeLink)
           _this.logger?.info(`Group Unsubscribe link replaced`)
@@ -361,6 +409,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
+          _this.validateLinkAndLog(globalUnsubscribeLink)
           $(this).removeAttr('href')
           $(this).attr('clicktracking', 'off').attr('href', globalUnsubscribeLink)
           _this.logger?.info(`Global Unsubscribe link replaced`)
@@ -380,6 +429,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
         _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
+        _this.validateLinkAndLog(preferencesLink)
         $(this).removeAttr('href')
         $(this).attr('clicktracking', 'off').attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
