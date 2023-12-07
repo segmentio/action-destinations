@@ -1,6 +1,14 @@
 import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { KlaviyoAPIError, ListIdResponse, ProfileData, listData, ImportJobPayload } from './types'
+import {
+  KlaviyoAPIError,
+  ListIdResponse,
+  ProfileData,
+  listData,
+  ImportJobPayload,
+  Profile,
+  GetProfileResponse
+} from './types'
 import { Payload } from './upsertProfile/generated-types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
@@ -42,36 +50,17 @@ export async function addProfileToList(request: RequestClient, id: string, list_
   return list
 }
 
-export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
+export async function removeProfileFromList(request: RequestClient, ids: string[], list_id: string) {
   const listData: listData = {
-    data: [
-      {
-        type: 'profile',
-        id: id
-      }
-    ]
+    data: ids.map((id) => ({ type: 'profile', id }))
   }
-  const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+
+  const response = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
     method: 'DELETE',
     json: listData
   })
 
-  return list
-}
-
-export async function getProfile(request: RequestClient, email: string | undefined, external_id: string | undefined) {
-  let filter
-  if (external_id) {
-    filter = `external_id,"${external_id}"`
-  }
-  if (email) {
-    filter = `email,"${email}"`
-  }
-  // If both email and external_id are provided. Email will take precedence.
-  const profile = await request(`${API_URL}/profiles/?filter=equals(${filter})`, {
-    method: 'GET'
-  })
-  return profile.json()
+  return response
 }
 
 export async function createProfile(
@@ -145,4 +134,32 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
     },
     json: importJobPayload
   })
+}
+
+export async function getProfiles(
+  request: RequestClient,
+  emails: string[] | undefined,
+  external_ids: string[] | undefined
+): Promise<string[]> {
+  const profileIds: string[] = []
+
+  if (external_ids?.length) {
+    const filterId = `external_id,["${external_ids.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterId})`, {
+      method: 'GET'
+    })
+    const data: GetProfileResponse = await response.json()
+    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+  }
+
+  if (emails?.length) {
+    const filterEmail = `email,["${emails.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterEmail})`, {
+      method: 'GET'
+    })
+    const data: GetProfileResponse = await response.json()
+    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+  }
+
+  return Array.from(new Set(profileIds))
 }

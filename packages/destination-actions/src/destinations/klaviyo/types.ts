@@ -127,3 +127,12 @@ export interface ImportJobPayload {
     }
   }
 }
+
+export interface Profile {
+  type: string
+  id: string
+}
+
+export interface GetProfileResponse {
+  data: Profile[]
+}
