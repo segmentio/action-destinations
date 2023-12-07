@@ -43,7 +43,7 @@ export const buildFetchRequest = (authToken: string, requestBody: RequestBody | 
   return {
     method: 'POST',
     headers: {
-      Authorization: 'EKeaq2Zvb_4zWPl922iqaClaXVvDrlXCEtEE2inAz3vR2xf04w', //`${authToken}`,
+      Authorization: 'ACCESS TOKEN HERE', //`${authToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(requestBody)
