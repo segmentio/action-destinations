@@ -1,5 +1,5 @@
 import { Payload } from './asyncMergePetRecords/generated-types'
-import { DynamicData, RecordData, MergeRule, RequestBody, RequestBodyPET } from './types'
+import { DynamicData, RecordData, RequestBody, RequestBodyPET } from './types'
 
 export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {
   // Check if userData is an array
@@ -19,12 +19,12 @@ export const buildRecordData = (userData: DynamicData, mapTemplateName: string) 
   }
 }
 
-export const buildRequestBody = (/*payload: Payload,*/ recordData: RecordData, mergeRule: MergeRule) => {
-  return {
-    recordData: recordData,
-    mergeRule: mergeRule
-  }
-}
+// export const buildRequestBody = (/*payload: Payload,*/ recordData: RecordData, mergeRule: MergeRule) => {
+//   return {
+//     recordData: recordData,
+//     mergeRule: mergeRule
+//   }
+// }
 
 // Needed a separate function for PET since mergeRule is not an expected key in request
 export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*, mergeRule*/) => {
@@ -43,7 +43,7 @@ export const buildFetchRequest = (authToken: string, requestBody: RequestBody | 
   return {
     method: 'POST',
     headers: {
-      Authorization: 'Eyg58rmJbOOyY4bpRXLOa0xKUdXtgKwaL1Z129vnrK3rlTYLGM', //`${authToken}`,
+      Authorization: 'EKeaq2Zvb_4zWPl922iqaClaXVvDrlXCEtEE2inAz3vR2xf04w', //`${authToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(requestBody)

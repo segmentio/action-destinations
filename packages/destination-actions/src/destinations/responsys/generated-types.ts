@@ -12,5 +12,5 @@ export interface Settings {
   /**
    * Responsys Authentication URL
    */
-  authUrl?: string
+  authUrl: string
 }
