@@ -79,6 +79,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         accountType
       )
 
+      const statsName = 'createAudience'
       let response
       try {
         response = await request(partnerCreateAudienceUrl, {
@@ -99,14 +100,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
 
         const r = await response?.json()
-        statsClient?.incr('createAudience.success', 1, statsTags)
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
 
         return {
           externalId: r['results'][0]['resourceName']
         }
       } catch (error) {
-        statsClient?.incr('createAudience.error', 1, statsTags)
-        throw handleRequestError(error)
+        throw handleRequestError(error, statsName, statsClient)
       }
     },
     async getAudience(request, getAudienceInput) {
@@ -114,6 +114,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
       statsTags?.push(`slug:${destination.slug}`)
+      const statsName = 'getAudience'
 
       if (!advertiserId) {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
@@ -149,13 +150,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           )
         }
 
-        statsClient?.incr('getAudience.success', 1, statsTags)
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
           externalId: externalId
         }
       } catch (error) {
-        statsClient?.incr('getAudience.error', 1, statsTags)
-        throw handleRequestError(error)
+        throw handleRequestError(error, statsName, statsClient)
       }
     }
   },
