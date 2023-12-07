@@ -339,41 +339,22 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     this.logger.info(`Validating the link: ${link} ${workspaceId} ${audienceId}`)
 
     const parsedLink = new URL(link)
-    const contactId = parsedLink.searchParams.get('contactId')
-    if (!contactId || contactId == '') {
-      this.logger.error(`contactId is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:contactId', `audienceId:${audienceId}`])
+    // Generic function to check for missing parameters
+    const checkParam = (paramName: string) => {
+      const paramValue = parsedLink.searchParams.get(paramName)
+      if (!paramValue || paramValue === '') {
+        console.log('entered')
+        console.log(audienceId)
+        this.logger.error(`${paramName} is missing: ${link} ${workspaceId} ${audienceId}`)
+        this.statsClient.incr('missing_query_param', 1, [`param:${paramName}`, `audienceId:${audienceId}`])
+      }
     }
-    const data = parsedLink.searchParams.get('data')
-    if (!data || data == '') {
-      this.logger.error(`contactId is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:data', `audienceId:${audienceId}`])
-    }
-    const code = parsedLink.searchParams.get('code')
-    if (!code || code == '') {
-      this.logger.error(`code is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:code', `audienceId:${audienceId}`])
-    }
-    const spaceId = parsedLink.searchParams.get('spaceId')
-    if (!spaceId || spaceId == '') {
-      this.logger.error(`spaceId is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:spaceId', `audienceId:${audienceId}`])
-    }
-    const wrkspaceId = parsedLink.searchParams.get('workspaceId')
-    if (!wrkspaceId || wrkspaceId == '') {
-      this.logger.error(`wrkspaceId is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:wrkspaceId', `audienceId:${audienceId}`])
-    }
-    const messageId = parsedLink.searchParams.get('messageId')
-    if (!messageId || messageId == '') {
-      this.logger.error(`messageId is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:messageId', `audienceId:${audienceId}`])
-    }
-    const userAgent = parsedLink.searchParams.get('user-agent')
-    if (!userAgent || userAgent == '') {
-      this.logger.error(`userAgent is missing: ${link} ${workspaceId} ${audienceId}`)
-      this.statsClient.incr('missing_query_param', 1, ['param:userAgent', `audienceId:${audienceId}`])
-    }
+
+    // List of required query parameters
+    const requiredParams = ['contactId', 'data', 'code', 'spaceId', 'workspaceId', 'messageId', 'user-agent']
+
+    // Check each required parameter
+    requiredParams.forEach((param) => checkParam(param))
   }
 
   @track()
