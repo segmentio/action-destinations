@@ -23,6 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
+    // Filtering out profiles that do not contain either an email or external_id.
     payload = payload.filter((profile) => profile.email || profile.external_id)
     const listId = payload[0]?.list_id
     const importJobPayload = createImportJobPayload(payload, listId)
