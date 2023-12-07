@@ -63,10 +63,12 @@ export interface EventData {
 }
 
 export interface listData {
-  data: {
-    type: string
-    id?: string
-  }[]
+  data: listAttributes[]
+}
+
+export interface listAttributes {
+  type: string
+  id?: string
 }
 
 export interface ListIdResponse {
@@ -124,4 +126,13 @@ export interface ImportJobPayload {
       }[]
     }
   }
+}
+
+export interface Profile {
+  type: string
+  id: string
+}
+
+export interface GetProfileResponse {
+  data: Profile[]
 }

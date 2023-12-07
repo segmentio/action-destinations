@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number_as_identifier?: boolean
   /**
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
+   */
+  append_arrays?: boolean
+  /**
    * User's unique identifier. The UUID string is used as identifier when sending data to Insider. UUID is required if the Anonymous Id field is empty.
    */
   uuid?: string

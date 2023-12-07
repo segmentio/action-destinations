@@ -1,8 +1,8 @@
-// import { isDirective } from './is-directive'
-// eslint-disable-next-line lodash/import-scope
-import _ from 'lodash'
-
 type ValueType = 'enrichment' | 'function' | 'literal' | 'variable'
+
+function isObject(value: any): value is object {
+  return value !== null && typeof value === 'object'
+}
 
 export interface DirectiveMetadata {
   _metadata?: {
@@ -191,7 +191,7 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template'])
       })?.filter((k) => k) ?? []
     )
-  } else if (_.isObject(value)) {
+  } else if (isObject(value)) {
     return Object.values(value).flatMap(getFieldValueKeys)
   }
   return []
@@ -203,7 +203,7 @@ export function getFieldValueKeys(value: FieldValue): string[] {
 export function getRawKeys(input: FieldValue): string[] {
   if (isDirective(input)) {
     return getFieldValueKeys(input)
-  } else if (_.isObject(input)) {
+  } else if (isObject(input)) {
     return Object.values(input).flatMap(getFieldValueKeys)
   }
   return []

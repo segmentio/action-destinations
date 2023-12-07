@@ -23,6 +23,13 @@ export const email: InputField = {
 
 export const external_id: InputField = {
   label: 'External ID',
-  description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID or Email required.`,
+  description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.`,
   type: 'string'
+}
+
+export const enable_batching: InputField = {
+  type: 'boolean',
+  label: 'Batch Data to Klaviyo',
+  description: 'When enabled, the action will use the klaviyo batch API.',
+  default: true
 }
