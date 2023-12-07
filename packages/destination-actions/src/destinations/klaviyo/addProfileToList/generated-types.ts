@@ -13,4 +13,8 @@ export interface Payload {
    * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.
    */
   external_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
 }
