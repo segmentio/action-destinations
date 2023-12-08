@@ -447,7 +447,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return run
   }
 
-  audienceRetryFactory = (destinationSettings: Settings, options: OnEventOptions, settings: JSONObject) => {
+  audienceRetryFactory = (destinationSettings: Settings, settings: JSONObject, options?: OnEventOptions) => {
     const onFailedAttempt = async (error: any) => {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
@@ -474,14 +474,17 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
       // Copied from onSubscriptions -> I don't think this options object will have the onTokenRefresh function...
-      await options?.onTokenRefresh?.(newTokens)
+
+      if (options) {
+        await options?.onTokenRefresh?.(newTokens)
+      }
     }
     return onFailedAttempt
   }
 
   async createAudience(
     createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>,
-    requestOptions: OnEventOptions
+    requestOptions?: OnEventOptions
   ) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
@@ -501,13 +504,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const run = this.audienceRunnerFactory('create', audienceDefinition, requestClient, createAudienceInput)
     const onFailedAttempt = this.audienceRetryFactory(
       destinationSettings,
-      requestOptions,
-      createAudienceInput.settings as unknown as JSONObject
+      createAudienceInput.settings as unknown as JSONObject,
+      requestOptions
     )
     return await retry(run, { retries: 2, onFailedAttempt })
   }
 
-  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>, requestOptions: OnEventOptions) {
+  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>, requestOptions?: OnEventOptions) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
@@ -526,8 +529,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const run = this.audienceRunnerFactory('get', audienceDefinition, requestClient, getAudienceInput)
     const onFailedAttempt = this.audienceRetryFactory(
       destinationSettings,
-      requestOptions,
-      getAudienceInput.settings as unknown as JSONObject
+      getAudienceInput.settings as unknown as JSONObject,
+      requestOptions
     )
     return await retry(run, { retries: 2, onFailedAttempt })
   }
