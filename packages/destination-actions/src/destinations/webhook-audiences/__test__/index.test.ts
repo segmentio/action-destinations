@@ -18,13 +18,18 @@ describe('Webhook Audience Tests', () => {
     }
     nock(fakeUrl).post('/', exampleRequest).reply(200, exampleResponse)
 
-    const expectedResponse = await testDestination.createAudience({
-      audienceName: 'My Cool Audience',
-      audienceSettings: {
-        extras: JSON.stringify({ nice: 'ok' })
+    const expectedResponse = await testDestination.createAudience(
+      {
+        audienceName: 'My Cool Audience',
+        audienceSettings: {
+          extras: JSON.stringify({ nice: 'ok' })
+        },
+        settings: { createAudienceUrl: fakeUrl }
       },
-      settings: { createAudienceUrl: fakeUrl }
-    })
+      {
+        // Empty request options
+      }
+    )
 
     expect(expectedResponse).toStrictEqual(exampleResponse)
   })
@@ -40,13 +45,18 @@ describe('Webhook Audience Tests', () => {
     }
     nock(fakeUrl).post('/', exampleRequest).reply(200, exampleResponse)
 
-    const expectedResponse = await testDestination.getAudience({
-      externalId: 'abc123xyz',
-      settings: { getAudienceUrl: fakeUrl },
-      audienceSettings: {
-        extras: JSON.stringify({ nice: 'ok' })
+    const expectedResponse = await testDestination.getAudience(
+      {
+        externalId: 'abc123xyz',
+        settings: { getAudienceUrl: fakeUrl },
+        audienceSettings: {
+          extras: JSON.stringify({ nice: 'ok' })
+        }
+      },
+      {
+        // Empty request options
       }
-    })
+    )
 
     expect(expectedResponse).toStrictEqual(exampleResponse)
   })
