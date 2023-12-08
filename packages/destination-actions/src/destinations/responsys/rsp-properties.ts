@@ -13,7 +13,8 @@ export const enable_batching: InputField = {
   label: 'Use Responsys Async API',
   description: 'Once enabled, Segment will collect events into batches of 200 before sending to Responsys.',
   type: 'boolean',
-  default: false
+  default: true,
+  unsafe_hidden: true
 }
 
 export const batch_size: InputField = {

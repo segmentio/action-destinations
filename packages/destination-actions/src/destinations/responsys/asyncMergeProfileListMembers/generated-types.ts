@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of the profile extension table’s parent profile list.
+   * Name of the profile extension table's parent profile list.
    */
   profileListName: string
   /**

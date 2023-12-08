@@ -22,36 +22,37 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'oauth2',
     fields: {
       username: {
-        label: 'username',
-        description: 'Responsys Username',
+        label: 'Username',
+        description: 'Responsys username',
         type: 'string',
         required: true
       },
       userPassword: {
-        label: 'password',
-        description: 'Responsys Password',
+        label: 'Password',
+        description: 'Responsys password',
         type: 'string',
         required: true
       },
-      authUrl: {
-        label: 'Authentication URL',
-        description: 'Responsys Authentication URL',
+      baseUrl: {
+        // Depending on Responsys instance type, a customer may need to use a different base URL: https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm
+        label: 'Responsys endpoint URL',
+        description: 'Responsys endpoint URL. Refer to Responsys documentation for more details.', // https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm
         type: 'string',
         required: true
       }
     },
-
-    // NOTE: For some reason, settings doesn't work. Hence using auth for now
-    refreshAccessToken: async (request, { auth }) => {
+    // Refreshing Responsys access token once it expires after 3 hours
+    refreshAccessToken: async (request, { settings }) => {
+      // Remove trailing slash from authUrl if it exists
+      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
       // Return a request that refreshes the access_token if the API supports it
-      const endpoint =
-        (auth as any).authUrl ?? 'https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/api/v1.3/auth/token'
-      const res = await request<RefreshTokenResponse>(`${endpoint}`, {
+      const res = await request<RefreshTokenResponse>(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `user_name=${(auth as any).username}&password=${(auth as any).userPassword}&auth_type=password`
+        body: `user_name=${settings.username}&password=${settings.userPassword}&auth_type=password`
       })
       return { accessToken: res.data.authToken }
     }

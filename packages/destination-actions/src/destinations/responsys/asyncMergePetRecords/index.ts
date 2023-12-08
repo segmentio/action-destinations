@@ -1,10 +1,9 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
 import { RequestBodyPET, RecordData } from '../types'
-
-import { buildRecordData, buildFetchRequest, handleFetchResponse } from '../rsp-operations'
+import { buildRecordData } from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge PET Records',
@@ -12,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     profileListName: {
       label: 'List Name',
-      description: 'Name of the profile extension table’s parent profile list.',
+      description: "Name of the profile extension table's parent profile list.",
       type: 'string',
       required: true
     },
@@ -68,15 +67,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'REPLACE_ALL', value: 'REPLACE_ALL' },
-        { label: 'NO_UPDATE', value: 'NO_UPDATE' }
+        { label: 'Replace All', value: 'REPLACE_ALL' },
+        { label: 'No Update', value: 'NO_UPDATE' }
       ]
     },
     enable_batching: enable_batching,
     batch_size: batch_size
   },
 
-  perform: async (request, { /*settings,*/ payload, auth }) => {
+  perform: async (request, { settings, payload, auth }) => {
     console.log(`auth : ${JSON.stringify(auth)}`)
     console.log(`incoming request : ${JSON.stringify(request)}`)
 
@@ -93,7 +92,10 @@ const action: ActionDefinition<Settings, Payload> = {
         mapTemplateName
       } = payload
 
-      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+      // EP: URL can vary, we need to pull it from global settings. Also remove trailing slash from baseUrl if it exists
+      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+      //const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
@@ -106,46 +108,51 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+      // Auth token is added by extendRequest()
+      return request(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      })
+      //const token = (auth as { authToken?: string })?.authToken
+      //const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
 
-      const token = (auth as { authToken?: string })?.authToken
-      const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
+      // console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
-      console.log(`request : ${JSON.stringify(fetchRequest)}`)
-
-      let response
-      try {
-        response = await fetch(endpoint, fetchRequest)
-      } catch (err) {
-        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
-      }
-      const responseBody = await handleFetchResponse(endpoint, response)
-      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+      // let response
+      // try {
+      //   response = await fetch(endpoint, fetchRequest)
+      // } catch (err) {
+      //   if (err instanceof TypeError) throw new PayloadValidationError(err.message)
+      //   throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
+      // }
+      // const responseBody = await handleFetchResponse(endpoint, response)
+      // console.log(`responseBody : ${JSON.stringify(responseBody)}`)
     } // End of If #1
   },
 
-  performBatch: async (request, { /*settings,*/ payload, auth }) => {
+  performBatch: async (request, { settings, payload }) => {
     console.log(`Batching Payload: ${JSON.stringify(payload)}`)
     console.log(`incoming request : ${JSON.stringify(request)}`)
 
     const chunkSize = 2
+    const requestBodyArr = []
     for (let i = 0; i < payload.length; i += chunkSize) {
       const chunk = payload.slice(i, i + chunkSize)
       const {
-        profileListName,
-        profileExtensionTable,
+        //profileListName,
+        //profileExtensionTable,
         insertOnNoMatch,
         matchColumnName1,
         matchColumnName2,
         updateOnMatch,
         mapTemplateName
       } = chunk[0]
-
-      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+      // EP: URL can vary, we need to get it from settings
+      // const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
 
       console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
-
-      const token = (auth as { authToken?: string })?.authToken
+      // EP: Removed as token is added by extendRequest()
+      // const token = (auth as { authToken?: string })?.authToken
       const chunkData = chunk.map((obj) => obj.userData)
       const recordData = buildRecordData(chunkData, mapTemplateName ?? '')
       const requestBody: RequestBodyPET = {
@@ -155,24 +162,40 @@ const action: ActionDefinition<Settings, Payload> = {
         matchColumnName1: matchColumnName1?.replace(/_+$/, '') || '',
         matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
       }
+      requestBodyArr.push(requestBody)
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-      const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
+      // EP: Removed the below code: replaced fetch with request(). errors are handled by thr framework
 
-      console.log(`request : ${JSON.stringify(fetchRequest)}`)
+      // const fetchRequest = buildFetchRequest(token as unknown as string, requestBody)
 
-      let response
-      try {
-        response = await fetch(endpoint, fetchRequest)
-      } catch (err) {
-        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
-      }
+      // console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
-      const responseBody = await handleFetchResponse(endpoint, response)
-      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+      // let response
+      // try {
+      //   response = await fetch(endpoint, fetchRequest)
+      // } catch (err) {
+      //   if (err instanceof TypeError) throw new PayloadValidationError(err.message)
+      //   throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
+      // }
+
+      // const responseBody = await handleFetchResponse(endpoint, response)
+      // console.log(`responseBody : ${JSON.stringify(responseBody)}`)
     } // End of chunk for loop
+    // EP: Processing all chunks in parallel with Promise.all()
+    const profileListName = payload[0].profileListName
+    const profileExtensionTable = payload[0].profileExtensionTable
+    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+    return await Promise.all(
+      requestBodyArr.map(async (item) => {
+        await request(endpoint, {
+          method: 'POST',
+          body: JSON.stringify(item)
+        })
+      })
+    )
   }
 }
 

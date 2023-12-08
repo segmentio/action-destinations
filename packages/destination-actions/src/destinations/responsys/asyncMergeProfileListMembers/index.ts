@@ -1,10 +1,10 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userData, enable_batching, batch_size } from '../rsp-properties'
 import type { RecordData, RequestBody } from '../types'
 
-import { buildRecordData, buildFetchRequest, handleFetchResponse } from '../rsp-operations'
+import { buildRecordData } from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge Profile List Members',
@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     profileListName: {
       label: 'List Name',
-      description: 'Name of the profile extension table’s parent profile list.',
+      description: "Name of the profile extension table's parent profile list.",
       type: 'string',
       required: true
     },
@@ -30,8 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.',
       type: 'string',
       choices: [
-        { label: 'OPTIN', value: 'OPTIN' },
-        { label: 'OPTOUT', value: 'OPTOUT' }
+        { label: 'Opt In', value: 'OPTIN' },
+        { label: 'Opt Out', value: 'OPTOUT' }
       ],
       default: 'OPTOUT'
     },
@@ -45,10 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Insert On No Match',
       description: 'Indicates what should be done for records where a match is not found.',
       type: 'boolean',
-      choices: [
-        { label: true, value: true },
-        { label: false, value: false }
-      ],
       default: true
     },
     matchColumnName1: {
@@ -82,8 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Operator to join match column names.',
       type: 'string',
       choices: [
-        { label: 'NONE', value: 'NONE' },
-        { label: 'AND', value: 'AND' }
+        { label: 'None', value: 'NONE' },
+        { label: 'And', value: 'AND' }
       ]
     },
     optinValue: {
@@ -116,8 +112,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'REPLACE_ALL', value: 'REPLACE_ALL' },
-        { label: 'NO_UPDATE', value: 'NO_UPDATE' }
+        { label: 'Replace All', value: 'REPLACE_ALL' },
+        { label: 'No Update', value: 'NO_UPDATE' }
       ]
     },
     enable_batching: enable_batching,
@@ -147,8 +143,10 @@ const action: ActionDefinition<Settings, Payload> = {
         userData,
         mapTemplateName
       } = payload
+      // Setting the endpoint
+      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
 
-      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
       console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
@@ -171,29 +169,34 @@ const action: ActionDefinition<Settings, Payload> = {
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
       const token = auth?.accessToken ?? '' // Update 'authToken' to 'accessToken'
-      const fetchRequest = buildFetchRequest(token, requestBody)
-      console.log(`request : ${JSON.stringify(fetchRequest)}`)
-
-      let response
-      try {
-        response = await fetch(endpoint, fetchRequest) // NEED TO CHANGE THIS TO USE request !!!!!!!!!!!!!
-      } catch (err) {
-        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
-      }
-      const responseBody = await handleFetchResponse(endpoint, response)
-      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+      // const fetchRequest = buildFetchRequest(token, requestBody)
+      // console.log(`request : ${JSON.stringify(fetchRequest)}`)
+      // replaced fetch() with request() from @segment/actions-core
+      const response = request(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: token, //`${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      })
+      return response
+      // Commented this out since the framework handles this
+      //const responseBody = await handleFetchResponse(endpoint, response)
+      //console.log(`responseBody : ${JSON.stringify(responseBody)}`)
     } // End of If #1
   },
 
-  performBatch: async (request, { /*settings,*/ payload, auth }) => {
+  performBatch: async (request, { settings, payload }) => {
     console.log(`something Payload: ${payload}`)
     console.log(`incoming request : ${JSON.stringify(request)}`)
     const chunkSize = 2
+    const requestBodyArr = []
+    // Splitting the incoming payload into chunks to meet the Responsys API limit of 200 records per request
     for (let i = 0; i < payload.length; i += chunkSize) {
       const chunk = payload.slice(i, i + chunkSize)
       const {
-        profileListName,
+        //profileListName,
         defaultPermissionStatus,
         htmlValue,
         insertOnNoMatch,
@@ -207,8 +210,6 @@ const action: ActionDefinition<Settings, Payload> = {
         updateOnMatch,
         mapTemplateName
       } = chunk[0]
-
-      const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/members`
 
       console.log(`Batching Payload: ${JSON.stringify(chunk)}`)
       const chunkData = chunk.map((obj) => obj.userData)
@@ -231,25 +232,48 @@ const action: ActionDefinition<Settings, Payload> = {
           updateOnMatch
         }
       }
+      requestBodyArr.push(requestBody)
 
       console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+      // EP: Not sure if we need to fallback to empty string if auth is undefined.
+      //const token = auth?.accessToken ?? ''
+      // Auth token is added by extendRequest() in index.ts
+      // const response = request(endpoint, {
+      //   method: 'POST',
+      //   body: JSON.stringify(requestBody)
+      // })
+      // return response
 
-      const token = auth?.accessToken ?? ''
-      const fetchRequest = buildFetchRequest(token, requestBody)
+      // EP: Replaced fetch() with request() from @segment/actions-core. Since framework handles the errors, we don't need to handle them
+      // const fetchRequest = buildFetchRequest(token, requestBody)
 
-      console.log(`request : ${JSON.stringify(fetchRequest)}`)
+      // console.log(`request : ${JSON.stringify(fetchRequest)}`)
 
-      let response
-      try {
-        response = await fetch(endpoint, fetchRequest)
-      } catch (err) {
-        if (err instanceof TypeError) throw new PayloadValidationError(err.message)
-        throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
-      }
+      // let response
+      // try {
+      //   response = await fetch(endpoint, fetchRequest)
+      // } catch (err) {
+      //   if (err instanceof TypeError) throw new PayloadValidationError(err.message)
+      //   throw new Error(`***ERROR STATUS*** : ${(err as Error).message}`)
+      // }
 
-      const responseBody = await handleFetchResponse(endpoint, response)
-      console.log(`responseBody : ${JSON.stringify(responseBody)}`)
+      // const responseBody = await handleFetchResponse(endpoint, response)
+      // console.log(`responseBody : ${JSON.stringify(responseBody)}`)
     } // End of chunk for loop
+    const profileListName = payload[0].profileListName
+    // EP: processing all chunks in parallel with Promise.all()
+    // Remove trailing slash from baseUrl if it exists
+    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
+
+    return await Promise.all(
+      requestBodyArr.map(async (item) => {
+        await request(endpoint, {
+          method: 'POST',
+          body: JSON.stringify(item)
+        })
+      })
+    )
   }
 }
 

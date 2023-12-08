@@ -2,15 +2,15 @@
 
 export interface Settings {
   /**
-   * Responsys Username
+   * Responsys username
    */
   username: string
   /**
-   * Responsys Password
+   * Responsys password
    */
   userPassword: string
   /**
-   * Responsys Authentication URL
+   * Responsys endpoint URL. Refer to Responsys documentation for more details.
    */
-  authUrl: string
+  baseUrl: string
 }
