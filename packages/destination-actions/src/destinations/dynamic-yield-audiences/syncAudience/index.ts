@@ -71,19 +71,6 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.context.traits.email' }
         }
       }
-    },
-    dynamic_yield_id: {
-      label: 'Dynamic Yield ID',
-      description: 'The Dynmamic Yield ID for the user.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.dy_id' },
-          then: { '@path': '$.traits.dy_id' },
-          else: { '@path': '$.context.traits.dy_id' }
-        }
-      }
     }
   },
 
@@ -106,8 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
         identifier: payload.segment_user_id ?? payload.segment_anonymous_id,
         email: payload.user_email ? hashAndEncode(payload.user_email) : undefined,
         sectionId: settings.sectionId,
-        dataCenter: settings.dataCenter,
-        dynamic_yield_id: dy_id
+        dataCenter: settings.dataCenter
       }
     })
   }
