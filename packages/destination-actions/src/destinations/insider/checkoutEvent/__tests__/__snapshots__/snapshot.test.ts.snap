@@ -55,6 +55,7 @@ Object {
         "phone_number": "Q!Q[jv1Wi&s0",
         "uuid": "Q!Q[jv1Wi&s0",
       },
+      "not_append": false,
     },
   ],
 }
@@ -83,6 +84,7 @@ Object {
         },
         "uuid": "Q!Q[jv1Wi&s0",
       },
+      "not_append": true,
     },
   ],
 }

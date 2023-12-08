@@ -19,7 +19,15 @@ import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
+import type {
+  GlobalSetting,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  Deletion,
+  DeletionPayload,
+  DynamicFieldResponse
+} from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -615,14 +623,18 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   public async executeDynamicField(
     actionSlug: string,
     fieldKey: string,
-    data: ExecuteDynamicFieldInput<Settings, object>
+    data: ExecuteDynamicFieldInput<Settings, object>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
+    dynamicFn?: RequestFn<Settings, any, DynamicFieldResponse, AudienceSettings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
       return []
     }
 
-    return action.executeDynamicField(fieldKey, data)
+    return action.executeDynamicField(fieldKey, data, dynamicFn)
   }
 
   private async onSubscription(

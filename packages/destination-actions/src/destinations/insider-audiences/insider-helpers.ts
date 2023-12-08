@@ -31,6 +31,7 @@ const computedTraitsPayloadForIdentifyCall = function (
         attributes
       }
     ],
+    not_append: !data.append_arrays,
     platform: 'segment'
   }
 
@@ -55,6 +56,7 @@ const computedTraitsPayloadForTrackCall = function (
         events
       }
     ],
+    not_append: !data.append_arrays,
     platform: 'segment'
   }
 
@@ -86,6 +88,7 @@ const computedAudiencesPayloadForIdentifyCall = function (
         attributes
       }
     ],
+    not_append: !data.append_arrays,
     platform: 'segment'
   }
 
@@ -110,6 +113,7 @@ const computedAudiencePayloadForTrackCall = function (
         events
       }
     ],
+    not_append: !data.append_arrays,
     platform: 'segment'
   }
 
@@ -135,6 +139,7 @@ const deleteAttributePartial = function (data: Payload) {
         }
       }
     ],
+    not_append: !data.append_arrays,
     platform: 'segment'
   }
 }

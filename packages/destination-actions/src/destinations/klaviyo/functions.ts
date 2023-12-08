@@ -1,6 +1,7 @@
 import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { KlaviyoAPIError, ListIdResponse, ProfileData, listData } from './types'
+import { KlaviyoAPIError, ListIdResponse, ProfileData, listData, ImportJobPayload } from './types'
+import { Payload } from './upsertProfile/generated-types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -58,20 +59,33 @@ export async function removeProfileFromList(request: RequestClient, id: string, 
   return list
 }
 
-export async function getProfile(request: RequestClient, email: string) {
-  const profile = await request(`${API_URL}/profiles/?filter=equals(email,"${email}")`, {
+export async function getProfile(request: RequestClient, email: string | undefined, external_id: string | undefined) {
+  let filter
+  if (external_id) {
+    filter = `external_id,"${external_id}"`
+  }
+  if (email) {
+    filter = `email,"${email}"`
+  }
+  // If both email and external_id are provided. Email will take precedence.
+  const profile = await request(`${API_URL}/profiles/?filter=equals(${filter})`, {
     method: 'GET'
   })
   return profile.json()
 }
 
-export async function createProfile(request: RequestClient, email: string) {
+export async function createProfile(
+  request: RequestClient,
+  email: string | undefined,
+  external_id: string | undefined
+) {
   try {
     const profileData: ProfileData = {
       data: {
         type: 'profile',
         attributes: {
-          email
+          email,
+          external_id
         }
       }
     }
@@ -98,4 +112,37 @@ export function buildHeaders(authKey: string) {
     revision: REVISION_DATE,
     'Content-Type': 'application/json'
   }
+}
+
+export const createImportJobPayload = (profiles: Payload[], listId?: string): { data: ImportJobPayload } => ({
+  data: {
+    type: 'profile-bulk-import-job',
+    attributes: {
+      profiles: {
+        data: profiles.map(({ list_id, enable_batching, ...attributes }) => ({
+          type: 'profile',
+          attributes
+        }))
+      }
+    },
+    ...(listId
+      ? {
+          relationships: {
+            lists: {
+              data: [{ type: 'list', id: listId }]
+            }
+          }
+        }
+      : {})
+  }
+})
+
+export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
+  return await request(`${API_URL}/profile-bulk-import-jobs/`, {
+    method: 'POST',
+    headers: {
+      revision: '2023-10-15.pre'
+    },
+    json: importJobPayload
+  })
 }

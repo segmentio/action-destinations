@@ -348,7 +348,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', groupUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', groupUnsubscribeLink)
           _this.logger?.info(`Group Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_group_unsubscribe_link', 1)
         }
@@ -360,7 +361,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', globalUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', globalUnsubscribeLink)
           _this.logger?.info(`Global Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_global_unsubscribe_link', 1)
         }
@@ -378,7 +380,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
         _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
-        $(this).attr('href', preferencesLink)
+        $(this).removeAttr('href')
+        $(this).attr('clicktracking', 'off').attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
         _this.statsClient?.incr('replaced_preferences_link', 1)
       }

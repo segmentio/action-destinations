@@ -146,7 +146,7 @@ describe('Upsert Profile', () => {
 
     await expect(
       testDestination.testAction('upsertProfile', { event, settings, useDefaultMappings: true })
-    ).rejects.toThrowError('An error occurred while processing the request')
+    ).rejects.toThrowError('Internal Server Error')
   })
 
   it('should add a profile to a list if list_id is provided', async () => {
@@ -261,5 +261,110 @@ describe('Upsert Profile', () => {
     ).resolves.not.toThrowError()
 
     expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
+  })
+})
+
+describe('Upsert Profile Batch', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+    jest.resetAllMocks()
+  })
+
+  it('should discard profiles without email, phone_number, or external_id', async () => {
+    const events = [createTestEvent({ traits: { first_name: 'John', last_name: 'Doe' } })]
+
+    const response = await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events,
+      useDefaultMappings: true
+    })
+
+    expect(response).toEqual([])
+  })
+
+  it('should process profiles with and without list_ids separately', async () => {
+    const eventWithListId = createTestEvent({
+      traits: { first_name: 'John', last_name: 'Doe', email: 'withlist@example.com', list_id: 'abc123' }
+    })
+    const eventWithoutListId = createTestEvent({
+      traits: { first_name: 'Jane', last_name: 'Smith', email: 'withoutlist@example.com' }
+    })
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withList: true })
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withoutList: true })
+
+    const responseWithList = await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events: [eventWithListId],
+      mapping: { list_id: 'abc123' },
+      useDefaultMappings: true
+    })
+
+    const responseWithoutList = await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events: [eventWithoutListId],
+      mapping: {},
+      useDefaultMappings: true
+    })
+
+    expect(responseWithList[0]).toMatchObject({
+      data: { success: true, withList: true }
+    })
+
+    expect(responseWithoutList[0]).toMatchObject({
+      data: { success: true, withoutList: true }
+    })
+  })
+
+  it('should process profiles with list_ids only', async () => {
+    const events = [createTestEvent({ traits: { email: 'withlist@example.com', list_id: 'abc123' } })]
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withList: true })
+
+    const response = await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events,
+      mapping: { list_id: 'abc123' },
+      useDefaultMappings: true
+    })
+
+    expect(response[0].data).toMatchObject({
+      success: true,
+      withList: true
+    })
+    expect(response).toHaveLength(1)
+  })
+
+  it('should process profiles without list_ids only', async () => {
+    const events = [createTestEvent({ traits: { email: 'withoutlist@example.com' } })]
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withoutList: true })
+
+    const response = await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events,
+      mapping: {},
+      useDefaultMappings: true
+    })
+
+    expect(response[0].data).toMatchObject({
+      success: true,
+      withoutList: true
+    })
+    expect(response).toHaveLength(1)
+  })
+
+  it('should handle errors when sending profiles to Klaviyo', async () => {
+    const events = [createTestEvent({ traits: { email: 'error@example.com' } })]
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(500, { error: 'Server error' })
+
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
   })
 })

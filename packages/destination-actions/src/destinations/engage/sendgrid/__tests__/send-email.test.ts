@@ -764,7 +764,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -847,7 +847,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_preferences_link]">Manage Preferences</a> | <a href="[upa_unsubscribe_link]">Unsubscribe</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -930,7 +930,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment. Here is an <a href="[upa_unsubscribe_link]">Unsubscribe</a> link.</p>  <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -1844,7 +1844,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://group_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://group_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
 
       const expectedSendGridRequest = {
         personalizations: [
