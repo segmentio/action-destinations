@@ -81,7 +81,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const audienceName = payload.segment_audience_key
     const audienceID = payload.segment_audience_id
     const audienceValue = d?.rawData?.properties?.[audienceName] ?? d?.rawData?.traits?.[audienceName]
-    const dy_id = payload.dy_id
 
     const URL = getUpsertURL(settings)
     return request(URL, {
