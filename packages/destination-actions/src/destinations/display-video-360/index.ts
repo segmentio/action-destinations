@@ -17,7 +17,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {}, // Fields is required. Left empty on purpose.
-    refreshAccessToken: async (request, { auth }) => {
+    refreshAccessToken: async (request, { auth, statsContext }) => {
+      statsContext?.statsClient.incr('tokenRefresh')
+
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
         body: new URLSearchParams({
