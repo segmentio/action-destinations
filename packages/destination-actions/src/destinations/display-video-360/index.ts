@@ -18,7 +18,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     scheme: 'oauth2',
     fields: {}, // Fields is required. Left empty on purpose.
     refreshAccessToken: async (request, { auth, statsContext }) => {
-      statsContext?.statsClient.incr('dv360_token_refresh.response.err', 1, [...statsContext.tags, 'status:401'])
+      statsContext?.statsClient.incr('tokenRefresh')
 
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
