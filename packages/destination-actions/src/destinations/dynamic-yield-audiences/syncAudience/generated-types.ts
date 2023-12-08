@@ -25,8 +25,4 @@ export interface Payload {
    * The user's email address
    */
   user_email?: string
-  /**
-   * The Dynmamic Yield ID for the user.
-   */
-  dynamic_yield_id: string
 }
