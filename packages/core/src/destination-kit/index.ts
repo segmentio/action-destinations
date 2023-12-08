@@ -419,7 +419,70 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
   }
 
-  async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
+  audienceRunnerFactory = (
+    operation: 'create' | 'get',
+    audienceDefinition: AudienceDestinationDefinition,
+    requestClient: ReturnType<typeof createRequestClient>,
+    audienceInput: CreateAudienceInput<Settings, AudienceSettings> | GetAudienceInput<Settings, AudienceSettings>
+  ) => {
+    const run = async () => {
+      if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+        throw new Error('Unexpected call to createAudience')
+      }
+
+      switch (operation) {
+        case 'create':
+          return await audienceDefinition.audienceConfig?.createAudience(
+            requestClient,
+            audienceInput as CreateAudienceInput<Settings, AudienceSettings>
+          )
+        case 'get':
+          return await audienceDefinition.audienceConfig?.getAudience(
+            requestClient,
+            audienceInput as GetAudienceInput<Settings, AudienceSettings>
+          )
+      }
+    }
+
+    return run
+  }
+
+  audienceRetryFactory = (destinationSettings: Settings, options: OnEventOptions, settings: JSONObject) => {
+    const onFailedAttempt = async (error: any) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      // Copied from onSubscriptions -> I don't think this options object will have the onTokenRefresh function...
+      await options?.onTokenRefresh?.(newTokens)
+    }
+    return onFailedAttempt
+  }
+
+  async createAudience(
+    createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>,
+    requestOptions: OnEventOptions
+  ) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
@@ -435,44 +498,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    const run = async () => {
-      const results = audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
-      return results
-    }
-    // TODO: I wish this and the one in getAudience could be combined into one function
-    const onFailedAttempt = async (error: any, settings: any) => {
-      const statusCode = error?.status ?? error?.response?.status ?? 500
-  
-      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (
-        !(
-          statusCode === 401 &&
-          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
-        )
-      ) {
-        throw error
-      }
-  
-      const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(
-        destinationSettings,
-        oauthSettings,
-        options?.synchronizeRefreshAccessToken
-      )
-      if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
-      }
-  
-      // Update `settings` with new tokens
-      settings = updateOAuthSettings(settings, newTokens)
-      // Copied from onSubscriptions -> I don't think this options object will have the onTokenRefresh function...
-      await options?.onTokenRefresh?.(newTokens)
-    }
+    const run = this.audienceRunnerFactory('create', audienceDefinition, requestClient, createAudienceInput)
+    const onFailedAttempt = this.audienceRetryFactory(
+      destinationSettings,
+      requestOptions,
+      createAudienceInput.settings as unknown as JSONObject
+    )
     return await retry(run, { retries: 2, onFailedAttempt })
-
   }
 
-  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
+  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>, requestOptions: OnEventOptions) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
@@ -488,38 +523,12 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    const run = async () => {
-      return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
-    }
-
-    const onFailedAttempt = async (error: any, settings: any) => {
-      const statusCode = error?.status ?? error?.response?.status ?? 500
-  
-      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-      if (
-        !(
-          statusCode === 401 &&
-          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
-        )
-      ) {
-        throw error
-      }
-  
-      const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(
-        destinationSettings,
-        oauthSettings,
-        options?.synchronizeRefreshAccessToken
-      )
-      if (!newTokens) {
-        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
-      }
-  
-      // Update `settings` with new tokens
-      settings = updateOAuthSettings(settings, newTokens)
-      // Copied from onSubscriptions -> I don't think this options object will have the onTokenRefresh function...
-      await options?.onTokenRefresh?.(newTokens)
-    }
+    const run = this.audienceRunnerFactory('get', audienceDefinition, requestClient, getAudienceInput)
+    const onFailedAttempt = this.audienceRetryFactory(
+      destinationSettings,
+      requestOptions,
+      getAudienceInput.settings as unknown as JSONObject
+    )
     return await retry(run, { retries: 2, onFailedAttempt })
   }
 
@@ -869,7 +878,36 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       return ([] as Result[]).concat(...results)
     }
 
-    return await retry(run, { retries: 2, onFailedAttempt() })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onFailedAttempt = async (error: any) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      await options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   private getSubscriptions(settings: JSONObject): Subscription[] {
