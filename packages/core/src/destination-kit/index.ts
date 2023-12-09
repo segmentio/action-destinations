@@ -452,6 +452,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const onFailedAttempt = async (error: any) => {
       const statusCode = error?.status ?? error?.response?.status ?? 500
 
+      if (this.definition.slug === 'actions-display-video-360') {
+        console.log('DV360 - Error', JSON.stringify(error))
+      }
+
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
       if (
         !(
@@ -468,6 +472,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         oauthSettings,
         options?.synchronizeRefreshAccessToken
       )
+
+      if (this.definition.slug === 'actions-display-video-360') {
+        console.log('DV360 - New Tokens', JSON.stringify(newTokens))
+      }
+
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
@@ -493,6 +502,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+
+    if (this.definition.slug === 'actions-display-video-360') {
+      console.log('DV360 - AuthSettings', JSON.stringify(auth))
+    }
+
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
       audienceSettings: createAudienceInput.audienceSettings,
       settings: destinationSettings,
