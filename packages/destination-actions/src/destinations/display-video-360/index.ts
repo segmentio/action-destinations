@@ -143,6 +143,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const externalId = r[0]?.results[0]?.userList?.resourceName
 
         if (externalId !== getAudienceInput.externalId) {
+          statsClient?.incr(`${statsName}.error.UNABLE_TO_VERIFY`, 1, statsTags)
           throw new IntegrationError(
             "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
             'INVALID_REQUEST_DATA',
