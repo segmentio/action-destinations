@@ -2,19 +2,25 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+const isPlainObj = (o) =>
+  Boolean(
+    o &&
+      o.constructor &&
+      o.constructor.prototype &&
+      Object.prototype.hasOwnProperty.call(o.constructor.prototype, 'isPrototypeOf')
+  )
+
+const flattenObj = (obj, keys = []) => {
+  return Object.keys(obj).reduce((acc, key) => {
+    return Object.assign(
+      acc,
+      isPlainObj(obj[key]) ? flattenObj(obj[key], keys.concat(key)) : { [keys.concat(key).join('.')]: obj[key] }
+    )
+  }, {})
+}
+
 const payloadTransform = (payload: Payload) => {
-  /**
-   * TODO:
-   * Transform payload to drop nested traits
-   * Decide if those should be flattened like
-   * {
-   *   "trait1": {
-   *      "subTrait1": true
-   *   }
-   * }
-   * ---to---
-   * "trait1.subTrait1": true
-   */
+  payload.attributes = flattenObj(payload.attributes)
   return payload
 }
 
