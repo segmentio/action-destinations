@@ -19,6 +19,18 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'identifyUser',
     mapping: defaultValues(identifyUser.fields),
     type: 'automatic'
+  },
+  {
+    name: 'Screen Event',
+    subscribe: 'type = "screen"',
+    partnerAction: 'trackEvent',
+    mapping: {
+      ...defaultValues(trackEvent.fields),
+      eventName: {
+        '@template': '{{name}}'
+      }
+    },
+    type: 'automatic'
   }
 ]
 
