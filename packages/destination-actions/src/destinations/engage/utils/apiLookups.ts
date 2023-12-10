@@ -182,8 +182,7 @@ export const performApiLookup = async (
         datafeedTags.push('cache_set:true')
       } catch (error) {
         logDataFeedError('Data feed cache set failure', error)
-        datafeedTags.push('cache_set:false')
-        datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${error}`)
+        datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${error}`, 'cache_set:false')
         throw error
       }
     }
@@ -253,7 +252,7 @@ export const apiLookupActionFields: Record<string, InputField> = {
   shouldRetryOnRetryableError: {
     label: 'Should Retry',
     description:
-      'Whether the message should be retired (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead',
+      'Whether the message should be retried (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead',
     type: 'boolean'
   }
 }
