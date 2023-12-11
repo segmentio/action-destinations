@@ -6,7 +6,8 @@ export const userData: InputField = {
   description: 'Record data that represents Field Names and corresponding values for the recipient.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  required: true
+  required: true,
+  default: { '@path': '$.' }
 }
 
 export const enable_batching: InputField = {

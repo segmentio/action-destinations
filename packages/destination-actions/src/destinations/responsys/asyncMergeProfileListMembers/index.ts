@@ -9,6 +9,7 @@ import { buildRecordData } from '../rsp-operations'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge Profile List Members',
   description: '',
+  defaultSubscription: 'type = "identify"',
   fields: {
     profileListName: {
       label: 'List Name',
