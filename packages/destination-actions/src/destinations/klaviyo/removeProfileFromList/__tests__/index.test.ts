@@ -4,7 +4,6 @@ import Definition from '../../index'
 import { API_URL } from '../../config'
 import { AggregateAjvError } from '@segment/ajv-human-errors'
 import * as Functions from '../../functions'
-import { Mock } from 'jest-mock'
 
 jest.mock('../../functions', () => ({
   ...jest.requireActual('../../functions'),
@@ -20,6 +19,19 @@ export const settings = {
   api_key: apiKey
 }
 const listId = 'XYZABC'
+
+const requestBody = {
+  data: [
+    {
+      type: 'profile',
+      id: 'XYZABC'
+    },
+    {
+      type: 'profile',
+      id: 'XYZABD'
+    }
+  ]
+}
 
 describe('Remove List from Profile', () => {
   it('should throw error if no external_id/email is provided', async () => {
@@ -157,24 +169,24 @@ describe('Remove List from Profile Batch', () => {
       }
     }
 
-    ;(Functions.getProfiles as Mock).mockImplementation(() => Promise.resolve(['profileId1', 'profileId2']))
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(email,["user1@example.com","user2@example.com"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
+      })
 
-    await testDestination.testBatchAction('removeProfileFromList', {
-      settings,
-      events,
-      mapping
-    })
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
 
-    expect(Functions.getProfiles).toHaveBeenCalledWith(
-      expect.anything(),
-      ['user1@example.com', 'user2@example.com'],
-      []
-    )
-    expect(Functions.removeProfileFromList).toHaveBeenCalledWith(
-      expect.anything(),
-      ['profileId1', 'profileId2'],
-      listId
-    )
+    await expect(
+      testDestination.testBatchAction('removeProfileFromList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should remove multiple profiles with valid external IDs', async () => {
@@ -198,20 +210,24 @@ describe('Remove List from Profile Batch', () => {
       }
     }
 
-    ;(Functions.getProfiles as Mock).mockImplementation(() => Promise.resolve(['profileId1', 'profileId2']))
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(external_id,["externalId1","externalId2"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
+      })
 
-    await testDestination.testBatchAction('removeProfileFromList', {
-      settings,
-      events,
-      mapping
-    })
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
 
-    expect(Functions.getProfiles).toHaveBeenCalledWith(expect.anything(), [], ['externalId1', 'externalId2'])
-    expect(Functions.removeProfileFromList).toHaveBeenCalledWith(
-      expect.anything(),
-      ['profileId1', 'profileId2'],
-      listId
-    )
+    await expect(
+      testDestination.testBatchAction('removeProfileFromList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should remove profiles with valid emails and external IDs', async () => {
@@ -238,20 +254,33 @@ describe('Remove List from Profile Batch', () => {
       }
     }
 
-    ;(Functions.getProfiles as Mock).mockImplementation(() => Promise.resolve(['profileId1', 'profileId2']))
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(email,["user1@example.com"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABD' }]
+      })
 
-    await testDestination.testBatchAction('removeProfileFromList', {
-      settings,
-      events,
-      mapping
-    })
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(external_id,["externalId2"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
 
-    expect(Functions.getProfiles).toHaveBeenCalledWith(expect.anything(), ['user1@example.com'], ['externalId2'])
-    expect(Functions.removeProfileFromList).toHaveBeenCalledWith(
-      expect.anything(),
-      ['profileId1', 'profileId2'],
-      listId
-    )
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfileFromList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should filter out profiles without email or external ID', async () => {
@@ -278,16 +307,33 @@ describe('Remove List from Profile Batch', () => {
       }
     }
 
-    ;(Functions.getProfiles as Mock).mockImplementation(() => Promise.resolve(['profileId2']))
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
 
-    await testDestination.testBatchAction('removeProfileFromList', {
-      settings,
-      events,
-      mapping
-    })
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(email,["valid@example.com"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
 
-    expect(Functions.getProfiles).toHaveBeenCalledWith(expect.anything(), ['valid@example.com'], [])
-    expect(Functions.removeProfileFromList).toHaveBeenCalledWith(expect.anything(), ['profileId2'], listId)
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfileFromList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should handle an empty payload', async () => {
