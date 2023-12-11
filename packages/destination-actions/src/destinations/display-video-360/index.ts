@@ -23,7 +23,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
         body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
+          refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
