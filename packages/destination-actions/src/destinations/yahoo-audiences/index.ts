@@ -54,17 +54,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const body_form_data = gen_customer_taxonomy_payload(settings)
-      // Reject promise if engage_space_id contains special characters other then [a-zA-Z0-9] and "_" (underscore)
+      // Throw error if engage_space_id contains special characters other then [a-zA-Z0-9] and "_" (underscore)
       // This is to prevent the user from creating a customer node with a name that is not allowed by Yahoo
       if (!/^[A-Za-z0-9_]+$/.test(settings.engage_space_id)) {
         throw new IntegrationError(
-          'Invalid Engage Space Id setting. Engage Space Id located in Unify > Settings > API Access',
+          'Invalid Engage Space Id setting. Engage Space Id can be located in Unify > Settings > API Access',
           'INVALID_GLOBAL_SETTING',
           400
-        )
-
-        return Promise.reject(
-          'Invalid Engage Space Id setting. Engage Space Id located in Unify > Settings > API Access'
         )
       } else {
         // The last 2 params are undefined because statsContext.statsClient and statsContext.tags are not available testAuthentication()
