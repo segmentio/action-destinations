@@ -99,6 +99,8 @@ export function getIDSchema(payload: GenericPayload): string[] {
   return id_schema
 }
 
+const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+
 export function extractUsers(payloads: GenericPayload[]): {}[][] {
   const batch_data: {}[][] = []
 
@@ -126,8 +128,15 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
           .replace(/\+.*@/, '@')
           .replace(/\.(?=.*@)/g, '')
           .toLowerCase()
+
+        // If email is already hashed, don't hash it again
+        let hashedEmail = payload.email
+        if (!isHashedEmail(payload.email)) {
+          hashedEmail = createHash('sha256').update(payload.email).digest('hex')
+        }
+
         email_id = {
-          id: createHash('sha256').update(payload.email).digest('hex'),
+          id: hashedEmail,
           audience_ids: [external_audience_id]
         }
       }
