@@ -49,18 +49,23 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     }
-    //testAuthentication: (_request) => {
-    //  // Return a request that tests/validates the user's credentials.
-    //  // If you do not have a way to validate the authentication fields safely,
-    //  // you can remove the `testAuthentication` function, though discouraged.
-    //}
   },
 
-  //onDelete: async (_request, { settings, payload }) => {
-  //  // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //  // provided in the payload. If your destination does not support GDPR deletion you should not
-  //  // implement this function and should remove it completely.
-  //},
+  onDelete: async (_request, { settings, payload }) => {
+    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+    // provided in the payload. If your destination does not support GDPR deletion you should not
+    // implement this function and should remove it completely.
+    return request('https://api.sprig.com/v2/purge/visitors', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${settings.apiKey}`
+      },
+      json: {
+        externalUserIds: [payload.userId],
+        delaySeconds: 0
+      }
+    })
+  },
   presets,
   actions: {
     identifyUser,
