@@ -38,14 +38,14 @@ const renderLiquidFields = async (
     renderedUrl = await Liquid.parseAndRender(url, { profile })
   } catch (error) {
     logDataFeedError('URL liquid render failuere', error)
-    datafeedTags.push('error:true', `error_message:${error}`, 'reason:rendering_failure', 'rendering:url')
+    datafeedTags.push('error:true', 'reason:rendering_failure', 'rendering:url')
     throw new IntegrationError('Unable to parse data feed url', 'DATA_FEED_RENDERING_ERROR', 400)
   }
   try {
     renderedBody = body ? await Liquid.parseAndRender(body, { profile }) : undefined
   } catch (error) {
     logDataFeedError('Body liquid render failure', error)
-    datafeedTags.push('error:true', `error_message:${error}`, 'reason:rendering_failure', 'rendering:body')
+    datafeedTags.push('error:true', 'reason:rendering_failure', 'rendering:body')
     throw new IntegrationError('Unable to parse email api lookup body', 'DATA_FEED_RENDERING_ERROR', 400)
   }
 
@@ -147,12 +147,7 @@ export const performApiLookup = async (
     } catch (error: any) {
       const respError = error.response as ResponseError
       logDataFeedError('Data feed call failure', error)
-      datafeedTags.push(
-        `error:true`,
-        `error_message:${error.message}`,
-        `error_status:${respError?.status}`,
-        'reason:api_call_failure'
-      )
+      datafeedTags.push(`error:true`, `error_status:${respError?.status}`, 'reason:api_call_failure')
 
       // If retry is enabled for this data feed then rethrow the error to preserve centrifuge default retry logic
       if (shouldRetryOnRetryableError) {
@@ -182,7 +177,7 @@ export const performApiLookup = async (
         datafeedTags.push('cache_set:true')
       } catch (error) {
         logDataFeedError('Data feed cache set failure', error)
-        datafeedTags.push('error:true', 'reason:cache_set_failure', `error_message:${error}`, 'cache_set:false')
+        datafeedTags.push('error:true', 'reason:cache_set_failure', 'cache_set:false')
         throw error
       }
     }
@@ -192,7 +187,7 @@ export const performApiLookup = async (
   } catch (error) {
     const isErrorCapturedInTags = datafeedTags.find((str) => str.includes('error:true'))
     if (!isErrorCapturedInTags) {
-      datafeedTags.push('error:true', `error_message:${error}`, 'reason:unknown')
+      datafeedTags.push('error:true', 'reason:unknown')
     }
     tags.push('reason:datafeed_failure')
     logDataFeedError('Unexpected data feed error', error)
