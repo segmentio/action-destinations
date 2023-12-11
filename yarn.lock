@@ -1021,6 +1021,17 @@
   resolved "https://registry.yarnpkg.com/@braze/web-sdk/-/web-sdk-4.7.0.tgz#5adb930690d78dd3bc77a93dececde360a08d0f7"
   integrity sha512-fYdCyjlZqBswlebO8XmbPj04soLycHxnSvCQ/bWpi4OB00fz/ne34vv1LzIP3d0V5++jwjsutxdEi5mRiiMK1Q==
 
+"@bucketco/tracking-sdk@^2.0.0":
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/@bucketco/tracking-sdk/-/tracking-sdk-2.1.7.tgz#91d747cdb318f3be405c38b5ce68820f8ed19d23"
+  integrity sha512-vDNyLdt8otPN6S0JDT6OaoZsK5k7ekSfQ3c99RE1Ry23hiYpnRV42VAZG2OHJsHoocCNw0U9GIILVQqHweavNw==
+  dependencies:
+    "@floating-ui/dom" "^1.4.5"
+    cross-fetch "^4.0.0"
+    is-bundling-for-browser-or-node "^1.1.1"
+    js-cookie "^3.0.5"
+    preact "^10.16.0"
+
 "@bufbuild/buf-darwin-arm64@1.28.0":
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.28.0.tgz#2a891aed84a6220628e802f9f3feb11023877e32"
@@ -2319,6 +2330,25 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
+"@segment/actions-core@^3.90.0", "@segment/actions-core@^3.91.0":
+  version "3.91.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.91.0.tgz#f6957a45cbf25c2204ede83d3b085b0a859b5ec7"
+  integrity sha512-utpakcqYzOUcDpKvsxVaF0yTMO/unIDAEbZ9dOiyCkckdnUHUSQCFrI89Qweug5zZorq8E+FdyFCs00lECPSqA==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.1.2"
+    "@segment/ajv-human-errors" "^2.11.3"
+    "@segment/destination-subscriptions" "^3.31.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
@@ -2358,6 +2388,13 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/browser-destination-runtime@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.21.0.tgz#a864a1b1613cf97b5c22f31ef9664415a145b497"
+  integrity sha512-Rs60JDveojubxxtYLtJC0+/eoZRYaaIQCRmF4hualkQDAgPAA8qUovIylTbQkcLtmPaPeMu2BtrjgdcFmis+UQ==
+  dependencies:
+    "@segment/actions-core" "^3.91.0"
 
 "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
   version "9.3.0"
@@ -4330,13 +4367,6 @@
   dependencies:
     "@typescript-eslint/types" "5.1.0"
     eslint-visitor-keys "^3.0.0"
-
-"@typescript/vfs@^1.4.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@typescript/vfs/-/vfs-1.5.0.tgz#ed942922724f9ace8c07c80b006c47e5e3833218"
-  integrity sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==
-  dependencies:
-    debug "^4.1.1"
 
 "@typescript/vfs@^1.4.0":
   version "1.5.0"
@@ -16597,11 +16627,6 @@ typescript@4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
   integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
-
-typescript@4.5.2:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
-  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
 
 typescript@4.5.2:
   version "4.5.2"
