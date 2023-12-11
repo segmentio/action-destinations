@@ -100,7 +100,7 @@ describe('removeUserFromAudience', () => {
     it('should throw error if no access to the audiences of the advertiser', async () => {
         const settings = VALID_SETTINGS;
         nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).reply(403)
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).query(true).reply(403)
         await expect(
             testDestination.testAction('removeUserFromAudience', {
                 event,
@@ -131,7 +131,7 @@ describe('removeUserFromAudience', () => {
     it('should not throw an error if the audience creation and the patch requests succeed', async () => {
         const settings = VALID_SETTINGS;
         nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).reply(200, ADVERTISER_AUDIENCES_KEY_DOES_NOT_EXIST)
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).query(true).reply(200, ADVERTISER_AUDIENCES_KEY_DOES_NOT_EXIST)
         // The audience key is not present in the list of the advertiser's audiences so a new audience needs to be created
         nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/create$/).reply(200, AUDIENCE_CREATION_RESPONSE)
         nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/\d+\/contact-list$/).reply(200)
@@ -148,7 +148,7 @@ describe('removeUserFromAudience', () => {
     it('should not throw an error if the audience already exists and the patch requests succeeds', async () => {
         const settings = VALID_SETTINGS;
         nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).reply(200, ADVERTISER_AUDIENCES)
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).query(true).reply(200, ADVERTISER_AUDIENCES)
         nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/\d+\/contact-list$/).reply(200)
 
         await expect(
@@ -163,9 +163,9 @@ describe('removeUserFromAudience', () => {
     it('should not throw an error in case of concurrent audience creation attempt', async () => {
         const settings = VALID_SETTINGS;
         nock('https://api.criteo.com').persist().post('/oauth2/token').reply(200, MOCK_TOKEN_RESPONSE)
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).reply(200, ADVERTISER_AUDIENCES_KEY_DOES_NOT_EXIST)
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).query(true).reply(200, ADVERTISER_AUDIENCES_KEY_DOES_NOT_EXIST)
         nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/create$/).reply(400, DUPLICATE_AUDIENCE_ERROR)
-        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).reply(200, ADVERTISER_AUDIENCES)
+        nock('https://api.criteo.com').post(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/search$/).query(true).reply(200, ADVERTISER_AUDIENCES)
         nock('https://api.criteo.com').patch(/^\/\d{4}-\d{2}\/marketing-solutions\/audience-segments\/\d+\/contact-list$/).reply(200)
 
         await expect(
