@@ -343,8 +343,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const checkParam = (paramName: string) => {
       const paramValue = parsedLink.searchParams.get(paramName)
       if (!paramValue || paramValue === '') {
-        console.log('entered')
-        console.log(audienceId)
         this.logger.error(`${paramName} is missing: ${link} ${workspaceId} ${audienceId}`)
         this.statsClient.incr('missing_query_param', 1, [`param:${paramName}`, `audienceId:${audienceId}`])
       }
