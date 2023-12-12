@@ -1,5 +1,5 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
-
+import { getAuthData } from '@segment/actions-core/destination-kit/parse-settings'
 import type { Settings, AudienceSettings } from './generated-types'
 import type { RefreshTokenResponse } from './types'
 
@@ -9,6 +9,7 @@ import removeFromAudience from './removeFromAudience'
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
 import { buildHeaders } from './shared'
 import { handleRequestError } from './errors'
+import { JSONObject } from '@segment/actions-core/dist/esm/json-object'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
@@ -56,6 +57,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: true
     },
     async createAudience(request, createAudienceInput) {
+      const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+      console.log('DV360 - createAudience auth', auth)
+
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
@@ -109,6 +113,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
+      const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+      console.log('DV360 - getAudience auth', auth)
+
       const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
