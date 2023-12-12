@@ -2,6 +2,7 @@ import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
+import { Transform } from 'stream'
 
 // Type definitions
 export type RawData = {
@@ -26,6 +27,99 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   Payload,
   AudienceSettings
 > & { rawData?: RawData }
+
+export type SFTPCreds = {
+  sftpUsername: string
+  sftpPassword: string
+}
+
+export type S3Creds = {
+  s3_aws_access_key: string
+  s3_aws_secret_key: string
+  s3_aws_bucket_name: string
+  s3_aws_region: string
+  file_name: string
+}
+
+// This is the function that generates the CSV file
+class ObjectToCSVTransformer extends Transform {
+  headerWritten: boolean
+  sftp: SFTPCreds
+  s3: S3Creds
+  constructor(options = {}) {
+    // Invoke the parent class constructor
+    super(Object.assign({ objectMode: true }, options))
+    // Initialize CSV header
+    this.headerWritten = false
+  }
+  _transform(payloads: s3Payload[] | sftpPayload[], _encoding: any, callback: (err?: Error) => void) {
+    const rows = []
+    try {
+      // If header is not written, write CSV header
+      for (const payload of payloads) {
+        if (!this.headerWritten) {
+          const headers = ['audience_key']
+          if (!this.sftp && (payload as sftpPayload).sftp_password && (payload as sftpPayload).sftp_username) {
+            this.sftp = {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sftpPassword: (payload as sftpPayload).sftp_password!,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              sftpUsername: (payload as sftpPayload).sftp_username!
+            }
+          }
+
+          if (!this.s3 && (payload as s3Payload).s3_aws_access_key) {
+            this.s3 = {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              s3_aws_access_key: (payload as s3Payload).s3_aws_access_key!,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              s3_aws_region: (payload as s3Payload).s3_aws_region!,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              s3_aws_secret_key: (payload as s3Payload).s3_aws_secret_key!,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              s3_aws_bucket_name: (payload as s3Payload).s3_aws_bucket_name!,
+              file_name: (payload as s3Payload).filename
+            }
+          }
+          if (payloads[0].identifier_data) {
+            for (const identifier of Object.getOwnPropertyNames(payloads[0].identifier_data)) {
+              headers.push(identifier)
+            }
+          }
+          if (payloads[0].unhashed_identifier_data) {
+            for (const identifier of Object.getOwnPropertyNames(payloads[0].unhashed_identifier_data)) {
+              headers.push(identifier)
+            }
+          }
+          this.push(Buffer.from(headers.join(',') + '\n'))
+          this.headerWritten = true
+        }
+
+        const row: string[] = [enquoteIdentifier(payload.audience_key)]
+        if (payload.identifier_data) {
+          for (const key in payload.identifier_data) {
+            if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key)) {
+              row.push(enquoteIdentifier(String(payload.identifier_data[key])))
+            }
+          }
+        }
+
+        if (payload.unhashed_identifier_data) {
+          for (const key in payload.unhashed_identifier_data) {
+            if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
+              row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
+            }
+          }
+        }
+        rows.push(Buffer.from(row.join(',') + '\n'))
+      }
+      this.push(Buffer.concat(rows))
+      callback()
+    } catch (error) {
+      callback(error as Error)
+    }
+  }
+}
 
 /*
 Generates the LiveRamp ingestion file. Expected format:
@@ -120,4 +214,4 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize }
+export { generateFile, enquoteIdentifier, normalize, ObjectToCSVTransformer }

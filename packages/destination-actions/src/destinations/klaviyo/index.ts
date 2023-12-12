@@ -13,7 +13,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
   mode: 'cloud',
-
+  //
   authentication: {
     scheme: 'custom',
     fields: {

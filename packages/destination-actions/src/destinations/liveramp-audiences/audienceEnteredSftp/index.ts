@@ -1,12 +1,20 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
-import { generateFile } from '../operations'
+import { ObjectToCSVTransformer, generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import fs from 'fs'
+import {
+  LIVERAMP_MIN_RECORD_COUNT,
+  LIVERAMP_LEGACY_FLOW_FLAG_NAME,
+  LIVERAMP_SFTP_SERVER,
+  LIVERAMP_SFTP_PORT
+} from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
+import { Readable } from 'stream'
+import { pipeline } from 'stream/promises'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (SFTP)',
@@ -26,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
     sftp_folder_path: {
       label: 'Folder Path',
       description:
-        'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
+        'Path within the LiveRamp SFTP server to u  pload the files to. This path must exist and all subfolders must be pre-created.',
       type: 'string',
       default: { '@template': '/uploads/' },
       format: 'uri-reference'
@@ -99,6 +107,21 @@ const action: ActionDefinition<Settings, Payload> = {
       features,
       rawData
     })
+  },
+  async performBatchStream(_request, { payload }: ExecuteInputRaw<Settings, Readable, RawData[]>) {
+    const csv = new ObjectToCSVTransformer()
+    const fileStream = fs.createWriteStream('/tmp/test123.csv')
+    await pipeline(payload, csv, fileStream)
+
+    const sftpClient = new ClientSFTP()
+    await sftpClient.connect({
+      host: LIVERAMP_SFTP_SERVER,
+      port: LIVERAMP_SFTP_PORT,
+      username: csv.sftp.sftpUsername,
+      password: csv.sftp.sftpPassword
+    })
+    await sftpClient.fastPut('test123.csv', '/uploads/varada_test/test123.csv')
+    fs.unlinkSync('test123.csv')
   }
 }
 

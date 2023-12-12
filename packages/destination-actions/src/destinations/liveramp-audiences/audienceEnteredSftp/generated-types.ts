@@ -10,7 +10,7 @@ export interface Payload {
    */
   sftp_password?: string
   /**
-   * Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
+   * Path within the LiveRamp SFTP server to u  pload the files to. This path must exist and all subfolders must be pre-created.
    */
   sftp_folder_path?: string
   /**

@@ -1,6 +1,7 @@
 import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import { Payload } from './generated-types'
+import { Writable } from 'stream'
 
 function validateS3(payload: Payload) {
   if (!payload.s3_aws_access_key) {
@@ -47,4 +48,28 @@ async function uploadS3(
   })
 }
 
+export class S3WriteStream extends Writable {
+  buffer: Buffer
+  constructor() {
+    super({ objectMode: false })
+    this.buffer = Buffer.from('')
+  }
+
+  _construct(callback: (error?: Error) => void): void {
+    callback()
+  }
+
+  _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void) {
+    this.buffer = Buffer.concat([this.buffer, chunk])
+    callback()
+  }
+
+  _final(callback: (error?: Error) => void): void {
+    callback()
+  }
+
+  _destroy(_error: Error, callback: (error?: Error) => void): void {
+    callback()
+  }
+}
 export { validateS3, uploadS3 }

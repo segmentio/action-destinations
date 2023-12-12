@@ -34,6 +34,7 @@ import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './p
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
+import { Readable } from 'stream'
 
 export type {
   BaseActionDefinition,
@@ -297,6 +298,10 @@ interface BatchEventInput<Settings> {
   readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+}
+
+interface BatchEventStreamInput<Settings> extends Omit<BatchEventInput<Settings>, 'events'> {
+  readonly events: Readable
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -618,6 +623,48 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return [{ output: 'successfully processed batch of events' }]
   }
 
+  public async executeStream(
+    actionSlug: string,
+    {
+      events,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      dataFeedCache,
+      transactionContext,
+      stateContext
+    }: BatchEventStreamInput<Settings>
+  ) {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      return []
+    }
+
+    // let audienceSettings = {} as AudienceSettings
+    // // All events should be batched on the same audience
+    // if (events[0].context?.personas) {
+    //   audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
+    // }
+
+    await action.executeBatchStream({
+      mapping,
+      data: events as unknown as Readable,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      dataFeedCache,
+      transactionContext,
+      stateContext
+    })
+
+    return [{ output: 'successfully processed batch of events' }]
+  }
+
   public async executeDynamicField(
     actionSlug: string,
     fieldKey: string,
@@ -637,7 +684,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   private async onSubscription(
     subscription: Subscription,
-    events: SegmentEvent | SegmentEvent[],
+    events: SegmentEvent | SegmentEvent[] | Readable,
     settings: Settings,
     auth: AuthTokens,
     options?: OnEventOptions
@@ -662,6 +709,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       if (!subscription.subscribe || typeof subscription.subscribe !== 'string') {
         results = [{ output: 'invalid subscription' }]
         return results
+      }
+
+      if (events instanceof Readable) {
+        return await this.executeStream(actionSlug, { ...input, events })
       }
 
       const parsedSubscription = parseFql(subscription.subscribe)
@@ -719,6 +770,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   /** Pass a batch of events to 0 or more subscriptions */
   public onBatch(events: SegmentEvent[], settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
+    return this.onSubscriptions(events, settings, options)
+  }
+
+  public onReadableStream(events: Readable, settings: JSONObject, options?: OnEventOptions): Promise<Result[]> {
     return this.onSubscriptions(events, settings, options)
   }
 
@@ -784,7 +839,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   }
 
   private async onSubscriptions(
-    data: SegmentEvent | SegmentEvent[],
+    data: SegmentEvent | SegmentEvent[] | Readable,
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<Result[]> {

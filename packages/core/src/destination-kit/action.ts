@@ -13,6 +13,7 @@ import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Readable, Transform } from 'stream'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -79,6 +80,9 @@ export interface ActionDefinition<
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
+
+  /** The operation to perform when this action is triggered for a batch of events */
+  performBatchStream?: RequestFn<Settings, Readable, any, AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -328,6 +332,58 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
       await this.performRequest(this.definition.performBatch, data)
     }
+  }
+
+  async executeBatchStream(bundle: ExecuteBundle<Settings, Readable, AudienceSettings>): Promise<void> {
+    if (!this.definition.performBatchStream) {
+      throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
+    }
+
+    const transformStream = new Transform({
+      objectMode: true,
+      transform: async (chunk, _encoding, callback) => {
+        let payloads = transformBatch(bundle.mapping, chunk) as Payload[]
+        payloads = removeEmptyValues(payloads, this.schema, true) as Payload[]
+        // // Validate the resolved payload against the schema
+        // if (this.schema) {
+        //   const schema = this.schema
+        //   const validationOptions = {
+        //     schemaKey: `${this.destinationName}:${this.definition.title}`,
+        //     throwIfInvalid: false,
+        //     statsContext: bundle.statsContext
+        //   }
+
+        //   payloads = payloads
+        //     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
+        //     .map((payload) => removeEmptyValues(payload, schema) as Payload)
+        //     // Exclude invalid schemas for now...
+        //     .filter((payload) => validateSchema(payload, schema, validationOptions))
+        // }
+        callback(null, payloads)
+      }
+    })
+
+    const stream = bundle.data.pipe(transformStream)
+
+    // Construct the data bundle to send to an action
+    const dataBundle = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
+      payload: stream,
+      settings: bundle.settings,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      dataFeedCache: bundle.dataFeedCache,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      audienceSettings: bundle.audienceSettings
+    }
+
+    const requestClient = this.createRequestClient(dataBundle)
+
+    await this.definition.performBatchStream(requestClient, dataBundle)
   }
 
   async executeDynamicField(

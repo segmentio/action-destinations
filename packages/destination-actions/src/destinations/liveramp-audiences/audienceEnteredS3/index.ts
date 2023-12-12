@@ -1,12 +1,15 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadS3, validateS3 } from './s3'
-import { generateFile } from '../operations'
-import { sendEventToAWS } from '../awsClient'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import { ActionDefinition, InvalidAuthenticationError } from '@segment/actions-core'
+import { S3WriteStream, uploadS3, validateS3 } from './s3'
+import { ObjectToCSVTransformer, generateFile } from '../operations'
+import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
+import { Readable } from 'stream'
+import { pipeline } from 'stream/promises'
+import { sendEventToAWS } from '../awsClient'
+import generateS3RequestOptions from '../../../lib/AWS/s3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -101,16 +104,36 @@ const action: ActionDefinition<Settings, Payload> = {
       features,
       rawData
     })
+  },
+
+  performBatchStream: async (request, { payload }: ExecuteInputRaw<Settings, Readable, RawData[]>) => {
+    const transformStream = new ObjectToCSVTransformer({})
+    const writeToS3 = new S3WriteStream()
+    await pipeline(payload, transformStream, writeToS3)
+
+    const opts = await generateS3RequestOptions(
+      transformStream.s3.s3_aws_bucket_name,
+      transformStream.s3.s3_aws_region,
+      transformStream.s3.file_name,
+      'PUT',
+      writeToS3.buffer,
+      transformStream.s3.s3_aws_access_key,
+      transformStream.s3.s3_aws_secret_key
+    )
+    if (!opts.headers || !opts.method || !opts.host || !opts.path) {
+      throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
+    }
+
+    return await request(`https://${opts.host}/${opts.path}`, {
+      headers: opts.headers as Record<string, string>,
+      method: 'PUT',
+      timeout: 120000,
+      body: opts.body
+    })
   }
 }
 
 async function processData(input: ProcessDataInput<Payload>) {
-  if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
-    throw new PayloadValidationError(
-      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
-    )
-  }
-
   validateS3(input.payloads[0])
 
   const { filename, fileContents } = generateFile(input.payloads)
