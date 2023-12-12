@@ -10,7 +10,11 @@ describe('Responsys', () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = {}
+      const authData = {
+        username: 'test001',
+        userPassword: 'test_secret',
+        baseUrl: 'https://your.destination.endpoint'
+      }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
