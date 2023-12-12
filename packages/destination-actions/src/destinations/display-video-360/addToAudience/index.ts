@@ -24,11 +24,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     partner_provided_id: { ...partner_provided_id }
   },
   perform: async (request, { payload, statsContext }) => {
+    statsContext?.tags.push('slug:actions-display-video-360')
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
     await handleUpdate(request, [payload], 'add', statsContext)
     return { success: true }
   },
   performBatch: async (request, { payload, statsContext }) => {
+    statsContext?.tags.push('slug:actions-display-video-360')
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
     await handleUpdate(request, payload, 'add', statsContext)
     return { success: true }
