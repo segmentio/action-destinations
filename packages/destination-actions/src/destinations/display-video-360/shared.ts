@@ -1,5 +1,7 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { USER_UPLOAD_ENDPOINT } from './constants'
+import { OAUTH_URL, USER_UPLOAD_ENDPOINT } from './constants'
+import type { RefreshTokenResponse } from './types'
+import type { OAuth2ClientCredentials } from '@segment/actions-core/destination-kit/oauth2'
 
 import {
   UserIdType,
@@ -10,16 +12,30 @@ import {
 } from './proto/protofile'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
-import type { AudienceSettings, Settings } from './generated-types'
+import type { AudienceSettings } from './generated-types'
 
-export const buildHeaders = (audienceSettings: AudienceSettings | undefined, settings: Settings) => {
-  if (!audienceSettings || !settings) {
+export const getAuthToken = async (request: RequestClient, settings: OAuth2ClientCredentials) => {
+  const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
+      client_id: settings.clientId,
+      client_secret: settings.clientSecret,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return data.access_token
+}
+
+export const buildHeaders = (audienceSettings: AudienceSettings | undefined, accessToken: string) => {
+  if (!audienceSettings || !accessToken) {
     throw new IntegrationError('Bad Request', 'INVALID_REQUEST_DATA', 400)
   }
 
   return {
     // @ts-ignore - TS doesn't know about the oauth property
-    Authorization: `Bearer ${settings?.oauth?.access_token}`,
+    Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }

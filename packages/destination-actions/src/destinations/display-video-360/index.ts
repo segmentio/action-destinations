@@ -1,4 +1,5 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError, JSONObject } from '@segment/actions-core'
+import { getOAuth2Data } from '@segment/actions-core/destination-kit/parse-settings'
 
 import type { Settings, AudienceSettings } from './generated-types'
 import type { RefreshTokenResponse } from './types'
@@ -7,7 +8,7 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
-import { buildHeaders } from './shared'
+import { buildHeaders, getAuthToken } from './shared'
 import { handleRequestError } from './errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -59,6 +60,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
+      const authSettings = getOAuth2Data(settings as unknown as JSONObject)
+
       statsTags?.push(`slug:${destination.slug}`)
 
       if (!audienceName) {
@@ -82,8 +85,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const statsName = 'createAudience'
       let response
       try {
+        const authToken = await getAuthToken(request, authSettings)
         response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(createAudienceInput.audienceSettings, settings),
+          headers: buildHeaders(createAudienceInput.audienceSettings, authToken),
           method: 'POST',
           json: {
             operations: [
@@ -113,6 +117,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
+      const authSettings = getOAuth2Data(settings as unknown as JSONObject)
+
       statsTags?.push(`slug:${destination.slug}`)
       const statsName = 'getAudience'
 
@@ -130,8 +136,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       )
 
       try {
+        const authToken = await getAuthToken(request, authSettings)
         const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings),
+          headers: buildHeaders(audienceSettings, authToken),
           method: 'POST',
           json: {
             query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
