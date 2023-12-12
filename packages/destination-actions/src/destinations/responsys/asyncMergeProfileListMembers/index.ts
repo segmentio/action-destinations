@@ -8,8 +8,7 @@ import { buildRecordData } from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge Profile List Members',
-  description: '',
-  defaultSubscription: 'type = "identify"',
+  description: 'Asynchronous Merge Profile List Members API',
   fields: {
     profileListName: {
       label: 'List Name',
@@ -189,11 +188,57 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    console.log(`something Payload: ${payload}`)
-    console.log(`incoming request : ${JSON.stringify(request)}`)
+    console.log(`incoming batch Payload: ${JSON.stringify(payload)}`)
+
+    const {
+      profileListName,
+      defaultPermissionStatus,
+      htmlValue,
+      insertOnNoMatch,
+      matchColumnName1,
+      matchColumnName2,
+      matchOperator,
+      optinValue,
+      optoutValue,
+      rejectRecordIfChannelEmpty,
+      textValue,
+      updateOnMatch,
+      mapTemplateName
+    } = payload[0]
+    const payloadData = payload.map((obj) => obj.userData)
+    const recordData = buildRecordData(payloadData, mapTemplateName ?? '')
+    const requestBody: RequestBody = {
+      recordData: recordData as RecordData,
+      mergeRule: {
+        defaultPermissionStatus,
+        htmlValue,
+        insertOnNoMatch,
+        matchColumnName1,
+        matchColumnName2,
+        matchOperator,
+        optinValue,
+        optoutValue,
+        rejectRecordIfChannelEmpty,
+        textValue,
+        updateOnMatch
+      }
+    }
+    console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+
+    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
+    console.log(`endpoint ${endpoint}`)
+    return await request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(requestBody)
+    })
+    /* EP: below is old "chunking" code, which we no longer need because enable_batching should batch the data into 
+    chunks of 200 records.
+
     const chunkSize = 2
     const requestBodyArr = []
     // Splitting the incoming payload into chunks to meet the Responsys API limit of 200 records per request
+
     for (let i = 0; i < payload.length; i += chunkSize) {
       const chunk = payload.slice(i, i + chunkSize)
       const {
@@ -275,6 +320,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       })
     )
+    */
   }
 }
 

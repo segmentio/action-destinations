@@ -135,6 +135,34 @@ const action: ActionDefinition<Settings, Payload> = {
     console.log(`Batching Payload: ${JSON.stringify(payload)}`)
     console.log(`incoming request : ${JSON.stringify(request)}`)
 
+    const {
+      profileListName,
+      profileExtensionTable,
+      insertOnNoMatch,
+      matchColumnName1,
+      matchColumnName2,
+      updateOnMatch,
+      mapTemplateName
+    } = payload[0]
+
+    const payloadData = payload.map((obj) => obj.userData)
+    const recordData = buildRecordData(payloadData, mapTemplateName ?? '')
+    const requestBody: RequestBodyPET = {
+      recordData: recordData as RecordData,
+      insertOnNoMatch: !!insertOnNoMatch,
+      updateOnMatch: updateOnMatch || '',
+      matchColumnName1: matchColumnName1?.replace(/_+$/, '') || '',
+      matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
+    }
+    console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+    return await request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(requestBody)
+    })
+
+    /* EP: below is old "chunking" code, which we no longer need because enable_batching should batch the data into chunks of 200 records.
     const chunkSize = 2
     const requestBodyArr = []
     for (let i = 0; i < payload.length; i += chunkSize) {
@@ -197,6 +225,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       })
     )
+    END old chunking code */
   }
 }
 
