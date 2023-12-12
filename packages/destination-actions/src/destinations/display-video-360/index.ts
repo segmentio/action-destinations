@@ -1,6 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError, JSONObject } from '@segment/actions-core'
-import { getOAuth2Data } from '@segment/actions-core/destination-kit/parse-settings'
-
+import { AudienceDestinationDefinition, IntegrationError, JSONObject, getOAuth2Data } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import type { RefreshTokenResponse } from './types'
 
@@ -60,7 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
-      const authSettings = getOAuth2Data(settings as unknown as JSONObject)
+      const authSettings = getOAuth2Data(settings as JSONObject)
 
       statsTags?.push(`slug:${destination.slug}`)
 

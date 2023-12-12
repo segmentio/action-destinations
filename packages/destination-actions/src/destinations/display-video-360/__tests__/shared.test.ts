@@ -6,7 +6,7 @@ import {
   createUpdateRequest,
   sendUpdateRequest
 } from '../shared'
-import { AudienceSettings, Settings } from '../generated-types'
+import { AudienceSettings } from '../generated-types'
 import { UpdateHandlerPayload } from '../types'
 import { UpdateUsersDataResponse, ErrorCode, ErrorInfo } from '../proto/protofile'
 import { StatsContext, Response } from '@segment/actions-core'
@@ -95,16 +95,13 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
 describe('shared', () => {
   describe('buildHeaders', () => {
     it('should build headers correctly', () => {
+      const accessToken = 'real-token'
       const audienceSettings: AudienceSettings = {
         advertiserId: '123',
         accountType: 'DISPLAY_VIDEO_ADVERTISER'
       }
-      const settings: Settings = {
-        oauth: {
-          access_token: 'real-token'
-        }
-      }
-      const result = buildHeaders(audienceSettings, settings)
+
+      const result = buildHeaders(audienceSettings, accessToken)
       expect(result).toEqual({
         Authorization: 'Bearer real-token',
         'Content-Type': 'application/json',
