@@ -1,5 +1,5 @@
 import { Payload } from './asyncMergePetRecords/generated-types'
-import { DynamicData, RecordData, RequestBody, RequestBodyPET } from './types'
+import { DynamicData, RecordData } from './types'
 
 export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {
   // Check if userData is an array
@@ -39,25 +39,25 @@ export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*,
   }
 }
 
-export const buildFetchRequest = (authToken: string, requestBody: RequestBody | RequestBodyPET) => {
-  return {
-    method: 'POST',
-    headers: {
-      Authorization: 'ACCESS TOKEN HERE', //`${authToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  }
-}
+// export const buildFetchRequest = (authToken: string, requestBody: RequestBody | RequestBodyPET) => {
+//   return {
+//     method: 'POST',
+//     headers: {
+//       Authorization: 'ACCESS TOKEN HERE', //`${authToken}`,
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify(requestBody)
+//   }
+// }
 
-export const handleFetchResponse = async (endpoint: string, response: DynamicData) => {
-  console.log(`response.status: ${response.status}`)
-  if (response.status >= 500) {
-    throw new Error(
-      `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(
-        await response.json()
-      )}`
-    )
-  }
-  return await response.json()
-}
+// export const handleFetchResponse = async (endpoint: string, response: DynamicData) => {
+//   console.log(`response.status: ${response.status}`)
+//   if (response.status >= 500) {
+//     throw new Error(
+//       `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(
+//         await response.json()
+//       )}`
+//     )
+//   }
+//   return await response.json()
+// }
