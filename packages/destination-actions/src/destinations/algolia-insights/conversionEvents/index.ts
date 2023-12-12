@@ -1,6 +1,6 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaConversionEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaConversionEvent, AlgoliaEventType } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -68,14 +68,33 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: "The name of the event to be send to Algolia. Defaults to 'Conversion Event'",
+      type: 'string',
+      required: true,
+      default: 'Conversion Event'
+    },
+    eventType: {
+      label: 'Event Type',
+      description: "The type of event to send to Algolia. Defaults to 'conversion'",
+      type: 'string',
+      required: true,
+      default: 'conversion',
+      choices: [
+        { label: 'view', value: 'view' },
+        { label: 'conversion', value: 'conversion' },
+        { label: 'click', value: 'click' }
+      ]
     }
   },
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   perform: (request, data) => {
     const insightEvent: AlgoliaConversionEvent = {
       ...data.payload.extraProperties,
-      eventName: 'Conversion Event',
-      eventType: 'conversion',
+      eventName: data.payload.eventName ?? 'Conversion Event',
+      eventType: (data.payload.eventType as AlgoliaEventType) ?? ('conversion' as AlgoliaEventType),
       index: data.payload.index,
       queryID: data.payload.queryID,
       objectIDs: data.payload.products.map((product) => product.product_id),
