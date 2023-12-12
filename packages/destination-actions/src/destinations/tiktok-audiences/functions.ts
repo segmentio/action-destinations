@@ -99,7 +99,7 @@ export function getIDSchema(payload: GenericPayload): string[] {
   return id_schema
 }
 
-const isHashedInformation = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
 export function extractUsers(payloads: GenericPayload[]): {}[][] {
   const batch_data: {}[][] = []
