@@ -121,9 +121,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload, auth }) => {
-    console.log(`auth : ${JSON.stringify(auth)}`)
-    console.log(`settings : ${JSON.stringify(settings)}`)
-    console.log(`incoming request : ${JSON.stringify(request)}`)
+    // console.log(`auth : ${JSON.stringify(auth)}`)
+    // console.log(`settings : ${JSON.stringify(settings)}`)
+    // console.log(`incoming request : ${JSON.stringify(request)}`)
 
     if (payload && payload.profileListName) {
       // If #1
@@ -151,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
 
-      console.log(`endpoint ${endpoint}`)
+      // console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
       const requestBody: RequestBody = {
@@ -171,7 +171,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
 
-      console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+      // console.log(`requestBody : ${JSON.stringify(requestBody)}`)
       const token = auth?.accessToken ?? '' // Update 'authToken' to 'accessToken'
       // const fetchRequest = buildFetchRequest(token, requestBody)
       // console.log(`request : ${JSON.stringify(fetchRequest)}`)
@@ -192,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    console.log(`incoming batch Payload: ${JSON.stringify(payload)}`)
+    // console.log(`incoming batch Payload: ${JSON.stringify(payload)}`)
 
     const {
       profileListName,
@@ -227,7 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
         updateOnMatch
       }
     }
-    console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+    // console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
     // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
     // Ensure baseUrl starts with "https://"
@@ -235,7 +235,7 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.baseUrl?.startsWith('https://') ? settings.baseUrl : `https://${settings.baseUrl}`
     )?.replace(/\/$/, '')
     const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
-    console.log(`endpoint ${endpoint}`)
+    // console.log(`endpoint ${endpoint}`)
     return await request(endpoint, {
       method: 'POST',
       body: JSON.stringify(requestBody)

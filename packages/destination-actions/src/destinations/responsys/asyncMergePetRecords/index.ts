@@ -76,9 +76,9 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: batch_size
   },
 
-  perform: async (request, { settings, payload, auth }) => {
-    console.log(`auth : ${JSON.stringify(auth)}`)
-    console.log(`incoming request : ${JSON.stringify(request)}`)
+  perform: async (request, { settings, payload /*auth*/ }) => {
+    // console.log(`auth : ${JSON.stringify(auth)}`)
+    // console.log(`incoming request : ${JSON.stringify(request)}`)
 
     if (payload && payload.profileListName) {
       // If #1
@@ -101,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
       //const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
-      console.log(`endpoint ${endpoint}`)
+      // console.log(`endpoint ${endpoint}`)
       const recordData = buildRecordData(userData, mapTemplateName ?? '')
 
       const requestBody: RequestBodyPET = {
@@ -112,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
         matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
       }
 
-      console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+      // console.log(`requestBody : ${JSON.stringify(requestBody)}`)
       // Auth token is added by extendRequest()
       return request(endpoint, {
         method: 'POST',
@@ -136,8 +136,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    console.log(`Batching Payload: ${JSON.stringify(payload)}`)
-    console.log(`incoming request : ${JSON.stringify(request)}`)
+    // console.log(`Batching Payload: ${JSON.stringify(payload)}`)
+    // console.log(`incoming request : ${JSON.stringify(request)}`)
 
     const {
       profileListName,
@@ -158,7 +158,7 @@ const action: ActionDefinition<Settings, Payload> = {
       matchColumnName1: matchColumnName1?.replace(/_+$/, '') || '',
       matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
     }
-    console.log(`requestBody : ${JSON.stringify(requestBody)}`)
+    // console.log(`requestBody : ${JSON.stringify(requestBody)}`)
     // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
     // Ensure baseUrl starts with "https://"
     const baseUrl = (
