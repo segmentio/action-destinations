@@ -130,7 +130,13 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
     let apiLookupData = {}
     if (this.isFeatureActive(FLAGON_NAME_DATA_FEEDS)) {
-      apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+      try {
+        apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+      } catch (error) {
+        // Catching error to add tags, rethrowing to continue bubbling up
+        this.tags.push('reason:data_feed_failure')
+        throw error
+      }
     }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
