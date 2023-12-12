@@ -109,8 +109,23 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   async performBatchStream(_request, { payload }: ExecuteInputRaw<Settings, Readable, RawData[]>) {
+    // peek and unshift the first payload to get the filename
+    const samplePayload = await new Promise<Payload>((resolve, reject) => {
+      payload
+        .once('data', (data: Payload[]) => {
+          payload.pause()
+          payload.unshift(data)
+          resolve(data[0])
+        })
+        .on('error', (err) => {
+          reject(err)
+        })
+    })
+
+    const fileName = samplePayload.filename
+    const filePath = `/tmp/${fileName}`
     const csv = new ObjectToCSVTransformer()
-    const fileStream = fs.createWriteStream('/tmp/test123.csv')
+    const fileStream = fs.createWriteStream(filePath)
     await pipeline(payload, csv, fileStream)
 
     const sftpClient = new ClientSFTP()
@@ -120,8 +135,8 @@ const action: ActionDefinition<Settings, Payload> = {
       username: csv.sftp.sftpUsername,
       password: csv.sftp.sftpPassword
     })
-    await sftpClient.fastPut('test123.csv', '/uploads/varada_test/test123.csv')
-    fs.unlinkSync('test123.csv')
+    await sftpClient.fastPut(filePath, `/uploads/varada_test/${fileName}`)
+    fs.unlinkSync(filePath)
   }
 }
 
