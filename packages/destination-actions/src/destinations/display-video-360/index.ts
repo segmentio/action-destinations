@@ -1,4 +1,5 @@
-import { AudienceDestinationDefinition, IntegrationError, JSONObject, getOAuth2Data } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError, JSONObject } from '@segment/actions-core'
+import { getOAuth2Data } from '../../../../core/src/destination-kit/parse-settings'
 import type { Settings, AudienceSettings } from './generated-types'
 import type { RefreshTokenResponse } from './types'
 
