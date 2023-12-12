@@ -144,7 +144,11 @@ const action: ActionDefinition<Settings, Payload> = {
         mapTemplateName
       } = payload
       // Setting the endpoint
-      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      // Ensure baseUrl starts with "https://"
+      const baseUrl = (
+        settings.baseUrl?.startsWith('https://') ? settings.baseUrl : `https://${settings.baseUrl}`
+      )?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
 
       console.log(`endpoint ${endpoint}`)
@@ -225,7 +229,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     console.log(`requestBody : ${JSON.stringify(requestBody)}`)
 
-    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    // Ensure baseUrl starts with "https://"
+    const baseUrl = (
+      settings.baseUrl?.startsWith('https://') ? settings.baseUrl : `https://${settings.baseUrl}`
+    )?.replace(/\/$/, '')
     const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/members`
     console.log(`endpoint ${endpoint}`)
     return await request(endpoint, {

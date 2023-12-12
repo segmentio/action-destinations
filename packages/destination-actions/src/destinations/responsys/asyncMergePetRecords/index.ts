@@ -94,7 +94,11 @@ const action: ActionDefinition<Settings, Payload> = {
       } = payload
 
       // EP: URL can vary, we need to pull it from global settings. Also remove trailing slash from baseUrl if it exists
-      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      // Ensure baseUrl starts with "https://"
+      const baseUrl = (
+        settings.baseUrl?.startsWith('https://') ? settings.baseUrl : `https://${settings.baseUrl}`
+      )?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
       //const endpoint = `https://njp1q7u-api.responsys.ocs.oraclecloud.com/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
       console.log(`endpoint ${endpoint}`)
@@ -155,7 +159,11 @@ const action: ActionDefinition<Settings, Payload> = {
       matchColumnName2: matchColumnName2?.replace(/_+$/, '') || ''
     }
     console.log(`requestBody : ${JSON.stringify(requestBody)}`)
-    const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    // const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    // Ensure baseUrl starts with "https://"
+    const baseUrl = (
+      settings.baseUrl?.startsWith('https://') ? settings.baseUrl : `https://${settings.baseUrl}`
+    )?.replace(/\/$/, '')
     const endpoint = `${baseUrl}/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
     return await request(endpoint, {
       method: 'POST',
