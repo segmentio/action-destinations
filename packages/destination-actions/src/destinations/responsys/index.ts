@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
       // Return a request that refreshes the access_token if the API supports it
-      console.log('settings:', settings.username, settings.userPassword)
+      // console.log('settings:', settings.username, settings.userPassword)
       const res = await request<RefreshTokenResponse>(endpoint, {
         method: 'POST',
         headers: {
@@ -59,7 +59,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
-    console.log('auth extendRequest', auth)
+    // console.log('auth extendRequest', auth)
     return {
       headers: {
         'Content-Type': 'application/json',
