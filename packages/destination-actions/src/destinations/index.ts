@@ -141,6 +141,8 @@ register('6537b55db9e94b2e110c9cf9', './movable-ink')
 register('6537b5da8f27fd20713a5ba8', './usermotion')
 register('6554dc58634812f080d83a23', './canvas')
 register('656f2474a919b7e6e4900265', './gleap')
+register('6578a19fbd1201d21f035156', './responsys')
+
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
