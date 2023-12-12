@@ -2291,6 +2291,25 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@^3.76.0", "@segment/actions-core@^3.91.0":
+  version "3.91.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.91.0.tgz#f6957a45cbf25c2204ede83d3b085b0a859b5ec7"
+  integrity sha512-utpakcqYzOUcDpKvsxVaF0yTMO/unIDAEbZ9dOiyCkckdnUHUSQCFrI89Qweug5zZorq8E+FdyFCs00lECPSqA==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.1.2"
+    "@segment/ajv-human-errors" "^2.11.3"
+    "@segment/destination-subscriptions" "^3.31.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
