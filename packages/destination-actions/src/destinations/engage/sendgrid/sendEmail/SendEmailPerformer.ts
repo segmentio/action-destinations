@@ -328,6 +328,34 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   @track()
+  validateLinkAndLog(link: string): void {
+    let workspaceId = this.payload.customArgs && this.payload.customArgs['workspace_id']
+    let audienceId =
+      this.payload.customArgs &&
+      (this.payload.customArgs['audience_id'] || this.payload.customArgs['__segment_internal_audience_id__'])
+    workspaceId = JSON.stringify(workspaceId)
+    audienceId = JSON.stringify(audienceId)
+
+    this.logger.info(`Validating the link: ${link} ${workspaceId} ${audienceId}`)
+
+    const parsedLink = new URL(link)
+    // Generic function to check for missing parameters
+    const checkParam = (paramName: string) => {
+      const paramValue = parsedLink.searchParams.get(paramName)
+      if (!paramValue || paramValue === '') {
+        this.logger.error(`${paramName} is missing: ${link} ${workspaceId} ${audienceId}`)
+        this.statsClient.incr('missing_query_param', 1, [`param:${paramName}`, `audienceId:${audienceId}`])
+      }
+    }
+
+    // List of required query parameters
+    const requiredParams = ['contactId', 'data', 'code', 'spaceId', 'workspaceId', 'messageId', 'user-agent']
+
+    // Check each required parameter
+    requiredParams.forEach((param) => checkParam(param))
+  }
+
+  @track()
   insertUnsubscribeLinks(html: string, emailProfile: EmailProfile): string {
     const spaceId = this.settings.spaceId
     const groupId = this.payload.groupId
@@ -348,6 +376,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
+          _this.validateLinkAndLog(groupUnsubscribeLink)
           $(this).removeAttr('href')
           $(this).attr('clicktracking', 'off').attr('href', groupUnsubscribeLink)
           _this.logger?.info(`Group Unsubscribe link replaced`)
@@ -361,6 +390,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
+          _this.validateLinkAndLog(globalUnsubscribeLink)
           $(this).removeAttr('href')
           $(this).attr('clicktracking', 'off').attr('href', globalUnsubscribeLink)
           _this.logger?.info(`Global Unsubscribe link replaced`)
@@ -380,6 +410,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
         _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
+        _this.validateLinkAndLog(preferencesLink)
         $(this).removeAttr('href')
         $(this).attr('clicktracking', 'off').attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
