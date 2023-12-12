@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -6,7 +6,8 @@ import {
   formatCustomVariables,
   getCustomVariables,
   getApiVersion,
-  handleGoogleErrors
+  handleGoogleErrors,
+  getConversionActionDynamicData
 } from '../functions'
 import { PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
@@ -17,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     caller_id: {
       label: 'Caller ID',
@@ -69,6 +70,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    }
+  },
+
+  dynamicFields: {
+    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth)
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {

@@ -19,19 +19,30 @@ const domain: InputField = {
   }
 }
 
-const name: InputField = {
+const workspace_id: InputField = {
   type: 'string',
-  label: 'Name',
-  description: 'The name of the Workspace',
+  label: 'ID',
+  description: 'The ID of the Workspace',
   format: 'text',
   required: true,
   default: {
     '@if': {
-      exists: { '@path': '$.traits.name' },
-      then: { '@path': '$.traits.name' },
-      else: { '@path': '$.name' }
+      exists: { '@path': '$.groupId' },
+      then: { '@path': '$.groupId' },
+      else: { '@path': '$.context.group_id' }
     }
   }
+}
+
+const user_id: InputField = {
+  type: 'string',
+  label: 'ID',
+  description:
+    "The ID of the User, if you'd like to link them to this Workspace (leave blank to skip). " +
+    'This assumes you will have already called the Attio identifyUser action: unrecognised Users will fail this action otherwise.',
+  format: 'text',
+  required: false,
+  default: { '@path': '$.userId' }
 }
 
 const company_attributes: InputField = {
@@ -62,34 +73,32 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {
     domain,
-    name,
+    workspace_id,
+    user_id,
     company_attributes,
     workspace_attributes
   },
 
-  perform: async (request, data) => {
-    const {
-      payload: { domain, name, workspace_attributes, company_attributes }
-    } = data
-
+  perform: async (request, { payload }) => {
     const client = new AttioClient(request)
 
     const company = await client.assertRecord({
       object: 'companies',
       matching_attribute: 'domains',
       values: {
-        domains: domain,
-        ...(company_attributes ?? {})
+        domains: payload.domain,
+        ...(payload.company_attributes ?? {})
       }
     })
 
     return await client.assertRecord({
       object: 'workspaces',
-      matching_attribute: 'name',
+      matching_attribute: 'workspace_id',
       values: {
-        name,
+        workspace_id: payload.workspace_id,
         company: company.data.data.id.record_id,
-        ...(workspace_attributes ?? {})
+        ...(payload.user_id ? { users: [payload.user_id] } : {}),
+        ...(payload.workspace_attributes ?? {})
       }
     })
   }

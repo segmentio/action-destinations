@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number_as_identifier?: boolean
   /**
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
+   */
+  append_arrays?: boolean
+  /**
    * Age of a user.
    */
   age?: number

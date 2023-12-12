@@ -119,6 +119,12 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    ipPool: {
+      label: 'IP Pool',
+      description: 'Send email with an ip pool',
+      type: 'string',
+      default: ''
+    },
     sendBasedOnOptOut: {
       label: 'Send OptOut',
       description: 'Send to any subscription status other than unsubscribed',

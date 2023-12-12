@@ -10,13 +10,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Library',
       description:
         'The Segment library used when the event was triggered. This Integration will only work with analytics.js or Mobile Segment libraries',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: { '@path': '$.context.library.name' }
     },
     platform: {
       label: 'User Device Platform',
       description: 'The platform of the device which generated the event e.g. "Android" or "iOS"',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: { '@path': '$.context.device.type' }
     },
     campaignId: {

@@ -8,10 +8,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Exact timestamp when the event was sent (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number
-   */
-  publishedAt: string | number
-  /**
    * Optional agent identifier that originated the event. Used to identify which SDK generated the event.
    */
   agent?: string

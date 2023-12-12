@@ -325,7 +325,7 @@ export NODE_ENV=test
 
 ## Code Coverage
 
-Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
+Code coverage is collected upon completion of `yarn test --coverage`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
 
 ## Post Deployment Change Testing
 

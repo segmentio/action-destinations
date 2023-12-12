@@ -69,9 +69,13 @@ export async function createAudience(
 }
 
 export function validate(payloads: GenericPayload[]): void {
-  if (payloads[0].send_email === false && payloads[0].send_advertising_id === false) {
+  if (
+    payloads[0].send_email === false &&
+    payloads[0].send_advertising_id === false &&
+    payloads[0].send_phone === false
+  ) {
     throw new IntegrationError(
-      'At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.',
+      'At least one of `Send Email`, `Send Phone` or `Send Advertising ID` must be set to `true`.',
       'INVALID_SETTINGS',
       400
     )
@@ -84,6 +88,9 @@ export function getIDSchema(payload: GenericPayload): string[] {
   const id_schema = []
   if (payload.send_email === true) {
     id_schema.push('EMAIL_SHA256')
+  }
+  if (payload.send_phone === true) {
+    id_schema.push('PHONE_SHA256')
   }
   if (payload.send_advertising_id === true) {
     id_schema.push('IDFA_SHA256')
@@ -125,6 +132,17 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
         }
       }
       user_ids.push(email_id)
+    }
+
+    if (payload.send_phone === true) {
+      let phone_id = {}
+      if (payload.phone) {
+        phone_id = {
+          id: createHash('sha256').update(payload.phone).digest('hex'),
+          audience_ids: [external_audience_id]
+        }
+      }
+      user_ids.push(phone_id)
     }
 
     if (payload.send_advertising_id === true) {

@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for OptimizelyDataPlatform's upsertContact destination action: all fields 1`] = `
+Object {
+  "address": Object {
+    "city": "uMyg@6QjI31r!",
+    "country": "uMyg@6QjI31r!",
+    "state": "uMyg@6QjI31r!",
+    "street": "uMyg@6QjI31r!",
+    "zip": "uMyg@6QjI31r!",
+  },
+  "age": 10705663206359.04,
+  "company": "uMyg@6QjI31r!",
+  "dob": "2021-02-01T00:00:00.000Z",
+  "first_name": "uMyg@6QjI31r!",
+  "gender": "uMyg@6QjI31r!",
+  "image_url": "uMyg@6QjI31r!",
+  "last_name": "uMyg@6QjI31r!",
+  "name": "uMyg@6QjI31r!",
+  "phone": "uMyg@6QjI31r!",
+  "title": "uMyg@6QjI31r!",
+  "user_identifiers": Object {
+    "anonymousId": "uMyg@6QjI31r!",
+    "email": "usezaf@efeho.vg",
+    "optimizely_vuid": "uMyg@6QjI31r!",
+    "userId": "uMyg@6QjI31r!",
+  },
+}
+`;
+
+exports[`Testing snapshot for OptimizelyDataPlatform's upsertContact destination action: required fields 1`] = `
+Object {
+  "user_identifiers": Object {},
+}
+`;

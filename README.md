@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
 
@@ -38,7 +39,13 @@ For more detailed instruction, see the following READMEs:
 
 ### Local development
 
-This is a monorepo with multiple packages leveraging [`lerna`](https://github.com/lerna/lerna) with [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces):
+This is a monorepo with multiple packages leveraging:
+
+- [`lerna`](https://github.com/lerna/lerna) for publishing
+- [`nx`](https://nx.dev) for dependency-tree aware building, linting, testing, and caching (migration away from `lerna` in progress!).
+- [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces) for package symlinking and hoisting.
+
+Structure:
 
 - `packages/ajv-human-errors` - a wrapper around [AJV](https://ajv.js.org/) errors to produce more friendly validation messages
 - `packages/browser-destinations` - destination definitions that run on device via Analytics 2.0
@@ -66,9 +73,8 @@ yarn login
 
 # Requires node 18.12.1, optionally: nvm use 18.12.1
 yarn --ignore-optional
-yarn bootstrap
-yarn build
 yarn install
+yarn build
 
 # Run unit tests to ensure things are working! For partners who don't have access to internal packages, you can run:
 yarn test-partners
@@ -432,6 +438,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
+- `dataFeedCache` - DataFeedCache can only be used by internal Twilio/Segment employees. DataFeedCache cannot be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 - `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
 
@@ -511,6 +518,104 @@ Keep in mind a few important things about how batching works:
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
+
+## Action Hooks
+
+**Note: This feature is not yet released.**
+
+Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
+
+**Inputs**
+
+Builders may define a set of `inputFields` that are used when performing the request to the destination.
+
+**`performHook`**
+
+Similar to the `perform` method, the `performHook` method allows builders to trigger a request to the destination whenever the criteria for that hook to be triggered is met. This method uses the `inputFields` defined as request parameters.
+
+**Outputs**
+
+Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping.
+
+### Example (LinkedIn Conversions API)
+
+This example has been shorted for brevity. The full code can be seen in the LinkedIn Conversions API 'streamConversion' action.
+
+```js
+const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
+  title: 'Stream Conversion Event',
+  ...
+  hooks: {
+        'onMappingSave': {
+      type: 'onMappingSave',
+      label: 'Create a Conversion Rule',
+      description:
+        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
+      inputFields: {
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the conversion rule.',
+          required: true
+        },
+        conversionType: {
+          type: 'string',
+          label: 'Conversion Type',
+          description: 'The type of conversion rule.',
+          required: true
+        },
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the conversion rule.',
+          required: true
+        },
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the conversion rule.',
+          required: true
+        },
+      },
+      performHook: async (request, { hookInputs }) => {
+        const { data } =
+          await request<ConversionRuleCreationResponse>
+          ('https://api.linkedin.com/rest/conversions', {
+          method: 'post',
+          json: {
+            name: hookInputs.name,
+            type: hookInputs.conversionType
+          }
+        })
+
+        return {
+          successMessage:
+          `Conversion rule ${data.id} created successfully!`,
+          savedData: {
+            id: data.id,
+            name: data.name,
+          }
+        }
+      }
+    }
+  },
+    perform: (request, data) => {
+    return request('https://example.com', {
+      method: 'post',
+      json: {
+        conversion: data.hookOutputs?.onMappingSave?.id,
+        name: data.hookOutputs?.onMappingSave?.name
+      }
+    })
+  }
+  }
+```
+
+### `onMappingSave` hook
+
+The `onMappingSave` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.onMappingSave?.<key>`.
 
 ## Audience Support (Pilot)
 

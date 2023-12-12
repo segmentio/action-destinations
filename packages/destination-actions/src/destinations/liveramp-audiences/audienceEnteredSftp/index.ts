@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
       type: 'string',
-      default: { '@template': '/uploads/{{properties.audience_key}}/' },
+      default: { '@template': '/uploads/' },
       format: 'uri-reference'
     },
     audience_key: {
@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Name of the CSV file to upload for LiveRamp ingestion.`,
       type: 'string',
       required: true,
-      default: { '@template': '{{properties.audience_key}}_PII_{{timestamp}}.csv' }
+      default: { '@template': '{{properties.audience_key}}_PII.csv' }
     },
     enable_batching: {
       type: 'boolean',

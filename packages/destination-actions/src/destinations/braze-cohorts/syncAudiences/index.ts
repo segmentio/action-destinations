@@ -47,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_id'
@@ -56,7 +57,8 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -92,7 +94,8 @@ const action: ActionDefinition<Settings, Payload> = {
     time: {
       label: 'Time',
       description: 'When the event occurred.',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.timestamp'
