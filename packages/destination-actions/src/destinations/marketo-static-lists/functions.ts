@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, RetryableError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as AddToListPayload } from './addToList/generated-types'
 import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
@@ -103,6 +103,11 @@ function extractLeadIds(leads: MarketoLeads[]) {
 function parseErrorResponse(response: MarketoResponse) {
   if (response.errors[0].code === '601') {
     throw new IntegrationError(response.errors[0].message, 'INVALID_OAUTH_TOKEN', 401)
+  }
+  if (response.errors[0].code === '1019') {
+    throw new RetryableError(
+      'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+    )
   }
   throw new IntegrationError(response.errors[0].message, 'INVALID_RESPONSE', 400)
 }
