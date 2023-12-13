@@ -26,6 +26,9 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      return request('TODO')
     }
   },
   extendRequest({ settings }) {
