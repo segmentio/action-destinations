@@ -3,36 +3,43 @@ import type { Settings } from './generated-types'
 
 import syncAudience from './syncAudience'
 
+import syncTraits from './syncTraits'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Kevel',
   slug: 'actions-kevel',
-  description: 'Send Segment Engage Audiences to Kevel',
+  description: 'Send Segment Engage Audiences to Kevel. Note only users with a userId will be synced.',
   mode: 'cloud',
 
   authentication: {
     scheme: 'custom',
     fields: {
-      kevelURL: {
-        label: 'Kevel Segments Webhook URL',
-        description:
-          "The URL Segment will use to send Audience data to Kevel. If you don't have a URL, contact the Kevel Customer Success team.",
+      networkId: {
+        label: 'Kevel Network ID',
+        description: 'TODO',
         type: 'string',
         required: true
       },
-      userIdType: {
-        label: 'User ID Type',
-        description:
-          "The Kevel Platform User Identifier Type. Contact the Kevel Customer Success team if you are unsure what this is.",
+      apiKey: {
+        label: 'Keven API Key',
+        description: 'TODO',
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (request, { settings }) => {
-      return request(settings.kevelURL)
+    }
+  },
+  extendRequest({ settings }) {
+    return {
+      headers: {
+        'X-Adzerk-ApiKey': settings.apiKey,
+        'Content-Type': 'application/json',
+        'X-Adzerk-Sdk-Version': 'adzerk-segment-integration:v1.0'
+      }
     }
   },
   actions: {
-    syncAudience
+    syncAudience,
+    syncTraits
   }
 }
 

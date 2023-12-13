@@ -2,28 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-interface Data {
-  payload: Payload & {
-    context?: {
-      [k: string]: unknown
-      personas?: {
-        computation_key?: string
-        computation_class?: string
-      }
-    }
-  }
-  rawData?: {
-    context?: {
-      personas?: {
-        computation_key?: string
-        computation_class?: string
-      }
-    }
-    properties?: Record<string, boolean>
-    traits?: Record<string, boolean>
-  }
-}
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync a Segment Engage Audience to a Kevel Segment',
@@ -32,26 +10,19 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_computation_key: {
       label: 'Audience Key',
       description: 'Segment Audience name to which user identifier should be added or removed',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
-      }
-    },
-    segment_computation_id: {
-      label: 'Audience ID',
-      description: 'Segment Audience ID to which user identifier should be added or removed',
-      type: 'hidden',
-      required: true,
-      default: {
-        '@path': '$.context.personas.computation_id'
       }
     },
     segment_computation_action: {
       label: 'Segment Computation Action',
       description:
         "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_class'
@@ -61,34 +32,45 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_user_id: {
       label: 'User ID',
       description: "The user's unique ID",
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: { '@path': '$.userId' }
-    }
+    },
+    traits_or_props: {
+      label: 'Traits or properties object',
+      description: 'A computed object for track and identify events. This field should not need to be edited.',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
+    },
   },
   perform: async (request, data) => {
-    const payload = data.payload
+
     const settings = data.settings
 
-    const d: Data = data
+    const baseUrl = `https://e-${settings.networkId}.adzerk.net/udb/${settings.networkId}`
 
-    const segmentComputationKey = payload.segment_computation_key
-    const audienceValue = d?.rawData?.properties?.[segmentComputationKey] ?? d?.rawData?.traits?.[segmentComputationKey]
+    const payload = data.payload
 
-    return request(settings.kevelURL, {
-      method: 'post',
-      json: {
-       user: {
-        id: payload.segment_user_id,
-        type: settings.userIdType
-       },
-       audience: {
-        id: payload.segment_computation_id,
-        name: payload.segment_computation_key,
-        value: audienceValue
-       }
-      }
-    })
+    const audienceValue = payload.traits_or_props[payload.segment_computation_key]
+
+    console.log(`${baseUrl}/interests?userKey=${payload.segment_user_id}`)
+
+    console.log([payload.segment_computation_key])
+
+    return request(`${baseUrl}/interests?userKey=${payload.segment_user_id}`, {
+      json: [payload.segment_computation_key],
+      method: audienceValue ? 'POST' : 'DELETE'
+    });
+
 
   }
 }

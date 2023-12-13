@@ -2,12 +2,11 @@
 
 export interface Settings {
   /**
-   * The URL Segment will use to send Audience data to Kevel. If you don't have a URL, contact the Kevel Customer Success team.
+   * TODO
    */
-  kevelURL: string
-
+  networkId: string
   /**
-   * The Kevel Platform User Identifier Type. Contact the Kevel Customer Success team if you are unsure what this is.
+   * TODO
    */
-  userIdType: string
+  apiKey: string
 }
