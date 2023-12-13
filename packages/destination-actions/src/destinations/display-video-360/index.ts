@@ -83,7 +83,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         accountType
       )
 
-      const statsName = 'createAudience'
       let response
       try {
         const authToken = await getAuthToken(request, authSettings)
