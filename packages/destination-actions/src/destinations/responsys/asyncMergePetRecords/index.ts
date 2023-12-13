@@ -7,7 +7,7 @@ import { buildRecordData } from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Async Merge PET Records',
-  description: '',
+  description: 'Async Merge PET Records',
   defaultSubscription: 'type = "identify"',
   fields: {
     profileListName: {
