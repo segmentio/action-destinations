@@ -11,7 +11,7 @@ export interface Deal extends Record<string, unknown> {
   expected_close_date?: string
   probability?: number
   lost_reason?: string
-  visible_to?: number
+  visible_to?: string
   add_time?: string
 
   id?: number
