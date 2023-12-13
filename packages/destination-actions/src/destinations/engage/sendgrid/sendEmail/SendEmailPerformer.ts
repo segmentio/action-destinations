@@ -1,10 +1,10 @@
 import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../utils'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Profile } from '../Profile'
+import { Profile } from '../../utils/Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
-import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
+import { ApiLookupConfig, FLAGON_NAME_DATA_FEEDS, apiLookupLiquidKey, performApiLookup } from '../../utils/apiLookups'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
@@ -129,8 +129,14 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       ])
 
     let apiLookupData = {}
-    if (this.isFeatureActive('is-datafeeds-enabled')) {
-      apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+    if (this.isFeatureActive(FLAGON_NAME_DATA_FEEDS)) {
+      try {
+        apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+      } catch (error) {
+        // Catching error to add tags, rethrowing to continue bubbling up
+        this.tags.push('reason:data_feed_failure')
+        throw error
+      }
     }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)

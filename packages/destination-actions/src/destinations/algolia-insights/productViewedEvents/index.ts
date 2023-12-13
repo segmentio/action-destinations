@@ -1,6 +1,6 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent, AlgoliaEventType } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -65,14 +65,33 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+      type: 'string',
+      required: true,
+      default: 'Product Viewed'
+    },
+    eventType: {
+      label: 'Event Type',
+      description: "The type of event to send to Algolia. Defaults to 'view'",
+      type: 'string',
+      required: true,
+      default: 'view',
+      choices: [
+        { label: 'view', value: 'view' },
+        { label: 'conversion', value: 'conversion' },
+        { label: 'click', value: 'click' }
+      ]
     }
   },
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   perform: (request, data) => {
     const insightEvent: AlgoliaProductViewedEvent = {
       ...data.payload.extraProperties,
-      eventName: 'Product Viewed',
-      eventType: 'view',
+      eventName: data.payload.eventName ?? 'Product Viewed',
+      eventType: (data.payload.eventType as AlgoliaEventType) ?? ('view' as AlgoliaEventType),
       index: data.payload.index,
       queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],

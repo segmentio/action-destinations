@@ -4,8 +4,8 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "eventName": ")j)vR5%1AP*epuo8A%R",
+      "eventType": "click",
       "index": ")j)vR5%1AP*epuo8A%R",
       "objectIDs": Array [
         ")j)vR5%1AP*epuo8A%R",
@@ -23,8 +23,8 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "eventName": ")j)vR5%1AP*epuo8A%R",
+      "eventType": "click",
       "index": ")j)vR5%1AP*epuo8A%R",
       "objectIDs": Array [
         ")j)vR5%1AP*epuo8A%R",

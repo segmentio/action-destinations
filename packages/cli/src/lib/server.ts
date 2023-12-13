@@ -296,7 +296,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
             settings: req.body.settings || {},
             audienceSettings: req.body.payload?.context?.personas?.audience_settings || {},
             mapping: mapping || req.body.payload || {},
-            auth: req.body.auth || {}
+            auth: req.body.auth || {},
+            features: req.body.features || {}
           }
 
           if (Array.isArray(eventParams.data)) {
