@@ -1,7 +1,7 @@
 import nock from 'nock'
-import { ApiLookupConfig, getRequestId, performApiLookup } from '../previewApiLookup'
+import { ApiLookupConfig, getRequestId, performApiLookup } from '../apiLookups'
+import { DataFeedCache } from '../../../../../../core/src/destination-kit/index'
 import createRequestClient from '../../../../../../core/src/create-request-client'
-import { DataFeedCache } from '../../../../../../core/src/destination-kit/'
 
 const profile = {
   traits: {
@@ -37,7 +37,7 @@ const cachedApiLookup = {
   cacheTtl: 60000
 }
 
-const createMockRequestStore = () => {
+const createMockRequestStore = (overrides?: Partial<DataFeedCache>) => {
   const mockStore: Record<string, any> = {}
   const mockDataFeedCache: DataFeedCache = {
     setRequestResponse: jest.fn(async (requestId, response) => {
@@ -45,7 +45,10 @@ const createMockRequestStore = () => {
     }),
     getRequestResponse: jest.fn(async (requestId) => {
       return mockStore[requestId]
-    })
+    }),
+    maxExpirySeconds: 600000,
+    maxResponseSizeBytes: 1000000,
+    ...overrides
   }
   return mockDataFeedCache
 }
@@ -91,7 +94,83 @@ describe('api lookups', () => {
     })
   })
 
+  it('rethrows error when shouldRetryOnRetryableError is true and api call fails', async () => {
+    const apiLookupRequest = nock(`https://fakeweather.com`).get(`/api/current`).reply(429)
+
+    await expect(
+      performApiLookup(
+        request,
+        {
+          ...nonCachedApiLookup,
+          shouldRetryOnRetryableError: true
+        },
+        profile,
+        undefined,
+        [],
+        settings,
+        undefined,
+        undefined
+      )
+    ).rejects.toThrowError()
+
+    expect(apiLookupRequest.isDone()).toEqual(true)
+  })
+
+  it('does not rethrow error and returns empty object when shouldRetryOnRetryableError is false and api call fails', async () => {
+    const apiLookupRequest = nock(`https://fakeweather.com`).get(`/api/current`).reply(429)
+
+    const data = await performApiLookup(
+      request,
+      {
+        ...nonCachedApiLookup,
+        shouldRetryOnRetryableError: false
+      },
+      profile,
+      undefined,
+      [],
+      settings,
+      undefined,
+      undefined
+    )
+
+    expect(apiLookupRequest.isDone()).toEqual(true)
+    expect(data).toEqual({})
+  })
+
   describe('when cacheTtl > 0', () => {
+    it('throws error if cache is not available', async () => {
+      const apiLookupRequest = nock(`https://fakeweather.com`)
+        .get(`/api/current`)
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      await expect(
+        performApiLookup(request, cachedApiLookup, profile, undefined, [], settings, undefined, undefined)
+      ).rejects.toThrowError('Data feed cache not available and cache needed')
+
+      expect(apiLookupRequest.isDone()).toEqual(false)
+    })
+
+    it('throws error if response size is too big', async () => {
+      const mockDataFeedCache = createMockRequestStore({ maxResponseSizeBytes: 1 })
+      const apiLookupRequest = nock(`https://fakeweather.com`)
+        .get(`/api/current`)
+        .reply(200, {
+          current: {
+            temperature: 70
+          }
+        })
+
+      await expect(
+        performApiLookup(request, cachedApiLookup, profile, undefined, [], settings, undefined, mockDataFeedCache)
+      ).rejects.toThrowError('Data feed response size too big too cache and caching needed, failing send')
+
+      expect(apiLookupRequest.isDone()).toEqual(true)
+    })
+
     it('sets cache when cache miss', async () => {
       const mockDataFeedCache = createMockRequestStore()
       const apiLookupRequest = nock(`https://fakeweather.com`)
@@ -159,7 +238,7 @@ describe('api lookups', () => {
       })
     })
 
-    describe('cached responses are unique when rendered', () => {
+    describe('cached responses are unique dependent on api config post liquid rendering value', () => {
       const profiles = [{ traits: { lastName: 'Browning' } }, { traits: { lastName: 'Smith' } }]
 
       it('url is different', async () => {
