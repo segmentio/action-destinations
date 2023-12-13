@@ -269,6 +269,7 @@ describe('Add Profile To List Batch', () => {
     expect(Functions.createImportJobPayload).toHaveBeenCalledWith(
       [
         {
+          batch_size: 10000,
           list_id: listId,
           email: 'valid@example.com',
           enable_batching: true

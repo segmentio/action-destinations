@@ -60,4 +60,8 @@ export interface Payload {
    * The Klaviyo list to add the profile to.
    */
   list_id?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
