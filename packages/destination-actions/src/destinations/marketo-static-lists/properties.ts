@@ -18,8 +18,7 @@ export const email: InputField = {
   default: {
     '@path': '$.context.traits.email'
   },
-  readOnly: true,
-  required: true
+  readOnly: true
 }
 
 export const enable_batching: InputField = {
