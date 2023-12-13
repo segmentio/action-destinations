@@ -1,4 +1,4 @@
-import { IntegrationError, RetryableError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, RetryableError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as AddToListPayload } from './addToList/generated-types'
 import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
@@ -14,7 +14,12 @@ import {
   MarketoResponse
 } from './constants'
 
-export async function addToList(request: RequestClient, settings: Settings, payloads: AddToListPayload[]) {
+export async function addToList(
+  request: RequestClient,
+  settings: Settings,
+  payloads: AddToListPayload[],
+  statsContext?: StatsContext
+) {
   // Keep only the scheme and host from the endpoint
   // Marketo shows endpoint with trailing "/rest", which we don't want
   const api_endpoint = settings.api_endpoint.replace('/rest', '')
@@ -22,6 +27,7 @@ export async function addToList(request: RequestClient, settings: Settings, payl
   const csvData = 'Email\n' + extractEmails(payloads, '\n')
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
+    statsContext?.statsClient?.incr('addToList.error', 1, statsContext?.tags)
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
   }
 
@@ -36,12 +42,19 @@ export async function addToList(request: RequestClient, settings: Settings, payl
   })
 
   if (!response.data.success) {
+    statsContext?.statsClient?.incr('addToList.error', 1, statsContext?.tags)
     parseErrorResponse(response.data)
   }
+  statsContext?.statsClient?.incr('addToList.success', 1, statsContext?.tags)
   return response.data
 }
 
-export async function removeFromList(request: RequestClient, settings: Settings, payloads: RemoveFromListPayload[]) {
+export async function removeFromList(
+  request: RequestClient,
+  settings: Settings,
+  payloads: RemoveFromListPayload[],
+  statsContext?: StatsContext
+) {
   // Keep only the scheme and host from the endpoint
   // Marketo shows endpoint with trailing "/rest", which we don't want
   const api_endpoint = settings.api_endpoint.replace('/rest', '')
@@ -58,6 +71,7 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!getLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromList.error', 1, statsContext?.tags)
     parseErrorResponse(getLeadsResponse.data)
   }
 
@@ -75,9 +89,10 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!deleteLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromList.error', 1, statsContext?.tags)
     parseErrorResponse(deleteLeadsResponse.data)
   }
-
+  statsContext?.statsClient?.incr('removeFromList.success', 1, statsContext?.tags)
   return deleteLeadsResponse.data
 }
 
