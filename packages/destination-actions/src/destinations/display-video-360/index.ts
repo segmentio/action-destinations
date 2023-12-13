@@ -7,7 +7,7 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
-import { buildHeaders } from './shared'
+import { buildHeaders, getAuthToken, getAuthSettings } from './shared'
 import { handleRequestError } from './errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -21,7 +21,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
         method: 'POST',
         body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
+          refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
@@ -44,9 +44,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: 'The type of the advertiser account you have linked to this Display & Video 360 destination.',
       required: true,
       choices: [
-        { label: 'DISPLAY_VIDEO_ADVERTISER', value: 'DISPLAY_VIDEO_ADVERTISER' },
-        { label: 'DISPLAY_VIDEO_PARTNER', value: 'DISPLAY_VIDEO_PARTNER' },
-        { label: 'DFP_BY_GOOGLE or GOOGLE_AD_MANAGER', value: 'GOOGLE_AD_MANAGER' }
+        { label: 'Advertiser', value: 'DISPLAY_VIDEO_ADVERTISER' },
+        { label: 'Partner', value: 'DISPLAY_VIDEO_PARTNER' },
+        { label: 'Publisher', value: 'GOOGLE_AD_MANAGER' }
       ]
     }
   },
@@ -59,6 +59,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
+      const statsName = 'createAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -80,8 +85,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       let response
       try {
+        const authToken = await getAuthToken(request, authSettings)
         response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(createAudienceInput.audienceSettings, settings),
+          headers: buildHeaders(createAudienceInput.audienceSettings, authToken),
           method: 'POST',
           json: {
             operations: [
@@ -98,20 +104,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
 
         const r = await response?.json()
-        statsClient?.incr('createAudience.success', 1, statsTags)
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
 
         return {
           externalId: r['results'][0]['resourceName']
         }
       } catch (error) {
-        statsClient?.incr('createAudience.error', 1, statsTags)
-        throw handleRequestError(error)
+        throw handleRequestError(error, statsName, statsClient)
       }
     },
     async getAudience(request, getAudienceInput) {
       const { statsContext, audienceSettings, settings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
+      const statsName = 'getAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
 
       if (!advertiserId) {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
@@ -127,8 +137,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       )
 
       try {
+        const authToken = await getAuthToken(request, authSettings)
         const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings),
+          headers: buildHeaders(audienceSettings, authToken),
           method: 'POST',
           json: {
             query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
@@ -140,6 +151,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const externalId = r[0]?.results[0]?.userList?.resourceName
 
         if (externalId !== getAudienceInput.externalId) {
+          statsClient?.incr(`${statsName}.error.UNABLE_TO_VERIFY`, 1, statsTags)
           throw new IntegrationError(
             "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
             'INVALID_REQUEST_DATA',
@@ -147,13 +159,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           )
         }
 
-        statsClient?.incr('getAudience.success', 1, statsTags)
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
           externalId: externalId
         }
       } catch (error) {
-        statsClient?.incr('getAudience.error', 1, statsTags)
-        throw handleRequestError(error)
+        throw handleRequestError(error, statsName, statsClient)
       }
     }
   },
