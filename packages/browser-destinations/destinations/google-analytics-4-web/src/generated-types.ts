@@ -28,7 +28,7 @@ export interface Settings {
   /**
    * Specifies the subpath used to store the analytics cookie.
    */
-  cookiePath?: string & string[]
+  cookiePath?: string[]
   /**
    * Specifies a prefix to prepend to the analytics cookie name.
    */
