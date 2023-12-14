@@ -106,14 +106,27 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     type ConfigType = { [key: string]: unknown }
 
     const config: ConfigType = {
-      send_page_view: settings.pageView ?? true,
-      cookie_update: settings.cookieUpdate,
-      cookie_domain: settings.cookieDomain,
-      cookie_prefix: settings.cookiePrefix,
-      cookie_expires: settings.cookieExpirationInSeconds,
-      cookie_path: settings.cookiePath,
       allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
       allow_google_signals: settings.allowGoogleSignals
+    }
+
+    if (settings.cookieUpdate) {
+      config.cookie_update = settings.cookieUpdate
+    }
+    if (settings.cookieDomain) {
+      config.cookie_domain = settings.cookieDomain
+    }
+    if (settings.cookiePrefix) {
+      config.cookie_prefix = settings.cookiePrefix
+    }
+    if (settings.cookieExpirationInSeconds) {
+      config.cookie_expires = settings.cookieExpirationInSeconds
+    }
+    if (settings.cookiePath) {
+      config.cookie_path = settings.cookiePath
+    }
+    if (settings.pageView) {
+      config.send_page_view = settings.pageView
     }
 
     if (payload.screen_resolution) {
