@@ -80,7 +80,7 @@ const getAudienceResponse = {
   }
 }
 
-describe('Tik Tok Audiences', () => {
+describe('TikTok Audiences', () => {
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)

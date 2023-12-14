@@ -146,6 +146,9 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
   },
 
   initialize: async ({ settings }, deps) => {
+    if (!settings.cookiePath) {
+      delete settings.cookiePath
+    }
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       // eslint-disable-next-line prefer-rest-params

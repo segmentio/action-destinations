@@ -2,6 +2,7 @@ import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segmen
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { createHash } from 'crypto'
+import { IntegrationError } from '@segment/actions-core'
 
 import { sendEventToAWS } from './awsClient'
 
@@ -47,6 +48,10 @@ const TTD_MIN_RECORD_COUNT = 1500
 
 export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'
 export const TTD_LIST_ACTION_FLOW_FLAG_NAME = 'ttd-list-action-destination'
+
+const sha256HashedRegex = /^[a-f0-9]{64}$/i
+const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
+const validEmailRegex = /^\S+@\S+\.\S+$/i
 
 export async function processPayload(input: ProcessPayloadInput) {
   let crmID
@@ -99,7 +104,7 @@ export async function processPayload(input: ProcessPayloadInput) {
 function extractUsers(payloads: Payload[]): string {
   let users = ''
   payloads.forEach((payload: Payload) => {
-    if (!payload.email) {
+    if (!payload.email || !validateEmail(payload.email, payload.pii_type)) {
       return
     }
 
@@ -108,12 +113,22 @@ function extractUsers(payloads: Payload[]): string {
     }
 
     if (payload.pii_type == 'EmailHashedUnifiedId2') {
-      const normalizedEmail = normalizeEmail(payload.email)
-      const hashedEmail = hash(normalizedEmail)
+      const hashedEmail = hash(payload.email)
       users += `${hashedEmail}\n`
     }
   })
   return users
+}
+
+function validateEmail(email: string, pii_type: string): boolean {
+  const isSha256HashedEmail = sha256HashedRegex.test(email)
+  const isBase64Hashed = base64HashedRegex.test(email)
+  const isValidEmail = validEmailRegex.test(email)
+
+  if (pii_type == 'Email') {
+    return isValidEmail
+  }
+  return isSha256HashedEmail || isBase64Hashed || isValidEmail
 }
 
 // More info about email normalization: https://api.thetradedesk.com/v3/portal/data/doc/DataPiiNormalization#email-normalize
@@ -138,8 +153,20 @@ function normalizeEmail(email: string) {
 }
 
 export const hash = (value: string): string => {
+  const isSha256HashedEmail = sha256HashedRegex.test(value)
+  const isBase64Hashed = base64HashedRegex.test(value)
+
+  if (isSha256HashedEmail) {
+    return Buffer.from(value, 'hex').toString('base64')
+  }
+
+  if (isBase64Hashed) {
+    return value
+  }
+
+  const normalizedEmail = normalizeEmail(value)
   const hash = createHash('sha256')
-  hash.update(value)
+  hash.update(normalizedEmail)
   return hash.digest('base64')
 }
 
@@ -169,4 +196,38 @@ async function uploadCRMDataToDropEndpoint(request: RequestClient, endpoint: str
     },
     body: users
   })
+}
+
+export async function getAllDataSegments(request: RequestClient, advertiserId: string, authToken: string) {
+  const allDataSegments: Segments[] = []
+  // initial call to get first page
+  let response: ModifiedResponse<GET_CRMS_API_RESPONSE> = await request(`${BASE_URL}/crmdata/segment/${advertiserId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'TTD-Auth': authToken
+    }
+  })
+
+  if (response.status != 200 || !response.data.Segments) {
+    throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+  }
+  let segments = response.data.Segments
+  // pagingToken leads you to the next page
+  let pagingToken = response.data.PagingToken
+  // keep iterating through pages until the last empty page
+  while (segments.length > 0) {
+    allDataSegments.push(...segments)
+    response = await request(`${BASE_URL}/crmdata/segment/${advertiserId}?pagingToken=${pagingToken}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'TTD-Auth': authToken
+      }
+    })
+
+    segments = response.data.Segments
+    pagingToken = response.data.PagingToken
+  }
+  return allDataSegments
 }

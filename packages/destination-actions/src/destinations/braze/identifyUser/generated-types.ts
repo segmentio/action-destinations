@@ -12,4 +12,8 @@ export interface Payload {
     alias_name: string
     alias_label: string
   }
+  /**
+   * Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).
+   */
+  merge_behavior?: string
 }

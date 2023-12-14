@@ -2,6 +2,7 @@ import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 import { CredsObj, YahooSubTaxonomy } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { StatsClient } from '@segment/actions-core/destination-kit'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -70,7 +71,9 @@ export async function update_taxonomy(
   engage_space_id: string,
   tx_creds: CredsObj,
   request: RequestClient,
-  body_form_data: string
+  body_form_data: string,
+  statsClient: StatsClient | undefined,
+  statsTags: string[] | undefined
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
@@ -85,11 +88,17 @@ export async function update_taxonomy(
         'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
       }
     })
+    if (statsClient && statsTags) {
+      statsClient.incr('update_taxonomy.success', 1, statsTags)
+    }
     return await add_segment_node.json()
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
+    if (statsClient && statsTags) {
+      statsClient.incr('update_taxonomy.error', 1, statsTags)
+    }
     // If Taxonomy API returned 401, throw Integration error w/status 400 to prevent refreshAccessToken from firing
-    // Otherwise throw the orifinal error
+    // Otherwise throw the original error
     if (parseInt(_error.response.status) == 401) {
       throw new IntegrationError(
         `Error while updating taxonomy: ${JSON.stringify(_error.response.data)} ${

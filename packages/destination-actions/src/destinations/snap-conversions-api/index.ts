@@ -15,6 +15,13 @@ interface RefreshTokenResponse {
 
 const presets: DestinationDefinition['presets'] = [
   {
+    name: 'Snap Browser Plugin',
+    subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+    partnerAction: 'snapPlugin',
+    mapping: {},
+    type: 'automatic'
+  },
+  {
     name: 'Add Billing',
     subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportConversionEvent',

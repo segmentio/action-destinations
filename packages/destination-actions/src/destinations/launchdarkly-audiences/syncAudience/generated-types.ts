@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Segment Audience ID to which user identifier should be added or removed
+   */
+  segment_audience_id: string
+  /**
    * Segment Audience key to which user identifier should be added or removed
    */
   segment_audience_key: string

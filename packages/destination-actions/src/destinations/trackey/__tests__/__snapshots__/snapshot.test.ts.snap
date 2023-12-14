@@ -2,9 +2,7 @@
 
 exports[`Testing snapshot for actions-trackey destination: group action - all fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "^Vvf$jtvC",
-  },
+  "groupId": "^Vvf$jtvC",
   "messageId": "^Vvf$jtvC",
   "timestamp": "^Vvf$jtvC",
   "traits": Object {
@@ -16,9 +14,7 @@ Object {
 
 exports[`Testing snapshot for actions-trackey destination: group action - required fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "^Vvf$jtvC",
-  },
+  "groupId": "^Vvf$jtvC",
   "timestamp": "^Vvf$jtvC",
   "userId": "^Vvf$jtvC",
 }
@@ -26,9 +22,6 @@ Object {
 
 exports[`Testing snapshot for actions-trackey destination: identify action - all fields 1`] = `
 Object {
-  "groupId": Object {
-    "testType": "6aniX&1",
-  },
   "messageId": "6aniX&1",
   "timestamp": "6aniX&1",
   "traits": Object {

@@ -31,6 +31,16 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       }
+    },
+    merge_behavior: {
+      label: 'Merge Behavior',
+      description:
+        'Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).',
+      type: 'string',
+      choices: [
+        { value: 'none', label: 'None' },
+        { value: 'merge', label: 'Merge' }
+      ]
     }
   },
   perform: (request, { settings, payload }) => {
@@ -42,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
             external_id: payload.external_id,
             user_alias: payload.user_alias
           }
-        ]
+        ],
+        ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
       }
     })
   }
