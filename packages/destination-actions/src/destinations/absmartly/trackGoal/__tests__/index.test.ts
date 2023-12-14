@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
+import { unixTimestampOf } from '../../timestamp'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -32,17 +33,20 @@ describe('ABsmartly.trackGoal', () => {
       useDefaultMappings: true
     })
 
+    const timestamp = unixTimestampOf(baseEvent.timestamp!)
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(await responses[0].request.json()).toStrictEqual({
-      publishedAt: 1672531200100,
+      historic: true,
+      publishedAt: timestamp,
       units: [
         { type: 'anonymousId', uid: 'anon-123' },
         { type: 'userId', uid: '123' }
       ],
       goals: [
         {
-          achievedAt: 1672531200000,
+          achievedAt: timestamp,
           name: 'Order Completed',
           properties: baseEvent.properties
         }

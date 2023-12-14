@@ -5,7 +5,7 @@ import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
-import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup'
+import { FLAGON_NAME_DATA_FEEDS } from '../../utils/apiLookups'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
@@ -764,7 +764,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -847,7 +847,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_preferences_link]">Manage Preferences</a> | <a href="[upa_unsubscribe_link]">Unsubscribe</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -930,7 +930,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment. Here is an <a href="[upa_unsubscribe_link]">Unsubscribe</a> link.</p>  <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -1844,7 +1844,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://group_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://group_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
 
       const expectedSendGridRequest = {
         personalizations: [
@@ -1954,7 +1954,7 @@ describe.each([
   })
 
   describe('api lookups', () => {
-    it('are called and responses are passed to email body liquid renderer before sending', async () => {
+    it('are called and successful responses are passed to email body liquid renderer before sending', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', {
           ...sendgridRequestBody,
@@ -2022,7 +2022,7 @@ describe.each([
             }
           ],
           bodyHtml:
-            'Current temperature: {{lookups.weather.current.temperature}}, Current bitcoin price: {{lookups.btcPrice.current.price}}'
+            'Current temperature: {{datafeeds.weather.current.temperature}}, Current bitcoin price: {{datafeeds.btcPrice.current.price}}'
         })
       })
 
@@ -2030,8 +2030,9 @@ describe.each([
       expect(sendGridRequest.isDone()).toBe(true)
     })
 
-    it('should throw error if at least one api lookup fails', async () => {
-      nock(`https://fakeweather.com`).get('/api').reply(429)
+    it('should rethrow request client error if at least one api lookup fails with shouldRetryOnRetryableError == true', async () => {
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       await expect(
         sendgrid.testAction('sendEmail', {
@@ -2052,20 +2053,75 @@ describe.each([
           }),
           settings,
           mapping: getDefaultMapping({
-            apiLookups: {
+            apiLookups: [
+              {
+                id: '1',
+                name: 'weather',
+                url: 'https://fakeweather.com/api',
+                method: 'get',
+                cacheTtl: 0,
+                responseType: 'json',
+                shouldRetryOnRetryableError: true
+              }
+            ]
+          })
+        })
+      ).rejects.toThrowError('Too Many Requests')
+
+      expect(dataFeedNock.isDone()).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(false)
+      expectErrorLogged('Too Many Requests')
+    })
+
+    it('should send message with empty data if api lookup fails with shouldRetryOnRetryableError == false', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', {
+          ...sendgridRequestBody,
+          content: [
+            {
+              type: 'text/html',
+              value: `<html><head></head><body>Current temperature: 99</body></html>`
+            }
+          ]
+        })
+        .reply(200, {})
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+
+      await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: [
+            {
               id: '1',
               name: 'weather',
               url: 'https://fakeweather.com/api',
               method: 'get',
               cacheTtl: 0,
-              responseType: 'json'
+              responseType: 'json',
+              shouldRetryOnRetryableError: false
             }
-          })
+          ],
+          bodyHtml: 'Current temperature: {{datafeeds.weather.current.temperature | default: 99 }}'
         })
-      ).rejects.toThrowError('Too Many Requests')
+      })
 
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-      expect(sendGridRequest.isDone()).toEqual(false)
+      expect(dataFeedNock.isDone()).toBe(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
       expectErrorLogged('Too Many Requests')
     })
   })

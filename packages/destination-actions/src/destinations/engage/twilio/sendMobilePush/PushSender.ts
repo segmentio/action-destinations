@@ -120,7 +120,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         return {
           ...button,
           onTap: this.getTapActionPreset(button.onTap, button.link),
-          ...(await this.parseContent({ link: button.link }, profile))
+          ...(await this.parseContent({ link: button.link, text: button.text }, profile))
         }
       })
     )

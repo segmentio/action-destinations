@@ -52,52 +52,7 @@ export function generate_jwt(client_id: string, client_secret: string): string {
  * @param payload The payload.
  * @returns {{ maid: boolean; email: boolean }} The definitions object (id_schema).
  */
-/*
-// TODO: remove this function. We inherit the id_schema from the payload. Once a user has mapped an 
-// identifier in Configurable Id sync, we can use the identifier from the payload.
-export function get_id_schema(
-  payload: Payload,
-  audienceSettings: AudienceSettings
-): { maid: boolean; email: boolean; phone: boolean } {
-  const schema = {
-    email: false,
-    maid: false,
-    phone: false
-  }
-  let id_type
-  audienceSettings.identifier ? (id_type = audienceSettings.identifier) : (id_type = payload.identifier)
-  switch (id_type) {
-    case 'email':
-      schema.email = true
-      break
-    case 'maid':
-      schema.maid = true
-      break
-    case 'phone':
-      schema.phone = true
-      break
-    case 'email_maid':
-      schema.maid = true
-      schema.email = true
-      break
-    case 'email_maid_phone':
-      schema.maid = true
-      schema.email = true
-      schema.phone = true
-      break
-    case 'email_phone':
-      schema.email = true
-      schema.phone = true
-      break
-    case 'phone_maid':
-      schema.phone = true
-      schema.maid = true
-      break
-  }
 
-  return schema
-}
-*/
 export function validate_phone(phone: string) {
   /*
   Phone must match E.164 format: a number up to 15 digits in length starting with a ‘+’
@@ -138,13 +93,22 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
     if (event.advertising_id) {
-      switch (event.device_type) {
-        case 'ios':
+      if (event.device_type) {
+        switch (event.device_type) {
+          case 'ios':
+            idfa = event.advertising_id
+            break
+          case 'android':
+            gpsaid = event.advertising_id
+            break
+        }
+      } else {
+        if (event.advertising_id === event.advertising_id.toUpperCase()) {
+          // Apple IDFA is always uppercase
           idfa = event.advertising_id
-          break
-        case 'android':
+        } else {
           gpsaid = event.advertising_id
-          break
+        }
       }
     }
     let hashed_phone: string | undefined = ''

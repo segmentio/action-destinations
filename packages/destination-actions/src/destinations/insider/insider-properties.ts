@@ -133,6 +133,13 @@ export const phone_number_as_identifier: InputField = {
   default: true
 }
 
+export const append_arrays: InputField = {
+  label: 'Append Array Fields',
+  type: 'boolean',
+  description: 'If enabled, new data for array fields will be appended to the existing values in Insider.',
+  default: false
+}
+
 export const uuid: InputField = {
   label: 'UUID',
   type: 'string',
