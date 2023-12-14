@@ -53,6 +53,56 @@ describe('CustomerIO', () => {
       })
     })
 
+    it('should send app_version if supplied', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const deviceId = 'device_123'
+      const deviceType = 'ios'
+      const appVersion = '5.6.7'
+      const timestamp = dayjs.utc().toISOString()
+      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
+      const event = createTestEvent({
+        userId,
+        timestamp,
+        context: {
+          device: {
+            token: deviceId,
+            type: deviceType
+          },
+          app: {
+            version: appVersion
+          }
+        }
+      })
+      const responses = await testDestination.testAction('createUpdateDevice', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].headers.toJSON()).toMatchObject({
+        'x-customerio-region': 'US',
+        'content-type': 'application/json'
+      })
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        device: {
+          id: deviceId,
+          platform: deviceType,
+          last_used: dayjs.utc(timestamp).unix(),
+          attributes: {
+            app_version: appVersion
+          }
+        }
+      })
+    })
+
     it("should not convert last_used if it's invalid", async () => {
       const settings: Settings = {
         siteId: '12345',

@@ -26,6 +26,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.device.token'
       }
     },
+    app_version: {
+      label: 'App Version',
+      description: 'The version of the App',
+      type: 'string',
+      default: {
+        '@path': '$.context.app.version'
+      }
+    },
     platform: {
       label: 'Platform',
       description: `The mobile device's platform. ("ios" or "android")`,
@@ -64,7 +72,8 @@ const action: ActionDefinition<Settings, Payload> = {
         device: {
           id: payload.device_id,
           platform: payload.platform,
-          last_used: lastUsed
+          last_used: lastUsed,
+          ...(payload.app_version ? { attributes: { app_version: payload.app_version } } : {})
         }
       }
     })

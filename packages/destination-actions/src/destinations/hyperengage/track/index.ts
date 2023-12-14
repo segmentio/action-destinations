@@ -23,13 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User id',
       default: { '@path': '$.userId' }
     },
-    properties: {
-      type: 'object',
-      required: false,
-      description: 'The properties of the track call',
-      label: 'Event properties',
-      default: { '@path': '$.properties' }
-    },
     account_id: {
       type: 'string',
       required: false,
@@ -37,11 +30,18 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Account id',
       default: {
         '@if': {
-          exists: { '@path': '$.context.group_id' },
-          then: { '@path': '$.context.group_id' },
+          exists: { '@path': '$.context.groupId' },
+          then: { '@path': '$.context.groupId' },
           else: { '@path': '$.groupId' }
         }
       }
+    },
+    properties: {
+      type: 'object',
+      required: false,
+      description: 'The properties of the track call',
+      label: 'Event properties',
+      default: { '@path': '$.properties' }
     },
     ...commonFields
   },

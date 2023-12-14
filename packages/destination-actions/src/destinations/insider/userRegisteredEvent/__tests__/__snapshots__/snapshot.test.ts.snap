@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Insider's userRegisteredEvent destination action: all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -40,6 +41,7 @@ Object {
         },
         "uuid": "9yI*!GTx(Wx$F9",
       },
+      "not_append": true,
     },
   ],
 }
@@ -47,6 +49,7 @@ Object {
 
 exports[`Testing snapshot for Insider's userRegisteredEvent destination action: required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -67,6 +70,7 @@ Object {
         },
         "uuid": "9yI*!GTx(Wx$F9",
       },
+      "not_append": true,
     },
   ],
 }

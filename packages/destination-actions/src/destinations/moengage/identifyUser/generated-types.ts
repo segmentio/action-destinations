@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId?: string | null
   /**
+   * Setting this to true will not create new users in MoEngage. Only existing users will be updated
+   */
+  update_existing_only?: boolean
+  /**
    * The generated anonymous ID for the user
    */
   anonymousId?: string | null

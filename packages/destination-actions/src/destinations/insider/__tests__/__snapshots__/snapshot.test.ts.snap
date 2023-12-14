@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -52,6 +53,7 @@ Object {
         },
         "uuid": "0xlI!lem[5]2MJvda",
       },
+      "not_append": true,
     },
   ],
 }
@@ -59,6 +61,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: cartViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -79,6 +82,7 @@ Object {
         },
         "uuid": "0xlI!lem[5]2MJvda",
       },
+      "not_append": true,
     },
   ],
 }
@@ -86,6 +90,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -136,6 +141,7 @@ Object {
         },
         "uuid": "i2DYKi53!byOli1^))*",
       },
+      "not_append": true,
     },
   ],
 }
@@ -143,6 +149,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: checkoutEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -163,6 +170,7 @@ Object {
         },
         "uuid": "i2DYKi53!byOli1^))*",
       },
+      "not_append": true,
     },
   ],
 }
@@ -170,6 +178,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -220,6 +229,7 @@ Object {
         },
         "uuid": "%detmPE)QcMI3#y0Y",
       },
+      "not_append": true,
     },
   ],
 }
@@ -227,6 +237,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: orderCompletedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -247,6 +258,7 @@ Object {
         },
         "uuid": "%detmPE)QcMI3#y0Y",
       },
+      "not_append": true,
     },
   ],
 }
@@ -254,6 +266,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -304,6 +317,7 @@ Object {
         },
         "uuid": "pVmlekeqp9EloEHBS",
       },
+      "not_append": true,
     },
   ],
 }
@@ -311,6 +325,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productAddedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -331,6 +346,7 @@ Object {
         },
         "uuid": "pVmlekeqp9EloEHBS",
       },
+      "not_append": true,
     },
   ],
 }
@@ -338,6 +354,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -381,6 +398,7 @@ Object {
         },
         "uuid": "SFVk3AFZB*U7Pg",
       },
+      "not_append": true,
     },
   ],
 }
@@ -388,6 +406,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productListViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -408,6 +427,7 @@ Object {
         },
         "uuid": "SFVk3AFZB*U7Pg",
       },
+      "not_append": true,
     },
   ],
 }
@@ -415,6 +435,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -467,6 +488,7 @@ Object {
         "phone_number": "!Ivq)L",
         "uuid": "!Ivq)L",
       },
+      "not_append": false,
     },
   ],
 }
@@ -474,6 +496,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productRemovedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -494,6 +517,7 @@ Object {
         },
         "uuid": "!Ivq)L",
       },
+      "not_append": true,
     },
   ],
 }
@@ -501,6 +525,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -553,6 +578,7 @@ Object {
         "phone_number": "jjiPS4iz",
         "uuid": "jjiPS4iz",
       },
+      "not_append": false,
     },
   ],
 }
@@ -560,6 +586,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: productViewedEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -580,6 +607,7 @@ Object {
         },
         "uuid": "jjiPS4iz",
       },
+      "not_append": true,
     },
   ],
 }
@@ -587,6 +615,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -640,6 +669,7 @@ Object {
         },
         "uuid": "74Eoa(TEWXz$1Kje",
       },
+      "not_append": true,
     },
   ],
 }
@@ -647,6 +677,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: trackEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -667,6 +698,7 @@ Object {
         },
         "uuid": "74Eoa(TEWXz$1Kje",
       },
+      "not_append": true,
     },
   ],
 }
@@ -674,6 +706,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -703,6 +736,7 @@ Object {
         "phone_number": "CA9^h[(o",
         "uuid": "CA9^h[(o",
       },
+      "not_append": false,
     },
   ],
 }
@@ -710,6 +744,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: updateUserProfile action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {},
@@ -719,6 +754,7 @@ Object {
         },
         "uuid": "CA9^h[(o",
       },
+      "not_append": true,
     },
   ],
 }
@@ -726,6 +762,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -766,6 +803,7 @@ Object {
         "phone_number": "xt]Bf",
         "uuid": "xt]Bf",
       },
+      "not_append": false,
     },
   ],
 }
@@ -773,6 +811,7 @@ Object {
 
 exports[`Testing snapshot for actions-insider-cloud destination: userRegisteredEvent action - required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -793,6 +832,7 @@ Object {
         },
         "uuid": "xt]Bf",
       },
+      "not_append": true,
     },
   ],
 }

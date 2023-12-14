@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-usermotion destination: group action - all fields 1`] = `
+Object {
+  "id": "ZKOt93",
+  "properties": Object {
+    "testType": "ZKOt93",
+    "website": "ZKOt93",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-usermotion destination: group action - required fields 1`] = `
+Object {
+  "id": "ZKOt93",
+  "properties": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-usermotion destination: identify action - all fields 1`] = `
+Object {
+  "id": "L[L@D",
+  "properties": Object {
+    "anonymousId": "L[L@D",
+    "email": "duz@raomopiw.to",
+    "testType": "L[L@D",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-usermotion destination: identify action - required fields 1`] = `
+Object {
+  "id": "L[L@D",
+  "properties": Object {
+    "email": "duz@raomopiw.to",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-usermotion destination: track action - all fields 1`] = `
+Object {
+  "anonymousId": "ZIYyudisV2#71gd",
+  "email": "gen@el.ci",
+  "event": "ZIYyudisV2#71gd",
+  "properties": Object {
+    "testType": "ZIYyudisV2#71gd",
+  },
+  "userId": "ZIYyudisV2#71gd",
+}
+`;
+
+exports[`Testing snapshot for actions-usermotion destination: track action - required fields 1`] = `
+Object {
+  "event": "ZIYyudisV2#71gd",
+  "properties": Object {},
+  "userId": "ZIYyudisV2#71gd",
+}
+`;
