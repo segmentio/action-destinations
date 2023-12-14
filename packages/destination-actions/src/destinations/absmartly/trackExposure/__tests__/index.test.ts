@@ -1,6 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
+import { unixTimestampOf } from '../../timestamp'
+import { PublishRequestEvent } from '../../event'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -17,7 +19,7 @@ describe('ABsmartly.trackExposure', () => {
     anonymousId: 'anon-123',
     properties: {
       exposure: {
-        publishedAt: 123,
+        publishedAt: 1602531300000,
         units: [{ type: 'anonymousId', uid: 'anon-123' }],
         exposures: [
           {
@@ -50,15 +52,19 @@ describe('ABsmartly.trackExposure', () => {
       useDefaultMappings: true
     })
 
+    const timestamp = unixTimestampOf(exposureEvent.timestamp!)
+    const exposureRequest = exposureEvent.properties.exposure as PublishRequestEvent
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(await responses[0].request.json()).toStrictEqual({
-      publishedAt: 1672531200100,
+      historic: true,
+      publishedAt: timestamp,
       units: [{ type: 'anonymousId', uid: 'anon-123' }],
       exposures: [
         {
           assigned: true,
-          exposedAt: 1602531200000,
+          exposedAt: timestamp - (exposureRequest.publishedAt - exposureRequest.exposures?.[0].exposedAt),
           id: 10,
           name: 'test_experiment'
         }
@@ -67,7 +73,7 @@ describe('ABsmartly.trackExposure', () => {
         {
           name: 'test',
           value: 'test',
-          setAt: 1602530000000
+          setAt: timestamp - (exposureRequest.publishedAt - exposureRequest.attributes?.[0].setAt)
         }
       ]
     })

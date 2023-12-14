@@ -1,4 +1,10 @@
-import { InputField, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  InputField,
+  JSONPrimitive,
+  ModifiedResponse,
+  PayloadValidationError,
+  RequestClient
+} from '@segment/actions-core'
 import { defaultEventFields, DefaultPayload, PublishRequestEvent, sendEvent } from './event'
 import { Settings } from './generated-types'
 import { isValidTimestamp, unixTimestampOf } from './timestamp'
@@ -23,8 +29,15 @@ export const defaultExposureFields: Record<string, InputField> = {
   ...defaultEventFields
 }
 
-function isValidExposure(exposure?: PublishRequestEvent | Record<string, unknown>): exposure is PublishRequestEvent {
+function isValidExposureRequest(
+  exposure?: PublishRequestEvent | Record<string, unknown>
+): exposure is PublishRequestEvent {
   if (exposure == null || typeof exposure != 'object') {
+    return false
+  }
+
+  const publishedAt = exposure['publishedAt'] as JSONPrimitive
+  if (!isValidTimestamp(publishedAt)) {
     return false
   }
 
@@ -35,6 +48,10 @@ function isValidExposure(exposure?: PublishRequestEvent | Record<string, unknown
 
   const exposures = exposure['exposures']
   if (!Array.isArray(exposures) || exposures.length === 0) {
+    return false
+  }
+
+  if (exposures.some((x) => typeof x['exposedAt'] !== 'number' || !isValidTimestamp(x['exposedAt']))) {
     return false
   }
 
@@ -53,32 +70,40 @@ function isValidExposure(exposure?: PublishRequestEvent | Record<string, unknown
 
 export function sendExposure(
   request: RequestClient,
+  timestamp: number,
   payload: ExposurePayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
-  if (!isValidTimestamp(payload.publishedAt)) {
-    throw new PayloadValidationError(
-      'Exposure `publishedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
-  }
-
-  const exposure = payload.exposure
-  if (exposure == null || typeof exposure != 'object') {
+  const exposureRequest = payload.exposure as unknown as PublishRequestEvent
+  if (exposureRequest == null || typeof exposureRequest != 'object') {
     throw new PayloadValidationError('Field `exposure` is required to be an object when tracking exposures')
   }
 
-  if (!isValidExposure(exposure)) {
+  if (!isValidExposureRequest(exposureRequest)) {
     throw new PayloadValidationError(
       'Field `exposure` is malformed or contains goals. Ensure you are sending a valid ABsmartly exposure payload without goals.'
     )
   }
 
+  const offset = timestamp - unixTimestampOf(exposureRequest.publishedAt)
+  const exposures = exposureRequest.exposures?.map((x) => ({
+    ...x,
+    exposedAt: x.exposedAt + offset
+  }))
+  const attributes = exposureRequest.attributes?.map((x) => ({
+    ...x,
+    setAt: x.setAt + offset
+  }))
+
   return sendEvent(
     request,
     settings,
     {
-      ...exposure,
-      publishedAt: unixTimestampOf(payload.publishedAt)
+      ...exposureRequest,
+      historic: true,
+      publishedAt: timestamp,
+      exposures,
+      attributes
     },
     payload.agent,
     payload.application

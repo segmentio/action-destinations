@@ -41,7 +41,7 @@ interface SubscriptionStatusConfig {
 const subscriptionStatusConfig: SubscriptionStatusConfig[] = [
   { status: 'SUBSCRIBED', matchingStatuses: ['true', 'subscribed'] },
   { status: 'UNSUBSCRIBED', matchingStatuses: ['false', 'unsubscribed'] },
-  { status: 'DID-NOT-SUBSCRIBE', matchingStatuses: ['did-not-subscribe', 'did_not_subscribe'] }
+  { status: 'DID_NOT_SUBSCRIBE', matchingStatuses: ['did-not-subscribe', 'did_not_subscribe'] }
 ]
 
 interface SupportedChannelsConfig {

@@ -1,10 +1,10 @@
 import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../utils'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Profile } from '../Profile'
+import { Profile } from '../../utils/Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
-import { ApiLookupConfig, apiLookupLiquidKey, performApiLookup } from '../previewApiLookup'
+import { ApiLookupConfig, FLAGON_NAME_DATA_FEEDS, apiLookupLiquidKey, performApiLookup } from '../../utils/apiLookups'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
@@ -119,21 +119,25 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     }
 
     const bcc = JSON.parse(this.payload.bcc ?? '[]')
-    const [
-      parsedFromEmail,
-      parsedFromName,
-      parsedFromReplyToEmail,
-      parsedFromReplyToName,
-      parsedSubject,
-      apiLookupData
-    ] = await Promise.all([
-      this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
-      this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
-      this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
-      this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
-      this.parseTemplating(this.payload.subject, { profile }, 'Subject'),
-      this.performApiLookups(this.payload.apiLookups, profile)
-    ])
+    const [parsedFromEmail, parsedFromName, parsedFromReplyToEmail, parsedFromReplyToName, parsedSubject] =
+      await Promise.all([
+        this.parseTemplating(this.payload.fromEmail, { profile }, 'FromEmail'),
+        this.parseTemplating(this.payload.fromName, { profile }, 'FromName'),
+        this.parseTemplating(this.payload.replyToEmail, { profile }, 'ReplyToEmail'),
+        this.parseTemplating(this.payload.replyToName, { profile }, 'ReplyToName'),
+        this.parseTemplating(this.payload.subject, { profile }, 'Subject')
+      ])
+
+    let apiLookupData = {}
+    if (this.isFeatureActive(FLAGON_NAME_DATA_FEEDS)) {
+      try {
+        apiLookupData = await this.performApiLookups(this.payload.apiLookups, profile)
+      } catch (error) {
+        // Catching error to add tags, rethrowing to continue bubbling up
+        this.tags.push('reason:data_feed_failure')
+        throw error
+      }
+    }
 
     const parsedBodyHtml = await this.getBodyHtml(profile, apiLookupData, emailProfile)
 
@@ -192,6 +196,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     } else {
       mailContent = mailContentSubscriptionHonored
       this.statsClient?.incr('request.dont_pass_subscription', 1)
+    }
+    // Check if ip pool name is provided and sends the email with the ip pool name if it is
+    if (this.payload.ipPool) {
+      mailContent = {
+        ...mailContent,
+        ip_pool_name: this.payload.ipPool
+      }
+      this.statsClient?.incr('request.ip_pool_name_provided', 1)
+    } else {
+      this.statsClient?.incr('request.ip_pool_name_not_provided', 1)
     }
     const req: RequestOptions = {
       method: 'post',
@@ -306,7 +320,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.statsClient.statsClient,
           this.tags,
           this.settings,
-          this.logger.loggerClient
+          this.logger.loggerClient,
+          this.dataFeedCache
         )
         return { name: apiLookup.name, data }
       })
@@ -316,6 +331,34 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       acc[name] = data
       return acc
     }, {})
+  }
+
+  @track()
+  validateLinkAndLog(link: string): void {
+    let workspaceId = this.payload.customArgs && this.payload.customArgs['workspace_id']
+    let audienceId =
+      this.payload.customArgs &&
+      (this.payload.customArgs['audience_id'] || this.payload.customArgs['__segment_internal_audience_id__'])
+    workspaceId = JSON.stringify(workspaceId)
+    audienceId = JSON.stringify(audienceId)
+
+    this.logger.info(`Validating the link: ${link} ${workspaceId} ${audienceId}`)
+
+    const parsedLink = new URL(link)
+    // Generic function to check for missing parameters
+    const checkParam = (paramName: string) => {
+      const paramValue = parsedLink.searchParams.get(paramName)
+      if (!paramValue || paramValue === '') {
+        this.logger.error(`${paramName} is missing: ${link} ${workspaceId} ${audienceId}`)
+        this.statsClient.incr('missing_query_param', 1, [`param:${paramName}`, `audienceId:${audienceId}`])
+      }
+    }
+
+    // List of required query parameters
+    const requiredParams = ['contactId', 'data', 'code', 'spaceId', 'workspaceId', 'messageId', 'user-agent']
+
+    // Check each required parameter
+    requiredParams.forEach((param) => checkParam(param))
   }
 
   @track()
@@ -339,7 +382,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient.incr('group_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', groupUnsubscribeLink)
+          _this.validateLinkAndLog(groupUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', groupUnsubscribeLink)
           _this.logger?.info(`Group Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_group_unsubscribe_link', 1)
         }
@@ -351,7 +396,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           _this.statsClient?.incr('global_unsubscribe_link_missing', 1)
           $(this).attr('href', sendgridUnsubscribeLinkTag)
         } else {
-          $(this).attr('href', globalUnsubscribeLink)
+          _this.validateLinkAndLog(globalUnsubscribeLink)
+          $(this).removeAttr('href')
+          $(this).attr('clicktracking', 'off').attr('href', globalUnsubscribeLink)
           _this.logger?.info(`Global Unsubscribe link replaced`)
           _this.statsClient?.incr('replaced_global_unsubscribe_link', 1)
         }
@@ -369,7 +416,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         _this.logger?.info(`Preferences link removed from the html body  - ${spaceId}`)
         _this.statsClient?.incr('removed_preferences_link', 1)
       } else {
-        $(this).attr('href', preferencesLink)
+        _this.validateLinkAndLog(preferencesLink)
+        $(this).removeAttr('href')
+        $(this).attr('clicktracking', 'off').attr('href', preferencesLink)
         _this.logger?.info(`Preferences link replaced  - ${spaceId}`)
         _this.statsClient?.incr('replaced_preferences_link', 1)
       }
@@ -379,7 +428,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   }
 
   onResponse(args: { response?: Response; error?: ResponseError; operation: OperationContext }) {
-    const headers = args.response?.headers || args.error?.response.headers
+    const headers = args.response?.headers || args.error?.response?.headers
     // if we need to investigate with sendgrid, we'll need this: https://docs.sendgrid.com/glossary/message-id
     const sgMsgId = headers?.get('X-Message-ID')
     if (sgMsgId) args.operation.logs.push('[sendgrid]X-Message-ID: ' + sgMsgId)

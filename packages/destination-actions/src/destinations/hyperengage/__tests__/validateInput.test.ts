@@ -41,6 +41,7 @@ const fakeGroupData = {
     required: 'false'
   },
   timestamp: '2023-09-11T08:06:11.192Z',
+  timezone: 'Europe/Amsterdam',
   user_id: 'test',
   account_id: 'testAccount'
 }
@@ -75,10 +76,12 @@ describe('validateInput', () => {
     it('should return converted payload', async () => {
       const payload = validateInput(settings, fakeGroupData, 'account_identify')
       expect(payload.account_id).toEqual(fakeGroupData.account_id)
+      expect(payload.user_id).toEqual(fakeGroupData.user_id)
       expect(payload.traits.plan_name).toEqual(fakeGroupData.plan)
       expect(payload.traits.industry).toEqual(fakeGroupData.industry)
       expect(payload.traits.website).toEqual(fakeGroupData.website)
       expect(payload.traits).toHaveProperty('required')
+      expect(payload.local_tz_offset).toEqual(60)
     })
   })
 

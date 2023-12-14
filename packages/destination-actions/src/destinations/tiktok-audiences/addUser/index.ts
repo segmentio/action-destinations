@@ -6,8 +6,10 @@ import {
   selected_advertiser_id,
   audience_id,
   email,
+  phone,
   advertising_id,
   send_email,
+  send_phone,
   send_advertising_id,
   event_name,
   enable_batching
@@ -26,8 +28,10 @@ const action: ActionDefinition<Settings, Payload> = {
     selected_advertiser_id: { ...selected_advertiser_id },
     audience_id: { ...audience_id },
     email: { ...email },
+    phone: { ...phone },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
+    send_phone: { ...send_phone },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching }
@@ -75,11 +79,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'add')
   },
   performBatch: async (request, { settings, payload, statsContext }) => {
-    statsContext?.statsClient?.incr('addUser', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'add')
   }
 }

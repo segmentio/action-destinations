@@ -79,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Braze',
       description:
         'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
-      default: false
+      default: true
     }
   },
   perform: (request, { settings, payload }) => {

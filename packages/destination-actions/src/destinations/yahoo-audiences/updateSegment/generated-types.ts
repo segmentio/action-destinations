@@ -20,13 +20,9 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
-   * Enable batching of requests
+   * Phone number of a user
    */
-  enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
+  phone?: string
   /**
    * Email address of a user
    */
@@ -39,10 +35,6 @@ export interface Payload {
    * User's mobile device type
    */
   device_type?: string
-  /**
-   * Specify the identifier(s) to send to Yahoo
-   */
-  identifier: string
   /**
    * Set to true to indicate that audience data is subject to GDPR regulations
    */
