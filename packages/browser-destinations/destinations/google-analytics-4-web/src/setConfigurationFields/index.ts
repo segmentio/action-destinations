@@ -110,11 +110,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       cookie_domain: settings.cookieDomain,
       cookie_prefix: settings.cookiePrefix,
       cookie_expires: settings.cookieExpirationInSeconds,
-      cookie_path: settings.cookiePath,
       allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
       allow_google_signals: settings.allowGoogleSignals
     }
 
+    if (settings.cookiePath) {
+      config.cookie_path = settings.cookiePath
+    }
     if (payload.screen_resolution) {
       config.screen_resolution = payload.screen_resolution
     }
