@@ -129,13 +129,17 @@ const action: ActionDefinition<Settings, Payload> = {
     await pipeline(payload, csv, fileStream)
 
     const sftpClient = new ClientSFTP()
+    console.time('sftpConnect')
     await sftpClient.connect({
       host: LIVERAMP_SFTP_SERVER,
       port: LIVERAMP_SFTP_PORT,
       username: csv.sftp.sftpUsername,
       password: csv.sftp.sftpPassword
     })
+    console.timeEnd('sftpConnect')
+    console.time('sftpUpload')
     await sftpClient.fastPut(filePath, `/uploads/varada_test/${fileName}`)
+    console.timeEnd('sftpUpload')
     fs.unlinkSync(filePath)
   }
 }

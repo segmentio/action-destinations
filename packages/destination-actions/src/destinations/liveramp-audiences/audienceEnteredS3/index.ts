@@ -1,5 +1,5 @@
-import { ActionDefinition, InvalidAuthenticationError } from '@segment/actions-core'
-import { S3WriteStream, uploadS3, validateS3 } from './s3'
+import { ActionDefinition } from '@segment/actions-core'
+import { uploadS3, validateS3 } from './s3'
 import { ObjectToCSVTransformer, generateFile } from '../operations'
 import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
@@ -9,7 +9,8 @@ import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
 import { Readable } from 'stream'
 import { pipeline } from 'stream/promises'
 import { sendEventToAWS } from '../awsClient'
-import generateS3RequestOptions from '../../../lib/AWS/s3'
+import fs from 'fs'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -106,29 +107,37 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
 
-  performBatchStream: async (request, { payload }: ExecuteInputRaw<Settings, Readable, RawData[]>) => {
+  performBatchStream: async (_request, { payload }: ExecuteInputRaw<Settings, Readable, RawData[]>) => {
+    // peek and unshift the first payload to get the filename
+    const samplePayload = await new Promise<Payload>((resolve, reject) => {
+      payload
+        .once('data', (data: Payload[]) => {
+          payload.pause()
+          payload.unshift(data)
+          resolve(data[0])
+        })
+        .on('error', (err) => {
+          reject(err)
+        })
+    })
     const transformStream = new ObjectToCSVTransformer({})
-    const writeToS3 = new S3WriteStream()
-    await pipeline(payload, transformStream, writeToS3)
+    const writeStream = fs.createWriteStream(`/tmp/${samplePayload.filename}`)
+    await pipeline(payload, transformStream, writeStream)
 
-    const opts = await generateS3RequestOptions(
-      transformStream.s3.s3_aws_bucket_name,
-      transformStream.s3.s3_aws_region,
-      transformStream.s3.file_name,
-      'PUT',
-      writeToS3.buffer,
-      transformStream.s3.s3_aws_access_key,
-      transformStream.s3.s3_aws_secret_key
-    )
-    if (!opts.headers || !opts.method || !opts.host || !opts.path) {
-      throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 request.')
-    }
+    const uploadCommand = new PutObjectCommand({
+      Bucket: samplePayload.s3_aws_bucket_name,
+      Key: samplePayload.filename,
+      Body: fs.createReadStream(`/tmp/${samplePayload.filename}`)
+    })
 
-    return await request(`https://${opts.host}/${opts.path}`, {
-      headers: opts.headers as Record<string, string>,
-      method: 'PUT',
-      timeout: 120000,
-      body: opts.body
+    const s3Client = new S3Client({})
+    console.time('s3Upload')
+    await s3Client.send(uploadCommand)
+    console.timeEnd('s3Upload')
+
+    fs.unlink(`/tmp/${samplePayload.filename}`, (err) => {
+      console.log(err)
+      // throw new IntegrationError('Error deleting file')
     })
   }
 }
