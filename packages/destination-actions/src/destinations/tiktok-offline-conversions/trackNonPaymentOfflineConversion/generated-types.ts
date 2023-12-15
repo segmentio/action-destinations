@@ -2,35 +2,83 @@
 
 export interface Payload {
   /**
-   * Conversion event name. Please refer to the "Supported Offline Events" section on in TikTok’s [Offline Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1758053486938113) for accepted event names.
+   * Conversion event name. Please refer to the "Offline Standard Events" section on in TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.
    */
   event: string
   /**
-   * A unique value for each event. This ID can be used to match data between partner and TikTok. We suggest it is a String of 32 characters, including numeric digits (0-9), uppercase letters (A-Z), and lowercase letters (a-z).
+   * <TODO>
    */
   event_id?: string
   /**
-   * Timestamp that the event took place, in ISO 8601 format. e.g. 2019-06-12T19:11:01.152Z
+   * Timestamp for when the event took place. In ISO 8601 format.
    */
-  timestamp: string
+  timestamp?: string
   /**
-   * A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number is required if no value is provided in the Emails field.
+   * A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number is required if the Emails and External IDs fields are both empty.
    */
   phone_numbers?: string[]
   /**
-   * A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email is required if no value is provided in the Phone Numbers field.
+   * A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email is required if the Phone Numbers and External IDs fields are both empty.
    */
   email_addresses?: string[]
   /**
-   * The order id
+   * Unique ID or array of IDs for a user. Segment will hash this value before sending to TikTok. At least one external Id is required if the Phone Numbers and Emails fields are both empty.
+   */
+  external_ids?: string[]
+  /**
+   * The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](<TODO>) for details.
+   */
+  ttclid?: string
+  /**
+   * If the Pixel SDK is being used and cookies are enabled, the Pixel SDK saves a unique identifier in the `_ttp` cookie and can be used to improve the match rate. To learn more about the `ttp` parameter, refer to [Events API 2.0 - Send TikTok Cookie](<TODO>) (`_ttp`).
+   */
+  ttp?: string
+  /**
+   * ID of TikTok leads. This feature is in beta - please enquire with your TikTok representative for more information.
+   */
+  lead_id?: string
+  /**
+   * The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
+   */
+  locale?: string
+  /**
+   * The page URL where the conversion event took place.
+   */
+  url?: string
+  /**
+   * The page referrer.
+   */
+  referrer?: string
+  /**
+   * IP address of the browser.
+   */
+  ip?: string
+  /**
+   * User agent from the user’s device.
+   */
+  user_agent?: string
+  /**
+   * Any additional information regarding the Offline Event.
+   */
+  description?: string
+  /**
+   * The text string that was searched for.
+   */
+  query?: string
+  /**
+   * Order ID of the transaction.
    */
   order_id?: string
   /**
-   * The shop id
+   * Shop ID of the transaction.
    */
   shop_id?: string
   /**
-   * Event channel of the offline conversion event. Accepted values are: email, website, phone_call, in_store, crm, other. Any other value will be rejected
+   * If set to true, flags an event for limited data processing. See [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).
    */
-  event_channel?: string
+  limited_data_use?: boolean
+  /**
+   * Marks the event as a test event. The Test Event Code can be found in the TikTok Events Manager under the "Test Event" tab. Remove the code before sending Production traffic.
+   */
+  test_event_code?: string
 }

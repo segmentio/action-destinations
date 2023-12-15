@@ -2,21 +2,13 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../common_fields'
-import { formatEmails, formatPhones } from '../formatter'
+import { formatEmails, formatPhones, formatUserIds } from '../formatter'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Payment Offline Conversion',
-  description: 'Send details of an in-store purchase or console purchase to the Tiktok Offline Events API',
+  title: 'Offline Conversion',
+  description: 'Send details of any in-store purchase or console purchase to the Tiktok Offline Events API (2.0)',
   fields: {
     ...commonFields,
-    timestamp: {
-      label: 'Event Timestamp',
-      type: 'string',
-      description: 'Timestamp that the event took place, in ISO 8601 format. e.g. 2019-06-12T19:11:01.152Z',
-      default: {
-        '@path': '$.timestamp'
-      }
-    },
     contents: {
       label: 'Contents',
       type: 'object',
@@ -25,69 +17,48 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         price: {
           label: 'Price',
-          description: 'Price of the product or content item. Price is a required field for all content items.',
+          description: 'Price of the item.',
           type: 'number'
         },
         quantity: {
           label: 'Quantity',
-          description:
-            'Quantity of this product ot item in the offline event. Quantity is a required field for all content items.',
+          description: 'Number of items.',
           type: 'number'
         },
-        content_type: {
-          label: 'Content Type',
-          description: 'Product type',
+        content_category: {
+          label: 'Content Category',
+          description: 'Category of the product item.',
           type: 'string'
         },
         content_id: {
           label: 'Content ID',
-          description:
-            'Product or content item identifier. Content ID is a required field for all product or content items.',
+          description: 'ID of the product item.',
           type: 'string'
         },
         content_name: {
           label: 'Content Name',
-          description: 'Name of the product or content item.',
+          description: 'Name of the product item.',
           type: 'string'
         },
-        content_category: {
-          label: 'Content Category',
-          description: 'Category of the product or content item.',
+        brand: {
+          label: 'Brand',
+          description: 'Brand name of the product item.',
           type: 'string'
         }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            price: {
-              '@path': 'price'
-            },
-            quantity: {
-              '@path': 'quantity'
-            },
-            content_type: {
-              '@path': 'type'
-            },
-            content_id: {
-              '@path': 'product_id'
-            },
-            content_name: {
-              '@path': 'name'
-            },
-            content_category: {
-              '@path': 'category'
-            }
-          }
-        ]
       }
+    },
+    content_type: {
+      label: 'Content Type',
+      description:
+        'Type of the product item. When the `content_id` in the `contents` parameter is specified as `sku_id`, set this field to `product`. When the `content_id` in the `contents` parameter is specified as `item_group_id`, set this field to `product_group`.',
+      type: 'string',
+      choices: ['product', 'product_group'],
+      default: 'product'
     },
     currency: {
       label: 'Currency',
       type: 'string',
-      required: true,
-      description:
-        'ISO 4217 code. Required for revenue reporting. Example: "USD".List of currencies currently supported: AED, ARS, AUD, BDT, BHD, BIF, BOB, BRL, CAD, CHF, CLP, CNY, COP, CRC, CZK, DKK, DZD, EGP, EUR, GBP, GTQ, HKD, HNL, HUF, IDR, ILS, INR, ISK, JPY, KES, KHR, KRW, KWD, KZT, MAD, MOP, MXN, MYR, NGN, NIO, NOK, NZD, OMR, PEN, PHP, PHP, PKR, PLN, PYG, QAR, RON, RUB, SAR, SEK, SGD, THB, TRY, TWD, UAH, USD, VES, VND, ZAR.',
+      description: 'Currency for the value specified as ISO 4217 code.',
       default: {
         '@path': '$.properties.currency'
       }
@@ -95,9 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     value: {
       label: 'Value',
       type: 'number',
-      required: true,
-      description:
-        'Revenue of total products or content items. Required for revenue reporting. Must be a number. e.g. 101.99 and not "101.99 USD"',
+      description: 'Value of the order or items sold.',
       default: {
         '@if': {
           exists: { '@path': '$.properties.value' },
@@ -110,32 +79,65 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const phone_numbers = formatPhones(payload.phone_numbers)
     const emails = formatEmails(payload.email_addresses)
+    const userIds = formatUserIds(payload.external_ids)
 
-    if (phone_numbers.length < 1 && emails.length < 1)
-      throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number')
+    if (phone_numbers.length < 1 && emails.length < 1 && userIds.length < 1) {
+      throw new PayloadValidationError(
+        'TikTok Offline Conversions API requires at least one of the following fields to be populatted: Emails, Phone Numbers, External ID'
+      )
+    }
 
-    return request('https://business-api.tiktok.com/open_api/v1.3/offline/track/', {
+    let urlTtclid
+    if (payload.url) {
+      try {
+        urlTtclid = new URL(payload.url).searchParams.get('ttclid')
+      } catch (error) {
+        //  invalid url
+      }
+    }
+
+    return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'post',
       json: {
-        event_set_id: settings.eventSetID,
-        event: payload.event,
-        event_id: payload.event_id ? `${payload.event_id}` : undefined,
-        timestamp: payload.timestamp,
-        context: {
-          user: {
-            phone_numbers,
-            emails
+        event_source: 'offline',
+        event_source_id: settings.eventSetID,
+        partner_name: 'Segment',
+        data: [
+          {
+            event: payload.event,
+            event_time: payload.timestamp
+              ? Math.floor(new Date(payload.timestamp).getTime() / 1000)
+              : Math.floor(new Date().getTime() / 1000),
+            event_id: payload.event_id ? `${payload.event_id}` : undefined,
+            user: {
+              ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
+              external_id: userIds,
+              phone: phone_numbers,
+              email: emails,
+              lead_id: payload.lead_id ? payload.lead_id : undefined,
+              ttp: payload.ttp ? payload.ttp : undefined,
+              ip: payload.ip ? payload.ip : undefined,
+              user_agent: payload.user_agent ? payload.user_agent : undefined,
+              locale: payload.locale ? payload.locale : undefined
+            },
+            properties: {
+              contents: payload.contents ? payload.contents : [],
+              content_type: payload.content_type ? payload.content_type : undefined,
+              currency: payload.currency ? payload.currency : undefined,
+              value: payload.value === 0 ? 0 : payload.value ? payload.value : undefined,
+              query: payload.query ? payload.query : undefined,
+              description: payload.description ? payload.description : undefined,
+              order_id: payload.order_id ? payload.order_id : undefined,
+              shop_id: payload.shop_id ? payload.shop_id : undefined
+            },
+            page: {
+              url: payload.url ? payload.url : undefined,
+              referrer: payload.referrer ? payload.referrer : undefined
+            },
+            limited_data_use: payload.limited_data_use ? payload.limited_data_use : false,
+            test_event_code: payload.test_event_code ? payload.test_event_code : undefined
           }
-        },
-        properties: {
-          order_id: payload.order_id,
-          shop_id: payload.shop_id,
-          contents: payload.contents,
-          currency: payload.currency,
-          value: payload.value,
-          event_channel: payload.event_channel
-        },
-        partner_name: 'Segment'
+        ]
       }
     })
   }
