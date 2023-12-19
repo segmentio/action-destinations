@@ -157,9 +157,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       config.campaign_content = payload.campaign_content
     }
-
-    console.log(config)
-
     gtag('config', settings.measurementID, config)
   }
 }
