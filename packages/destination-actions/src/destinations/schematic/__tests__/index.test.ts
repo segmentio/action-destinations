@@ -24,37 +24,37 @@ const auth = {
 
 const settings = {
   instanceUrl: 'https://api.schematichq.com',
-  apiKey: 'test'
+  apiKey: SCHEMATIC_API_KEY
 }
 
-beforeEach(() => {
-  nock(`${settings.instanceUrl}`)
-    .get('/events')
-    .reply(201, {
-      data: {
-        api_key: '<string>',
-        body: {},
-        captured_at: '2023-11-07T05:31:56Z',
-        company_id: '<string>',
-        enriched_at: '2023-11-07T05:31:56Z',
-        environment_id: '<string>',
-        feature_id: '<string>',
-        id: '<string>',
-        loaded_at: '2023-11-07T05:31:56Z',
-        processed_at: '2023-11-07T05:31:56Z',
-        processing_status: '<string>',
-        sent_at: '2023-11-07T05:31:56Z',
-        subtype: '<string>',
-        type: '<string>',
-        updated_at: '2023-11-07T05:31:56Z',
-        user_id: '<string>'
-      },
-      params: {}
-    })
-  nock(`${settings.instanceUrl}`).put('/events').reply(400, { error: '<string>' })
-})
+describe('POST events', () => {
+  beforeEach(() => {
+    nock(`${settings.instanceUrl}`)
+      .post('/events')
+      .reply(201, {
+        data: {
+          api_key: '<string>',
+          body: {},
+          captured_at: '2023-11-07T05:31:56Z',
+          company_id: '<string>',
+          enriched_at: '2023-11-07T05:31:56Z',
+          environment_id: '<string>',
+          feature_id: '<string>',
+          id: '<string>',
+          loaded_at: '2023-11-07T05:31:56Z',
+          processed_at: '2023-11-07T05:31:56Z',
+          processing_status: '<string>',
+          sent_at: '2023-11-07T05:31:56Z',
+          subtype: '<string>',
+          type: '<string>',
+          updated_at: '2023-11-07T05:31:56Z',
+          user_id: '<string>'
+        },
+        params: {}
+      })
+    nock(`${settings.instanceUrl}`).post('/events').reply(400, { error: '<string>' })
+  })
 
-describe('schematic.events', () => {
   it('should create an event', async () => {
     const event = createTestEvent({
       type: 'track',
@@ -72,7 +72,9 @@ describe('schematic.events', () => {
       mapping: track_mapping
     })
 
-    expect(responses.length).toBe(201)
+    console.log(responses[0].status)
+
+    expect(responses[0].status).toBe(201)
   })
 
   it('should update a user', async () => {
@@ -94,6 +96,6 @@ describe('schematic.events', () => {
       mapping: identify_mapping
     })
 
-    expect(responses.length).toBe(201)
+    expect(responses[0].status).toBe(201)
   })
 })

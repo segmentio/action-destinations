@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Send track events to Schematic',
+  title: 'Identify User',
+  description: 'Send identify events to Schematic',
   fields: {
     company_keys: {
       label: 'Company key name',
