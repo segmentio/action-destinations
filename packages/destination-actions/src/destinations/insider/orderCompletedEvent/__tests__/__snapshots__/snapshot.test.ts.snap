@@ -55,6 +55,7 @@ Object {
         "phone_number": "^nSY[JM",
         "uuid": "^nSY[JM",
       },
+      "not_append": false,
     },
   ],
 }
@@ -83,6 +84,7 @@ Object {
         },
         "uuid": "^nSY[JM",
       },
+      "not_append": true,
     },
   ],
 }

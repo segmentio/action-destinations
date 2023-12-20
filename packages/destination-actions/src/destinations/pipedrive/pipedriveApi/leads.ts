@@ -5,12 +5,11 @@ export interface Lead extends Record<string, unknown> {
   title: string
 
   expected_close_date?: string
-  visible_to?: number
+  visible_to?: string
 
   id?: string
   person_id?: number
   organization_id?: number
-  add_time?: string
 }
 
 export type LeadValue = {

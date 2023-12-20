@@ -2,7 +2,7 @@ import { mapUnits, Units } from './unit'
 import { InputField, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { sendEvent, PublishRequestEvent, defaultEventFields, DefaultPayload } from './event'
 import { Settings } from './generated-types'
-import { isValidTimestamp, unixTimestampOf } from './timestamp'
+import { unixTimestampOf } from './timestamp'
 import { Data } from 'ws'
 
 export interface PublishRequestGoal {
@@ -13,7 +13,6 @@ export interface PublishRequestGoal {
 
 export interface GoalPayload extends Units, DefaultPayload {
   name: string
-  achievedAt: string | number
   properties?: null | Record<string, unknown>
 }
 
@@ -43,16 +42,6 @@ export const defaultGoalFields: Record<string, InputField> = {
       '@path': '$.event'
     }
   },
-  achievedAt: {
-    label: 'Goal Achievement Time',
-    type: 'datetime',
-    required: true,
-    description:
-      'Exact timestamp when the goal was achieved (measured by the client clock). Must be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number',
-    default: {
-      '@path': '$.originalTimestamp'
-    }
-  },
   properties: {
     label: 'Goal Properties',
     type: 'object',
@@ -67,6 +56,7 @@ export const defaultGoalFields: Record<string, InputField> = {
 
 export function sendGoal(
   request: RequestClient,
+  timestamp: number,
   payload: GoalPayload,
   settings: Settings
 ): Promise<ModifiedResponse<Data>> {
@@ -74,29 +64,18 @@ export function sendGoal(
     throw new PayloadValidationError('Goal `name` is required to be a non-empty string')
   }
 
-  if (!isValidTimestamp(payload.publishedAt)) {
-    throw new PayloadValidationError(
-      'Goal `publishedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
-  }
-
-  if (!isValidTimestamp(payload.achievedAt)) {
-    throw new PayloadValidationError(
-      'Goal `achievedAt` is required to be an ISO 8601 date-time string, or a Unix timestamp (milliseconds) number'
-    )
-  }
-
   if (payload.properties != null && typeof payload.properties != 'object') {
     throw new PayloadValidationError('Goal `properties` if present is required to be an object')
   }
 
   const event: PublishRequestEvent = {
-    publishedAt: unixTimestampOf(payload.publishedAt),
+    historic: true,
+    publishedAt: unixTimestampOf(timestamp),
     units: mapUnits(payload),
     goals: [
       {
         name: payload.name,
-        achievedAt: unixTimestampOf(payload.achievedAt),
+        achievedAt: unixTimestampOf(timestamp),
         properties: payload.properties ?? null
       }
     ]

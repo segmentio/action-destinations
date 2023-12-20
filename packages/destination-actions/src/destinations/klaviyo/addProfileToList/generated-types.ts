@@ -8,5 +8,13 @@ export interface Payload {
   /**
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
-  external_id: string
+  list_id: string
+  /**
+   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.
+   */
+  external_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
 }

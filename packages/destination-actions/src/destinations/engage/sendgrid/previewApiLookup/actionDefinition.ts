@@ -1,8 +1,8 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { apiLookupActionFields, performApiLookup } from './api-lookups'
-import { Profile } from '../Profile'
+import { apiLookupActionFields, performApiLookup } from '../../utils/apiLookups'
+import { Profile } from '../../utils/Profile'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Perform a single API lookup',
