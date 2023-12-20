@@ -168,7 +168,9 @@ async function process_payload(
   if (body.data.length > 0) {
     if (statsClient && statsTag) {
       statsClient?.incr('updateSegmentTriggered', 1, statsTag)
-      statsClient?.incr('updateSegmentRecordsSent', body.data.length, statsTag)
+      for (let i = 0; i < body.data.length; i++) {
+        statsClient?.incr('updateSegmentRecordsSent', 1, statsTag)
+      }
     }
     return request('https://dataxonline.yahoo.com/online/audience/', {
       method: 'POST',
