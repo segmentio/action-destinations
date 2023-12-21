@@ -35,7 +35,7 @@ type ConsentParamsArg = 'granted' | 'denied' | undefined
 const presets: DestinationDefinition['presets'] = [
   {
     name: `Set Configuration Fields`,
-    subscribe: 'type = "page" or type = "identify"',
+    subscribe: 'type = "page"',
     partnerAction: 'setConfigurationFields',
     mapping: defaultValues(setConfigurationFields.fields),
     type: 'automatic'
