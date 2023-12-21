@@ -12,7 +12,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The event parameters to send to Google Analytics 4.
+   * The event parameters to send to Google Analytics 4. ----
    */
   params?: {
     [k: string]: unknown

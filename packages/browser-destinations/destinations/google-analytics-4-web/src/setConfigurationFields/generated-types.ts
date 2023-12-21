@@ -68,7 +68,7 @@ export interface Payload {
    */
   screen_resolution?: string
   /**
-   * The event parameters to send to Google Analytics 4.
+   * The event parameters to send to Google Analytics 4. ----
    */
   params?: {
     [k: string]: unknown
