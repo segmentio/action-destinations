@@ -6,6 +6,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * The user's phone number to send to TikTok.
+   */
+  phone?: string
+  /**
    * The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID
    */
   advertising_id?: string
@@ -13,6 +17,10 @@ export interface Payload {
    * Send email to TikTok. Segment will hash this value before sending
    */
   send_email?: boolean
+  /**
+   * Send phone number to TikTok. Segment will hash this value before sending
+   */
+  send_phone?: boolean
   /**
    * Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.
    */

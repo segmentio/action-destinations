@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-export function loadPendo(apiKey, region) {
+export function loadPendo(apiKey, region, cnameContentHost) {
   ;(function (p, e, n, d, o) {
     var v, w, x, y, z
     o = p[d] = p[d] || {}
@@ -16,7 +16,7 @@ export function loadPendo(apiKey, region) {
       })(v[w])
     y = e.createElement(n)
     y.async = !0
-    y.src = `https://cdn.pendo.${region}/agent/static/` + apiKey + '/pendo.js'
+    y.src = `${cnameContentHost || region}/agent/static/${apiKey}/pendo.js`
     z = e.getElementsByTagName(n)[0]
     z.parentNode.insertBefore(y, z)
   })(window, document, 'script', 'pendo')

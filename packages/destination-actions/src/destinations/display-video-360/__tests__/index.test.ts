@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../index'
-import { GET_AUDIENCE_URL, CREATE_AUDIENCE_URL } from '../constants'
+import { GET_AUDIENCE_URL, CREATE_AUDIENCE_URL, OAUTH_URL } from '../constants'
 
 const advertiserId = '424242'
 const audienceName = 'The Super Mario Brothers Fans'
@@ -9,19 +9,32 @@ const testDestination = createTestIntegration(Destination)
 const advertiserCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
 const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
 const expectedExternalID = `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}/userLists/8457147615`
+const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 
 const createAudienceInput = {
-  settings: {},
+  settings: {
+    oauth: {
+      clientId: '123',
+      clientSecret: '123'
+    }
+  },
   audienceName: '',
   audienceSettings: {
-    advertiserId: advertiserId
+    advertiserId: advertiserId,
+    accountType: accountType
   }
 }
 
 const getAudienceInput = {
-  settings: {},
+  settings: {
+    oauth: {
+      clientId: '123',
+      clientSecret: '123'
+    }
+  },
   audienceSettings: {
-    advertiserId: advertiserId
+    advertiserId: advertiserId,
+    accountType: accountType
   },
   audienceName: audienceName,
   externalId: expectedExternalID
@@ -57,6 +70,7 @@ describe('Display Video 360', () => {
     })
 
     it('creates an audience', async () => {
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
       nock(advertiserCreateAudienceUrl)
         .post(/.*/)
         .reply(200, {
@@ -132,11 +146,13 @@ describe('Display Video 360', () => {
         externalId: 'bogus'
       }
 
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
       nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
       await expect(testDestination.getAudience(bogusGetAudienceInput)).rejects.toThrowError(IntegrationError)
     })
 
     it('should succeed when Segment Audience ID matches Google audience ID', async () => {
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
       nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
 
       const r = await testDestination.getAudience(getAudienceInput)

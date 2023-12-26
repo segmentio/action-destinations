@@ -3,17 +3,56 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { getEndpointByRegion } from '../../regional-endpoints'
 
+<<<<<<< HEAD
 const testDestination = createTestIntegration(Destination)
 const MOENGAGE_API_ID = 'SOME_APP_ID'
 const MOENGAGE_API_KEY = 'SOME_APP_KEY'
 const MOENGAGE_REGION = 'SOME_REGION'
 
 const endpoint = getEndpointByRegion()
+=======
+exports[`Testing snapshot for actions-moengage destination: identifyUser action - all fields 1`] = `
+Object {
+  "anonymous_id": "z(%@QRCz7h$8M)#]",
+  "context": Object {
+    "app": Object {
+      "version": "z(%@QRCz7h$8M)#]",
+    },
+    "library": Object {
+      "version": "z(%@QRCz7h$8M)#]",
+    },
+    "os": Object {
+      "name": "z(%@QRCz7h$8M)#]",
+    },
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "z(%@QRCz7h$8M)#]",
+  },
+  "type": "z(%@QRCz7h$8M)#]",
+  "update_existing_only": false,
+  "user_id": "z(%@QRCz7h$8M)#]",
+}
+`;
+
+exports[`Testing snapshot for actions-moengage destination: identifyUser action - required fields 1`] = `
+Object {
+  "context": Object {
+    "app": Object {},
+    "library": Object {},
+    "os": Object {},
+  },
+  "type": "z(%@QRCz7h$8M)#]",
+  "update_existing_only": false,
+}
+`;
+>>>>>>> 00837df3de96bab464ee124e6abdd752718d0803
 
 describe('ActionsMoengage.identifyUser', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({ traits: { name: 'abc' } })
 
+<<<<<<< HEAD
     nock(`${endpoint}`).post(`/v1/integrations/segment?appId=${MOENGAGE_API_ID}`).reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
@@ -48,3 +87,16 @@ describe('ActionsMoengage.identifyUser', () => {
     }
   })
 })
+=======
+exports[`Testing snapshot for actions-moengage destination: trackEvent action - required fields 1`] = `
+Object {
+  "context": Object {
+    "app": Object {},
+    "library": Object {},
+    "os": Object {},
+  },
+  "event": "E@t!q#n(^u",
+  "type": "E@t!q#n(^u",
+}
+`;
+>>>>>>> 00837df3de96bab464ee124e6abdd752718d0803

@@ -26,7 +26,8 @@ const event = createTestEvent({
       advertisingId: '123'
     },
     traits: {
-      email: 'testing@testing.com'
+      email: 'testing@testing.com',
+      phone: '1234567890'
     }
   }
 })
@@ -34,11 +35,15 @@ const event = createTestEvent({
 const updateUsersRequestBody = {
   advertiser_ids: ['123'],
   action: 'add',
-  id_schema: ['EMAIL_SHA256', 'IDFA_SHA256'],
+  id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
   batch_data: [
     [
       {
         id: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+        audience_ids: ['1234345']
+      },
+      {
+        id: 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646',
         audience_ids: ['1234345']
       },
       {
@@ -94,11 +99,47 @@ describe('TiktokAudiences.addUser', () => {
       mapping: {
         selected_advertiser_id: '123',
         audience_id: '1234345',
-        send_advertising_id: false
+        send_advertising_id: false,
+        send_phone: false
       }
     })
     expect(responses[0].options.body).toMatchInlineSnapshot(
       `"{\\"advertiser_ids\\":[\\"123\\"],\\"action\\":\\"add\\",\\"id_schema\\":[\\"EMAIL_SHA256\\"],\\"batch_data\\":[[{\\"id\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"audience_ids\\":[\\"1234345\\"]}]]}"`
+    )
+  })
+
+  it('should normalize and hash phone correctly', async () => {
+    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+      .post(/.*/, {
+        advertiser_ids: ['123'],
+        action: 'add',
+        id_schema: ['PHONE_SHA256'],
+        batch_data: [
+          [
+            {
+              id: 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646',
+              audience_ids: ['1234345']
+            }
+          ]
+        ]
+      })
+      .reply(200)
+    const responses = await testDestination.testAction('addUser', {
+      event,
+      settings: {
+        advertiser_ids: ['123']
+      },
+      useDefaultMappings: true,
+      auth,
+      mapping: {
+        selected_advertiser_id: '123',
+        audience_id: '1234345',
+        send_advertising_id: false,
+        send_email: false
+      }
+    })
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"advertiser_ids\\":[\\"123\\"],\\"action\\":\\"add\\",\\"id_schema\\":[\\"PHONE_SHA256\\"],\\"batch_data\\":[[{\\"id\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\",\\"audience_ids\\":[\\"1234345\\"]}]]}"`
     )
   })
 
@@ -136,10 +177,11 @@ describe('TiktokAudiences.addUser', () => {
           selected_advertiser_id: '123',
           audience_id: '123456',
           send_email: false,
-          send_advertising_id: false
+          send_advertising_id: false,
+          send_phone: false
         }
       })
-    ).rejects.toThrow('At least one of `Send Email`, or `Send Advertising ID` must be set to `true`.')
+    ).rejects.toThrow('At least one of `Send Email`, `Send Phone` or `Send Advertising ID` must be set to `true`.')
   })
   it('should fail if email and/or advertising_id is not in the payload', async () => {
     nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(400)
@@ -159,7 +201,8 @@ describe('TiktokAudiences.addUser', () => {
           selected_advertiser_id: '123',
           audience_id: 'personas_test_audience',
           send_email: true,
-          send_advertising_id: true
+          send_advertising_id: true,
+          send_phone: true
         }
       })
     ).rejects.toThrowError('At least one of Email Id or Advertising ID must be provided.')

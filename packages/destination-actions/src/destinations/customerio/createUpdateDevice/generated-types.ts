@@ -10,6 +10,10 @@ export interface Payload {
    */
   device_id: string
   /**
+   * The version of the App
+   */
+  app_version?: string
+  /**
    * The mobile device's platform. ("ios" or "android")
    */
   platform: string

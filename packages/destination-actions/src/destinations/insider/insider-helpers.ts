@@ -24,6 +24,7 @@ export interface upsertUserPayload {
     custom?: object
   }
   attributes: { [key: string]: never }
+  not_append: boolean
   events: insiderEvent[]
 }
 
@@ -67,9 +68,11 @@ export function userProfilePayload(data: UserPayload) {
           whatsapp_optin: data.whatsappOptin,
           language: data.language?.replace('-', '_'),
           custom: data.custom
-        }
+        },
+        not_append: !data.append_arrays
       }
-    ]
+    ],
+    platform: 'segment'
   }
 }
 
@@ -251,11 +254,14 @@ export function sendTrackEvent(
     payload.events.push(event)
   }
 
-  return { users: [payload] }
+  payload.not_append = !data.append_arrays
+
+  return { users: [payload], platform: 'segment' }
 }
 
 export function bulkUserProfilePayload(data: UserPayload[]) {
   const batchPayload = data.map((userPayload) => {
+    const not_append = !userPayload.append_arrays
     const identifiers = {
       uuid: userPayload.uuid,
       custom: {
@@ -305,10 +311,10 @@ export function bulkUserProfilePayload(data: UserPayload[]) {
       }
     })
 
-    return { identifiers, attributes }
+    return { identifiers, attributes, not_append }
   })
 
-  return { users: batchPayload }
+  return { users: batchPayload, platform: 'segment' }
 }
 
 export function sendBulkTrackEvents(
@@ -394,6 +400,7 @@ export function sendBulkTrackEvents(
         // @ts-ignore
         custom: {}
       },
+      not_append: true,
       events: []
     }
 
@@ -496,8 +503,10 @@ export function sendBulkTrackEvents(
       payload.events.push(event)
     }
 
+    payload.not_append = !data.append_arrays
+
     bulkPayload.push(payload)
   })
 
-  return { users: bulkPayload }
+  return { users: bulkPayload, platform: 'segment' }
 }

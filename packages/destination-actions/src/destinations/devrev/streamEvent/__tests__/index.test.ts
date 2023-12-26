@@ -56,6 +56,7 @@ describe('Devrev.streamEvent', () => {
       events_list: [
         {
           name: testEventPayload.event as string,
+          event_id: testMessageId,
           event_time: testEventPayload.timestamp as string,
           payload: {
             eventName: testEventPayload.event,

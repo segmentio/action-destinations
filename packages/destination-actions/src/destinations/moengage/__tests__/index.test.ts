@@ -23,7 +23,7 @@ describe('Moengage', () => {
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrow(
-        `Endpoint Region must be one of: "DC_01", "DC_02", "DC_03", or "DC_04".`
+        `Endpoint Region must be one of: "DC_01", "DC_02", "DC_03", "DC_04", or "DC_05".`
       )
     })
 

@@ -38,11 +38,7 @@ export interface Payload {
    */
   expected_close_date?: string
   /**
-   * Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
+   * Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans
    */
-  visible_to?: number
-  /**
-   * If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
-   */
-  add_time?: string | number
+  visible_to?: string
 }
