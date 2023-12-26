@@ -82,6 +82,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },    
+    update_users_from_events: {
+      label: 'Update users from events',
+      type: 'boolean',
+      description: 'Settings to update the existing users through event sync',
+      required: false,
+      default: false
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -100,7 +107,9 @@ const action: ActionDefinition<Settings, Payload> = {
         library: { version: payload.library_version }
       },
       properties: payload.properties,
-      timestamp: payload.timestamp
+      timestamp: payload.timestamp,
+      update_users_from_events: payload.update_users_from_events || false
+
     }
 
     const endpoint = getEndpointByRegion(settings.region)
