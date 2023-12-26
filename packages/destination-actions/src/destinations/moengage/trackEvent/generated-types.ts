@@ -39,4 +39,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Settings to update the existing users through event sync
+   */
+  update_users_from_events?: boolean
 }
