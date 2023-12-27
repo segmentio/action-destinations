@@ -21,7 +21,7 @@ Object {
   "timestamp": "2021-02-01T00:00:00.000Z",
   "type": "[3(wtAyZqr",
   "user_id": "[3(wtAyZqr",
-  "update_users_from_events": true,
+  "update_existing_only": true,
 }
 `;
 
@@ -34,6 +34,6 @@ Object {
   },
   "event": "[3(wtAyZqr",
   "type": "[3(wtAyZqr",
-  "update_users_from_events": false,
+  "update_existing_only": false,
 }
 `;

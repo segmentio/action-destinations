@@ -83,13 +83,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },    
-    update_users_from_events: {
+    update_existing_only: {
       label: 'Update users from events',
       type: 'boolean',
       description: 'Settings to update the existing users through event sync',
       required: false,
       default: false
-    }
+    },
   },
   perform: async (request, { payload, settings }) => {
     if (!settings.api_id || !settings.api_key) {
@@ -108,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       properties: payload.properties,
       timestamp: payload.timestamp,
-      update_users_from_events: payload.update_users_from_events || false
+      update_existing_only: payload.update_existing_only || false
 
     }
 
