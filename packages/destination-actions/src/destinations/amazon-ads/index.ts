@@ -1,6 +1,6 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
-import type { RefreshTokenResponse, AmazonRefreshTokenError } from './types'
+import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings } from './generated-types'
 
 import syncAudiences from './syncAudiences'
@@ -27,9 +27,23 @@ const destination: AudienceDestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { auth }) => {
+    testAuthentication: async (request, { auth }) => {
       if (!auth?.accessToken) {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
+      }
+
+      try {
+        await request<RefreshTokenResponse>('https://advertising-api.amazon.com/v2/profiles', {
+          method: 'GET'
+        })
+      } catch (e: any) {
+        const error = e as AmazonTestAuthenticationError
+        if (error.message === 'Unauthorized') {
+          throw new Error(
+            'Invalid LinkedIn Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
+          )
+        }
+        throw e
       }
     },
     refreshAccessToken: async (request, { auth }) => {
