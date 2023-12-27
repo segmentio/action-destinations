@@ -9,7 +9,7 @@ const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
   event: 'Example Event',
   type: 'track',
-  timestamp: '1695884800000',
+  timestamp: '1704546582264',
   context: {
     traits: {
       email: 'testing@testing.com',
@@ -140,7 +140,7 @@ describe('LinkedinConversions.streamConversion', () => {
     const event = createTestEvent({
       event: 'Example Event',
       type: 'track',
-      timestamp: '1695884800000',
+      timestamp: '1704546582264',
       context: {
         traits: {
           email: 'testing@testing.com',
