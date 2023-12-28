@@ -127,6 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const uploadCommand = new PutObjectCommand({
       Bucket: samplePayload.s3_aws_bucket_name,
       Key: samplePayload.filename,
+      ContentLength: fs.statSync(`/tmp/${samplePayload.filename}`).size,
       Body: fs.createReadStream(`/tmp/${samplePayload.filename}`)
     })
 
