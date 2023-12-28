@@ -131,7 +131,12 @@ const action: ActionDefinition<Settings, Payload> = {
       Body: fs.createReadStream(`/tmp/${samplePayload.filename}`)
     })
 
-    const s3Client = new S3Client({})
+    const s3Client = new S3Client({
+      credentials: {
+        accessKeyId: samplePayload.s3_aws_access_key!,
+        secretAccessKey: samplePayload.s3_aws_secret_key!
+      }
+    })
     console.time('s3Upload')
     await s3Client.send(uploadCommand)
     console.timeEnd('s3Upload')
