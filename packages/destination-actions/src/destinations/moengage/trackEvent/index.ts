@@ -84,9 +84,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },    
     update_existing_only: {
-      label: 'Update users from events',
+      label: 'Update Existing Users Only',
       type: 'boolean',
-      description: 'Settings to update the existing users through event sync',
+      description: 'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
       required: false,
       default: false
     },
