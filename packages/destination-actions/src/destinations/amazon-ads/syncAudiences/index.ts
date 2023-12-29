@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
-  description: '',
+  description: 'Sync audiences from Segment to Amazon Ads Audience.',
   fields: {},
   perform: (request, data) => {
     return request('https://example.com', {
