@@ -142,7 +142,7 @@ register('6537b5da8f27fd20713a5ba8', './usermotion')
 register('6554dc58634812f080d83a23', './canvas')
 register('656f2474a919b7e6e4900265', './gleap')
 register('6578a6aad6619f2cba205727', './responsys')
-
+register('658c0e76cec9f7cf46533eed', './amazon-ads')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
