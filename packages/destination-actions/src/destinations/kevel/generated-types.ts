@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * TODO
+   * Your Kevel Network ID
    */
   networkId: string
   /**
-   * TODO
+   * Your Kevel API Key
    */
   apiKey: string
 }

@@ -6,7 +6,7 @@ export interface Payload {
    */
   segment_user_id: string
   /**
-   * TODO
+   * The user's profile traits / attributes
    */
   traits: {
     [k: string]: unknown

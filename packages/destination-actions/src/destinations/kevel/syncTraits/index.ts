@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Traits',
-  description: 'Sync user traits from Segment to Kevel',
+  description: 'Sync user profile traits from Segment to Kevel',
   fields: {
     segment_user_id: {
       label: 'User ID',
@@ -15,14 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       label: 'Traits',
-      description: 'TODO',
+      description: "The user's profile traits / attributes",
       type: 'object',
       required: true,
       default: { '@path': '$.traits' }
     }
   },
   perform: async (request, data) => {
-
     const settings = data.settings
 
     const baseUrl = `https://e-${settings.networkId}.adzerk.net/udb/${settings.networkId}`
@@ -31,16 +30,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const existingResponse = await request(`${baseUrl}/read?userKey=${payload.segment_user_id}`, {
       method: 'GET'
-    });
+    })
 
     const existingRecord = await existingResponse.json()
- 
+
     const mergedTraits = { ...existingRecord?.custom, ...payload.traits }
 
     return request(`${baseUrl}/customProperties?userKey=${payload.segment_user_id}`, {
       json: mergedTraits,
       method: 'POST'
-    });
+    })
   }
 }
 

@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Engage Audience to a Kevel Segment',
+  description: 'Sync a Segment Engage Audience to a Kevel Segment. Only users with a Segment userId will be synced.',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_computation_key: {
@@ -50,10 +50,9 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits' }
         }
       }
-    },
+    }
   },
   perform: async (request, data) => {
-
     const settings = data.settings
 
     const baseUrl = `https://e-${settings.networkId}.adzerk.net/udb/${settings.networkId}`
@@ -62,16 +61,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const audienceValue = payload.traits_or_props[payload.segment_computation_key]
 
-    console.log(`${baseUrl}/interests?userKey=${payload.segment_user_id}`)
-
-    console.log([payload.segment_computation_key])
-
     return request(`${baseUrl}/interests?userKey=${payload.segment_user_id}`, {
       json: [payload.segment_computation_key],
       method: audienceValue ? 'POST' : 'DELETE'
-    });
-
-
+    })
   }
 }
 

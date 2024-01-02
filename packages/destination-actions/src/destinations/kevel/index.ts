@@ -8,7 +8,8 @@ import syncTraits from './syncTraits'
 const destination: DestinationDefinition<Settings> = {
   name: 'Kevel',
   slug: 'actions-kevel',
-  description: 'Send Segment Engage Audiences to Kevel. Note only users with a userId will be synced.',
+  description:
+    'Send Segment user profiles and Segment Audiences to Kevel. Only users with a Segment userId will be synced.',
   mode: 'cloud',
 
   authentication: {
@@ -16,19 +17,16 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       networkId: {
         label: 'Kevel Network ID',
-        description: 'TODO',
+        description: 'Your Kevel Network ID',
         type: 'string',
         required: true
       },
       apiKey: {
-        label: 'Keven API Key',
-        description: 'TODO',
+        label: 'Kevel API Key',
+        description: 'Your Kevel API Key',
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (request, { settings }) => {
-      return request('TODO')
     }
   },
   extendRequest({ settings }) {
