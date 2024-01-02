@@ -8,6 +8,24 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Register an Email address and associate it with a Named User ID.',
   defaultSubscription: 'type = "track" and event="Email Address Registered"',
   fields: {
+    channel_type: {
+      label: 'Channel Type',
+      description: 'Email (default) or SMS',
+      type: 'string',
+      choices: [
+        { label: 'Email', value: 'Email' },
+        { label: 'SMS', value: 'SMS' }
+      ],
+      default: 'Email',
+      required: true
+    },
+    sms_sender: {
+      label: 'SMS Sender',
+      description: 'A long or short code the app is configured to send from (if using for SMS).',
+      type: 'string',
+      default: process.env.DEFAULT_SMS_SENDER,
+      required: false
+    },
     named_user_id: {
       label: 'Airship Named User ID',
       description: 'The identifier assigned in Airship as the Named User',
@@ -60,8 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       properties: {
         address: {
-          label: 'Email Address',
-          description: 'Email address to register (required)',
+          label: 'Email Address or MSISDN',
+          description: 'Email address or mobile number to register (required)',
           type: 'string',
           required: true
         },
@@ -126,6 +144,12 @@ const action: ActionDefinition<Settings, Payload> = {
             'If an email channel is suppressed, the reason for its suppression. Email channels with any suppression state set will not have any delivery to them fulfilled. If a more specific reason is not known, use imported. Possible values: spam_complaint, bounce, imported',
           type: 'string',
           required: false
+        },
+        sms_opted_in: {
+          label: 'SMS Opt In Date-Time',
+          description: 'The date-time when a user gave explicit permission to receive SMS messages.',
+          type: 'string',
+          required: false
         }
       },
       default: {
@@ -139,7 +163,8 @@ const action: ActionDefinition<Settings, Payload> = {
         open_tracking_opted_out: { '@path': '$.properties.open_tracking_opted_out' },
         transactional_opted_in: { '@path': '$.properties.transactional_opted_in' },
         transactional_opted_out: { '@path': '$.properties.transactional_opted_out' },
-        suppression_state: { '@path': '$.context.suppression_state' }
+        suppression_state: { '@path': '$.context.suppression_state' },
+        sms_opted_in: { '@path': '$.properties.sms_opted_in' }
       }
     }
   },

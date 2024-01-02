@@ -4,7 +4,6 @@ import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 import { Payload as RegisterPayload } from './registerAndAssociate/generated-types'
-import { timezone } from '../segment/segment-properties'
 
 // exported Action function
 export function register(
@@ -14,17 +13,21 @@ export function register(
   old_channel: string | null
 ) {
   let address_to_use = payload.channel_object.address
+  const channel_type = payload.channel_type
   const endpoint = map_endpoint(settings.endpoint)
   let register_uri = `${endpoint}/api/channels/email`
   if (old_channel && payload.channel_object.new_address) {
     register_uri = `${endpoint}/api/channels/email/replace/${old_channel}`
     address_to_use = payload.channel_object.new_address
   }
+  if (channel_type == 'SMS') {
+    register_uri = `${endpoint}/api/channels/sms`
+  }
   let country_language = null
   if (payload.locale && payload.locale.length > 0) {
     country_language = _extract_country_language(payload.locale)
   }
-  const register_payload: {
+  const email_register_payload: {
     channel: {
       commercial_opted_in?: string
       commercial_opted_out?: string
@@ -35,67 +38,116 @@ export function register(
       transactional_opted_in?: string
       transactional_opted_out?: string
       suppression_state?: string
-      type: string
+      type?: string
       address: string
       timezone?: string
       locale_language?: string
       locale_country?: string
+      sms_opted_in?: string
+      sms_sender?: string
     }
   } = {
     channel: {
-      type: 'email',
+      type: channel_type,
       address: address_to_use
     }
   }
-  if (Array.isArray(country_language) && country_language.length === 2) {
-    payload.channel_object.locale_language = country_language[0]
-    payload.channel_object.locale_country = country_language[1]
-  }
-  if (timezone) {
-    payload.channel_object.timezone = payload.timezone
-  }
-  // handle and format all optional date params
-  if (payload.channel_object.commercial_opted_in) {
-    register_payload.channel.commercial_opted_in = _parse_and_format_date(payload.channel_object.commercial_opted_in)
-  }
-  if (payload.channel_object.commercial_opted_out) {
-    register_payload.channel.commercial_opted_out = _parse_and_format_date(payload.channel_object.commercial_opted_out)
-  }
-  if (payload.channel_object.click_tracking_opted_in) {
-    register_payload.channel.commercial_opted_in = _parse_and_format_date(
-      payload.channel_object.click_tracking_opted_in
-    )
-  }
-  if (payload.channel_object.click_tracking_opted_out) {
-    register_payload.channel.click_tracking_opted_in = _parse_and_format_date(
-      payload.channel_object.click_tracking_opted_out
-    )
-  }
-  if (payload.channel_object.open_tracking_opted_in) {
-    register_payload.channel.open_tracking_opted_in = _parse_and_format_date(
-      payload.channel_object.open_tracking_opted_in
-    )
-  }
-  if (payload.channel_object.open_tracking_opted_out) {
-    register_payload.channel.open_tracking_opted_out = _parse_and_format_date(
-      payload.channel_object.open_tracking_opted_out
-    )
-  }
-  if (payload.channel_object.transactional_opted_in) {
-    register_payload.channel.transactional_opted_in = _parse_and_format_date(
-      payload.channel_object.transactional_opted_in
-    )
-  }
-  if (payload.channel_object.transactional_opted_out) {
-    register_payload.channel.transactional_opted_out = _parse_and_format_date(
-      payload.channel_object.transactional_opted_out
-    )
-  }
-  if (payload.channel_object.suppression_state) {
-    register_payload.channel.suppression_state = payload.channel_object.suppression_state
+
+  const sms_register_payload: {
+    msisdn: string
+    sender?: string
+    opted_in?: string
+    timezone?: string
+    locale_language?: string
+    locale_country?: string
+  } = {
+    msisdn: address_to_use
   }
 
-  return do_request(request, register_uri, register_payload)
+  let locale_country = ''
+  let locale_language = ''
+  if (Array.isArray(country_language) && country_language.length === 2) {
+    locale_language = country_language[0]
+    locale_country = country_language[1]
+  }
+
+  //  set up email_email_register_payload
+  if (channel_type == 'Email') {
+    email_register_payload.channel.type = 'email'
+    // handle and format all optional date params
+    if (payload.channel_object.suppression_state) {
+      email_register_payload.channel.suppression_state = payload.channel_object.suppression_state
+    }
+    if (payload.channel_object.commercial_opted_in) {
+      email_register_payload.channel.commercial_opted_in = _parse_and_format_date(
+        payload.channel_object.commercial_opted_in
+      )
+    }
+    if (payload.channel_object.commercial_opted_out) {
+      email_register_payload.channel.commercial_opted_out = _parse_and_format_date(
+        payload.channel_object.commercial_opted_out
+      )
+    }
+    if (payload.channel_object.click_tracking_opted_in) {
+      email_register_payload.channel.commercial_opted_in = _parse_and_format_date(
+        payload.channel_object.click_tracking_opted_in
+      )
+    }
+    if (payload.channel_object.click_tracking_opted_out) {
+      email_register_payload.channel.click_tracking_opted_in = _parse_and_format_date(
+        payload.channel_object.click_tracking_opted_out
+      )
+    }
+    if (payload.channel_object.open_tracking_opted_in) {
+      email_register_payload.channel.open_tracking_opted_in = _parse_and_format_date(
+        payload.channel_object.open_tracking_opted_in
+      )
+    }
+    if (payload.channel_object.open_tracking_opted_out) {
+      email_register_payload.channel.open_tracking_opted_out = _parse_and_format_date(
+        payload.channel_object.open_tracking_opted_out
+      )
+    }
+    if (payload.channel_object.transactional_opted_in) {
+      email_register_payload.channel.transactional_opted_in = _parse_and_format_date(
+        payload.channel_object.transactional_opted_in
+      )
+    }
+    if (payload.channel_object.transactional_opted_out) {
+      email_register_payload.channel.transactional_opted_out = _parse_and_format_date(
+        payload.channel_object.transactional_opted_out
+      )
+    }
+    // additional properties that are actually common to sms and email
+    if (locale_language) {
+      email_register_payload.channel.locale_language = locale_language
+    }
+    if (locale_country) {
+      email_register_payload.channel.locale_country = locale_country
+    }
+    if (payload.timezone) {
+      email_register_payload.channel.timezone = payload.timezone
+    }
+    return do_request(request, register_uri, email_register_payload)
+  } else if (channel_type == 'SMS') {
+    if (payload.channel_object.sms_opted_in) {
+      sms_register_payload.opted_in = _parse_and_format_date(payload.channel_object.sms_opted_in)
+    }
+    if (payload.sms_sender) {
+      sms_register_payload.sender = payload.sms_sender
+    }
+    // additional properties that are actually common to sms and email
+    if (locale_language) {
+      sms_register_payload.locale_language = locale_language
+    }
+    if (locale_country) {
+      sms_register_payload.locale_country = locale_country
+    }
+    if (payload.timezone) {
+      sms_register_payload.timezone = payload.timezone
+    }
+    return do_request(request, register_uri, sms_register_payload)
+  }
 }
 
 // exported Action function
