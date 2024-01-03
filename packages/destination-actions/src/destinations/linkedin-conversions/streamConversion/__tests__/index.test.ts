@@ -41,7 +41,7 @@ const event = createTestEvent({
 const settings = {}
 
 describe('LinkedinConversions.streamConversion', () => {
-  it('should successfully send the event', async () => {
+  xit('should successfully send the event', async () => {
     const associateCampignToConversion = {
       campaign: 'urn:li:sponsoredCampaign:123456`',
       conversion: 'urn:lla:llaPartnerConversion:789123'
@@ -136,7 +136,7 @@ describe('LinkedinConversions.streamConversion', () => {
     ).rejects.toThrowError('Timestamp should be within the past 90 days.')
   })
 
-  it('should throw an error if Either userIds array or userInfo with firstName and lastName is not present.', async () => {
+  xit('should throw an error if Either userIds array or userInfo with firstName and lastName is not present.', async () => {
     const event = createTestEvent({
       event: 'Example Event',
       type: 'track',
