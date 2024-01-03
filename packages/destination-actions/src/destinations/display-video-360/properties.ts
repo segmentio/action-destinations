@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const mobile_advertising_id: InputField = {
   label: 'Mobile Advertising ID',
-  description: 'Mobile Advertising ID. This could be a GAID, or IDFA.',
+  description: 'Mobile Advertising ID. Android Advertising ID or iOS IDFA.',
   type: 'string',
   required: false,
   default: {
@@ -12,7 +12,8 @@ export const mobile_advertising_id: InputField = {
 
 export const google_gid: InputField = {
   label: 'Google GID',
-  description: 'Google GID.',
+  description:
+    'Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.',
   type: 'string',
   required: false,
   default: {
@@ -22,7 +23,8 @@ export const google_gid: InputField = {
 
 export const partner_provided_id: InputField = {
   label: 'Partner Provided ID',
-  description: 'Partner Provided ID.',
+  description:
+    'Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.',
   type: 'string',
   required: false,
   default: {
