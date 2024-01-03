@@ -128,7 +128,6 @@ export function register(
     if (payload.timezone) {
       email_register_payload.channel.timezone = payload.timezone
     }
-    return do_request(request, register_uri, email_register_payload)
   } else if (channel_type == 'SMS') {
     if (payload.channel_object.sms_opted_in) {
       sms_register_payload.opted_in = _parse_and_format_date(payload.channel_object.sms_opted_in)
@@ -148,6 +147,7 @@ export function register(
     }
     return do_request(request, register_uri, sms_register_payload)
   }
+  return do_request(request, register_uri, email_register_payload)
 }
 
 // exported Action function
