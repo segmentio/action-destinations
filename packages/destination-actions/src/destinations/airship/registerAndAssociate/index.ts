@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        address: { '@path': '$.properties.email' },
+        address: { '@path': '$.properties.address' },
         new_address: { '@path': '$.properties.new_email' },
         commercial_opted_in: { '@path': '$.properties.commercial_opted_in' },
         commercial_opted_out: { '@path': '$.properties.commercial_opted_out' },
