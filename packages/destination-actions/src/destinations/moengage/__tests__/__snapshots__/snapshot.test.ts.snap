@@ -58,7 +58,7 @@ Object {
   "type": "E@t!q#n(^u",
   "update_existing_only": true,
   "user_id": "E@t!q#n(^u",
-  }
+}
 `;
 
 exports[`Testing snapshot for actions-moengage destination: trackEvent action - required fields 1`] = `

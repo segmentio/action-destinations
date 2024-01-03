@@ -20,8 +20,8 @@ Object {
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "type": "[3(wtAyZqr",
-  "user_id": "[3(wtAyZqr",
   "update_existing_only": true,
+  "user_id": "[3(wtAyZqr",
 }
 `;
 
