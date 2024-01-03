@@ -5,8 +5,8 @@ import { register, associate_named_user, getChannelId } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Register And Associate',
-  description: 'Register an Email address and associate it with a Named User ID.',
-  defaultSubscription: 'type = "track" and event="Email Address Registered"',
+  description: 'Register an Email address or SMS number and associate it with a Named User ID.',
+  defaultSubscription: 'type = "track" and event="Address Registered"',
   fields: {
     channel_type: {
       label: 'Channel Type',
@@ -23,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'SMS Sender',
       description: 'A long or short code the app is configured to send from (if using for SMS).',
       type: 'string',
-      default: process.env.DEFAULT_SMS_SENDER,
       required: false
     },
     named_user_id: {
@@ -195,9 +194,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const data = JSON.parse(response_content)
 
     const channel_id = data.channel_id
+    const channel_type = payload.channel_type.toLowerCase()
     if (payload.named_user_id && payload.named_user_id.length > 0) {
-      // If there's a Named User ID to associate with the email address, do it here
-      return await associate_named_user(request, settings, channel_id, payload.named_user_id)
+      // If there's a Named User ID to associate with the address, do it here
+      return await associate_named_user(request, settings, channel_id, payload.named_user_id, channel_type)
     } else {
       // If not, simply return the registration request, success or failure, for Segment to handle as per policy
       return register_response

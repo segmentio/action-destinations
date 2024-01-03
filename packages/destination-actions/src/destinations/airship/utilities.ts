@@ -118,7 +118,7 @@ export function register(
         payload.channel_object.transactional_opted_out
       )
     }
-    // additional properties that are actually common to sms and email
+    // additional properties
     if (locale_language) {
       email_register_payload.channel.locale_language = locale_language
     }
@@ -135,7 +135,7 @@ export function register(
     if (payload.sms_sender) {
       sms_register_payload.sender = payload.sms_sender
     }
-    // additional properties that are actually common to sms and email
+    // additional properties
     if (locale_language) {
       sms_register_payload.locale_language = locale_language
     }
@@ -155,14 +155,15 @@ export function associate_named_user(
   request: RequestClient,
   settings: Settings,
   channel_id: string,
-  named_user_id: string
+  named_user_id: string,
+  channel_type: string
 ) {
   const endpoint = map_endpoint(settings.endpoint)
   const uri = `${endpoint}/api/named_users/associate`
 
   const associate_payload = {
     channel_id: channel_id,
-    device_type: 'email',
+    device_type: `${channel_type}`,
     named_user_id: named_user_id
   }
 
