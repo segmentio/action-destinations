@@ -27,7 +27,7 @@ export async function addToList(
   const csvData = 'Email\n' + extractEmails(payloads, '\n')
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
-    statsContext?.statsClient?.incr('addToList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
   }
 
@@ -42,10 +42,10 @@ export async function addToList(
   })
 
   if (!response.data.success) {
-    statsContext?.statsClient?.incr('addToList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     parseErrorResponse(response.data)
   }
-  statsContext?.statsClient?.incr('addToList.success', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('addToAudience.success', 1, statsContext?.tags)
   return response.data
 }
 
@@ -71,7 +71,7 @@ export async function removeFromList(
   })
 
   if (!getLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
     parseErrorResponse(getLeadsResponse.data)
   }
 
@@ -89,10 +89,10 @@ export async function removeFromList(
   })
 
   if (!deleteLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
     parseErrorResponse(deleteLeadsResponse.data)
   }
-  statsContext?.statsClient?.incr('removeFromList.success', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('removeFromAudience.success', 1, statsContext?.tags)
   return deleteLeadsResponse.data
 }
 
