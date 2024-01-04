@@ -132,7 +132,7 @@ export const getContactListIdByName = async (
   let continue_search = true
   let offset = 0
   do {
-    let endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
+    const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
     const response = await request(
       endpoint,
       {
