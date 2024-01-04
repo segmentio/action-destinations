@@ -31,11 +31,18 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
       }
     }
   } catch (e) {
-    throw new IntegrationError(
-      `Unexpected Exception while parsing Event payload.\n ${e}`,
-      'UNEXPECTED_EVENT_PARSING_EXCEPTION',
-      400
-    )
+    if (nestDepth > 10)
+      throw new IntegrationError(
+        'Event data exceeds nesting depth. Use Mapping to flatten the data to no more than 3 levels deep',
+        'NESTING_DEPTH_EXCEEDED',
+        400
+      )
+    else
+      throw new IntegrationError(
+        `Unexpected Exception while parsing Event payload.\n ${e}`,
+        'UNEXPECTED_EVENT_PARSING_EXCEPTION',
+        400
+      )
   }
   return parseResults
 }
