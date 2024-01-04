@@ -129,10 +129,10 @@ export const getContactListIdByName = async (
     }
   }
 
-  var continue_search = true
-  var offset = 0
+  let continue_search = true
+  let offset = 0
   do {
-    var endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
+    let endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
     const response = await request(
       endpoint,
       {
