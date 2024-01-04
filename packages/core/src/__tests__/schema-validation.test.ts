@@ -111,11 +111,12 @@ describe('validateSchema', () => {
     expect(payload).toMatchInlineSnapshot(`Object {}`)
   })
 
-  it('should not throw when type = hidden', () => {
+  it('should not throw when hidden = true', () => {
     const hiddenSchema = fieldsToJsonSchema({
       h: {
         label: 'h',
-        type: 'hidden'
+        type: 'string',
+        unsafe_hidden: true
       }
     })
 

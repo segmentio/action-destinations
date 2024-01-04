@@ -8,6 +8,7 @@ const testDestination = createTestIntegration(Destination)
 const email = 'gob@bluth.example'
 const event = createTestEvent({
   type: 'identify' as const,
+  userId: '9',
   traits: {
     name: 'George Oscar Bluth',
     email
@@ -16,6 +17,7 @@ const event = createTestEvent({
 
 const mapping = {
   email_address: { '@path': '$.traits.email' },
+  user_id: { '@path': '$.userId' },
   user_attributes: {
     name: {
       '@path': '$.traits.name'
@@ -26,7 +28,7 @@ const mapping = {
 describe('Attio.identifyUser', () => {
   it('asserts a Person and then a User', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses', {
+      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses&append_to_existing_values=true', {
         data: {
           values: {
             email_addresses: email
@@ -36,12 +38,13 @@ describe('Attio.identifyUser', () => {
       .reply(200, {})
 
     nock('https://api.attio.com')
-      .put('/v2/objects/users/records/simple?matching_attribute=primary_email_address', {
+      .put('/v2/objects/users/records/simple?matching_attribute=user_id&append_to_existing_values=true', {
         data: {
           values: {
-            name: 'George Oscar Bluth',
+            user_id: '9',
             primary_email_address: email,
-            person: email
+            person: email,
+            name: 'George Oscar Bluth'
           }
         }
       })
@@ -60,7 +63,7 @@ describe('Attio.identifyUser', () => {
 
   it('fails to assert a Person and returns', async () => {
     nock('https://api.attio.com')
-      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses', {
+      .put('/v2/objects/people/records/simple?matching_attribute=email_addresses&append_to_existing_values=true', {
         data: {
           values: {
             email_addresses: email

@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TrackEventsPublishBody, devrevApiPaths, getBaseUrl } from '../utils'
 import { RequestOptions } from '@segment/actions-core'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Stream Event',
@@ -26,10 +27,49 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       label: 'User ID',
-      description: 'User ID, ideally mappable to external ref of a Rev User.',
+      description: 'User ID as received from Segment.',
       type: 'string',
       required: false,
       default: { '@path': '$.userId' }
+    },
+    userRef: {
+      label: 'User Ref',
+      description: 'User Ref, ideally mappable to external ref of a Rev User.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.userRef' },
+          then: { '@path': '$.traits.userRef' },
+          else: { '@path': '$.integrations.DevRev.userRef' }
+        }
+      }
+    },
+    accountRef: {
+      label: 'Account Ref',
+      description: 'Account Ref, ideally mappable to external ref of a Rev Account.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.accountRef' },
+          then: { '@path': '$.traits.accountRef' },
+          else: { '@path': '$.integrations.DevRev.accountRef' }
+        }
+      }
+    },
+    workspaceRef: {
+      label: 'Workspace Ref',
+      description: 'Workspace Ref, ideally mappable to external ref of a Rev Workspace.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.workspaceRef' },
+          then: { '@path': '$.traits.workspaceRef' },
+          else: { '@path': '$.integrations.DevRev.workspaceRef' }
+        }
+      }
     },
     email: {
       label: 'Email Address',
@@ -83,10 +123,11 @@ const action: ActionDefinition<Settings, Payload> = {
         {
           name: eventName,
           event_time: timestamp.toString(),
+          event_id: payload.messageId || uuidv4(),
           payload: {
             // add mapped data to payload
             ...payload,
-            event_source: 'segment'
+            devrev_source_identifier: 'segment'
           }
         }
       ]

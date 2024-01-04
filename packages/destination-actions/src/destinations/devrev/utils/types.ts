@@ -120,6 +120,7 @@ export interface CreateAccountBody {
 }
 
 export interface TraceEvent {
+  event_id: string
   event_time: string
   name: string
   payload: object

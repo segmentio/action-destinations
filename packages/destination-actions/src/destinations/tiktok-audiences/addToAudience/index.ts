@@ -5,14 +5,15 @@ import { processPayload } from '../functions'
 import {
   email,
   advertising_id,
+  phone,
   send_email,
+  send_phone,
   send_advertising_id,
   event_name,
   enable_batching,
   external_audience_id
 } from '../properties'
 import { IntegrationError } from '@segment/actions-core'
-import { MIGRATION_FLAG_NAME } from '../constants'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Add to Audience',
@@ -20,17 +21,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
     email: { ...email },
+    phone: { ...phone },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
+    send_phone: { ...send_phone },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, statsContext, features }) => {
-    if (features && !features[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  perform: async (request, { audienceSettings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -44,10 +44,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     return processPayload(request, audienceSettings, [payload], 'add')
   },
-  performBatch: async (request, { payload, audienceSettings, statsContext, features }) => {
-    if (features && !features[MIGRATION_FLAG_NAME]) {
-      return
-    }
+  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 

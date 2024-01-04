@@ -90,6 +90,11 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"

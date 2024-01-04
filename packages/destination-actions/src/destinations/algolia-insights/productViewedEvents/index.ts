@@ -1,12 +1,13 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent, AlgoliaEventType } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 export const productViewedEvents: ActionDefinition<Settings, Payload> = {
   title: 'Product Viewed Events',
-  description: 'Product views which can be tied back to an Algolia Search, Recommend or Predict result',
+  description:
+    'Product view events act as a positive signal for associated record objects — the associated Product ID.  Query ID is optional and indicates that the view events is the result of a search query.',
   fields: {
     objectID: {
       label: 'Product ID',
@@ -54,14 +55,45 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       description: 'The timestamp of the event.',
       label: 'timestamp',
       default: { '@path': '$.timestamp' }
+    },
+    extraProperties: {
+      label: 'extraProperties',
+      required: false,
+      description:
+        'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+      type: 'string',
+      required: true,
+      default: 'Product Viewed'
+    },
+    eventType: {
+      label: 'Event Type',
+      description: "The type of event to send to Algolia. Defaults to 'view'",
+      type: 'string',
+      required: true,
+      default: 'view',
+      choices: [
+        { label: 'view', value: 'view' },
+        { label: 'conversion', value: 'conversion' },
+        { label: 'click', value: 'click' }
+      ]
     }
   },
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   perform: (request, data) => {
     const insightEvent: AlgoliaProductViewedEvent = {
-      ...data.payload,
-      eventName: 'Product Viewed',
-      eventType: 'view',
+      ...data.payload.extraProperties,
+      eventName: data.payload.eventName ?? 'Product Viewed',
+      eventType: (data.payload.eventType as AlgoliaEventType) ?? ('view' as AlgoliaEventType),
+      index: data.payload.index,
+      queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined,
       userToken: data.payload.userToken

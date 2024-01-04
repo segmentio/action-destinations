@@ -6,6 +6,10 @@ export interface Payload {
    */
   segment_audience_key: string
   /**
+   * Segment Audience ID
+   */
+  segment_audience_id: string
+  /**
    * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
    */
   segment_computation_action: string

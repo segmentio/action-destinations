@@ -13,9 +13,6 @@ export interface Payload {
    * Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)
    */
   write_field: {
-    '1'?: string
-    '2'?: string
-    '3'?: string
     [k: string]: unknown
   }
 }

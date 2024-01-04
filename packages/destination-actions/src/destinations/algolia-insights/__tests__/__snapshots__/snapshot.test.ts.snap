@@ -4,18 +4,14 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "eventName": "U[ABpE$k",
+      "eventType": "view",
       "index": "U[ABpE$k",
       "objectIDs": Array [
         "U[ABpE$k",
       ],
-      "products": Array [
-        Object {
-          "product_id": "U[ABpE$k",
-        },
-      ],
       "queryID": "U[ABpE$k",
+      "testType": "U[ABpE$k",
       "timestamp": null,
       "userToken": "U[ABpE$k",
     },
@@ -27,18 +23,48 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "eventName": "U[ABpE$k",
+      "eventType": "view",
       "index": "U[ABpE$k",
       "objectIDs": Array [
         "U[ABpE$k",
       ],
-      "products": Array [
-        Object {
-          "product_id": "U[ABpE$k",
-        },
-      ],
       "userToken": "U[ABpE$k",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productAddedEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "g)$f*TeM",
+      "eventType": "view",
+      "index": "g)$f*TeM",
+      "objectIDs": Array [
+        "g)$f*TeM",
+      ],
+      "queryID": "g)$f*TeM",
+      "testType": "g)$f*TeM",
+      "timestamp": null,
+      "userToken": "g)$f*TeM",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productAddedEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "g)$f*TeM",
+      "eventType": "view",
+      "index": "g)$f*TeM",
+      "objectIDs": Array [
+        "g)$f*TeM",
+      ],
+      "userToken": "g)$f*TeM",
     },
   ],
 }
@@ -48,18 +74,17 @@ exports[`Testing snapshot for actions-algolia-insights destination: productClick
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Clicked",
-      "eventType": "click",
+      "eventName": "LLjxSD^^GnH",
+      "eventType": "conversion",
       "index": "LLjxSD^^GnH",
-      "objectID": "LLjxSD^^GnH",
       "objectIDs": Array [
         "LLjxSD^^GnH",
       ],
-      "position": -1912532923056128,
       "positions": Array [
         -1912532923056128,
       ],
       "queryID": "LLjxSD^^GnH",
+      "testType": "LLjxSD^^GnH",
       "timestamp": null,
       "userToken": "LLjxSD^^GnH",
     },
@@ -71,10 +96,9 @@ exports[`Testing snapshot for actions-algolia-insights destination: productClick
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Clicked",
-      "eventType": "click",
+      "eventName": "LLjxSD^^GnH",
+      "eventType": "conversion",
       "index": "LLjxSD^^GnH",
-      "objectID": "LLjxSD^^GnH",
       "objectIDs": Array [
         "LLjxSD^^GnH",
       ],
@@ -84,18 +108,53 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-algolia-insights destination: productListFilteredEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "6O0djra",
+      "eventType": "view",
+      "filters": Array [
+        "6O0djra:6O0djra",
+      ],
+      "index": "6O0djra",
+      "queryID": "6O0djra",
+      "testType": "6O0djra",
+      "timestamp": null,
+      "userToken": "6O0djra",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productListFilteredEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "6O0djra",
+      "eventType": "view",
+      "filters": Array [
+        "6O0djra:6O0djra",
+      ],
+      "index": "6O0djra",
+      "userToken": "6O0djra",
+    },
+  ],
+}
+`;
+
 exports[`Testing snapshot for actions-algolia-insights destination: productViewedEvents action - all fields 1`] = `
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Viewed",
+      "eventName": "BLFCPcmz",
       "eventType": "view",
       "index": "BLFCPcmz",
-      "objectID": "BLFCPcmz",
       "objectIDs": Array [
         "BLFCPcmz",
       ],
       "queryID": "BLFCPcmz",
+      "testType": "BLFCPcmz",
       "timestamp": null,
       "userToken": "BLFCPcmz",
     },
@@ -107,10 +166,9 @@ exports[`Testing snapshot for actions-algolia-insights destination: productViewe
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Viewed",
+      "eventName": "BLFCPcmz",
       "eventType": "view",
       "index": "BLFCPcmz",
-      "objectID": "BLFCPcmz",
       "objectIDs": Array [
         "BLFCPcmz",
       ],
