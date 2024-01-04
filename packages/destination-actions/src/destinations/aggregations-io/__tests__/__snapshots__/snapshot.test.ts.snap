@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for aggregations-io destination: send action - all fields 1`] = `
+Array [
+  Object {
+    "testType": "!80aBDHS1i",
+  },
+]
+`;
+
+exports[`Testing snapshot for aggregations-io destination: send action - required fields 1`] = `
+Array [
+  null,
+]
+`;
