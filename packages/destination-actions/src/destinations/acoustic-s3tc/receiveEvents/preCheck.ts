@@ -21,6 +21,14 @@ function validateSettings(settings: Settings) {
   if (!settings.fileNamePrefix) {
     throw new IntegrationError('Missing Customer Prefix', 'MISSING_CUSTOMER_PREFIX', 400)
   }
+
+  if (settings.fileNamePrefix === 'customer_org_') {
+    throw new IntegrationError(
+      'Customer Prefix cannot be the default value, must have a prefix followed by an underscore',
+      'INVALID_CUSTOMER_PREFIX',
+      400
+    )
+  }
 }
 
 export { validateSettings }
