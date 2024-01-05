@@ -10,7 +10,31 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Company key name',
       description: 'Key-value pairs associated with a company (e.g. organization_id: 123456)',
       type: 'object',
-      required: false
+      required: false,
+      properties: {
+        groupId: {
+          label: 'groupId',
+          description: 'Segment groupId',
+          type: 'string',
+          required: false
+        },
+        organization_id: {
+          label: 'Organization ID',
+          description: 'Organization ID',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        groupId: {
+          '@if': {
+            exists: { '@path': '$.groupId' },
+            then: { '@path': '$.groupId' },
+            else: { '@path': '$.context.groupId' }
+          }
+        },
+        organization_id: { '@path': '$.properties.organization_id' }
+      }
     },
     company_name: {
       label: 'Company name',
@@ -28,7 +52,37 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User keys',
       description: 'Key-value pairs associated with a user (e.g. email: example@example.com)',
       type: 'object',
-      required: true
+      required: true,
+      properties: {
+        userId: {
+          label: 'userId',
+          description: 'Segment userId',
+          type: 'string',
+          required: false
+        },
+        email: {
+          label: 'email',
+          description: 'Email address',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        userId: {
+          '@if': {
+            exists: { '@path': '$.userId' },
+            then: { '@path': '$.userId' },
+            else: { '@path': '$.context.userId' }
+          }
+        },
+        email: {
+          '@if': {
+            exists: { '@path': '$.email' },
+            then: { '@path': '$.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
+      }
     },
     user_name: {
       label: 'User name',

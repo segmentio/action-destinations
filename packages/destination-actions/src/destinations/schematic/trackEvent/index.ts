@@ -10,19 +10,66 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event name',
       description: 'Name of event',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' }
+        }
+      }
     },
     company_keys: {
-      label: 'Company key name',
+      label: 'Company keys',
       description: 'Key-value pairs associated with a company (e.g. organization_id: 123456)',
       type: 'object',
-      required: false
+      required: false,
+      properties: {
+        groupId: {
+          label: 'groupId',
+          description: 'Segment groupId',
+          type: 'string',
+          required: false
+        },
+        organization_id: {
+          label: 'Organization ID',
+          description: 'Organization ID',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        groupId: {
+          '@if': {
+            exists: { '@path': '$.groupId' },
+            then: { '@path': '$.groupId' },
+            else: { '@path': '$.context.groupId' }
+          }
+        },
+        organization_id: { '@path': '$.properties.organization_id' }
+      }
     },
     user_keys: {
       label: 'User keys',
       description: 'Key-value pairs associated with a user (e.g. email: example@example.com)',
       type: 'object',
-      required: false
+      required: false,
+      properties: {
+        userId: {
+          label: 'userId',
+          description: 'Segment userId',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        userId: {
+          '@if': {
+            exists: { '@path': '$.userId' },
+            then: { '@path': '$.userId' },
+            else: { '@path': '$.context.userId' }
+          }
+        }
+      }
     },
     traits: {
       label: 'Traits',
