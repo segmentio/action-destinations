@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { user_properties, params, value, currency, items_single_products, user_id } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -23,13 +22,14 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'add_to_wishlist', {
       currency: payload.currency,
       value: payload.value,
       items: payload.items,
+      send_to: settings.measurementID,
+      user_id: payload.user_id ?? null,
+      ...payload.user_properties,
       ...payload.params
     })
   }

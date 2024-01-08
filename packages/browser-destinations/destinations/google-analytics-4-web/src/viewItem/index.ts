@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { user_properties, params, currency, user_id, value, items_single_products } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'View Item',
@@ -22,13 +21,14 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'view_item', {
       currency: payload.currency,
       value: payload.value,
       items: payload.items,
+      send_to: settings.measurementID,
+      user_id: payload.user_id ?? null,
+      ...payload.user_properties,
       ...payload.params
     })
   }

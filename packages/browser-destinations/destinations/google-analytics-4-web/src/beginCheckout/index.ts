@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { params, coupon, currency, value, items_multi_products, user_id, user_properties } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Begin Checkout',
@@ -22,14 +21,15 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params,
     user_properties: user_properties
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'begin_checkout', {
       currency: payload.currency,
       value: payload.value,
       coupon: payload.coupon,
       items: payload.items,
+      send_to: settings.measurementID,
+      user_id: payload.user_id ?? null,
+      ...payload.user_properties,
       ...payload.params
     })
   }

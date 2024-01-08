@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { user_properties, params, user_id, method } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -18,12 +17,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
 
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'login', {
       method: payload.method,
-      ...payload.params
+      send_to: settings.measurementID,
+      user_id: payload.user_id ?? null,
+      ...payload.params,
+      ...payload.user_properties
     })
   }
 }

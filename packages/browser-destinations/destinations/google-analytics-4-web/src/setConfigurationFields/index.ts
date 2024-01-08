@@ -2,7 +2,6 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_id, user_properties } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 type ConsentParamsArg = 'granted' | 'denied' | undefined
 
@@ -96,7 +95,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
   },
   perform: (gtag, { payload, settings }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
