@@ -17,7 +17,7 @@ export const google_gid: InputField = {
   type: 'string',
   required: false,
   default: {
-    '@path': '$.context.traits.google_gid'
+    '@path': '$.context.DV360.google_gid'
   }
 }
 
