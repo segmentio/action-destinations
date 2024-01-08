@@ -21,20 +21,23 @@ describe('Kevel.syncTraits', () => {
     const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`
 
     const allTraits = {
+      age: 24,
       first_name: 'Billy',
-      last_name: 'Bob',
-      age: 2
+      last_name: 'Bob'
     }
 
     nock(baseUrl)
       .get(`/read?userKey=${userId}`)
-      .reply(200, {
-        custom: {
-          age: 24
-        }
-      })
+      .reply(
+        200,
+        JSON.stringify({
+          custom: {
+            age: 24
+          }
+        })
+      )
 
-    nock(baseUrl).post(`/customProperties?userKey=${userId}`, allTraits).reply(200)
+    nock(baseUrl).post(`/customProperties?userKey=${userId}`, JSON.stringify(allTraits)).reply(200)
 
     await expect(
       testDestination.testAction('syncTraits', {
