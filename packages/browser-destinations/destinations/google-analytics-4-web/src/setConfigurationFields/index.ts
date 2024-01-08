@@ -1,9 +1,7 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, user_properties } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
-
+import { user_id, user_properties, params } from '../ga4-properties'
 type ConsentParamsArg = 'granted' | 'denied' | undefined
 
 // Change from unknown to the partner SDK types
@@ -11,7 +9,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
   description: 'Set custom values for the GA4 configuration fields.',
   platform: 'web',
-  defaultSubscription: 'type = "identify" or type = "page"',
+  defaultSubscription: 'type = "page"',
   lifecycleHook: 'before',
   fields: {
     user_id: user_id,
@@ -93,10 +91,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description: `The resolution of the screen. Format should be two positive integers separated by an x (i.e. 800x600). If not set, calculated from the user's window.screen value.`,
       label: 'Screen Resolution',
       type: 'string'
-    }
+    },
+    params: params
   },
   perform: (gtag, { payload, settings }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
@@ -113,7 +111,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       cookie_expires: settings.cookieExpirationInSeconds,
       cookie_path: settings.cookiePath,
       allow_ad_personalization_signals: settings.allowAdPersonalizationSignals,
-      allow_google_signals: settings.allowGoogleSignals
+      allow_google_signals: settings.allowGoogleSignals,
+      ...payload.params
     }
 
     if (payload.screen_resolution) {
