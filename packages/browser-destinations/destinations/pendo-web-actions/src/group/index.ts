@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { PendoSDK, PendoOptions } from '../types'
+import { removeObjectByKey } from '../utils'
 
 const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   title: 'Send Group Event',
@@ -52,22 +53,26 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       required: false
     }
   },
-  perform: (pendo, event) => {
-    const payload: PendoOptions = {
+  perform: (pendo, { payload }) => {
+    removeObjectByKey(payload.accountData, payload.parentAccountData)
+
+    const pendoPayload: PendoOptions = {
       visitor: {
-        id: event.payload.visitorId
+        id: payload.visitorId
       },
       account: {
-        ...event.payload.accountData,
-        id: event.payload.accountId
+        ...payload.accountData,
+        id: payload.accountId
       }
     }
 
-    if (event.payload.parentAccountData) {
-      payload.parentAccount = event.payload.parentAccountData
+    if (payload.parentAccountData) {
+      pendoPayload.parentAccount = payload.parentAccountData
     }
 
-    pendo.identify(payload)
+    console.log(pendoPayload)
+
+    pendo.identify(pendoPayload)
   }
 }
 
