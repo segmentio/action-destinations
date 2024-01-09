@@ -4,8 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Events',
-  description: '',
-  defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
+  description: 'Send events to Aggregations.io.',
   fields: {
     data: {
       label: 'Data',
@@ -26,7 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'Maximum number of events to include in each batch. Actual batch sizes may be lower. If you know your events are large, you may want to tune your batch size down to meet API requirements.',
       type: 'number',
       required: false,
-      default: 300
+      default: 300,
+      unsafe_hidden: true
     }
   },
   perform: (request, { settings, payload }) => {

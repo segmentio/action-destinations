@@ -5,7 +5,7 @@ import send from './send'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Aggregations Io',
+  name: 'Aggregations.io',
   slug: 'actions-aggregations-io',
   mode: 'cloud',
   authentication: {
