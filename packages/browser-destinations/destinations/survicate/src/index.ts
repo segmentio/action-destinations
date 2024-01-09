@@ -2,9 +2,9 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import trackEvent from './trackEvent'
-import { defaultValues } from '@segment/actions-core/*'
-
+import { defaultValues } from '@segment/actions-core'
 import identifyUser from './identifyUser'
+import identifyGroup from './identifyGroup'
 
 declare global {
   interface Window {
@@ -27,9 +27,16 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
     },
     {
       name: 'Identify User',
-      subscribe: 'type = "identify" or type = "group"',
+      subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify Group',
+      subscribe: 'type = "group"',
+      partnerAction: 'identifyGroup',
+      mapping: defaultValues(identifyGroup.fields),
       type: 'automatic'
     }
   ],
@@ -55,7 +62,8 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
 
   actions: {
     trackEvent,
-    identifyUser
+    identifyUser,
+    identifyGroup
   }
 }
 
