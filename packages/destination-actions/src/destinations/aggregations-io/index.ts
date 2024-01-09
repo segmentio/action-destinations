@@ -6,7 +6,7 @@ import { InvalidAuthenticationError } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Aggregations Io',
-  slug: 'aggregations-io',
+  slug: 'actions-aggregations-io',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
