@@ -28,7 +28,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
     }
   },
   perform: (_, { payload: { name, properties } }) => {
-    window._sva.invokeEvent(name, properties)
+    window._sva.invokeEvent(`segmentEvent-${name}`, properties)
   }
 }
 
