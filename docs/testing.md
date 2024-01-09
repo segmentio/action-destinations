@@ -42,7 +42,7 @@ The default port is set to `3000`. To use a different port, you can specify the 
 
 After running the `serve` command, select the destination you want to test locally. Once a destination is selected the server should start up.
 
-You can also run the serve command for a specific Destination without the Web UI being started up. For example `./bin/run serve --destination=criteo-audiences -n` will start the process for the criteo-audiences Destination, but will not start the Actions Tester web user interface.  
+You can also run the serve command for a specific Destination without the Web UI being started up. For example `./bin/run serve --destination=criteo-audiences -n` will start the process for the criteo-audiences Destination, but will not start the Actions Tester web user interface.
 
 ### Testing an Action's perform() or performBatch() function
 
