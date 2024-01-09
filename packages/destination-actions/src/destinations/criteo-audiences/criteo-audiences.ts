@@ -131,18 +131,34 @@ export const getContactListIdByName = async (
 
   let continue_search = true
   let offset = 0
+  interface AudienceSegment {
+    attributes: {
+      [key: string]: unknown
+    }
+    id: string
+    type: string
+  }
+
+  interface ApiResponse {
+    data: AudienceSegment[]
+    meta: {
+      totalItems: number
+    }
+  }
+
+  let body: ApiResponse
+
   do {
     const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
-    const response = await request(
-      endpoint,
-      {
-        method: 'POST',
-        headers: headers,
-        json: payload
-      }
-    )
 
-    const body = await response.json()
+    const response = await request(endpoint, {
+      method: 'POST',
+      skipResponseCloning: true,
+      headers: headers,
+      json: payload
+    })
+
+    body = response.data as ApiResponse
 
     if (response.status !== 200)
       // Centrifuge will automatically retry the batch if there's
@@ -151,8 +167,7 @@ export const getContactListIdByName = async (
 
     // If the contact list is found, return the corresponding ID
     for (const contactlist of body.data) {
-      if (contactlist.attributes.name === audience_segment_name)
-        return contactlist.id
+      if (contactlist.attributes.name === audience_segment_name) return contactlist.id
     }
 
     // Else, continue searching
