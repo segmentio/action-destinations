@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Email (default) or SMS
    */
-  channel_type: string
+  channel_type?: string
   /**
    * A long or short code the app is configured to send from (if using for SMS).
    */

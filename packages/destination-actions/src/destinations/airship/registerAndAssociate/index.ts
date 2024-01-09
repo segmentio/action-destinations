@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { register, associate_named_user, getChannelId } from '../utilities'
+import { register, associate_named_user, getChannelId, EMAIL, SMS } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Register And Associate',
@@ -13,11 +13,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email (default) or SMS',
       type: 'string',
       choices: [
-        { label: 'Email', value: 'Email' },
-        { label: 'SMS', value: 'SMS' }
+        { label: EMAIL, value: EMAIL },
+        { label: SMS, value: SMS }
       ],
-      default: 'Email',
-      required: true
+      default: EMAIL,
+      required: false
     },
     sms_sender: {
       label: 'SMS Sender',
@@ -194,7 +194,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const data = JSON.parse(response_content)
 
     const channel_id = data.channel_id
-    const channel_type = payload.channel_type.toLowerCase()
+    let channel_type = EMAIL.toLowerCase()
+    if (payload.channel_type) {
+      channel_type = payload.channel_type.toLowerCase()
+    }
     if (payload.named_user_id && payload.named_user_id.length > 0) {
       // If there's a Named User ID to associate with the address, do it here
       return await associate_named_user(request, settings, channel_id, payload.named_user_id, channel_type)

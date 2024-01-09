@@ -5,6 +5,9 @@ import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 import { Payload as RegisterPayload } from './registerAndAssociate/generated-types'
 
+export const EMAIL = 'Email'
+export const SMS = 'SMS'
+
 // exported Action function
 export function register(
   request: RequestClient,
@@ -13,14 +16,17 @@ export function register(
   old_channel: string | null
 ) {
   let address_to_use = payload.channel_object.address
-  const channel_type = payload.channel_type
+  let channel_type = EMAIL.toLowerCase()
+  if (payload.channel_type) {
+    channel_type = payload.channel_type.toLowerCase()
+  }
   const endpoint = map_endpoint(settings.endpoint)
   let register_uri = `${endpoint}/api/channels/email`
   if (old_channel && payload.channel_object.new_address) {
     register_uri = `${endpoint}/api/channels/email/replace/${old_channel}`
     address_to_use = payload.channel_object.new_address
   }
-  if (channel_type == 'SMS') {
+  if (channel_type == SMS) {
     register_uri = `${endpoint}/api/channels/sms`
   }
   let country_language = null
@@ -72,7 +78,7 @@ export function register(
   }
 
   //  set up email_email_register_payload
-  if (channel_type == 'Email') {
+  if (channel_type == EMAIL) {
     email_register_payload.channel.type = 'email'
     // handle and format all optional date params
     if (payload.channel_object.suppression_state) {
@@ -128,7 +134,7 @@ export function register(
     if (payload.timezone) {
       email_register_payload.channel.timezone = payload.timezone
     }
-  } else if (channel_type == 'SMS') {
+  } else if (channel_type == SMS) {
     if (payload.channel_object.sms_opted_in) {
       sms_register_payload.opted_in = _parse_and_format_date(payload.channel_object.sms_opted_in)
     }
