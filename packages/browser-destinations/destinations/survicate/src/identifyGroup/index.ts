@@ -1,8 +1,9 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { Survicate } from 'src/types'
 
-const action: BrowserActionDefinition<Settings, unknown, Payload> = {
+const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
   title: 'Identify Group',
   description: 'Send group traits to Survicate',
   defaultSubscription: 'type = "group"',

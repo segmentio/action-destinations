@@ -1,18 +1,19 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import trackEvent from './trackEvent'
 import { defaultValues } from '@segment/actions-core'
+import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import identifyGroup from './identifyGroup'
+import { Survicate } from './types'
 
 declare global {
   interface Window {
-    _sva: any
+    _sva: Survicate
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, {}> = {
+export const destination: BrowserDestinationDefinition<Settings, Survicate> = {
   name: 'Survicate',
   slug: 'actions-survicate',
   mode: 'device',
