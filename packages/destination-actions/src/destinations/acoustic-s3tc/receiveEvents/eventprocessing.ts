@@ -29,7 +29,7 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
     const ie = e as IntegrationError
     if (ie.code === 'NESTING_DEPTH_EXCEEDED')
       throw new IntegrationError(
-        'Event data exceeds nesting depth. Use Mapping to flatten the data to no more than 3 levels deep',
+        'Event data exceeds nesting depth. Use Mapping to flatten data structures to no more than 3 levels deep',
         'NESTING_DEPTH_EXCEEDED',
         400
       )
