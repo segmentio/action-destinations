@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: 'Identify User',
-  description: '',
+  description: 'Set visitor traits with Segment Identify event',
+  defaultSubscription: 'type = "identify" or type = "group"',
   platform: 'web',
   fields: {
     traits: {

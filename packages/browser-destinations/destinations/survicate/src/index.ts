@@ -27,7 +27,7 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
     },
     {
       name: 'Identify User',
-      subscribe: 'type = "identify"',
+      subscribe: 'type = "identify" or type = "group"',
       partnerAction: 'identifyUser',
       mapping: defaultValues(identifyUser.fields),
       type: 'automatic'
