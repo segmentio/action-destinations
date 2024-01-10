@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * The user's email address to send to Marketo.
    */
-  email: string
+  email?: string
   /**
    * Enable batching of requests.
    */

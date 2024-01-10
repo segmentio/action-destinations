@@ -15,11 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: { ...batch_size },
     event_name: { ...event_name }
   },
-  perform: async (request, { settings, payload }) => {
-    return addToList(request, settings, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
+    return addToList(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return addToList(request, settings, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
+    return addToList(request, settings, payload, statsContext)
   }
 }
 
