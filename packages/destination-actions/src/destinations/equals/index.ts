@@ -7,7 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Equals',
   slug: 'actions-equals',
   mode: 'cloud',
-  description: 'Send Segment analytics data to Equals',
+  description: 'Send Segment analytics data to Equals.',
 
   authentication: {
     scheme: 'custom',
