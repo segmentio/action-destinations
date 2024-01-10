@@ -21,7 +21,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     gtag('event', 'login', {
       method: payload.method,
       send_to: settings.measurementID,
-      user_id: payload.user_id ?? null,
+      user_id: payload.user_id ?? undefined,
       ...payload.params,
       ...payload.user_properties
     })

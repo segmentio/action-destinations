@@ -19,7 +19,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     gtag('event', 'sign_up', {
       method: payload.method,
       send_to: settings.measurementID,
-      user_id: payload.user_id ?? null,
+      user_id: payload.user_id ?? undefined,
       ...payload.user_properties,
       ...payload.params
     })
