@@ -40,7 +40,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Settings to update the existing users through event sync
+   * If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.
    */
   update_existing_only?: boolean
 }
