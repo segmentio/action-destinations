@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Aggregations.io',
+  name: 'Aggregations.io (Actions)',
   slug: 'actions-aggregations-io',
   mode: 'cloud',
   description: 'Send Segment events to Aggregations.io',
