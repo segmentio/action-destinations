@@ -38,6 +38,10 @@ export interface Payload {
    */
   traitEnrichment?: boolean
   /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
