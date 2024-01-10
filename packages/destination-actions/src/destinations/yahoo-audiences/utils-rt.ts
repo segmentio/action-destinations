@@ -75,7 +75,6 @@ export function validate_phone(phone: string) {
  * @returns {YahooPayload} The Yahoo payload.
  */
 export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
-  //const schema = get_id_schema(payloads[0], audienceSettings)
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -158,7 +157,7 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     data.push([hashed_email, idfa, gpsaid, hashed_phone, action_string])
   }
 
-  const gdpr_flag = payloads.length > 0 ? payloads[0].gdpr_flag : false
+  const gdpr_flag = payloads[0].gdpr_settings ? payloads[0].gdpr_settings.gdpr_flag : false
 
   const yahoo_payload: YahooPayload = {
     schema: ['SHA256EMAIL', 'IDFA', 'GPADVID', 'HASHEDID', 'SEGMENTS'],
@@ -166,8 +165,8 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     gdpr: gdpr_flag
   }
 
-  if (gdpr_flag && payloads.length > 0) {
-    yahoo_payload.gdpr_euconsent = payloads[0].gdpr_euconsent
+  if (gdpr_flag) {
+    yahoo_payload.gdpr_euconsent = payloads[0].gdpr_settings?.gdpr_euconsent
   }
 
   return yahoo_payload
