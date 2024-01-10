@@ -70,14 +70,14 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       description: "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'Product Viewed'
     },
     eventType: {
       label: 'Event Type',
       description: "The type of event to send to Algolia. Defaults to 'view'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'view',
       choices: [
         { label: 'view', value: 'view' },

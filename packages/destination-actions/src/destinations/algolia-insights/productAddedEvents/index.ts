@@ -71,14 +71,14 @@ export const productAddedEvents: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       description: "The name of the event to be send to Algolia. Defaults to 'Add to cart'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'Add to cart'
     },
     eventType: {
       label: 'Event Type',
       description: "The type of event to send to Algolia. Defaults to 'conversion'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'conversion',
       choices: [
         { label: 'view', value: 'view' },
