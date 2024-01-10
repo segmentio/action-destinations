@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
   description: 'Send identify events to Schematic',
+  defaultSubscription: 'type = "identify"',
   fields: {
     company_keys: {
       label: 'Company key name',
@@ -54,32 +55,32 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       properties: {
+        email_address: {
+          label: 'email_address',
+          description: 'Email address',
+          type: 'string',
+          required: false
+        },
         userId: {
           label: 'userId',
           description: 'Segment userId',
           type: 'string',
           required: false
-        },
-        email: {
-          label: 'email',
-          description: 'Email address',
-          type: 'string',
-          required: false
         }
       },
       default: {
+        email_address: {
+          '@if': {
+            exists: { '@path': '$.email' },
+            then: { '@path': '$.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        },
         userId: {
           '@if': {
             exists: { '@path': '$.userId' },
             then: { '@path': '$.userId' },
             else: { '@path': '$.context.userId' }
-          }
-        },
-        email: {
-          '@if': {
-            exists: { '@path': '$.email' },
-            then: { '@path': '$.email' },
-            else: { '@path': '$.properties.email' }
           }
         }
       }

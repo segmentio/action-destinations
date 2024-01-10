@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send track events to Schematic',
+  defaultSubscription: 'type = "track"',
   fields: {
     event_name: {
       label: 'Event name',

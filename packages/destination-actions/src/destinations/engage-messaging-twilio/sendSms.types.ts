@@ -48,6 +48,10 @@ export interface Payload {
    */
   sendBasedOnOptOut?: boolean
   /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {

@@ -29,13 +29,13 @@ export interface Payload {
    */
   user_keys: {
     /**
+     * Email address
+     */
+    email_address?: string
+    /**
      * Segment userId
      */
     userId?: string
-    /**
-     * Email address
-     */
-    email?: string
   }
   /**
    * Name of user

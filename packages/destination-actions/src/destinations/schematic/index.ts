@@ -21,9 +21,9 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, settings) => {
+    testAuthentication: (request, { settings }) => {
       return request(`https://api.schematichq.com/companies`, {
-        method: 'get',
+        method: 'GET',
         headers: { 'X-Schematic-Api-Key': `${settings.apiKey}` },
         responseType: 'json'
       })
