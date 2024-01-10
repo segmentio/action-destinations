@@ -167,6 +167,9 @@ export const createUpdateRequest = (
     })
   })
 
+  // Backed by deletion and suppression features in Segment.
+  updateRequest.process_consent = true
+
   return updateRequest
 }
 
