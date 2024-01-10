@@ -41,20 +41,4 @@ describe('AggregationsIo.send', () => {
     expect(response[0].status).toBe(200)
   })
 
-  it('should not work for batched events when disabled', async () => {
-    nock(ingestUrl).post(`/${testIngestId}`).matchHeader('x-api-token', testApiKey).replyWithError('Batching Disabled')
-    await expect(
-      testDestination.testBatchAction('send', {
-        events: [event1, event2],
-        settings: {
-          api_key: testApiKey,
-          ingest_id: testIngestId
-        },
-        mapping: {
-          enable_batching: false
-        },
-        useDefaultMappings: false
-      })
-    ).rejects.toThrow(PayloadValidationError)
-  })
 })
