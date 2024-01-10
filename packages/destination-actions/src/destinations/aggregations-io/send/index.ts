@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -26,33 +26,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: false,
       default: 300,
+      readOnly: true,
       unsafe_hidden: true
     }
   },
   perform: (request, { settings, payload }) => {
-    try {
-      return request('https://ingest.aggregations.io/' + settings.ingest_id, {
-        method: 'POST',
-        json: [payload.data]
-      })
-    } catch (error) {
-      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
-      throw error
-    }
+    return request('https://ingest.aggregations.io/' + settings.ingest_id, {
+      method: 'POST',
+      json: [payload.data]
+    })    
   },
   performBatch: (request, { settings, payload }) => {
-    try {
-      if (payload[0].enable_batching == false) {
-        throw new PayloadValidationError('Batching Disabled')
-      }
-      return request('https://ingest.aggregations.io/' + settings.ingest_id, {
-        method: 'POST',
-        json: payload.map((x) => x.data)
-      })
-    } catch (error) {
-      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
-      throw error
-    }
+    return request('https://ingest.aggregations.io/' + settings.ingest_id, {
+      method: 'POST',
+      json: payload.map((x) => x.data)
+    })
   }
 }
 
