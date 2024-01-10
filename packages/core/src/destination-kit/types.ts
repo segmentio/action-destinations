@@ -182,6 +182,21 @@ export interface InputField extends InputFieldJSONSchema {
    * locked out from editing an empty field.
    */
   readOnly?: boolean
+
+  depends_on?: SettingFilter
+}
+
+export interface SettingsFilterCondition {
+  /** The field key in the settings object to look at */
+  fieldKey: string
+  operator: 'is' | 'is_not'
+  /** The value we expect that setting to have */
+  value: Omit<FieldValue, 'Directive'> | undefined
+}
+
+export interface SettingFilter {
+  match: 'any' | 'all'
+  conditions: SettingsFilterCondition[]
 }
 
 export type FieldValue = string | number | boolean | object | Directive
