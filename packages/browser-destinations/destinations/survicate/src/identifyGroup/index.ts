@@ -29,12 +29,10 @@ const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
     }
   },
   perform: (_, { payload }) => {
-    if (window._sva) {
-      const groupTraits = Object.fromEntries(
-        Object.entries(payload.traits).map(([key, value]) => [`group_${key}`, value])
-      )
-      window._sva.setVisitorTraits({ groupId: payload.groupId, ...groupTraits })
-    }
+    const groupTraits = Object.fromEntries(
+      Object.entries(payload.traits).map(([key, value]) => [`group_${key}`, value])
+    )
+    window._sva.setVisitorTraits({ groupId: payload.groupId, ...groupTraits })
   }
 }
 

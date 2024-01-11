@@ -14,9 +14,10 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, Survicate> = {
-  name: 'Survicate',
+  name: 'Survicate (Actions)',
   slug: 'actions-survicate',
   mode: 'device',
+  description: 'Send user traits to Survicate and trigger surveys with Segment events',
 
   presets: [
     {
@@ -54,7 +55,7 @@ export const destination: BrowserDestinationDefinition<Settings, Survicate> = {
   initialize: async ({ settings }, deps) => {
     try {
       await deps.loadScript(`https://survey.survicate.com/workspaces/${settings.workspaceKey}/web_surveys.js`)
-      await deps.resolveWhen(() => window._sva != undefined, 250)
+      await deps.resolveWhen(() => window._sva != undefined, 100)
       return window._sva
     } catch (error) {
       throw new Error('Failed to load Survicate. ' + error)

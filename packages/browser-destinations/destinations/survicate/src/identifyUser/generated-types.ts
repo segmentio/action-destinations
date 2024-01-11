@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The Segment traits to be forwarded to Survicate
    */
-  traits?: {
+  traits: {
     [k: string]: unknown
   }
 }

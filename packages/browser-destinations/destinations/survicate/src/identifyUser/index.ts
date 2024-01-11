@@ -6,7 +6,7 @@ import { Survicate } from 'src/types'
 const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
   title: 'Identify User',
   description: 'Set visitor traits with Segment Identify event',
-  defaultSubscription: 'type = "identify" or type = "group"',
+  defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     traits: {
@@ -20,9 +20,7 @@ const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
     }
   },
   perform: (_, { payload }) => {
-    if (window._sva && payload.traits) {
-      window._sva.setVisitorTraits(payload.traits)
-    }
+    window._sva.setVisitorTraits(payload.traits)
   }
 }
 
