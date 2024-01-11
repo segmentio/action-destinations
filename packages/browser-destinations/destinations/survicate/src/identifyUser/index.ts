@@ -11,7 +11,7 @@ const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
   fields: {
     traits: {
       type: 'object',
-      required: false,
+      required: true,
       description: 'The Segment traits to be forwarded to Survicate',
       label: 'Traits',
       default: {
@@ -20,7 +20,7 @@ const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
     }
   },
   perform: (_, { payload }) => {
-    if (window._sva) {
+    if (window._sva && payload.traits) {
       window._sva.setVisitorTraits(payload.traits)
     }
   }
