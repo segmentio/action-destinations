@@ -57,12 +57,12 @@ describe('Survicate', () => {
     await event.track?.(
       new Context({
         type: 'track',
-        name: 'newSegmentEvent',
+        name: 'event',
         properties: {}
       })
     )
 
-    expect(sva).toHaveBeenCalledWith('newSegmentEvent', {})
+    expect(sva).toHaveBeenCalledWith('segmentEvent-event', {})
   })
 
   it('#identify', async () => {
