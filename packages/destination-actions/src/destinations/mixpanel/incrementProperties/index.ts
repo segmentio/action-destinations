@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.increment && Object.keys(payload.increment).length > 0) {
       const keys = Object.keys(payload.increment)
-      if (keys.length > 100) {
+      if (keys.length > 20) {
         throw new PayloadValidationError('Exceeded maximum of 20 properties for increment call')
       }
       const data: MixpanelEngageProperties = {
