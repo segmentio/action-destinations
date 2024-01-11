@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const testIngestId = 'abc123'
@@ -40,5 +39,4 @@ describe('AggregationsIo.send', () => {
     expect(new URL(response[0].url).pathname).toBe('/' + testIngestId)
     expect(response[0].status).toBe(200)
   })
-
 })
