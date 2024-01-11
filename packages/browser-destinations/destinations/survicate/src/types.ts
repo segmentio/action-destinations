@@ -1,4 +1,4 @@
 export interface Survicate {
-  invokeEvent: (name: string, properties?: Record<string, string>) => void
-  setVisitorTraits: (traits: Record<string, unknown>) => void
+  invokeEvent: (name: string, properties?: { [k: string]: unknown }) => void
+  setVisitorTraits: (traits: { [k: string]: unknown }) => void
 }

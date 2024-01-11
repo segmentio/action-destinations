@@ -29,7 +29,8 @@ const action: BrowserActionDefinition<Settings, Survicate, Payload> = {
     }
   },
   perform: (_, { payload: { name, properties } }) => {
-    window._sva.invokeEvent(`segmentEvent-${name}`, properties)
+    const segmentProperties = properties || {}
+    window._sva.invokeEvent(`segmentEvent-${name}`, segmentProperties)
   }
 }
 
