@@ -1,11 +1,18 @@
 import { defaultValues } from '@segment/actions-core'
 import createUpdateDevice from './createUpdateDevice'
-import deleteDevice from './deleteDevice'
+import createUpdateObject from './createUpdateObject'
 import createUpdatePerson from './createUpdatePerson'
+import deleteDevice from './deleteDevice'
+import deleteRelationship from './deleteRelationship'
+import deleteObject from './deleteObject'
+import deletePerson from './deletePerson'
+import mergePeople from './mergePeople'
+import reportDeliveryEvent from './reportDeliveryEvent'
+import suppressPerson from './suppressPerson'
+import unsuppressPerson from './unsuppressPerson'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
 import trackScreenView from './trackScreenView'
-import createUpdateObject from './createUpdateObject'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
@@ -21,14 +28,14 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Customer.io site ID. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
         label: 'Site ID',
-        type: 'string',
+        type: 'password',
         required: true
       },
       apiKey: {
         description:
           'Customer.io API key. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).',
         label: 'API Key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       accountRegion: {
@@ -54,11 +61,18 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     createUpdateDevice,
     deleteDevice,
+    deleteRelationship,
+    deletePerson,
+    deleteObject,
     createUpdatePerson,
     trackEvent,
     trackPageView,
     trackScreenView,
-    createUpdateObject
+    createUpdateObject,
+    mergePeople,
+    suppressPerson,
+    unsuppressPerson,
+    reportDeliveryEvent
   },
 
   presets: [
@@ -84,8 +98,40 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
+      name: 'Delete Relationship',
+      subscribe: 'event = "Relationship Deleted"',
+      partnerAction: 'deleteRelationship',
+      mapping: defaultValues(deleteRelationship.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Person',
+      subscribe: 'event = "User Deleted"',
+      partnerAction: 'deletePerson',
+      mapping: defaultValues(deletePerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Object',
+      subscribe: 'event = "Group Deleted"',
+      partnerAction: 'deleteObject',
+      mapping: defaultValues(deleteObject.fields),
+      type: 'automatic'
+    },
+    {
       name: 'Track Event',
-      subscribe: 'type = "track"',
+      subscribe: `
+        type = "track"
+        and event != "Application Installed"
+        and event != "Application Opened"
+        and event != "Application Uninstalled"
+        and event != "Relationship Deleted"
+        and event != "User Deleted"
+        and event != "User Suppressed"
+        and event != "User Unsuppressed"
+        and event != "Group Deleted"
+        and event != "Report Delivery Event"
+      `,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
@@ -109,6 +155,34 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "group"',
       partnerAction: 'createUpdateObject',
       mapping: defaultValues(createUpdateObject.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Merge People',
+      subscribe: 'type = "alias"',
+      partnerAction: 'mergePeople',
+      mapping: defaultValues(mergePeople.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Suppress Person',
+      subscribe: 'event = "User Suppressed"',
+      partnerAction: 'suppressPerson',
+      mapping: defaultValues(suppressPerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Unsuppress Person',
+      subscribe: 'event = "User Unsuppressed"',
+      partnerAction: 'unsuppressPerson',
+      mapping: defaultValues(unsuppressPerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Report Delivery Event',
+      subscribe: 'event = "Report Delivery Event"',
+      partnerAction: 'reportDeliveryEvent',
+      mapping: defaultValues(reportDeliveryEvent.fields),
       type: 'automatic'
     },
     {
@@ -174,10 +248,9 @@ const destination: DestinationDefinition<Settings> = {
   ],
 
   onDelete(request, { settings, payload }) {
-    const { accountRegion } = settings
     const { userId } = payload
 
-    const url = `${trackApiEndpoint(accountRegion)}/api/v1/customers/${userId}`
+    const url = `${trackApiEndpoint(settings)}/api/v1/customers/${userId}`
 
     return request(url, {
       method: 'DELETE'

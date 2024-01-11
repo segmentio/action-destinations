@@ -1,390 +1,547 @@
-import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import CustomerIO from '../index'
+import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { AccountRegion } from '../utils'
-
-const testDestination = createTestIntegration(CustomerIO)
-const trackObjectService = nock('https://track.customer.io')
+import { testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('createUpdateObject', () => {
-    it('should work with default mappings when userId is supplied', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: timestamp,
-        object_type_id: '1'
-      }
+    testRunner((settings: Settings, action: Function) => {
+      it('should work with default mappings when userId is supplied', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          industry: 'Technology',
+          created_at: timestamp,
+          object_type_id: '1'
+        }
 
-      const attributes = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          industry: 'Technology',
+          created_at: dayjs.utc(timestamp).unix()
+        }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: traits.object_type_id,
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
-      })
-    })
-
-    it('should work with the EU account region', async () => {
-      const trackEUObjectService = nock('https://track-eu.customer.io')
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.EU
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: timestamp,
-        object_type_id: '1'
-      }
-      const attributes = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackEUObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'EU' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { id: userId } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'EU',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: traits.object_type_id,
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
-      })
-    })
+      it('should work with anonymous id when userId is not supplied', async () => {
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          created_at: timestamp,
+          object_type_id: '1'
+        }
 
-    it('should fall back to the US account region', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde'
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: timestamp,
-        object_type_id: '1'
-      }
-      const attributes = {
-        name: 'Sales',
-        industry: 'Technology',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          created_at: dayjs.utc(timestamp).unix()
+        }
+        const event = createTestEvent({
+          userId: undefined,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify_anonymous',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US-fallback',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: traits.object_type_id,
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
-      })
-    })
+      it('should work with object_type_id given in the traits', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          created_at: timestamp,
+          object_type_id: '2'
+        }
 
-    it('should work with anonymous id when userId is not supplied', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        created_at: timestamp,
-        object_type_id: '1'
-      }
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          created_at: dayjs.utc(timestamp).unix()
+        }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      const attributes = {
-        name: 'Sales',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId: undefined,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: '2',
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { id: userId } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify_anonymous',
-        identifiers: {
-          object_type_id: traits.object_type_id,
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
-      })
-    })
+      it('should work with default object_type_id when object_type_id is not supplied', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          created_at: timestamp
+        }
 
-    it('should work with object_type_id given in the traits', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        created_at: timestamp,
-        object_type_id: '2'
-      }
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          created_at: dayjs.utc(timestamp).unix()
+        }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      const attributes = {
-        name: 'Sales',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: '1',
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { id: userId } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: '2',
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
-      })
-    })
+      it('should work with default object_type_id if traits are not supplied', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const attributes = {
+          anonymous_id: anonymousId
+        }
 
-    it('should work with default object_type_id when object_type_id is not supplied', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const traits = {
-        name: 'Sales',
-        created_at: timestamp
-      }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          groupId,
+          traits: undefined
+        })
 
-      const attributes = {
-        name: 'Sales',
-        created_at: dayjs.utc(timestamp).unix()
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes,
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: '1',
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { id: userId } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        created_at: dayjs.utc(timestamp).unix(),
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: '1',
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
-      })
-    })
+      it('should work if userId starts with `cio_`', async () => {
+        const userId = 'cio_abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const typeId = '1'
+        const attributes = {
+          anonymous_id: anonymousId,
+          objectTypeId: typeId
+        }
 
-    it('should work when no created_at is given', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const anonymousId = 'unknown_123'
-      const timestamp = dayjs.utc().toISOString()
-      const groupId = 'grp123'
-      const typeId = '1'
-      const traits = {
-        name: 'Sales',
-        object_type_id: '1'
-      }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          groupId,
+          traits: {
+            objectTypeId: typeId
+          },
+          timestamp
+        })
 
-      const attributes = {
-        name: 'Sales'
-      }
-      trackObjectService.post(`/api/v2/entity`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        anonymousId,
-        timestamp,
-        traits,
-        groupId
-      })
-      const responses = await testDestination.testAction('createUpdateObject', {
-        event,
-        settings,
-        useDefaultMappings: true
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes,
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: '1',
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { cio_id: 'abc123' } }]
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
+      it('should work if userId is an email', async () => {
+        const userId = 'foo@bar.com'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const typeId = '1'
+        const attributes = {
+          anonymous_id: anonymousId,
+          objectTypeId: typeId
+        }
+
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          groupId,
+          traits: {
+            objectTypeId: typeId
+          },
+          timestamp
+        })
+
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes,
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: '1',
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { email: 'foo@bar.com' } }]
+        })
       })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        attributes: attributes,
-        type: 'object',
-        action: 'identify',
-        identifiers: {
-          object_type_id: typeId,
-          object_id: groupId
-        },
-        cio_relationships: [{ identifiers: { id: userId } }]
+
+      it('should work when no created_at is given', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const typeId = '1'
+        const traits = {
+          name: 'Sales',
+          object_type_id: '1'
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales'
+        }
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: typeId,
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { id: userId } }]
+        })
+      })
+
+      it('should work with anonymous id when userId is not supplied', async () => {
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          createdAt: timestamp,
+          object_type_id: '1'
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          createdAt: dayjs.utc(timestamp).unix()
+        }
+        const event = createTestEvent({
+          userId: undefined,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify_anonymous',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+        })
+      })
+
+      it('should work with relationship traits', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          createdAt: timestamp,
+          object_type_id: '1'
+        }
+
+        const context = {
+          relationshipTraits: {
+            role: 'admin',
+            prefix: 'Mr.'
+          }
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          createdAt: dayjs.utc(timestamp).unix()
+        }
+
+        const relationship = {
+          identifiers: { id: userId },
+          relationship_attributes: {
+            role: 'admin',
+            prefix: 'Mr.'
+          }
+        }
+
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId,
+          context
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [relationship]
+        })
+      })
+
+      it('should work with relationship traits having timestamp attributes', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          createdAt: timestamp,
+          object_type_id: '1'
+        }
+
+        const context = {
+          relationshipTraits: {
+            role: 'admin',
+            createdAt: timestamp
+          }
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          createdAt: dayjs.utc(timestamp).unix()
+        }
+
+        const relationship = {
+          identifiers: { id: userId },
+          relationship_attributes: {
+            role: 'admin',
+            createdAt: dayjs.utc(timestamp).unix()
+          }
+        }
+
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId,
+          context
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [relationship]
+        })
+      })
+
+      it('should work with relationship traits and anonymous user', async () => {
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          name: 'Sales',
+          createdAt: timestamp,
+          object_type_id: '1'
+        }
+
+        const context = {
+          relationshipTraits: {
+            role: 'admin',
+            createdAt: timestamp
+          }
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          createdAt: dayjs.utc(timestamp).unix()
+        }
+
+        const relationship = {
+          identifiers: { anonymous_id: anonymousId },
+          relationship_attributes: {
+            role: 'admin',
+            createdAt: dayjs.utc(timestamp).unix()
+          }
+        }
+
+        const event = createTestEvent({
+          userId: undefined,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId,
+          context
+        })
+        const response = await action('createUpdateObject', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
+          type: 'object',
+          action: 'identify_anonymous',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [relationship]
+        })
       })
     })
   })
