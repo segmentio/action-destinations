@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { getApiServerUrl } from '../common/utils'
+import { getApiServerUrl } from '../utils'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {

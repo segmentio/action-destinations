@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { getApiServerUrl } from '../common/utils'
+import { getApiServerUrl } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Alias',
