@@ -5,8 +5,8 @@ import { Payload as AttributesPayload } from './setAttributes/generated-types'
 import { Payload as TagsPayload } from './manageTags/generated-types'
 import { Payload as RegisterPayload } from './registerAndAssociate/generated-types'
 
-export const EMAIL = 'Email'
-export const SMS = 'SMS'
+export const EMAIL = 'email'
+export const SMS = 'sms'
 
 // exported Action function
 export function register(
@@ -16,10 +16,8 @@ export function register(
   old_channel: string | null
 ) {
   let address_to_use = payload.channel_object.address
-  let channel_type = EMAIL.toLowerCase()
-  if (payload.channel_type) {
-    channel_type = payload.channel_type.toLowerCase()
-  }
+  const channel_type = payload.channel_type ?? EMAIL
+
   const endpoint = map_endpoint(settings.endpoint)
   let register_uri = `${endpoint}/api/channels/email`
   if (old_channel && payload.channel_object.new_address) {

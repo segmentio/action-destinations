@@ -13,8 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email (default) or SMS',
       type: 'string',
       choices: [
-        { label: EMAIL, value: EMAIL },
-        { label: SMS, value: SMS }
+        { label: 'Email', value: EMAIL },
+        { label: 'SMS', value: SMS }
       ],
       default: EMAIL,
       required: false
