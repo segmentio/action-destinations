@@ -24,48 +24,9 @@ export function register(
     register_uri = `${endpoint}/api/channels/email/replace/${old_channel}`
     address_to_use = payload.channel_object.new_address
   }
-  if (channel_type == SMS) {
-    register_uri = `${endpoint}/api/channels/sms`
-  }
   let country_language = null
   if (payload.locale && payload.locale.length > 0) {
     country_language = _extract_country_language(payload.locale)
-  }
-  const email_register_payload: {
-    channel: {
-      commercial_opted_in?: string
-      commercial_opted_out?: string
-      click_tracking_opted_in?: string
-      click_tracking_opted_out?: string
-      open_tracking_opted_in?: string
-      open_tracking_opted_out?: string
-      transactional_opted_in?: string
-      transactional_opted_out?: string
-      suppression_state?: string
-      type?: string
-      address: string
-      timezone?: string
-      locale_language?: string
-      locale_country?: string
-      sms_opted_in?: string
-      sms_sender?: string
-    }
-  } = {
-    channel: {
-      type: channel_type,
-      address: address_to_use
-    }
-  }
-
-  const sms_register_payload: {
-    msisdn: string
-    sender?: string
-    opted_in?: string
-    timezone?: string
-    locale_language?: string
-    locale_country?: string
-  } = {
-    msisdn: address_to_use
   }
 
   let locale_country = ''
@@ -76,7 +37,61 @@ export function register(
   }
 
   //  set up email_email_register_payload
-  if (channel_type == EMAIL) {
+  if (channel_type == SMS) {
+    register_uri = `${endpoint}/api/channels/sms`
+    const sms_register_payload: {
+      msisdn: string
+      sender?: string
+      opted_in?: string
+      timezone?: string
+      locale_language?: string
+      locale_country?: string
+    } = {
+      msisdn: address_to_use
+    }
+    if (payload.channel_object.sms_opted_in) {
+      sms_register_payload.opted_in = _parse_and_format_date(payload.channel_object.sms_opted_in)
+    }
+    if (payload.sms_sender) {
+      sms_register_payload.sender = payload.sms_sender
+    }
+    // additional properties
+    if (locale_language) {
+      sms_register_payload.locale_language = locale_language
+    }
+    if (locale_country) {
+      sms_register_payload.locale_country = locale_country
+    }
+    if (payload.timezone) {
+      sms_register_payload.timezone = payload.timezone
+    }
+    return do_request(request, register_uri, sms_register_payload)
+  } else {
+    const email_register_payload: {
+      channel: {
+        commercial_opted_in?: string
+        commercial_opted_out?: string
+        click_tracking_opted_in?: string
+        click_tracking_opted_out?: string
+        open_tracking_opted_in?: string
+        open_tracking_opted_out?: string
+        transactional_opted_in?: string
+        transactional_opted_out?: string
+        suppression_state?: string
+        type?: string
+        address: string
+        timezone?: string
+        locale_language?: string
+        locale_country?: string
+        sms_opted_in?: string
+        sms_sender?: string
+      }
+    } = {
+      channel: {
+        type: channel_type,
+        address: address_to_use
+      }
+    }
     email_register_payload.channel.type = 'email'
     // handle and format all optional date params
     if (payload.channel_object.suppression_state) {
@@ -132,26 +147,8 @@ export function register(
     if (payload.timezone) {
       email_register_payload.channel.timezone = payload.timezone
     }
-  } else if (channel_type == SMS) {
-    if (payload.channel_object.sms_opted_in) {
-      sms_register_payload.opted_in = _parse_and_format_date(payload.channel_object.sms_opted_in)
-    }
-    if (payload.sms_sender) {
-      sms_register_payload.sender = payload.sms_sender
-    }
-    // additional properties
-    if (locale_language) {
-      sms_register_payload.locale_language = locale_language
-    }
-    if (locale_country) {
-      sms_register_payload.locale_country = locale_country
-    }
-    if (payload.timezone) {
-      sms_register_payload.timezone = payload.timezone
-    }
-    return do_request(request, register_uri, sms_register_payload)
+    return do_request(request, register_uri, email_register_payload)
   }
-  return do_request(request, register_uri, email_register_payload)
 }
 
 // exported Action function
