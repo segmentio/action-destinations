@@ -24,6 +24,12 @@ beforeEach(async () => {
   ajs = new Analytics({
     writeKey: 'w_123'
   })
+  Object.defineProperty(window, 'location', {
+    value: {
+      search: 'queryID=1234567'
+    },
+    writable: true
+  })
 })
 
 describe('ajs-integration', () => {
@@ -41,6 +47,6 @@ describe('ajs-integration', () => {
     const updatedCtx = await algoliaPlugin.track?.(ctx)
 
     const algoliaIntegrationsObj = updatedCtx?.event?.integrations['Algolia Insights (Actions)']
-    expect(algoliaIntegrationsObj[queryIdIntegrationFieldName]).toEqual('test_data')
+    expect(algoliaIntegrationsObj[queryIdIntegrationFieldName]).toEqual('1234567')
   })
 })
