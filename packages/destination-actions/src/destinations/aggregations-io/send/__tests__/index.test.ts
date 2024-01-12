@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const testIngestId = 'abc123'
