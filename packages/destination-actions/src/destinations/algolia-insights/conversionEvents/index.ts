@@ -36,7 +36,11 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.query_id'
+        '@if': {
+          exists: { '@path': '$.properties.query_id' },
+          then: { '@path': '$.properties.query_id' },
+          else: { '@path': '$.integrations.Algolia Insights (Actions).query_id' }
+        }
       }
     },
     userToken: {
