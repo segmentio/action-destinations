@@ -76,6 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
           method: 'get',
           skipResponseCloning: true
         })
+        console.log('test')
         const choices = result.data.results.map((event) => {
           return { value: event.fullyQualifiedName, label: event.name }
         })
