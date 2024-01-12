@@ -124,7 +124,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookiePath) {
       config.cookie_path = settings.cookiePath
     }
-    if (settings.pageView) {
+    if (!settings.pageView) {
       config.send_page_view = settings.pageView
     }
 
