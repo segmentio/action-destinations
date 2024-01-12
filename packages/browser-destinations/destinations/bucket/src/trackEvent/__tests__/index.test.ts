@@ -64,7 +64,7 @@ describe('trackEvent', () => {
         )
 
         expect(getBucketCallLog()).toStrictEqual([
-          { method: 'init', args: ['testTrackingKey'] },
+          { method: 'init', args: ['testTrackingKey', {}] },
           {
             method: 'user',
             args: ['user-id-1', {}, { active: false }]
@@ -109,7 +109,7 @@ describe('trackEvent', () => {
         )
 
         expect(getBucketCallLog()).toStrictEqual([
-          { method: 'init', args: ['testTrackingKey'] },
+          { method: 'init', args: ['testTrackingKey', {}] },
           {
             method: 'user',
             args: ['user-id-1']
@@ -153,7 +153,7 @@ describe('trackEvent', () => {
       // and then trigger the full flow trhough analytics.track() with only an anonymous ID
       // expect(destination.actions.trackEvent.perform).not.toHaveBeenCalled()
 
-      expect(getBucketCallLog()).toStrictEqual([{ method: 'init', args: ['testTrackingKey'] }])
+      expect(getBucketCallLog()).toStrictEqual([{ method: 'init', args: ['testTrackingKey', {}] }])
     })
   })
 })

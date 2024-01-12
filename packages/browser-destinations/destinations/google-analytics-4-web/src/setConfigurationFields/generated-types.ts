@@ -67,4 +67,10 @@ export interface Payload {
    * The resolution of the screen. Format should be two positive integers separated by an x (i.e. 800x600). If not set, calculated from the user's window.screen value.
    */
   screen_resolution?: string
+  /**
+   * The event parameters to send to Google Analytics 4.
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }
