@@ -858,7 +858,7 @@ describe('sendMobilePush action', () => {
       expect(responses[1].data).toMatchObject(externalId)
     })
 
-    it('should format FCM overrides with v1 format when googleApiVersion field is not provided', async () => {
+    it('should format FCM overrides with v1 format when googleApiVersion field is v1', async () => {
       const externalId = {
         type: 'android.push_token',
         id: 'android-token-1',
