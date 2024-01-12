@@ -15,7 +15,6 @@ import {
   user_properties,
   tax
 } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Refund',
@@ -38,8 +37,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
     gtag('event', 'refund', {
       currency: payload.currency,
       transaction_id: payload.transaction_id, // Transaction ID. Required for purchases and refunds.
@@ -49,6 +46,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       shipping: payload.shipping,
       tax: payload.tax,
       items: payload.items,
+      user_id: payload.user_id ?? undefined,
+      ...payload.user_properties,
       ...payload.params
     })
   }

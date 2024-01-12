@@ -2,7 +2,6 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_id, user_properties, params } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -42,10 +41,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
     const event_name = normalizeEventName(payload.name, payload.lowercase)
 
-    gtag('event', event_name, payload.params)
+    gtag('event', event_name, { ...payload.params, user_id: payload.user_id ?? undefined, ...payload.user_properties })
   }
 }
 

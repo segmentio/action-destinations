@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { user_properties, params, user_id, currency, value } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Generate Lead',
@@ -19,11 +18,11 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
     gtag('event', 'generate_lead', {
       currency: payload.currency,
       value: payload.value,
+      user_id: payload.user_id ?? undefined,
+      ...payload.user_properties,
       ...payload.params
     })
   }
