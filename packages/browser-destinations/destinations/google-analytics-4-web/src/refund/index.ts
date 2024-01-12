@@ -37,7 +37,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'refund', {
@@ -49,6 +49,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       shipping: payload.shipping,
       tax: payload.tax,
       items: payload.items,
+      send_to: settings.measurementID,
       ...payload.params
     })
   }

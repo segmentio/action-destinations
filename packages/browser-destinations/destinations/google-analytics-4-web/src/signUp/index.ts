@@ -16,11 +16,12 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'sign_up', {
       method: payload.method,
+      send_to: settings.measurementID,
       ...payload.params
     })
   }

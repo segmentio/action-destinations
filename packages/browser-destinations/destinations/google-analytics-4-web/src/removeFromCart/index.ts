@@ -22,13 +22,14 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     user_properties: user_properties,
     params: params
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'remove_from_cart', {
       currency: payload.currency,
       value: payload.value,
       items: payload.items,
+      send_to: settings.measurementID,
       ...payload.params
     })
   }

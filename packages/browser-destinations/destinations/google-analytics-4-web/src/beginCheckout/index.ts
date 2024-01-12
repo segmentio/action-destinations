@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params,
     user_properties: user_properties
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     updateUser(payload.user_id, payload.user_properties, gtag)
 
     gtag('event', 'begin_checkout', {
@@ -30,6 +30,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       value: payload.value,
       coupon: payload.coupon,
       items: payload.items,
+      send_to: settings.measurementID,
       ...payload.params
     })
   }
