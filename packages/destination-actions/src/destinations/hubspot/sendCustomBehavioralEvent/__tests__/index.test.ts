@@ -432,7 +432,7 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
               singular: 'Car features',
               plural: null
             },
-            description: 'An event that fires when visitor views a car listing in the online inventory',
+            description: 'An event that fires when visitor views a car features',
             archived: false,
             primaryObjectId: '0-1',
             trackingType: 'MANUAL',
