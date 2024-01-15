@@ -48,6 +48,7 @@
     "@segment/analytics-browser-actions-vwo": "^1.24.0",
     "@segment/analytics-browser-actions-wiseops": "^1.23.0",
     "@segment/analytics-browser-hubble-web": "^1.9.0",
+    "@segment/analytics-browser-actions-algolia-plugins": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.22.0"
   }
 }
