@@ -168,7 +168,7 @@ jobs:
         run: NODE_ENV=production yarn build:browser-bundles
 
       - name: Size Limit
-        run: npx size-limit
+        run: yarn browser size-limit
 
       #- name: Check Window object
       # for each bundle:
