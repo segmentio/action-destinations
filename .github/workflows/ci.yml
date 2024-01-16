@@ -107,6 +107,14 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build:browser-destinations && yarn browser build-web
 
+      - name: Size Limit
+        run: yarn browser size
+
+      #- name: Check Window object
+      # for each bundle:
+      # load bundle
+      # check window obj
+
       - name: Run Saucelabs Tests
         working-directory: packages/browser-destinations-integration-tests
         shell: bash

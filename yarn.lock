@@ -2371,6 +2371,16 @@
   dependencies:
     semver "7.3.5"
 
+"@size-limit/preset-big-lib@^11.0.1":
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/@size-limit/preset-big-lib/-/preset-big-lib-11.0.1.tgz#68dfe814ffd15806e26c8e65928a53b090399833"
+  integrity sha512-3B06HMEn05qkMDlP5z8y7p4P+TYeq12CfYKjUe42d3FSjN7dNovy6c8Ry/V1+9LIVAkNOQ6TIbGyRKj1aJKW0g==
+  dependencies:
+    "@size-limit/file" "11.0.1"
+    "@size-limit/time" "11.0.1"
+    "@size-limit/webpack" "11.0.1"
+    size-limit "11.0.1"
+
 "@size-limit/preset-small-lib@^6.0.3":
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/@size-limit/preset-small-lib/-/preset-small-lib-6.0.3.tgz#30c37000c61ac9bbb8e848a7ff43221f19d60942"
