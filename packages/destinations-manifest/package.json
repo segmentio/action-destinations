@@ -42,6 +42,7 @@
     "@segment/analytics-browser-actions-snap-plugins": "^1.5.0",
     "@segment/analytics-browser-actions-sprig": "^1.24.0",
     "@segment/analytics-browser-actions-stackadapt": "^1.24.0",
+    "@segment/analytics-browser-actions-survicate": "^1.0.0",
     "@segment/analytics-browser-actions-tiktok-pixel": "^1.21.0",
     "@segment/analytics-browser-actions-upollo": "^1.24.0",
     "@segment/analytics-browser-actions-userpilot": "^1.24.0",
