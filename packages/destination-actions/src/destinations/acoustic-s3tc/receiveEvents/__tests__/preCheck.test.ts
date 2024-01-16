@@ -9,7 +9,7 @@ const validS3Settings = {
   s3_secret: 'secret',
   s3_region: 'us-east-1',
   s3_bucket_accesspoint_alias: 'my-bucket',
-  fileNamePrefix: 'prefix'
+  fileNamePrefix: 'prefix_'
 }
 
 describe('validateSettings', () => {
