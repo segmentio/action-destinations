@@ -170,14 +170,6 @@ jobs:
       - name: Size Limit
         run: yarn browser size
 
-      - name: Window Test
-        run: yarn browser test-window
-
-      #- name: Check Window object
-      # for each bundle:
-      # load bundle
-      # check window obj
-
       # - name: Run Saucelabs Tests
       #   working-directory: packages/browser-destinations-integration-tests
       #   shell: bash
