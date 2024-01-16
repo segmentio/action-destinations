@@ -93,6 +93,7 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * The unique identifier of a transaction.
