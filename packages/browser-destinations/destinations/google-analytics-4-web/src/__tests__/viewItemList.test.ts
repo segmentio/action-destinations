@@ -86,7 +86,8 @@ describe('GoogleAnalytics4Web.viewItemList', () => {
       expect.objectContaining({
         item_list_id: 12321,
         item_list_name: 'Monopoly: 3rd Edition',
-        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: settings.measurementID
       })
     )
   })

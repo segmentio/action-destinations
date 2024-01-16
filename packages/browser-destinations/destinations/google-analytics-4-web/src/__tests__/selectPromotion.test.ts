@@ -101,7 +101,8 @@ describe('GoogleAnalytics4Web.selectPromotion', () => {
         location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
         promotion_id: 'P_12345',
         promotion_name: 'Summer Sale',
-        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: settings.measurementID
       })
     )
   })

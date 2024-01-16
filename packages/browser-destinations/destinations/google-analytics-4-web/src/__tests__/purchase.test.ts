@@ -93,7 +93,8 @@ describe('GoogleAnalytics4Web.purchase', () => {
         currency: 'USD',
         transaction_id: 12321,
         items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
-        value: 10
+        value: 10,
+        send_to: settings.measurementID
       })
     )
   })

@@ -54,7 +54,8 @@ describe('GoogleAnalytics4Web.search', () => {
       expect.anything(),
       expect.stringContaining('search'),
       expect.objectContaining({
-        search_term: 'Monopoly: 3rd Edition'
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: settings.measurementID
       })
     )
   })

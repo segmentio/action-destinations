@@ -58,7 +58,8 @@ describe('GoogleAnalytics4Web.generateLead', () => {
       expect.stringContaining('generate_lead'),
       expect.objectContaining({
         currency: 'USD',
-        value: 10
+        value: 10,
+        send_to: settings.measurementID
       })
     )
   })

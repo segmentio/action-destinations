@@ -53,7 +53,7 @@ describe('GoogleAnalytics4Web.signUp', () => {
     expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('sign_up'),
-      expect.objectContaining({ method: 'Google' })
+      expect.objectContaining({ method: 'Google', send_to: settings.measurementID })
     )
   })
 })

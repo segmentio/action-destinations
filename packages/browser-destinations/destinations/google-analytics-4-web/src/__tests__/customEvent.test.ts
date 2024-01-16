@@ -61,7 +61,10 @@ describe('GoogleAnalytics4Web.customEvent', () => {
     expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('Custom_Event'),
-      expect.objectContaining([{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }])
+      expect.objectContaining({
+        params: [{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }],
+        send_to: settings.measurementID
+      })
     )
   })
 })

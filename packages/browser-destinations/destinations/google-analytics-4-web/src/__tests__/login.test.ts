@@ -53,7 +53,8 @@ describe('GoogleAnalytics4Web.login', () => {
       expect.anything(),
       expect.stringContaining('login'),
       expect.objectContaining({
-        method: 'Google'
+        method: 'Google',
+        send_to: settings.measurementID
       })
     )
   })
