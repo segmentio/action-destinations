@@ -21,7 +21,8 @@
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\"",
-    "size": "size-limit"
+    "size": "size-limit",
+    "test-window": "node window-test.js"
   },
   "dependencies": {
     "tslib": "^2.3.1",
