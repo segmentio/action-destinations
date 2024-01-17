@@ -1256,17 +1256,17 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.1.6.tgz#22958c042e10b67463997bd6ea7115fe28cbcaf9"
   integrity sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==
 
-"@fullstory/browser@^1.4.9":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@fullstory/browser/-/browser-1.7.1.tgz#eb94fcb5e21b13a1b30de58951480ac344e61cdd"
-  integrity sha512-IBPisG+xRyTHHX8XkZJkQRbP2hVYNMZUYW8R3YiB582dl/VZImkFN+LopIAfPqB97FAZgUTofi7flkrHT4Qmtg==
+"@fullstory/browser@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstory/browser/-/browser-2.0.0.tgz#43228edafd3fa7828d4a21c5023b426ab1c3782e"
+  integrity sha512-TcHEDORY/xBDEZD2SC6nLBoiZDGMKTD/8568A9NBf7ufPkDlJh5zuKHu81dv40M/GPG/kcFCD2RooLDUILRkMw==
   dependencies:
-    "@fullstory/snippet" "1.3.1"
+    "@fullstory/snippet" "2.0.0"
 
-"@fullstory/snippet@1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@fullstory/snippet/-/snippet-1.3.1.tgz#6817ea94601e071e630b25262e703ca356a5f537"
-  integrity sha512-NgrBWGHH5i8zejlRFSyJNhovkNqHAXsWKrcXIWaABrgESwbkdGETjOU7BD7d1ZeT0X+QXL/2yr/1y4xnWfVkwQ==
+"@fullstory/snippet@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@fullstory/snippet/-/snippet-2.0.0.tgz#77d6fc6fc304f09708512971168701b5d88052e0"
+  integrity sha512-rAEPt5mCBXnJfPsD9lY7N4/5QWNiMj1vczn31B7B8mBDop/EzJsVHXeRA8ExhaRW2Oe87bZvmOoUIRoOrx5R+w==
 
 "@gar/promisify@^1.1.3":
   version "1.1.3"
