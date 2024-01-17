@@ -18,6 +18,9 @@ const subscriptions: Subscription[] = [
       },
       accountData: {
         '@path': '$.traits'
+      },
+      parentAccountData: {
+        '@path': '$.traits.parentAccount'
       }
     }
   }
@@ -68,6 +71,31 @@ describe('Pendo.group', () => {
     expect(mockPendo.identify).toHaveBeenCalledWith({
       account: { id: 'company_id_1', company_name: 'Megacorp 2000' },
       visitor: { id: 'testUserId' }
+    })
+  })
+
+  test('moves the parentAccount property up a level, off the account, to be a sibling property ', async () => {
+    const context = new Context({
+      type: 'group',
+      userId: 'testUserId',
+      traits: {
+        company_name: 'Megacorp 2000',
+        parentAccount: {
+          id: 'abc123',
+          company_name: 'Umbrella corp'
+        }
+      },
+      groupId: 'company_id_1'
+    })
+    await groupAction.group?.(context)
+
+    expect(mockPendo.identify).toHaveBeenCalledWith({
+      account: { id: 'company_id_1', company_name: 'Megacorp 2000' },
+      visitor: { id: 'testUserId' },
+      parentAccount: {
+        id: 'abc123',
+        company_name: 'Umbrella corp'
+      }
     })
   })
 })
