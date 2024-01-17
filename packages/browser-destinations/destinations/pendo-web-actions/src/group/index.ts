@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { PendoSDK, PendoOptions } from '../types'
-import { removeObjectByKey } from '../utils'
+import { removeNestedObject, AnyObject, getSubstringDifference } from '../utils'
 
 const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   title: 'Send Group Event',
@@ -53,15 +53,26 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       required: false
     }
   },
-  perform: (pendo, { payload }) => {
-    removeObjectByKey(payload.accountData, payload.parentAccountData)
+  perform: (pendo, { mapping, payload }) => {
+    // remove parentAccountData field data from the accountData if the paths overlap
+    const parentAccountDataMapping = mapping && mapping.parentAccountData?.['@path']
+    const accountDataMapping = mapping && mapping.accountData?.['@path']
+
+    const difference: string | null = getSubstringDifference(parentAccountDataMapping, accountDataMapping)
+
+    let accountData = undefined
+    if (difference !== null) {
+      accountData = removeNestedObject(payload.accountData as AnyObject, difference)
+    } else {
+      accountData = payload.accountData
+    }
 
     const pendoPayload: PendoOptions = {
       visitor: {
         id: payload.visitorId
       },
       account: {
-        ...payload.accountData,
+        ...accountData,
         id: payload.accountId
       }
     }
@@ -69,8 +80,6 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     if (payload.parentAccountData) {
       pendoPayload.parentAccount = payload.parentAccountData
     }
-
-    console.log(pendoPayload)
 
     pendo.identify(pendoPayload)
   }
