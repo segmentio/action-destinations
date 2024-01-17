@@ -55,8 +55,13 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   },
   perform: (pendo, { mapping, payload }) => {
     // remove parentAccountData field data from the accountData if the paths overlap
-    const parentAccountDataMapping = mapping && mapping.parentAccountData?.['@path']
-    const accountDataMapping = mapping && mapping.accountData?.['@path']
+
+    type pathMapping = {
+      '@path': string
+    }
+
+    const parentAccountDataMapping = mapping && (mapping.parentAccountData as pathMapping)?.['@path']
+    const accountDataMapping = mapping && (mapping.accountData as pathMapping)?.['@path']
 
     const difference: string | null = getSubstringDifference(parentAccountDataMapping, accountDataMapping)
 
