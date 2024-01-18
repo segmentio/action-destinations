@@ -33,7 +33,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       item_list_name: payload.item_list_name,
       items: payload.items,
       user_id: payload.user_id ?? undefined,
-      ...payload.user_properties,
+      user_properties: payload.user_properties,
       ...payload.params
     })
   }

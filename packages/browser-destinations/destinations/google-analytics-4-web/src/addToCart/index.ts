@@ -26,7 +26,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       value: payload.value,
       items: payload.items,
       user_id: payload.user_id ?? undefined,
-      ...payload.user_properties,
+      user_properties: payload.user_properties,
       ...payload.params
     })
   }
