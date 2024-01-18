@@ -2,7 +2,7 @@ import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject, transformEventName, customEventResponse } from '../utils'
+import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
 import { HubSpotError } from '../errors'
 
 interface CustomBehavioralEvent {
@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     eventName: async (request): Promise<DynamicFieldResponse> => {
       try {
-        const result: customEventResponse = await request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+        const result: GetCustomEventResponse = await request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
           method: 'get',
           skipResponseCloning: true
         })
