@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import forwardEvent from './forwardEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt',
   slug: 'actions-stackadapt',
@@ -17,8 +19,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
-  actions: {}
+  actions: {
+    forwardEvent
+  }
 }
 
 export default destination
