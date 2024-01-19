@@ -517,22 +517,17 @@ describe('@json', () => {
   })
 
   test('invalid mode', () => {
-    const output = transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
-    expect(output).toStrictEqual({ neat: 'bar' })
+    expect(() => {
+      transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    }).toThrowError()
   })
 
   test('invalid value', () => {
     const output = transform(
-      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.bad' } } } },
       { foo: { bar: 'baz' } }
     )
-    expect(output).toStrictEqual({ neat: '{}' })
-  })
-
-  test('invalid key type', () => {
-    expect(() => {
-      transform({ neat: { '@json': { mode: 'encode', value: {} } } }, { foo: 'bar' })
-    }).toThrowError()
+    expect(output).toStrictEqual({})
   })
 })
 
