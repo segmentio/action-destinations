@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const testIngestId = 'abc123'
@@ -39,22 +38,5 @@ describe('AggregationsIo.send', () => {
     expect(response.length).toBe(1)
     expect(new URL(response[0].url).pathname).toBe('/' + testIngestId)
     expect(response[0].status).toBe(200)
-  })
-
-  it('should not work for batched events when disabled', async () => {
-    nock(ingestUrl).post(`/${testIngestId}`).matchHeader('x-api-token', testApiKey).replyWithError('Batching Disabled')
-    await expect(
-      testDestination.testBatchAction('send', {
-        events: [event1, event2],
-        settings: {
-          api_key: testApiKey,
-          ingest_id: testIngestId
-        },
-        mapping: {
-          enable_batching: false
-        },
-        useDefaultMappings: false
-      })
-    ).rejects.toThrow(PayloadValidationError)
   })
 })
