@@ -47,12 +47,15 @@ const defaultExpectedParams = {
   ref: mockReferrer,
   ip_fwd: mockIpAddress,
   utm_source: mockUtmSource,
+  user_id: mockUserId,
+  uid: mockPixelId
+}
+
+const defaultIdentifyParams = {
   first_name: mockFirstName,
   last_name: mockLastName,
   email: mockEmail,
-  phone: mockPhone,
-  user_id: mockUserId,
-  uid: mockPixelId
+  phone: mockPhone
 }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
@@ -96,7 +99,8 @@ describe('StackAdapt', () => {
     })
 
     it('Sends event data to pixel endpoint in expected format with expected headers', async () => {
-      nock(pixelHostUrl).get(pixelPath).query(defaultExpectedParams).reply(200, {})
+      const expectedParams = { ...defaultExpectedParams, ...defaultIdentifyParams }
+      nock(pixelHostUrl).get(pixelPath).query(expectedParams).reply(200, {})
 
       const event = createTestEvent(defaultEventPayload)
       const responses = await testDestination.testAction('forwardEvent', {

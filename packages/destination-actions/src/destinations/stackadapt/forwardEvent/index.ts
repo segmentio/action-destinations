@@ -75,56 +75,55 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'Email address of the individual who triggered the conversion event.',
+      description: 'Email address of the individual who triggered the event.',
       type: 'string',
       format: 'email',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
-          else: { '@path': '$.traits.email' }
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
         }
       }
     },
     phone: {
       label: 'Phone Number',
-      description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
+      description: 'Phone number of the individual who triggered the event',
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.phone' },
-          then: { '@path': '$.properties.phone' },
-          else: { '@path': '$.traits.phone' }
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
         }
       }
     },
     first_name: {
       label: 'First Name',
-      description: 'First name of the individual who triggered the conversion event.',
+      description: 'First name of the individual who triggered the event.',
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.firstName' },
-          then: { '@path': '$.properties.firstName' },
-          else: { '@path': '$.traits.firstName' }
+          exists: { '@path': '$.traits.firstName' },
+          then: { '@path': '$.traits.firstName' },
+          else: { '@path': '$.properties.firstName' }
         }
       }
     },
     last_name: {
       label: 'Last Name',
-      description: 'Last name of the individual who triggered the conversion event.',
+      description: 'Last name of the individual who triggered the event.',
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.lastName' },
-          then: { '@path': '$.properties.lastName' },
-          else: { '@path': '$.traits.lastName' }
+          exists: { '@path': '$.traits.lastName' },
+          then: { '@path': '$.traits.lastName' },
+          else: { '@path': '$.properties.lastName' }
         }
       }
     },
     ecommerce_data: {
-      label: 'Pixel Request Params',
+      label: 'Ecommerce Data',
       description: 'Additional ecommerce fields that are included in the pixel payload.',
       type: 'object',
       additionalProperties: true,
@@ -132,66 +131,42 @@ const action: ActionDefinition<Settings, Payload> = {
         action: {
           label: 'Event Name',
           description: 'The event name (e.g. Order Completed)',
-          type: 'string',
-          default: {
-            '@path': '$.event'
-          }
+          type: 'string'
         },
         revenue: {
           label: 'Revenue',
           type: 'number',
-          description: 'The revenue generated from the event.',
-          default: {
-            '@path': '$.properties.revenue'
-          }
+          description: 'The revenue generated from the event.'
         },
         order_id: {
           label: 'Order ID',
           type: 'string',
-          description: 'The ID of the order.',
-          default: {
-            '@path': '$.properties.order_id'
-          }
+          description: 'The ID of the order.'
         },
         product_price: {
           label: 'Price',
           type: 'number',
-          description: 'The price of the product.',
-          default: {
-            '@path': '$.properties.price'
-          }
+          description: 'The price of the product.'
         },
         product_quantity: {
           label: 'Quantity',
           type: 'integer',
-          description: 'The quantity of the product.',
-          default: {
-            '@path': '$.properties.quantity'
-          }
+          description: 'The quantity of the product.'
         },
         product_id: {
           label: 'Product ID',
           type: 'string',
-          description: 'An identifier for the product.',
-          default: {
-            '@path': '$.properties.product_id'
-          }
+          description: 'An identifier for the product.'
         },
         product_category: {
           label: 'Product Category',
           type: 'string',
-          description: 'A category for the product.',
-          default: {
-            '@path': '$.properties.category'
-          }
+          description: 'A category for the product.'
         },
         product_name: {
           label: 'Product Name',
           type: 'string',
-          description: 'The name of the product.',
-          default: {
-            '@path': '$.properties.name'
-          }
+          description: 'The name of the product.'
         },
         products: {
           label: 'Products',
@@ -265,14 +240,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload, settings }) => {
     // Don't include ecommerce data if it's empty or if it only contains the action field
-    if (payload.ecommerce_data) {
-      Object.keys(payload.ecommerce_data).forEach((key) => {
-        if (typeof payload.ecommerce_data?.[key] === 'object' && isEmpty(payload.ecommerce_data?.[key])) {
-          delete payload.ecommerce_data?.[key]
-        }
-      })
-      if (isEmpty(payload.ecommerce_data) || isEqual(Object.keys(payload.ecommerce_data), ['action']))
-        delete payload.ecommerce_data
+    if (
+      payload.ecommerce_data &&
+      (isEmpty(payload.ecommerce_data) || isEqual(Object.keys(payload.ecommerce_data), ['action']))
+    ) {
+      delete payload.ecommerce_data
     }
 
     return request(`https://tags.srv.stackadapt.com/saq_pxl`, {
@@ -288,7 +260,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function getAvailableData(payload: Payload, settings: Settings) {
-  const data: Record<string, string> = {
+  let data: Record<string, string> = {
     segment_ss: '1',
     event_type: payload.event_type ?? '',
     title: payload.title ?? '',
@@ -296,15 +268,20 @@ function getAvailableData(payload: Payload, settings: Settings) {
     ref: payload.referrer ?? '',
     ip_fwd: payload.ip_fwd ?? '',
     utm_source: payload.utm_source ?? '',
-    first_name: payload.first_name ?? '',
-    last_name: payload.last_name ?? '',
-    email: payload.email ?? '',
-    phone: payload.phone ?? '',
     user_id: payload.user_id,
     uid: settings.pixelId,
     args: JSON.stringify(payload.ecommerce_data)
   }
   if (!data.args) delete data.args
+  if (payload.event_type === 'identify') {
+    data = {
+      ...data,
+      first_name: payload.first_name ?? '',
+      last_name: payload.last_name ?? '',
+      email: payload.email ?? '',
+      phone: payload.phone ?? ''
+    }
+  }
   return data
 }
 

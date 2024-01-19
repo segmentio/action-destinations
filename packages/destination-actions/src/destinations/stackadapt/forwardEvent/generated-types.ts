@@ -34,19 +34,19 @@ export interface Payload {
    */
   user_agent?: string
   /**
-   * Email address of the individual who triggered the conversion event.
+   * Email address of the individual who triggered the event.
    */
   email?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
+   * Phone number of the individual who triggered the event
    */
   phone?: string
   /**
-   * First name of the individual who triggered the conversion event.
+   * First name of the individual who triggered the event.
    */
   first_name?: string
   /**
-   * Last name of the individual who triggered the conversion event.
+   * Last name of the individual who triggered the event.
    */
   last_name?: string
   /**
