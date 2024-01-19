@@ -288,7 +288,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function getAvailableData(payload: Payload, settings: Settings) {
-  const data = {
+  const data: Record<string, string> = {
     segment_ss: '1',
     event_type: payload.event_type ?? '',
     title: payload.title ?? '',
@@ -304,8 +304,8 @@ function getAvailableData(payload: Payload, settings: Settings) {
     uid: settings.pixelId,
     args: JSON.stringify(payload.ecommerce_data)
   }
-  const { args, ...dataMinusArgs } = data
-  return !data.args ? dataMinusArgs : data
+  if (!data.args) delete data.args
+  return data
 }
 
 export default action
