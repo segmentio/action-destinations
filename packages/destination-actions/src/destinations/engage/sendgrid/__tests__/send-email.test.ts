@@ -1132,9 +1132,7 @@ describe.each([
           }
         })
 
-      const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { sendgridRequestBody })
-        .reply(200, {})
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
         event: createMessagingTestEvent({
