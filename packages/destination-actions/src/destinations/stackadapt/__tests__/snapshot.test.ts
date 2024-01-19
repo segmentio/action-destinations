@@ -7,9 +7,6 @@ const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-stackadapt'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
-  // Temporary empty test to prevent failure due to spec file having no tests
-  it.skip('dummy test', () => {})
-
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`

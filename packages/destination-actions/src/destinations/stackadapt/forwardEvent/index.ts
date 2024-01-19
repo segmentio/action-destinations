@@ -1,13 +1,30 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Event',
   description: 'Forward Segment events to StackAdapt for conversion tracking',
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
   fields: {
-    eventType: {
+    user_id: {
+      label: 'Segment User ID',
+      description: 'The ID of the user in Segment',
+      type: 'string',
+      required: true,
+      default: {
+        // By default we want to use the permanent user id that's consistent across a customer's lifetime.
+        // But if we don't have that we can fall back to the anonymous id
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
+    },
+    event_type: {
       label: 'Event Type',
       description: 'The Segment event type (page, track, etc.)',
       type: 'string',
@@ -15,59 +32,46 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
-    ip: {
+    ip_fwd: {
       description: 'IP address of the user',
       label: 'IP Address',
-      required: false,
       type: 'string',
       default: {
         '@path': '$.context.ip'
       }
     },
-    userAgent: {
-      description: 'User-Agent of the user',
-      label: 'User Agent',
-      required: false,
-      type: 'string',
-      default: {
-        '@path': '$.context.userAgent'
-      }
-    },
-    eventProperties: {
-      label: 'Event Properties',
-      description: 'Additional properties associated with the event.',
-      type: 'object',
-      required: false,
-      default: { '@path': '$.properties' }
-    },
     title: {
       type: 'string',
-      required: false,
       description: 'The title of the page where the event occurred.',
       label: 'Page Title',
       default: { '@path': '$.context.page.title' }
     },
     url: {
       type: 'string',
-      required: false,
       description: 'The URL of the page where the event occurred.',
       label: 'URL',
       default: { '@path': '$.context.page.url' }
     },
     referrer: {
       type: 'string',
-      required: false,
       description: 'The referrer of the page where the event occurred.',
       label: 'Referrer',
       default: { '@path': '$.context.page.referrer' }
     },
-    utmSource: {
+    utm_source: {
       type: 'string',
       format: 'text',
       label: 'UTM Source',
-      description: 'UTM source parameter associated with even',
-      required: false,
+      description: 'UTM source parameter associated with event',
       default: { '@path': '$.context.campaign.source' }
+    },
+    user_agent: {
+      description: 'User-Agent of the user',
+      label: 'User Agent',
+      type: 'string',
+      default: {
+        '@path': '$.context.userAgent'
+      }
     },
     email: {
       label: 'Email',
@@ -95,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    firstName: {
+    first_name: {
       label: 'First Name',
       description: 'First name of the individual who triggered the conversion event.',
       type: 'string',
@@ -107,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    lastName: {
+    last_name: {
       label: 'Last Name',
       description: 'Last name of the individual who triggered the conversion event.',
       type: 'string',
@@ -119,86 +123,165 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    revenue: {
-      label: 'Revenue',
-      type: 'number',
-      description: 'The revenue generated from the event.',
-      required: false,
-      default: {
-        '@path': '$.properties.revenue'
-      }
-    },
-    orderId: {
-      label: 'Order ID',
-      type: 'string',
-      description: 'The ID of the order.',
-      required: false,
-      default: {
-        '@path': '$.properties.orderId'
-      }
-    },
-    products: {
-      label: 'Products',
-      description: 'The list of products purchased.',
+    ecommerce_data: {
+      label: 'Pixel Request Params',
+      description: 'Additional ecommerce fields that are included in the pixel payload.',
       type: 'object',
-      multiple: true,
       additionalProperties: true,
       properties: {
-        price: {
+        action: {
+          label: 'Event Name',
+          description: 'The event name (e.g. Order Completed)',
+          type: 'string',
+          default: {
+            '@path': '$.event'
+          }
+        },
+        revenue: {
+          label: 'Revenue',
+          type: 'number',
+          description: 'The revenue generated from the event.',
+          default: {
+            '@path': '$.properties.revenue'
+          }
+        },
+        order_id: {
+          label: 'Order ID',
+          type: 'string',
+          description: 'The ID of the order.',
+          default: {
+            '@path': '$.properties.order_id'
+          }
+        },
+        product_price: {
           label: 'Price',
           type: 'number',
-          description: 'The price of the item purchased.'
+          description: 'The price of the product.',
+          default: {
+            '@path': '$.properties.price'
+          }
         },
-        quantity: {
+        product_quantity: {
           label: 'Quantity',
           type: 'integer',
-          description: 'The quantity of the item purchased.'
+          description: 'The quantity of the product.',
+          default: {
+            '@path': '$.properties.quantity'
+          }
         },
-        productId: {
+        product_id: {
           label: 'Product ID',
           type: 'string',
-          description: 'An identifier for the item purchased.'
+          description: 'An identifier for the product.',
+          default: {
+            '@path': '$.properties.product_id'
+          }
+        },
+        product_category: {
+          label: 'Product Category',
+          type: 'string',
+          description: 'A category for the product.',
+          default: {
+            '@path': '$.properties.category'
+          }
+        },
+        product_name: {
+          label: 'Product Name',
+          type: 'string',
+          description: 'The name of the product.',
+          default: {
+            '@path': '$.properties.name'
+          }
+        },
+        products: {
+          label: 'Products',
+          description:
+            'The list of products associated with the event (for events with multiple products, such as order completed)',
+          type: 'object',
+          multiple: true,
+          additionalProperties: true,
+          properties: {
+            product_price: {
+              label: 'Price',
+              type: 'number',
+              description: 'The price of the product.'
+            },
+            product_quantity: {
+              label: 'Quantity',
+              type: 'integer',
+              description: 'The quantity of the product.'
+            },
+            product_id: {
+              label: 'Product ID',
+              type: 'string',
+              description: 'An identifier for the product.'
+            },
+            product_category: {
+              label: 'Product Category',
+              type: 'string',
+              description: 'A category for the product.'
+            },
+            product_name: {
+              label: 'Product Name',
+              type: 'string',
+              description: 'The name of the product.'
+            }
+          }
         }
       },
       default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            price: {
-              '@path': 'price'
-            },
-            quantity: {
-              '@path': 'quantity'
-            },
-            productId: {
-              '@path': 'product_id'
+        action: { '@path': '$.event' },
+        revenue: { '@path': '$.properties.revenue' },
+        order_id: { '@path': '$.properties.order_id' },
+        product_price: { '@path': '$.properties.price' },
+        product_quantity: { '@path': '$.properties.quantity' },
+        product_id: { '@path': '$.properties.product_id' },
+        product_category: { '@path': '$.properties.category' },
+        product_name: { '@path': '$.properties.name' },
+        products: {
+          '@arrayPath': [
+            '$.properties.products',
+            {
+              product_price: {
+                '@path': 'price'
+              },
+              product_quantity: {
+                '@path': 'quantity'
+              },
+              product_id: {
+                '@path': 'product_id'
+              },
+              product_category: {
+                '@path': 'category'
+              },
+              product_name: {
+                '@path': 'name'
+              }
             }
-          }
-        ]
-      }
-    },
-    userId: {
-      label: 'Segment User ID',
-      description: 'The ID of the user in Segment',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+          ]
         }
       }
     }
   },
   perform: async (request, { payload, settings }) => {
-    const queryStr = new URLSearchParams(getAvailableData(payload, settings)).toString()
-    return request(`https://tags.srv.stackadapt.com/saq_pxl?${queryStr}`, {
+    // Don't include ecommerce data if it's empty or if it only contains the action field
+    if (payload.ecommerce_data) {
+      Object.keys(payload.ecommerce_data).forEach((key) => {
+        if (typeof payload.ecommerce_data?.[key] === 'object' && isEmpty(payload.ecommerce_data?.[key])) {
+          delete payload.ecommerce_data?.[key]
+        }
+      })
+      if (isEmpty(payload.ecommerce_data) || isEqual(Object.keys(payload.ecommerce_data), ['action']))
+        delete payload.ecommerce_data
+    }
+
+    return request(`https://tags.srv.stackadapt.com/saq_pxl`, {
       method: 'GET',
+      searchParams: getAvailableData(payload, settings),
       headers: {
         'Content-Type': 'application/json',
-        'X-Forwarded-For': payload.ip ?? '',
-        'User-Agent': payload.userAgent ?? ''
+        'X-Forwarded-For': payload.ip_fwd ?? '',
+        'User-Agent': payload.user_agent ?? ''
       }
     })
   }
@@ -207,45 +290,22 @@ const action: ActionDefinition<Settings, Payload> = {
 function getAvailableData(payload: Payload, settings: Settings) {
   const data = {
     segment_ss: '1',
-    event_type: payload.eventType ?? '',
+    event_type: payload.event_type ?? '',
     title: payload.title ?? '',
     url: payload.url ?? '',
     ref: payload.referrer ?? '',
-    ip_fwd: payload.ip ?? '',
-    utm_source: payload.utmSource ?? '',
-    /**
-     * By default we want to use the permanent user id that's consistent across a customer's lifetime.
-     * But if we don't have that we can fall back to the anonymous id
-     *
-     * See: https://segment.com/docs/connections/spec/identify/#user-id
-     */
-    first_name: payload.firstName ?? '',
-    last_name: payload.lastName ?? '',
+    ip_fwd: payload.ip_fwd ?? '',
+    utm_source: payload.utm_source ?? '',
+    first_name: payload.first_name ?? '',
+    last_name: payload.last_name ?? '',
     email: payload.email ?? '',
     phone: payload.phone ?? '',
-    user_id: payload.userId,
+    user_id: payload.user_id,
     uid: settings.pixelId,
-    args: getProductJson(payload)
+    args: JSON.stringify(payload.ecommerce_data)
   }
-  const { args, ...dataMinusProducts } = data
-  return data.args === '{}' ? dataMinusProducts : data
-}
-
-function getProductJson(payload: Payload) {
-  const productData = {
-    revenue: payload.revenue ?? undefined,
-    order_id: payload.orderId ?? undefined,
-    products: payload.products
-      ? payload.products.map((product) => {
-          return {
-            product_id: product.productId,
-            product_price: product.price,
-            product_quantity: product.quantity
-          }
-        })
-      : undefined
-  }
-  return JSON.stringify(productData)
+  const { args, ...dataMinusArgs } = data
+  return !data.args ? dataMinusArgs : data
 }
 
 export default action

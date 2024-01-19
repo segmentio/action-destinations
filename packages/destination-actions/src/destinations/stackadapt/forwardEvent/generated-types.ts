@@ -2,23 +2,17 @@
 
 export interface Payload {
   /**
+   * The ID of the user in Segment
+   */
+  user_id: string
+  /**
    * The Segment event type (page, track, etc.)
    */
-  eventType?: string
+  event_type?: string
   /**
    * IP address of the user
    */
-  ip?: string
-  /**
-   * User-Agent of the user
-   */
-  userAgent?: string
-  /**
-   * Additional properties associated with the event.
-   */
-  eventProperties?: {
-    [k: string]: unknown
-  }
+  ip_fwd?: string
   /**
    * The title of the page where the event occurred.
    */
@@ -32,9 +26,13 @@ export interface Payload {
    */
   referrer?: string
   /**
-   * UTM source parameter associated with even
+   * UTM source parameter associated with event
    */
-  utmSource?: string
+  utm_source?: string
+  /**
+   * User-Agent of the user
+   */
+  user_agent?: string
   /**
    * Email address of the individual who triggered the conversion event.
    */
@@ -46,39 +44,73 @@ export interface Payload {
   /**
    * First name of the individual who triggered the conversion event.
    */
-  firstName?: string
+  first_name?: string
   /**
    * Last name of the individual who triggered the conversion event.
    */
-  lastName?: string
+  last_name?: string
   /**
-   * The revenue generated from the event.
+   * Additional ecommerce fields that are included in the pixel payload.
    */
-  revenue?: number
-  /**
-   * The ID of the order.
-   */
-  orderId?: string
-  /**
-   * The list of products purchased.
-   */
-  products?: {
+  ecommerce_data?: {
     /**
-     * The price of the item purchased.
+     * The event name (e.g. Order Completed)
      */
-    price?: number
+    action?: string
     /**
-     * The quantity of the item purchased.
+     * The revenue generated from the event.
      */
-    quantity?: number
+    revenue?: number
     /**
-     * An identifier for the item purchased.
+     * The ID of the order.
      */
-    productId?: string
+    order_id?: string
+    /**
+     * The price of the product.
+     */
+    product_price?: number
+    /**
+     * The quantity of the product.
+     */
+    product_quantity?: number
+    /**
+     * An identifier for the product.
+     */
+    product_id?: string
+    /**
+     * A category for the product.
+     */
+    product_category?: string
+    /**
+     * The name of the product.
+     */
+    product_name?: string
+    /**
+     * The list of products associated with the event (for events with multiple products, such as order completed)
+     */
+    products?: {
+      /**
+       * The price of the product.
+       */
+      product_price?: number
+      /**
+       * The quantity of the product.
+       */
+      product_quantity?: number
+      /**
+       * An identifier for the product.
+       */
+      product_id?: string
+      /**
+       * A category for the product.
+       */
+      product_category?: string
+      /**
+       * The name of the product.
+       */
+      product_name?: string
+      [k: string]: unknown
+    }[]
     [k: string]: unknown
-  }[]
-  /**
-   * The ID of the user in Segment
-   */
-  userId: string
+  }
 }
