@@ -35,7 +35,7 @@ describe('Braze Cloud Mode (Actions)', () => {
       expect(responses[0].options.json).toMatchSnapshot()
     })
 
-    it('should require one of braze_id, user_alias, or external_id', async () => {
+    it('should require one of braze_id, user_alias, external_id or email', async () => {
       nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
