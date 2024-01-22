@@ -23,25 +23,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The **Write Key** of a Segment source.',
         type: 'string',
         required: true
-      },
-      endpoint: {
-        label: 'Endpoint Region',
-        description: 'The region to send your data.',
-        type: 'string',
-        format: 'text',
-        choices: Object.keys(SEGMENT_ENDPOINTS).map((key) => ({
-          label: SEGMENT_ENDPOINTS[key].label,
-          value: key
-        })),
-        default: DEFAULT_SEGMENT_ENDPOINT
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const { source_write_key, endpoint } = settings
-
-      return request(
-        `${SEGMENT_ENDPOINTS[endpoint || DEFAULT_SEGMENT_ENDPOINT].cdn}/projects/${source_write_key}/settings`
-      )
+      const { source_write_key } = settings
+      const AWS_REGION = process.env['AWS_REGION'] || DEFAULT_SEGMENT_ENDPOINT
+      return request(`${SEGMENT_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
     }
   },
   extendRequest({ settings }) {

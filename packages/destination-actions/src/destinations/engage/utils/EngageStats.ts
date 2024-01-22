@@ -26,6 +26,7 @@ export class EngageStats extends OperationStats {
     ctx.sharedContext.tags.push(
       `space_id:${this.actionPerformer.settings.spaceId}`,
       `projectid:${this.actionPerformer.settings.sourceId}`,
+      `computation_id:${this.actionPerformer.payload.segmentComputationId}`,
       `settings_region:${this.actionPerformer.settings.region}`,
       `channel:${this.actionPerformer.getChannelType()}`
     )

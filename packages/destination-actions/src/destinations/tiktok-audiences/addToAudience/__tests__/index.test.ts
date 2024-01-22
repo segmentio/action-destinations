@@ -149,7 +149,9 @@ describe('TiktokAudiences.addToAudience', () => {
       }
     })
 
-    expect(responses[0].options.body).toMatchInlineSnapshot()
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"advertiser_ids\\":[\\"123\\"],\\"action\\":\\"add\\",\\"id_schema\\":[\\"PHONE_SHA256\\"],\\"batch_data\\":[[{\\"id\\":\\"c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646\\",\\"audience_ids\\":[\\"12345\\"]}]]}"`
+    )
   })
 
   it('should fail if an audience id is invalid', async () => {

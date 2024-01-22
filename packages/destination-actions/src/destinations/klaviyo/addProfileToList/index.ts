@@ -2,7 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { createProfile, addProfileToList, createImportJobPayload, sendImportJobRequest } from '../functions'
-import { email, external_id, list_id, enable_batching } from '../properties'
+import { email, external_id, list_id, enable_batching, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Profile To List',
@@ -12,7 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
     email: { ...email },
     list_id: { ...list_id },
     external_id: { ...external_id },
-    enable_batching: { ...enable_batching }
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size }
   },
   perform: async (request, { payload }) => {
     const { email, list_id, external_id } = payload

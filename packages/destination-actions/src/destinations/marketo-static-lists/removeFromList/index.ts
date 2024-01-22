@@ -15,11 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: { ...batch_size },
     event_name: { ...event_name }
   },
-  perform: async (request, { settings, payload }) => {
-    return removeFromList(request, settings, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('removeFromAudience', 1, statsContext?.tags)
+    return removeFromList(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return removeFromList(request, settings, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('removeFromAudience.batch', 1, statsContext?.tags)
+    return removeFromList(request, settings, payload, statsContext)
   }
 }
 

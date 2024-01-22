@@ -123,7 +123,15 @@ export interface Payload {
      * The response type of the request. Currently only supporting JSON.
      */
     responseType: string
+    /**
+     * Whether the message should be retried (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead
+     */
+    shouldRetryOnRetryableError?: boolean
   }[]
+  /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
   /**
    * An array of user profile identity information.
    */

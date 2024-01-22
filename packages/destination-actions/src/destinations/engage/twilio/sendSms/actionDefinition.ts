@@ -78,6 +78,15 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
