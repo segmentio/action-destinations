@@ -299,7 +299,7 @@ const action: ActionDefinition<Settings, Payload> = {
             user: {
               ttclid: payload.ttclid ? payload.ttclid : urlTtclid ? urlTtclid : undefined,
               external_id: userIds,
-              phone_number: phone_numbers,
+              phone: phone_numbers,
               email: emails,
               lead_id: payload.lead_id ? payload.lead_id : undefined,
               ttp: payload.ttp ? payload.ttp : undefined,
