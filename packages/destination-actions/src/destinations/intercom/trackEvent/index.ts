@@ -81,13 +81,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, statsContext }) => {
     payload.created_at = convertValidTimestamp(payload.created_at)
     delete payload.metadata?.email
 
     // If only an email is passed, then this might be a lead - so retrieve the contact
     if (payload.email && !payload.user_id && !payload.id) {
-      const contact = await getUniqueIntercomContact(request, payload)
+      const contact = await getUniqueIntercomContact(request, payload, statsContext)
       if (contact) {
         payload.id = contact.id
       } else {
@@ -96,6 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     possiblyPopulatePrice(payload)
+    statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:track-events`])
 
     return request('https://api.intercom.io/events', {
       method: 'POST',
