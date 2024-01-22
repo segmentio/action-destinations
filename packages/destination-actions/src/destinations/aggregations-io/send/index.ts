@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request('https://ingest.aggregations.io/' + settings.ingest_id, {
       method: 'POST',
       json: [payload.data]
-    })
+    })    
   },
   performBatch: (request, { settings, payload }) => {
     return request('https://ingest.aggregations.io/' + settings.ingest_id, {

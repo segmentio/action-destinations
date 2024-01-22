@@ -26,14 +26,13 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       return request(
-        `https://app.aggregations.io/api/v1/organization/ping-w?ingest_id=${settings.ingest_id}&schema=ARRAY_OF_EVENTS`,
-        {
-          method: 'get',
-          throwHttpErrors: false,
-          headers: {
-            'x-api-token': settings.api_key
+          `https://app.aggregations.io/api/v1/organization/ping-w?ingest_id=${settings.ingest_id}&schema=ARRAY_OF_EVENTS`, {
+            method: 'get',
+            throwHttpErrors: false,
+            headers: {
+              'x-api-token': settings.api_key
+            }
           }
-        }
       )
     }
   },

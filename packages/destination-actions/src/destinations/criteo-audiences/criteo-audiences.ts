@@ -84,11 +84,7 @@ export const patchContactList = async (
   credentials: ClientCredentials
 ): Promise<Response> => {
   if (isNaN(+operation.contactlist_id))
-    throw new IntegrationError(
-      `The Audience Segment ID should be a number (${operation.contactlist_id})`,
-      'Invalid input',
-      400
-    )
+    throw new IntegrationError(`The Audience Segment ID should be a number (${operation.contactlist_id})`, 'Invalid input', 400)
 
   const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/${operation.contactlist_id}/contact-list`
   const headers = await getRequestHeaders(request, credentials)
@@ -109,6 +105,7 @@ export const patchContactList = async (
   })
 }
 
+
 export const getContactListIdByName = async (
   request: RequestClient,
   advertiser_id: string,
@@ -122,8 +119,12 @@ export const getContactListIdByName = async (
   const payload = {
     data: {
       attributes: {
-        audienceSegmentTypes: ['ContactList'],
-        advertiserIds: [advertiser_id]
+        audienceSegmentTypes: [
+          "ContactList"
+        ],
+        advertiserIds: [
+          advertiser_id
+        ]
       }
     }
   }
