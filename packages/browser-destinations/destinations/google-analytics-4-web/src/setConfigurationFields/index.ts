@@ -110,22 +110,22 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       allow_google_signals: settings.allowGoogleSignals
     }
 
-    if (settings.cookieUpdate) {
+    if (settings.cookieUpdate != true) {
       config.cookie_update = settings.cookieUpdate
     }
-    if (settings.cookieDomain) {
+    if (settings.cookieDomain != 'auto') {
       config.cookie_domain = settings.cookieDomain
     }
-    if (settings.cookiePrefix) {
+    if (settings.cookiePrefix != undefined) {
       config.cookie_prefix = settings.cookiePrefix
     }
-    if (settings.cookieExpirationInSeconds) {
+    if (settings.cookieExpirationInSeconds != 63072000) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (settings.cookiePath) {
+    if (!settings.cookiePath?.includes('/')) {
       config.cookie_path = settings.cookiePath
     }
-    if (settings.pageView) {
+    if (settings.pageView != true) {
       config.send_page_view = settings.pageView
     }
 
