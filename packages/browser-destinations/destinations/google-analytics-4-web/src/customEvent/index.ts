@@ -44,9 +44,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
 
     gtag('event', event_name, {
-      ...payload.params,
       user_id: payload.user_id ?? undefined,
-      user_properties: payload.user_properties
+      user_properties: payload.user_properties,
+      ...payload.params
     })
   }
 }
