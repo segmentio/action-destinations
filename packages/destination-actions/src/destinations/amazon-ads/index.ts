@@ -40,7 +40,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         const error = e as AmazonTestAuthenticationError
         if (error.message === 'Unauthorized') {
           throw new Error(
-            'Invalid LinkedIn Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
+            'Invalid Amazon Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
           )
         }
         throw e
