@@ -1,9 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, any> = {
   title: 'Forward to Courier',
   description: 'Forward track, group and identify events to Courier',
   fields: {},
@@ -14,15 +12,16 @@ const action: ActionDefinition<Settings, Payload> = {
       Authorization: `Bearer ${settings.apiKey}`,
       'Content-Type': 'application/json'
     }
-    if (!['track', 'identify', 'group'].includes(payload['type'])) {
-      throw new PayloadValidationError(`Invalid event type: ${payload['type']}`)
-    } else {
-      return request(`${domain}/inbound/segment`, {
-        method: 'POST',
-        headers,
-        json: payload
-      })
+
+    if (!['track', 'identify', 'group'].includes(payload.type)) {
+      throw new PayloadValidationError(`Invalid event type: ${payload.type}`)
     }
+
+    return request(`${domain}/inbound/segment`, {
+      method: 'POST',
+      headers,
+      json: payload
+    })
   }
 }
 
