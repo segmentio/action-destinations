@@ -85,27 +85,34 @@ export async function getCustomVariables(
 export async function getConversionActionId(
   customerId: string | undefined,
   auth: any,
-  request: RequestClient
+  request: RequestClient,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
-    method: 'post',
-    headers: {
-      authorization: `Bearer ${auth?.accessToken}`,
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json: {
-      query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+  return request(
+    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${customerId}/ `,
+    {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`,
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+      }
     }
-  })
+  )
 }
 
 export async function getConversionActionDynamicData(
   request: RequestClient,
   settings: any,
-  auth: any
+  auth: any,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<DynamicFieldResponse> {
   try {
-    const results = await getConversionActionId(settings.customerId, auth, request)
+    const results = await getConversionActionId(settings.customerId, auth, request, features, statsContext)
 
     const res: Array<ConversionActionResponse> = JSON.parse(results.content)
     const choices = res[0].results.map((input: ConversionActionId) => {

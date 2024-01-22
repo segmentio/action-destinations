@@ -74,8 +74,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
-    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
-      return getConversionActionDynamicData(request, settings, auth)
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
@@ -95,7 +98,11 @@ const action: ActionDefinition<Settings, Payload> = {
       callStartDateTime: convertTimestamp(payload.call_timestamp),
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       conversionValue: payload.value,
-      currencyCode: payload.currency
+      currencyCode: payload.currency,
+      consent: {
+        adUserData: 'GRANTED',
+        adPersonalization: 'GRANTED'
+      }
     }
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
