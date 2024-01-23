@@ -84,7 +84,11 @@ export const patchContactList = async (
   credentials: ClientCredentials
 ): Promise<Response> => {
   if (isNaN(+operation.contactlist_id))
-    throw new IntegrationError(`The Audience Segment ID should be a number (${operation.contactlist_id})`, 'Invalid input', 400)
+    throw new IntegrationError(
+      `The Audience Segment ID should be a number (${operation.contactlist_id})`,
+      'Invalid input',
+      400
+    )
 
   const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/${operation.contactlist_id}/contact-list`
   const headers = await getRequestHeaders(request, credentials)
@@ -105,7 +109,6 @@ export const patchContactList = async (
   })
 }
 
-
 export const getContactListIdByName = async (
   request: RequestClient,
   advertiser_id: string,
@@ -119,12 +122,8 @@ export const getContactListIdByName = async (
   const payload = {
     data: {
       attributes: {
-        audienceSegmentTypes: [
-          "ContactList"
-        ],
-        advertiserIds: [
-          advertiser_id
-        ]
+        audienceSegmentTypes: ['ContactList'],
+        advertiserIds: [advertiser_id]
       }
     }
   }
@@ -237,6 +236,30 @@ export const createContactList = async (
   if (response.status !== 200) {
     const err = body.errors && body.errors[0] ? body.errors[0] : undefined
     throw new CriteoAPIError(`Error while creating the Contact List`, 'Criteo contact list creation error', 400, err)
+  }
+
+  if (!Array.isArray(body.data)) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] not returned`,
+      'Criteo contact list creation error',
+      400
+    )
+  }
+
+  if (body.data.length === 0) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] is empty`,
+      'Criteo contact list creation error',
+      400
+    )
+  }
+
+  if (body.data[0].id === undefined) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[0].id is undefined`,
+      'Criteo contact list creation error',
+      400
+    )
   }
 
   return body.data[0].id
