@@ -1,14 +1,14 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import { Payload as reportOfflineEventPayload } from './reportOfflineEvent/generated-types'
-import { Payload as trackNonPaymentOfflineConversionPayload } from './trackNonPaymentOfflineConversion/generated-types'
-import { Payload as trackPaymentOfflineConversionPayload } from './trackPaymentOfflineConversion/generated-types'
+import { Payload as ReportOfflineEventPayload } from './reportOfflineEvent/generated-types'
+import { Payload as TrackNonPaymentOfflineConversionPayload } from './trackNonPaymentOfflineConversion/generated-types'
+import { Payload as TrackPaymentOfflineConversionPayload } from './trackPaymentOfflineConversion/generated-types'
 import { formatEmails, formatPhones, formatUserIds } from './formatter'
 
 type OfflineEventPayload =
-  | reportOfflineEventPayload
-  | trackNonPaymentOfflineConversionPayload
-  | trackPaymentOfflineConversionPayload
+  | ReportOfflineEventPayload
+  | TrackNonPaymentOfflineConversionPayload
+  | TrackPaymentOfflineConversionPayload
 
 export function performOfflineEvent(request: RequestClient, settings: Settings, payload: OfflineEventPayload) {
   const phone_numbers = formatPhones(payload.phone_numbers)
