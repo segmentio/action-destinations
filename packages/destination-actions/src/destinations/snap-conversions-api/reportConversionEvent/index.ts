@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -27,15 +27,12 @@ import {
   search_string,
   page_url,
   sign_up_method,
-  formatPayload,
-  CURRENCY_ISO_4217_CODES,
-  conversionType,
   device_model,
   os_version,
   click_id
 } from '../snap-capi-properties'
-
-const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
+import { performSnapCAPIv2 } from './snap-capi-v2'
+import { performSnapCAPIv3 } from './snap-capi-v3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -71,40 +68,42 @@ const action: ActionDefinition<Settings, Payload> = {
     device_model: device_model,
     click_id: click_id
   },
-  perform: (request, data) => {
-    if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
-      throw new IntegrationError(
-        `${data.payload.currency} is not a valid currency code.`,
-        'Misconfigured required field',
-        400
-      )
+  perform: async (request, data) => {
+    const testCAPIv3 = false
+    const useCAPIv3 = false
+
+    // Intentionally check the test flag first and prefer the test branch
+    // this is to prevent a bad config where both testCAPIv3 and useCAPIv3
+    // are both set to true.
+    if (testCAPIv3) {
+      const [v2result, _v3result] = await Promise.all([
+        performSnapCAPIv2(request, data),
+
+        // Wrap this in a try/catch with logging using stats logger (statsContext.statClient)
+        (async () => {
+          try {
+            return await performSnapCAPIv3(request, data)
+          } catch (e) {
+            // In test mode, we swallow any errors thrown by the v3 connector.
+            // This is to prevent these errors from causing the segment client from
+            // retrying requests caused by v3 errors, when v2 is the request of
+            // record. Instead log the errors so that we can identify issues and resolve them.
+
+            // FIXME: Should we add sampling here?
+            data.logger?.info(String(e))
+          }
+        })()
+      ])
+
+      // In the test state, we send event to both the v2 and v3 endpoints
+      // but only return the result of the v2 endpoint since v3's result
+      // is only used by snap to verify.
+      return v2result
+    } else if (useCAPIv3) {
+      return performSnapCAPIv3(request, data)
+    } else {
+      return performSnapCAPIv2(request, data)
     }
-
-    if (
-      !data.payload.email &&
-      !data.payload.phone_number &&
-      !data.payload.mobile_ad_id &&
-      (!data.payload.ip_address || !data.payload.user_agent)
-    ) {
-      throw new IntegrationError(
-        `Payload must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`,
-        'Misconfigured required field',
-        400
-      )
-    }
-
-    const payload: Object = formatPayload(data.payload)
-    const settings: Settings = conversionType(data.settings, data.payload.event_conversion_type)
-
-    //Create Conversion Event Request
-    return request(CONVERSION_EVENT_URL, {
-      method: 'post',
-      json: {
-        integration: 'segment',
-        ...payload,
-        ...settings
-      }
-    })
   }
 }
 
