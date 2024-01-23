@@ -39,5 +39,4 @@ describe('AggregationsIo.send', () => {
     expect(new URL(response[0].url).pathname).toBe('/' + testIngestId)
     expect(response[0].status).toBe(200)
   })
-
 })

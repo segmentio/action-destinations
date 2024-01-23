@@ -10,7 +10,6 @@ import {
   item_list_name,
   item_list_id
 } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Select Item',
@@ -29,13 +28,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
     gtag('event', 'select_item', {
       item_list_id: payload.item_list_id,
       item_list_name: payload.item_list_name,
       items: payload.items,
       send_to: settings.measurementID,
+      user_id: payload.user_id ?? undefined,
+      user_properties: payload.user_properties,
       ...payload.params
     })
   }

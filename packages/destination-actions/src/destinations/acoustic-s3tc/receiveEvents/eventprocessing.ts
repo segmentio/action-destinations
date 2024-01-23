@@ -6,12 +6,7 @@ import get from 'lodash/get'
 export function parseSections(section: { [key: string]: string }, nestDepth: number) {
   const parseResults: { [key: string]: string } = {}
 
-  if (nestDepth > 10)
-    throw new IntegrationError(
-      'Event data exceeds nesting depth. Use Mapping to flatten the data to no more than 3 levels deep',
-      'NESTING_DEPTH_EXCEEDED',
-      400
-    )
+  if (nestDepth > 10) throw new IntegrationError('Event data exceeds nesting depth.', 'NESTING_DEPTH_EXCEEDED', 400)
 
   try {
     if (section === null) section = { null: '' }
@@ -31,11 +26,19 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
       }
     }
   } catch (e) {
-    throw new IntegrationError(
-      `Unexpected Exception while parsing Event payload.\n ${e}`,
-      'UNEXPECTED_EVENT_PARSING_EXCEPTION',
-      400
-    )
+    const ie = e as IntegrationError
+    if (ie.code === 'NESTING_DEPTH_EXCEEDED')
+      throw new IntegrationError(
+        'Event data exceeds nesting depth. Use Mapping to flatten data structures to no more than 3 levels deep',
+        'NESTING_DEPTH_EXCEEDED',
+        400
+      )
+    else
+      throw new IntegrationError(
+        `Unexpected Exception while parsing Event payload.\n ${e}`,
+        'UNEXPECTED_EVENT_PARSING_EXCEPTION',
+        400
+      )
   }
   return parseResults
 }

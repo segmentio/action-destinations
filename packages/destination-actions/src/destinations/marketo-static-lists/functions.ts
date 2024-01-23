@@ -116,7 +116,7 @@ function extractLeadIds(leads: MarketoLeads[]) {
 }
 
 function parseErrorResponse(response: MarketoResponse) {
-  if (response.errors[0].code === '601') {
+  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
     throw new IntegrationError(response.errors[0].message, 'INVALID_OAUTH_TOKEN', 401)
   }
   if (response.errors[0].code === '1019') {
