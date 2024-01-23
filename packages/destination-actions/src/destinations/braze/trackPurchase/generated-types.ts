@@ -13,6 +13,10 @@ export interface Payload {
     alias_label?: string
   }
   /**
+   * The user email
+   */
+  email?: string
+  /**
    * The unique user identifier
    */
   braze_id?: string | null
