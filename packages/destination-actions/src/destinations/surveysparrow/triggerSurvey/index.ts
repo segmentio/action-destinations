@@ -125,7 +125,6 @@ const action: ActionDefinition<Settings, Payload> = {
     survey_id: getSurveys
   },
   perform: (request, data) => {
-    const contacts = [];
     switch (data.payload.share_type) {
       case 'Email': {
         if (!data.payload.email) {
@@ -142,22 +141,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       default: throw new PayloadValidationError(`Wrong Share Type`);
     }
-    if (data.payload.email) {
-      contacts.push({
-        email: data.payload.email
-      });
-    }
-    if (data.payload.mobile) {
-      contacts.push({
-        mobile: data.payload.mobile
-      });
-    }
     let payload = {
       survey_id: data.payload.survey_id,
-      contacts
-    }
-    if (data.payload.variables) {
-      payload = { ...payload, ...data.payload.variables }
+      contacts: [{
+        email: data.payload.email,
+        mobile: data.payload.mobile
+      }],
+      variables: data.payload.variables
     }
     return request(`https://api.surveysparrow.com/v3/channels/${data.payload.id}`, {
       method: 'put',

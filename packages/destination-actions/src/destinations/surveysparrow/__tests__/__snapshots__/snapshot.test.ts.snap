@@ -16,12 +16,12 @@ Object {
   "contacts": Array [
     Object {
       "email": "anhom@aswoj.mg",
-    },
-    Object {
       "mobile": "Kx&gS1q$N(lVM",
     },
   ],
   "survey_id": 10571614257152,
-  "testType": "Kx&gS1q$N(lVM",
+  "variables": Object {
+    "testType": "Kx&gS1q$N(lVM",
+  },
 }
 `;

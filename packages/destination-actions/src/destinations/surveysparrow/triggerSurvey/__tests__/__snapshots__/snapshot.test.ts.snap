@@ -5,12 +5,12 @@ Object {
   "contacts": Array [
     Object {
       "email": "budawi@zosci.re",
-    },
-    Object {
       "mobile": "m@7$j@#YSxk",
     },
   ],
   "survey_id": -12350633919119.36,
-  "testType": "m@7$j@#YSxk",
+  "variables": Object {
+    "testType": "m@7$j@#YSxk",
+  },
 }
 `;
