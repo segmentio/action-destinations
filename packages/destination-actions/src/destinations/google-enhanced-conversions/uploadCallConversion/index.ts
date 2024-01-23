@@ -98,11 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       callStartDateTime: convertTimestamp(payload.call_timestamp),
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       conversionValue: payload.value,
-      currencyCode: payload.currency,
-      consent: {
-        adUserData: 'GRANTED',
-        adPersonalization: 'GRANTED'
-      }
+      currencyCode: payload.currency
     }
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account

@@ -93,7 +93,7 @@ export async function getConversionActionId(
     `https://googleads.googleapis.com/${getApiVersion(
       features,
       statsContext
-    )}/customers/${customerId}/googleAds:searchStream `,
+    )}/customers/${customerId}/googleAds:searchStream`,
     {
       method: 'post',
       headers: {
