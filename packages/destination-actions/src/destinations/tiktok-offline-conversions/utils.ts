@@ -16,7 +16,7 @@ export function performOfflineEvent(request: RequestClient, settings: Settings, 
   const userIds = formatUserIds(payload.external_ids)
 
   if (phone_numbers.length < 1 && emails.length < 1 && userIds.length < 1)
-    throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number')
+    throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number and or a userId')
 
   const urlTtclid = payload.url
     ? (() => {
