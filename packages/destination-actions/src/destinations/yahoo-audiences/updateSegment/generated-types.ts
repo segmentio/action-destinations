@@ -36,11 +36,24 @@ export interface Payload {
    */
   device_type?: string
   /**
-   * Set to true to indicate that audience data is subject to GDPR regulations
+   * GDPR Settings for the audience
    */
-  gdpr_flag: boolean
+  gdpr_settings?: {
+    /**
+     * Set to true to indicate that audience data is subject to GDPR regulations
+     */
+    gdpr_flag: boolean
+    /**
+     * Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"
+     */
+    gdpr_euconsent?: string
+  }
   /**
-   * Required if GDPR flag is set to "true". Using IAB Purpose bit descriptions specify the following user consent attributes: "Storage and Access of Information", "Personalization"
+   * If true, batch requests to Yahoo. Yahoo accepts batches of up to 1000 events. If false, send each event individually.
    */
-  gdpr_euconsent?: string
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

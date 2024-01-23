@@ -6,6 +6,7 @@ import { API_URL } from '../config'
 import { PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
 import { addProfileToList, createImportJobPayload, getListIdDynamicData, sendImportJobRequest } from '../functions'
+import { batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -132,7 +133,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
       dynamic: true
-    }
+    },
+    batch_size: { ...batch_size }
   },
   dynamicFields: {
     list_id: async (request): Promise<DynamicFieldResponse> => {
@@ -140,7 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, external_id, phone_number, list_id, enable_batching, ...otherAttributes } = payload
+    const { email, external_id, phone_number, list_id, enable_batching, batch_size, ...otherAttributes } = payload
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')

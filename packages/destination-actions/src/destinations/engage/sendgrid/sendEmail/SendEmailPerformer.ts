@@ -90,7 +90,10 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     },
     contentType: string
   ) {
-    const parsedContent = await Liquid.parseAndRender(content, liquidData)
+    const parsedContent =
+      content == null || content === '<nil>' || content.trim() === ''
+        ? content
+        : await Liquid.parseAndRender(content, liquidData)
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }

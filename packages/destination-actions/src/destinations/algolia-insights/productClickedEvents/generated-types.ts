@@ -34,9 +34,9 @@ export interface Payload {
   /**
    * The name of the event to be send to Algolia. Defaults to 'Product Clicked'
    */
-  eventName: string
+  eventName?: string
   /**
    * The type of event to send to Algolia. Defaults to 'click'
    */
-  eventType: string
+  eventType?: string
 }

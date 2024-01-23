@@ -33,3 +33,12 @@ export const enable_batching: InputField = {
   description: 'When enabled, the action will use the klaviyo batch API.',
   default: true
 }
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+  type: 'number',
+  required: false,
+  unsafe_hidden: true,
+  default: 10000
+}

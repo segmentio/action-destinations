@@ -6,7 +6,7 @@ Destination definitions and their actions
 
 MIT License
 
-Copyright (c) 2023 Segment
+Copyright (c) 2024 Segment
 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

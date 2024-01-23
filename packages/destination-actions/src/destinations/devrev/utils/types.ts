@@ -119,6 +119,14 @@ export interface CreateAccountBody {
   external_refs: string[]
 }
 
+export interface CreateRevUserBody {
+  email: string
+  external_ref: string
+  display_name?: string
+  tags?: { id: string }[]
+  org_id?: string
+}
+
 export interface TraceEvent {
   event_id: string
   event_time: string

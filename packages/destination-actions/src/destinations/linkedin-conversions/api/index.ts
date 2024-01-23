@@ -3,7 +3,6 @@ import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
   GetAdAccountsAPIResponse,
-  Accounts,
   AccountsErrorInfo,
   GetConversionListAPIResponse,
   Conversions,
@@ -96,22 +95,17 @@ export class LinkedInConversions {
 
   getAdAccounts = async (): Promise<DynamicFieldResponse> => {
     try {
-      const response: Array<Accounts> = []
-      const result = await this.request<GetAdAccountsAPIResponse>(`${BASE_URL}/adAccountUsers`, {
+      const allAdAccountsResponse = await this.request<GetAdAccountsAPIResponse>(`${BASE_URL}/adAccounts`, {
         method: 'GET',
         searchParams: {
-          q: 'authenticatedUser'
+          q: 'search'
         }
       })
 
-      result.data.elements.forEach((item) => {
-        response.push(item)
-      })
-
-      const choices = response?.map((item) => {
+      const choices = allAdAccountsResponse.data.elements.map((item) => {
         return {
-          label: item.user,
-          value: item.account
+          label: item.name,
+          value: `urn:li:sponsoredAccount:${item.id}`
         }
       })
 
@@ -194,7 +188,7 @@ export class LinkedInConversions {
     try {
       const response: Array<Campaigns> = []
       const result = await this.request<GetCampaignsListAPIResponse>(
-        `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE)))`,
+        `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE,DRAFT)))`,
         {
           method: 'GET'
         }

@@ -65,7 +65,7 @@ describe('Yahoo Audiences', () => {
     describe('Success cases', () => {
       it('trivial', () => {
         // Given
-        const payloads: Payload[] = [{ gdpr_flag: false } as Payload]
+        const payloads: Payload[] = [{} as Payload]
 
         // When
         const result = gen_update_segment_payload(payloads)
