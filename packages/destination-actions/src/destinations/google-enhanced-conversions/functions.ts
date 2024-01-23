@@ -115,6 +115,8 @@ export async function getConversionActionDynamicData(
   statsContext: StatsContext | undefined
 ): Promise<DynamicFieldResponse> {
   try {
+    // remove '-' from CustomerId
+    settings.customerId = settings.customerId.replace(/-/g, '')
     const results = await getConversionActionId(settings.customerId, auth, request, features, statsContext)
 
     const res: Array<ConversionActionResponse> = JSON.parse(results.content)
