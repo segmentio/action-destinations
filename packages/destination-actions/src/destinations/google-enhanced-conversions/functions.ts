@@ -90,7 +90,10 @@ export async function getConversionActionId(
   statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
   return request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${customerId}/ `,
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}/googleAds:searchStream `,
     {
       method: 'post',
       headers: {
