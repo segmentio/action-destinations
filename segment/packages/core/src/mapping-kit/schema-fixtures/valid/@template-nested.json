@@ -1,0 +1,7 @@
+{
+  "mapping": {
+    "@template": {
+      "@path": "$.my.template"
+    }
+  }
+}

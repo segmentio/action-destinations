@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for clevertap destination: userDelete action - all fields 1`] = `
+Object {
+  "identity": "7opY#]sZU",
+}
+`;
+
+exports[`Testing snapshot for clevertap destination: userDelete action - required fields 1`] = `
+Object {
+  "identity": "7opY#]sZU",
+}
+`;
+
+exports[`Testing snapshot for clevertap destination: userUpload action - all fields 1`] = `
+Object {
+  "d": Array [
+    Object {
+      "identity": "fv8YT)gSPkb9T7",
+      "profileData": Object {
+        "testType": "fv8YT)gSPkb9T7",
+      },
+      "source": "Segment",
+      "ts": "fv8YT)gSPkb9T7",
+      "type": "profile",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for clevertap destination: userUpload action - required fields 1`] = `
+Object {
+  "d": Array [
+    Object {
+      "identity": "fv8YT)gSPkb9T7",
+      "source": "Segment",
+      "type": "profile",
+    },
+  ],
+}
+`;

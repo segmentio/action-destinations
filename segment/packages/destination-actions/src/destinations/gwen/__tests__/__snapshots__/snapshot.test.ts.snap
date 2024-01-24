@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gwen destination: identifyUser action - all fields 1`] = `
+Object {
+  "operationName": "UserSession",
+  "query": "mutation UserSession($userId: UUID!, $session: UserSessionInput) {
+          userSession(userId: $userId, data: $session) {
+            timestamp
+          }
+        }",
+  "variables": Object {
+    "session": Object {
+      "ip": "*6^p&3X",
+      "userAgent": "*6^p&3X",
+    },
+    "userId": "c079d975-3cc4-58c4-85ab-1f5974b54aa0",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gwen destination: identifyUser action - required fields 1`] = `
+Object {
+  "operationName": "UserSession",
+  "query": "mutation UserSession($userId: UUID!, $session: UserSessionInput) {
+          userSession(userId: $userId, data: $session) {
+            timestamp
+          }
+        }",
+  "variables": Object {
+    "session": Object {},
+    "userId": "c079d975-3cc4-58c4-85ab-1f5974b54aa0",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gwen destination: sendEvent action - all fields 1`] = `
+Object {
+  "operationName": "SendEvent",
+  "query": "mutation SendEvent($userId: UUID!, $type: String!, $data: JSONObject) {
+ event(userId: $userId, type: $type, data: $data)
+}",
+  "variables": Object {
+    "data": Object {
+      "testType": "EWjG!^JdXSHmwRNuelph",
+    },
+    "type": "EWjG!^JdXSHmwRNuelph",
+    "userId": "015b2892-a542-5ce4-8ebc-db8e2f622781",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gwen destination: sendEvent action - required fields 1`] = `
+Object {
+  "operationName": "SendEvent",
+  "query": "mutation SendEvent($userId: UUID!, $type: String!, $data: JSONObject) {
+ event(userId: $userId, type: $type, data: $data)
+}",
+  "variables": Object {
+    "data": Object {},
+    "type": "EWjG!^JdXSHmwRNuelph",
+    "userId": "015b2892-a542-5ce4-8ebc-db8e2f622781",
+  },
+}
+`;

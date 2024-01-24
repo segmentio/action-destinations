@@ -1,0 +1,15 @@
+{
+  "mapping": {
+    "@arrayPath": [
+      "$.products",
+      {
+        "cash_money": {
+          "@path": "$.price"
+        },
+        "product_id": {
+          "@path": "$.productId"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Voyage's trackOrderPlaced destination action: all fields 1`] = `
+Object {
+  "eventMeta": Object {
+    "CustomerId": "2[K9H6FjJTLriL4e3h",
+    "DateCreated": "2021-02-01T00:00:00.000Z",
+    "Email": "uluakpo@dicoc.ai",
+    "FirstName": "2[K9H6FjJTLriL4e3h",
+    "HomepageUrl": "http://uluakpo.ky/po",
+    "LastUpdated": "2021-02-01T00:00:00.000Z",
+    "LinkReference": "2[K9H6FjJTLriL4e3h",
+    "OrderNumber": "2[K9H6FjJTLriL4e3h",
+    "OrderTotal": 63010121889873.92,
+    "Phone": "2[K9H6FjJTLriL4e3h",
+    "ProductImageUrl": "http://uluakpo.ky/po",
+    "SourceId": "2[K9H6FjJTLriL4e3h",
+    "TokenId": "2[K9H6FjJTLriL4e3h",
+    "TotalSpent": 63010121889873.92,
+    "Url": "http://uluakpo.ky/po",
+    "Zip": "2[K9H6FjJTLriL4e3h",
+    "lastName": "2[K9H6FjJTLriL4e3h",
+  },
+  "eventTypeId": 7310,
+  "phone": "2[K9H6FjJTLriL4e3h",
+}
+`;
+
+exports[`Testing snapshot for Voyage's trackOrderPlaced destination action: required fields 1`] = `
+Object {
+  "eventMeta": Object {
+    "CustomerId": "2[K9H6FjJTLriL4e3h",
+    "DateCreated": "2021-02-01T00:00:00.000Z",
+    "OrderTotal": 63010121889873.92,
+    "Phone": "2[K9H6FjJTLriL4e3h",
+    "TotalSpent": 63010121889873.92,
+    "Url": "http://uluakpo.ky/po",
+    "Zip": "2[K9H6FjJTLriL4e3h",
+  },
+  "eventTypeId": 7310,
+  "phone": "2[K9H6FjJTLriL4e3h",
+}
+`;

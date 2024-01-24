@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-criteo destination: exampleAction action - all fields 1`] = `
+Object {
+  "greeting": ")7zwy1TWgrhp*",
+}
+`;
+
+exports[`Testing snapshot for actions-criteo destination: exampleAction action - required fields 1`] = `
+Object {
+  "greeting": ")7zwy1TWgrhp*",
+}
+`;

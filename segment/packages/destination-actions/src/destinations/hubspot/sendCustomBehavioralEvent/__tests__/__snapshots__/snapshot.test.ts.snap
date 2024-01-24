@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: all fields 1`] = `[PayloadValidationError: EventName should begin with pe9B#[dv&Iy_]`;
+
+exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: required fields 1`] = `[PayloadValidationError: EventName should begin with pe9B#[dv&Iy_]`;

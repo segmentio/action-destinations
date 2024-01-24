@@ -1,0 +1,14 @@
+node_modules
+dist
+.DS_Store
+*.log
+*.tsbuildinfo*
+.eslintcache
+package-lock.json
+.env
+# JetBrains byproduct
+.idea
+coverage
+
+# playwright
+playwright-report

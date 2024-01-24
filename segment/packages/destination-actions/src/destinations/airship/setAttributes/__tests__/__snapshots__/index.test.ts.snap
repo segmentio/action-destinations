@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Airship's setAttributes destination action: required fields 1`] = `
+Object {
+  "attributes": Array [],
+  "audience": Object {
+    "named_user_id": "Tw4VW",
+  },
+}
+`;

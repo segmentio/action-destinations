@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for HubSpot's upsertCompany destination action: all fields 1`] = `
+Object {
+  "properties": Object {
+    "address": "F9hZOtvgHY(T6dF5vS7",
+    "city": "F9hZOtvgHY(T6dF5vS7",
+    "description": "F9hZOtvgHY(T6dF5vS7",
+    "domain": "F9hZOtvgHY(T6dF5vS7",
+    "industry": "F9hZOtvgHY(T6dF5vS7",
+    "lifecyclestage": "f9hzotvghy(t6df5vs7",
+    "name": "F9hZOtvgHY(T6dF5vS7",
+    "numberofemployees": 7464592431120384,
+    "phone": "F9hZOtvgHY(T6dF5vS7",
+    "segment_group_id": "F9hZOtvgHY(T6dF5vS7",
+    "state": "F9hZOtvgHY(T6dF5vS7",
+    "testType": "F9hZOtvgHY(T6dF5vS7",
+    "zip": "F9hZOtvgHY(T6dF5vS7",
+  },
+}
+`;
+
+exports[`Testing snapshot for HubSpot's upsertCompany destination action: required fields 1`] = `
+Object {
+  "properties": Object {
+    "segment_group_id": "F9hZOtvgHY(T6dF5vS7",
+  },
+}
+`;

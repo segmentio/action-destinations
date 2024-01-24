@@ -1,0 +1,90 @@
+{
+  "name": "@segment/browser-destinations",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Action based browser destinations",
+  "author": "Netto Farah",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations"
+  },
+  "scripts": {
+    "analyze": "NODE_ENV=production webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
+    "build-web": "yarn clean && bash scripts/build-web.sh",
+    "build-web-stage": "bash scripts/build-web-stage.sh",
+    "deploy-prod": "yarn build-web && aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-production/next-integrations/actions --grants read=id=$npm_config_prod_cdn_oai,id=$npm_config_prod_custom_domain_oai",
+    "deploy-stage": "yarn build-web-stage && aws-okta exec plat-write -- aws s3 sync ./dist/web/ s3://segment-ajs-next-destinations-stage/next-integrations/actions --grants read=id=$npm_config_stage_cdn_oai,id=$npm_config_stage_custom_domain_oai",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\"",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "tslib": "^2.3.1",
+    "vm-browserify": "^1.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.16",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.13.8",
+    "@babel/preset-env": "^7.13.10",
+    "@babel/preset-typescript": "^7.13.0",
+    "@size-limit/preset-big-lib": "^11.0.1",
+    "@types/gtag.js": "^0.0.13",
+    "@types/jest": "^27.0.0",
+    "compression-webpack-plugin": "^7.1.2",
+    "concurrently": "^6.3.0",
+    "globby": "^11.0.2",
+    "jest": "^27.3.1",
+    "serve": "^12.0.1",
+    "size-limit": "^11.0.1",
+    "terser-webpack-plugin": "^5.1.1",
+    "ts-loader": "^9.2.6",
+    "webpack": "^5.82.0",
+    "webpack-bundle-analyzer": "^4.4.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0",
+    "webpack-manifest-plugin": "^5.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "runScripts": "dangerously",
+      "resources": "usable",
+      "url": "https://segment.com"
+    },
+    "rootDir": "./",
+    "moduleNameMapper": {
+      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+      "@segment/actions-core": "<rootDir>/../core/src",
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@segment/actions-shared": "<rootDir>/../actions-shared/src",
+      "@segment/browser-destination-runtime/(.*)": "<rootDir>/../browser-destination-runtime/src/$1"
+    },
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
+    "transform": {
+      "^.+\\.[t|j]sx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(@segment/analytics-next|@braze/web-sdk/)).+\\.js$"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup-after-env.ts"
+    ],
+    "forceExit": true
+  },
+  "size-limit": [
+    {
+      "path": "dist/web/*/*.js",
+      "limit": "150 KB"
+    }
+  ]
+}

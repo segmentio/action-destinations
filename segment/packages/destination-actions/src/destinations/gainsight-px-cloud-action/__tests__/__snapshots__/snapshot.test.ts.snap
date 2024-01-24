@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for gainsight-px-cloud-action destination: sendEvent action - all fields 1`] = `
+Object {
+  "testType": "*1ttKhHV^5&Vo8)J",
+}
+`;
+
+exports[`Testing snapshot for gainsight-px-cloud-action destination: sendEvent action - required fields 1`] = `""`;
+
+exports[`Testing snapshot for gainsight-px-cloud-action destination: sendEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Basic KjF0dEtoSFZeNSZWbzgpSjo=",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

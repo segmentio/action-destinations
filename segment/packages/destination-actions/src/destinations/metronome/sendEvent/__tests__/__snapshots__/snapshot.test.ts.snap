@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Metronome's sendEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "customer_id": "RJt2@i$vhb)WXT",
+    "event_type": "RJt2@i$vhb)WXT",
+    "properties": Object {
+      "testType": "RJt2@i$vhb)WXT",
+    },
+    "timestamp": "2021-02-01T00:00:00.000Z",
+    "transaction_id": "RJt2@i$vhb)WXT",
+  },
+]
+`;
+
+exports[`Testing snapshot for Metronome's sendEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "customer_id": "RJt2@i$vhb)WXT",
+    "event_type": "RJt2@i$vhb)WXT",
+    "properties": Object {
+      "testType": "RJt2@i$vhb)WXT",
+    },
+    "timestamp": "2021-02-01T00:00:00.000Z",
+    "transaction_id": "RJt2@i$vhb)WXT",
+  },
+]
+`;

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Cordial's mergeContacts destination action: all fields 1`] = `
+Object {
+  "anonymousId": "H2XHqn[RN5(Rq",
+  "previousId": "H2XHqn[RN5(Rq",
+  "segmentId": "H2XHqn[RN5(Rq",
+  "segmentIdKey": "H2XHqn[RN5(Rq",
+}
+`;
+
+exports[`Testing snapshot for Cordial's mergeContacts destination action: required fields 1`] = `
+Object {
+  "previousId": "H2XHqn[RN5(Rq",
+  "segmentIdKey": "H2XHqn[RN5(Rq",
+}
+`;

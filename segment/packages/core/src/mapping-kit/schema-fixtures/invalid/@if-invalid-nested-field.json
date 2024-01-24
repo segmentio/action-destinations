@@ -1,0 +1,11 @@
+{
+  "mapping": {
+    "@if": {
+      "exists": true,
+      "then": {
+        "@oops": {}
+      }
+    }
+  },
+  "expectError": "/@if/then has an invalid directive: @oops."
+}

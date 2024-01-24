@@ -1,0 +1,6 @@
+{
+  "mapping": {
+    "@template": 123
+  },
+  "expectError": "/@template should be a string or a mapping directive but it is a number."
+}

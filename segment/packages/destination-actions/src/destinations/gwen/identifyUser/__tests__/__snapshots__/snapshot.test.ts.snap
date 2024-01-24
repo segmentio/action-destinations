@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Gwen's identifyUser destination action: all fields 1`] = `
+Object {
+  "operationName": "UserSession",
+  "query": "mutation UserSession($userId: UUID!, $session: UserSessionInput) {
+          userSession(userId: $userId, data: $session) {
+            timestamp
+          }
+        }",
+  "variables": Object {
+    "session": Object {
+      "ip": "(]#(3SU!l74R3T[DbfD",
+      "userAgent": "(]#(3SU!l74R3T[DbfD",
+    },
+    "userId": "90080745-8c77-5474-91ab-117f7fd5cf5d",
+  },
+}
+`;
+
+exports[`Testing snapshot for Gwen's identifyUser destination action: required fields 1`] = `
+Object {
+  "operationName": "UserSession",
+  "query": "mutation UserSession($userId: UUID!, $session: UserSessionInput) {
+          userSession(userId: $userId, data: $session) {
+            timestamp
+          }
+        }",
+  "variables": Object {
+    "session": Object {},
+    "userId": "90080745-8c77-5474-91ab-117f7fd5cf5d",
+  },
+}
+`;

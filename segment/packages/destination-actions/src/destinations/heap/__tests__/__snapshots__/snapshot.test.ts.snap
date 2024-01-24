@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-heap destination: identifyUser action - all fields 1`] = `
+Object {
+  "app_id": "G&st^jdtW&@22!QU^",
+  "identity": "G&st^jdtW&@22!QU^",
+  "properties": Object {
+    "anonymous_id": "G&st^jdtW&@22!QU^",
+    "testType": "G&st^jdtW&@22!QU^",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-heap destination: identifyUser action - required fields 1`] = `
+Object {
+  "app_id": "G&st^jdtW&@22!QU^",
+  "identity": "G&st^jdtW&@22!QU^",
+  "properties": Object {
+    "anonymous_id": "G&st^jdtW&@22!QU^",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-heap destination: trackEvent action - all fields 1`] = `
+Object {
+  "app_id": "kFJwrNh$DP38FB",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "anonymous_id": "kFJwrNh$DP38FB",
+    "testType": "kFJwrNh$DP38FB",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-heap destination: trackEvent action - required fields 1`] = `
+Object {
+  "app_id": "kFJwrNh$DP38FB",
+  "identity": "kFJwrNh$DP38FB",
+  "properties": Object {
+    "anonymous_id": "kFJwrNh$DP38FB",
+  },
+}
+`;

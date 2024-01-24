@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true, // remove ts-jest warning
+    "module": "esnext",
+    "removeComments": false,
+    "baseUrl": ".",
+    "paths": {
+      "@segment/actions-core": ["../core/src"],
+      "@segment/actions-core/*": ["../core/src/*"],
+      "@segment/actions-shared": ["../actions-shared/src"],
+      "@segment/action-destinations": ["../destination-actions/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"]
+    }
+  },
+  "exclude": ["webpack.config.js", "dist"]
+}

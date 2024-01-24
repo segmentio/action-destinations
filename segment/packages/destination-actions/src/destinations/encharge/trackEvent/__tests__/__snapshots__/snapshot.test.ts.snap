@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: all fields 1`] = `
+Object {
+  "context": Object {
+    "campaign": Object {
+      "content": "SCL252",
+      "medium": "SCL252",
+      "name": "SCL252",
+      "source": "SCL252",
+      "term": "SCL252",
+    },
+    "groupId": "SCL252",
+    "ip": "SCL252",
+    "location": Object {
+      "city": "SCL252",
+      "country": "SCL252",
+      "region": "SCL252",
+    },
+    "page": Object {
+      "path": "SCL252",
+      "referrer": "SCL252",
+      "search": "SCL252",
+      "title": "SCL252",
+      "url": "SCL252",
+    },
+    "userAgent": "SCL252",
+  },
+  "email": "etohe@nadroog.bb",
+  "event": "SCL252",
+  "messageId": "SCL252",
+  "properties": Object {
+    "testType": "SCL252",
+  },
+  "segmentAnonymousId": "SCL252",
+  "type": "SCL252",
+  "user": Object {
+    "email": "etohe@nadroog.bb",
+    "segmentAnonymousId": "SCL252",
+    "testType": "SCL252",
+    "userId": "SCL252",
+  },
+  "userFields": Object {
+    "testType": "SCL252",
+  },
+  "userId": "SCL252",
+}
+`;
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: required fields 1`] = `
+Object {
+  "context": Object {},
+  "event": "SCL252",
+  "type": "SCL252",
+  "user": Object {},
+}
+`;
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: required fields 2`] = `"{\\"event\\":\\"SCL252\\",\\"type\\":\\"SCL252\\",\\"context\\":{},\\"user\\":{}}"`;
+
+exports[`Testing snapshot for Encharge's trackEvent destination action: required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "SCL252",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Friendbuy's trackCustomEvent destination action: all fields 1`] = `
+Object {
+  "key": "9c438e5f-8611-5814-8aea-1ccb7222dc50",
+  "secret": "nTM9uWy@2ED@CQPaubD",
+}
+`;
+
+exports[`Testing snapshot for Friendbuy's trackCustomEvent destination action: required fields 1`] = `
+Object {
+  "key": "9c438e5f-8611-5814-8aea-1ccb7222dc50",
+  "secret": "nTM9uWy@2ED@CQPaubD",
+}
+`;

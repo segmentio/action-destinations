@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for TalonOne's updateCustomerProfileV2 destination action: all fields 1`] = `
+Object {
+  "attributes": Object {
+    "testType": "wJ*BaaPwe",
+  },
+  "attributesInfo": Array [
+    Object {
+      "name": "wJ*BaaPwe",
+      "type": "time",
+    },
+  ],
+  "audiencesChanges": Object {
+    "adds": Array [
+      Object {
+        "integrationId": "wJ*BaaPwe",
+        "name": "wJ*BaaPwe",
+      },
+    ],
+    "deletes": Array [
+      Object {
+        "integrationId": "wJ*BaaPwe",
+        "name": "wJ*BaaPwe",
+      },
+    ],
+  },
+  "runRuleEngine": true,
+}
+`;
+
+exports[`Testing snapshot for TalonOne's updateCustomerProfileV2 destination action: required fields 1`] = `
+Object {
+  "audiencesChanges": Object {},
+}
+`;

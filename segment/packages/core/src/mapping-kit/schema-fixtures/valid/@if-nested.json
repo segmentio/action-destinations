@@ -1,0 +1,15 @@
+{
+  "mapping": {
+    "@if": {
+      "exists": {
+        "@path": "$.foo"
+      },
+      "then": {
+        "@path": "$.bar"
+      },
+      "else": {
+        "@path": "$.baz"
+      }
+    }
+  }
+}

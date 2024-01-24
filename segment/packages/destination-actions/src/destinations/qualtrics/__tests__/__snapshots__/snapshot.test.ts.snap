@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-qualtrics destination: addContactToXmd action - all fields 1`] = `
+Object {
+  "email": "jerap@hapede.mh",
+  "embeddedData": Object {
+    "testType": "PIZJvUcIeGHXyFpXkW%D",
+  },
+  "extRef": "PIZJvUcIeGHXyFpXkW%D",
+  "firstName": "PIZJvUcIeGHXyFpXkW%D",
+  "language": "PIZJvUcIeGHXyFpXkW%D",
+  "lastName": "PIZJvUcIeGHXyFpXkW%D",
+  "phone": "PIZJvUcIeGHXyFpXkW%D",
+  "unsubscribed": false,
+}
+`;
+
+exports[`Testing snapshot for actions-qualtrics destination: addContactToXmd action - required fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-qualtrics destination: triggerXflowWorkflow action - all fields 1`] = `
+Object {
+  "testType": "f&wmnLapCuZ&brm%bKgr",
+}
+`;
+
+exports[`Testing snapshot for actions-qualtrics destination: triggerXflowWorkflow action - required fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-qualtrics destination: triggerXflowWorkflow action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-api-token": Array [
+      "f&wmnLapCuZ&brm%bKgr",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-qualtrics destination: upsertContactTransaction action - all fields 1`] = `
+Object {
+  "": Object {
+    "contactId": "Z8AxKOF",
+    "data": Object {
+      "testType": "Z8AxKOF",
+    },
+    "mailingListId": "Z8AxKOF",
+    "transactionDate": "2021-02-01 00:00:00",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-qualtrics destination: upsertContactTransaction action - required fields 1`] = `
+Object {
+  "filter": Object {
+    "comparison": "eq",
+    "filterType": "extRef",
+    "value": "Z8AxKOF",
+  },
+}
+`;

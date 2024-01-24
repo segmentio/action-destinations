@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "importHelpers": true,
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "outDir": "./dist/test"
+  },
+  "include": ["src", "test"],
+  "exclude": ["dist"]
+}
