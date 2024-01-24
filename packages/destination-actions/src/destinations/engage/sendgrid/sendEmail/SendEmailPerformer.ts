@@ -90,10 +90,15 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     },
     contentType: string
   ) {
-    const parsedContent =
-      content == null || content === '<nil>' || content.trim() === ''
-        ? content
-        : await Liquid.parseAndRender(content, liquidData)
+    for (const trait of Object.keys(liquidData.profile.traits || {})) {
+      if (
+        liquidData.profile.traits &&
+        (liquidData.profile.traits[trait] === '<nil>' || liquidData.profile.traits[trait].trim() === '')
+      ) {
+        liquidData.profile.traits[trait] = ''
+      }
+    }
+    const parsedContent = content == null ? content : await Liquid.parseAndRender(content, liquidData)
     this.logOnError(() => 'Content type: ' + contentType)
     return parsedContent
   }
