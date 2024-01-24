@@ -96,7 +96,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Complete Payment',
       subscribe: 'event = "Payment Completed"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
         event: 'CompletePayment'
@@ -106,7 +106,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Contact',
       subscribe: 'event = "Callback Started"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...defaultValues(reportOfflineEvent.fields),
         event: 'Contact'
@@ -116,7 +116,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Subscribe',
       subscribe: 'event = "Subscription Created"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...defaultValues(reportOfflineEvent.fields),
         event: 'Subscribe'
@@ -126,7 +126,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Submit Form',
       subscribe: 'event = "Form Submitted"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...defaultValues(reportOfflineEvent.fields),
         event: 'SubmitForm'
@@ -136,7 +136,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Page View',
       subscribe: 'type="page"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
         event: 'PageView'
@@ -146,7 +146,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'View Content',
       subscribe: 'event = "Product Viewed"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...singleProductContents,
         event: 'ViewContent'
@@ -156,7 +156,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Click Button',
       subscribe: 'event = "Product Clicked"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...singleProductContents,
         event: 'ClickButton'
@@ -166,7 +166,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Search',
       subscribe: 'event = "Products Searched"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...singleProductContents,
         event: 'Search'
@@ -176,7 +176,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Add to Wishlist',
       subscribe: 'event = "Product Added to Wishlist"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...singleProductContents,
         event: 'AddToWishlist'
@@ -186,7 +186,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Add to Cart',
       subscribe: 'event = "Product Added"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...singleProductContents,
         event: 'AddToCart'
@@ -196,7 +196,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Initiate Checkout',
       subscribe: 'event = "Checkout Started"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
         event: 'InitiateCheckout'
@@ -206,7 +206,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Add Payment Info',
       subscribe: 'event = "Payment Info Entered"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
         event: 'AddPaymentInfo'
@@ -216,7 +216,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Place an Order',
       subscribe: 'event = "Order Completed"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
         event: 'PlaceAnOrder'
@@ -226,7 +226,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Download',
       subscribe: 'event = "Download Link Clicked"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...defaultValues(reportOfflineEvent.fields),
         event: 'Download'
@@ -236,7 +236,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Complete Registration',
       subscribe: 'event = "Signed Up"',
-      partnerAction: 'reportWebEvent',
+      partnerAction: 'reportOfflineEvent',
       mapping: {
         ...defaultValues(reportOfflineEvent.fields),
         event: 'CompleteRegistration'
