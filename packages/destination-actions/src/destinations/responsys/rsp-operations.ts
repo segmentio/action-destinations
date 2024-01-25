@@ -1,5 +1,8 @@
-import { Payload } from './asyncMergePetRecords/generated-types'
-import { DynamicData, RecordData } from './types'
+import { Payload as PETPayload } from './asyncMergePetRecords/generated-types'
+import { Payload as ProfileMemberListPayload } from './asyncMergeProfileListMembers/generated-types'
+import { DynamicData, RecordData, RequestBodyPET, RequestBody } from './types'
+import { RequestClient } from '@segment/actions-core'
+import type { Settings } from './generated-types'
 
 export const buildRecordData = (userData: DynamicData, mapTemplateName: string) => {
   // Check if userData is an array
@@ -19,15 +22,8 @@ export const buildRecordData = (userData: DynamicData, mapTemplateName: string) 
   }
 }
 
-// export const buildRequestBody = (/*payload: Payload,*/ recordData: RecordData, mergeRule: MergeRule) => {
-//   return {
-//     recordData: recordData,
-//     mergeRule: mergeRule
-//   }
-// }
-
 // Needed a separate function for PET since mergeRule is not an expected key in request
-export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*, mergeRule*/) => {
+export const buildRequestBodyPET = (payload: PETPayload, recordData: RecordData /*, mergeRule*/) => {
   const matchColumnName1 = payload.matchColumnName1 ? String(payload.matchColumnName1) : ''
   const matchColumnName2 = payload.matchColumnName2 ? String(payload.matchColumnName2) : ''
   return {
@@ -39,25 +35,83 @@ export const buildRequestBodyPET = (payload: Payload, recordData: RecordData /*,
   }
 }
 
-// export const buildFetchRequest = (authToken: string, requestBody: RequestBody | RequestBodyPET) => {
-//   return {
-//     method: 'POST',
-//     headers: {
-//       Authorization: 'ACCESS TOKEN HERE', //`${authToken}`,
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(requestBody)
-//   }
-// }
+export const sendPETData = async (request: RequestClient, payload: PETPayload[], settings: Settings) => {
+  const {
+    profileListName,
+    profileExtensionTable,
+    insertOnNoMatch,
+    matchColumnName1,
+    matchColumnName2,
+    updateOnMatch,
+    mapTemplateName
+  } = payload[0]
 
-// export const handleFetchResponse = async (endpoint: string, response: DynamicData) => {
-//   console.log(`response.status: ${response.status}`)
-//   if (response.status >= 500) {
-//     throw new Error(
-//       `***ERROR STATUS RETRY*** : ${response.status} from ${endpoint}. Response : ${JSON.stringify(
-//         await response.json()
-//       )}`
-//     )
-//   }
-//   return await response.json()
-// }
+  const payloadData = payload.map((obj) => obj.userData)
+  const recordData = buildRecordData(payloadData, mapTemplateName ?? '')
+  const requestBody: RequestBodyPET = {
+    recordData: recordData as RecordData,
+    insertOnNoMatch: !!insertOnNoMatch,
+    updateOnMatch: updateOnMatch || '',
+    matchColumnName1: matchColumnName1 || '',
+    matchColumnName2: matchColumnName2 || ''
+  }
+
+  const path = `/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+
+  const endpoint = new URL(path, settings.baseUrl)
+
+  return await request(endpoint.href, {
+    method: 'POST',
+    body: JSON.stringify(requestBody)
+  })
+}
+
+export const sendProfileListMembersData = async (
+  request: RequestClient,
+  payload: ProfileMemberListPayload[],
+  settings: Settings
+) => {
+  const {
+    profileListName,
+    defaultPermissionStatus,
+    htmlValue,
+    insertOnNoMatch,
+    matchColumnName1,
+    matchColumnName2,
+    matchOperator,
+    optinValue,
+    optoutValue,
+    rejectRecordIfChannelEmpty,
+    textValue,
+    updateOnMatch,
+    mapTemplateName
+  } = payload[0]
+
+  const payloadData = payload.map((obj) => obj.userData)
+  const recordData = buildRecordData(payloadData, mapTemplateName ?? '')
+  const requestBody: RequestBody = {
+    recordData: recordData as RecordData,
+    mergeRule: {
+      defaultPermissionStatus,
+      htmlValue,
+      insertOnNoMatch,
+      matchColumnName1,
+      matchColumnName2,
+      matchOperator,
+      optinValue,
+      optoutValue,
+      rejectRecordIfChannelEmpty,
+      textValue,
+      updateOnMatch
+    }
+  }
+
+  const path = `/rest/asyncApi/v1.3/lists/${profileListName}/members`
+
+  const endpoint = new URL(path, settings.baseUrl)
+
+  return await request(endpoint.href, {
+    method: 'POST',
+    body: JSON.stringify(requestBody)
+  })
+}

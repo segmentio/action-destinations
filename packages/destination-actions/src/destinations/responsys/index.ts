@@ -1,12 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-// import {
-//   enable_batching,
-//   batch_size
-// } from './rsp-properties'
-
 import asyncMergeProfileListMembers from './asyncMergeProfileListMembers'
-
 import asyncMergePetRecords from './asyncMergePetRecords'
 
 interface RefreshTokenResponse {
@@ -34,20 +28,25 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       baseUrl: {
-        // Depending on Responsys instance type, a customer may need to use a different base URL: https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm
         label: 'Responsys endpoint URL',
-        description: 'Responsys endpoint URL. Refer to Responsys documentation for more details.', // https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm
+        description:
+          "Responsys endpoint URL. Refer to Responsys documentation for more details. Must start with 'HTTPS://'. See [Responsys docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm).",
         type: 'string',
+        format: 'uri',
         required: true
       }
     },
-    // Refreshing Responsys access token once it expires after 3 hours
+    testAuthentication: (_, { settings }) => {
+      if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
+        return Promise.resolve('Success')
+      } else {
+        return Promise.reject('Responsys endpoint URL must start with https://')
+      }
+    },
     refreshAccessToken: async (request, { settings }) => {
-      // Remove trailing slash from authUrl if it exists
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
-      // Return a request that refreshes the access_token if the API supports it
-      // console.log('settings:', settings.username, settings.userPassword)
+
       const res = await request<RefreshTokenResponse>(endpoint, {
         method: 'POST',
         headers: {
@@ -59,7 +58,6 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
-    // console.log('auth extendRequest', auth)
     return {
       headers: {
         'Content-Type': 'application/json',

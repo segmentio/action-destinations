@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of the profile extension table's parent profile list.
+   * Name of the Profile Extension Table's Contact List.
    */
   profileListName: string
   /**
@@ -16,14 +16,6 @@ export interface Payload {
    */
   mapTemplateName?: string
   /**
-   * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
-   */
-  defaultPermissionStatus?: string
-  /**
-   * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
-   */
-  htmlValue?: string
-  /**
    * Indicates what should be done for records where a match is not found.
    */
   insertOnNoMatch?: boolean
@@ -36,6 +28,18 @@ export interface Payload {
    */
   matchColumnName2?: string
   /**
+   * Controls how the existing record should be updated.
+   */
+  updateOnMatch: string
+  /**
+   * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
+   */
+  defaultPermissionStatus?: string
+  /**
+   * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
+   */
+  htmlValue?: string
+  /**
    * Operator to join match column names.
    */
   matchOperator?: string
@@ -44,21 +48,17 @@ export interface Payload {
    */
   optinValue?: string
   /**
-   * Value of incoming opt-out status data that represents an optout status. For example, '0' may represent an opt-out status.
+   * Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.
    */
   optoutValue?: string
   /**
-   * String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. Channel codes are 'E' (Email), 'M' (Mobile), 'P' (Postal Code). For example 'E,M' would indicate that a record that has a null for Email or Mobile Number value should be rejected. This parameter can also be set to null or to an empty string, which will cause the validation to not be performed for any channel, except if the matchColumnName1 parameter is set to EMAIL_ADDRESS_ or MOBILE_NUMBER_. When matchColumnName1 is set to EMAIL_ADDRESS_ or MOBILE_NUMBER_, then the null or empty string setting is effectively ignored for that channel.
+   * String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)
    */
   rejectRecordIfChannelEmpty?: string
   /**
    * Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.
    */
   textValue?: string
-  /**
-   * Controls how the existing record should be updated.
-   */
-  updateOnMatch: string
   /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */
