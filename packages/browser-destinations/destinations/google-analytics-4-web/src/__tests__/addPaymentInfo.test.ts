@@ -18,6 +18,9 @@ const subscriptions: Subscription[] = [
       coupon: {
         '@path': '$.properties.coupon'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       items: [
         {
           item_name: {
@@ -64,7 +67,7 @@ describe('GoogleAnalytics4Web.addPaymentInfo', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 addPaymentInfo Event', async () => {
+  test('GA4 addPaymentInfo Event when send to is false', async () => {
     const context = new Context({
       event: 'Payment Info Entered',
       type: 'track',
@@ -73,6 +76,41 @@ describe('GoogleAnalytics4Web.addPaymentInfo', () => {
         value: 10,
         coupon: 'SUMMER_123',
         payment_method: 'Credit Card',
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addPaymentInfoEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('add_payment_info'),
+      expect.objectContaining({
+        coupon: 'SUMMER_123',
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
+
+  test('GA4 addPaymentInfo Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Payment Info Entered',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        coupon: 'SUMMER_123',
+        payment_method: 'Credit Card',
+        send_to: true,
         products: [
           {
             product_id: '12345',

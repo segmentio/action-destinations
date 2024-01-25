@@ -11,6 +11,9 @@ const subscriptions: Subscription[] = [
     mapping: {
       method: {
         '@path': '$.properties.method'
+      },
+      send_to: {
+        '@path': '$.properties.send_to'
       }
     }
   }
@@ -39,12 +42,31 @@ describe('GoogleAnalytics4Web.signUp', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 signUp Event', async () => {
+  test('GA4 signUp Event when send to is false', async () => {
     const context = new Context({
       event: 'signUp',
       type: 'track',
       properties: {
-        method: 'Google'
+        method: 'Google',
+        send_to: false
+      }
+    })
+
+    await signUpEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('sign_up'),
+      expect.objectContaining({ method: 'Google', send_to: 'default' })
+    )
+  })
+  test('GA4 signUp Event when send to is true', async () => {
+    const context = new Context({
+      event: 'signUp',
+      type: 'track',
+      properties: {
+        method: 'Google',
+        send_to: true
       }
     })
 

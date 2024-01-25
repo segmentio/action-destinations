@@ -48,7 +48,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       shipping: payload.shipping,
       tax: payload.tax,
       items: payload.items,
-      send_to: payload.send_to == undefined || payload.send_to == true ? settings.measurementID : 'default',
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
       ...payload.params
