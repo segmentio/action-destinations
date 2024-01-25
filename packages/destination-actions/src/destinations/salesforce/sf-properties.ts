@@ -49,13 +49,43 @@ export const bulkUpsertExternalId: InputField = {
       description: 'The external id field value to use for bulk upsert.',
       type: 'string'
     }
+  },
+  depends_on: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: 'upsert'
+      },
+      {
+        fieldKey: 'enable_batching',
+        operator: 'is',
+        value: true
+      }
+    ]
   }
 }
 
 export const bulkUpdateRecordId: InputField = {
   label: 'Bulk Update Record Id',
   description: 'The record id value to use for bulk update.',
-  type: 'string'
+  type: 'string',
+  depends_on: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: 'update'
+      },
+      {
+        fieldKey: 'enable_batching',
+        operator: 'is',
+        value: true
+      }
+    ]
+  }
 }
 
 // Any actions configured before this field was added will have an undefined value for this field.
@@ -69,7 +99,16 @@ export const recordMatcherOperator: InputField = {
     { label: 'OR', value: 'OR' },
     { label: 'AND', value: 'AND' }
   ],
-  default: 'OR'
+  default: 'OR',
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: ['update', 'upsert', 'delete']
+      }
+    ]
+  }
 }
 
 export const traits: InputField = {
@@ -84,7 +123,16 @@ export const traits: InputField = {
 
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue:only'
+  defaultObjectUI: 'keyvalue:only',
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: ['update', 'upsert', 'delete']
+      }
+    ]
+  }
 }
 
 export const customFields: InputField = {

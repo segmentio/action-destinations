@@ -183,6 +183,9 @@ export interface InputField extends InputFieldJSONSchema {
    */
   readOnly?: boolean
 
+  /**
+   * Determines whether this field will be shown in the UI.
+   */
   depends_on?: SettingFilter
 }
 
@@ -191,11 +194,16 @@ export interface SettingsFilterCondition {
   fieldKey: string
   operator: 'is' | 'is_not'
   /** The value we expect that setting to have */
-  value: Omit<FieldValue, 'Directive'> | undefined
+  value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
 }
 
+/**
+ * If match is not set, it will default to 'all'
+ * If match = 'any', then meeting any of the conditions defined will result in the field being shown.
+ * If match = 'all', then meeting all of the conditions defined will result in the field being shown.
+ */
 export interface SettingFilter {
-  match: 'any' | 'all'
+  match?: 'any' | 'all'
   conditions: SettingsFilterCondition[]
 }
 
