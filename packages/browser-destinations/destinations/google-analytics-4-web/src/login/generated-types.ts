@@ -21,4 +21,8 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * If a send_to parameter is not set, events are routed to the default target group.
+   */
+  send_to?: boolean
 }

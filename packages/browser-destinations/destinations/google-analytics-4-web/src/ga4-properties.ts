@@ -367,3 +367,9 @@ export const items_multi_products: InputField = {
     ]
   }
 }
+export const send_to: InputField = {
+  label: 'Send To',
+  type: 'boolean',
+  default: true,
+  description: 'If a send_to parameter is not set, events are routed to the default target group.'
+}

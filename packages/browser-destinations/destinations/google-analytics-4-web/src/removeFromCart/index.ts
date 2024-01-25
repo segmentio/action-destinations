@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { user_properties, params, value, user_id, currency, items_single_products } from '../ga4-properties'
+import { user_properties, params, value, user_id, currency, items_single_products, send_to } from '../ga4-properties'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -19,14 +19,15 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       required: true
     },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
   perform: (gtag, { payload, settings }) => {
     gtag('event', 'remove_from_cart', {
       currency: payload.currency,
       value: payload.value,
       items: payload.items,
-      send_to: settings.measurementID,
+      send_to: payload.send_to == undefined || payload.send_to == true ? settings.measurementID : 'default',
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
       ...payload.params

@@ -13,7 +13,8 @@ import {
   items_multi_products,
   params,
   user_properties,
-  tax
+  tax,
+  send_to
 } from '../ga4-properties'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -34,7 +35,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       ...items_multi_products
     },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
   perform: (gtag, { payload, settings }) => {
     gtag('event', 'refund', {
@@ -46,7 +48,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       shipping: payload.shipping,
       tax: payload.tax,
       items: payload.items,
-      send_to: settings.measurementID,
+      send_to: payload.send_to == undefined || payload.send_to == true ? settings.measurementID : 'default',
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
       ...payload.params

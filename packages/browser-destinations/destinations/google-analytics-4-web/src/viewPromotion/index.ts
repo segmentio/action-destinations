@@ -11,7 +11,8 @@ import {
   items_single_products,
   params,
   user_properties,
-  location_id
+  location_id,
+  send_to
 } from '../ga4-properties'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -46,7 +47,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       }
     },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
   perform: (gtag, { payload, settings }) => {
     gtag('event', 'view_promotion', {
@@ -56,7 +58,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       promotion_id: payload.promotion_id,
       promotion_name: payload.promotion_name,
       items: payload.items,
-      send_to: settings.measurementID,
+      send_to: payload.send_to == undefined || payload.send_to == true ? settings.measurementID : 'default',
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
       ...payload.params
