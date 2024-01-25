@@ -238,5 +238,29 @@ export const createContactList = async (
     throw new CriteoAPIError(`Error while creating the Contact List`, 'Criteo contact list creation error', 400, err)
   }
 
+  if (!Array.isArray(body.data)) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] not returned`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
+  if (body.data.length === 0) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] is empty`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
+  if (body.data[0].id === undefined) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[0].id is undefined`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
   return body.data[0].id
 }

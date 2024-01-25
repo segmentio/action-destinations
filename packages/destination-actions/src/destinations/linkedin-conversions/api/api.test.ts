@@ -11,49 +11,67 @@ describe('LinkedIn Conversions', () => {
 
     it('should fetch a list of ad accounts, with their names', async () => {
       nock(`${BASE_URL}`)
-        .get(`/adAccountUsers`)
-        .query({ q: 'authenticatedUser' })
+        .get(`/adAccounts`)
+        .query({ q: 'search' })
         .reply(200, {
           elements: [
             {
-              account: 'urn:li:sponsoredAccount:516413367',
+              test: false,
+              notifiedOnCreativeRejection: true,
+              notifiedOnNewFeaturesEnabled: true,
+              notifiedOnEndOfCampaign: true,
+              notifiedOnCampaignOptimization: true,
+              type: 'BUSINESS',
+              version: {
+                versionTag: '6'
+              },
+              reference: 'urn:li:organization:1122334',
+              notifiedOnCreativeApproval: false,
               changeAuditStamps: {
                 created: {
                   actor: 'urn:li:unknown:0',
-                  time: 1500331577000
+                  time: 1498178296000
                 },
                 lastModified: {
                   actor: 'urn:li:unknown:0',
-                  time: 1505328748000
+                  time: 1696277984515
                 }
               },
-              role: 'ACCOUNT_BILLING_ADMIN',
-              user: 'urn:li:person:K1RwyVNukt',
-              version: {
-                versionTag: '89'
-              }
+              name: 'Test Ad Account',
+              currency: 'USD',
+              id: 101100090,
+              status: 'ACTIVE'
             },
             {
-              account: 'urn:li:sponsoredAccount:516880883',
+              test: false,
+              notifiedOnCreativeRejection: false,
+              notifiedOnNewFeaturesEnabled: false,
+              notifiedOnEndOfCampaign: false,
+              notifiedOnCampaignOptimization: false,
+              type: 'BUSINESS',
+              version: {
+                versionTag: '4'
+              },
+              reference: 'urn:li:organization:1122334',
+              notifiedOnCreativeApproval: false,
               changeAuditStamps: {
                 created: {
                   actor: 'urn:li:unknown:0',
-                  time: 1505326590000
+                  time: 1687394995000
                 },
                 lastModified: {
                   actor: 'urn:li:unknown:0',
-                  time: 1505326615000
+                  time: 1694040316291
                 }
               },
-              role: 'ACCOUNT_BILLING_ADMIN',
-              user: 'urn:li:person:K1RwyVNukt',
-              version: {
-                versionTag: '3'
-              }
+              name: 'Krusty Krab Ads',
+              currency: 'USD',
+              id: 998877665,
+              status: 'ACTIVE'
             }
           ],
           paging: {
-            count: 2,
+            count: 1000,
             links: [],
             start: 0,
             total: 2
@@ -64,12 +82,12 @@ describe('LinkedIn Conversions', () => {
       expect(getAdAccountsRes).toEqual({
         choices: [
           {
-            label: 'urn:li:person:K1RwyVNukt',
-            value: 'urn:li:sponsoredAccount:516413367'
+            label: 'Test Ad Account',
+            value: 'urn:li:sponsoredAccount:101100090'
           },
           {
-            label: 'urn:li:person:K1RwyVNukt',
-            value: 'urn:li:sponsoredAccount:516880883'
+            label: 'Krusty Krab Ads',
+            value: 'urn:li:sponsoredAccount:998877665'
           }
         ]
       })
@@ -133,7 +151,7 @@ describe('LinkedIn Conversions', () => {
         adAccountId: '123456'
       }
       nock(`${BASE_URL}`)
-        .get(`/adAccounts/${payload.adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE)))`)
+        .get(`/adAccounts/${payload.adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE,DRAFT)))`)
         .reply(200, {
           paging: {
             start: 0,
