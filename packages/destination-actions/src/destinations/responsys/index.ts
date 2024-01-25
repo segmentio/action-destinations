@@ -11,7 +11,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Responsys (Actions)',
   slug: 'actions-responsys',
   mode: 'cloud',
-  description: 'Send Segment events to Responsys.',
+  description: 'Send Profile List Member and Profile Extension Table data to Responsys.',
   authentication: {
     scheme: 'oauth2',
     fields: {
