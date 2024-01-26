@@ -1,12 +1,12 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import {
-    eventId,
-    timestamp,
-    channelType,
-    userId,
-    device,
-    sessionId,
-    decisionTrackId,
+    EVENT_ID,
+    TIMESTAMP,
+    CHANNEL_TYPE,
+    USER_ID,
+    DEVICE,
+    SESSION_ID,
+    DECISION_TRACK_ID,
     items,
     revenue,
     searchQuery,
@@ -25,17 +25,28 @@ interface OptionalFieldsOption {
     requireShippingCharge?: boolean;
 }
 
+enum EventType {
+    Search = 'SEARCH',
+    ItemPageView = 'ITEM_PAGE_VIEW',
+    AddToCart = 'ADD_TO_CART',
+    Purchase = 'PURCHASE',
+    AddToWhishlist = 'ADD_TO_WISHLIST',
+    Home = 'HOME',
+    Land = 'LAND',
+    PageView = 'PAGE_VIEW'
+}
+
 export class MolocoEvent {
-    eventType: string;
+    eventType: EventType;
 
     // Common Fields; all events have these fields
-    eventId: InputField = eventId;
-    timestamp: InputField = timestamp;
-    channelType: InputField = channelType;
-    userId: InputField = userId;
-    device: InputField = device;
-    sessionId: InputField = sessionId;
-    decisionTrackId: InputField = decisionTrackId;
+    eventId: InputField = EVENT_ID;
+    timestamp: InputField = TIMESTAMP;
+    channelType: InputField = CHANNEL_TYPE;
+    userId: InputField = USER_ID;
+    device: InputField = DEVICE;
+    sessionId: InputField = SESSION_ID;
+    decisionTrackId: InputField = DECISION_TRACK_ID;
 
     // Optional Fields; some events have these fields as required or optional OR not at all
     items?: InputField;
@@ -48,7 +59,7 @@ export class MolocoEvent {
     // Constructor for MolocoEvent
     // If a field's requirement is not passed, it is not included in the event
     constructor(
-        eventType: string,
+        eventType: EventType,
         {
             requireItems = undefined,
             requireRevenue = undefined,
