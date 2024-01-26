@@ -65,6 +65,8 @@ export interface GetConversionListAPIResponse {
 export interface Conversions {
   name: string
   id: string
+  enabled: boolean
+  conversionMethod: string
 }
 
 export interface GetCampaignsListAPIResponse {

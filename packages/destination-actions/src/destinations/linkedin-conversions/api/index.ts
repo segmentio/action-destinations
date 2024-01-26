@@ -139,14 +139,19 @@ export class LinkedInConversions {
       const response: Array<Conversions> = []
       const result = await this.request<GetConversionListAPIResponse>(`${BASE_URL}/conversions`, {
         method: 'GET',
+        skipResponseCloning: true,
         searchParams: {
           q: 'account',
-          account: adAccountId
+          account: adAccountId,
+          start: 0,
+          count: 100
         }
       })
 
       result.data.elements.forEach((item) => {
-        response.push(item)
+        if (item.enabled && item.conversionMethod === 'CONVERSIONS_API') {
+          response.push(item)
+        }
       })
 
       const choices = response?.map((item) => {
