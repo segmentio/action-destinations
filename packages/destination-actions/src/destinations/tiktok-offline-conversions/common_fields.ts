@@ -160,7 +160,7 @@ export const commonFields: Record<string, InputField> = {
     label: 'Contents',
     type: 'object',
     multiple: true,
-    description: 'Related items in a web event.',
+    description: 'Related item details for the event.',
     properties: {
       price: {
         label: 'Price',
