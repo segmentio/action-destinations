@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userData, enable_batching, batch_size } from '../rsp-properties'
+import { enable_batching, batch_size } from '../rsp-properties'
 import { sendProfileListMembersData } from '../rsp-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,13 +14,22 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true
     },
-    userData: userData,
+    userData: {
+      label: 'Recepient Data', // Needs to be Audience field
+      description: 'Record data that represents Field Names and corresponding values for the recipient.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only',
+      required: true,
+      default: { '@path': '$.' }
+    },
     mapTemplateName: {
       label: 'Map Template Name',
       description:
         'The Map Template in Responsys that can be used to map Field Names of the Profile List to Column Names.',
       type: 'string',
-      default: ''
+      required: true,
+      default: '',
+      unsafe_hidden: true
     },
     insertOnNoMatch: {
       label: 'Insert On No Match',

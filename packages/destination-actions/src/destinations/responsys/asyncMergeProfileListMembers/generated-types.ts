@@ -14,7 +14,7 @@ export interface Payload {
   /**
    * The Map Template in Responsys that can be used to map Field Names of the Profile List to Column Names.
    */
-  mapTemplateName?: string
+  mapTemplateName: string
   /**
    * Indicates what should be done for records where a match is not found.
    */
