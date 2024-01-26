@@ -66,7 +66,7 @@ export interface Payload {
    */
   user_agent?: string
   /**
-   * Related items in a web event.
+   * Related item details for the event.
    */
   contents?: {
     /**
