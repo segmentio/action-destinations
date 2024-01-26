@@ -197,7 +197,7 @@ export const commonFields: Record<string, InputField> = {
   content_type: {
     label: 'Content Type',
     description:
-      'Type of the product item. When the `content_id` in the `contents` parameter is specified as `sku_id`, set this field to `product`. When the `content_id` in the `contents` parameter is specified as `item_group_id`, set this field to `product_group`.',
+      'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
     type: 'string',
     choices: ['product', 'product_group'],
     default: 'product'
