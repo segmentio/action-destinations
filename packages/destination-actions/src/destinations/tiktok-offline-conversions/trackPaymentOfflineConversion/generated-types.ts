@@ -30,7 +30,7 @@ export interface Payload {
    */
   shop_id?: string
   /**
-   * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok.
+   * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s).
    */
   external_ids?: string[]
   /**
