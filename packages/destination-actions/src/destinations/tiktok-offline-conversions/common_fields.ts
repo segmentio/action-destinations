@@ -71,7 +71,7 @@ export const commonFields: Record<string, InputField> = {
   external_ids: {
     label: 'External ID',
     description:
-      'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok.',
+      'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s).',
     type: 'string',
     multiple: true,
     default: {
