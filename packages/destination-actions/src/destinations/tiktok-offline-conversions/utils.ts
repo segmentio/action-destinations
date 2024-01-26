@@ -18,15 +18,16 @@ export function performOfflineEvent(request: RequestClient, settings: Settings, 
   if (phone_numbers.length < 1 && emails.length < 1 && userIds.length < 1)
     throw new PayloadValidationError('TikTok Offline Conversions API requires an email address and/or phone number and or a userId')
 
-  const urlTtclid = payload.url
-    ? (() => {
-        try {
-          return new URL(payload.url).searchParams.get('ttclid')
-        } catch (error) {
-          /* invalid url */
-        }
-      })()
-    : undefined
+  let payloadUrl, urlTtclid
+  if (payload.url) {
+    try {
+      payloadUrl = new URL(payload.url)
+    } catch (error) {
+      //  invalid url
+    }
+  }
+
+  if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
   return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
     method: 'post',
