@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import postToAccoil from './postToAccoil'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Accoil Analytics',
   slug: 'actions-accoil-analytics',
@@ -41,7 +43,9 @@ const destination: DestinationDefinition<Settings> = {
 
     // },
   },
-  actions: {}
+  actions: {
+    postToAccoil
+  }
 }
 
 export default destination
