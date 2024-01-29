@@ -62,7 +62,7 @@ describe('.getConversionActionId', () => {
     const settings = {
       customerId: '123-456-7890'
     }
-    // When Flag is ON , Will pick Canary API Version.
+    // When Flag is ON, will use Canary API Version.
     const features: Features = { 'google-enhanced-canary-version': true }
     nock(`https://googleads.googleapis.com/${CANARY_API_VERSION}/customers/1234567890/googleAds:searchStream`)
       .post('')
