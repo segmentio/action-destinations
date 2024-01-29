@@ -91,34 +91,6 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Delete Device',
-      subscribe: 'event = "Application Uninstalled"',
-      partnerAction: 'deleteDevice',
-      mapping: defaultValues(deleteDevice.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Delete Relationship',
-      subscribe: 'event = "Relationship Deleted"',
-      partnerAction: 'deleteRelationship',
-      mapping: defaultValues(deleteRelationship.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Delete Person',
-      subscribe: 'event = "User Deleted"',
-      partnerAction: 'deletePerson',
-      mapping: defaultValues(deletePerson.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Delete Object',
-      subscribe: 'event = "Group Deleted"',
-      partnerAction: 'deleteObject',
-      mapping: defaultValues(deleteObject.fields),
-      type: 'automatic'
-    },
-    {
       name: 'Track Event',
       subscribe: `
         type = "track"
@@ -155,27 +127,6 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "group"',
       partnerAction: 'createUpdateObject',
       mapping: defaultValues(createUpdateObject.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Merge People',
-      subscribe: 'type = "alias"',
-      partnerAction: 'mergePeople',
-      mapping: defaultValues(mergePeople.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Suppress Person',
-      subscribe: 'event = "User Suppressed"',
-      partnerAction: 'suppressPerson',
-      mapping: defaultValues(suppressPerson.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Unsuppress Person',
-      subscribe: 'event = "User Unsuppressed"',
-      partnerAction: 'unsuppressPerson',
-      mapping: defaultValues(unsuppressPerson.fields),
       type: 'automatic'
     },
     {
