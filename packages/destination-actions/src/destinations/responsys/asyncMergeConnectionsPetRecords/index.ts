@@ -35,15 +35,6 @@ const action: ActionDefinition<Settings, Payload> = {
         CUSTOMER_ID_ : { '@path': '$.userId' }
       }
     },
-    mapTemplateName: {
-      label: 'Map Template Name',
-      description:
-        'Not needed for Segment Destination, thus hidden: The Map Template in Responsys that can be used to map Field Names of the Profile List to Column Names.',
-      type: 'string',
-      default: '',
-      required: true,
-      unsafe_hidden: true
-    },
     enable_batching: enable_batching,
     batch_size: batch_size
   },

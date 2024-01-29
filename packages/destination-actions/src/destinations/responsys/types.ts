@@ -1,18 +1,3 @@
-export interface DynamicData {
-  [key: string]: any
-}
-
-// Define an interface for the inner object
-export interface InnerObject {
-  [key: string]: any
-}
-
-export interface RecordData {
-  records: DynamicData[][]
-  fieldNames: string[]
-  mapTemplateName: string
-}
-
 export interface MergeRule {
   /**
    * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
@@ -61,18 +46,24 @@ export interface MergeRule {
 }
 
 export type RequestBody = { recordData: RecordData } & { mergeRule: MergeRule }
+
+export interface InnerObject {
+  [key: string]: any
+}
+
+export interface DynamicData {
+  [key: string]: any
+}
+
+export interface RecordData {
+  records: DynamicData[][]
+  fieldNames: string[]
+  mapTemplateName: string
+}
+
 export type RequestBodyPET = { recordData: RecordData } & {
   insertOnNoMatch: boolean
   updateOnMatch: string
   matchColumnName1: string
   matchColumnName2: string
 }
-
-// interface FetchRequest {
-//   method: string;
-//   headers: {
-//     Authorization: string;
-//     'Content-Type': string;
-//   };
-//   body: string;
-// }
