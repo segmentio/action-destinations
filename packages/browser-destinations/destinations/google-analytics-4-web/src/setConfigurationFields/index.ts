@@ -109,25 +109,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       ...payload.params
     }
 
-    if (settings.cookieUpdate) {
-      config.cookie_update = settings.cookieUpdate
-    }
-    if (settings.cookieDomain) {
-      config.cookie_domain = settings.cookieDomain
-    }
-    if (settings.cookiePrefix) {
-      config.cookie_prefix = settings.cookiePrefix
-    }
-    if (settings.cookieExpirationInSeconds) {
-      config.cookie_expires = settings.cookieExpirationInSeconds
-    }
-    if (settings.cookiePath) {
-      config.cookie_path = settings.cookiePath
-    }
-    if (settings.pageView) {
-      config.send_page_view = settings.pageView
-    }
-
     if (settings.cookieUpdate != true) {
       config.cookie_update = settings.cookieUpdate
     }
@@ -188,9 +169,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (payload.campaign_content) {
       config.campaign_content = payload.campaign_content
-    }
-    if (settings.pageView != true) {
-      config.send_page_view = settings.pageView
     }
 
     gtag('config', settings.measurementID, config)
