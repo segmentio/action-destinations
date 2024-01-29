@@ -110,3 +110,13 @@ export interface AssociationLabel {
 export interface GetAssociationLabelResponse {
   results: AssociationLabel[]
 }
+export interface GetCustomEventsResult {
+  name: string
+  fullyQualifiedName: string
+}
+export interface GetCustomEventResponse {
+  data: {
+    total: number
+    results: GetCustomEventsResult[]
+  }
+}

@@ -13,7 +13,8 @@ import {
   devrevApiPaths,
   CreateAccountBody,
   getName,
-  getBaseUrl
+  getBaseUrl,
+  CreateRevUserBody
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -155,14 +156,16 @@ const action: ActionDefinition<Settings, Payload> = {
         (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
       )
       revOrgId = filtered[0].id
+      const createUserPayload: CreateRevUserBody = {
+        email,
+        display_name: name,
+        external_ref: email,
+        org_id: revOrgId
+      }
+      if (payload.tag) createUserPayload.tags = [{ id: payload.tag }]
       const createRevUser: RevUserGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.revUsersCreate}`, {
         method: 'post',
-        json: {
-          email,
-          display_name: name,
-          external_ref: email,
-          org_id: revOrgId
-        }
+        json: createUserPayload
       })
       revUserId = createRevUser.data.rev_user.id
     } else if (existingUsers.data.rev_users.length == 1) {

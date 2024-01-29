@@ -205,6 +205,33 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
+    it('should send SMS with content sid and <nil> body', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: '<nil>'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      await testAction({
+        mappingOverrides: {
+          contentSid
+        },
+        mappingOmitKeys: ['body']
+      })
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+    })
+
     it('should send MMS with media in payload', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',

@@ -196,6 +196,30 @@ registerDirective('@literal', (value, payload) => {
   return resolve(value, payload)
 })
 
+registerDirective('@json', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@json requires an object with a "value" key')
+  }
+
+  if (!opts.mode) {
+    throw new Error('@json requires a "mode" key')
+  }
+
+  if (!opts.value) {
+    throw new Error('@json requires a "value" key')
+  }
+
+  const value = resolve(opts.value, payload)
+  if (opts.mode === 'encode') {
+    return JSON.stringify(value)
+  } else if (opts.mode === 'decode') {
+    if (typeof value === 'string') {
+      return JSON.parse(value)
+    }
+    return value
+  }
+})
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
