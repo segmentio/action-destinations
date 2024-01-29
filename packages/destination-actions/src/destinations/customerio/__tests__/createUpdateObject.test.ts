@@ -12,10 +12,12 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          industry: 'Technology',
-          created_at: timestamp,
-          object_type_id: '1'
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            industry: 'Technology',
+            created_at: timestamp
+          }
         }
 
         const attributes = {
@@ -55,9 +57,11 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          created_at: timestamp,
-          object_type_id: '1'
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            created_at: timestamp
+          }
         }
 
         const attributes = {
@@ -97,9 +101,11 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          created_at: timestamp,
-          object_type_id: '2'
+          object_type_id: '2',
+          objectAttributes: {
+            name: 'Sales',
+            created_at: timestamp
+          }
         }
 
         const attributes = {
@@ -139,8 +145,10 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          created_at: timestamp
+          objectAttributes: {
+            name: 'Sales',
+            created_at: timestamp
+          }
         }
 
         const attributes = {
@@ -217,8 +225,7 @@ describe('CustomerIO', () => {
         const groupId = 'grp123'
         const typeId = '1'
         const attributes = {
-          anonymous_id: anonymousId,
-          objectTypeId: typeId
+          anonymous_id: anonymousId
         }
 
         const event = createTestEvent({
@@ -257,8 +264,7 @@ describe('CustomerIO', () => {
         const groupId = 'grp123'
         const typeId = '1'
         const attributes = {
-          anonymous_id: anonymousId,
-          objectTypeId: typeId
+          anonymous_id: anonymousId
         }
 
         const event = createTestEvent({
@@ -297,8 +303,10 @@ describe('CustomerIO', () => {
         const groupId = 'grp123'
         const typeId = '1'
         const traits = {
-          name: 'Sales',
-          object_type_id: '1'
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales'
+          }
         }
 
         const attributes = {
@@ -336,9 +344,11 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          createdAt: timestamp,
-          object_type_id: '1'
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            createdAt: timestamp
+          }
         }
 
         const attributes = {
@@ -378,13 +388,12 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          createdAt: timestamp,
-          object_type_id: '1'
-        }
-
-        const context = {
-          relationshipTraits: {
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            createdAt: timestamp
+          },
+          relationshipAttributes: {
             role: 'admin',
             prefix: 'Mr.'
           }
@@ -409,8 +418,7 @@ describe('CustomerIO', () => {
           anonymousId,
           timestamp,
           traits,
-          groupId,
-          context
+          groupId
         })
         const response = await action('createUpdateObject', {
           event,
@@ -437,13 +445,12 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          createdAt: timestamp,
-          object_type_id: '1'
-        }
-
-        const context = {
-          relationshipTraits: {
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            createdAt: timestamp
+          },
+          relationshipAttributes: {
             role: 'admin',
             createdAt: timestamp
           }
@@ -468,8 +475,7 @@ describe('CustomerIO', () => {
           anonymousId,
           timestamp,
           traits,
-          groupId,
-          context
+          groupId
         })
         const response = await action('createUpdateObject', {
           event,
@@ -495,13 +501,12 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'grp123'
         const traits = {
-          name: 'Sales',
-          createdAt: timestamp,
-          object_type_id: '1'
-        }
-
-        const context = {
-          relationshipTraits: {
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            createdAt: timestamp
+          },
+          relationshipAttributes: {
             role: 'admin',
             createdAt: timestamp
           }
@@ -526,8 +531,7 @@ describe('CustomerIO', () => {
           anonymousId,
           timestamp,
           traits,
-          groupId,
-          context
+          groupId
         })
         const response = await action('createUpdateObject', {
           event,

@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Optional attributes for the object. When updating an object, attributes are added or updated, not removed.',
       type: 'object',
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits.objectAttributes'
       }
     },
     relationship_attributes: {
@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Optional attributes for the relationship between the object and the user. When updating an relationship, attributes are added or updated, not removed.',
       type: 'object',
       default: {
-        '@path': '$.context.relationshipTraits'
+        '@path': '$.traits.relationshipAttributes'
       }
     },
     user_id: {
