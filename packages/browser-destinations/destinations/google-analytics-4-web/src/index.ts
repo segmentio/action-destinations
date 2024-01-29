@@ -83,18 +83,21 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       description: `Appends additional flags to the analytics cookie.  See [write a new cookie](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie#write_a_new_cookie) for some examples of flags to set.`,
       label: 'Cookie Flag',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookiePath: {
       description: `Specifies the subpath used to store the analytics cookie.`,
       label: 'Cookie Path',
       type: 'string',
+      default: '/',
       multiple: true
     },
     cookiePrefix: {
       description: `Specifies a prefix to prepend to the analytics cookie name.`,
       label: 'Cookie Prefix',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookieUpdate: {
