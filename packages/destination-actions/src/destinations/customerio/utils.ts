@@ -1,23 +1,11 @@
+import Ajv from 'ajv'
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
-import { parseOneAddress } from 'email-addresses'
 
-export const trackApiEndpoint = ({ accountRegion }: { accountRegion?: string }) => {
-  if (accountRegion === AccountRegion.EU) {
-    return 'https://track-eu.customer.io'
-  }
-
-  return 'https://track.customer.io'
-}
-
-export enum AccountRegion {
-  US = 'US 🇺🇸',
-  EU = 'EU 🇪🇺'
-}
+const validateEmail = new Ajv().compile({ type: 'string', format: 'email' })
 
 const isEmail = (value: string): boolean => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  return !!parseOneAddress(value)
+  return !!validateEmail(value)
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -35,6 +23,19 @@ const isIsoDate = (value: string): boolean => {
   const matcher = new RegExp(isoformat)
 
   return typeof value === 'string' && matcher.test(value) && !isNaN(Date.parse(value))
+}
+
+export const trackApiEndpoint = ({ accountRegion }: { accountRegion?: string }) => {
+  if (accountRegion === AccountRegion.EU) {
+    return 'https://track-eu.customer.io'
+  }
+
+  return 'https://track.customer.io'
+}
+
+export enum AccountRegion {
+  US = 'US 🇺🇸',
+  EU = 'EU 🇪🇺'
 }
 
 export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
