@@ -199,6 +199,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           attributes,
+          created_at: dayjs.utc(timestamp).unix(),
           type: 'object',
           action: 'identify',
           identifiers: {
@@ -238,6 +239,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           attributes,
+          created_at: dayjs.utc(timestamp).unix(),
           type: 'object',
           action: 'identify',
           identifiers: {
@@ -277,6 +279,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           attributes,
+          created_at: dayjs.utc(timestamp).unix(),
           type: 'object',
           action: 'identify',
           identifiers: {
@@ -317,6 +320,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           attributes: attributes,
+          created_at: dayjs.utc(timestamp).unix(),
           type: 'object',
           action: 'identify',
           identifiers: {
