@@ -6,11 +6,13 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Post to Accoil',
   description: 'Send Data to Accoil Analytics',
   defaultSubscription: 'type = "track"',
+
   fields: {},
-  perform: (request, data) => {
+  perform: (request, { settings, payload }) => {
+    console.log('POSTING DATA TO ACCOIL', settings)
     return request('https://in.accoil.com/segment', {
       method: 'post',
-      json: data.payload
+      json: payload
     })
   }
 }

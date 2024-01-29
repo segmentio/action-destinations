@@ -7,6 +7,14 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Accoil Analytics',
   slug: 'actions-accoil-analytics',
   mode: 'cloud',
+  extendRequest({ settings }) {
+    console.log('EXTENDING REQUEST', settings.api_key)
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.api_key}`
+      }
+    }
+  },
   authentication: {
     scheme: 'custom',
     fields: {
@@ -22,11 +30,10 @@ const destination: DestinationDefinition<Settings> = {
         return await request(`https://in.accoil.com/segment`, {
           method: 'get',
           headers: {
-            'x-api-token': settings.api_key
+            Authorization: settings.api_key
           }
         })
       } catch (e: any) {
-        // const error = e as AggregationsAuthError
         if (e.response.data) {
           const { message } = e.response.data
           console.log('THIS IS ERROR', message)
