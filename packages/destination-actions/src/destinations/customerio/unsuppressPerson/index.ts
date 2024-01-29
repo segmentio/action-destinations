@@ -24,23 +24,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: (request, { payload: payloads, ...rest }) => {
+  performBatch: (request, { payload: payloads, settings }) => {
     return sendBatch(
       request,
       payloads.map((payload) => ({
-        ...rest,
         action: 'unsuppress',
         payload,
+        settings,
         type: 'person'
       }))
     )
   },
 
-  perform: (request, { payload, ...rest }) => {
+  perform: (request, { payload, settings }) => {
     return sendSingle(request, {
-      ...rest,
       action: 'unsuppress',
       payload,
+      settings,
       type: 'person'
     })
   }

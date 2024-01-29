@@ -28,15 +28,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: (request, { payload: payloads, ...rest }) => {
+  performBatch: (request, { payload: payloads, settings }) => {
     return sendBatch(
       request,
-      payloads.map((payload) => ({ ...rest, action: 'delete_device', payload: mapPayload(payload), type: 'person' }))
+      payloads.map((payload) => ({ action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' }))
     )
   },
 
-  perform: (request, { payload, ...rest }) => {
-    return sendSingle(request, { ...rest, action: 'delete_device', payload: mapPayload(payload), type: 'person' })
+  perform: (request, { payload, settings }) => {
+    return sendSingle(request, { action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' })
   }
 }
 

@@ -89,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: (request, { payload: payloads, ...rest }) => {
+  performBatch: (request, { payload: payloads, settings }) => {
     const payloadsByAction: Record<Action, Record<string, unknown>[]> = {
       identify: [],
       identify_anonymous: []
@@ -104,24 +104,24 @@ const action: ActionDefinition<Settings, Payload> = {
     return Promise.all([
       sendBatch(
         request,
-        payloadsByAction.identify.map((payload) => ({ ...rest, action: 'identify', payload, type: 'object' }))
+        payloadsByAction.identify.map((payload) => ({ action: 'identify', payload, settings, type: 'object' }))
       ),
       sendBatch(
         request,
         payloadsByAction.identify_anonymous.map((payload) => ({
-          ...rest,
           action: 'identify_anonymous',
           payload,
+          settings,
           type: 'object'
         }))
       )
     ])
   },
 
-  perform: (request, { payload, ...rest }) => {
+  perform: (request, { payload, settings }) => {
     const { action, body } = mapPayload(payload)
 
-    return sendSingle(request, { ...rest, action, payload: body, type: 'object' })
+    return sendSingle(request, { action, payload: body, settings, type: 'object' })
   }
 }
 

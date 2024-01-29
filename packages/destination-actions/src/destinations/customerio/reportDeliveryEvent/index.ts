@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { settings, payload }) => {
+  perform: (request, { payload, settings }) => {
     const metricsRequest: MetricsV1Payload = {
       delivery_id: payload.delivery_id,
       metric: payload.metric,
