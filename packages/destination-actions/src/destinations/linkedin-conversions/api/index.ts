@@ -249,7 +249,8 @@ export class LinkedInConversions {
    * This issue is tracked in: https://segment.atlassian.net/browse/STRATCONN-3510
    */
   async temp_bulkAssociateCampignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
-    for (let i = 0; i < 4; i++) {
+    campaignIds = campaignIds.slice(0, 5)
+    for (let i = 0; i < campaignIds.length - 1; i++) {
       const campaignId = campaignIds[i]
       if (campaignId) {
         try {
@@ -263,7 +264,7 @@ export class LinkedInConversions {
         }
       }
     }
-    return await this.associateCampignToConversion(campaignIds[4])
+    return await this.associateCampignToConversion(campaignIds[campaignIds.length - 1])
   }
 
   async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {
