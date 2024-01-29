@@ -12,6 +12,7 @@ import type {
   GetConversionRuleResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
+import { IntegrationError } from '@segment/actions-core/*'
 export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
@@ -139,14 +140,19 @@ export class LinkedInConversions {
       const response: Array<Conversions> = []
       const result = await this.request<GetConversionListAPIResponse>(`${BASE_URL}/conversions`, {
         method: 'GET',
+        skipResponseCloning: true,
         searchParams: {
           q: 'account',
-          account: adAccountId
+          account: adAccountId,
+          start: 0,
+          count: 100
         }
       })
 
       result.data.elements.forEach((item) => {
-        response.push(item)
+        if (item.enabled && item.conversionMethod === 'CONVERSIONS_API') {
+          response.push(item)
+        }
       })
 
       const choices = response?.map((item) => {
@@ -236,13 +242,37 @@ export class LinkedInConversions {
     })
   }
 
-  async associateCampignToConversion(payload: Payload): Promise<ModifiedResponse> {
+  /**
+   * As a temporary workaround this method will associate the first 5 campaign IDs to the conversion rule.
+   * This is because the LinkedIn API Bulk Create Campaign Conversions endpoint is not working.
+   * This is limited to 5 because of the integrations timeout.
+   * This issue is tracked in: https://segment.atlassian.net/browse/STRATCONN-3510
+   */
+  async temp_bulkAssociateCampignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+    for (let i = 0; i < 4; i++) {
+      const campaignId = campaignIds[i]
+      if (campaignId) {
+        try {
+          await this.associateCampignToConversion(campaignId)
+        } catch (e) {
+          throw new IntegrationError(
+            `Campaign ID ${campaignId} err: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
+            JSON.stringify((e as { status: string | number }).status) ?? 'ASSOCIATE_CAMPAIGN_TO_CONVERSION_ERROR',
+            500
+          )
+        }
+      }
+    }
+    return await this.associateCampignToConversion(campaignIds[4])
+  }
+
+  async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {
     return this.request(
-      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
+      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
       {
         method: 'PUT',
         body: JSON.stringify({
-          campaign: `urn:li:sponsoredCampaign:${payload.campaignId}`,
+          campaign: `urn:li:sponsoredCampaign:${campaignId}`,
           conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
         })
       }
