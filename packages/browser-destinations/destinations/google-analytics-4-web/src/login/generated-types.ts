@@ -22,7 +22,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * If a send_to parameter is not set, events are routed to the default target group.
+   * If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag
    */
   send_to?: boolean
 }
