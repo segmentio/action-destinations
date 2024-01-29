@@ -6,6 +6,8 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-tiktok-offline-conversions'
 
+const timestamp = '2024-01-08T13:52:50.212Z'
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields with email`, async () => {
@@ -18,6 +20,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        timestamp: timestamp,
         properties: {
           ...eventData,
           email: 'test@test.com'
@@ -26,7 +29,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, email_addresses: { '@path': 'properties.email' } },
+        mapping: { ...event.properties, email_addresses: { '@path': 'properties.email' }, timestamp: { '@path': 'timestamp' }  },
         settings: settingsData,
         auth: undefined
       })
@@ -55,6 +58,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        timestamp: timestamp,
         properties: {
           ...eventData,
           phone: '+353858764535'
@@ -63,7 +67,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, phone_numbers: { '@path': 'properties.phone' } },
+        mapping: { ...event.properties, phone_numbers: { '@path': 'properties.phone' }, timestamp: { '@path': 'timestamp' } },
         settings: settingsData,
         auth: undefined
       })
@@ -92,6 +96,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        timestamp: timestamp,
         properties: {
           ...eventData,
           email: 'test@test.com'
@@ -100,7 +105,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, email_addresses: { '@path': 'properties.email' } },
+        mapping: { ...event.properties, email_addresses: { '@path': 'properties.email' } , timestamp: { '@path': 'timestamp' } },
         settings: settingsData,
         auth: undefined
       })
@@ -127,6 +132,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        timestamp: timestamp,
         properties: {
           ...eventData,
           phone: '+3538587346'
@@ -135,7 +141,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, phone_numbers: { '@path': 'properties.phone' } },
+        mapping: { ...event.properties, phone_numbers: { '@path': 'properties.phone' }, timestamp: { '@path': 'timestamp' } },
         settings: settingsData,
         auth: undefined
       })
