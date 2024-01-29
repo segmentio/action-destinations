@@ -27,7 +27,7 @@ export function formatUserId(userId: string | undefined): string | undefined {
  * Note it is up to the advertiser to pass only valid phone numbers and formats.
  * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.
  */
-export function formatPhone(phone: string | undefined): string | undefined {
+export function formatPhone(phone: string | undefined): string | undefined{
   if (!phone) return undefined
 
   const validatedPhone = phone.match(/[0-9]{0,14}/g)
