@@ -49,6 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.userId' }
     },
+    /*
+     *  Scope: Connection + Engage Global scoped field
+     */
     engage_audience_key: {  
       label: 'Engage Audience Key', 
       description: "The Engage Audience's Key. This field is only used when syncing a Engage Audience to Responsys.",

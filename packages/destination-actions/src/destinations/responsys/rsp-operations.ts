@@ -1,4 +1,4 @@
-import { Payload as PETPayload } from './asyncMergePetRecords/generated-types'
+import { Payload as PETPayload } from './asyncMergeConnectionsPetRecords/generated-types'
 import { Payload as ProfileMemberListPayload } from './asyncMergeProfileListMembers/generated-types'
 import { RecordData, RequestBodyPET, RequestBody } from './types'
 import { RequestClient } from '@segment/actions-core'
@@ -22,17 +22,13 @@ export const buildRecordData = (userDataArray: Record, mapTemplateName: string) 
   }
 }
 
-interface UserData {
-  [key: string]: unknown;
-  EMAIL_ADDRESS_: string | undefined;
-  CUSTOMER_ID_: string | undefined;
-}
+export const sendConnectionsPETData = async (request: RequestClient, payload: PETPayload[], settings: Settings) => {
 
-export const sendPETData = async (request: RequestClient, payload: PETPayload[], settings: Settings) => {
+  interface UserData {
+    [key: string]: unknown;
+  }
 
   const {
-    profileListName,
-    profileExtensionTable,
     insertOnNoMatch,
     matchColumnName1,
     matchColumnName2,
@@ -41,10 +37,7 @@ export const sendPETData = async (request: RequestClient, payload: PETPayload[],
   } = payload[0]
 
   const userDataArray = payload.map((obj) => {
-    const userData: UserData = { ...obj.userData, EMAIL_ADDRESS_: obj.email, CUSTOMER_ID_: obj.customer_id };
-    if (typeof obj.engage_audience_key === 'string') {
-      userData[obj.engage_audience_key.toUpperCase()] = obj.properties_or_traits[obj.engage_audience_key];
-    }
+    const userData: UserData = { ...obj.userData };
     return userData;
   });
 
@@ -57,7 +50,7 @@ export const sendPETData = async (request: RequestClient, payload: PETPayload[],
     matchColumnName2: matchColumnName2 || ''
   }
 
-  const path = `/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${profileExtensionTable}/members`
+  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
 

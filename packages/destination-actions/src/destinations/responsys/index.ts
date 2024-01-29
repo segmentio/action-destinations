@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import asyncMergeProfileListMembers from './asyncMergeProfileListMembers'
-import asyncMergePetRecords from './asyncMergePetRecords'
+import asyncMergePetRecords from './asyncMergeConnectionsPetRecords'
 
 interface RefreshTokenResponse {
   authToken: string
@@ -34,6 +34,64 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri',
         required: true
+      },
+      profileListName: {   
+        label: 'List Name',
+        description: "Name of the Profile Extension Table's Contact List.",
+        type: 'string',
+        required: true
+      },
+      profileExtensionTable: {  
+        label: 'PET Name',
+        description: 'Profile Extension Table (PET) Name',
+        type: 'string',
+        required: true
+      },
+      insertOnNoMatch: {
+        label: 'Insert On No Match',
+        description: 'Indicates what should be done for records where a match is not found.',
+        type: 'boolean',
+        default: true, 
+        required: true
+      },
+      matchColumnName1: {
+        label: 'First Column Match',
+        description: 'First match column for determining whether an insert or update should occur.',
+        type: 'string',
+        choices: [
+          { label: 'RIID', value: 'RIID' },
+          { label: 'CUSTOMER_ID', value: 'CUSTOMER_ID' },
+          { label: 'EMAIL_ADDRESS', value: 'EMAIL_ADDRESS' },
+          { label: 'MOBILE_NUMBER', value: 'MOBILE_NUMBER' },
+          { label: 'EMAIL_MD5_HASH', value: 'EMAIL_MD5_HASH' },
+          { label: 'EMAIL_SHA256_HASH', value: 'EMAIL_SHA256_HASH' }
+        ], 
+        default: 'EMAIL_ADDRESS',
+        required: true
+      },
+      matchColumnName2: {
+        label: 'Second Column Match',
+        description: 'Second match column for determining whether an insert or update should occur.',
+        type: 'string',
+        choices: [
+          { label: 'RIID', value: 'RIID' },
+          { label: 'CUSTOMER_ID', value: 'CUSTOMER_ID' },
+          { label: 'EMAIL_ADDRESS', value: 'EMAIL_ADDRESS' },
+          { label: 'MOBILE_NUMBER', value: 'MOBILE_NUMBER' },
+          { label: 'EMAIL_MD5_HASH', value: 'EMAIL_MD5_HASH' },
+          { label: 'EMAIL_SHA256_HASH', value: 'EMAIL_SHA256_HASH' }
+        ]
+      },
+      updateOnMatch: {
+        label: 'Update On Match',
+        description: 'Controls how the existing record should be updated. Defaults to Replace All.',
+        type: 'string',
+        required: true,
+        choices: [
+          { label: 'Replace All', value: 'REPLACE_ALL' },
+          { label: 'No Update', value: 'NO_UPDATE' }
+        ], 
+        default: 'REPLACE_ALL'
       }
     },
     testAuthentication: (_, { settings }) => {
