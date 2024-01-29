@@ -49,12 +49,12 @@ export class MolocoEvent {
     decisionTrackId: InputField = DECISION_TRACK_ID;
 
     // Optional Fields; some events have these fields as required or optional OR not at all
-    items?: InputField;
-    revenue?: InputField;
-    searchQuery?: InputField;
-    pageId?: InputField;
-    referrerPageId?: InputField;
-    shippingCharge?: InputField;
+    items?: InputField = undefined;
+    revenue?: InputField = undefined;
+    searchQuery?: InputField = undefined;
+    pageId?: InputField = undefined;
+    referrerPageId?: InputField = undefined;
+    shippingCharge?: InputField = undefined;
 
     // Constructor for MolocoEvent
     // If a field's requirement is not passed, it is not included in the event
@@ -81,12 +81,12 @@ export class MolocoEvent {
     }
 
     private assignOptionalFields(option: OptionalFieldsOption): void {
-        this.items = option.requireItems !== null ? items(Boolean(option.requireItems)) : undefined;
-        this.revenue = option.requireRevenue !== null ? revenue(Boolean(option.requireRevenue)) : undefined;
-        this.searchQuery = option.requireSearchQuery !== null ? searchQuery(Boolean(option.requireSearchQuery)) : undefined;
-        this.pageId = option.requirePageId !== null ? pageId(Boolean(option.requirePageId)) : undefined;
-        this.referrerPageId = option.requireReferrerPageId !== null ? referrerPageId(Boolean(option.requireReferrerPageId)) : undefined;
-        this.shippingCharge = option.requireShippingCharge !== null ? shippingCharge(Boolean(option.requireShippingCharge)) : undefined;
+        this.items = option.requireItems !== undefined ? items(Boolean(option.requireItems)) : undefined;
+        this.revenue = option.requireRevenue !== undefined ? revenue(Boolean(option.requireRevenue)) : undefined;
+        this.searchQuery = option.requireSearchQuery !== undefined ? searchQuery(Boolean(option.requireSearchQuery)) : undefined;
+        this.pageId = option.requirePageId !== undefined ? pageId(Boolean(option.requirePageId)) : undefined;
+        this.referrerPageId = option.requireReferrerPageId !== undefined ? referrerPageId(Boolean(option.requireReferrerPageId)) : undefined;
+        this.shippingCharge = option.requireShippingCharge !== undefined ? shippingCharge(Boolean(option.requireShippingCharge)) : undefined;
     }
 
     private getCommonFields(): Record<string, InputField> {
@@ -131,6 +131,8 @@ export class MolocoEvent {
         return optionalFields
     }
 
+    // Get the fields for the event
+    // Fields returned by this function are exposed to the user in the Segment UI
     public getFields(): Record<string, InputField> {
         return {
             ...this.getCommonFields(),
@@ -138,8 +140,9 @@ export class MolocoEvent {
         };
     }
 
-    public buildJSONBody(payload: MolocoEventPayload): any {
-        // TODO: build a json body from the payload
+    // Build the body of the event
+    // This is the payload that is sent to the Moloco RMP API
+    public buildBody(payload: MolocoEventPayload): any {
         return payload;
     }
 }
