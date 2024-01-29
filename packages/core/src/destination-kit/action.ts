@@ -149,6 +149,8 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   payload: Payload
   page?: string
   auth?: AuthTokens
+  features?: Features | undefined
+  statsContext?: StatsContext | undefined
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
