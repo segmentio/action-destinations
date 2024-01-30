@@ -225,6 +225,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     campaignId: {
       label: 'Campaign',
       type: 'string',
+      multiple: true,
       required: true,
       dynamic: true,
       description: 'A dynamic field dropdown which fetches all active campaigns.'
@@ -257,7 +258,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
-      await linkedinApiClient.associateCampignToConversion(payload)
+      await linkedinApiClient.temp_bulkAssociateCampignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       return error

@@ -99,7 +99,7 @@ describe('LinkedIn Conversions', () => {
       }
       nock(`${BASE_URL}`)
         .get(`/conversions`)
-        .query({ q: 'account', account: payload.adAccountId })
+        .query({ q: 'account', account: payload.adAccountId, start: 0, count: 100 })
         .reply(200, {
           elements: [
             {
