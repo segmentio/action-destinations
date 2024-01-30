@@ -271,6 +271,64 @@ export class LinkedInConversions {
     return await this.associateCampignToConversion(campaignIds[campaignIds.length - 1])
   }
 
+  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+    if (campaignIds.length === 1) {
+      return this.associateCampignToConversion(campaignIds[0])
+    }
+    
+    /**
+     * campaign[0]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaign0>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     * ...
+     * campaign[n]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaignn>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     */
+    const campaignConversions = new Map<string, string>(
+      campaignIds.map((campaignId) => {
+        return [
+          campaignId,
+          `(campaign:${encodeURIComponent(`urn:li:sponsoredCampaign:${campaignId}`)},conversion:${encodeURIComponent(
+            `urn:lla:llaPartnerConversion:${this.conversionRuleId})`
+          )}`
+        ]
+      })
+    )
+
+    /**
+     * {
+     *  campaignConversions.get(campaignIds[0]): {
+     *    campaign: `urn:li:sponsoredCampaign:${campaignIds[0]}`,
+     *    conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     *  },
+     * ...
+     * campaignConversions.get(campaignIds[n]): {
+     *   campaign: `urn:li:sponsoredCampaign:${campaignIds[n]}`,
+     *  conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     * }
+     */
+    const entities = Object.fromEntries(
+      Array.from(campaignConversions, ([id, value]) => [
+        value,
+        {
+          campaign: `urn:li:sponsoredCampaign:${id}`,
+          conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+        }
+      ])
+    )
+
+    const listString = Array.from(campaignConversions, ([_, value]) => value).join(',')
+
+    return this.request(`${BASE_URL}/campaignConversions?ids=List(${listString})`, {
+      method: 'PUT',
+      json: {
+        entities
+      },
+      headers: {
+        'X-RestLi-Method': 'BATCH_CREATE',
+        'content-type': 'application/json',
+        'X-Restli-Protocol-Version': '2.0.0'
+      }
+    })
+  }
+
   async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {
     return this.request(
       `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
