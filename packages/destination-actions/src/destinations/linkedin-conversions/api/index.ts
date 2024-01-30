@@ -1,10 +1,4 @@
-import {
-  RequestClient,
-  ModifiedResponse,
-  DynamicFieldResponse,
-  ActionHookResponse,
-  IntegrationError
-} from '@segment/actions-core'
+import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
 import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
@@ -248,28 +242,57 @@ export class LinkedInConversions {
     })
   }
 
-  /**
-   * As a temporary workaround this method will associate campaign IDs to the conversion rule with a loop.
-   * This is because the LinkedIn API Bulk Create Campaign Conversions endpoint is not working.
-   * This may cause timeouts if there are too many campaigns to associate.
-   * This issue is tracked in: https://segment.atlassian.net/browse/STRATCONN-3510
-   */
-  async temp_bulkAssociateCampignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
-    for (let i = 0; i < campaignIds.length - 1; i++) {
-      const campaignId = campaignIds[i]
-      if (campaignId) {
-        try {
-          await this.associateCampignToConversion(campaignId)
-        } catch (e) {
-          throw new IntegrationError(
-            `Campaign ID ${campaignId} err: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
-            JSON.stringify((e as { status: string | number }).status) ?? 'ASSOCIATE_CAMPAIGN_TO_CONVERSION_ERROR',
-            500
-          )
-        }
-      }
+  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+    if (campaignIds.length === 1) {
+      return this.associateCampignToConversion(campaignIds[0])
     }
-    return await this.associateCampignToConversion(campaignIds[campaignIds.length - 1])
+
+    /**
+     * campaign[0]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaign0>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     * ...
+     * campaign[n]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaignn>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     */
+    const campaignConversions = new Map<string, string>(
+      campaignIds.map((campaignId) => {
+        return [
+          campaignId,
+          `(campaign:${encodeURIComponent(`urn:li:sponsoredCampaign:${campaignId}`)},conversion:${encodeURIComponent(
+            `urn:lla:llaPartnerConversion:${this.conversionRuleId})`
+          )}`
+        ]
+      })
+    )
+
+    /**
+     * {
+     *  campaignConversions.get(campaignIds[0]): {
+     *    campaign: `urn:li:sponsoredCampaign:${campaignIds[0]}`,
+     *    conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     *  },
+     * ...
+     * campaignConversions.get(campaignIds[n]): {
+     *   campaign: `urn:li:sponsoredCampaign:${campaignIds[n]}`,
+     *  conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     * }
+     */
+    const entities = Object.fromEntries(
+      Array.from(campaignConversions, ([id, value]) => [
+        value,
+        {
+          campaign: `urn:li:sponsoredCampaign:${id}`,
+          conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+        }
+      ])
+    )
+
+    const listString = Array.from(campaignConversions, ([_, value]) => value).join(',')
+
+    return this.request(`${BASE_URL}/campaignConversions?ids=List(${listString})`, {
+      method: 'PUT',
+      json: {
+        entities
+      }
+    })
   }
 
   async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {

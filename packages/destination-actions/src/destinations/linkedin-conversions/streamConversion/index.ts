@@ -228,7 +228,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
-      await linkedinApiClient.temp_bulkAssociateCampignToConversion(payload.campaignId)
+      await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       return error
