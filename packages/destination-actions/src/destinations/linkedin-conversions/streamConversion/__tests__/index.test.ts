@@ -240,7 +240,7 @@ describe('LinkedinConversions.dynamicField', () => {
 
 describe('LinkedinConversions.timestamp', () => {
   it('should convert a human readable date to a unix timestamp', async () => {
-    event.timestamp = '2023-11-01T12:12:12.125Z'
+    event.timestamp = new Date().toISOString()
 
     const associateCampignToConversion = {
       campaign: 'urn:li:sponsoredCampaign:123456`',
@@ -312,7 +312,7 @@ describe('LinkedinConversions.timestamp', () => {
   })
 
   it('should convert a string unix timestamp to a number', async () => {
-    event.timestamp = '1698840732125'
+    event.timestamp = Date.now().toString()
 
     const associateCampignToConversion = {
       campaign: 'urn:li:sponsoredCampaign:123456`',
