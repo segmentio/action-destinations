@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "^3.94.1-staging.0",
-    "@segment/actions-shared": "^1.75.1-staging.0",
+    "@segment/actions-shared": "^1.75.0",
     "@segment/browser-destination-runtime": "^1.24.1-staging.0"
   },
   "peerDependencies": {
