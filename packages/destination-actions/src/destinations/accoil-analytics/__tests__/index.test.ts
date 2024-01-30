@@ -10,8 +10,7 @@ describe('Accoil Analytics', () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = {}
-
+      const authData = { api_key: 'secret' }
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
   })

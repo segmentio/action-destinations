@@ -9,9 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {},
   perform: (request, { settings, payload }) => {
-    console.log('POSTING DATA TO ACCOIL', settings)
-    return request('https://in.accoil.com/segment', {
+    return request(`https://in.accoil.com/segment`, {
       method: 'post',
+      headers: {
+        Authorization: `Basic ${settings.api_key}`
+      },
       json: payload
     })
   }

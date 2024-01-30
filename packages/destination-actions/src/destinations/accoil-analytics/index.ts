@@ -7,31 +7,26 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Accoil Analytics',
   slug: 'actions-accoil-analytics',
   mode: 'cloud',
-  extendRequest({ settings }) {
-    console.log('EXTENDING REQUEST', settings.api_key)
-    return {
-      headers: {
-        Authorization: `Bearer ${settings.api_key}`
-      }
-    }
-  },
+
   authentication: {
     scheme: 'custom',
     fields: {
       api_key: {
         label: 'API Key',
-        description: 'Your Accoil.com API Key. This key requires Write permissions.',
+        description: 'Your Accoil.com API Key. You can find your API Key in your Accoil.com account settings.',
         type: 'password',
         required: true
       }
     },
     testAuthentication: async (request, { settings }) => {
+      console.log('THIS IS REQUEST', settings)
       try {
         return await request(`https://in.accoil.com/segment`, {
-          method: 'get',
+          method: 'post',
           headers: {
             Authorization: settings.api_key
-          }
+          },
+          json: {}
         })
       } catch (e: any) {
         if (e.response.data) {
@@ -49,6 +44,14 @@ const destination: DestinationDefinition<Settings> = {
     //   // implement this function and should remove it completely.
 
     // },
+  },
+  extendRequest: ({ settings }) => {
+    console.log('EXTENDING REQUEST', settings.api_key)
+    return {
+      headers: {
+        Authorization: `Basic ${settings.api_key}`
+      }
+    }
   },
   actions: {
     postToAccoil
