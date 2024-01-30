@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Accoil.com API Key. You can find your API Key in your Accoil.com account settings.
+   * Your base64 ecoded Accoil.com API Key. You can find your API Key in your Accoil.com account settings.
    */
   api_key: string
 }

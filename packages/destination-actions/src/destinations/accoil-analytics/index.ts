@@ -13,7 +13,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       api_key: {
         label: 'API Key',
-        description: 'Your baseAccoil.com API Key. You can find your API Key in your Accoil.com account settings.',
+        description:
+          'Your base64 ecoded Accoil.com API Key. You can find your API Key in your Accoil.com account settings.',
         type: 'password',
         required: true
       }
