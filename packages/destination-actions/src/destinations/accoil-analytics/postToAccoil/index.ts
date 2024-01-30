@@ -9,10 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
   fields: {},
   perform: (request, { settings, payload }) => {
+    const AUTH_KEY = settings.api_key + ':'
     return request(`https://in.accoil.com/segment`, {
       method: 'post',
       headers: {
-        Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
+        Authorization: `Basic ${Buffer.from(AUTH_KEY).toString('base64')}`
       },
       json: payload
     })
