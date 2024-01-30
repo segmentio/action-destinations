@@ -243,13 +243,13 @@ export class LinkedInConversions {
   }
 
   /**
-   * As a temporary workaround this method will associate the first 5 campaign IDs to the conversion rule.
+   * As a temporary workaround this method will associate campaign IDs to the conversion rule with a loop.
    * This is because the LinkedIn API Bulk Create Campaign Conversions endpoint is not working.
-   * This is limited to 5 because of the integrations timeout.
+   * This may cause timeouts if there are too many campaigns to associate.
    * This issue is tracked in: https://segment.atlassian.net/browse/STRATCONN-3510
    */
   async temp_bulkAssociateCampignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < campaignIds.length - 1; i++) {
       const campaignId = campaignIds[i]
       if (campaignId) {
         try {
@@ -263,7 +263,7 @@ export class LinkedInConversions {
         }
       }
     }
-    return await this.associateCampignToConversion(campaignIds[4])
+    return await this.associateCampignToConversion(campaignIds[campaignIds.length - 1])
   }
 
   async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {

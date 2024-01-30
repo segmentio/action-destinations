@@ -170,6 +170,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (payload.campaign_content) {
       config.campaign_content = payload.campaign_content
     }
+    if (settings.pageView != true) {
+      config.send_page_view = settings.pageView
+    }
+
     gtag('config', settings.measurementID, config)
   }
 }
