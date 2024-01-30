@@ -15,6 +15,7 @@ import {
     shippingCharge
 } from './fields'
 import { MolocoEventPayload } from './payload'
+import { BodyBuilder } from './body-builder'
 
 interface OptionalFieldsOption {
     requireItems?: boolean;
@@ -56,6 +57,8 @@ export class MolocoEvent {
     referrerPageId?: InputField = undefined;
     shippingCharge?: InputField = undefined;
 
+    bodyBuilder: BodyBuilder;
+
     // Constructor for MolocoEvent
     // If a field's requirement is not passed, it is not included in the event
     constructor(
@@ -70,6 +73,7 @@ export class MolocoEvent {
         }: OptionalFieldsOption = {}
     ) {
         this.eventType = eventType;
+        this.bodyBuilder = new BodyBuilder(eventType);
         this.assignOptionalFields({
             requireItems,
             requireRevenue,
@@ -141,8 +145,8 @@ export class MolocoEvent {
     }
 
     // Build the body of the event
-    // This is the payload that is sent to the Moloco RMP API
-    public buildBody(payload: MolocoEventPayload): any {
-        return payload;
+    // This will be sent to the Moloco RMP API
+    public buildBody(payload: MolocoEventPayload): Record<string, any> {
+        return this.bodyBuilder.build(payload);
     }
 }
