@@ -1,4 +1,10 @@
-import type { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
+import {
+  RequestClient,
+  ModifiedResponse,
+  DynamicFieldResponse,
+  ActionHookResponse,
+  IntegrationError
+} from '@segment/actions-core'
 import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
@@ -12,7 +18,7 @@ import type {
   GetConversionRuleResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
-import { IntegrationError } from '@segment/actions-core/*'
+
 export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
