@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://in.accoil.com/segment`, {
       method: 'post',
       headers: {
-        Authorization: `Basic ${settings.api_key}`
+        Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
       },
       json: payload
     })

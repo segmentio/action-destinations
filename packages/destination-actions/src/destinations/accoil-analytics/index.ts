@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         return await request(`https://in.accoil.com/segment`, {
           method: 'post',
           headers: {
-            Authorization: settings.api_key
+            Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
           },
           json: {}
         })
@@ -48,7 +48,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest: ({ settings }) => {
     return {
       headers: {
-        Authorization: `Basic ${settings.api_key}`
+        Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
       }
     }
   },
