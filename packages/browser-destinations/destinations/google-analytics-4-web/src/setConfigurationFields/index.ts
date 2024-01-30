@@ -110,7 +110,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
 
     if (settings.cookieUpdate != true) {
-      config.cookie_update = settings.cookieUpdate
+      config.cookie_update = false
     }
     if (settings.cookieDomain != 'auto') {
       config.cookie_domain = settings.cookieDomain
@@ -121,11 +121,11 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookieExpirationInSeconds != 63072000) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (!settings.cookiePath?.includes('/')) {
+    if (settings.cookiePath != undefined && !settings.cookiePath.includes('/')) {
       config.cookie_path = settings.cookiePath
     }
     if (settings.pageView != true) {
-      config.send_page_view = settings.pageView
+      config.send_page_view = settings.pageView ?? true
     }
 
     if (payload.screen_resolution) {
