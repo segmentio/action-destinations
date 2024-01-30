@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       api_key: {
         label: 'API Key',
-        description: 'Your Accoil.com API Key. You can find your API Key in your Accoil.com account settings.',
+        description: 'Your baseAccoil.com API Key. You can find your API Key in your Accoil.com account settings.',
         type: 'password',
         required: true
       }
@@ -31,8 +31,7 @@ const destination: DestinationDefinition<Settings> = {
       } catch (e: any) {
         if (e.response.data) {
           const { message } = e.response.data
-          console.log('THIS IS ERROR', message)
-          // throw new InvalidAuthenticationError(message)
+          throw new Error(message)
         }
         // throw new InvalidAuthenticationError('Error Validating Credentials')
       }
@@ -46,7 +45,6 @@ const destination: DestinationDefinition<Settings> = {
     // },
   },
   extendRequest: ({ settings }) => {
-    console.log('EXTENDING REQUEST', settings.api_key)
     return {
       headers: {
         Authorization: `Basic ${settings.api_key}`

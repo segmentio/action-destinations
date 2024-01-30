@@ -6,12 +6,14 @@ const testDestination = createTestIntegration(Definition)
 
 describe('Accoil Analytics', () => {
   describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+    it('should Test Auth Header', async () => {
+      nock('https://in.accoil.com')
+        .post('/segment')
+        .reply(400, { message: "API Key should start with 'Basic' and be followed by a space and your API key." })
 
       // This should match your authentication.fields
       const authData = { api_key: 'secret' }
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
     })
   })
 })
