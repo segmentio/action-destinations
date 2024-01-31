@@ -73,10 +73,10 @@ const processEventAction: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: async (request, { payload, settings }) => {
     return processEvents(request, settings, [payload])
   },
-  performBatch: (request, { payload, settings }) => {
+  performBatch: async (request, { payload, settings }) => {
     return processEvents(request, settings, payload)
   }
 }
