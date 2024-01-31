@@ -115,7 +115,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookieDomain != 'auto') {
       config.cookie_domain = settings.cookieDomain
     }
-    if (settings.cookiePrefix != undefined) {
+    if (settings.cookiePrefix) {
       config.cookie_prefix = settings.cookiePrefix
     }
     if (settings.cookieExpirationInSeconds != 63072000) {
@@ -126,6 +126,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (settings.pageView != true) {
       config.send_page_view = settings.pageView ?? true
+    }
+    if (settings.cookieFlags) {
+      config.cookie_flag = settings.cookieFlags
     }
 
     if (payload.screen_resolution) {
