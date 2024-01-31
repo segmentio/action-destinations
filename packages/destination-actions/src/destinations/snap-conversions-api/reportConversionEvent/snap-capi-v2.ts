@@ -5,7 +5,10 @@ import { Payload } from './generated-types'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
 //Check to see what ids need to be passed depending on the event_conversion_type
-const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
+const conversionType = (oldSettings: Settings, event_conversion_type: String): Settings => {
+  // copy on write
+  const settings = { ...oldSettings }
+
   if (event_conversion_type === 'MOBILE_APP') {
     if (!settings?.snap_app_id || !settings?.app_id) {
       throw new IntegrationError(
@@ -50,7 +53,10 @@ const transformProperty = (property: string, items: Array<Record<string, string 
     )
     .join(';')
 
-const formatPayload = (payload: Payload): Object => {
+const formatPayload = (oldPayload: Payload): Object => {
+  // copy on write
+  const payload = { ...oldPayload }
+
   //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
   if (payload.email) {
     //Removes all leading and trailing whitespace and converts all characters to lowercase.
