@@ -24,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true, 
+      additionalProperties: true,
       properties: {
         EMAIL_ADDRESS_: {  
           label: 'Email address', 

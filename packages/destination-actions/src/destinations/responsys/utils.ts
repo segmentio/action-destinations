@@ -10,7 +10,7 @@ export const sendStandardTraits = async (request: RequestClient, payload: Custom
 
   const records: unknown[][] = userDataArray.map(userData => {
     return userDataFieldNames.map(fieldName => {
-        return userData && userData[fieldName] !== undefined ? userData[fieldName] : '';
+        return userData && fieldName in userData ? userData[fieldName] : '';
     });
   });
 
