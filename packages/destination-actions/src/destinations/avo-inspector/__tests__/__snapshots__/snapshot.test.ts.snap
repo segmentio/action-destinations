@@ -3,8 +3,8 @@
 exports[`Testing snapshot for actions-avo-inspector destination: processEvent action - all fields 1`] = `
 Array [
   Object {
-    "appName": "unnamed Segment app",
-    "appVersion": "unversioned Segment app",
+    "appName": "#jQttUPxw$qcyFa&0",
+    "appVersion": "#jQttUPxw$qcyFa&0",
     "createdAt": "#jQttUPxw$qcyFa&0",
     "eventHash": null,
     "eventId": null,

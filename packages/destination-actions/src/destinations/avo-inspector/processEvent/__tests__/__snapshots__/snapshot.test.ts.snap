@@ -3,8 +3,8 @@
 exports[`Testing snapshot for AvoInspector's processEvent destination action: all fields 1`] = `
 Array [
   Object {
-    "appName": "unnamed Segment app",
-    "appVersion": "unversioned Segment app",
+    "appName": "#3r$SGPi3",
+    "appVersion": "#3r$SGPi3",
     "createdAt": "#3r$SGPi3",
     "eventHash": null,
     "eventId": null,
