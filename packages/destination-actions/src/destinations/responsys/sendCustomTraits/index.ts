@@ -4,7 +4,6 @@ import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
 import { sendCustomTraits } from '../utils'
 
-
 interface Data {
   rawMapping: {
     userData: {
@@ -50,15 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-
     const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
-    
     return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
   },
 
- // performBatch: async (request, {payload, mapping, settings}) => {
-  //  return sendStandardTraits(request, payload, settings)
- // }
+  performBatch: async (request, data) => {
+    const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
+    return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
+  }
 }
 
 export default action
