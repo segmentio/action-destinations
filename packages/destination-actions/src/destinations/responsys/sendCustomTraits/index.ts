@@ -50,13 +50,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, data) => {
 
-  
-
     const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
     
-
-    console.log('hello' + JSON.stringify(userDataFieldNames))
-    return sendStandardTraits(request, [data.payload], data.settings)
+    return sendStandardTraits(request, [data.payload], data.settings, userDataFieldNames)
   },
 
  // performBatch: async (request, {payload, mapping, settings}) => {

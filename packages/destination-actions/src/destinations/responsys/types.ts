@@ -1,16 +1,24 @@
-export interface MergeRule {
-  /**
-   * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
-   */
-  defaultPermissionStatus?: string
+export type MergeRule = {
   /**
    * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
    */
   htmlValue?: string
   /**
+   * Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.
+   */
+  optinValue?: string
+  /**
+   * Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.
+   */
+  textValue?: string
+  /**
    * Indicates what should be done for records where a match is not found.
    */
   insertOnNoMatch?: boolean
+  /**
+   * Controls how the existing record should be updated.
+   */
+  updateOnMatch?: string
   /**
    * First match column for determining whether an insert or update should occur.
    */
@@ -24,10 +32,6 @@ export interface MergeRule {
    */
   matchOperator?: string
   /**
-   * Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.
-   */
-  optinValue?: string
-  /**
    * Value of incoming opt-out status data that represents an optout status. For example, '0' may represent an opt-out status.
    */
   optoutValue?: string
@@ -36,34 +40,19 @@ export interface MergeRule {
    */
   rejectRecordIfChannelEmpty?: string
   /**
-   * Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.
+   * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
    */
-  textValue?: string
-  /**
-   * Controls how the existing record should be updated.
-   */
-  updateOnMatch?: string
+  defaultPermissionStatus?: 'OPTIN' | 'OPTOUT'
 }
 
-export type RequestBody = { recordData: RecordData } & { mergeRule: MergeRule }
+export type RecordData = {
+  fieldNames: string[];
+  records: unknown[][];
+  mapTemplateName: string;
+};
 
-export interface InnerObject {
-  [key: string]: any
-}
-
-export interface DynamicData {
-  [key: string]: any
-}
-
-export interface RecordData {
-  records: DynamicData[][]
-  fieldNames: string[]
-  mapTemplateName: string
-}
-
-export type RequestBodyPET = { recordData: RecordData } & {
-  insertOnNoMatch: boolean
-  updateOnMatch: string
-  matchColumnName1: string
-  matchColumnName2: string
+export type RequestBody = { 
+  recordData: RecordData 
+} & { 
+  mergeRule: MergeRule 
 }
