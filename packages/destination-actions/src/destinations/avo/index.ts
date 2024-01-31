@@ -2,8 +2,8 @@
 
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSchemaAction from './sendSchema'
-import { Environment } from './sendSchema/avo-types'
+import sendSchemaAction from './sendSchemaToInspector'
+import { Environment } from './sendSchemaToInspector/avo-types'
 
 // import {processEvent } from './avo'
 
