@@ -22,8 +22,7 @@ it('window object shouldnt be changed by actions core', async () => {
   await plugin.load(Context.system(), {} as Analytics)
 
   const windowAfter = Object.keys(window)
-  const diff = windowAfter.filter((element) => !windowBefore.includes(element))
 
   // window object shouldn't change as long as actions-core isn't changing it
-  expect(diff.length).toBe(0)
+  expect(windowBefore.sort()).toEqual(windowAfter.sort())
 })
