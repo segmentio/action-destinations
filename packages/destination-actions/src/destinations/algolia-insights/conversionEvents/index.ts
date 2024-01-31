@@ -30,7 +30,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     products: {
       label: 'Product Details',
       description:
-        'Populates the ObjectIds field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contains a product_id field.',
+        'Populates the ObjectIDs field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contain a product_id field.',
       type: 'object',
       multiple: true,
       properties: {
@@ -98,7 +98,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description:
-        'Currency of the objects associated with the event, in 3-letter ISO 4217 format. Required when `value` or `price` are set.',
+        'Currency of the objects associated with the event in 3-letter ISO 4217 format. Required when `value` or `price` is set.',
       label: 'Currency',
       default: { '@path': '$.properties.currency' }
     },
@@ -114,7 +114,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     },
     eventName: {
       label: 'Event Name',
-      description: "The name of the event to be send to Algolia. Defaults to 'Conversion Event'",
+      description: "The name of the event to send to Algolia. Defaults to 'Conversion Event'",
       type: 'string',
       required: false,
       default: 'Conversion Event'
@@ -126,9 +126,9 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       required: false,
       default: 'conversion',
       choices: [
-        { label: 'view', value: 'view' },
-        { label: 'conversion', value: 'conversion' },
-        { label: 'click', value: 'click' }
+        { label: 'View', value: 'view' },
+        { label: 'Conversion', value: 'conversion' },
+        { label: 'Click', value: 'click' }
       ]
     }
   },
@@ -148,7 +148,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       ...data.payload.extraProperties,
       eventName: data.payload.eventName ?? 'Conversion Event',
       eventType: (data.payload.eventType as AlgoliaEventType) ?? ('conversion' as AlgoliaEventType),
-      eventSubtype: data.payload.eventSubtype as AlgoliaEventSubtype,
+      eventSubtype: (data.payload.eventSubtype as AlgoliaEventSubtype) ?? 'purchase',
       index: data.payload.index,
       queryID: data.payload.queryID,
       objectIDs: data.payload.products.map((product) => product.product_id),
