@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-avo-inspector destination: processEvent action - all fields 1`] = `
+Array [
+  Object {
+    "appName": "unnamed Segment app",
+    "appVersion": "unversioned Segment app",
+    "createdAt": "#jQttUPxw$qcyFa&0",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "#jQttUPxw$qcyFa&0",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "#jQttUPxw$qcyFa&0",
+    "sessionId": "_",
+    "trackingId": "_",
+    "type": "event",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-avo-inspector destination: processEvent action - required fields 1`] = `
+Array [
+  Object {
+    "appName": "unnamed Segment app",
+    "appVersion": "unversioned Segment app",
+    "createdAt": "#jQttUPxw$qcyFa&0",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "#jQttUPxw$qcyFa&0",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "#jQttUPxw$qcyFa&0",
+    "sessionId": "_",
+    "trackingId": "_",
+    "type": "event",
+  },
+]
+`;

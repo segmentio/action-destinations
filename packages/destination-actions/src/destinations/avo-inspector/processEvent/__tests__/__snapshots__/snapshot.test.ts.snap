@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AvoInspector's processEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "appName": "unnamed Segment app",
+    "appVersion": "unversioned Segment app",
+    "createdAt": "#3r$SGPi3",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "#3r$SGPi3",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "#3r$SGPi3",
+    "sessionId": "_",
+    "trackingId": "_",
+    "type": "event",
+  },
+]
+`;
+
+exports[`Testing snapshot for AvoInspector's processEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "appName": "unnamed Segment app",
+    "appVersion": "unversioned Segment app",
+    "createdAt": "#3r$SGPi3",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "#3r$SGPi3",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "#3r$SGPi3",
+    "sessionId": "_",
+    "trackingId": "_",
+    "type": "event",
+  },
+]
+`;
