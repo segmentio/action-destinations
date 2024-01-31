@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
-import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Device',
@@ -27,27 +27,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-
-  performBatch: (request, { payload: payloads, settings }) => {
-    return sendBatch(
-      request,
-      payloads.map((payload) => ({ action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' }))
+  perform: (request, { settings, payload }) => {
+    return request(
+      `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.person_id}/devices/${payload.device_id}`,
+      {
+        method: 'delete'
+      }
     )
-  },
-
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' })
-  }
-}
-
-function mapPayload(payload: Payload) {
-  const { device_id, ...rest } = payload
-
-  return {
-    ...rest,
-    device: {
-      token: device_id
-    }
   }
 }
 

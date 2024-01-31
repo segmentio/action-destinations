@@ -1,7 +1,7 @@
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ActionDefinition } from '@segment/actions-core'
-import { sendBatch, sendSingle } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -13,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
       type: 'string',
+      required: true,
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -24,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymous_id: {
       label: 'Anonymous ID',
       description:
-        'An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).',
+        'An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).',
       type: 'string',
       default: {
         '@path': '$.anonymousId'
@@ -43,11 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A timestamp of when the person was created.',
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.created_at' },
-          then: { '@path': '$.traits.created_at' },
-          else: { '@path': '$.traits.createdAt' }
-        }
+        '@template': '{{traits.created_at}}'
       }
     },
     group_id: {
@@ -68,15 +65,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits'
       }
     },
-    relationship_attributes: {
-      label: 'Relationship Attributes',
-      description:
-        'Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.',
-      type: 'object',
-      default: {
-        '@path': '$.context.relationshipTraits'
-      }
-    },
     convert_timestamp: {
       label: 'Convert Timestamps',
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
@@ -89,63 +77,57 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.object_type_id' },
-          then: { '@path': '$.traits.object_type_id' },
-          else: { '@path': '$.traits.objectTypeId' }
-        }
+        '@path': '$.objectTypeId'
       }
     }
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
-    return sendBatch(
-      request,
-      payloads.map((payload) => ({ action: 'identify', payload: mapPayload(payload), settings, type: 'person' }))
-    )
-  },
+  perform: (request, { settings, payload }) => {
+    let createdAt: string | number | undefined = payload.created_at
+    let customAttributes = payload.custom_attributes
+    let objectTypeIDInTraits = null
+    const objectId = payload.group_id
+    const objectTypeId = payload.object_type_id
 
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: 'identify', payload: mapPayload(payload), settings, type: 'person' })
-  }
-}
+    if (payload.convert_timestamp !== false) {
+      if (createdAt) {
+        createdAt = convertValidTimestamp(createdAt)
+      }
 
-function mapPayload(payload: Payload) {
-  const { id, custom_attributes = {}, relationship_attributes, created_at, group_id, object_type_id, ...rest } = payload
-
-  // This is mapped to a field below.
-  delete custom_attributes.createdAt
-  delete custom_attributes.created_at
-
-  if (created_at) {
-    custom_attributes.created_at = created_at
-  }
-
-  if (payload.email) {
-    custom_attributes.email = payload.email
-  }
-
-  delete custom_attributes?.object_type_id
-
-  const body: Record<string, unknown> = {
-    ...rest,
-    person_id: id,
-    attributes: custom_attributes
-  }
-
-  // Adding Object Person relationship if group_id exists in the call. If the object_type_id is not given, default it to "1"
-  if (group_id) {
-    const relationship: { [key: string]: unknown } = {
-      identifiers: { object_type_id: object_type_id ?? '1', object_id: group_id }
+      if (customAttributes) {
+        customAttributes = convertAttributeTimestamps(customAttributes)
+        if (customAttributes.object_type_id && objectId) {
+          objectTypeIDInTraits = customAttributes.object_type_id
+          delete customAttributes.object_type_id
+        }
+      }
     }
-    // Adding relationship attributes if they exist
-    if (relationship_attributes) {
-      relationship.relationship_attributes = relationship_attributes
-    }
-    body.cio_relationships = [relationship]
-  }
 
-  return body
+    const body: Record<string, unknown> = {
+      ...customAttributes,
+      email: payload.email,
+      anonymous_id: payload.anonymous_id
+    }
+
+    if (createdAt) {
+      body.created_at = createdAt
+    }
+
+    // Adding Object Person relationship if group_id exists in the call. If the object_type_id is not given, default it to "1"
+    if (objectId) {
+      body.cio_relationships = {
+        action: 'add_relationships',
+        relationships: [
+          { identifiers: { object_type_id: objectTypeIDInTraits ?? objectTypeId ?? '1', object_id: objectId } }
+        ]
+      }
+    }
+
+    return request(`${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}`, {
+      method: 'put',
+      json: body
+    })
+  }
 }
 
 export default action

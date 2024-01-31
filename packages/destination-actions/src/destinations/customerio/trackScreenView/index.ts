@@ -1,7 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
-import { sendBatch, sendSingle } from '../utils'
+
+interface TrackScreenViewPayload {
+  name: string
+  type: 'screen'
+  timestamp?: string | number
+  data?: Record<string, unknown>
+  // Required for anonymous events
+  anonymous_id?: string
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Screen View',
@@ -24,15 +33,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.anonymousId'
-      }
-    },
-    event_id: {
-      label: 'Event ID',
-      description:
-        'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
-      type: 'string',
-      default: {
-        '@path': '$.messageId'
       }
     },
     name: {
@@ -67,27 +67,40 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
+  perform: (request, { settings, payload }) => {
+    let timestamp: string | number | undefined = payload.timestamp
+    let data = payload.data
 
-  performBatch: (request, { payload: payloads, settings }) => {
-    return sendBatch(
-      request,
-      payloads.map((payload) => ({ action: 'screen', payload: mapPayload(payload), settings, type: 'person' }))
-    )
-  },
+    if (payload.convert_timestamp !== false) {
+      if (timestamp) {
+        timestamp = convertValidTimestamp(timestamp)
+      }
 
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: 'screen', payload: mapPayload(payload), settings, type: 'person' })
-  }
-}
+      if (data) {
+        data = convertAttributeTimestamps(data)
+      }
+    }
 
-function mapPayload(payload: Payload) {
-  const { id, event_id, data, ...rest } = payload
+    const body: TrackScreenViewPayload = {
+      name: payload.name,
+      type: 'screen',
+      data,
+      timestamp
+    }
 
-  return {
-    ...rest,
-    person_id: id,
-    id: event_id,
-    attributes: data
+    let url: string
+
+    if (payload.id) {
+      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}/events`
+    } else {
+      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/events`
+      body.anonymous_id = payload.anonymous_id
+    }
+
+    return request(url, {
+      method: 'post',
+      json: body
+    })
   }
 }
 
