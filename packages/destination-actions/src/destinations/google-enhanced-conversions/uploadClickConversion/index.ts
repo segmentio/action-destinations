@@ -236,7 +236,11 @@ const action: ActionDefinition<Settings, Payload> = {
         localTransactionCost: payload.local_cost,
         items: cartItems
       },
-      userIdentifiers: []
+      userIdentifiers: [],
+      consent: {
+        adUserData: 'GRANTED',
+        adPersonalization: 'GRANTED'
+      }
     }
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
