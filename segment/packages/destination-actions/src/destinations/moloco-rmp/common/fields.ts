@@ -81,8 +81,8 @@ export const DEVICE: InputField = {
     uniqueDeviceId: {
       label: 'Unique Device ID',
       description: `For app traffic, a unique identifier for the device being used should be provided in this field.
-Clients can issue identifiers for their user devices or use their IDFV values if using iOS apps.
-The length of this id should not exceed 128 characters.`,
+  Clients can issue identifiers for their user devices or use their IDFV values if using iOS apps.
+  The length of this id should not exceed 128 characters.`,
       type: 'string',
       required: false,
       default: {
@@ -146,14 +146,16 @@ export const DECISION_TRACK_ID: InputField = {
 
 /* Variable Fields
   * The following fields may be included/excluded or have different label/description depending on the event type(action)
-  * Due to its varience, each fields are defined as a function that returns InputField
+  * Due to its variance, each fields are defined as a function that returns InputField
   */
-function money(label: string, description: string, required: boolean): InputField {
+function createMoneyInputField(params: { label: string; description: string; required: boolean; }): InputField {
+  const { label, description, required } = params;
+
   return {
     label,
-    description: description,
+    description,
     type: 'object',
-    required: required,
+    required,
     properties: {
       currency: {
         label: 'Currency',
@@ -199,7 +201,7 @@ function money(label: string, description: string, required: boolean): InputFiel
 }
 
 
-export function items(required: boolean): InputField {
+export function createItemsInputField(required: boolean): InputField {
   return {
     label: 'Items',
     description: 'Item information list related to the event.',
@@ -213,7 +215,7 @@ export function items(required: boolean): InputField {
         type: 'string',
         required: true
       },
-      price: money('Price', 'Price information of the item', false),
+      price: createMoneyInputField({ label: 'Price', description: 'Price information of the item', required: false }),
       quantity: {
         label: 'Quantity',
         description: 'Quantity of the item. Recommended.',
@@ -236,11 +238,11 @@ export function items(required: boolean): InputField {
   }
 }
 
-export function revenue(required: boolean): InputField {
-  return money('Revenue', 'Revenue of the event', required)
+export function createRevenueInputField(required: boolean): InputField {
+  return createMoneyInputField({ label: 'Revenue', description: 'Revenue of the event', required: required })
 }
 
-export function searchQuery(required: boolean): InputField {
+export function createSearchQueryInputField(required: boolean): InputField {
   return {
     label: 'Search Query',
     description: 'Query string for the search.',
@@ -249,12 +251,12 @@ export function searchQuery(required: boolean): InputField {
   }
 }
 
-export function pageId(required: boolean): InputField {
+export function createPageIdInputField(required: boolean): InputField {
   return {
     label: 'Page ID',
     description: `A string that can identify a context of the event,
-    such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
-    Any value is acceptable if it helps identifying unique pages.`,
+  such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
+  Any value is acceptable if it helps identifying unique pages.`,
     type: 'string',
     required: required,
     default: {
@@ -263,10 +265,10 @@ export function pageId(required: boolean): InputField {
   }
 }
 
-export function referrerPageId(required: boolean): InputField {
+export function createReferrerPageIdInputField(required: boolean): InputField {
   return {
-    label: 'Referer Page ID',
-    description: `Similar to referer in HTTP, this value indicates from which page the user came to the current page.`,
+    label: 'Referrer Page ID',
+    description: `Similar to referrer in HTTP, this value indicates from which page the user came to the current page.`,
     type: 'string',
     required: required,
     default: {
@@ -275,6 +277,6 @@ export function referrerPageId(required: boolean): InputField {
   }
 }
 
-export function shippingCharge(required: boolean): InputField {
-  return money('Shipping Charge', 'Shipping charge’s monetary amount in a specific currency.', required)
+export function createShippingChargeInputField(required: boolean): InputField {
+  return createMoneyInputField({ label: 'Shipping Charge', description: 'Shipping charge’s monetary amount in a specific currency.', required: required })
 }
