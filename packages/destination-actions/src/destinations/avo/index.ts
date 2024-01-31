@@ -2,16 +2,16 @@
 
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import processEventAction from './processEvent'
-import { Environment } from './processEvent/avo-types'
+import sendSchemaAction from './sendSchema'
+import { Environment } from './sendSchema/avo-types'
 
 // import {processEvent } from './avo'
 
 //import { SegmentEvent } from './avo-types'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Avo Inspector (Actions)',
-  slug: 'actions-avo-inspector',
+  name: 'Avo',
+  slug: 'actions-avo',
   mode: 'cloud',
 
   authentication: {
@@ -49,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    processEvent: processEventAction // Add your action here
+    sendSchemaToInspector: sendSchemaAction // Add your action here
   }
 }
 
