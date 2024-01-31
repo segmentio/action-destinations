@@ -10,20 +10,16 @@ function getAppNameFromUrl(url: string) {
 }
 
 function generateBaseBody(event: Payload): BaseBody {
-  const device = event.context.device as Record<string, string> | null
-  const app = event.context.app as Record<string, string> | null
-  const page = event.context.page as Record<string, string> | null
+  const appName = event.appName ?? (event.pageUrl ? getAppNameFromUrl(event.pageUrl) : 'unnamed Segment app')
+  const appVersion = event.appVersion ?? 'unversioned Segment app'
 
-  const appName = app?.['name'] ?? (page?.['url'] ? getAppNameFromUrl(page['url']) : 'unnamed Segment app')
-  const appVersion = app?.['version'] ?? 'unversioned Segment app'
-  const trackingId = device?.['advertisingId'] ?? '_'
   return {
     appName: appName,
     appVersion: appVersion,
     libVersion: '1.0.0',
     libPlatform: 'Segment',
     messageId: event.messageId,
-    trackingId,
+    trackingId: '_',
     createdAt: event.receivedAt,
     sessionId: '_'
   }
@@ -45,10 +41,6 @@ function handleEvent(baseBody: BaseBody, event: Payload): EventSchemaBody {
 }
 
 export function extractSchemaFromEvent(event: Payload) {
-  if (event.context == null) {
-    return
-  }
-
   const baseBody: BaseBody = generateBaseBody(event)
 
   const eventBody: EventSchemaBody = handleEvent(baseBody, event)

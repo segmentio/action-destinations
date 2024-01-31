@@ -45,15 +45,6 @@ const processEventAction: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
-    context: {
-      label: 'Context',
-      type: 'object',
-      description: 'Context of the event being sent',
-      required: true,
-      default: {
-        '@path': '$.context'
-      }
-    },
     messageId: {
       label: 'Message ID',
       type: 'string',
@@ -70,6 +61,33 @@ const processEventAction: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.receivedAt'
+      }
+    },
+    appVersion: {
+      label: 'App Version',
+      type: 'string',
+      description: 'Version of the app that sent the event',
+      required: false,
+      default: {
+        '@path': '$.context.app.version'
+      }
+    },
+    appName: {
+      label: 'App Name',
+      type: 'string',
+      description: 'Name of the app that sent the event',
+      required: false,
+      default: {
+        '@path': '$.context.app.name'
+      }
+    },
+    pageUrl: {
+      label: 'Page URL',
+      type: 'string',
+      description: 'URL of the page that sent the event',
+      required: false,
+      default: {
+        '@path': '$.context.page.url'
       }
     }
   },
