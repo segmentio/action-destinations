@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.',
       type: 'object',
       default: {
-        '@path': '$.context.relationshipTraits'
+        '@path': '$.traits.relationshipAttributes'
       }
     },
     convert_timestamp: {
@@ -116,6 +116,8 @@ function mapPayload(payload: Payload) {
   // This is mapped to a field below.
   delete custom_attributes.createdAt
   delete custom_attributes.created_at
+  delete custom_attributes?.object_type_id
+  delete custom_attributes?.relationshipAttributes
 
   if (created_at) {
     custom_attributes.created_at = created_at
@@ -124,8 +126,6 @@ function mapPayload(payload: Payload) {
   if (payload.email) {
     custom_attributes.email = payload.email
   }
-
-  delete custom_attributes?.object_type_id
 
   const body: Record<string, unknown> = {
     ...rest,

@@ -582,6 +582,10 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
         const groupId = 'g12345'
+        const relationshipAttributes = {
+          role: 'admin',
+          prefix: 'Mr.'
+        }
         const traits = {
           full_name: 'Test User',
           email: 'test@example.com',
@@ -590,16 +594,12 @@ describe('CustomerIO', () => {
             over18: true,
             identification: 'valid',
             birthdate
-          }
+          },
+          relationshipAttributes
         }
 
-        const relationshipTraits = {
-          role: 'admin',
-          prefix: 'Mr.'
-        }
         const context = {
-          groupId: groupId,
-          relationshipTraits: relationshipTraits
+          groupId: groupId
         }
 
         const event = createTestEvent({
@@ -630,7 +630,7 @@ describe('CustomerIO', () => {
           cio_relationships: [
             {
               identifiers: { object_type_id: '1', object_id: groupId },
-              relationship_attributes: relationshipTraits
+              relationship_attributes: relationshipAttributes
             }
           ],
           identifiers: {
