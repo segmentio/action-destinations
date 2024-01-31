@@ -80,7 +80,6 @@ const action: ActionDefinition<Settings, Payload> = {
       const [v2result, _v3result] = await Promise.all([
         performSnapCAPIv2(request, data),
 
-        // Wrap this in a try/catch with logging using stats logger (statsContext.statClient)
         (async () => {
           try {
             return await performSnapCAPIv3(request, data)

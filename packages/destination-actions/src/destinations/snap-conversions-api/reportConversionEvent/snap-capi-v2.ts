@@ -1,8 +1,8 @@
 import { ExecuteInput, IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
-import { createHash } from 'crypto'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
+import { isHashedEmail, hash, transformProperty } from './utils'
 
 //Check to see what ids need to be passed depending on the event_conversion_type
 const conversionType = (oldSettings: Settings, event_conversion_type: String): Settings => {
@@ -31,27 +31,6 @@ const conversionType = (oldSettings: Settings, event_conversion_type: String): S
   }
   return settings
 }
-
-const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-const transformProperty = (property: string, items: Array<Record<string, string | number | undefined>>): string =>
-  items
-    .map((i) =>
-      i[property] === undefined || i[property] === null
-        ? ''
-        : typeof i[property] === 'number'
-        ? (i[property] as number).toString()
-        : (i[property] as string).toString().replace(/;/g, '')
-    )
-    .join(';')
 
 const formatPayload = (oldPayload: Payload): Object => {
   // copy on write
