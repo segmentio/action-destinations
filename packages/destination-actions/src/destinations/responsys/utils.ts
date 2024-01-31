@@ -4,7 +4,7 @@ import { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 
-export const sendStandardTraits = async (request: RequestClient, payload: CustomTraitsPayload[], settings: Settings, userDataFieldNames: string[]) => {
+export const sendCustomTraits = async (request: RequestClient, payload: CustomTraitsPayload[], settings: Settings, userDataFieldNames: string[]) => {
 
   const userDataArray = payload.map((obj) => obj.userData)
 

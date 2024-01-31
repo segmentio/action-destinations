@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { sendStandardTraits } from '../utils'
+import { sendCustomTraits } from '../utils'
 
 
 interface Data {
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
     
-    return sendStandardTraits(request, [data.payload], data.settings, userDataFieldNames)
+    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
   },
 
  // performBatch: async (request, {payload, mapping, settings}) => {
