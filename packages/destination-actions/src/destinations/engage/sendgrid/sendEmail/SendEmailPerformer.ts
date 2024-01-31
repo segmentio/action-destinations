@@ -92,7 +92,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
   ) {
     const profileCopy = { ...liquidData.profile }
     for (const trait of Object.keys(profileCopy.traits || {})) {
-      if (profileCopy.traits && (profileCopy.traits[trait] === '<nil>' || profileCopy.traits[trait].trim() === '')) {
+      if (profileCopy.traits && (profileCopy.traits[trait] === '<nil>' || profileCopy.traits[trait]?.trim() === '')) {
         profileCopy.traits[trait] = ''
       }
     }
