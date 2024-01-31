@@ -1,7 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import asyncMergeProfileListMembers from './asyncMergeProfileListMembers'
-import asyncMergePetRecords from './asyncMergeConnectionsPetRecords'
+import sendCustomTraits from './sendCustomTraits'
 
 interface RefreshTokenResponse {
   authToken: string
@@ -124,8 +123,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    asyncMergeProfileListMembers,
-    asyncMergePetRecords
+    sendCustomTraits
   }
 }
 

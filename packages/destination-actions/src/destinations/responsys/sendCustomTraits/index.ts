@@ -1,17 +1,26 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { enable_batching, batch_size } from '../rsp-properties'
-import { sendConnectionsPETData } from '../rsp-operations'
+import { enable_batching, batch_size } from '../shared_properties'
+import { sendStandardTraits } from '../utils'
+
+
+interface Data {
+  rawMapping: {
+    userData: {
+      [k: string]: unknown
+    }
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Custom Traits to Profile Extension Table',
-  description: 'Sync Custom Traits to Profile Extension Table records.',
+  description: 'Sync Custom Traits to Profile Extension Table Records in Responsys',
   defaultSubscription: 'type = "identify"',
   fields: {
     userData: {  
       label: 'Recepient Data', 
-      description: 'Record data that represents Field Names and corresponding values for the Recipient.',
+      description: '<TODO>>',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true, 
@@ -39,13 +48,20 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: batch_size
   },
 
-  perform: async (request, { settings, payload }) => {
-    return sendConnectionsPETData(request, [payload], settings)
+  perform: async (request, data) => {
+
+  
+
+    const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
+    
+
+    console.log('hello' + JSON.stringify(userDataFieldNames))
+    return sendStandardTraits(request, [data.payload], data.settings)
   },
 
-  performBatch: async (request, { settings, payload }) => {
-    return sendConnectionsPETData(request, payload, settings)
-  }
+ // performBatch: async (request, {payload, mapping, settings}) => {
+  //  return sendStandardTraits(request, payload, settings)
+ // }
 }
 
 export default action

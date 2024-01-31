@@ -1,9 +1,9 @@
-import { Payload as PETPayload } from './asyncMergeConnectionsPetRecords/generated-types'
-import { Payload as ProfileMemberListPayload } from './asyncMergeProfileListMembers/generated-types'
-import { RecordData, RequestBodyPET, RequestBody } from './types'
+import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
+import { RecordData, RequestBodyPET } from './types'
 import { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+/*
 export const buildRecordData = (userDataArray: Record<string, unknown>[]) => {
   const keysFromFirstObject = Object.keys(userData[0])
   return {
@@ -12,9 +12,10 @@ export const buildRecordData = (userDataArray: Record<string, unknown>[]) => {
     mapTemplateName: ''
   }
 }
+*/
 
-export const sendConnectionsPETData = async (request: RequestClient, payload: PETPayload[], settings: Settings) => {
-
+export const sendStandardTraits = async (request: RequestClient, payload: CustomTraitsPayload[], settings: Settings) => {
+/*
   const userDataArray = payload.map((obj) => obj.userData)
 
   const recordData = buildRecordData(userDataArray)
@@ -34,8 +35,10 @@ export const sendConnectionsPETData = async (request: RequestClient, payload: PE
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
+  */
 }
 
+/*
 export const sendProfileListMembersData = async (
   request: RequestClient,
   payload: ProfileMemberListPayload[],
@@ -85,3 +88,4 @@ export const sendProfileListMembersData = async (
     body: JSON.stringify(requestBody)
   })
 }
+*/

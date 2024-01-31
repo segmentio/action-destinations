@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-// import { IntegrationError } from '@segment/actions-core'
 
 export const enable_batching: InputField = {
   label: 'Use Responsys Async API',
