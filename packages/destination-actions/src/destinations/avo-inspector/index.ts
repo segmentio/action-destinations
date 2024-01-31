@@ -3,6 +3,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import processEventAction from './processEvent'
+import { Environment } from './processEvent/avo-types'
 
 // import {processEvent } from './avo'
 
@@ -26,6 +27,8 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Environment',
         description: 'Avo Inspector Environment',
         type: 'string',
+        choices: Object.values(Environment).map((environment) => ({ label: environment, value: environment })),
+        default: Environment.PROD,
         required: true
       }
     },

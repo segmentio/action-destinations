@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+export enum Environment {
+  DEV = 'dev',
+  STAGING = 'staging',
+  PROD = 'prod'
+}
+
 export interface EventProperty {
   propertyName: string
   propertyType: string
