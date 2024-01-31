@@ -1092,18 +1092,9 @@ describe.each([
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it('should show a default in the subject when a trait is missing', async () => {
-      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
-        .get('/traits?limit=200')
-        .reply(200, {
-          traits: {
-            firstName: userData.firstName,
-            lastName: ''
-          }
-        })
-
+    it('should show a default in the subject when a trait is empty', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `you` })
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1123,15 +1114,133 @@ describe.each([
         }),
         settings,
         mapping: getDefaultMapping({
-          subject: '{{profile.traits.last_name | default: "you"}}'
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: ' '
+          }
         })
       })
 
       expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
-    it('should show a default in the subject when a trait is empty', async () => {
+    it('should show a default in the subject when a trait is <nil>', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: '<nil>'
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is null', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: null
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: undefined
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is missing', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
         .reply(200, {})
