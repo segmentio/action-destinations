@@ -1240,6 +1240,42 @@ describe.each([
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
+    it('should show a default in the subject when traits is null', async () => {
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: null
+        })
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hello {{profile.traits.last_name | default: "you"}}'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
     it('should show a default in the subject when a trait is missing', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })

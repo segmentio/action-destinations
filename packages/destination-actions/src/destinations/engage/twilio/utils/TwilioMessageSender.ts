@@ -38,10 +38,12 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     content: R,
     profile: Profile
   ): Promise<R> {
-    const traits = { ...profile.traits }
-    for (const trait of Object.keys(traits || {})) {
-      if (traits && traits[trait] === '<nil>') {
-        traits[trait] = ''
+    const traits = profile.traits ? { ...profile.traits } : profile.traits
+    if (traits) {
+      for (const trait of Object.keys(traits)) {
+        if (traits && traits[trait] === '<nil>') {
+          traits[trait] = ''
+        }
       }
     }
 

@@ -90,11 +90,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     },
     contentType: string
   ) {
-    const traits = { ...liquidData.profile.traits }
-    for (const trait of Object.keys(traits || {})) {
-      console.log(trait, traits[trait])
-      if (traits && traits[trait] && (traits[trait] === '<nil>' || traits[trait].trim() === '')) {
-        traits[trait] = ''
+    const traits = liquidData.profile.traits ? { ...liquidData.profile.traits } : liquidData.profile.traits
+    if (traits) {
+      for (const trait of Object.keys(traits)) {
+        if (traits && traits[trait] && (traits[trait] === '<nil>' || traits[trait].trim() === '')) {
+          traits[trait] = ''
+        }
       }
     }
     const parsedContent =
