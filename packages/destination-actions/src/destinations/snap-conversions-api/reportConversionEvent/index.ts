@@ -69,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
     click_id: click_id
   },
   perform: async (request, data) => {
-    const { features } = data
+    const features = data?.features
     const testCAPIv3 = features && features['actions-snap-api-migration-test-capiv3']
     const useCAPIv3 = features && features['actions-snap-api-migration-use-capiv3']
 
