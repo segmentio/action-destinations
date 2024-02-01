@@ -69,8 +69,9 @@ const action: ActionDefinition<Settings, Payload> = {
     click_id: click_id
   },
   perform: async (request, data) => {
-    const testCAPIv3 = false
-    const useCAPIv3 = false
+    const { features } = data
+    const testCAPIv3 = features && features['actions-snap-api-migration-test-capiv3']
+    const useCAPIv3 = features && features['actions-snap-api-migration-use-capiv3']
 
     // Intentionally check the test flag first and prefer the test branch
     // this is to prevent a bad config where both testCAPIv3 and useCAPIv3
