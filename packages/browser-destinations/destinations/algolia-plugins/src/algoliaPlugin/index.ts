@@ -17,15 +17,11 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     const query_id: string | null = storage.get(storageQueryIdKey)
 
-    if (
-      query_id &&
-      (context.event.integrations?.All !== false || context.event.integrations['Algolia Insights (Actions)'])
-    ) {
+    if (query_id &&(context.event.integrations?.All !== false || context.event.integrations['Algolia Insights (Actions)'])) {
       const integrationsData: Record<string, string> = {}
       integrationsData[queryIdIntegrationFieldName] = query_id
       context.updateEvent(`integrations.Algolia Insights (Actions)`, integrationsData)
     }
-
     return
   }
 }
