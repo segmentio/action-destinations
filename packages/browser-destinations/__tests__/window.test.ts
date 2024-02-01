@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import segmentUtilitiesDestination from '../segment-utilities-web/src/index'
+import segmentUtilitiesDestination from '../destinations/segment-utilities-web/src/index'
 
 it('window object shouldnt be changed by actions core', async () => {
   const windowBefore = Object.keys(window)
