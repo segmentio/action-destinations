@@ -13,30 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue',
-      properties: {
-        groupId: {
-          label: 'groupId',
-          description: 'Segment groupId',
-          type: 'string',
-          required: false
-        },
-        organization_id: {
-          label: 'Organization ID',
-          description: 'Organization ID',
-          type: 'string',
-          required: false
-        }
-      },
-      default: {
-        groupId: {
-          '@if': {
-            exists: { '@path': '$.groupId' },
-            then: { '@path': '$.groupId' },
-            else: { '@path': '$.context.groupId' }
-          }
-        },
-        organization_id: { '@path': '$.properties.organization_id' }
-      }
+      additionalProperties: true
     },
     company_name: {
       label: 'Company name',
@@ -58,23 +35,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
+      additionalProperties: true,
       properties: {
-        email_address: {
-          label: 'email_address',
-          description: 'Email address',
-          type: 'string',
-          required: false
-        },
-        userId: {
-          label: 'userId',
-          description: 'Segment userId',
+        user_id: {
+          label: 'User ID',
+          description: 'Your unique ID for your user',
           type: 'string',
           required: false
         }
       },
       default: {
-        email_address: { '@path': '$.traits.email' },
-        userId: { '@path': '$.userId' }
+        user_id: { '@path': '$.userId' }
       }
     },
     user_name: {
