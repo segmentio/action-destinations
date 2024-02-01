@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       integrationsData[queryIdIntegrationFieldName] = query_id
       context.updateEvent(`integrations.Algolia Insights (Actions)`, integrationsData)
     }
-    
+  
     return
   }
 }
