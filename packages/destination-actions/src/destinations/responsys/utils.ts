@@ -1,17 +1,21 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
-import { RequestBody, RecordData, MergeRule } from './types'
+import { RecordData, CustomTraitsRequestBody } from './types'
 import { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const sendCustomTraits = async (request: RequestClient, payload: CustomTraitsPayload[], settings: Settings, userDataFieldNames: string[]) => {
-
+export const sendCustomTraits = async (
+  request: RequestClient,
+  payload: CustomTraitsPayload[],
+  settings: Settings,
+  userDataFieldNames: string[]
+) => {
   const userDataArray = payload.map((obj) => obj.userData)
 
-  const records: unknown[][] = userDataArray.map(userData => {
-    return userDataFieldNames.map(fieldName => {
-        return userData && fieldName in userData ? userData[fieldName] : '';
-    });
-  });
+  const records: unknown[][] = userDataArray.map((userData) => {
+    return userDataFieldNames.map((fieldName) => {
+      return userData && fieldName in userData ? userData[fieldName] : ''
+    })
+  })
 
   const recordData: RecordData = {
     fieldNames: userDataFieldNames,
@@ -19,16 +23,12 @@ export const sendCustomTraits = async (request: RequestClient, payload: CustomTr
     mapTemplateName: ''
   }
 
-  const mergeRule: MergeRule = {
+  const requestBody: CustomTraitsRequestBody = {
+    recordData,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
     matchColumnName1: settings.matchColumnName1,
     matchColumnName2: settings.matchColumnName2 || ''
-  } 
-
-  const requestBody: RequestBody = {
-    recordData,
-    mergeRule
   }
 
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
@@ -39,7 +39,6 @@ export const sendCustomTraits = async (request: RequestClient, payload: CustomTr
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
-  
 }
 
 /*

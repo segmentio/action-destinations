@@ -46,13 +46,16 @@ export type MergeRule = {
 }
 
 export type RecordData = {
-  fieldNames: string[];
-  records: unknown[][];
-  mapTemplateName: string;
-};
+  fieldNames: string[]
+  records: unknown[][]
+  mapTemplateName: string
+}
 
-export type RequestBody = { 
-  recordData: RecordData 
-} & { 
-  mergeRule: MergeRule 
+export type CustomTraitsRequestBody = {
+  recordData: RecordData
+} & {
+  insertOnNoMatch?: boolean
+  updateOnMatch?: string
+  matchColumnName1?: string
+  matchColumnName2?: string
 }
