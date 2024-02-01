@@ -1,4 +1,4 @@
-import { ExecuteInput, IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
+import { ExecuteInput, IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
@@ -119,8 +119,8 @@ const formatPayload = (oldPayload: Payload): Object => {
 const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
 
 export const performSnapCAPIv2 = (
-  request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>,
-  data: ExecuteInput<Settings, Payload, any, any, any>
+  request: RequestClient,
+  data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
   if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
     throw new IntegrationError(

@@ -1,8 +1,8 @@
-import { RequestOptions } from '@segment/actions-core/request-client'
 import { ModifiedResponse } from '@segment/actions-core/types'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { ExecuteInput } from '@segment/actions-core/destination-kit'
+import { RequestClient } from '@segment/actions-core/'
 
 const FIXME = <T>(): T => {
   throw new Error('UNIMPLEMENTED')
@@ -26,8 +26,8 @@ const formatPayload = (_payload: Payload, isTest = true): object => {
 }
 
 export const performSnapCAPIv3 = async (
-  request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>,
-  data: ExecuteInput<Settings, Payload, any, any, any>,
+  request: RequestClient,
+  data: ExecuteInput<Settings, Payload>,
   isTest = true
 ): Promise<ModifiedResponse<unknown>> => {
   // V3 URLs are templates
