@@ -70,6 +70,27 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    ad_user_data_consent_state: {
+      label: 'Ad User Data Consent State',
+      description: 'This represents consent for ad user data.',
+      type: 'string',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
+    },
+    ad_personalization_consent_state: {
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      description:
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
     }
   },
 
@@ -97,8 +118,8 @@ const action: ActionDefinition<Settings, Payload> = {
       conversionValue: payload.value,
       currencyCode: payload.currency,
       consent: {
-        adUserData: 'GRANTED',
-        adPersonalization: 'GRANTED'
+        adUserData: payload.ad_user_data_consent_state,
+        adPersonalization: payload.ad_personalization_consent_state
       }
     }
 
@@ -117,7 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         method: 'post',
         headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+          'developer-token': `jswOXXIc50JI8nAuUGWVRg`
         },
         json: {
           conversions: [request_object],

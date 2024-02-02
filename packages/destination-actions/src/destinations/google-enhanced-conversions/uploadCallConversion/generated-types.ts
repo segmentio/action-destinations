@@ -31,4 +31,12 @@ export interface Payload {
   custom_variables?: {
     [k: string]: unknown
   }
+  /**
+   * This represents consent for ad user data.
+   */
+  ad_user_data_consent_state?: string
+  /**
+   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.
+   */
+  ad_personalization_consent_state?: string
 }

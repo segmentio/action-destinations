@@ -35,7 +35,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -89,7 +89,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"},\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{},\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(2)
@@ -151,7 +151,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -205,7 +205,13 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadCallConversion', {
         event,
-        mapping: { conversion_action: '12345', caller_id: '+1234567890', call_timestamp: timestamp },
+        mapping: {
+          conversion_action: '12345',
+          caller_id: '+1234567890',
+          call_timestamp: timestamp,
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED'
+        },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -217,6 +223,48 @@ describe('GoogleEnhancedConversions', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('Deny User Data and Personalised Consent State', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          email: 'test@gmail.com',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD'
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${CANARY_API_VERSION}/customers/${customerId}:uploadCallConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadCallConversion', {
+        event,
+        mapping: {
+          conversion_action: '12345',
+          caller_id: '+1234567890',
+          call_timestamp: timestamp,
+          ad_user_data_consent_state: 'DENIED',
+          ad_personalization_consent_state: 'DENIED'
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: {
+          [FLAGON_NAME]: true
+        }
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"callStartDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
