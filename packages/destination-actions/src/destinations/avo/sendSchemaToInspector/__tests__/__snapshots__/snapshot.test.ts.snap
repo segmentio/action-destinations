@@ -19,17 +19,16 @@ Array [
     "libVersion": "1.0.0",
     "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "_",
-    "trackingId": "_",
     "type": "event",
   },
 ]
 `;
 
-exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: required fields 1`] = `
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: expect app Version to be extracted from property when set in settings 1`] = `
 Array [
   Object {
-    "appName": "unnamed Segment app",
-    "appVersion": "unversioned Segment app",
+    "appName": "NU$O%!ms2wKE]8XsN5@)",
+    "appVersion": "2.0.3",
     "createdAt": "NU$O%!ms2wKE]8XsN5@)",
     "eventHash": null,
     "eventId": null,
@@ -44,46 +43,20 @@ Array [
     "libVersion": "1.0.0",
     "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "_",
-    "trackingId": "_",
     "type": "event",
   },
 ]
 `;
 
-exports[`Testing snapshot for AvoInspector's processEvent destination action: all fields 1`] = `
-Array [
-  Object {
-    "appName": "#3r$SGPi3",
-    "appVersion": "#3r$SGPi3",
-    "createdAt": "#3r$SGPi3",
-    "eventHash": null,
-    "eventId": null,
-    "eventName": "#3r$SGPi3",
-    "eventProperties": Array [
-      Object {
-        "propertyName": "testType",
-        "propertyType": "string",
-      },
-    ],
-    "libPlatform": "Segment",
-    "libVersion": "1.0.0",
-    "messageId": "#3r$SGPi3",
-    "sessionId": "_",
-    "trackingId": "_",
-    "type": "event",
-  },
-]
-`;
-
-exports[`Testing snapshot for AvoInspector's processEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: required fields 1`] = `
 Array [
   Object {
     "appName": "unnamed Segment app",
-    "appVersion": "unversioned Segment app",
-    "createdAt": "#3r$SGPi3",
+    "appVersion": "unversioned",
+    "createdAt": "NU$O%!ms2wKE]8XsN5@)",
     "eventHash": null,
     "eventId": null,
-    "eventName": "#3r$SGPi3",
+    "eventName": "NU$O%!ms2wKE]8XsN5@)",
     "eventProperties": Array [
       Object {
         "propertyName": "testType",
@@ -92,9 +65,8 @@ Array [
     ],
     "libPlatform": "Segment",
     "libVersion": "1.0.0",
-    "messageId": "#3r$SGPi3",
+    "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "_",
-    "trackingId": "_",
     "type": "event",
   },
 ]

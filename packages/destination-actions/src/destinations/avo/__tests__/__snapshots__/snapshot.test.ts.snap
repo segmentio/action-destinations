@@ -19,7 +19,6 @@ Array [
     "libVersion": "1.0.0",
     "messageId": "o5omS$Qs",
     "sessionId": "_",
-    "trackingId": "_",
     "type": "event",
   },
 ]
@@ -29,7 +28,7 @@ exports[`Testing snapshot for actions-avo-inspector destination: sendSchemaToIns
 Array [
   Object {
     "appName": "unnamed Segment app",
-    "appVersion": "unversioned Segment app",
+    "appVersion": "unversioned",
     "createdAt": "o5omS$Qs",
     "eventHash": null,
     "eventId": null,
@@ -44,7 +43,6 @@ Array [
     "libVersion": "1.0.0",
     "messageId": "o5omS$Qs",
     "sessionId": "_",
-    "trackingId": "_",
     "type": "event",
   },
 ]
