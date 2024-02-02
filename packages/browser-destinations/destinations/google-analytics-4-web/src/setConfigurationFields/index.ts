@@ -128,7 +128,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       config.send_page_view = settings.pageView ?? true
     }
     if (settings.cookieFlags) {
-      config.cookie_flag = settings.cookieFlags
+      config.cookie_flags = settings.cookieFlags
     }
 
     if (payload.screen_resolution) {

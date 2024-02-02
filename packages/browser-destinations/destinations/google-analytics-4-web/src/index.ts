@@ -102,7 +102,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     cookieUpdate: {
       description: `Set to false to not update  cookies on each page load. This has the effect of cookie expiration being relative to the first time a user visited. Set to true by default so update cookies on each page load.`,
       label: 'Cookie Update',
-      type: 'boolean'
+      type: 'boolean',
+      default: true
     },
     enableConsentMode: {
       description: `Set to true to enable Google’s [Consent Mode](https://support.google.com/analytics/answer/9976101?hl=en). Set to false by default.`,
