@@ -1,10 +1,17 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
+import { Payload as ListMemberPayload } from './sendAudience/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const validate = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
+export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
+  if (!(typeof profileExtensionTable !== 'undefined' && profileExtensionTable !== null && profileExtensionTable.trim().length > 0)){
+    throw new IntegrationError('Send Custom Traits Action requires "PET Name" setting field to be populated', 'PET_NAME_SETTING_MISSING', 400)
+  }
+}
+
+export const validateListMemberPayload = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
   if (!(typeof profileExtensionTable !== 'undefined' && profileExtensionTable !== null && profileExtensionTable.trim().length > 0)){
     throw new IntegrationError('Send Custom Traits Action requires "PET Name" setting field to be populated', 'PET_NAME_SETTING_MISSING', 400)
   }

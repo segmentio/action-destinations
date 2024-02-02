@@ -2,13 +2,13 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { sendCustomTraits, getUserDataFieldNames, validateCustomTraitsSettings } from '../utils'
+import { sendCustomTraits, getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Custom Traits',
-  description: 'Send Custom Traits to a Profile Extension Table in Responsys',
-  defaultSubscription: 'type = "identify"',
+  title: 'Upsert Profile List Member',
+  description: 'Create or update a Profile List Member in Responsys',
+  defaultSubscription: 'event = "Profile List Member Created" or event = "Profile List Member Updated"',
   fields: {
     userData: {
       label: 'Recepient Data',
@@ -18,23 +18,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       additionalProperties: true,
       properties: {
-        EMAIL_ADDRESS_: {
+        email_address_: {
           label: 'Email address',
-          description: "The user's email address",
+          description: "The user's email address. Email is required if Recipient ID is empty.",
           type: 'string',
           format: 'email',
           required: false
         },
-        CUSTOMER_ID_: {
-          label: 'Customer ID',
-          description: 'Responsys Customer ID.',
+        riid_: {
+          label: 'Recipient ID',
+          description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
           type: 'string',
           required: false
         }
       },
       default: {
-        EMAIL_ADDRESS_: { '@path': '$.traits.email' },
-        CUSTOMER_ID_: { '@path': '$.userId' }
+        email_address_: { '@path': '$.traits.email' },
+        riid_: { '@path': '$.userId' }
       }
     },
     enable_batching: enable_batching,
@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
 
-    validateCustomTraitsSettings(data.settings)
+    validateListMemberPayload(data.payload)
 
     return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
   },
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
 
-    validateCustomTraitsSettings(data.settings)
+    validateListMemberPayload(data.payload)
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }
