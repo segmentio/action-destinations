@@ -1,10 +1,4 @@
-import {
-  RequestClient,
-  ModifiedResponse,
-  DynamicFieldResponse,
-  ActionHookResponse,
-  IntegrationError
-} from '@segment/actions-core'
+import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
 import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
@@ -247,35 +241,11 @@ export class LinkedInConversions {
     })
   }
 
-  /**
-   * As a temporary workaround this method will associate campaign IDs to the conversion rule with a loop.
-   * This is because the LinkedIn API Bulk Create Campaign Conversions endpoint is not working.
-   * This may cause timeouts if there are too many campaigns to associate.
-   * This issue is tracked in: https://segment.atlassian.net/browse/STRATCONN-3510
-   */
-  async temp_bulkAssociateCampignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
-    for (let i = 0; i < campaignIds.length - 1; i++) {
-      const campaignId = campaignIds[i]
-      if (campaignId) {
-        try {
-          await this.associateCampignToConversion(campaignId)
-        } catch (e) {
-          throw new IntegrationError(
-            `Campaign ID ${campaignId} err: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
-            JSON.stringify((e as { status: string | number }).status) ?? 'ASSOCIATE_CAMPAIGN_TO_CONVERSION_ERROR',
-            500
-          )
-        }
-      }
-    }
-    return await this.associateCampignToConversion(campaignIds[campaignIds.length - 1])
-  }
-
   async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
     if (campaignIds.length === 1) {
       return this.associateCampignToConversion(campaignIds[0])
     }
-    
+
     /**
      * campaign[0]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaign0>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
      * ...
@@ -320,11 +290,6 @@ export class LinkedInConversions {
       method: 'PUT',
       json: {
         entities
-      },
-      headers: {
-        'X-RestLi-Method': 'BATCH_CREATE',
-        'content-type': 'application/json',
-        'X-Restli-Protocol-Version': '2.0.0'
       }
     })
   }
