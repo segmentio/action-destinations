@@ -1,3 +1,11 @@
+export interface Data {
+  rawMapping: {
+    userData: {
+      [k: string]: unknown
+    }
+  }
+}
+
 export type MergeRule = {
   /**
    * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
@@ -50,6 +58,14 @@ export type RecordData = {
   records: unknown[][]
   mapTemplateName: string
 }
+
+
+export type ListMemberRequestBody = {
+  recordData: RecordData
+} & {
+  mergeRule: MergeRule
+}
+
 
 export type CustomTraitsRequestBody = {
   recordData: RecordData

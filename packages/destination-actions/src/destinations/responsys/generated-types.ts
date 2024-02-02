@@ -20,7 +20,7 @@ export interface Settings {
   /**
    * Profile Extension Table (PET) Name
    */
-  profileExtensionTable: string
+  profileExtensionTable?: string
   /**
    * Indicates what should be done for records where a match is not found.
    */

@@ -19,4 +19,8 @@ export interface Payload {
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */
   enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

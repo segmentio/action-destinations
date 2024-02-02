@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCustomTraits from './sendCustomTraits'
+import sendAudience from './sendAudience'
 
 interface RefreshTokenResponse {
   authToken: string
@@ -42,9 +43,9 @@ const destination: DestinationDefinition<Settings> = {
       },
       profileExtensionTable: {  
         label: 'PET Name',
-        description: 'Profile Extension Table (PET) Name',
+        description: 'Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.',
         type: 'string',
-        required: true
+        required: false
       },
       insertOnNoMatch: {
         label: 'Insert On No Match',
@@ -92,8 +93,12 @@ const destination: DestinationDefinition<Settings> = {
         ], 
         default: 'REPLACE_ALL'
       }
+      //TODO add writeKey and Region Settings
+
     },
     testAuthentication: (_, { settings }) => {
+      //TOTO add validation to ensure that List Name setting value is always upper cased
+
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
       } else {
@@ -123,6 +128,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
+    sendAudience,
     sendCustomTraits
   }
 }

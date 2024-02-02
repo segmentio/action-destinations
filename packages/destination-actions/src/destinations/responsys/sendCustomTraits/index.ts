@@ -1,32 +1,13 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { sendCustomTraits } from '../utils'
-
-interface Data {
-  rawMapping: {
-    userData: {
-      [k: string]: unknown
-    }
-  }
-}
-
-const validateUserDataFieldNames = (userDataFieldNames: string[]): void => {
-  const badlyNamedFields = userDataFieldNames.filter((str) => !str.endsWith('_'))
-
-  if (badlyNamedFields.length > 0) {
-    throw new IntegrationError(
-      `Recipient Data property names must end with _ symbol. ${badlyNamedFields.join(', ')}`,
-      'RECIPIENT_DATA_PROPERTY_VALIDATION_ERROR',
-      400
-    )
-  }
-}
+import { sendCustomTraits, getUserDataFieldNames, validate } from '../utils'
+import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Custom Traits to Profile Extension Table',
-  description: 'Sync Custom Traits to Profile Extension Table Records in Responsys',
+  title: 'Send Custom Traits',
+  description: 'Send Custom Traits to a Profile Extension Table in Responsys',
   defaultSubscription: 'type = "identify"',
   fields: {
     userData: {
@@ -61,17 +42,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
 
-    validateUserDataFieldNames(userDataFieldNames)
+    validate(data.settings)
 
     return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
-    const userDataFieldNames: string[] = Object.keys((data as unknown as Data).rawMapping.userData)
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
 
-    validateUserDataFieldNames(userDataFieldNames)
+    validate(data.settings)
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }
