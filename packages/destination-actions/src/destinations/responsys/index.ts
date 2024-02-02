@@ -147,7 +147,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_, { settings }) => {
-      //TOTO add validation to ensure that List Name setting value is always upper cased
+      if(settings.profileListName.toUpperCase() !== settings.profileListName){
+        return Promise.reject('List Name must be in Uppercase')
+      }
 
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
