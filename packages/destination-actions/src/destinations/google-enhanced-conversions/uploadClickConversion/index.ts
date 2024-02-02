@@ -294,7 +294,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         method: 'post',
         headers: {
-          'developer-token': `jswOXXIc50JI8nAuUGWVRg`
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
         },
         json: {
           conversions: [request_object],
