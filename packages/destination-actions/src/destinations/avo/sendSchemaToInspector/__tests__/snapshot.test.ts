@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'processEvent'
-const destinationSlug = 'AvoInspector'
+const actionSlug = 'sendSchemaToInspector'
+const destinationSlug = 'Avo'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
