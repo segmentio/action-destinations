@@ -18,7 +18,7 @@ export interface Settings {
    */
   profileListName: string
   /**
-   * Profile Extension Table (PET) Name
+   * Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.
    */
   profileExtensionTable?: string
   /**
