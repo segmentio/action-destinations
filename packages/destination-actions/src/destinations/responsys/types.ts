@@ -50,7 +50,7 @@ export type MergeRule = {
   /**
    * This value must be specified as either OPTIN or OPTOUT and would be applied to all of the records contained in the API call. If this value is not explicitly specified, then it is set to OPTOUT.
    */
-  defaultPermissionStatus?: 'OPTIN' | 'OPTOUT'
+  defaultPermissionStatus?: string
 }
 
 export type RecordData = {
@@ -59,13 +59,11 @@ export type RecordData = {
   mapTemplateName: string
 }
 
-
 export type ListMemberRequestBody = {
   recordData: RecordData
 } & {
   mergeRule: MergeRule
 }
-
 
 export type CustomTraitsRequestBody = {
   recordData: RecordData

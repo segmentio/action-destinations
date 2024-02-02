@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { sendCustomTraits, getUserDataFieldNames, validateListMemberPayload } from '../utils'
+import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -16,13 +16,25 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
-      additionalProperties: true,
+      additionalProperties: false,
       properties: {
         email_address_: {
-          label: 'Email address',
-          description: "The user's email address. Email is required if Recipient ID is empty.",
+          label: 'Email Address',
+          description: "The user's email address.",
           type: 'string',
           format: 'email',
+          required: false
+        },
+        email_md5_hash_: {
+          label: 'Email Address MD5 Hash',
+          description: "An MD5 Hash of the user's email address.",
+          type: 'string',
+          required: false
+        },
+        email_sha256_hash_: {
+          label: 'Email Address SHA256 Hash',
+          description: "A SHA256 Hash of the user's email address.",
+          type: 'string',
           required: false
         },
         riid_: {
@@ -30,10 +42,26 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
           type: 'string',
           required: false
+        },
+        customer_id_: {
+          label: 'Customer ID',
+          description: 'Responsys Customer ID.',
+          type: 'string',
+          required: false
+        },
+        mobile_number_: {
+          label: 'Mobile Number',
+          description: "The user's Mobile Phone Number.",
+          type: 'string',
+          required: false
         }
       },
       default: {
-        email_address_: { '@path': '$.traits.email' },
+        email_address_: { '@path': '$.context.traits.email' },
+        email_md5_hash_: { '@path': '$.context.traits.email_md5_hash_' },
+        email_sha256_hash_: { '@path': '$.context.traits.email_sha256_hash' },
+        customer_id_: { '@path': '$.context.traits.customer_id' },
+        mobile_number_: { '@path': '$.context.traits.phone' },
         riid_: { '@path': '$.userId' }
       }
     },
@@ -42,19 +70,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateListMemberPayload(data.payload)
+    validateListMemberPayload(data.payload.userData)
 
-    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
+    return upsertListMembers(request, [data.payload], data.settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateListMemberPayload(data.payload)
-
-    return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
+    return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
   }
 }
 

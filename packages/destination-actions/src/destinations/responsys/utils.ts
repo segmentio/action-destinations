@@ -1,19 +1,40 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
-import { Payload as ListMemberPayload } from './sendAudience/generated-types'
+import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
-  if (!(typeof profileExtensionTable !== 'undefined' && profileExtensionTable !== null && profileExtensionTable.trim().length > 0)){
-    throw new IntegrationError('Send Custom Traits Action requires "PET Name" setting field to be populated', 'PET_NAME_SETTING_MISSING', 400)
+  if (
+    !(
+      typeof profileExtensionTable !== 'undefined' &&
+      profileExtensionTable !== null &&
+      profileExtensionTable.trim().length > 0
+    )
+  ) {
+    throw new IntegrationError(
+      'Send Custom Traits Action requires "PET Name" setting field to be populated',
+      'PET_NAME_SETTING_MISSING',
+      400
+    )
   }
 }
 
-export const validateListMemberPayload = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
-  if (!(typeof profileExtensionTable !== 'undefined' && profileExtensionTable !== null && profileExtensionTable.trim().length > 0)){
-    throw new IntegrationError('Send Custom Traits Action requires "PET Name" setting field to be populated', 'PET_NAME_SETTING_MISSING', 400)
+export const validateListMemberPayload = ({
+  email_address_,
+  riid_
+}: {
+  email_address_?: string
+  riid_?: string
+}): void => {
+  // TODO validate which identifier fields are required
+
+  if (!email_address_ || email_address_.trim().length < 6) {
+    throw new PayloadValidationError('Email Address is a required field')
+  }
+  if (!riid_ || riid_.trim().length < 1) {
+    throw new PayloadValidationError('Recipient ID is a required field')
   }
 }
 
@@ -25,21 +46,20 @@ export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
   settings: Settings,
-  userDataFieldNames: string[], 
+  userDataFieldNames: string[],
   isAudience?: boolean
 ) => {
-
   let userDataArray: unknown[]
 
-  if(isAudience){
-    userDataFieldNames.push("SEGMENT_AUDIENCE_KEY")
+  if (isAudience) {
+    userDataFieldNames.push('SEGMENT_AUDIENCE_KEY')
     const audiencePayloads = payload as unknown[] as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
-        return {
-          ...obj.userData,
-          SEGMENT_AUDIENCE_KEY: String(obj.traits_or_props[obj.computation_key]) 
-        }
-    });
+      return {
+        ...obj.userData,
+        SEGMENT_AUDIENCE_KEY: String(obj.traits_or_props[obj.computation_key])
+      }
+    })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => obj.userData)
@@ -47,12 +67,14 @@ export const sendCustomTraits = async (
 
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>) ? (userData as Record<string, string>)[fieldName] : '';
-    });
-  });
+      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
+        ? (userData as Record<string, string>)[fieldName]
+        : ''
+    })
+  })
 
   const recordData: RecordData = {
-    fieldNames: userDataFieldNames.map(field => field.toUpperCase()),
+    fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
     records,
     mapTemplateName: ''
   }
@@ -75,8 +97,7 @@ export const sendCustomTraits = async (
   })
 }
 
-/*
-export const upsertListMember = async (
+export const upsertListMembers = async (
   request: RequestClient,
   payload: ListMemberPayload[],
   settings: Settings,
@@ -84,10 +105,11 @@ export const upsertListMember = async (
 ) => {
   const userDataArray = payload.map((obj) => obj.userData)
 
-  // TODO capitalize keys for all custom trait names
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return userData && fieldName in userData ? userData[fieldName] : ''
+      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
+        ? (userData as Record<string, string>)[fieldName]
+        : ''
     })
   })
 
@@ -98,21 +120,17 @@ export const upsertListMember = async (
   }
 
   const mergeRule: MergeRule = {
-    htmlValue: 
-    optinValue: string
-    textValue: string
-
+    htmlValue: settings.htmlValue,
+    optinValue: settings.optinValue,
+    textValue: settings.textValue,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
     matchColumnName1: settings.matchColumnName1,
-    matchColumnName2: settings.matchColumnName2 || ''
-
-    matchOperator: string
-    optoutValue: string
-    rejectRecordIfChannelEmpty: string
-    defaultPermissionStatus: 'OPTIN' | 'OPTOUT'
-
-
+    matchColumnName2: settings.matchColumnName2 || '',
+    matchOperator: settings.matchOperator,
+    optoutValue: settings.optoutValue,
+    rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+    defaultPermissionStatus: settings.defaultPermissionStatus
   }
 
   const requestBody: ListMemberRequestBody = {
@@ -120,7 +138,7 @@ export const upsertListMember = async (
     mergeRule
   }
 
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
+  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
 
@@ -129,57 +147,3 @@ export const upsertListMember = async (
     body: JSON.stringify(requestBody)
   })
 }
-
-
-
-
-export const sendProfileListMembersData = async (
-  request: RequestClient,
-  payload: ProfileMemberListPayload[],
-  settings: Settings
-) => {
-  const {
-    profileListName,
-    defaultPermissionStatus,
-    htmlValue,
-    insertOnNoMatch,
-    matchColumnName1,
-    matchColumnName2,
-    matchOperator,
-    optinValue,
-    optoutValue,
-    rejectRecordIfChannelEmpty,
-    textValue,
-    updateOnMatch,
-    mapTemplateName
-  } = payload[0]
-
-  const payloadData = payload.map((obj) => obj.userData)
-  const recordData = buildRecordData(payloadData, mapTemplateName)
-  const requestBody: RequestBody = {
-    recordData: recordData as RecordData,
-    mergeRule: {
-      defaultPermissionStatus,
-      htmlValue,
-      insertOnNoMatch,
-      matchColumnName1,
-      matchColumnName2,
-      matchOperator,
-      optinValue,
-      optoutValue,
-      rejectRecordIfChannelEmpty,
-      textValue,
-      updateOnMatch
-    }
-  }
-
-  const path = `/rest/asyncApi/v1.3/lists/${profileListName}/members`
-
-  const endpoint = new URL(path, settings.baseUrl)
-
-  return await request(endpoint.href, {
-    method: 'POST',
-    body: JSON.stringify(requestBody)
-  })
-}
-*/

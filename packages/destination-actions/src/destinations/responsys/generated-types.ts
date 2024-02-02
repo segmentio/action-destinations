@@ -37,4 +37,32 @@ export interface Settings {
    * Controls how the existing record should be updated. Defaults to Replace All.
    */
   updateOnMatch: string
+  /**
+   * Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.
+   */
+  textValue?: string
+  /**
+   * Operator to join match column names.
+   */
+  matchOperator?: string
+  /**
+   * Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.
+   */
+  optoutValue?: string
+  /**
+   * String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)
+   */
+  rejectRecordIfChannelEmpty?: string
+  /**
+   * This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.
+   */
+  defaultPermissionStatus: string
+  /**
+   * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
+   */
+  htmlValue?: string
+  /**
+   * Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.
+   */
+  optinValue?: string
 }

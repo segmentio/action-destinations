@@ -22,7 +22,7 @@ export interface Payload {
   /**
    * Hidden field used to access traits or properties objects from Engage payloads.
    */
-  traits_or_props?: {
+  traits_or_props: {
     [k: string]: unknown
   }
   /**
