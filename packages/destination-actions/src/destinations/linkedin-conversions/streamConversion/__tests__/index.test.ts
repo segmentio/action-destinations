@@ -105,7 +105,7 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
-  it.only('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
+  it('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
     const multipleCampaigns = payload.campaignId.concat('56789')
     // const associateCampignToConversion = {
     //   campaign: 'urn:li:sponsoredCampaign:123456`',
