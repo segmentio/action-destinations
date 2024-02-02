@@ -79,6 +79,44 @@ const action: ActionDefinition<Settings, Payload> = {
     // The payload will be sent to Segment's tracking API internally.
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendGroup'])
     return { batch: [groupPayload] }
+  },
+  performBatch: (_request, { payload, statsContext }) => {
+    const groupPayload = payload.map((data) => {
+      if (!data.anonymous_id && !data.user_id) {
+        throw MissingUserOrAnonymousIdThrowableError
+      }
+      convertPayload(data)
+    })
+
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendGroup'])
+    return { batch: groupPayload }
+  }
+}
+
+function convertPayload(data: Payload) {
+  return {
+    userId: data?.user_id,
+    anonymousId: data?.anonymous_id,
+    groupId: data?.group_id,
+    timestamp: data?.timestamp,
+    context: {
+      app: data?.application,
+      campaign: data?.campaign_parameters,
+      device: data?.device,
+      ip: data?.ip_address,
+      locale: data?.locale,
+      location: data?.location,
+      network: data?.network,
+      os: data?.operating_system,
+      page: data?.page,
+      screen: data?.screen,
+      userAgent: data?.user_agent,
+      timezone: data?.timezone
+    },
+    traits: {
+      ...data?.traits
+    },
+    type: 'group'
   }
 }
 
