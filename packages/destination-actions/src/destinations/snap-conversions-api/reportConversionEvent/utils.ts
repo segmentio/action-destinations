@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core/*'
+import { IntegrationError } from '@segment/actions-core'
 import { createHash } from 'crypto'
 
 export const isNullOrUndefined = <T>(v: T | null | undefined): v is null | undefined => v == null

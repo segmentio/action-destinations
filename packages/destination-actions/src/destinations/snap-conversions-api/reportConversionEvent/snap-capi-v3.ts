@@ -1,8 +1,6 @@
-import { ModifiedResponse } from '@segment/actions-core/types'
+import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { ExecuteInput } from '@segment/actions-core/destination-kit'
-import { RequestClient } from '@segment/actions-core/'
 import {
   box,
   emptyToUndefined,
