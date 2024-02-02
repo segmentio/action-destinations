@@ -16,7 +16,7 @@ export class AvoSchemaParser {
 
     const mapping = (object: any) => {
       if (isArray(object)) {
-        const list = object.map((x: any) => {
+        const list: [EventProperty] = object.map((x: any) => {
           return mapping(x)
         })
         return this.removeDuplicates(list)
@@ -49,18 +49,20 @@ export class AvoSchemaParser {
     return mappedEventProps
   }
 
-  private static removeDuplicates(array: Array<any>): Array<any> {
-    // XXX TODO fix any types
-    const primitives: any = { boolean: {}, number: {}, string: {} }
-    const objects: Array<any> = []
+  private static removeDuplicates(array: Array<EventProperty>): Array<EventProperty> {
+    // Use a single object to track all seen propertyType:propertyName combinations
+    const seen: Record<string, boolean> = {}
 
-    return array.filter((item: any) => {
-      const type: string = typeof item
-      if (type in primitives) {
-        return primitives[type].hasOwnProperty(item) ? false : (primitives[type][item] = true)
-      } else {
-        return objects.indexOf(item) >= 0 ? false : objects.push(item)
+    return array.filter((item: EventProperty) => {
+      // Create a unique key based on propertyName and propertyType
+      const key = `${item.propertyName}:${item.propertyType}`
+
+      if (!seen[key]) {
+        seen[key] = true // Mark this key as seen
+        return true // Include this item in the filtered result
       }
+      // If the key was already seen, filter this item out
+      return false
     })
   }
 
