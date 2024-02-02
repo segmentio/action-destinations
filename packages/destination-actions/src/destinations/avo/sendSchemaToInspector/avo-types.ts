@@ -18,7 +18,6 @@ export interface BaseBody {
   libVersion: string
   libPlatform: string
   messageId: string
-  trackingId: string
   createdAt: string
   sessionId: string
 }

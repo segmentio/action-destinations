@@ -5,10 +5,6 @@ import type { Settings } from './generated-types'
 import sendSchemaAction from './sendSchemaToInspector'
 import { Environment } from './sendSchemaToInspector/avo-types'
 
-// import {processEvent } from './avo'
-
-//import { SegmentEvent } from './avo-types'
-
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo',
   slug: 'actions-avo',
@@ -18,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        label: 'Api Key',
+        label: 'API Key',
         description: 'Avo Inspector API Key',
         type: 'string',
         required: true

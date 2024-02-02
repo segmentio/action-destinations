@@ -11,7 +11,7 @@ function getAppNameFromUrl(url: string) {
 
 function generateBaseBody(event: Payload): BaseBody {
   const appName = event.appName ?? (event.pageUrl ? getAppNameFromUrl(event.pageUrl) : 'unnamed Segment app')
-  const appVersion = event.appVersion ?? 'unversioned Segment app'
+  const appVersion = event.appVersion ?? 'unversioned'
 
   return {
     appName: appName,
@@ -19,7 +19,6 @@ function generateBaseBody(event: Payload): BaseBody {
     libVersion: '1.0.0',
     libPlatform: 'Segment',
     messageId: event.messageId,
-    trackingId: '_',
     createdAt: event.receivedAt,
     sessionId: '_'
   }
