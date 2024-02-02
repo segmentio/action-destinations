@@ -1,4 +1,4 @@
-export const LINKEDIN_API_VERSION = '202309'
+export const LINKEDIN_API_VERSION = '202401'
 export const BASE_URL = 'https://api.linkedin.com/rest'
 export const LINKEDIN_SOURCE_PLATFORM = 'SEGMENT'
 
