@@ -13,8 +13,6 @@ const event = createTestEvent({
   context: {
     traits: {
       email: 'testing@testing.com',
-      adAccountId: '12345',
-      campaignId: '56789',
       user: {
         userIds: [
           {
@@ -39,17 +37,17 @@ const event = createTestEvent({
 })
 
 const settings = {}
+const payload = {
+  campaignId: ['56789'],
+  adAccountId: '12345',
+  conversionId: 789123
+}
 
 describe('LinkedinConversions.streamConversion', () => {
   it('should successfully send the event', async () => {
     const associateCampignToConversion = {
       campaign: 'urn:li:sponsoredCampaign:123456`',
       conversion: 'urn:lla:llaPartnerConversion:789123'
-    }
-
-    const payload = {
-      campaignId: 123456,
-      conversionId: 789123
     }
 
     const streamConversionEvent = {
@@ -77,7 +75,7 @@ describe('LinkedinConversions.streamConversion', () => {
     }
 
     nock(
-      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`
+      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId[0]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`
     )
       .post(/.*/, associateCampignToConversion)
       .reply(204)
@@ -88,15 +86,11 @@ describe('LinkedinConversions.streamConversion', () => {
         event,
         settings,
         mapping: {
-          adAccountId: {
-            '@path': '$.context.traits.adAccountId'
-          },
+          adAccountId: payload.adAccountId,
           user: {
             '@path': '$.context.traits.user'
           },
-          campaignId: {
-            '@path': '$.context.traits.campaignId'
-          },
+          campaignId: payload.campaignId,
           conversionHappenedAt: {
             '@path': '$.timestamp'
           },
@@ -111,6 +105,68 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
+  it.only('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
+    const multipleCampaigns = payload.campaignId.concat('56789')
+    // const associateCampignToConversion = {
+    //   campaign: 'urn:li:sponsoredCampaign:123456`',
+    //   conversion: 'urn:lla:llaPartnerConversion:789123'
+    // }
+
+    const streamConversionEvent = {
+      conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+      conversionHappenedAt: Date.now(),
+      user: {
+        userIds: [
+          {
+            idType: 'SHA256_EMAIL',
+            idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
+          },
+          {
+            idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+            idValue: 'df5gf5-gh6t7-ph4j7h-fgf6n1'
+          }
+        ],
+        userInfo: {
+          firstName: 'mike',
+          lastName: 'smith',
+          title: 'software engineer',
+          companyName: 'microsoft',
+          countryCode: 'US'
+        }
+      }
+    }
+
+    nock(`${BASE_URL}`)
+      .post(
+        '/campaignConversions?ids=List((campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[0]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}),(campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[1]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}))'
+      )
+      .reply(200)
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
+
+    const responses = await testDestination.testAction('streamConversion', {
+      event,
+      settings,
+      mapping: {
+        adAccountId: payload.adAccountId,
+        user: {
+          '@path': '$.context.traits.user'
+        },
+        campaignId: multipleCampaigns,
+        conversionHappenedAt: {
+          '@path': '$.timestamp'
+        },
+        onMappingSave: {
+          inputs: {},
+          outputs: {
+            id: payload.conversionId
+          }
+        }
+      }
+    })
+
+    console.log('responses', responses)
+  })
+
   it('should throw an error if timestamp is not within the past 90 days', async () => {
     event.timestamp = '50000000000'
 
@@ -119,15 +175,11 @@ describe('LinkedinConversions.streamConversion', () => {
         event,
         settings,
         mapping: {
-          adAccountId: {
-            '@path': '$.context.traits.adAccountId'
-          },
+          adAccountId: payload.adAccountId,
           user: {
             '@path': '$.context.traits.user'
           },
-          campaignId: {
-            '@path': '$.context.traits.campaignId'
-          },
+          campaignId: payload.campaignId,
           conversionHappenedAt: {
             '@path': '$.timestamp'
           }
@@ -144,8 +196,6 @@ describe('LinkedinConversions.streamConversion', () => {
       context: {
         traits: {
           email: 'testing@testing.com',
-          adAccountId: '12345',
-          campaignId: '56789',
           userIds: [],
           userInfo: {
             title: 'software engineer',
@@ -161,18 +211,14 @@ describe('LinkedinConversions.streamConversion', () => {
         event,
         settings,
         mapping: {
-          adAccountId: {
-            '@path': '$.context.traits.adAccountId'
-          },
+          adAccountId: payload.adAccountId,
           userIds: {
             '@path': '$.context.traits.userIds'
           },
           userInfo: {
             '@path': '$.context.traits.userInfo'
           },
-          campaignId: {
-            '@path': '$.context.traits.campaignId'
-          },
+          campaignId: payload.campaignId,
           conversionHappenedAt: {
             '@path': '$.timestamp'
           },
@@ -247,11 +293,6 @@ describe('LinkedinConversions.timestamp', () => {
       conversion: 'urn:lla:llaPartnerConversion:789123'
     }
 
-    const payload = {
-      campaignId: 123456,
-      conversionId: 789123
-    }
-
     const streamConversionEvent = {
       conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
       conversionHappenedAt: 1698840732125,
@@ -288,15 +329,11 @@ describe('LinkedinConversions.timestamp', () => {
         event,
         settings,
         mapping: {
-          adAccountId: {
-            '@path': '$.context.traits.adAccountId'
-          },
+          adAccountId: payload.adAccountId,
           user: {
             '@path': '$.context.traits.user'
           },
-          campaignId: {
-            '@path': '$.context.traits.campaignId'
-          },
+          campaignId: payload.campaignId,
           conversionHappenedAt: {
             '@path': '$.timestamp'
           },
@@ -319,11 +356,6 @@ describe('LinkedinConversions.timestamp', () => {
       conversion: 'urn:lla:llaPartnerConversion:789123'
     }
 
-    const payload = {
-      campaignId: 123456,
-      conversionId: 789123
-    }
-
     const streamConversionEvent = {
       conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
       conversionHappenedAt: 1698840732125,
@@ -360,15 +392,11 @@ describe('LinkedinConversions.timestamp', () => {
         event,
         settings,
         mapping: {
-          adAccountId: {
-            '@path': '$.context.traits.adAccountId'
-          },
+          adAccountId: payload.adAccountId,
           user: {
             '@path': '$.context.traits.user'
           },
-          campaignId: {
-            '@path': '$.context.traits.campaignId'
-          },
+          campaignId: payload.campaignId,
           conversionHappenedAt: {
             '@path': '$.timestamp'
           },
