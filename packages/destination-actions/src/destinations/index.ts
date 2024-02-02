@@ -145,6 +145,11 @@ register('659eb79c1141e58effa2153e', './kevel')
 register('659eb601f8f615dac18db564', './aggregations-io')
 register('659eb6903c4d201ebd9e2f5c', './equals')
 register('65ae435952ce3b2244f99e22', './amazon-ads')
+register('65b8e9eca1b5903a031c6378', './schematic')
+register('65b8e9ae4bc3eee909e05c73', './courier')
+register('65b8e9531fc2c458f50fd55d', './tiktok-offline-conversions-sandbox')
+register('65b8e9108b442384abfd05f9', './tiktok-conversions-sandbox')
+register('65b8e89cd96df17201b04a49', './surveysparrow')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

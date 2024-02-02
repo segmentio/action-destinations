@@ -89,6 +89,52 @@ const action: ActionDefinition<Settings, Payload> = {
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
     return { batch: [pagePayload] }
+  },
+  performBatch: (_request, { payload, statsContext }) => {
+    const pagePayload = payload.map((data) => {
+      if (!data.anonymous_id && !data.user_id) {
+        throw MissingUserOrAnonymousIdThrowableError
+      }
+      convertPayload(data)
+    })
+
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
+    return { batch: pagePayload }
+  }
+}
+
+function convertPayload(data: Payload) {
+  return {
+    userId: data?.user_id,
+    anonymousId: data?.anonymous_id,
+    timestamp: data?.timestamp,
+    name: data?.page_name,
+    context: {
+      app: data?.application,
+      campaign: data?.campaign_parameters,
+      device: data?.device,
+      ip: data?.ip_address,
+      locale: data?.locale,
+      location: data?.location,
+      network: data?.network,
+      os: data?.operating_system,
+      page: data?.page,
+      screen: data?.screen,
+      userAgent: data?.user_agent,
+      timezone: data?.timezone,
+      groupId: data?.group_id
+    },
+    properties: {
+      name: data?.page_name,
+      category: data?.page_category,
+      path: data?.page?.path,
+      referrer: data?.page?.referrer,
+      search: data?.page?.search,
+      title: data?.page?.title,
+      url: data?.page?.url,
+      ...data?.properties
+    },
+    type: 'page'
   }
 }
 
