@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     traits_or_props: {
       label: 'Traits or Properties',
       description: 'Hidden field used to access traits or properties objects from Engage payloads.',
-      type: 'string',
+      type: 'object',
       required: false,
       unsafe_hidden: true, 
       default: {
@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     validate(data.settings)
 
-    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames)
+    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames, true)
   },
 
   performBatch: async (request, data) => {
@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     validate(data.settings)
 
-    return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
+    return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames, true)
   }
 }
 

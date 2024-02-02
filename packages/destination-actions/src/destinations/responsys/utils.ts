@@ -18,63 +18,30 @@ export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
   settings: Settings,
-  userDataFieldNames: string[]
+  userDataFieldNames: string[], 
+  isAudience?: boolean
 ) => {
 
-  const userDataArray = payload.map((obj) => {
-    if (traits_or_props in obj && computation_key in obj) {
-      return {
-        ...obj.userData,
-        SEGMENT_AUDIENCE_KEY: obj.traits_or_props[obj.computation_key]
-      };
-    } else {
-      return obj.userData;
-    }
+  let userDataArray: unknown[]
+
+  if(isAudience){
+    const audiencePayloads = payload as unknown[] as AudiencePayload[]
+    userDataArray = audiencePayloads.map((obj) => {
+        return {
+          ...obj.userData,
+          SEGMENT_AUDIENCE_KEY: String(obj.traits_or_props[obj.computation_key]) 
+        }
+    });
+  } else {
+    const payloads = payload as unknown[] as CustomTraitsPayload[]
+    userDataArray = payloads.map((obj) => obj.userData)
+  }
+
+  const records: unknown[][] = userDataArray.map((userData) => {
+    return userDataFieldNames.map((fieldName) => {
+      return (userData as Record<string, unknown>) && fieldName in (userData as Record<string, unknown>) ? (userData as Record<string, unknown>)[fieldName] : '';
+    });
   });
-
-  const records: unknown[][] = userDataArray.map((userData) => {
-    return userDataFieldNames.map((fieldName) => {
-      return userData && fieldName in userData ? userData[fieldName] : ''
-    })
-  })
-
-  const recordData: RecordData = {
-    fieldNames: userDataFieldNames.map(field => field.toUpperCase()),
-    records,
-    mapTemplateName: ''
-  }
-
-  const requestBody: CustomTraitsRequestBody = {
-    recordData,
-    insertOnNoMatch: settings.insertOnNoMatch,
-    updateOnMatch: settings.updateOnMatch,
-    matchColumnName1: settings.matchColumnName1,
-    matchColumnName2: settings.matchColumnName2 || ''
-  }
-
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
-
-  const endpoint = new URL(path, settings.baseUrl)
-
-  return await request(endpoint.href, {
-    method: 'POST',
-    body: JSON.stringify(requestBody)
-  })
-}
-
-export const sendAudience = async (
-  request: RequestClient,
-  payload: CustomTraitsPayload[],
-  settings: Settings,
-  userDataFieldNames: string[]
-) => {
-  const userDataArray = payload.map((obj) => obj.userData)
-
-  const records: unknown[][] = userDataArray.map((userData) => {
-    return userDataFieldNames.map((fieldName) => {
-      return userData && fieldName in userData ? userData[fieldName] : ''
-    })
-  })
 
   const recordData: RecordData = {
     fieldNames: userDataFieldNames.map(field => field.toUpperCase()),

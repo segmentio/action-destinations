@@ -22,5 +22,13 @@ export interface Payload {
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
-  batch_size?: number
+  batch_size?: number,
+
+  traits_or_props: {
+    [k: string]: unknown
+  },
+
+  computation_key: string,
+
+  computation_class: string,
 }
