@@ -25,6 +25,7 @@ export const sendCustomTraits = async (
   let userDataArray: unknown[]
 
   if(isAudience){
+    userDataFieldNames.push("SEGMENT_AUDIENCE_KEY")
     const audiencePayloads = payload as unknown[] as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
         return {
@@ -33,13 +34,13 @@ export const sendCustomTraits = async (
         }
     });
   } else {
-    const payloads = payload as unknown[] as CustomTraitsPayload[]
-    userDataArray = payloads.map((obj) => obj.userData)
+    const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
+    userDataArray = customTraitsPayloads.map((obj) => obj.userData)
   }
 
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, unknown>) && fieldName in (userData as Record<string, unknown>) ? (userData as Record<string, unknown>)[fieldName] : '';
+      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>) ? (userData as Record<string, string>)[fieldName] : '';
     });
   });
 
@@ -67,6 +68,7 @@ export const sendCustomTraits = async (
   })
 }
 
+/*
 export const upsertListMember = async (
   request: RequestClient,
   payload: ListMemberPayload[],
@@ -123,7 +125,7 @@ export const upsertListMember = async (
 
 
 
-/*
+
 export const sendProfileListMembersData = async (
   request: RequestClient,
   payload: ProfileMemberListPayload[],

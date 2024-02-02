@@ -93,8 +93,6 @@ const destination: DestinationDefinition<Settings> = {
         ], 
         default: 'REPLACE_ALL'
       }
-      //TODO add writeKey and Region Settings
-
     },
     testAuthentication: (_, { settings }) => {
       //TOTO add validation to ensure that List Name setting value is always upper cased

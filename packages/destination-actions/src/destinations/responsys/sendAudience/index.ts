@@ -82,8 +82,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, data) => {
     const userDataFieldNames: string[] = getUserDataFieldNames(data as unknown as Data);
 
-    userDataFieldNames.push("SEGMENT_AUDIENCE_KEY")
-
     validate(data.settings)
 
     return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames, true)
