@@ -9,9 +9,16 @@ function getAppNameFromUrl(url: string) {
   return url.split('/')[2]
 }
 
-function generateBaseBody(event: Payload): BaseBody {
+function generateBaseBody(event: Payload, appVersionPropertyName: string | undefined): BaseBody {
   const appName = event.appName ?? (event.pageUrl ? getAppNameFromUrl(event.pageUrl) : 'unnamed Segment app')
-  const appVersion = event.appVersion ?? 'unversioned'
+
+  let appVersion: string
+  if (appVersionPropertyName !== undefined && appVersionPropertyName in event.properties) {
+    // Using bracket notation for dynamic property name access with type assertion
+    appVersion = event.properties[appVersionPropertyName] as string
+  } else {
+    appVersion = event.appVersion ?? 'unversioned'
+  }
 
   return {
     appName: appName,
@@ -39,8 +46,8 @@ function handleEvent(baseBody: BaseBody, event: Payload): EventSchemaBody {
   return eventBody
 }
 
-export function extractSchemaFromEvent(event: Payload) {
-  const baseBody: BaseBody = generateBaseBody(event)
+export function extractSchemaFromEvent(event: Payload, appVersionPropertyName: string | undefined) {
+  const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
 
   const eventBody: EventSchemaBody = handleEvent(baseBody, event)
 
