@@ -113,6 +113,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description: 'The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.',
       type: 'object',
       required: false,
+      defaultObjectUI: 'keyvalue:only',
       properties: {
         currencyCode: {
           label: 'Currency Code',
@@ -143,6 +144,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         'Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".',
       type: 'object',
       multiple: true,
+      defaultObjectUI: 'keyvalue',
       properties: {
         idType: {
           label: 'ID Type',
@@ -163,6 +165,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       label: 'User Info',
       description: 'Object containing additional fields for user matching.',
       type: 'object',
+      defaultObjectUI: 'keyvalue',
       required: false,
       properties: {
         firstName: {
