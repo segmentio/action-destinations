@@ -5,7 +5,7 @@ import { resolveIdentifiers, sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Relationship',
-  description: `Track a "Relationship Deleted" event to delete a relationship.`,
+  description: `Delete a relationship between a person and an object in Customer.io.`,
   defaultSubscription: 'event = "Relationship Deleted"',
   fields: {
     person_id: {

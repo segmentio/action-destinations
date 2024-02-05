@@ -5,7 +5,7 @@ import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Person',
-  description: `Track a "User Deleted" event to delete a person.`,
+  description: 'Delete a person in Customer.io.',
   defaultSubscription: 'event = "User Deleted"',
   fields: {
     person_id: {

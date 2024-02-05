@@ -5,7 +5,7 @@ import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsuppress Person',
-  description: `Track a "User Unsuppressed" event to suppress a person.`,
+  description: `Unsuppress a person in Customer.io. This will allow the person to receive messages again.`,
   defaultSubscription: 'event = "User Unsuppressed"',
   fields: {
     person_id: {

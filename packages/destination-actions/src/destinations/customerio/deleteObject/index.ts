@@ -5,7 +5,7 @@ import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Object',
-  description: `Track a "Group Deleted" event to delete an object.`,
+  description: 'Delete an object in Customer.io.',
   defaultSubscription: 'event = "Group Deleted"',
   fields: {
     object_id: {
