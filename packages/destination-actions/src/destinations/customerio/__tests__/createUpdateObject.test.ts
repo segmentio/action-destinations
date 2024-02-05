@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('createUpdateObject', () => {
@@ -537,6 +537,60 @@ describe('CustomerIO', () => {
             object_id: groupId
           },
           cio_relationships: [relationship]
+        })
+      })
+
+      it('should work if `relationship_attributes` is unmapped', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const groupId = 'grp123'
+        const traits = {
+          object_type_id: '1',
+          objectAttributes: {
+            name: 'Sales',
+            createdAt: timestamp
+          },
+          relationshipAttributes: {
+            role: 'admin',
+            prefix: 'Mr.'
+          }
+        }
+
+        const attributes = {
+          anonymous_id: anonymousId,
+          name: 'Sales',
+          createdAt: dayjs.utc(timestamp).unix()
+        }
+
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          groupId
+        })
+
+        const mapping = getDefaultMappings('createUpdateObject')
+
+        // Ensure event_id is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.relationship_attributes
+
+        const response = await action('createUpdateObject', { event, mapping, settings })
+
+        expect(response).toEqual({
+          attributes: attributes,
+          type: 'object',
+          action: 'identify',
+          identifiers: {
+            object_type_id: traits.object_type_id,
+            object_id: groupId
+          },
+          cio_relationships: [
+            {
+              identifiers: { id: userId }
+            }
+          ]
         })
       })
     })

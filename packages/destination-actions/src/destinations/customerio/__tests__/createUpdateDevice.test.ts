@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('createUpdateDevice', () => {
@@ -28,6 +28,44 @@ describe('CustomerIO', () => {
         })
 
         expect(response).toEqual({
+          action: 'add_device',
+          device: {
+            attributes: {},
+            token: deviceId,
+            platform: deviceType,
+            last_used: dayjs.utc(timestamp).unix()
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
+      it('should work if `attributes` is unmapped', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
+          }
+        })
+
+        const mapping = getDefaultMappings('createUpdateDevice')
+
+        // Ensure attributes is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.attributes
+
+        const response = await action('createUpdateDevice', { event, mapping, settings })
+
+        expect(response).toStrictEqual({
           action: 'add_device',
           device: {
             attributes: {},

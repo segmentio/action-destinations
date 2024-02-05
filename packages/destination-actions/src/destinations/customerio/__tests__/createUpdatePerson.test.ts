@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('createUpdatePerson', () => {
@@ -631,6 +631,70 @@ describe('CustomerIO', () => {
             {
               identifiers: { object_type_id: '1', object_id: groupId },
               relationship_attributes: relationshipAttributes
+            }
+          ],
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
+      it('should work if `relationship_attributes` is unmapped', async () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const birthdate = dayjs.utc('1990-01-01T00:00:00Z').toISOString()
+        const groupId = 'g12345'
+        const traits = {
+          full_name: 'Test User',
+          email: 'test@example.com',
+          createdAt: timestamp,
+          person: {
+            over18: true,
+            identification: 'valid',
+            birthdate
+          },
+          relationshipAttributes: {
+            role: 'admin',
+            prefix: 'Mr.'
+          }
+        }
+
+        const context = {
+          groupId: groupId
+        }
+
+        const event = createTestEvent({
+          userId,
+          anonymousId,
+          timestamp,
+          traits,
+          context
+        })
+
+        const mapping = getDefaultMappings('createUpdatePerson')
+
+        // Ensure event_id is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.relationship_attributes
+
+        const response = await action('createUpdatePerson', { event, mapping, settings })
+
+        expect(response).toStrictEqual({
+          action: 'identify',
+          attributes: {
+            anonymous_id: anonymousId,
+            created_at: dayjs.utc(timestamp).unix(),
+            email: traits.email,
+            full_name: traits.full_name,
+            person: {
+              ...traits.person,
+              birthdate: dayjs.utc(birthdate).unix()
+            }
+          },
+          cio_relationships: [
+            {
+              identifiers: { object_type_id: '1', object_id: groupId }
             }
           ],
           identifiers: {
