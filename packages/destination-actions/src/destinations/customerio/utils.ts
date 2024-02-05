@@ -1,11 +1,9 @@
-import Ajv from 'ajv'
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
-
-const validateEmail = new Ajv().compile({ type: 'string', format: 'email' })
+import { fullFormats } from 'ajv-formats/dist/formats'
 
 const isEmail = (value: string): boolean => {
-  return !!validateEmail(value)
+  return (fullFormats.email as RegExp).test(value)
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
