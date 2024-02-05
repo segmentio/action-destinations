@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('trackPageView', () => {
@@ -70,6 +70,40 @@ describe('CustomerIO', () => {
           type: 'person',
           attributes,
           id: event.messageId,
+          identifiers: {
+            anonymous_id: anonymousId
+          },
+          timestamp: dayjs.utc(timestamp).unix()
+        })
+      })
+
+      it('should work if `event_id` is unmapped', async () => {
+        const anonymousId = 'anonymous123'
+        const url = 'https://example.com/page-one'
+        const timestamp = dayjs.utc().toISOString()
+        const attributes = {
+          property1: 'this is a test',
+          url
+        }
+        const event = createTestEvent({
+          anonymousId,
+          properties: attributes,
+          userId: undefined,
+          timestamp
+        })
+
+        const mapping = getDefaultMappings('trackPageView')
+
+        // Ensure event_id is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.event_id
+
+        const response = await action('trackPageView', { event, mapping, settings })
+
+        expect(response).toStrictEqual({
+          action: 'page',
+          name: url,
+          type: 'person',
+          attributes,
           identifiers: {
             anonymous_id: anonymousId
           },

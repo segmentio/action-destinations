@@ -82,13 +82,21 @@ const action: ActionDefinition<Settings, Payload> = {
 
 function mapPayload(payload: Payload) {
   const { id, event_id, data, ...rest } = payload
-
-  return {
+  const result: {
+    id?: string
+    person_id?: string
+    attributes?: Record<string, unknown>
+  } = {
     ...rest,
     person_id: id,
-    id: event_id,
     attributes: data
   }
+
+  if (event_id) {
+    result.id = event_id
+  }
+
+  return result
 }
 
 export default action

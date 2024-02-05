@@ -1,4 +1,5 @@
 import nock from 'nock'
+import mapValues from 'lodash/mapValues'
 import { DecoratedResponse, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from './index'
 import { Settings } from './generated-types'
@@ -68,6 +69,13 @@ function wrapFn(fn: Function, type: string, region: AccountRegion) {
 }
 
 export const nockTrackInternalEndpoint = (region: AccountRegion) => trackServiceByRegion[region]
+
+export function getDefaultMappings(action: string) {
+  const fields = testDestination.definition.actions[action].fields
+  const defaultMappings = mapValues(fields, 'default')
+
+  return defaultMappings
+}
 
 export function testRunner(fn: Function) {
   describe.each(Object.values(endpointByType))(`when using %s requests`, (type) => {

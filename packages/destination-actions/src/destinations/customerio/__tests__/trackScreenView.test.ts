@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('trackScreenView', () => {
@@ -104,6 +104,44 @@ describe('CustomerIO', () => {
         } catch (e) {
           expect(e.message).toBe("The root value is missing the required field 'name'.")
         }
+      })
+
+      it('should work if `event_id` is unmapped', async () => {
+        const userId = 'abc123'
+        const screen = 'Page One'
+        const timestamp = '2018-03-04T12:08:56.235 PDT'
+        const attributes = {
+          property1: 'this is a test',
+          screen
+        }
+        const event = createTestEvent({
+          type: 'screen',
+          name: screen,
+          userId,
+          properties: attributes,
+          timestamp
+        })
+
+        const mapping = getDefaultMappings('trackScreenView')
+
+        // Ensure event_id is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.event_id
+
+        const response = await action('trackScreenView', { event, mapping, settings })
+
+        expect(response).toStrictEqual({
+          name: screen,
+          action: 'screen',
+          type: 'person',
+          attributes: {
+            ...attributes,
+            anonymous_id: event.anonymousId
+          },
+          identifiers: {
+            id: userId
+          },
+          timestamp
+        })
       })
 
       it("should not convert timestamp if it's invalid", async () => {
