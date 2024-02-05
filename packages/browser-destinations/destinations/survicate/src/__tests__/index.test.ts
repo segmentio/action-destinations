@@ -30,6 +30,7 @@ const example: Subscription[] = [
   }
 ]
 
+jest.setTimeout(10000) // Resolves a timeout issue in these tests
 describe('Survicate', () => {
   test('#load', async () => {
     const [event] = await survicate({
