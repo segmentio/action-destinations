@@ -9,7 +9,9 @@ describe('CustomerIO', () => {
         const groupId = 'group_123'
         const objectTypeId = 'type_123'
         const event = createTestEvent({
-          groupId,
+          context: {
+            groupId
+          },
           properties: {
             objectTypeId
           }

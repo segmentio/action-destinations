@@ -25,7 +25,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A timestamp of when the object was created.',
       type: 'string',
       default: {
-        '@path': '$.timestamp'
+        '@if': {
+          exists: { '@path': '$.traits.created_at' },
+          then: { '@path': '$.traits.created_at' },
+          else: { '@path': '$.traits.createdAt' }
+        }
       }
     },
     custom_attributes: {

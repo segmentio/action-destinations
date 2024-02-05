@@ -10,11 +10,7 @@ export interface Payload {
    */
   metric: string
   /**
-   * Information about who the message was delivered to.
-   *         The value of this field depends on the channel the message was sent to.
-   *         - For email, this is the email address.
-   *         - For SMS, this is the phone number.
-   *         - For mobile push, this is the device token.
+   * Information about who the message was delivered to. For email, SMS and mobile push this is the email address, phone number and device token, respectively.
    */
   recipient?: string
   /**

@@ -145,7 +145,7 @@ export const buildPayload = <Payload extends BasePayload>({ action, type, payloa
 
   // `merge` is the only action that does not require identifiers at the root level.
   if (action !== 'merge') {
-    body.identifiers = resolveIdentifiers(payload as unknown as Record<string, unknown>)
+    body.identifiers = resolveIdentifiers({ anonymous_id, email, object_id, object_type_id, person_id })
   }
 
   // Remove unnecessary anonymous_id attribute if it's also in the identifiers object.
@@ -163,7 +163,6 @@ export const resolveIdentifiers = ({
   object_type_id = '1',
   person_id
 }: Record<string, unknown>): Identifiers | undefined => {
-  // No identifiers were provided in the context, so we need to try to resolve them.
   if (object_id && object_type_id) {
     return {
       object_id: object_id as string,
@@ -182,7 +181,7 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = <Payload>(request: Function, options: RequestPayload<Payload>[]) => {
+export const sendBatch = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
   if (!options?.length) {
     return
   }
@@ -198,7 +197,7 @@ export const sendBatch = <Payload>(request: Function, options: RequestPayload<Pa
   })
 }
 
-export const sendSingle = <Payload>(request: Function, options: RequestPayload<Payload>) => {
+export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
   const json = buildPayload(options)
 
   return request(`${trackApiEndpoint(options.settings)}/api/v2/entity`, {

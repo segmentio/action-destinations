@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function mapPayload(payload: Payload) {
-  const { device_id, platform, last_used, attributes, ...rest } = payload
+  const { app_version, device_id, platform, last_used, attributes, ...rest } = payload
 
   return {
     ...rest,
@@ -88,7 +88,10 @@ function mapPayload(payload: Payload) {
       token: device_id,
       platform,
       last_used,
-      attributes
+      attributes: {
+        ...attributes,
+        ...(payload.app_version ? { app_version: payload.app_version } : {})
+      }
     }
   }
 }

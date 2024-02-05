@@ -42,6 +42,47 @@ describe('CustomerIO', () => {
         })
       })
 
+      it('should include app_version', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            app: {
+              version: '1.23'
+            },
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
+          }
+        })
+        const response = await action('createUpdateDevice', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          action: 'add_device',
+          device: {
+            attributes: {
+              app_version: '1.23'
+            },
+            token: deviceId,
+            platform: deviceType,
+            last_used: dayjs.utc(timestamp).unix()
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
       it("should not convert last_used if it's invalid", async () => {
         const userId = 'abc123'
         const deviceId = 'device_123'

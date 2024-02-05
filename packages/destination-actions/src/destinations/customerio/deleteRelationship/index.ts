@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'An object ID used to identify an object.',
       type: 'string',
       default: {
-        '@path': '$.groupId'
+        '@path': '$.context.groupId'
       },
       required: true
     },
@@ -46,9 +46,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.object_type_id' },
-          then: { '@path': '$.traits.object_type_id' },
-          else: { '@path': '$.traits.objectTypeId' }
+          exists: { '@path': '$.properties.object_type_id' },
+          then: { '@path': '$.properties.object_type_id' },
+          else: { '@path': '$.properties.objectTypeId' }
         }
       }
     }

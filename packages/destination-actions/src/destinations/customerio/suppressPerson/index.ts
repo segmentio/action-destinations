@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
     person_id: {
       label: 'Person ID',
       description:
-        'The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
+        'The ID used to uniquely identify a person in Customer.io. Any valid identifier is supported, such as ID, cio_id, email, etc. Anonymous users cannot be suppressed. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
       type: 'string',
       default: {
         '@if': {
