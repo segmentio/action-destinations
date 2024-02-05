@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   fields: {
     adAccountId: {
       label: 'Ad Account',
-      description: 'A dynamic field dropdown which fetches all adAccounts.',
+      description: 'The ad account to use for the conversion event.',
       type: 'string',
       required: true,
       dynamic: true
@@ -131,7 +131,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     },
     eventId: {
       label: 'Event ID',
-      description: 'Will be used for deduplication in future.',
+      description: 'The unique id for each event. This field is optional and is used for deduplication.',
       type: 'string',
       required: false,
       default: {
@@ -196,12 +196,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       }
     },
     campaignId: {
-      label: 'Campaign',
+      label: 'Campaigns',
       type: 'string',
       multiple: true,
       required: true,
       dynamic: true,
-      description: 'A dynamic field dropdown which fetches all active campaigns.'
+      description:
+        'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.'
     }
   },
   dynamicFields: {
