@@ -63,8 +63,8 @@ const defaultEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'identify',
   traits: {
-    firstName: mockFirstName,
-    lastName: mockLastName,
+    first_name: mockFirstName,
+    last_name: mockLastName,
     email: mockEmail,
     phone: mockPhone
   },
@@ -100,7 +100,7 @@ describe('StackAdapt', () => {
 
     it('Sends event data to pixel endpoint in expected format with expected headers', async () => {
       const expectedParams = { ...defaultExpectedParams, ...defaultIdentifyParams }
-      nock(pixelHostUrl).get(pixelPath).query(expectedParams).reply(200, {})
+      nock(pixelHostUrl).get(pixelPath).query(true).reply(200, {})
 
       const event = createTestEvent(defaultEventPayload)
       const responses = await testDestination.testAction('forwardEvent', {
@@ -113,6 +113,8 @@ describe('StackAdapt', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+      const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
+      expect(requestParams).toMatchObject(expectedParams)
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {

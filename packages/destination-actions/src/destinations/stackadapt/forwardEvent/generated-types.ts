@@ -85,32 +85,32 @@ export interface Payload {
      * The name of the product.
      */
     product_name?: string
-    /**
-     * The list of products associated with the event (for events with multiple products, such as order completed)
-     */
-    products?: {
-      /**
-       * The price of the product.
-       */
-      product_price?: number
-      /**
-       * The quantity of the product.
-       */
-      product_quantity?: number
-      /**
-       * An identifier for the product.
-       */
-      product_id?: string
-      /**
-       * A category for the product.
-       */
-      product_category?: string
-      /**
-       * The name of the product.
-       */
-      product_name?: string
-      [k: string]: unknown
-    }[]
     [k: string]: unknown
   }
+  /**
+   * The list of products associated with the event (for events with multiple products, such as order completed)
+   */
+  ecommerce_products?: {
+    /**
+     * The price of the product.
+     */
+    product_price?: number
+    /**
+     * The quantity of the product.
+     */
+    product_quantity?: number
+    /**
+     * An identifier for the product.
+     */
+    product_id?: string
+    /**
+     * A category for the product.
+     */
+    product_category?: string
+    /**
+     * The name of the product.
+     */
+    product_name?: string
+    [k: string]: unknown
+  }[]
 }

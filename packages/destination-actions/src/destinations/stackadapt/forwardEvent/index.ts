@@ -104,9 +104,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.firstName' },
-          then: { '@path': '$.traits.firstName' },
-          else: { '@path': '$.properties.firstName' }
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
         }
       }
     },
@@ -116,9 +116,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.lastName' },
-          then: { '@path': '$.traits.lastName' },
-          else: { '@path': '$.properties.lastName' }
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
         }
       }
     },
@@ -167,41 +167,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Product Name',
           type: 'string',
           description: 'The name of the product.'
-        },
-        products: {
-          label: 'Products',
-          description:
-            'The list of products associated with the event (for events with multiple products, such as order completed)',
-          type: 'object',
-          multiple: true,
-          additionalProperties: true,
-          properties: {
-            product_price: {
-              label: 'Price',
-              type: 'number',
-              description: 'The price of the product.'
-            },
-            product_quantity: {
-              label: 'Quantity',
-              type: 'integer',
-              description: 'The quantity of the product.'
-            },
-            product_id: {
-              label: 'Product ID',
-              type: 'string',
-              description: 'An identifier for the product.'
-            },
-            product_category: {
-              label: 'Product Category',
-              type: 'string',
-              description: 'A category for the product.'
-            },
-            product_name: {
-              label: 'Product Name',
-              type: 'string',
-              description: 'The name of the product.'
-            }
-          }
         }
       },
       default: {
@@ -212,41 +177,69 @@ const action: ActionDefinition<Settings, Payload> = {
         product_quantity: { '@path': '$.properties.quantity' },
         product_id: { '@path': '$.properties.product_id' },
         product_category: { '@path': '$.properties.category' },
-        product_name: { '@path': '$.properties.name' },
-        products: {
-          '@arrayPath': [
-            '$.properties.products',
-            {
-              product_price: {
-                '@path': 'price'
-              },
-              product_quantity: {
-                '@path': 'quantity'
-              },
-              product_id: {
-                '@path': 'product_id'
-              },
-              product_category: {
-                '@path': 'category'
-              },
-              product_name: {
-                '@path': 'name'
-              }
-            }
-          ]
+        product_name: { '@path': '$.properties.name' }
+      }
+    },
+    ecommerce_products: {
+      label: 'Products',
+      description:
+        'The list of products associated with the event (for events with multiple products, such as order completed)',
+      type: 'object',
+      multiple: true,
+      additionalProperties: true,
+      properties: {
+        product_price: {
+          label: 'Price',
+          type: 'number',
+          description: 'The price of the product.'
+        },
+        product_quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'The quantity of the product.'
+        },
+        product_id: {
+          label: 'Product ID',
+          type: 'string',
+          description: 'An identifier for the product.'
+        },
+        product_category: {
+          label: 'Product Category',
+          type: 'string',
+          description: 'A category for the product.'
+        },
+        product_name: {
+          label: 'Product Name',
+          type: 'string',
+          description: 'The name of the product.'
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            product_price: {
+              '@path': 'price'
+            },
+            product_quantity: {
+              '@path': 'quantity'
+            },
+            product_id: {
+              '@path': 'product_id'
+            },
+            product_category: {
+              '@path': 'category'
+            },
+            product_name: {
+              '@path': 'name'
+            }
+          }
+        ]
       }
     }
   },
   perform: async (request, { payload, settings }) => {
     // Don't include ecommerce data if it's empty or if it only contains the action field
-    if (
-      payload.ecommerce_data &&
-      (isEmpty(payload.ecommerce_data) || isEqual(Object.keys(payload.ecommerce_data), ['action']))
-    ) {
-      delete payload.ecommerce_data
-    }
-
     return request(`https://tags.srv.stackadapt.com/saq_pxl`, {
       method: 'GET',
       searchParams: getAvailableData(payload, settings),
@@ -260,6 +253,10 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function getAvailableData(payload: Payload, settings: Settings) {
+  const ecommerceData = {
+    ...payload.ecommerce_data,
+    ...(!isEmpty(payload.ecommerce_products) && { products: payload.ecommerce_products })
+  }
   let data: Record<string, string> = {
     segment_ss: '1',
     event_type: payload.event_type ?? '',
@@ -270,9 +267,9 @@ function getAvailableData(payload: Payload, settings: Settings) {
     utm_source: payload.utm_source ?? '',
     user_id: payload.user_id,
     uid: settings.pixelId,
-    args: JSON.stringify(payload.ecommerce_data)
+    ...(!isEmpty(ecommerceData) &&
+      !isEqual(Object.keys(ecommerceData), ['action']) && { args: JSON.stringify(ecommerceData) })
   }
-  if (!data.args) delete data.args
   if (payload.event_type === 'identify') {
     data = {
       ...data,
