@@ -60,7 +60,7 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       description: 'Timestamp of when the event was received',
       required: true,
       default: {
-        '@path': '$.receivedAt'
+        '@path': '$.timestamp'
       }
     },
     appVersion: {
