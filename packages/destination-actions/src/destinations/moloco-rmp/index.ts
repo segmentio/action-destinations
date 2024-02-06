@@ -7,13 +7,14 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-moloco-rmp',
   mode: 'cloud',
 
-  authentication: authentication,
+  authentication,
 
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
+  // // TODO: Consider this
+  // onDelete: async (request, { settings, payload }) => {
+  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+  //   // provided in the payload. If your destination does not support GDPR deletion you should not
+  //   // implement this function and should remove it completely.
+  // },
 
   actions: {}
 }

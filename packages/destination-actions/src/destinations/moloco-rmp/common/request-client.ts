@@ -1,5 +1,11 @@
-import { RequestClient, RetryableError, ModifiedResponse } from '@segment/actions-core'
-import { Settings } from './settings'
+import { 
+    InvalidAuthenticationError,
+    PayloadValidationError,
+    RequestClient,
+    RetryableError,
+    ModifiedResponse
+} from '@segment/actions-core'
+import type { Settings } from './settings'
 
 const TEST_ENDPOINT = 'https://evt-iad-test.rmp-api.moloco.com/cdp/SEGMENT'
 
@@ -19,7 +25,7 @@ export class MolocoAPIClient {
     }
 
     // TODO: return dynamic endpoint based on the platform
-    getEndpoint() {
+    private getEndpoint() {
         return TEST_ENDPOINT
     }
 
@@ -40,11 +46,29 @@ export class MolocoAPIClient {
     async sendEvent(body: Record<string, any>): Promise<ModifiedResponse> {
         const res = await this._sendEvent(body)
 
+        // OK
         if (res.status === 200) {
             return res
-        }
+        } else {
+            const errorMsg = await res.text();
 
-        // TODO: elaborate on the error classification and its message
-        throw new RetryableError(`Error while sending event to Moloco RMP API`)
+            // Retry on 5xx (server errors) and 429s (rate limits)
+            if (res.status >= 500 || res.status === 429) {
+                throw new RetryableError(`${res.status} | ${errorMsg}, this will be retried`)
+            }
+
+            // Unauthorized errors, could be invalid platform or API Key
+            if (res.status === 401) {
+                throw new InvalidAuthenticationError(`${res.status} | Unauthorized: ${errorMsg}`)
+            }
+
+            // Invalid payload
+            if (res.status === 400) {
+                throw new PayloadValidationError(`${res.status} | Invalid payload: ${errorMsg}`)
+            }
+
+            // Else, throw a non-retryable error
+            throw new Error(`${res.status}' | Unknown error: ${errorMsg}`)
+        }
     }
 }
