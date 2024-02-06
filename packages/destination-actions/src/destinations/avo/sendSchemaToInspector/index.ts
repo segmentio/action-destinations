@@ -69,11 +69,7 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       description: 'Version of the app that sent the event',
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.context.app' },
-          then: { '@path': '$.context.app.version' },
-          else: { '@path': '$.properties.appVersion' }
-        }
+        '@path': '$.context.app.version'
       }
     },
     appName: {
@@ -82,11 +78,7 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       description: 'Name of the app that sent the event',
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.context.app' },
-          then: { '@path': '$.context.app.name' },
-          else: { '@path': '$.properties.appName' }
-        }
+        '@path': '$.context.app.name'
       }
     },
     pageUrl: {
@@ -95,11 +87,7 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       description: 'URL of the page that sent the event',
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.context.page' },
-          then: { '@path': '$.context.page.url' },
-          else: { '@path': '$.properties.url' }
-        }
+        '@path': '$.context.page.url'
       }
     }
   },
