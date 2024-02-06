@@ -20,7 +20,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      console.log('THIS IS REQUEST', settings)
       try {
         return await request(`https://in.accoil.com/segment`, {
           method: 'post',
@@ -34,16 +33,8 @@ const destination: DestinationDefinition<Settings> = {
           const { message } = e.response.data
           throw new Error(message)
         }
-        // throw new InvalidAuthenticationError('Error Validating Credentials')
       }
     }
-
-    // onDelete: async (request, { settings, payload }) => {
-    //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    //   // provided in the payload. If your destination does not support GDPR deletion you should not
-    //   // implement this function and should remove it completely.
-
-    // },
   },
   extendRequest: ({ settings }) => {
     return {
