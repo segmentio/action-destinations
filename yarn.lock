@@ -2012,7 +2012,7 @@
   dependencies:
     nx "15.9.6"
 
-"@oclif/command@1.8.36", "@oclif/command@^1.8.36":
+"@oclif/command@1.8.36":
   version "1.8.36"
   resolved "https://registry.npmjs.org/@oclif/command/-/command-1.8.36.tgz#9739b9c268580d064a50887c4597d1b4e86ca8b5"
   integrity sha512-/zACSgaYGtAQRzc7HjzrlIs14FuEYAZrMOEwicRoUnZVyRunG4+t5iSEeQu0Xy2bgbCD0U1SP/EdeNZSTXRwjQ==
