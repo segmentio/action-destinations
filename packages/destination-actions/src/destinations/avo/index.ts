@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
       appVersionPropertyName: {
         label: 'App Version property',
         description:
-          'Optionally set which property represents the app version in your events. If not set, the app version will be taken from the $event.app.version',
+          'Optionally set which property represents the app version in your events. If not set, the app version will be taken from the $.context.app.version',
         type: 'string',
         required: false
       }
