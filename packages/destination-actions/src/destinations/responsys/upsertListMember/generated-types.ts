@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * <TODO>>
+   * Recepient Data
    */
   userData: {
     /**
      * The user's email address.
      */
-    email_address_?: string
+    EMAIL_ADDRESS_?: string
     /**
      * An MD5 Hash of the user's email address.
      */
@@ -20,15 +20,16 @@ export interface Payload {
     /**
      * Recipient ID (RIID).  RIID is required if Email Address is empty.
      */
-    riid_?: string
+    RIID_?: string
     /**
      * Responsys Customer ID.
      */
-    customer_id_?: string
+    CUSTOMER_ID_?: string
     /**
      * The user's Mobile Phone Number.
      */
     mobile_number_?: string
+    [k: string]: unknown
   }
   /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.

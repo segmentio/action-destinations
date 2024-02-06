@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
+import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload, transformDataFieldValues } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -12,13 +12,13 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userData: {
       label: 'Recepient Data',
-      description: '<TODO>>',
+      description: 'Recepient Data',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
-        email_address_: {
+        EMAIL_ADDRESS_: {
           label: 'Email Address',
           description: "The user's email address.",
           type: 'string',
@@ -37,13 +37,13 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         },
-        riid_: {
+        RIID_: {
           label: 'Recipient ID',
           description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
           type: 'string',
           required: false
         },
-        customer_id_: {
+        CUSTOMER_ID_: {
           label: 'Customer ID',
           description: 'Responsys Customer ID.',
           type: 'string',
@@ -57,12 +57,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email_address_: { '@path': '$.context.traits.email' },
+        EMAIL_ADDRESS_: { '@path': '$.context.traits.email' },
         email_md5_hash_: { '@path': '$.context.traits.email_md5_hash_' },
         email_sha256_hash_: { '@path': '$.context.traits.email_sha256_hash' },
-        customer_id_: { '@path': '$.context.traits.customer_id' },
+        CUSTOMER_ID_: { '@path': '$.context.traits.customer_id' },
         mobile_number_: { '@path': '$.context.traits.phone' },
-        riid_: { '@path': '$.userId' }
+        RIID_: { '@path': '$.userId' }
       }
     },
     enable_batching: enable_batching,
@@ -71,10 +71,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-
+    const transformedSettings = transformDataFieldValues(data.settings)
+    console.log(data)
+    console.log(transformedSettings)
     validateListMemberPayload(data.payload.userData)
 
-    return upsertListMembers(request, [data.payload], data.settings, userDataFieldNames)
+    return upsertListMembers(request, [data.payload], transformedSettings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {

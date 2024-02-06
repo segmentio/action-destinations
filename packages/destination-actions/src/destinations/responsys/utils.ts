@@ -22,24 +22,35 @@ export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profil
 }
 
 export const validateListMemberPayload = ({
-  email_address_,
-  riid_
+  EMAIL_ADDRESS_,
+  RIID_
 }: {
-  email_address_?: string
-  riid_?: string
+  EMAIL_ADDRESS_?: string
+  RIID_?: string
 }): void => {
   // TODO validate which identifier fields are required
 
-  if (!email_address_ || email_address_.trim().length < 6) {
+  if (!EMAIL_ADDRESS_?.toUpperCase() || EMAIL_ADDRESS_.toUpperCase().trim().length < 6) {
     throw new PayloadValidationError('Email Address is a required field')
   }
-  if (!riid_ || riid_.trim().length < 1) {
+  if (!RIID_?.toUpperCase() || RIID_.toUpperCase().trim().length < 1) {
     throw new PayloadValidationError('Recipient ID is a required field')
   }
 }
 
 export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
+}
+
+export const transformDataFieldValues = (settings: Settings): Settings => {
+  if (settings.matchColumnName1 !== '' && settings.matchColumnName1 !== undefined) {
+    settings.matchColumnName1 = `${settings.matchColumnName1}_`
+  }
+
+  if (settings.matchColumnName2 !== '' && settings.matchColumnName2 !== undefined) {
+    settings.matchColumnName2 = `${settings.matchColumnName2}_`
+  }
+  return settings
 }
 
 export const sendCustomTraits = async (

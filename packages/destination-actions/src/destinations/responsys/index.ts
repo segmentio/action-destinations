@@ -147,7 +147,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_, { settings }) => {
-      if(settings.profileListName.toUpperCase() !== settings.profileListName){
+      if (settings.profileListName.toUpperCase() !== settings.profileListName) {
         return Promise.reject('List Name must be in Uppercase')
       }
 
