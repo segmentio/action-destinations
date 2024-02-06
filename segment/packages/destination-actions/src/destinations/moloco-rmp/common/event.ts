@@ -7,15 +7,16 @@ import {
     DEVICE,
     SESSION_ID,
     DECISION_TRACK_ID,
-    items,
-    revenue,
-    searchQuery,
-    pageId,
-    referrerPageId,
-    shippingCharge
+    createItemsInputField,
+    createRevenueInputField,
+    createSearchQueryInputField,
+    createPageIdInputField,
+    createReferrerPageIdInputField,
+    createShippingChargeInputField
 } from './fields'
-import { MolocoEventPayload } from './payload'
-import { BodyBuilder } from './body-builder'
+import { EventPayload as SegmentEventPayload } from './payload/segment'
+import { EventPayload as MolocoEventPayload } from './payload/moloco'
+import { convertEvent } from './convert'
 
 interface OptionalFieldsOption {
     requireItems?: boolean;
@@ -26,7 +27,7 @@ interface OptionalFieldsOption {
     requireShippingCharge?: boolean;
 }
 
-enum EventType {
+export enum EventType {
     Search = 'SEARCH',
     ItemPageView = 'ITEM_PAGE_VIEW',
     AddToCart = 'ADD_TO_CART',
@@ -57,8 +58,6 @@ export class MolocoEvent {
     referrerPageId?: InputField = undefined;
     shippingCharge?: InputField = undefined;
 
-    bodyBuilder: BodyBuilder;
-
     // Constructor for MolocoEvent
     // If a field's requirement is not passed, it is not included in the event
     constructor(
@@ -73,7 +72,6 @@ export class MolocoEvent {
         }: OptionalFieldsOption = {}
     ) {
         this.eventType = eventType;
-        this.bodyBuilder = new BodyBuilder(eventType);
         this.assignOptionalFields({
             requireItems,
             requireRevenue,
@@ -85,12 +83,12 @@ export class MolocoEvent {
     }
 
     private assignOptionalFields(option: OptionalFieldsOption): void {
-        this.items = option.requireItems !== undefined ? items(Boolean(option.requireItems)) : undefined;
-        this.revenue = option.requireRevenue !== undefined ? revenue(Boolean(option.requireRevenue)) : undefined;
-        this.searchQuery = option.requireSearchQuery !== undefined ? searchQuery(Boolean(option.requireSearchQuery)) : undefined;
-        this.pageId = option.requirePageId !== undefined ? pageId(Boolean(option.requirePageId)) : undefined;
-        this.referrerPageId = option.requireReferrerPageId !== undefined ? referrerPageId(Boolean(option.requireReferrerPageId)) : undefined;
-        this.shippingCharge = option.requireShippingCharge !== undefined ? shippingCharge(Boolean(option.requireShippingCharge)) : undefined;
+        this.items = option.requireItems !== undefined ? createItemsInputField(option.requireItems) : undefined;
+        this.revenue = option.requireRevenue !== undefined ? createRevenueInputField(option.requireRevenue) : undefined;
+        this.searchQuery = option.requireSearchQuery !== undefined ? createSearchQueryInputField(option.requireSearchQuery) : undefined;
+        this.pageId = option.requirePageId !== undefined ? createPageIdInputField(option.requirePageId) : undefined;
+        this.referrerPageId = option.requireReferrerPageId !== undefined ? createReferrerPageIdInputField(option.requireReferrerPageId) : undefined;
+        this.shippingCharge = option.requireShippingCharge !== undefined ? createShippingChargeInputField(option.requireShippingCharge) : undefined;
     }
 
     private getCommonFields(): Record<string, InputField> {
@@ -146,7 +144,7 @@ export class MolocoEvent {
 
     // Build the body of the event
     // This will be sent to the Moloco RMP API
-    public buildBody(payload: MolocoEventPayload): Record<string, any> {
-        return this.bodyBuilder.build(payload);
+    public buildBody(payload: SegmentEventPayload): MolocoEventPayload {
+        return convertEvent({ eventType: this.eventType, payload: payload });
     }
 }
