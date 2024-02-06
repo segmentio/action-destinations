@@ -88,7 +88,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The list of products associated with the event (for events with multiple products, such as order completed)
+   * The list of products associated with the event (for events with multiple products, such as Order Completed)
    */
   ecommerce_products?: {
     /**

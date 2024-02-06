@@ -48,14 +48,12 @@ const defaultExpectedParams = {
   ip_fwd: mockIpAddress,
   utm_source: mockUtmSource,
   user_id: mockUserId,
-  uid: mockPixelId
-}
-
-const defaultIdentifyParams = {
   first_name: mockFirstName,
   last_name: mockLastName,
   email: mockEmail,
-  phone: mockPhone
+  phone: mockPhone,
+  uid: mockPixelId,
+  args: `{"action":"Test Event"}`
 }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
@@ -99,7 +97,6 @@ describe('StackAdapt', () => {
     })
 
     it('Sends event data to pixel endpoint in expected format with expected headers', async () => {
-      const expectedParams = { ...defaultExpectedParams, ...defaultIdentifyParams }
       nock(pixelHostUrl).get(pixelPath).query(true).reply(200, {})
 
       const event = createTestEvent(defaultEventPayload)
@@ -114,7 +111,7 @@ describe('StackAdapt', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
-      expect(requestParams).toMatchObject(expectedParams)
+      expect(requestParams).toEqual(defaultExpectedParams)
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
         Headers {
           Symbol(map): Object {
@@ -163,7 +160,7 @@ describe('StackAdapt', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
-      expect(requestParams).toMatchObject(expectedParams)
+      expect(requestParams).toEqual(expectedParams)
       expect(JSON.parse(requestParams.args)).toEqual({
         action: mockSingleProductAction,
         revenue: mockRevenue,
@@ -203,7 +200,7 @@ describe('StackAdapt', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
-      expect(requestParams).toMatchObject(expectedParams)
+      expect(requestParams).toEqual(expectedParams)
       expect(JSON.parse(requestParams.args)).toEqual({
         action: mockMultiProductAction,
         revenue: mockRevenue,

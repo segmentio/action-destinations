@@ -9,7 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-stackadapt',
   mode: 'cloud',
   description:
-    'Forward Segment events to StackAdapt for tracking ad conversions, and generating lookalike and retargeting audiences',
+    'Forward Segment events to StackAdapt for tracking ad conversions, and generating lookalike and retargeting Audiences',
   authentication: {
     scheme: 'custom',
     fields: {

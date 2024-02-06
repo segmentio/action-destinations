@@ -182,7 +182,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ecommerce_products: {
       label: 'Products',
       description:
-        'The list of products associated with the event (for events with multiple products, such as order completed)',
+        'The list of products associated with the event (for events with multiple products, such as Order Completed)',
       type: 'object',
       multiple: true,
       additionalProperties: true,
@@ -256,7 +256,7 @@ function getAvailableData(payload: Payload, settings: Settings) {
     ...payload.ecommerce_data,
     ...(!isEmpty(payload.ecommerce_products) && { products: payload.ecommerce_products })
   }
-  let data: Record<string, string> = {
+  return {
     segment_ss: '1',
     event_type: payload.event_type ?? '',
     title: payload.title ?? '',
@@ -266,18 +266,12 @@ function getAvailableData(payload: Payload, settings: Settings) {
     utm_source: payload.utm_source ?? '',
     user_id: payload.user_id,
     uid: settings.pixelId,
+    first_name: payload.first_name ?? '',
+    last_name: payload.last_name ?? '',
+    email: payload.email ?? '',
+    phone: payload.phone ?? '',
     ...(!isEmpty(ecommerceData) && { args: JSON.stringify(ecommerceData) })
   }
-  if (payload.event_type === 'identify') {
-    data = {
-      ...data,
-      first_name: payload.first_name ?? '',
-      last_name: payload.last_name ?? '',
-      email: payload.email ?? '',
-      phone: payload.phone ?? ''
-    }
-  }
-  return data
 }
 
 export default action
