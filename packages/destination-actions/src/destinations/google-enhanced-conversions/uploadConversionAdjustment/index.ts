@@ -219,7 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
     but not for the Enhanced Conversions API. */
     if (!settings.customerId) {
       throw new PayloadValidationError(
-        'Customer ID is required for this action. Please set it in destination settings.'
+        'Test :- Customer ID is required for this action. Please set it in destination settings.'
       )
     }
 
