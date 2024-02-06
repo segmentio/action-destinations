@@ -68,6 +68,14 @@ export interface Payload {
    */
   screen_resolution?: string
   /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_user_data_consent_state?: string
+  /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_personalization_consent_state?: string
+  /**
    * The event parameters to send to Google Analytics 4.
    */
   params?: {

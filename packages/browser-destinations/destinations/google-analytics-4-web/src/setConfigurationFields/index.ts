@@ -92,13 +92,29 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Screen Resolution',
       type: 'string'
     },
+    ad_user_data_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      default: 'denied'
+    },
+    ad_personalization_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      default: 'denied'
+    },
     params: params
   },
   perform: (gtag, { payload, settings }) => {
     if (settings.enableConsentMode) {
       window.gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
-        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
+        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg,
+        ad_user_data: payload.ad_user_data_consent_state as ConsentParamsArg,
+        ad_personalization: payload.ad_personalization_consent_state as ConsentParamsArg
       })
     }
     type ConfigType = { [key: string]: unknown }

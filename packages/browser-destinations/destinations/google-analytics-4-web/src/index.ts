@@ -134,6 +134,20 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       label: 'Wait Time to Update Consent State',
       type: 'number'
     },
+    adUserDataConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      default: 'denied'
+    },
+    adPersonalizationConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      default: 'denied'
+    },
     pageView: {
       description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',
       label: 'Page Views',
@@ -151,9 +165,11 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.gtag('js', new Date())
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'default', {
+      gtag('consent', 'default', {
         ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
         analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg,
+        ad_user_data: settings.adUserDataConsentState as ConsentParamsArg,
+        ad_personalization: settings.adPersonalizationConsentState as ConsentParamsArg,
         wait_for_update: settings.waitTimeToUpdateConsentStage
       })
     }

@@ -54,6 +54,14 @@ export interface Settings {
    */
   waitTimeToUpdateConsentStage?: number
   /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  adUserDataConsentState?: string
+  /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  adPersonalizationConsentState?: string
+  /**
    * Set to false to prevent the default snippet from sending page views. Enabled by default.
    */
   pageView?: boolean
