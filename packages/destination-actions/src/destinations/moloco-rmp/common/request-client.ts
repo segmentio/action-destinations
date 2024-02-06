@@ -1,6 +1,6 @@
 import { 
     InvalidAuthenticationError,
-    PayloadValidationError,
+    APIError,
     RequestClient,
     RetryableError,
     ModifiedResponse
@@ -64,7 +64,7 @@ export class MolocoAPIClient {
 
             // Invalid payload
             if (res.status === 400) {
-                throw new PayloadValidationError(`${res.status} | Invalid payload: ${errorMsg}`)
+                throw new APIError(`${res.status} | Invalid payload: ${errorMsg}`, res.status)
             }
 
             // Else, throw a non-retryable error
