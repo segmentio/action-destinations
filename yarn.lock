@@ -2012,6 +2012,18 @@
   dependencies:
     nx "15.9.6"
 
+"@oclif/command@1.8.36", "@oclif/command@^1.8.36":
+  version "1.8.36"
+  resolved "https://registry.npmjs.org/@oclif/command/-/command-1.8.36.tgz#9739b9c268580d064a50887c4597d1b4e86ca8b5"
+  integrity sha512-/zACSgaYGtAQRzc7HjzrlIs14FuEYAZrMOEwicRoUnZVyRunG4+t5iSEeQu0Xy2bgbCD0U1SP/EdeNZSTXRwjQ==
+  dependencies:
+    "@oclif/config" "^1.18.2"
+    "@oclif/errors" "^1.3.6"
+    "@oclif/help" "^1.0.1"
+    "@oclif/parser" "^3.8.17"
+    debug "^4.1.1"
+    semver "^7.5.4"
+
 "@oclif/command@^1.5.20", "@oclif/command@^1.6.0", "@oclif/command@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@oclif/command/-/command-1.8.0.tgz#c1a499b10d26e9d1a611190a81005589accbb339"
@@ -2023,30 +2035,6 @@
     "@oclif/plugin-help" "^3"
     debug "^4.1.1"
     semver "^7.3.2"
-
-"@oclif/command@^1.8.25":
-  version "1.8.25"
-  resolved "https://registry.yarnpkg.com/@oclif/command/-/command-1.8.25.tgz#9bc7fea9d03320837ca82d851b43b1f089d7b7b9"
-  integrity sha512-teCfKH6GNF46fiCn/P5EMHX93RE3KJAW4i0sq3X9phrzs6807WRauhythdc8OKINxd+LpqwQ1i5bnaCKvLZRcQ==
-  dependencies:
-    "@oclif/config" "^1.18.2"
-    "@oclif/errors" "^1.3.6"
-    "@oclif/help" "^1.0.1"
-    "@oclif/parser" "^3.8.10"
-    debug "^4.1.1"
-    semver "^7.5.1"
-
-"@oclif/command@^1.8.36":
-  version "1.8.36"
-  resolved "https://registry.npmjs.org/@oclif/command/-/command-1.8.36.tgz#9739b9c268580d064a50887c4597d1b4e86ca8b5"
-  integrity sha512-/zACSgaYGtAQRzc7HjzrlIs14FuEYAZrMOEwicRoUnZVyRunG4+t5iSEeQu0Xy2bgbCD0U1SP/EdeNZSTXRwjQ==
-  dependencies:
-    "@oclif/config" "^1.18.2"
-    "@oclif/errors" "^1.3.6"
-    "@oclif/help" "^1.0.1"
-    "@oclif/parser" "^3.8.17"
-    debug "^4.1.1"
-    semver "^7.5.4"
 
 "@oclif/config@1.18.6":
   version "1.18.6"
@@ -14736,13 +14724,6 @@ semver@^7.3.8:
   version "7.5.4"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
   integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
-  dependencies:
-    lru-cache "^6.0.0"
-
-semver@^7.5.1:
-  version "7.5.1"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.1.tgz#c90c4d631cf74720e46b21c1d37ea07edfab91ec"
-  integrity sha512-Wvss5ivl8TMRZXXESstBA4uR5iXgEN/VC5/sOcuXdVLzcdkz4HWetIoRfG5gb5X+ij/G9rw9YoGn3QoQ8OCSpw==
   dependencies:
     lru-cache "^6.0.0"
 
