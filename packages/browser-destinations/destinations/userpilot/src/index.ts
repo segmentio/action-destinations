@@ -32,6 +32,12 @@ export const destination: BrowserDestinationDefinition<Settings, Userpilot> = {
       type: 'automatic'
     },
     {
+      name: 'Identify Company',
+      subscribe: 'type = "group"',
+      partnerAction: 'identifyCompany',
+      mapping: defaultValues(identifyCompany.fields)
+    },
+    {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
