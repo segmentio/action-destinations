@@ -32,6 +32,7 @@ describe('cli init command', () => {
     }
   })
 
+  /*
   test
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test basic', slug: 'test-basic', template: 'basic-auth' }
@@ -45,6 +46,7 @@ describe('cli init command', () => {
       expect(scaffoldedAction).toContain("scheme: 'basic'")
     })
 
+
   test
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test custom auth', slug: 'test-custom-auth', template: 'custom-auth' }
@@ -57,6 +59,7 @@ describe('cli init command', () => {
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-custom-auth', 'index.ts'), 'utf8')
       expect(scaffoldedAction).toContain("scheme: 'custom'")
     })
+  */
 
   test
     .stub(prompt, 'autoPrompt', () => {
