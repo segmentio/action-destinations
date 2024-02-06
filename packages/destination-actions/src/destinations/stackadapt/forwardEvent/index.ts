@@ -2,7 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
-import isEqual from 'lodash/isEqual'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Event',
@@ -267,8 +266,7 @@ function getAvailableData(payload: Payload, settings: Settings) {
     utm_source: payload.utm_source ?? '',
     user_id: payload.user_id,
     uid: settings.pixelId,
-    ...(!isEmpty(ecommerceData) &&
-      !isEqual(Object.keys(ecommerceData), ['action']) && { args: JSON.stringify(ecommerceData) })
+    ...(!isEmpty(ecommerceData) && { args: JSON.stringify(ecommerceData) })
   }
   if (payload.event_type === 'identify') {
     data = {
