@@ -52,7 +52,7 @@ export interface Payload {
   /**
    * A dynamic field dropdown which fetches all active campaigns.
    */
-  campaignId: string
+  campaignId: string[]
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 

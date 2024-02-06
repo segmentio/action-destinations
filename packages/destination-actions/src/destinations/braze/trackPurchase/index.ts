@@ -32,6 +32,14 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    email: {
+      label: 'Email',
+      description: 'The user email',
+      type: 'string',
+      default: {
+        '@path': '$.traits.email'
+      }
+    },
     braze_id: {
       label: 'Braze User Identifier',
       description: 'The unique user identifier',

@@ -35,15 +35,12 @@ export interface GetAdAccountsAPIResponse {
     start: number
     total: number
   }
-  elements: [Accounts]
+  elements: [Account]
 }
 
-export interface Accounts {
-  account: string
-  changeAuditStamps: object
-  role: string
-  user: string
-  version: object
+export interface Account {
+  name: string
+  id: string
 }
 
 export interface AccountsErrorInfo {
@@ -68,6 +65,8 @@ export interface GetConversionListAPIResponse {
 export interface Conversions {
   name: string
   id: string
+  enabled: boolean
+  conversionMethod: string
 }
 
 export interface GetCampaignsListAPIResponse {
