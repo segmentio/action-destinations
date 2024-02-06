@@ -1,7 +1,7 @@
 import { AuthenticationScheme }  from '@segment/actions-core'
-import { Settings } from './settings'
+// import type { Settings } from './settings'
 
-const export authentication: AuthenticationScheme = {
+export const authentication: AuthenticationScheme = {
     scheme: 'custom',
     fields: {
         platform: {
@@ -17,8 +17,8 @@ const export authentication: AuthenticationScheme = {
             required: true
         }
     },
-    testAuthentication: (request, { settings: Settings }) => {
-        // TODO: Consider implementing this function
-        // Currently, we don't have a way to validate the authentication fields safely
-    }
+
+    // // TODO: Consider implementing this function
+    // // Currently, we don't have a way to validate the authentication
+    // testAuthentication: (request, { settings: Settings }) => {}
 }
