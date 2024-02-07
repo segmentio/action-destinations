@@ -93,7 +93,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const traits = liquidData.profile.traits ? { ...liquidData.profile.traits } : liquidData.profile.traits
     if (traits) {
       for (const trait of Object.keys(traits)) {
-        if (traits && traits[trait] && (traits[trait] === '<nil>' || traits[trait].trim() === '')) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        if (traits && traits[trait] && (traits[trait] === '<nil>' || traits[trait].toString().trim() === '')) {
           traits[trait] = ''
         }
       }

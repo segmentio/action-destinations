@@ -1203,6 +1203,43 @@ describe.each([
       expect(sendGridRequest.isDone()).toEqual(true)
     })
 
+    it('should show the correct non-string trait in the subject when a trait is non-string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi true` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: true
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi true')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
     it('should show a default in the subject when a trait is undefined', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
