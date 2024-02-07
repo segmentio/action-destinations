@@ -13,8 +13,18 @@ import {
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings, Settings } from './generated-types'
+import { GetAudienceInput } from '@segment/actions-core/destination-kit/execute'
 
 type SettingsWithOauth = Settings & { oauth: OAuth2ClientCredentials }
+
+export const isLegacyDestinationMigration = (
+  getAudienceInput: GetAudienceInput,
+  authSettings: OAuth2ClientCredentials
+): boolean => {
+  const noOAuth = !authSettings.clientId || !authSettings.clientSecret
+  const hasExternalAudienceId = getAudienceInput.externalId !== undefined
+  return noOAuth && hasExternalAudienceId
+}
 
 export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
   const { oauth } = settings
