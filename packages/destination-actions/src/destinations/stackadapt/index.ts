@@ -5,8 +5,8 @@ import { defaultValues } from '@segment/actions-core'
 import forwardEvent from './forwardEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'StackAdapt',
-  slug: 'actions-stackadapt',
+  name: 'StackAdapt Cloud (Actions)',
+  slug: 'actions-stackadapt-cloud',
   mode: 'cloud',
   description:
     'Forward Segment events to StackAdapt for tracking ad conversions, and generating lookalike and retargeting Audiences',
