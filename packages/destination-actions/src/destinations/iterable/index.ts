@@ -154,7 +154,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackEvent',
       mapping: {
         ...defaultValues(trackEvent.fields),
-        properties: {
+        dataFields: {
           '@path': '$.properties'
         }
       },
