@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'sendSchemaToInspector'
+const actionSlug = 'trackSchemaFromEvent'
 const destinationSlug = 'Avo'
 const seedName = `${destinationSlug}#${actionSlug}`
 

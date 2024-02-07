@@ -2,8 +2,8 @@
 
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSchemaAction from './sendSchemaToInspector'
-import { Environment } from './sendSchemaToInspector/avo-types'
+import trackSchemaFromEvent from './trackSchemaFromEvent'
+import { Environment } from './trackSchemaFromEvent/avo-types'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo',
@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    sendSchemaToInspector: sendSchemaAction // Add your action here
+    trackSchemaFromEvent: trackSchemaFromEvent // Add your action here
   }
 }
 

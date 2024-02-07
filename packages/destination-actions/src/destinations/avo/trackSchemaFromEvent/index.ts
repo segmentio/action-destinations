@@ -21,8 +21,8 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
   })
 }
 
-const sendSchemaAction: ActionDefinition<Settings, Payload> = {
-  title: 'Inspector: Send Schema',
+const trackSchemaFromEvent: ActionDefinition<Settings, Payload> = {
+  title: 'Track Schema From Event',
   description: 'Sends event schema to the Avo Inspector API',
   defaultSubscription: 'type = "track"',
   fields: {
@@ -98,4 +98,4 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
     return processEvents(request, settings, payload)
   }
 }
-export default sendSchemaAction
+export default trackSchemaFromEvent

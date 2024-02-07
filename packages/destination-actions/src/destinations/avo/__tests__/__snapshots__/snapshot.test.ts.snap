@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-avo-inspector destination: sendSchemaToInspector action - all fields 1`] = `
+exports[`Testing snapshot for actions-avo-inspector destination: trackSchemaFromEvent action - all fields 1`] = `
 Array [
   Object {
-    "appName": "o5omS$Qs",
-    "appVersion": "o5omS$Qs",
-    "createdAt": "o5omS$Qs",
+    "appName": "pSOgGM!1GLRLe4w6",
+    "appVersion": "pSOgGM!1GLRLe4w6",
+    "createdAt": "pSOgGM!1GLRLe4w6",
     "eventHash": null,
     "eventId": null,
-    "eventName": "o5omS$Qs",
+    "eventName": "pSOgGM!1GLRLe4w6",
     "eventProperties": Array [
       Object {
         "propertyName": "testType",
@@ -17,22 +17,22 @@ Array [
     ],
     "libPlatform": "Segment",
     "libVersion": "1.0.0",
-    "messageId": "o5omS$Qs",
+    "messageId": "pSOgGM!1GLRLe4w6",
     "sessionId": "_",
     "type": "event",
   },
 ]
 `;
 
-exports[`Testing snapshot for actions-avo-inspector destination: sendSchemaToInspector action - required fields 1`] = `
+exports[`Testing snapshot for actions-avo-inspector destination: trackSchemaFromEvent action - required fields 1`] = `
 Array [
   Object {
     "appName": "unnamed Segment app",
     "appVersion": "unversioned",
-    "createdAt": "o5omS$Qs",
+    "createdAt": "pSOgGM!1GLRLe4w6",
     "eventHash": null,
     "eventId": null,
-    "eventName": "o5omS$Qs",
+    "eventName": "pSOgGM!1GLRLe4w6",
     "eventProperties": Array [
       Object {
         "propertyName": "testType",
@@ -41,7 +41,7 @@ Array [
     ],
     "libPlatform": "Segment",
     "libVersion": "1.0.0",
-    "messageId": "o5omS$Qs",
+    "messageId": "pSOgGM!1GLRLe4w6",
     "sessionId": "_",
     "type": "event",
   },
