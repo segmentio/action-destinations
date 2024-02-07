@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userData: {
       label: 'Recepient Data',
-      description: 'Recepient Data',
+      description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
@@ -37,6 +37,16 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         },
+        // email_hash_: {
+        //   label: 'Email Address Hash (MD5 or SHA256)',
+        //   description: "An MD5 or SHA256 Hash of the user's email address.",
+        //   type: 'string',
+        //   required: false,
+        //   choices: [
+        //     { label: 'MD5', value: 'MD5' },
+        //     { label: 'SHA256', value: 'SHA256' }
+        //   ]
+        // },
         RIID_: {
           label: 'Recipient ID',
           description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',

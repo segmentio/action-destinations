@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userData: {
       label: 'Recepient Data',
-      description: '<TODO>>',
+      description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     computation_key: {
       label: 'Segment Audience Key',
-      description: 'The Segment Audience Key <TODO>',
+      description: 'A unique identifier assigned to a specific audience in Segment.',
       type: 'string',
       required: true,
       default: { '@path': '$.context.personas.computation_key' }

@@ -23,19 +23,25 @@ export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profil
 
 export const validateListMemberPayload = ({
   EMAIL_ADDRESS_,
-  RIID_
+  RIID_,
+  CUSTOMER_ID_
 }: {
   EMAIL_ADDRESS_?: string
   RIID_?: string
+  CUSTOMER_ID_?: string
 }): void => {
   // TODO validate which identifier fields are required
 
-  if (!EMAIL_ADDRESS_?.toUpperCase() || EMAIL_ADDRESS_.toUpperCase().trim().length < 6) {
-    throw new PayloadValidationError('Email Address is a required field')
+  if (!EMAIL_ADDRESS_ && !RIID_ && !CUSTOMER_ID_) {
+    throw new PayloadValidationError(
+      'At least one of the following fields is required: Email Address, RIID, or Customer ID'
+    )
+  } else if (EMAIL_ADDRESS_ && EMAIL_ADDRESS_.trim().length < 6) {
+    throw new PayloadValidationError('Email Address is not valid')
   }
-  if (!RIID_?.toUpperCase() || RIID_.toUpperCase().trim().length < 1) {
-    throw new PayloadValidationError('Recipient ID is a required field')
-  }
+  // if (!RIID_ || RIID_.trim().length < 1) {
+  //   throw new PayloadValidationError('Recipient ID is a required field')
+  // }
 }
 
 export const getUserDataFieldNames = (data: Data): string[] => {

@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userData: {
       label: 'Recepient Data',
-      description: '<TODO>>',
+      description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: true,
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
     validateCustomTraitsSettings(data.settings)
 
@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data);
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
     validateCustomTraitsSettings(data.settings)
 

@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * <TODO>>
+   * Record data that represents field names and corresponding values for each profile.
    */
   userData: {
     /**
@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The Segment Audience Key <TODO>
+   * A unique identifier assigned to a specific audience in Segment.
    */
   computation_key: string
   /**

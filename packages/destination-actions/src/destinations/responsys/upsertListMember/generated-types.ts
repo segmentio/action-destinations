@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Recepient Data
+   * Record data that represents field names and corresponding values for each profile.
    */
   userData: {
     /**
