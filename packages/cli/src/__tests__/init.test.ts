@@ -8,10 +8,10 @@ jest.spyOn(global, 'setTimeout').mockImplementation(function (handler, delay) {
   }
 })
 
-//import { test } from '@oclif/test'
+import { test } from '@oclif/test'
 import * as fs from 'fs'
 import * as path from 'path'
-//import * as prompt from '../lib/prompt'
+import * as prompt from '../lib/prompt'
 import * as rimraf from 'rimraf'
 
 jest.setTimeout(10000)
@@ -32,12 +32,6 @@ describe('cli init command', () => {
     }
   })
 
-  describe('Placeholder test', () => {
-    it('should always pass', () => {
-      expect(true).toBe(true);
-    });
-  });
-  
   /*
   test
     .stub(prompt, 'autoPrompt', () => {
