@@ -12,11 +12,11 @@ export interface Payload {
     /**
      * An MD5 Hash of the user's email address.
      */
-    email_md5_hash_?: string
+    EMAIL_MD5_HASH_?: string
     /**
      * A SHA256 Hash of the user's email address.
      */
-    email_sha256_hash_?: string
+    EMAIL_SHA256_HASH_?: string
     /**
      * Recipient ID (RIID).  RIID is required if Email Address is empty.
      */
@@ -28,7 +28,7 @@ export interface Payload {
     /**
      * The user's Mobile Phone Number.
      */
-    mobile_number_?: string
+    MOBILE_NUMBER_?: string
     [k: string]: unknown
   }
   /**

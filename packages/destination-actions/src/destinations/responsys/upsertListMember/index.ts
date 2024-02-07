@@ -25,28 +25,18 @@ const action: ActionDefinition<Settings, Payload> = {
           format: 'email',
           required: false
         },
-        email_md5_hash_: {
+        EMAIL_MD5_HASH_: {
           label: 'Email Address MD5 Hash',
           description: "An MD5 Hash of the user's email address.",
           type: 'string',
           required: false
         },
-        email_sha256_hash_: {
+        EMAIL_SHA256_HASH_: {
           label: 'Email Address SHA256 Hash',
           description: "A SHA256 Hash of the user's email address.",
           type: 'string',
           required: false
         },
-        // email_hash_: {
-        //   label: 'Email Address Hash (MD5 or SHA256)',
-        //   description: "An MD5 or SHA256 Hash of the user's email address.",
-        //   type: 'string',
-        //   required: false,
-        //   choices: [
-        //     { label: 'MD5', value: 'MD5' },
-        //     { label: 'SHA256', value: 'SHA256' }
-        //   ]
-        // },
         RIID_: {
           label: 'Recipient ID',
           description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
@@ -59,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         },
-        mobile_number_: {
+        MOBILE_NUMBER_: {
           label: 'Mobile Number',
           description: "The user's Mobile Phone Number.",
           type: 'string',
@@ -82,8 +72,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
     const transformedSettings = transformDataFieldValues(data.settings)
-    console.log(data)
-    console.log(transformedSettings)
     validateListMemberPayload(data.payload.userData)
 
     return upsertListMembers(request, [data.payload], transformedSettings, userDataFieldNames)
@@ -91,8 +79,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-
-    return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
+    const transformedSettings = transformDataFieldValues(data.settings)
+    return upsertListMembers(request, data.payload, transformedSettings, userDataFieldNames)
   }
 }
 
