@@ -7,7 +7,7 @@ import { Environment } from './sendSchemaToInspector/avo-types'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo',
-  slug: 'actions-avo',
+  slug: 'avo',
   mode: 'cloud',
 
   authentication: {
