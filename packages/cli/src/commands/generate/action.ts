@@ -45,8 +45,7 @@ export default class GenerateAction extends Command {
     return integrationDirs
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parseArgs(): any {
+  parseArgs(): flags.Output {
     return this.parse(GenerateAction)
   }
 
