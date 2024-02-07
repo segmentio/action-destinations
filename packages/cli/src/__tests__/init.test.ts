@@ -59,7 +59,7 @@ describe('cli init command', () => {
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-custom-auth', 'index.ts'), 'utf8')
       expect(scaffoldedAction).toContain("scheme: 'custom'")
     })
-
+  */
 
   test
     .stub(prompt, 'autoPrompt', () => {
@@ -86,6 +86,4 @@ describe('cli init command', () => {
       const scaffoldedAction = fs.readFileSync(path.join(testDir, 'test-oauth', 'index.ts'), 'utf8')
       expect(scaffoldedAction).toContain("scheme: 'oauth2'")
     })
-      */
 })
-
