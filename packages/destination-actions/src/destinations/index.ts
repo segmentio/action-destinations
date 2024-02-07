@@ -150,6 +150,8 @@ register('65b8e9ae4bc3eee909e05c73', './courier')
 register('65b8e9531fc2c458f50fd55d', './tiktok-offline-conversions-sandbox')
 register('65b8e9108b442384abfd05f9', './tiktok-conversions-sandbox')
 register('65b8e89cd96df17201b04a49', './surveysparrow')
+register('6578a6aad6619f2cba205727', './responsys')
+
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
