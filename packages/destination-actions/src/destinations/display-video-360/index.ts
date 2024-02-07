@@ -7,7 +7,7 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
-import { buildHeaders, getAuthToken, getAuthSettings } from './shared'
+import { buildHeaders, getAuthToken, getAuthSettings, isLegacyDestinationMigration } from './shared'
 import { handleRequestError } from './errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -129,6 +129,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       if (!accountType) {
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      // Legacy destinations don't have an auth object until customers log-in to the new destination.
+      // However, the bulkUploader API doesn't require an auth object, so we can use the externalId to verify ownership.
+      // Only legacy destinations will have an externalId and no auth object.
+      if (isLegacyDestinationMigration(getAudienceInput, authSettings)) {
+        return {
+          externalId: getAudienceInput.externalId
+        }
       }
 
       const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
