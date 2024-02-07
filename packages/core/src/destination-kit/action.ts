@@ -85,7 +85,7 @@ export interface ActionDefinition<
    * in the mapping for later use in the action.
    */
   hooks?: {
-    [K in ActionHookType]: ActionHookDefinition<
+    [K in ActionHookType]?: ActionHookDefinition<
       Settings,
       Payload,
       AudienceSettings,
@@ -95,7 +95,7 @@ export interface ActionDefinition<
   }
 }
 
-export const hookTypeStrings = ['onMappingSave'] as const
+export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
 /**
  * The supported actions hooks.
  * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
@@ -203,7 +203,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     if (definition.hooks) {
       for (const hookName in definition.hooks) {
         const hook = definition.hooks[hookName as ActionHookType]
-        if (hook.inputFields) {
+        if (hook?.inputFields) {
           if (!this.hookSchemas) {
             this.hookSchemas = {}
           }

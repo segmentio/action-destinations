@@ -15,6 +15,18 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: { ...batch_size },
     event_name: { ...event_name }
   },
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Create an audience in Marketo',
+      description:
+        'When saving this mapping, we will create an audience in Marketo using the fields you provided.',
+      inputFields: {},
+      outputTypes: {},
+      performHook: async (request, { payload, hookInputs }) => {
+        // do stuff
+      }
+    }
+  },
   perform: async (request, { settings, payload, statsContext }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
     return addToList(request, settings, [payload], statsContext)
