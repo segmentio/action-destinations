@@ -30,18 +30,11 @@ export const validateListMemberPayload = ({
   RIID_?: string
   CUSTOMER_ID_?: string
 }): void => {
-  // TODO validate which identifier fields are required
-
   if (!EMAIL_ADDRESS_ && !RIID_ && !CUSTOMER_ID_) {
     throw new PayloadValidationError(
       'At least one of the following fields is required: Email Address, RIID, or Customer ID'
     )
-  } else if (EMAIL_ADDRESS_ && EMAIL_ADDRESS_.trim().length < 6) {
-    throw new PayloadValidationError('Email Address is not valid')
-  }
-  // if (!RIID_ || RIID_.trim().length < 1) {
-  //   throw new PayloadValidationError('Recipient ID is a required field')
-  // }
+  } 
 }
 
 export const getUserDataFieldNames = (data: Data): string[] => {
@@ -108,10 +101,30 @@ export const sendCustomTraits = async (
 
   const endpoint = new URL(path, settings.baseUrl)
 
-  return await request(endpoint.href, {
+
+  const response = await request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
+
+  if(settings.segmentWriteKey && settings.segmentWriteKeyRegion){
+    try{
+      const body = response.data
+      await request(settings.segmentWriteKeyRegion === 'EU' ? 'events.eu1.segmentapis.com/v1/track' : 'https://api.segment.io/v1/track' , {
+        method: 'POST',
+        body: JSON.stringify({
+          writeKey: settings.segmentWriteKey,
+          type: 'track', 
+          event: 'Responsys Response Message Received',
+          properties: body,
+          anonymousID: '__responsys__API__response__'
+        })
+      })
+    } catch(error){
+      // do nothing
+    }
+  }
+  return response
 }
 
 export const upsertListMembers = async (
@@ -159,8 +172,27 @@ export const upsertListMembers = async (
 
   const endpoint = new URL(path, settings.baseUrl)
 
-  return await request(endpoint.href, {
+  const response = await request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
+
+  if(settings.segmentWriteKey && settings.segmentWriteKeyRegion){
+    try{
+      const body = response.data
+      await request(settings.segmentWriteKeyRegion === 'EU' ? 'events.eu1.segmentapis.com/v1/track' : 'https://api.segment.io/v1/track' , {
+        method: 'POST',
+        body: JSON.stringify({
+          writeKey: settings.segmentWriteKey,
+          type: 'track', 
+          event: 'Responsys Response Message Received',
+          properties: body,
+          anonymousID: '__responsys__API__response__'
+        })
+      })
+    } catch(error){
+      // do nothing
+    }
+  }
+  return response
 }

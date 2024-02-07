@@ -16,6 +16,25 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
+      segmentWriteKey: {
+        label: 'Segment Source WriteKey',
+        description:
+          "Optionally forward Responses from Segment's requests to Responsys to a Segment Source.",
+        type: 'string',
+        required: false
+      },
+      segmentWriteKeyRegion: {
+        label: 'Segment WriteKey Region',
+        description:
+          "Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated",
+        type: 'string',
+        choices: [
+          {label: 'US', value: 'US'},
+          {label: 'EU', value: 'EU'}
+        ],
+        required: false,
+        default: 'US'
+      },
       username: {
         label: 'Username',
         description: 'Responsys username',

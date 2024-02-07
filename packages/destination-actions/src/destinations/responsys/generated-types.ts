@@ -2,6 +2,14 @@
 
 export interface Settings {
   /**
+   * Optionally forward Responses from Segment's requests to Responsys to a Segment Source.
+   */
+  segmentWriteKey?: string
+  /**
+   * Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated
+   */
+  segmentWriteKeyRegion?: string
+  /**
    * Responsys username
    */
   username: string

@@ -8,7 +8,7 @@ import { Data } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile List Member',
   description: 'Create or update a Profile List Member in Responsys',
-  defaultSubscription: 'event = "Profile List Member Created" or event = "Profile List Member Updated"',
+  defaultSubscription: 'type = "identify"',
   fields: {
     userData: {
       label: 'Recepient Data',
@@ -57,12 +57,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        EMAIL_ADDRESS_: { '@path': '$.context.traits.email' },
-        email_md5_hash_: { '@path': '$.context.traits.email_md5_hash_' },
-        email_sha256_hash_: { '@path': '$.context.traits.email_sha256_hash' },
-        CUSTOMER_ID_: { '@path': '$.context.traits.customer_id' },
-        mobile_number_: { '@path': '$.context.traits.phone' },
-        RIID_: { '@path': '$.userId' }
+        EMAIL_ADDRESS_: { '@path': '$.traits.email' },
+        EMAIL_MD5_HASH_: { '@path': '$.traits.email_md5_hash_' },
+        EMAIL_SHA256_HASH_: { '@path': '$.traits.email_sha256_hash' },
+        CUSTOMER_ID_: { '@path': '$.userId' },
+        MOBILE_NUMBER_: { '@path': '$.traits.phone' }
       }
     },
     enable_batching: enable_batching,
