@@ -7,7 +7,7 @@ import { Environment } from './trackSchemaFromEvent/avo-types'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo',
-  slug: 'avo',
+  slug: 'actions-avo',
   mode: 'cloud',
 
   authentication: {
