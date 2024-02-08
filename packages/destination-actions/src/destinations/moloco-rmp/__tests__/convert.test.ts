@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import { EventType } from '../common/event'
 import { EventPayload as SegmentEventPayload } from '../common/payload/segment'
 import { EventPayload as MolocoEventPayload } from '../common/payload/moloco'
@@ -29,20 +30,16 @@ describe('Moloco Rmp', () => {
         items: [
           {
             id: '123',
-            price: {
-              currency: 'USD',
-              amount: 12.34
-            },
+            currency: 'USD',
+            price: 12.34,
             quantity: 1,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
-            price: {
-              currency: 'USD',
-              amount: 56.78
-            },
+            currency: 'USD',
+            price: 56.78,
             quantity: 2,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
@@ -50,14 +47,14 @@ describe('Moloco Rmp', () => {
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          price: 69.12,
         },
         searchQuery: 'iphone',
         pageId: '/home',
         referrerPageId: 'google.com',
         shippingCharge: {
           currency: 'USD',
-          amount: 5.00
+          price: 5.00
         }
       }
 
@@ -139,20 +136,16 @@ describe('Moloco Rmp', () => {
         items: [
           {
             id: '123',
-            price: {
-              currency: 'USD',
-              amount: 12.34
-            },
+            currency: 'USD',
+            price: 12.34,
             quantity: 1,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
-            price: {
-              currency: 'USD',
-              amount: 56.78
-            },
+            currency: 'USD',
+            price: 56.78,
             quantity: 2,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
@@ -160,14 +153,14 @@ describe('Moloco Rmp', () => {
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          price: 69.12,
         },
         searchQuery: 'iphone',
         pageId: '/home',
         referrerPageId: 'google.com',
         shippingCharge: {
           currency: 'USD',
-          amount: 5.00
+          price: 5.00
         }
       }
 
@@ -249,20 +242,16 @@ describe('Moloco Rmp', () => {
         items: [
           {
             id: '123',
-            price: {
-              currency: 'USD',
-              amount: 12.34
-            },
+            currency: 'USD',
+            price: 12.34,
             quantity: 1,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
-            price: {
-              currency: 'USD',
-              amount: 56.78
-            },
+            currency: 'USD',
+            price: 56.78,
             quantity: 2,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
@@ -270,14 +259,14 @@ describe('Moloco Rmp', () => {
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          price: 69.12,
         },
         searchQuery: 'iphone',
         pageId: '/home',
         referrerPageId: 'google.com',
         shippingCharge: {
           currency: 'USD',
-          amount: 5.00
+          price: 5.00
         }
       }
 
@@ -359,20 +348,16 @@ describe('Moloco Rmp', () => {
         items: [
           {
             id: '123',
-            price: {
-              currency: 'USD',
-              amount: 12.34
-            },
+            currency: 'USD',
+            price: 12.34,
             quantity: 1,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
-            price: {
-              currency: 'USD',
-              amount: 56.78
-            },
+            currency: 'USD',
+            price: 56.78,
             quantity: 2,
             itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
@@ -380,14 +365,14 @@ describe('Moloco Rmp', () => {
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          price: 69.12,
         },
         searchQuery: 'iphone',
         pageId: '/home',
         referrerPageId: 'google.com',
         shippingCharge: {
           currency: 'USD',
-          amount: 5.00
+          price: 5.00
         }
       }
 
@@ -445,6 +430,45 @@ describe('Moloco Rmp', () => {
         
       const output: MolocoEventPayload = convertEvent({ eventType: TEST_EVENT_TYPE, payload: input })
       expect(output).toEqual(expectedOutput)
+    })
+
+    it('tests whether items with price by without currency throws a validation error', async () => {
+      const input: SegmentEventPayload = {
+        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        timestamp: '2024-02-05T23:37:42.848Z',
+        channelType: "APP",
+        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        device: {
+          os: 'IOS',
+          osVersion: '15.0.2',
+          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          model: 'iPhone 12',
+          ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
+          language: 'en',
+          ip: '1192.158.1.38'
+        },
+        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
+        items: [
+          {
+            id: '123',
+            price: 12.34,
+            quantity: 1,
+            itemGroupId: 'xyz',
+            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+          },
+          {
+            id: '456',
+            currency: 'USD',
+            price: 56.78,
+            quantity: 2,
+            itemGroupId: 'xyz',
+            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+          }
+        ]
+      }
+
+      expect(() => convertEvent({ eventType: TEST_EVENT_TYPE, payload: input })).toThrowError(PayloadValidationError)
     })
   })
 })
