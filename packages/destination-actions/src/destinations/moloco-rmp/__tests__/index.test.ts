@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -7,11 +7,14 @@ const testDestination = createTestIntegration(Definition)
 describe('Moloco Rmp', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock(/.*/).persist().post(/.*/).reply(200)
 
-      // This should match your authentication.fields
-      const authData = {}
+      const authData = {
+        platformId: 'foo',
+        apiKey: 'bar'
+      }
 
+      // TODO: This test is not complete. It should be updated to test the authentication function
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
   })
