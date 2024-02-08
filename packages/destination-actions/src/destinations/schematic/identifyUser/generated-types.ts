@@ -5,14 +5,7 @@ export interface Payload {
    * Key-value pairs associated with a company (e.g. organization_id: 123456)
    */
   company_keys?: {
-    /**
-     * Segment groupId
-     */
-    groupId?: string
-    /**
-     * Organization ID
-     */
-    organization_id?: string
+    [k: string]: unknown
   }
   /**
    * Name of company
@@ -29,13 +22,10 @@ export interface Payload {
    */
   user_keys: {
     /**
-     * Email address
+     * Your unique ID for your user
      */
-    email_address?: string
-    /**
-     * Segment userId
-     */
-    userId?: string
+    user_id?: string
+    [k: string]: unknown
   }
   /**
    * User's full name

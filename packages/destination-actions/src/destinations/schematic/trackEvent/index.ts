@@ -19,31 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Key-value pairs associated with a company (e.g. organization_id: 123456)',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      required: false,
-      properties: {
-        groupId: {
-          label: 'groupId',
-          description: 'Segment groupId',
-          type: 'string',
-          required: false
-        },
-        organization_id: {
-          label: 'Organization ID',
-          description: 'Organization ID',
-          type: 'string',
-          required: false
-        }
-      },
-      default: {
-        groupId: {
-          '@if': {
-            exists: { '@path': '$.groupId' },
-            then: { '@path': '$.groupId' },
-            else: { '@path': '$.context.groupId' }
-          }
-        },
-        organization_id: { '@path': '$.properties.organization_id' }
-      }
+      additionalProperties: true,
+      required: false
     },
     user_keys: {
       label: 'User keys',
@@ -51,16 +28,17 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue',
+      additionalProperties: true,
       properties: {
-        userId: {
-          label: 'userId',
-          description: 'Segment userId',
+        user_id: {
+          label: 'User ID',
+          description: 'Your unique ID for your user',
           type: 'string',
           required: false
         }
       },
       default: {
-        userId: { '@path': '$.userId' }
+        user_id: { '@path': '$.userId' }
       }
     },
     traits: {
