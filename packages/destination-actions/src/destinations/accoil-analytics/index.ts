@@ -20,20 +20,13 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      try {
-        return await request(`https://in.accoil.com/segment`, {
-          method: 'post',
-          headers: {
-            Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
-          },
-          json: {}
-        })
-      } catch (e: any) {
-        if (e.response.data) {
-          const { message } = e.response.data
-          throw new Error(message)
-        }
-      }
+      return await request(`https://in.accoil.com/segment`, {
+        method: 'post',
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
+        },
+        json: {}
+      })
     }
   },
   extendRequest: ({ settings }) => {
