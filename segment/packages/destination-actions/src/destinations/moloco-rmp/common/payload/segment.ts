@@ -68,7 +68,7 @@ export interface ItemPayload {
 	 */
 	id: string
 	/**
-	 * Monetary amount of money. (e.g., 12.34 for $12.34 if currency is "USD"), REQUIRED IF CURRENCY IS GIVEN
+	 * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD"), REQUIRED IF CURRENCY IS GIVEN
 	 */
 	price?: number
 	/**
@@ -119,7 +119,7 @@ export interface ItemPayload {
 // Generalized payload for ../fields/createMoneyInputField
 export interface MoneyPayload {
 	/**
-	 * Monetary amount of money. (e.g., 12.34 for $12.34 if currency is "USD")
+	 * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")
 	 */
 	price: number
 	/**
