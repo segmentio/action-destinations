@@ -37,7 +37,7 @@ const presets: DestinationDefinition['presets'] = [
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Actions Kameleoon',
+  name: 'Kameleoon (Actions)',
   slug: 'actions-kameleoon',
   mode: 'cloud',
   description: 'Send Segment events to Kameleoon',

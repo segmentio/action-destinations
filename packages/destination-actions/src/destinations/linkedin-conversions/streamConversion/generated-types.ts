@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * A dynamic field dropdown which fetches all adAccounts.
+   * The ad account to use for the conversion event.
    */
   adAccountId: string
   /**
@@ -23,7 +23,7 @@ export interface Payload {
     amount: string
   }
   /**
-   * Will be used for deduplication in future.
+   * The unique id for each event. This field is optional and is used for deduplication.
    */
   eventId?: string
   /**
@@ -50,9 +50,9 @@ export interface Payload {
     countryCode?: string
   }
   /**
-   * A dynamic field dropdown which fetches all active campaigns.
+   * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.
    */
-  campaignId: string
+  campaignId: string[]
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 
