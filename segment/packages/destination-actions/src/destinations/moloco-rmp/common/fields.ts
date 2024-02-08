@@ -148,18 +148,21 @@ export const DECISION_TRACK_ID: InputField = {
   * The following fields may be included/excluded or have different label/description depending on the event type(action)
   * Due to its variance, each fields are defined as a function that returns InputField
   */
-function createMoneyInputField(params: { label: string; description: string; required: boolean; }): InputField {
-  const { label, description, required } = params;
-
+function createMoneyProperties(required: boolean): Record<string, InputField> {
   return {
-    label,
-    description,
-    type: 'object',
-    required,
-    properties: {
-      currency: {
-        label: 'Currency',
-        description: `Currency information. Available options are the followings
+    price: {
+      label: 'Price',
+      description:
+        'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")'
+        + required ? '' : ', REQUIRED IF CURRENCY IS GIVEN',
+      type: 'number',
+      required: required
+    },
+    currency: {
+      label: 'Currency',
+      description: 'Currency information'
+      + required ? '' : ', REQUIRED IF PRICE IS GIVEN'
+      + `Available options are the followings
   UNKNOWN_CURRENCY: Unknown currency.
   USD: US Dollar.
   KRW: Korean Won.
@@ -186,20 +189,12 @@ function createMoneyInputField(params: { label: string; description: string; req
   VEF: Venezuela Bolívar.
 
   Default: UNKNOWN_CURRENCY`,
-        type: 'string',
-        required: true,
-        default: 'UNKNOWN_CURRENCY'
-      },
-      amount: {
-        label: 'Amount',
-        description: 'Amount of money. (e.g., 12.34 for $12.34 if currency is "USD")',
-        type: 'number',
-        required: true
-      },
+      type: 'string',
+      required: required,
+      default: 'UNKNOWN_CURRENCY'
     }
   }
 }
-
 
 export function createItemsInputField(required: boolean): InputField {
   return {
@@ -215,7 +210,7 @@ export function createItemsInputField(required: boolean): InputField {
         type: 'string',
         required: true
       },
-      price: createMoneyInputField({ label: 'Price', description: 'Price information of the item', required: false }),
+      ...createMoneyProperties(false),
       quantity: {
         label: 'Quantity',
         description: 'Quantity of the item. Recommended.',
@@ -239,7 +234,13 @@ export function createItemsInputField(required: boolean): InputField {
 }
 
 export function createRevenueInputField(required: boolean): InputField {
-  return createMoneyInputField({ label: 'Revenue', description: 'Revenue of the event', required: required })
+  return {
+    label: 'Revenue',
+    description: 'Revenue of the event',
+    type: 'object',
+    required: required,
+    properties: createMoneyProperties(true)
+  }
 }
 
 export function createSearchQueryInputField(required: boolean): InputField {
@@ -278,5 +279,11 @@ export function createReferrerPageIdInputField(required: boolean): InputField {
 }
 
 export function createShippingChargeInputField(required: boolean): InputField {
-  return createMoneyInputField({ label: 'Shipping Charge', description: 'Shipping charge’s monetary amount in a specific currency.', required: required })
+  return {
+    label: 'Shipping Charge',
+    description: 'Shipping charge’s monetary amount in a specific currency.',
+    type: 'object',
+    required: required,
+    properties: createMoneyProperties(true)
+  }
 }

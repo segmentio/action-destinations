@@ -4,9 +4,9 @@ import { AuthenticationScheme }  from '@segment/actions-core'
 export const authentication: AuthenticationScheme = {
     scheme: 'custom',
     fields: {
-        platform: {
-            label: 'Platform',
-            description: 'Name of the platform',
+        platformId: {
+            label: 'Platform ID',
+            description: 'ID of the platform',
             type: 'string',
             required: true
         },
