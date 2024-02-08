@@ -61,19 +61,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsClient, tags: statsTags } = statsContext || {}
       const statsName = 'createAudience'
       statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
 
       if (!audienceName) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!advertiserId) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!accountType) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
@@ -110,7 +117,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId: r['results'][0]['resourceName']
         }
       } catch (error) {
-        throw handleRequestError(error, statsName, statsClient)
+        throw handleRequestError(error, statsName, statsContext)
       }
     },
     async getAudience(request, getAudienceInput) {
@@ -119,15 +126,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { advertiserId, accountType } = audienceSettings || {}
       const statsName = 'getAudience'
       statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
 
       if (!advertiserId) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!accountType) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
@@ -135,6 +147,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // However, the bulkUploader API doesn't require an auth object, so we can use the externalId to verify ownership.
       // Only legacy destinations will have an externalId and no auth object.
       if (isLegacyDestinationMigration(getAudienceInput, authSettings)) {
+        statsClient?.incr(`${statsName}.legacy`, 1, statsTags)
+
         return {
           externalId: getAudienceInput.externalId
         }
@@ -160,7 +174,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const externalId = r[0]?.results[0]?.userList?.resourceName
 
         if (externalId !== getAudienceInput.externalId) {
-          statsClient?.incr(`${statsName}.error.UNABLE_TO_VERIFY`, 1, statsTags)
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw new IntegrationError(
             "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
             'INVALID_REQUEST_DATA',
@@ -173,7 +187,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId: externalId
         }
       } catch (error) {
-        throw handleRequestError(error, statsName, statsClient)
+        throw handleRequestError(error, statsName, statsContext)
       }
     }
   },
