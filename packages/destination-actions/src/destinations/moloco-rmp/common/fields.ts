@@ -153,7 +153,7 @@ function createMoneyProperties(required: boolean): Record<string, InputField> {
     price: {
       label: 'Price',
       description:
-        'Monetary amount of money. (e.g., 12.34 for $12.34 if currency is "USD")'
+        'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")'
         + required ? '' : ', REQUIRED IF CURRENCY IS GIVEN',
       type: 'number',
       required: required
