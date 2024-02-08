@@ -34,7 +34,7 @@ export const validateListMemberPayload = ({
     throw new PayloadValidationError(
       'At least one of the following fields is required: Email Address, RIID, or Customer ID'
     )
-  } 
+  }
 }
 
 export const getUserDataFieldNames = (data: Data): string[] => {
@@ -101,26 +101,33 @@ export const sendCustomTraits = async (
 
   const endpoint = new URL(path, settings.baseUrl)
 
-
   const response = await request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
 
-  if(settings.segmentWriteKey && settings.segmentWriteKeyRegion){
-    try{
+  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
+    try {
       const body = response.data
-      await request(settings.segmentWriteKeyRegion === 'EU' ? 'events.eu1.segmentapis.com/v1/track' : 'https://api.segment.io/v1/track' , {
-        method: 'POST',
-        body: JSON.stringify({
-          writeKey: settings.segmentWriteKey,
-          type: 'track', 
-          event: 'Responsys Response Message Received',
-          properties: body,
-          anonymousID: '__responsys__API__response__'
-        })
-      })
-    } catch(error){
+      await request(
+        settings.segmentWriteKeyRegion === 'EU'
+          ? 'events.eu1.segmentapis.com/v1/track'
+          : 'https://api.segment.io/v1/track',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            type: 'track',
+            event: 'Responsys Response Message Received',
+            properties: body,
+            anonymousID: '__responsys__API__response__'
+          })
+        }
+      )
+    } catch (error) {
       // do nothing
     }
   }
@@ -177,20 +184,28 @@ export const upsertListMembers = async (
     body: JSON.stringify(requestBody)
   })
 
-  if(settings.segmentWriteKey && settings.segmentWriteKeyRegion){
-    try{
+  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
+    try {
       const body = response.data
-      await request(settings.segmentWriteKeyRegion === 'EU' ? 'events.eu1.segmentapis.com/v1/track' : 'https://api.segment.io/v1/track' , {
-        method: 'POST',
-        body: JSON.stringify({
-          writeKey: settings.segmentWriteKey,
-          type: 'track', 
-          event: 'Responsys Response Message Received',
-          properties: body,
-          anonymousID: '__responsys__API__response__'
-        })
-      })
-    } catch(error){
+      await request(
+        settings.segmentWriteKeyRegion === 'EU'
+          ? 'events.eu1.segmentapis.com/v1/track'
+          : 'https://api.segment.io/v1/track',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            type: 'track',
+            event: 'Responsys Response Message Received',
+            properties: body,
+            anonymousId: '__responsys__API__response__'
+          })
+        }
+      )
+    } catch (error) {
       // do nothing
     }
   }
