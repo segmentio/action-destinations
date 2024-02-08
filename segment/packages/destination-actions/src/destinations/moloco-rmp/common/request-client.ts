@@ -7,7 +7,7 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from './settings'
 
-const TEST_ENDPOINT = 'https://evt-iad-test.rmp-api.moloco.com/cdp/SEGMENT'
+const TEST_ENDPOINT = 'https://evt-sel-test.rmp-api.moloco.com/cdp/SEGMENT'
 
 export class MolocoAPIClient {
     url: string
