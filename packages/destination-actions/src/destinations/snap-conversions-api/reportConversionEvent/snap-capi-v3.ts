@@ -8,8 +8,7 @@ import {
   hashEmailSafe,
   isNullOrUndefined,
   raiseMisconfiguredRequiredFieldErrorIf,
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
-  transformProperty
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -52,23 +51,27 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
   const madid = payload.mobile_ad_id?.toLowerCase()
 
   // If customer populates products array, use it instead of the individual fields
-  const products = payload.products ?? []
-  const { content_ids, content_category, brands } =
+  const products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
+
+  const { content_ids, content_category, brands, num_items } =
     products.length > 0
       ? {
-          content_ids: transformProperty('item_id', products),
-          content_category: transformProperty('item_category', products),
-          brands: products.map((product) => product.brand ?? '')
+          content_ids: products.map(({ item_id }) => item_id),
+          content_category: products.map(({ item_category }) => item_category),
+          brands: products.map((product) => product.brand ?? ''),
+          num_items: products.length
         }
-      : {
+      : // FIXME: Need to parse these into arrays or comma-separated lists
+        {
           content_ids: payload.item_ids,
           content_category: payload.item_category,
-          brands: payload.brands
+          brands: payload.brands,
+          num_items: payload.number_items
         }
 
   const extInfoVersion = iosAppIDRegex.test((settings.app_id ?? '').trim()) ? 'i2' : 'a2'
 
-  return {
+  const result = {
     data: [
       {
         integration: 'segment',
@@ -94,7 +97,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           content_category,
           content_ids,
           currency: payload.currency,
-          num_items: payload?.number_items,
+          num_items,
           order_id: emptyToUndefined(payload.transaction_id),
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
@@ -129,6 +132,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
     ],
     ...(isTest ? { test_event_code: 'segment_test' } : {})
   }
+
+  return result
 }
 
 export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
@@ -145,7 +150,7 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type !== 'MOBILE_APP' && isNullOrUndefined(snapPixelID),
+    event_conversion_type === 'WEB' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`
   )
 
