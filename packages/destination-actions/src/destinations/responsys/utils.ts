@@ -115,8 +115,11 @@ export const sendCustomTraits = async (
           : 'https://api.segment.io/v1/track',
         {
           method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({
-            writeKey: settings.segmentWriteKey,
             type: 'track',
             event: 'Responsys Response Message Received',
             properties: body,
@@ -195,7 +198,6 @@ export const upsertListMembers = async (
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            writeKey: settings.segmentWriteKey,
             type: 'track',
             event: 'Responsys Response Message Received',
             properties: body,
