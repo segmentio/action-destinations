@@ -3,6 +3,6 @@
 // and the corresponding interface will be automatically generated.
 // This interface is the generalized version of that auto-generated interface. 
 export interface Settings {
-    platform: string
+    platformId: string
     apiKey: string
 }

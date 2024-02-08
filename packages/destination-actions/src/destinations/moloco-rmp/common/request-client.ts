@@ -18,7 +18,7 @@ export class MolocoAPIClient {
 
     constructor(request: RequestClient, settings: Settings) {
         this.url = this.getEndpoint()
-        this.platform = settings.platform
+        this.platform = settings.platformId
         this.apiKey = settings.apiKey
     
         this.request = request
