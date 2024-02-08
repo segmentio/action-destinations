@@ -1,7 +1,10 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import postToAccoil from './postToAccoil'
+import trackEvent from '../launchpad/trackEvent'
+import identifyUser from '../launchpad/identifyUser'
+import groupIdentifyUser from '../launchpad/groupIdentifyUser'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Accoil Analytics',
@@ -20,19 +23,44 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
+      const AUTH_KEY = Buffer.from(`${settings.api_key}:`).toString('base64')
       return await request(`https://in.accoil.com/segment`, {
         method: 'post',
         headers: {
-          Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
+          Authorization: `Basic ${AUTH_KEY}`
         },
         json: {}
       })
     }
   },
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Group',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(groupIdentifyUser.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
+    }
+  ],
   extendRequest: ({ settings }) => {
+    const AUTH_KEY = Buffer.from(`${settings.api_key}:`).toString('base64')
     return {
       headers: {
-        Authorization: `Basic ${Buffer.from(`${settings.api_key}:`).toString('base64')}`
+        Authorization: `Basic ${AUTH_KEY}`
       }
     }
   },
