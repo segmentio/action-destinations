@@ -84,4 +84,19 @@ describe('getFieldValueKeys', () => {
 
     expect(keys).toEqual(['properties.products', 'productId'])
   })
+
+  it('should return correct keys for @json', () => {
+    const value = {
+      '@json': {
+        mode: 'encode',
+        value: {
+          '@template': '{{properties.products}}'
+        }
+      }
+    }
+
+    const keys = getFieldValueKeys(value)
+
+    expect(keys).toEqual(['properties.products'])
+  })
 })
