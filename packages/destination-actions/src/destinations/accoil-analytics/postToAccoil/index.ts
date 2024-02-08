@@ -7,7 +7,18 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send Data to Accoil Analytics',
   defaultSubscription: 'type = "track"',
 
-  fields: {},
+  fields: {
+    segmentEventData: {
+      label: 'Event Payload',
+      description: 'Segment Event Payload',
+      type: 'object',
+      unsafe_hidden: true,
+      required: true,
+      default: {
+        '@path': '$'
+      }
+    }
+  },
   perform: (request, { settings, payload }) => {
     const AUTH_KEY = Buffer.from(`${settings.api_key}:`).toString('base64')
     return request(`https://in.accoil.com/segment`, {
@@ -15,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       headers: {
         Authorization: `Basic ${AUTH_KEY}`
       },
-      json: payload
+      json: payload.segmentEventData
     })
   }
 }
