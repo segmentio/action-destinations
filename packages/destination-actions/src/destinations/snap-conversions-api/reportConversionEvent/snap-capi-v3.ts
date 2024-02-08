@@ -30,13 +30,17 @@ export const validatePayload = (payload: Payload): Payload => {
   return payload
 }
 
-export const formatPayload = (payload: Payload, isTest = true): object => {
-  // FIXME: Do we need to map these values to Meta's action source types?
-  const action_source = payload.event_conversion_type
+const eventConversionTypeToActionSource: { [k in string]?: string } = {
+  WEB: 'website',
+  MOBILE_APP: 'app'
+}
 
-  // FIXME: Consider using the  message_id, though we already have client_dedup_id
-  // FIXME: Should we validate that the event_id is non-null
-  const event_id = emptyToUndefined(payload.client_dedup_id) ?? emptyToUndefined(payload.transaction_id)
+const iosAppIDRegex = new RegExp('^[0-9]+$')
+
+export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
+  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type] ?? 'other'
+
+  const event_id = emptyToUndefined(payload.client_dedup_id)
 
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
@@ -45,8 +49,7 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
   const phone_number = hash(payload.phone_number?.replace(/\D|^0+/g, ''))
 
   // Converts all characters to lowercase
-  // FIXME: docs say not to hash but in v2 its hashed
-  const madid = hash(payload.mobile_ad_id?.toLowerCase())
+  const madid = payload.mobile_ad_id?.toLowerCase()
 
   // If customer populates products array, use it instead of the individual fields
   const products = payload.products ?? []
@@ -63,6 +66,8 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
           brands: payload.brands
         }
 
+  const extInfoVersion = iosAppIDRegex.test((settings.app_id ?? '').trim()) ? 'i2' : 'a2'
+
   return {
     data: [
       {
@@ -75,7 +80,6 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
         event_source_url: payload.page_url,
         event_time: Date.parse(payload.timestamp),
         user_data: {
-          // FIXME: Does this need to be hashed?
           client_ip_address: payload.ip_address,
           client_user_agent: payload.user_agent,
           em: box(email),
@@ -91,6 +95,7 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
           content_ids,
           currency: payload.currency,
           num_items: payload?.number_items,
+          order_id: emptyToUndefined(payload.transaction_id),
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
           value: payload.price
@@ -98,25 +103,28 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
 
         action_source,
 
-        // FIXME, only included for app events
-        extinfo: [
-          '', // required per spec version must be a2 for Android, must be i2 for iOS
-          '', // app package name
-          '', // short version
-          '', // long version
-          payload.os_version ?? '', // os version
-          payload.device_model ?? '', // device model name
-          '', // local
-          '', // timezone abbr
-          '', // carrier
-          '', //screen width
-          '', // screen height
-          '', // screen density
-          '', // cpu core
-          '', // external storage size
-          '', // freespace in external storage size
-          '' // device time zone
-        ]
+        app_data: !isNullOrUndefined(payload.os_version ?? payload.device_model)
+          ? {
+              extinfo: [
+                extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
+                '', // app package name
+                '', // short version
+                '', // long version
+                payload.os_version ?? '', // os version
+                payload.device_model ?? '', // device model name
+                '', // local
+                '', // timezone abbr
+                '', // carrier
+                '', //screen width
+                '', // screen height
+                '', // screen density
+                '', // cpu core
+                '', // external storage size
+                '', // freespace in external storage size
+                '' // device time zone
+              ]
+            }
+          : undefined
       }
     ],
     ...(isTest ? { test_event_code: 'segment_test' } : {})
@@ -124,20 +132,20 @@ export const formatPayload = (payload: Payload, isTest = true): object => {
 }
 
 export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
-  const { app_id, snap_app_id, pixel_id } = settings
-  const appID = emptyToUndefined(app_id) ?? emptyToUndefined(snap_app_id)
-  const pixelID = emptyToUndefined(pixel_id)
-  const appOrPixelID = appID ?? pixelID
+  const { snap_app_id, pixel_id } = settings
+  const snapAppID = emptyToUndefined(snap_app_id)
+  const snapPixelID = emptyToUndefined(pixel_id)
+  const appOrPixelID = snapAppID ?? snapPixelID
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(appID),
+    event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
     'If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined'
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type !== 'MOBILE_APP' && isNullOrUndefined(pixelID),
+    event_conversion_type !== 'MOBILE_APP' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`
   )
 
@@ -159,7 +167,7 @@ export const performSnapCAPIv3 = async (
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
   const url = buildRequestURL(validateAppOrPixelID(settings, event_conversion_type), authToken)
-  const json = formatPayload(validatePayload(payload), isTest)
+  const json = formatPayload(validatePayload(payload), settings, isTest)
 
   return request(url, {
     method: 'post',

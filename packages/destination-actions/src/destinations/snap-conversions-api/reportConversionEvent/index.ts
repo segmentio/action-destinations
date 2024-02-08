@@ -100,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // is only used by snap to verify.
       return v2result
     } else if (useCAPIv3) {
-      return performSnapCAPIv3(request, data)
+      return performSnapCAPIv3(request, data, testCAPIv3)
     } else {
       return performSnapCAPIv2(request, data)
     }
