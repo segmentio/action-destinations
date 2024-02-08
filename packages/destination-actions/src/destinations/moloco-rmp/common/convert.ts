@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import { EventType } from './event'
 import {
   EventPayload as SegmentEventPayload,
@@ -16,7 +17,7 @@ import {
 // This function coverts the SegmentEventPayload to MolocoEventPayload
 // SegmentEventPayload is the payload that went through the mapping defined in the Segment UI
 // MolocoEventPayload is the payload that will be sent to the Moloco RMP API
-export function convertEvent(args: { eventType: EventType, payload: SegmentEventPayload} ): MolocoEventPayload {
+export function convertEvent(args: { eventType: EventType, payload: SegmentEventPayload }): MolocoEventPayload {
   const { eventType, payload } = args;
 
   const body: MolocoEventPayload = {
@@ -74,7 +75,7 @@ export function convertEvent(args: { eventType: EventType, payload: SegmentEvent
 
 function convertMoneyPayload(payload: SegmentMoneyPayload): MolocoMoneyPayload {
   return {
-    amount: payload.amount,
+    amount: payload.price,
     currency: payload.currency
   }
 }
@@ -82,10 +83,6 @@ function convertMoneyPayload(payload: SegmentMoneyPayload): MolocoMoneyPayload {
 function convertItemPayload(payload: SegmentItemPayload): MolocoItemPayload {
   const itemPayload: MolocoItemPayload = {
     id: payload.id
-  }
-
-  if (payload.price) {
-    itemPayload.price = convertMoneyPayload(payload.price);
   }
 
   if (payload.quantity) {
@@ -98,6 +95,13 @@ function convertItemPayload(payload: SegmentItemPayload): MolocoItemPayload {
 
   if (payload.sellerId) {
     itemPayload.seller_id = payload.sellerId;
+  }
+
+  if (payload.price || payload.currency) {
+    if (!(payload.price && payload.currency)) {
+      throw new PayloadValidationError('price and currency should be both present or both absent')
+    }
+    itemPayload.price = convertMoneyPayload({ price: payload.price, currency: payload.currency });
   }
 
   return itemPayload;
