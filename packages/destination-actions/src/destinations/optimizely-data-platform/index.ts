@@ -2,6 +2,7 @@ import { defaultValues } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvent from './customEvent'
+import nonEcommCustomEvent from './nonEcommCustomEvent'
 import upsertContact from './upsertContact'
 import emailEvent from './emailEvent'
 import { hosts } from './utils'
@@ -147,6 +148,7 @@ const destination: DestinationDefinition<Settings> = {
   ],
   actions: {
     customEvent,
+    nonEcommCustomEvent,
     upsertContact,
     emailEvent
   }
