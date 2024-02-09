@@ -95,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!data.anonymous_id && !data.user_id) {
         throw MissingUserOrAnonymousIdThrowableError
       }
-      convertPayload(data)
+      return convertPayload(data)
     })
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
