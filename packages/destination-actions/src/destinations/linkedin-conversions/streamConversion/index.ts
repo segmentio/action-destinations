@@ -1,9 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { SUPPORTED_ID_TYPE } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
+import { LinkedInError } from '../types'
 
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
@@ -235,7 +236,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
-      return error
+      const asLinkedInError = error as LinkedInError
+      throw new IntegrationError(
+        asLinkedInError.response.data.message ?? 'Unknown Error',
+        asLinkedInError.response.data.code ?? 'UNKNOWN',
+        asLinkedInError.response.data.status ?? 500
+      )
     }
   }
 }
