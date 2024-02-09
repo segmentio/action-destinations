@@ -22,7 +22,7 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
 }
 
 const sendSchemaAction: ActionDefinition<Settings, Payload> = {
-  title: 'Send Schema',
+  title: 'Track Schema From Event',
   description: 'Sends event schema to the Avo Inspector API',
   defaultSubscription: 'type = "track"',
   fields: {
@@ -54,10 +54,10 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
         '@path': '$.messageId'
       }
     },
-    receivedAt: {
-      label: 'Received At',
+    createdAt: {
+      label: 'Created At',
       type: 'string',
-      description: 'Timestamp of when the event was received',
+      description: 'Timestamp of when the event was sent',
       required: true,
       default: {
         '@path': '$.timestamp'
