@@ -126,4 +126,35 @@ describe('GoogleAnalytics4Web.viewCart', () => {
       })
     )
   })
+
+  test('GA4 viewCart Event when send to is false', async () => {
+    const context = new Context({
+      event: 'View Cart',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await viewCartEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('view_cart'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })

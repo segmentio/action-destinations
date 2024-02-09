@@ -127,4 +127,35 @@ describe('GoogleAnalytics4Web.viewItemList', () => {
       })
     )
   })
+
+  test('GA4 viewItemList Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'View Item List',
+      type: 'track',
+      properties: {
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await viewItemListEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('view_item_list'),
+      expect.objectContaining({
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: 'default'
+      })
+    )
+  })
 })

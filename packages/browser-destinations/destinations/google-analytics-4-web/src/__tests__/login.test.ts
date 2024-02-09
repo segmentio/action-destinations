@@ -82,4 +82,24 @@ describe('GoogleAnalytics4Web.login', () => {
       })
     )
   })
+
+  test('GA4 login Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Login',
+      type: 'track',
+      properties: {
+        method: 'Google'
+      }
+    })
+    await loginEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('login'),
+      expect.objectContaining({
+        method: 'Google',
+        send_to: 'default'
+      })
+    )
+  })
 })

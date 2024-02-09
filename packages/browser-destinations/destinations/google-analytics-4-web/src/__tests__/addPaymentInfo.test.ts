@@ -134,4 +134,37 @@ describe('GoogleAnalytics4Web.addPaymentInfo', () => {
       })
     )
   })
+
+  test('GA4 addPaymentInfo Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Payment Info Entered',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        coupon: 'SUMMER_123',
+        payment_method: 'Credit Card',
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addPaymentInfoEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('add_payment_info'),
+      expect.objectContaining({
+        coupon: 'SUMMER_123',
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })

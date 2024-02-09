@@ -124,4 +124,34 @@ describe('GoogleAnalytics4Web.addToCart', () => {
       })
     )
   })
+
+  test('GA4 addToCart Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Add To Cart',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addToCartEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('add_to_cart'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })

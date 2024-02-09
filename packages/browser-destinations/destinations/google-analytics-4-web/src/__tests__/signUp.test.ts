@@ -78,4 +78,22 @@ describe('GoogleAnalytics4Web.signUp', () => {
       expect.objectContaining({ method: 'Google', send_to: settings.measurementID })
     )
   })
+
+  test('GA4 signUp Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'signUp',
+      type: 'track',
+      properties: {
+        method: 'Google'
+      }
+    })
+
+    await signUpEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('sign_up'),
+      expect.objectContaining({ method: 'Google', send_to: 'default' })
+    )
+  })
 })

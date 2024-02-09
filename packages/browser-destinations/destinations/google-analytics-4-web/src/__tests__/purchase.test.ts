@@ -134,4 +134,36 @@ describe('GoogleAnalytics4Web.purchase', () => {
       })
     )
   })
+
+  test('GA4 purchase Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Purchase',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        transaction_id: 12321,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await purchaseEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('purchase'),
+      expect.objectContaining({
+        currency: 'USD',
+        transaction_id: 12321,
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })

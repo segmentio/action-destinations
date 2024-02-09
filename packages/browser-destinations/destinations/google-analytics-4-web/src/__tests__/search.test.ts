@@ -84,4 +84,24 @@ describe('GoogleAnalytics4Web.search', () => {
       })
     )
   })
+  test('GA4 search Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'search',
+      type: 'track',
+      properties: {
+        search_term: 'Monopoly: 3rd Edition'
+      }
+    })
+
+    await searchEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('search'),
+      expect.objectContaining({
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: 'default'
+      })
+    )
+  })
 })

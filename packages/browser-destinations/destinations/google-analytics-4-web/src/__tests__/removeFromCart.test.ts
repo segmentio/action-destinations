@@ -129,4 +129,35 @@ describe('GoogleAnalytics4Web.removeFromCart', () => {
       })
     )
   })
+
+  test('GA4 removeFromCart Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Remove from Cart',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await removeFromCartEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('remove_from_cart'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })

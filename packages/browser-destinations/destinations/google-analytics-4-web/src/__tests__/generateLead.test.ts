@@ -89,4 +89,25 @@ describe('GoogleAnalytics4Web.generateLead', () => {
       })
     )
   })
+  test('GA4 generateLead Event when send to is undefined', async () => {
+    const context = new Context({
+      event: 'Generate Lead',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10
+      }
+    })
+    await generateLeadEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('generate_lead'),
+      expect.objectContaining({
+        currency: 'USD',
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
 })
