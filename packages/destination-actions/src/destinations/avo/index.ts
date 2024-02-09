@@ -1,9 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendSchemaAction from './sendSchemaToInspector'
 import { Environment } from './sendSchemaToInspector/avo-types'
+
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Track schema From Event',
+    subscribe: 'type = "track"',
+    partnerAction: 'sendSchemaToInspector',
+    mapping: defaultValues(sendSchemaAction.fields),
+    type: 'automatic'
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo',
@@ -50,7 +61,7 @@ const destination: DestinationDefinition<Settings> = {
       return resp
     }
   },
-
+  presets,
   actions: {
     sendSchemaToInspector: sendSchemaAction // Add your action here
   }
