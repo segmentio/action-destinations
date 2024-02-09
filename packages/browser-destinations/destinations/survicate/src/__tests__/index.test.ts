@@ -51,7 +51,7 @@ describe('Survicate', () => {
     })
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
-  
+
   test('#load', async () => {
     const [event] = await survicate({
       workspaceKey: 'xMIeFQrceKnfKOuoYXZOVgqbsLlqYMGD',
