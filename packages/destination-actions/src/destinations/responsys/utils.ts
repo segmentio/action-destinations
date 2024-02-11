@@ -60,21 +60,20 @@ export const sendCustomTraits = async (
   isAudience?: boolean
 ) => {
   let userDataArray: unknown[]
-
   if (isAudience) {
-    userDataFieldNames.push('SEGMENT_AUDIENCE_KEY')
     const audiencePayloads = payload as unknown[] as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
+      const traitValue = obj.computation_key ? { [obj.computation_key]: true } : {} // Check if computation_key exists, if yes, add it with value true
+      userDataFieldNames.push(obj.computation_key)
       return {
         ...obj.userData,
-        SEGMENT_AUDIENCE_KEY: String(obj.traits_or_props[obj.computation_key])
+        ...traitValue
       }
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => obj.userData)
   }
-
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
@@ -141,7 +140,6 @@ export const upsertListMembers = async (
   userDataFieldNames: string[]
 ) => {
   const userDataArray = payload.map((obj) => obj.userData)
-
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)

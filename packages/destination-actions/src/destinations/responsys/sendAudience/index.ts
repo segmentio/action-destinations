@@ -48,6 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A unique identifier assigned to a specific audience in Segment.',
       type: 'string',
       required: true,
+      unsafe_hidden: true,
       default: { '@path': '$.context.personas.computation_key' }
     },
     traits_or_props: {
