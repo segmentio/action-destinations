@@ -160,5 +160,20 @@ describe('Display Video 360', () => {
         externalId: expectedExternalID
       })
     })
+
+    it('should succeed when Destination is flagged as migration', async () => {
+      const migrationGetAudienceInput = {
+        ...getAudienceInput,
+        settings: { oauth: {} },
+        externalId: 'iWasHereInTheBeforeTimes'
+      }
+
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      const r = await testDestination.getAudience(migrationGetAudienceInput)
+      expect(r).toEqual({
+        externalId: 'iWasHereInTheBeforeTimes'
+      })
+    })
   })
 })

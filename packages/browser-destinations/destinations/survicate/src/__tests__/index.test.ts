@@ -1,6 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import survicate, { destination } from '../index'
 import { Subscription } from '@segment/browser-destination-runtime/types'
+import { Survicate } from '../types'
 
 const example: Subscription[] = [
   {
@@ -31,6 +32,26 @@ const example: Subscription[] = [
 ]
 
 describe('Survicate', () => {
+  let mockSurvicate: Survicate
+  beforeEach(async () => {
+    jest.restoreAllMocks()
+
+    const [trackEventPlugin] = await survicate({
+      workspaceKey: 'xMIeFQrceKnfKOuoYXZOVgqbsLlqYMGD',
+      subscriptions: example
+    })
+
+    jest.spyOn(destination, 'initialize').mockImplementation(() => {
+      mockSurvicate = {
+        invokeEvent: jest.fn(),
+        setVisitorTraits: jest.fn()
+      }
+      window._sva = mockSurvicate
+      return Promise.resolve(mockSurvicate)
+    })
+    await trackEventPlugin.load(Context.system(), {} as Analytics)
+  })
+
   test('#load', async () => {
     const [event] = await survicate({
       workspaceKey: 'xMIeFQrceKnfKOuoYXZOVgqbsLlqYMGD',

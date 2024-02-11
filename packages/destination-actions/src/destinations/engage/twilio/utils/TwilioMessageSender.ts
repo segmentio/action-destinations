@@ -38,23 +38,16 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     content: R,
     profile: Profile
   ): Promise<R> {
-    const profileCopy = { ...profile }
-    for (const trait of Object.keys(profileCopy.traits || {})) {
-      if (profileCopy.traits && profileCopy.traits[trait] === '<nil>') {
-        profileCopy.traits[trait] = ''
-      }
-    }
-
     const parsedEntries = await Promise.all(
       Object.entries(content).map(async ([key, val]) => {
-        if (val == null) {
+        if (val == null || val === '<nil>') {
           return [key, val]
         }
 
         if (Array.isArray(val)) {
-          val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile: profileCopy })))
+          val = await Promise.all(val.map((item) => Liquid.parseAndRender(item, { profile })))
         } else {
-          val = await Liquid.parseAndRender(val, { profile: profileCopy })
+          val = await Liquid.parseAndRender(val, { profile })
         }
         return [key, val]
       })

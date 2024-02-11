@@ -327,6 +327,12 @@ function _build_tags_object(payload: TagsPayload): object {
       } else {
         tags_to_remove.push(k)
       }
+    } else if (typeof v == 'string' && ['true', 'false'].includes(v.toString().toLowerCase())) {
+      if (v.toLowerCase() === 'true') {
+        tags_to_add.push(k)
+      } else {
+        tags_to_remove.push(k)
+      }
     }
   }
   const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {} }
