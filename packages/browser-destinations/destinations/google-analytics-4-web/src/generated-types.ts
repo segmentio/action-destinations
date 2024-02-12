@@ -50,10 +50,6 @@ export interface Settings {
    */
   defaultAnalyticsStorageConsentState?: string
   /**
-   * If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.
-   */
-  waitTimeToUpdateConsentStage?: number
-  /**
    * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
    */
   adUserDataConsentState?: string
@@ -61,6 +57,10 @@ export interface Settings {
    * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
    */
   adPersonalizationConsentState?: string
+  /**
+   * If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.
+   */
+  waitTimeToUpdateConsentStage?: number
   /**
    * Set to false to prevent the default snippet from sending page views. Enabled by default.
    */
