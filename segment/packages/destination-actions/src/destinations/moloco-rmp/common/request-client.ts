@@ -39,7 +39,7 @@ export class MolocoAPIClient {
         return await this.request(this.url, {
             method: 'POST',
             headers,
-            body: JSON.stringify(body)
+            json: body
         })
     }
 
