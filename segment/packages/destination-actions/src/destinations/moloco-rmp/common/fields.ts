@@ -50,7 +50,6 @@ export const DEVICE: InputField = {
   type: 'object',
   required: false,
   properties: {
-    // TODO: Consider different OS names such as iPadOS
     os: {
       label: 'OS',
       description: 'OS of the device. "ios" or "android" must be included for the APP channel type.',
