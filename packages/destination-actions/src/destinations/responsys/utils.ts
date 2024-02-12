@@ -63,7 +63,7 @@ export const sendCustomTraits = async (
   if (isAudience) {
     const audiencePayloads = payload as unknown[] as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
-      const traitValue = obj.computation_key ? { [obj.computation_key.toUpperCase() as unknown as string]: true } : {}  // Check if computation_key exists, if yes, add it with value true
+      const traitValue = obj.computation_key ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] } : {} // Check if computation_key exists, if yes, add it with value true
       userDataFieldNames.push(obj.computation_key)
       return {
         ...obj.userData,
