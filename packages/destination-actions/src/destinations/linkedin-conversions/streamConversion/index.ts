@@ -236,6 +236,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
+      console.log('Error:', error)
       throw handleRequestError(error)
     }
   }

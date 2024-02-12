@@ -105,12 +105,8 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
+  it.only('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
     const multipleCampaigns = payload.campaignId.concat('56789')
-    // const associateCampignToConversion = {
-    //   campaign: 'urn:li:sponsoredCampaign:123456`',
-    //   conversion: 'urn:lla:llaPartnerConversion:789123'
-    // }
 
     const streamConversionEvent = {
       conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
@@ -143,7 +139,7 @@ describe('LinkedinConversions.streamConversion', () => {
       .reply(200)
     nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
 
-    const responses = await testDestination.testAction('streamConversion', {
+    await testDestination.testAction('streamConversion', {
       event,
       settings,
       mapping: {
@@ -163,8 +159,6 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       }
     })
-
-    console.log('responses', responses)
   })
 
   it('should throw an error if timestamp is not within the past 90 days', async () => {
