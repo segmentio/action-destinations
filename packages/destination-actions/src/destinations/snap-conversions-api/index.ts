@@ -219,6 +219,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
+    // FIXME: In v3, the access token needs to be passed in the request URI.
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
