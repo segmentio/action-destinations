@@ -273,6 +273,68 @@ describe('Moloco Rmp', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
+
+    it('should not throw an error even though an input value that a default mapping is pointing is not given', async () => {
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      const event = {
+        anonymousId: 'anonId1234',
+        event: 'Test Event',
+        messageId: uuidv4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        context: {
+          // ip: '8.8.8.8', -- ip is not given, but the default mapping is pointing to it
+          library: {
+            name: 'analytics.js',
+            version: '2.11.1'
+          },
+          locale: 'en-US',
+          page: {
+            path: '/academy/',
+            referrer: '',
+            search: '',
+            title: 'Analytics Academy',
+            url: 'https://segment.com/academy/'
+          },
+          userAgent:
+            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+        }
+      }
+
+      const expectedPayload: EventPayload = {
+        event_type: TEST_EVENT_TYPE,
+        event_id: event.messageId,
+        timestamp: event.timestamp,
+        channel_type: 'SITE',
+        user_id: event.userId,
+        device: {
+          ua: event.context.userAgent,
+          // ip: event.context.ip, -- absent even though there is a default mapping for it
+        },
+        session_id: event.anonymousId,
+        page_id: event.context.page.path,
+      }
+        
+      const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
+        event: event as SegmentEvent,
+        settings: AUTH,
+        useDefaultMappings: true,
+        mapping: {
+          channelType: 'SITE',
+        },
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual(expectedPayload)
+    })
+
   })
 
 
