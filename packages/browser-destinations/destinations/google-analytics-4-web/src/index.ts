@@ -128,17 +128,15 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       ],
       default: 'granted'
     },
-    waitTimeToUpdateConsentStage: {
-      description:
-        'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
-      label: 'Wait Time to Update Consent State',
-      type: 'number'
-    },
     adUserDataConsentState: {
       description:
         'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
       label: 'Ad User Data Consent State',
       type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
       default: 'denied'
     },
     adPersonalizationConsentState: {
@@ -146,7 +144,17 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
       label: 'Ad Personalization Consent State',
       type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
       default: 'denied'
+    },
+    waitTimeToUpdateConsentStage: {
+      description:
+        'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
+      label: 'Wait Time to Update Consent State',
+      type: 'number'
     },
     pageView: {
       description: 'Set to false to prevent the default snippet from sending page views. Enabled by default.',

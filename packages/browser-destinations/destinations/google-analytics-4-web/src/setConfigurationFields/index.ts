@@ -18,13 +18,43 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Ads Storage Consent State',
-      type: 'string'
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ]
     },
     analytics_storage_consent_state: {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Analytics Storage Consent State',
-      type: 'string'
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ]
+    },
+    ad_user_data_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: 'denied'
+    },
+    ad_personalization_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: 'denied'
     },
     campaign_content: {
       description:
@@ -91,20 +121,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description: `The resolution of the screen. Format should be two positive integers separated by an x (i.e. 800x600). If not set, calculated from the user's window.screen value.`,
       label: 'Screen Resolution',
       type: 'string'
-    },
-    ad_user_data_consent_state: {
-      description:
-        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
-      label: 'Ad User Data Consent State',
-      type: 'string',
-      default: 'denied'
-    },
-    ad_personalization_consent_state: {
-      description:
-        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
-      label: 'Ad Personalization Consent State',
-      type: 'string',
-      default: 'denied'
     },
     params: params
   },
