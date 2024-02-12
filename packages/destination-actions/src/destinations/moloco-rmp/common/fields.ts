@@ -56,27 +56,18 @@ export const DEVICE: InputField = {
       description: 'OS of the device. "ios" or "android" must be included for the APP channel type.',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.os.name'
-      },
     },
     osVersion: {
       label: 'OS Version',
       description: 'Device OS version, which is taken from the device without manipulation or normalization. (e.g., "14.4.1")',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.os.version'
-      },
     },
     advertisingId: {
       label: 'Advertising ID',
       description: 'For app traffic, IDFA of iOS or ADID of android should be filled in this field. (e.g., 7acefbed-d1f6-4e4e-aa26-74e93dd017e4)',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.device.advertisingId'
-      },
     },
     uniqueDeviceId: {
       label: 'Unique Device ID',
@@ -85,27 +76,18 @@ export const DEVICE: InputField = {
   The length of this id should not exceed 128 characters.`,
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.device.id'
-      },
     },
     model: {
       label: 'Model',
       description: 'Device model, which is taken from the device without manipulation or normalization. (e.g., "iPhone 11 Pro")',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.device.model'
-      },
     },
     ua: {
       label: 'User Agent',
       description: 'User Agent. (e.g., "Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF")',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.userAgent'
-      },
     },
     // TODO: Could extract from context.locale
     language: {
@@ -119,10 +101,16 @@ export const DEVICE: InputField = {
       description: 'IP in IPv4 format. (e.g., 216.212.237.213)',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.context.ip'
-      },
     }
+  },
+  default: {
+    os: { '@path': '$.context.os.name' },
+    osVersion: { '@path': '$.context.os.version' },
+    advertisingId: { '@path': '$.context.device.advertisingId' },
+    uniqueDeviceId: { '@path': '$.context.device.id' },
+    model: { '@path': '$.context.device.model' },
+    ua: { '@path': '$.context.userAgent' },
+    ip: { '@path': '$.context.ip' }
   }
 }
 
@@ -186,12 +174,9 @@ function createMoneyProperties(required: boolean): Record<string, InputField> {
   MYR: Malaysia Ringgit.
   PHP: Philippines Peso.
   TRY: Turkey Lira.
-  VEF: Venezuela Bolívar.
-
-  Default: UNKNOWN_CURRENCY`,
+  VEF: Venezuela Bolívar.`,
       type: 'string',
       required: required,
-      default: 'UNKNOWN_CURRENCY'
     }
   }
 }
@@ -239,7 +224,7 @@ export function createRevenueInputField(required: boolean): InputField {
     description: 'Revenue of the event',
     type: 'object',
     required: required,
-    properties: createMoneyProperties(true)
+    properties: createMoneyProperties(true),
   }
 }
 
@@ -284,6 +269,6 @@ export function createShippingChargeInputField(required: boolean): InputField {
     description: 'Shipping charge’s monetary amount in a specific currency.',
     type: 'object',
     required: required,
-    properties: createMoneyProperties(true)
+    properties: createMoneyProperties(true),
   }
 }

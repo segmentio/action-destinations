@@ -125,8 +125,6 @@ export interface MoneyPayload {
 	 *   PHP: Philippines Peso.
 	 *   TRY: Turkey Lira.
 	 *   VEF: Venezuela Bolívar.
-	 *
-	 *   Default: UNKNOWN_CURRENCY
 	 */
 	currency: string
 	/**
