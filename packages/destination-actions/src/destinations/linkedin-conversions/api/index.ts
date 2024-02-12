@@ -27,38 +27,46 @@ export class LinkedInConversions {
     })
   }
 
+  getConversionRule = async (
+    payload: Payload,
+    conversionRuleId: string
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    try {
+      const { data } = await this.request<GetConversionRuleResponse>(
+        `${BASE_URL}/conversions/${this.conversionRuleId}`,
+        {
+          method: 'get',
+          searchParams: {
+            account: payload?.adAccountId
+          }
+        }
+      )
+
+      return {
+        successMessage: `Using existing Conversion Rule: ${conversionRuleId} `,
+        savedData: {
+          id: conversionRuleId,
+          name: data.name || `No name returned for rule: ${conversionRuleId}`,
+          conversionType: data.type || `No type returned for rule: ${conversionRuleId}`,
+          attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`
+        }
+      }
+    } catch (e) {
+      return {
+        error: {
+          message: `Failed to verify conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
+          code: 'CONVERSION_RULE_VERIFICATION_FAILURE'
+        }
+      }
+    }
+  }
+
   createConversionRule = async (
     payload: Payload,
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     if (hookInputs?.conversionRuleId) {
-      try {
-        const { data } = await this.request<GetConversionRuleResponse>(
-          `${BASE_URL}/conversions/${this.conversionRuleId}`,
-          {
-            method: 'get',
-            searchParams: {
-              account: payload?.adAccountId
-            }
-          }
-        )
-
-        return {
-          successMessage: `Using existing Conversion Rule: ${hookInputs.conversionRuleId} `,
-          savedData: {
-            id: hookInputs.conversionRuleId,
-            name: data.name || `No name returned for rule: ${hookInputs.conversionRuleId}`,
-            conversionType: data.type || `No type returned for rule: ${hookInputs.conversionRuleId}`
-          }
-        }
-      } catch (e) {
-        return {
-          error: {
-            message: `Failed to verify conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
-            code: 'CONVERSION_RULE_VERIFICATION_FAILURE'
-          }
-        }
-      }
+      return this.getConversionRule(payload, hookInputs?.conversionRuleId)
     }
 
     try {
@@ -80,7 +88,8 @@ export class LinkedInConversions {
         savedData: {
           id: data.id,
           name: data.name,
-          conversionType: data.type
+          conversionType: data.type,
+          attribution_type: hookInputs?.attribution_type || 'UNKNOWN'
         }
       }
     } catch (e) {
@@ -88,6 +97,78 @@ export class LinkedInConversions {
         error: {
           message: `Failed to create conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
           code: 'CONVERSION_RULE_CREATION_FAILURE'
+        }
+      }
+    }
+  }
+
+  updateConversionRule = async (
+    payload: Payload,
+    hookInputs: HookBundle['onMappingSave']['inputs'],
+    hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    if (hookInputs?.conversionRuleId) {
+      return this.getConversionRule(payload, hookInputs?.conversionRuleId)
+    }
+
+    const valuesChanged = this.conversionRuleValuesUpdated(hookInputs, hookOutputs)
+    if (!valuesChanged) {
+      if (!hookOutputs?.id || !hookOutputs?.name || !hookOutputs?.conversionType || !hookOutputs?.attribution_type) {
+        return {
+          error: {
+            message: `Failed to update conversion rule: Conversion rule values are not valid.`,
+            code: 'CONVERSION_RULE_UPDATE_FAILURE'
+          }
+        }
+      }
+
+      return {
+        successMessage: `No updates detected, using rule: ${hookOutputs?.id}.`,
+        savedData: {
+          id: hookOutputs.id,
+          name: hookOutputs.name,
+          conversionType: hookOutputs.conversionType,
+          attribution_type: hookOutputs.attribution_type
+        }
+      }
+    }
+
+    try {
+      const { data } = await this.request<ConversionRuleCreationResponse>(
+        `${BASE_URL}/conversions/${this.conversionRuleId}`,
+        {
+          method: 'post',
+          searchParams: {
+            account: payload?.adAccountId
+          },
+          headers: {
+            'X-RestLi-Method': 'PARTIAL_UPDATE',
+            'Content-Type': 'application/json'
+          },
+          json: {
+            patch: {
+              $set: {
+                name: hookInputs?.name
+              }
+            }
+          }
+        }
+      )
+
+      return {
+        successMessage: `Conversion rule ${data.id} updated successfully!`,
+        savedData: {
+          id: data.id,
+          name: data.name,
+          conversionType: data.type,
+          attribution_type: hookInputs?.attribution_type || 'UNKNOWN'
+        }
+      }
+    } catch (e) {
+      return {
+        error: {
+          message: `Failed to update conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
+          code: 'CONVERSION_RULE_UPDATE_FAILURE'
         }
       }
     }
@@ -305,5 +386,21 @@ export class LinkedInConversions {
         })
       }
     )
+  }
+
+  private conversionRuleValuesUpdated = (
+    hookInputs: HookBundle['onMappingSave']['inputs'],
+    hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
+  ): boolean => {
+    const allStoredValuesExist =
+      hookInputs !== undefined &&
+      hookOutputs?.name !== undefined &&
+      hookOutputs?.conversionType !== undefined &&
+      hookOutputs?.attribution_type !== undefined
+    const allValuesMatch =
+      hookInputs?.name !== hookOutputs?.name ||
+      hookInputs?.conversionType !== hookOutputs?.conversionType ||
+      hookInputs?.attribution_type !== hookOutputs?.attribution_type
+    return allStoredValuesExist && allValuesMatch
   }
 }

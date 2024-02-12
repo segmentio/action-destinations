@@ -89,6 +89,10 @@ export interface HookBundle {
        * The type of conversion rule.
        */
       conversionType: string
+      /**
+       * The attribution type for the conversion rule.
+       */
+      attribution_type: string
     }
   }
 }
