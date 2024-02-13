@@ -11,6 +11,7 @@ import {
   GET_LIST_ENDPOINT,
   CREATE_LIST_ENDPOINT
 } from './constants'
+import { formatEndpoint } from './functions'
 
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Marketo Static Lists (Actions)',
@@ -65,7 +66,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const folder = createAudienceInput.settings.folder_name
-      const endpoint = createAudienceInput.settings.api_endpoint
+      const endpoint = formatEndpoint(createAudienceInput.settings.api_endpoint)
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
 
@@ -124,7 +125,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const endpoint = getAudienceInput.settings.api_endpoint
+      const endpoint = formatEndpoint(getAudienceInput.settings.api_endpoint)
       const listId = getAudienceInput.externalId
       const statsClient = getAudienceInput?.statsContext?.statsClient
       const statsTags = getAudienceInput?.statsContext?.tags

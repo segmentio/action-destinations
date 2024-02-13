@@ -14,6 +14,12 @@ import {
   MarketoResponse
 } from './constants'
 
+// Keep only the scheme and host from the endpoint
+// Marketo UI shows endpoint with trailing "/rest", which we don't want
+export function formatEndpoint(endpoint: string) {
+  return endpoint.replace('/rest', '')
+}
+
 export async function addToList(
   request: RequestClient,
   settings: Settings,
@@ -22,7 +28,7 @@ export async function addToList(
 ) {
   // Keep only the scheme and host from the endpoint
   // Marketo shows endpoint with trailing "/rest", which we don't want
-  const api_endpoint = settings.api_endpoint.replace('/rest', '')
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
 
   const csvData = 'Email\n' + extractEmails(payloads, '\n')
   const csvSize = Buffer.byteLength(csvData, 'utf8')
