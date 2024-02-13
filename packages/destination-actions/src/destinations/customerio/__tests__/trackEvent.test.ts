@@ -114,11 +114,11 @@ describe('CustomerIO', () => {
         await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
         fail('This test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe("The root value is missing the required field 'name'.")
+        expect(e.message).toBe('The root value is missing the required field \'name\'.')
       }
     })
 
-    it("should not convert timestamp if it's invalid", async () => {
+    it('should not convert timestamp if it\'s invalid', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
@@ -320,6 +320,71 @@ describe('CustomerIO', () => {
           over18: true,
           identification: 'valid',
           birthdate
+        }
+      }
+
+      trackEventService.post(`/customers/${userId}/events`).reply(200, {}, { 'x-customerio-region': 'US' })
+
+      const event = createTestEvent({
+        event: name,
+        userId,
+        properties: data,
+        timestamp
+      })
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          data: {
+            '@path': '$.properties'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should succeed with mapping of preset and Journeys Step Transition event(presets) ', async () => {
+      const settings: Settings = {
+        siteId: '12345',
+        apiKey: 'abcde',
+        accountRegion: AccountRegion.US
+      }
+      const userId = 'abc123'
+      const name = 'Journeys Step Transition Track'
+      const timestamp = dayjs.utc().toISOString()
+      const data = {
+        journey_metadata: {
+          journey_id: 'test-journey-id',
+          journey_name: 'test-journey-name',
+          step_id: 'test-step-id',
+          step_name: 'test-step-name'
+        },
+        journey_context: {
+          appointment_booked: {
+            type: 'track',
+            event: 'Appointment Booked',
+            timestamp: '2021-09-01T00:00:00.000Z',
+            properties: {
+              appointment_id: 'test-appointment-id',
+              appointment_date: '2021-09-01T00:00:00.000Z',
+              appointment_type: 'test-appointment-type'
+            }
+          },
+          appointment_confirmed: {
+            type: 'track',
+            event: 'Appointment Confirmed',
+            timestamp: '2021-09-01T00:00:00.000Z',
+            properties: {
+              appointment_id: 'test-appointment-id',
+              appointment_date: '2021-09-01T00:00:00.000Z',
+              appointment_type: 'test-appointment-type'
+            }
+          }
         }
       }
 
