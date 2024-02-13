@@ -233,8 +233,4 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
-  /**
-   * If true, Segment will batch events before sending to Airship. Limit 100 events per request.
-   */
-  enable_batching?: boolean
 }

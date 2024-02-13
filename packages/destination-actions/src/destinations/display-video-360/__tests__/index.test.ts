@@ -161,10 +161,10 @@ describe('Display Video 360', () => {
       })
     })
 
-    it('should succeed when Destination is flagged as migration', async () => {
+    it('should succeed when the destination instance is flagged as a migration instance', async () => {
       const migrationGetAudienceInput = {
         ...getAudienceInput,
-        settings: { oauth: {} },
+        settings: {}, // Settings for migration instances are set as {} in the migration script.
         externalId: 'iWasHereInTheBeforeTimes'
       }
 

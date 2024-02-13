@@ -1,9 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { SUPPORTED_ID_TYPE } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
+import { LinkedInError } from '../types'
 
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
@@ -235,9 +236,33 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
-      return error
+      throw handleRequestError(error)
     }
   }
+}
+
+function handleRequestError(error: unknown) {
+  const asLinkedInError = error as LinkedInError
+
+  if (!asLinkedInError) {
+    return new IntegrationError('Unknown error', 'UNKNOWN_ERROR', 500)
+  }
+
+  const status = asLinkedInError.response.data.status
+
+  if (status === 401) {
+    return new InvalidAuthenticationError(asLinkedInError.response.data.message, ErrorCodes.INVALID_AUTHENTICATION)
+  }
+
+  if (status === 501) {
+    return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', 501)
+  }
+
+  if (status === 408 || status === 423 || status === 429 || status >= 500) {
+    return new IntegrationError(asLinkedInError.response.data.message, 'RETRYABLE_ERROR', status)
+  }
+
+  return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', status)
 }
 
 function validate(payload: Payload, conversionTime: number) {

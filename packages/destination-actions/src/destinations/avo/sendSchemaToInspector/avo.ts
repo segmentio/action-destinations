@@ -26,7 +26,7 @@ function generateBaseBody(event: Payload, appVersionPropertyName: string | undef
     libVersion: '1.0.0',
     libPlatform: 'Segment',
     messageId: event.messageId,
-    createdAt: event.receivedAt,
+    createdAt: event.createdAt,
     sessionId: '_'
   }
 }

@@ -27,10 +27,13 @@ export const isLegacyDestinationMigration = (
 }
 
 export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
-  const { oauth } = settings
+  if (!settings.oauth) {
+    return {} as OAuth2ClientCredentials
+  }
+
   return {
-    clientId: oauth.clientId,
-    clientSecret: oauth.clientSecret
+    clientId: settings.oauth.clientId,
+    clientSecret: settings.oauth.clientSecret
   } as OAuth2ClientCredentials
 }
 
