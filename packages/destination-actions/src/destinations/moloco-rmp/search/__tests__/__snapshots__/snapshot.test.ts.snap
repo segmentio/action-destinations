@@ -15,7 +15,7 @@ Object {
     "unique_device_id": "TVdeoPEfmlhx4",
   },
   "event_id": "TVdeoPEfmlhx4",
-  "event_type": "HOME",
+  "event_type": "SEARCH",
   "items": Array [
     Object {
       "id": "TVdeoPEfmlhx4",
@@ -44,7 +44,7 @@ Object {
 exports[`Testing snapshot for MolocoRmp's search destination action: required fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "event_type": "HOME",
+  "event_type": "SEARCH",
   "search_query": "TVdeoPEfmlhx4",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
