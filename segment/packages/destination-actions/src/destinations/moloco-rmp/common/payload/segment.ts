@@ -68,9 +68,40 @@ export interface ItemPayload {
 	 */
 	id: string
 	/**
-	 * Price information of the item
+	 * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD"), REQUIRED IF CURRENCY IS GIVEN
 	 */
-	price?: MoneyPayload
+	price?: number
+	/**
+	 * Currency information, REQUIRED IF PRICE IS GIVEN
+	 * Available options are the followings
+	 *   UNKNOWN_CURRENCY: Unknown currency.
+	 *   USD: US Dollar.
+	 *   KRW: Korean Won.
+	 *   JPY: Japanese Yen.
+	 *   EUR: EU Euro.
+	 *   GBP: British Pound.
+	 *   SEK: Swedish Krona.
+	 *   INR: India Rupee.
+	 *   THB: Thailand Baht.
+	 *   IDR: Indonesia Rupiah.
+	 *   CNY: China Yuan.
+	 *   CAD: Canada Dollar.
+	 *   RUB: Russia Ruble.
+	 *   BRL: Brazil Real.
+	 *   SGD: Singapore Dollar.
+	 *   HKD: Hong Kong Dollar.
+	 *   AUD: Autrailia Dollar.
+	 *   PLN: Poland Zloty.
+	 *   DKK: Denmark Krone.
+	 *   VND: Viet Nam Dong.
+	 *   MYR: Malaysia Ringgit.
+	 *   PHP: Philippines Peso.
+	 *   TRY: Turkey Lira.
+	 *   VEF: Venezuela Bolívar.
+	 *
+	 *   Default: UNKNOWN_CURRENCY
+	 */
+	currency?: string
 	/**
 	 * Quantity of the item. Recommended.
 	 */
@@ -88,7 +119,12 @@ export interface ItemPayload {
 // Generalized payload for ../fields/createMoneyInputField
 export interface MoneyPayload {
 	/**
-	 * Currency information. Available options are the followings
+	 * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")
+	 */
+	price: number
+	/**
+	 * Currency information
+	 * Available options are the followings
 	 *   UNKNOWN_CURRENCY: Unknown currency.
 	 *   USD: US Dollar.
 	 *   KRW: Korean Won.
@@ -117,10 +153,6 @@ export interface MoneyPayload {
 	 *   Default: UNKNOWN_CURRENCY
 	 */
 	currency: string
-	/**
-	 * Amount of money. (e.g., 12.34 for $12.34 if currency is "USD")
-	 */
-	amount: number
 }
 
 // Generalized payload for ../fields/createDeviceInputField
