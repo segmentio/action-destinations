@@ -63,7 +63,7 @@ Object {
     "unique_device_id": "A6r#IT*)oBgN#NJ98*^",
   },
   "event_id": "A6r#IT*)oBgN#NJ98*^",
-  "event_type": "HOME",
+  "event_type": "SEARCH",
   "items": Array [
     Object {
       "id": "A6r#IT*)oBgN#NJ98*^",
@@ -92,7 +92,7 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: search action - required fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "event_type": "HOME",
+  "event_type": "SEARCH",
   "search_query": "A6r#IT*)oBgN#NJ98*^",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
