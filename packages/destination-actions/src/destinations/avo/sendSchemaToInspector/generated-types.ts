@@ -16,9 +16,9 @@ export interface Payload {
    */
   messageId: string
   /**
-   * Timestamp of when the event was received
+   * Timestamp of when the event was sent
    */
-  receivedAt: string
+  createdAt: string
   /**
    * Version of the app that sent the event
    */
