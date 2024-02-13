@@ -34,28 +34,18 @@ const action: BrowserActionDefinition<Settings, FS, Payload> = {
     }
   },
   perform: (FS, event) => {
-    if (event.payload.pageName) {
-      FS(
-        'setProperties',
-        {
-          type: 'page',
-          properties: {
-            pageName: event.payload.pageName,
-            ...event.payload.properties
-          }
-        },
-        segmentEventSource
-      )
-    } else if (event.payload.properties) {
-      FS(
-        'setProperties',
-        {
-          type: 'page',
-          properties: event.payload.properties
-        },
-        segmentEventSource
-      )
-    }
+    const properties: object = event.payload.pageName
+      ? { pageName: event.payload.pageName, ...event.payload.properties }
+      : { ...event.payload.properties }
+
+    FS(
+      'setProperties',
+      {
+        type: 'page',
+        properties
+      },
+      segmentEventSource
+    )
   }
 }
 
