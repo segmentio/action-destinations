@@ -47,3 +47,53 @@ Object {
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "decision_track_id": "A6r#IT*)oBgN#NJ98*^",
+  "device": Object {
+    "advertising_id": "A6r#IT*)oBgN#NJ98*^",
+    "ip": "A6r#IT*)oBgN#NJ98*^",
+    "language": "A6r#IT*)oBgN#NJ98*^",
+    "model": "A6r#IT*)oBgN#NJ98*^",
+    "os": "A6R#IT*)OBGN#NJ98*^",
+    "os_version": "A6r#IT*)oBgN#NJ98*^",
+    "ua": "A6r#IT*)oBgN#NJ98*^",
+    "unique_device_id": "A6r#IT*)oBgN#NJ98*^",
+  },
+  "event_id": "A6r#IT*)oBgN#NJ98*^",
+  "event_type": "HOME",
+  "items": Array [
+    Object {
+      "id": "A6r#IT*)oBgN#NJ98*^",
+      "item_group_id": "A6r#IT*)oBgN#NJ98*^",
+      "price": Object {
+        "amount": 73826803122176,
+        "currency": "MXN",
+      },
+      "quantity": 73826803122176,
+      "seller_id": "A6r#IT*)oBgN#NJ98*^",
+    },
+  ],
+  "page_id": "A6r#IT*)oBgN#NJ98*^",
+  "referrer_page_id": "A6r#IT*)oBgN#NJ98*^",
+  "search_query": "A6r#IT*)oBgN#NJ98*^",
+  "session_id": "A6r#IT*)oBgN#NJ98*^",
+  "shipping_charge": Object {
+    "amount": 73826803122176,
+    "currency": "MXN",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "A6r#IT*)oBgN#NJ98*^",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: search action - required fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "event_type": "HOME",
+  "search_query": "A6r#IT*)oBgN#NJ98*^",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
