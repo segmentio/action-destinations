@@ -4,7 +4,7 @@ import { MolocoAPIClient } from '../common/request-client'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const event = new MolocoEvent(EventType.Home, {
+const event = new MolocoEvent(EventType.Search, {
   requireItems: false,
   requireSearchQuery: true,
   requirePageId: false,
