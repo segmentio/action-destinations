@@ -32,9 +32,9 @@ export interface Payload {
   /**
    * The name of the event to be send to Algolia. Defaults to 'Conversion Event'
    */
-  eventName: string
+  eventName?: string
   /**
    * The type of event to send to Algolia. Defaults to 'conversion'
    */
-  eventType: string
+  eventType?: string
 }

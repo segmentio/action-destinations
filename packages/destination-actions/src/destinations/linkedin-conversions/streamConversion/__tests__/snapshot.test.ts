@@ -24,7 +24,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       }
     ]
 
-    eventData.conversionHappenedAt = '1698764171467'
+    eventData.conversionHappenedAt = Date.now() - 20
 
     const event = createTestEvent({
       properties: eventData
@@ -74,7 +74,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       }
     ]
 
-    eventData.conversionHappenedAt = '1698764171467'
+    eventData.conversionHappenedAt = Date.now() - 20
 
     const event = createTestEvent({
       properties: eventData

@@ -23,8 +23,8 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "eventName": ")j)vR5%1AP*epuo8A%R",
-      "eventType": "click",
+      "eventName": "Conversion Event",
+      "eventType": "conversion",
       "index": ")j)vR5%1AP*epuo8A%R",
       "objectIDs": Array [
         ")j)vR5%1AP*epuo8A%R",

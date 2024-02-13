@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, RetryableError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as AddToListPayload } from './addToList/generated-types'
 import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
@@ -14,14 +14,24 @@ import {
   MarketoResponse
 } from './constants'
 
-export async function addToList(request: RequestClient, settings: Settings, payloads: AddToListPayload[]) {
-  const csvData = extractCSV(payloads)
+export async function addToList(
+  request: RequestClient,
+  settings: Settings,
+  payloads: AddToListPayload[],
+  statsContext?: StatsContext
+) {
+  // Keep only the scheme and host from the endpoint
+  // Marketo shows endpoint with trailing "/rest", which we don't want
+  const api_endpoint = settings.api_endpoint.replace('/rest', '')
+
+  const csvData = 'Email\n' + extractEmails(payloads, '\n')
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  const url = settings.api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id)
+  const url = api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id)
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
@@ -32,16 +42,25 @@ export async function addToList(request: RequestClient, settings: Settings, payl
   })
 
   if (!response.data.success) {
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     parseErrorResponse(response.data)
   }
+  statsContext?.statsClient?.incr('addToAudience.success', 1, statsContext?.tags)
   return response.data
 }
 
-export async function removeFromList(request: RequestClient, settings: Settings, payloads: RemoveFromListPayload[]) {
-  const emailsToRemove = extractEmails(payloads)
+export async function removeFromList(
+  request: RequestClient,
+  settings: Settings,
+  payloads: RemoveFromListPayload[],
+  statsContext?: StatsContext
+) {
+  // Keep only the scheme and host from the endpoint
+  // Marketo shows endpoint with trailing "/rest", which we don't want
+  const api_endpoint = settings.api_endpoint.replace('/rest', '')
+  const emailsToRemove = extractEmails(payloads, ',')
 
-  const getLeadsUrl =
-    settings.api_endpoint + GET_LEADS_ENDPOINT.replace('emailsToFilter', encodeURIComponent(emailsToRemove))
+  const getLeadsUrl = api_endpoint + GET_LEADS_ENDPOINT.replace('emailsToFilter', encodeURIComponent(emailsToRemove))
 
   // Get lead ids from Marketo
   const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
@@ -52,14 +71,14 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!getLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
     parseErrorResponse(getLeadsResponse.data)
   }
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
   const deleteLeadsUrl =
-    settings.api_endpoint +
-    REMOVE_USERS_ENDPOINT.replace('listId', payloads[0].external_id).replace('idsToDelete', leadIds)
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', payloads[0].external_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -70,16 +89,11 @@ export async function removeFromList(request: RequestClient, settings: Settings,
   })
 
   if (!deleteLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
     parseErrorResponse(deleteLeadsResponse.data)
   }
-
+  statsContext?.statsClient?.incr('removeFromAudience.success', 1, statsContext?.tags)
   return deleteLeadsResponse.data
-}
-
-function extractCSV(payloads: AddToListPayload[]) {
-  const header = 'Email\n'
-  const csvData = payloads.map((payload) => `${payload.email}`).join('\n')
-  return header + csvData
 }
 
 function createFormData(csvData: string) {
@@ -88,8 +102,11 @@ function createFormData(csvData: string) {
   return formData
 }
 
-function extractEmails(payloads: AddToListPayload[]) {
-  const emails = payloads.map((payload) => `${payload.email}`).join(',')
+function extractEmails(payloads: AddToListPayload[], separator: string) {
+  const emails = payloads
+    .filter((payload) => payload.email !== undefined)
+    .map((payload) => payload.email)
+    .join(separator)
   return emails
 }
 
@@ -99,8 +116,13 @@ function extractLeadIds(leads: MarketoLeads[]) {
 }
 
 function parseErrorResponse(response: MarketoResponse) {
-  if (response.errors[0].code === '601') {
+  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
     throw new IntegrationError(response.errors[0].message, 'INVALID_OAUTH_TOKEN', 401)
+  }
+  if (response.errors[0].code === '1019') {
+    throw new RetryableError(
+      'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+    )
   }
   throw new IntegrationError(response.errors[0].message, 'INVALID_RESPONSE', 400)
 }

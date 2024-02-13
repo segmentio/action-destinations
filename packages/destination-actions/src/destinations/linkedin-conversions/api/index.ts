@@ -1,9 +1,8 @@
-import type { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
+import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
 import { BASE_URL } from '../constants'
 import type {
   ProfileAPIResponse,
   GetAdAccountsAPIResponse,
-  Accounts,
   AccountsErrorInfo,
   GetConversionListAPIResponse,
   Conversions,
@@ -96,22 +95,17 @@ export class LinkedInConversions {
 
   getAdAccounts = async (): Promise<DynamicFieldResponse> => {
     try {
-      const response: Array<Accounts> = []
-      const result = await this.request<GetAdAccountsAPIResponse>(`${BASE_URL}/adAccountUsers`, {
+      const allAdAccountsResponse = await this.request<GetAdAccountsAPIResponse>(`${BASE_URL}/adAccounts`, {
         method: 'GET',
         searchParams: {
-          q: 'authenticatedUser'
+          q: 'search'
         }
       })
 
-      result.data.elements.forEach((item) => {
-        response.push(item)
-      })
-
-      const choices = response?.map((item) => {
+      const choices = allAdAccountsResponse.data.elements.map((item) => {
         return {
-          label: item.user,
-          value: item.account
+          label: item.name,
+          value: `urn:li:sponsoredAccount:${item.id}`
         }
       })
 
@@ -145,14 +139,19 @@ export class LinkedInConversions {
       const response: Array<Conversions> = []
       const result = await this.request<GetConversionListAPIResponse>(`${BASE_URL}/conversions`, {
         method: 'GET',
+        skipResponseCloning: true,
         searchParams: {
           q: 'account',
-          account: adAccountId
+          account: adAccountId,
+          start: 0,
+          count: 100
         }
       })
 
       result.data.elements.forEach((item) => {
-        response.push(item)
+        if (item.enabled && item.conversionMethod === 'CONVERSIONS_API') {
+          response.push(item)
+        }
       })
 
       const choices = response?.map((item) => {
@@ -194,7 +193,7 @@ export class LinkedInConversions {
     try {
       const response: Array<Campaigns> = []
       const result = await this.request<GetCampaignsListAPIResponse>(
-        `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE)))`,
+        `${BASE_URL}/adAccounts/${adAccountId}/adCampaigns?q=search&search=(status:(values:List(ACTIVE,DRAFT)))`,
         {
           method: 'GET'
         }
@@ -242,13 +241,66 @@ export class LinkedInConversions {
     })
   }
 
-  async associateCampignToConversion(payload: Payload): Promise<ModifiedResponse> {
+  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+    if (campaignIds.length === 1) {
+      return this.associateCampignToConversion(campaignIds[0])
+    }
+
+    /**
+     * campaign[0]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaign0>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     * ...
+     * campaign[n]: "(campaign:urn%3Ali%3AsponsoredCampaign%3A<campaignn>,conversion:urn%3Alla%3AllaPartnerConversion%3A<this.conversionRuleId>)"
+     */
+    const campaignConversions = new Map<string, string>(
+      campaignIds.map((campaignId) => {
+        return [
+          campaignId,
+          `(campaign:${encodeURIComponent(`urn:li:sponsoredCampaign:${campaignId}`)},conversion:${encodeURIComponent(
+            `urn:lla:llaPartnerConversion:${this.conversionRuleId})`
+          )}`
+        ]
+      })
+    )
+
+    /**
+     * {
+     *  campaignConversions.get(campaignIds[0]): {
+     *    campaign: `urn:li:sponsoredCampaign:${campaignIds[0]}`,
+     *    conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     *  },
+     * ...
+     * campaignConversions.get(campaignIds[n]): {
+     *   campaign: `urn:li:sponsoredCampaign:${campaignIds[n]}`,
+     *  conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+     * }
+     */
+    const entities = Object.fromEntries(
+      Array.from(campaignConversions, ([id, value]) => [
+        value,
+        {
+          campaign: `urn:li:sponsoredCampaign:${id}`,
+          conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
+        }
+      ])
+    )
+
+    const listString = Array.from(campaignConversions, ([_, value]) => value).join(',')
+
+    return this.request(`${BASE_URL}/campaignConversions?ids=List(${listString})`, {
+      method: 'PUT',
+      json: {
+        entities
+      }
+    })
+  }
+
+  async associateCampignToConversion(campaignId: string): Promise<ModifiedResponse> {
     return this.request(
-      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
+      `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${this.conversionRuleId})`,
       {
         method: 'PUT',
         body: JSON.stringify({
-          campaign: `urn:li:sponsoredCampaign:${payload.campaignId}`,
+          campaign: `urn:li:sponsoredCampaign:${campaignId}`,
           conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`
         })
       }

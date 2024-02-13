@@ -40,7 +40,7 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
   ): Promise<R> {
     const parsedEntries = await Promise.all(
       Object.entries(content).map(async ([key, val]) => {
-        if (val == null) {
+        if (val == null || val === '<nil>') {
           return [key, val]
         }
 

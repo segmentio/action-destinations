@@ -18,7 +18,6 @@ import {
   ios_push_token
 } from './subscription-properties'
 import {
-  InvalidEndpointSelectedThrowableError,
   InvalidSubscriptionStatusError,
   MissingExternalIdsError,
   MissingSubscriptionStatusesError,
@@ -28,8 +27,6 @@ import {
   MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
   MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
 } from '../errors'
-import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
-import { SEGMENT_ENDPOINTS } from '../properties'
 import { timestamp } from '../segment-properties'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
@@ -283,15 +280,11 @@ const action: ActionDefinition<Settings, Payload> = {
     traits,
     timestamp
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`action:sendSubscription`)
-    //Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      statsClient?.incr('invalid_endpoint', 1, tags)
-      throw InvalidEndpointSelectedThrowableError
-    }
+
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload, statsClient, tags)
     // Enriches ExternalId's
@@ -314,25 +307,13 @@ const action: ActionDefinition<Settings, Payload> = {
         // Setting 'integrations.All' to false will ensure that we don't send events
         // to any destinations which is connected to the Segment Profiles space
         All: false
-      }
+      },
+      type: 'identify'
     }
 
     statsClient?.incr('success', 1, tags)
-    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsClient?.incr('tapi_internal', 1, tags)
-      const payload = { ...subscriptionPayload, type: 'identify' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
-    return request(`${selectedSegmentEndpoint}/identify`, {
-      method: 'POST',
-      json: subscriptionPayload,
-      headers: {
-        authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
-      }
-    })
+    statsClient?.incr('tapi_internal', 1, tags)
+    return { batch: [subscriptionPayload] }
   }
 }
 

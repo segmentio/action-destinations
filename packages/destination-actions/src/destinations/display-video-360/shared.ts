@@ -13,14 +13,27 @@ import {
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings, Settings } from './generated-types'
+import { GetAudienceInput } from '@segment/actions-core/destination-kit/execute'
 
 type SettingsWithOauth = Settings & { oauth: OAuth2ClientCredentials }
 
+export const isLegacyDestinationMigration = (
+  getAudienceInput: GetAudienceInput,
+  authSettings: OAuth2ClientCredentials
+): boolean => {
+  const noOAuth = !authSettings.clientId || !authSettings.clientSecret
+  const hasExternalAudienceId = getAudienceInput.externalId !== undefined
+  return noOAuth && hasExternalAudienceId
+}
+
 export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
-  const { oauth } = settings
+  if (!settings.oauth) {
+    return {} as OAuth2ClientCredentials
+  }
+
   return {
-    clientId: oauth.clientId,
-    clientSecret: oauth.clientSecret
+    clientId: settings.oauth.clientId,
+    clientSecret: settings.oauth.clientSecret
   } as OAuth2ClientCredentials
 }
 
@@ -166,6 +179,9 @@ export const createUpdateRequest = (
       updateRequest.ops.push(op)
     })
   })
+
+  // Backed by deletion and suppression features in Segment.
+  updateRequest.process_consent = true
 
   return updateRequest
 }

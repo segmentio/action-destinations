@@ -136,6 +136,16 @@ function validateString(v: unknown, stack: string[] = []) {
   return
 }
 
+function validateAllowedStrings(...allowed: string[]) {
+  return (v: unknown, stack: string[] = []) => {
+    validateString(v, stack)
+    const str = v as string
+    if (!allowed.includes(str.toLowerCase())) {
+      throw new ValidationError(`should be one of ${allowed.join(', ')} but it is ${JSON.stringify(str)}`, stack)
+    }
+  }
+}
+
 function validateBoolean(v: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(v)
   if (type !== 'boolean') {
@@ -283,6 +293,17 @@ directive('@arrayPath', (v, stack) => {
 
 directive('@path', (v, stack) => {
   validateDirectiveOrString(v, stack)
+})
+
+directive('@json', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      value: { required: validateDirectiveOrRaw },
+      mode: { required: validateAllowedStrings('encode', 'decode') }
+    },
+    stack
+  )
 })
 
 directive('@template', (v, stack) => {
