@@ -164,17 +164,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string'
       }
     },
-    testAuthentication: (_, { settings }) => {
-      if (settings.profileListName.toUpperCase() !== settings.profileListName) {
-        return Promise.reject('List Name must be in Uppercase')
-      }
-
-      if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
-        return Promise.resolve('Success')
-      } else {
-        return Promise.reject('Responsys endpoint URL must start with https://')
-      }
-    },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
