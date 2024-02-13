@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return convertPayload(data)
     })
 
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendGroup'])
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchGroup'])
     return { batch: groupPayload }
   }
 }
