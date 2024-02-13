@@ -89,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return convertPayload(data)
     })
 
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchScreen'])
     return { batch: screenPayload }
   }
 }

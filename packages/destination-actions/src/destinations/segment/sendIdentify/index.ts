@@ -87,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return convertPayload(data)
     })
 
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:identifyPayload'])
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:identifyBatchPayload'])
     return { batch: identifyPayload }
   }
 }
