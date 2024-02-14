@@ -97,7 +97,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
     validateCustomTraitsSettings(data.settings)
-    data.payload.map((payload) => validateListMemberPayload(payload.userData))
+    // data.payload.map((payload) => validateListMemberPayload(payload.userData))
+    validateListMemberPayload(data.payload[0].userData)
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames, true)
   }
