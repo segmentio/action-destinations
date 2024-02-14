@@ -1,4 +1,4 @@
-import { Kafka } from 'kafkajs'
+import { Kafka, Mechanism } from 'kafkajs'
 
 import type { ActionDefinition } from '@segment/actions-core'
 
@@ -9,44 +9,26 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send data to a Kafka topic',
   defaultSubscription: 'type = "track"',
-  fields: {
-    event_name: {
-      label: 'Event Name',
-      description: 'The name of the event you want to send to Kafka.',
-      type: 'string',
-      required: true,
-      default: {
-        '@path': '$.event'
-      }
-    },
-    product_id: {
-      label: 'Product ID',
-      description: 'The ID of the product you want to send to Kafka.',
-      type: 'string',
-      required: true,
-      default: {
-        '@path': '$.properties.product_id'
-      }
-    }
-  },
-  // perform: async (request, { payload }) => {
-  perform: async () => {
+  fields: {},
+  perform: async (_request, { settings, payload }) => {
     const kafka = new Kafka({
       clientId: 'segment-actions-kafka-producer',
-      brokers: ['pkc-rgm37.us-west-2.aws.confluent.cloud:9092'],
+      brokers: String(settings.brokers).split(','),
       ssl: true,
       sasl: {
-        mechanism: 'plain', // scram-sha-256 or scram-sha-512
-        username: '123', // Replace here (this will be Settings)
-        password: '456' // Replace here (this will be Settings)
-      }
+        mechanism: settings.saslAuthenticationMechanism,
+        username: settings.username,
+        password: settings.password
+      } as unknown as Mechanism
     })
+
     const producer = kafka.producer()
     await producer.connect()
     await producer.send({
-      topic: 'topic_0',
-      messages: [{ value: 'Hello KafkaJS user!' }]
+      topic: settings.topic,
+      messages: [{ value: JSON.stringify(payload) }]
     })
+
     await producer.disconnect()
   }
 }

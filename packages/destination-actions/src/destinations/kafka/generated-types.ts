@@ -2,7 +2,23 @@
 
 export interface Settings {
   /**
-   * The API key for your Kafka instance.
+   * The brokers for your Kafka instance, in the format of `host:port`, separated by commas.
    */
-  apiKey: string
+  brokers: string
+  /**
+   * The SASL Authentication Mechanism for your Kafka instance.
+   */
+  saslAuthenticationMechanism: string
+  /**
+   * The topic where Segment should send messages to.
+   */
+  topic: string
+  /**
+   * The username for your Kafka instance.
+   */
+  username: string
+  /**
+   * The password for your Kafka instance.
+   */
+  password: string
 }

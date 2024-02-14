@@ -11,10 +11,39 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      apiKey: {
-        label: 'API Key',
-        description: 'The API key for your Kafka instance.',
+      brokers: {
+        label: 'Brokers',
+        description: 'The brokers for your Kafka instance, in the format of `host:port`, separated by commas.',
         type: 'string',
+        required: true
+      },
+      saslAuthenticationMechanism: {
+        label: 'SASL Authentication Mechanism',
+        description: 'The SASL Authentication Mechanism for your Kafka instance.',
+        type: 'string',
+        required: true,
+        choices: [
+          { label: 'Plain', value: 'plain' },
+          { label: 'SCRAM/SHA-256', value: 'scram-sha-256' },
+          { label: 'SCRAM/SHA-512', value: 'scram-sha-512' }
+        ]
+      },
+      topic: {
+        label: 'Topic',
+        description: 'The topic where Segment should send messages to.',
+        type: 'string',
+        required: true
+      },
+      username: {
+        label: 'Username',
+        description: 'The username for your Kafka instance.',
+        type: 'string',
+        required: true
+      },
+      password: {
+        label: 'Password',
+        description: 'The password for your Kafka instance.',
+        type: 'password',
         required: true
       }
     }
@@ -25,11 +54,9 @@ const destination: DestinationDefinition<Settings> = {
     // }
   },
 
-  extendRequest: ({ settings }) => {
+  extendRequest: () => {
     return {
-      headers: {
-        Authorization: `Bearer ${settings.apiKey}`
-      }
+      headers: {}
     }
   },
 
