@@ -9,7 +9,20 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send data to a Kafka topic',
   defaultSubscription: 'type = "track"',
-  fields: {},
+  fields: {
+    messageKey: {
+      label: 'Message Key',
+      description: 'The key for the message (optional)',
+      type: 'string'
+    },
+    payload: {
+      label: 'Payload',
+      description: 'The data to send to Kafka',
+      type: 'object',
+      required: true,
+      default: '@properties'
+    }
+  },
   perform: async (_request, { settings, payload }) => {
     const kafka = new Kafka({
       clientId: 'segment-actions-kafka-producer',
@@ -24,11 +37,20 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const producer = kafka.producer()
     await producer.connect()
-    await producer.send({
+    const structuredPayload = {
       topic: settings.topic,
-      messages: [{ value: JSON.stringify(payload) }]
-    })
+      messages: [] as { key?: string; value: string }[]
+    }
 
+    const message: { key?: string; value: string } = { value: JSON.stringify(payload) }
+
+    if (payload.messageKey) {
+      message.key = String(payload.messageKey)
+    }
+
+    structuredPayload.messages.push(message)
+
+    await producer.send(structuredPayload)
     await producer.disconnect()
   }
 }
