@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
+   * The ID of the person that this mobile device belongs to.
    */
   person_id: string
   /**

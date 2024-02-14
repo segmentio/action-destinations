@@ -10,17 +10,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     person_id: {
       label: 'Person ID',
-      description:
-        'The ID used to uniquely identify a person in Customer.io. Any valid identifier is supported, such as ID, cio_id, email, etc. Anonymous users cannot be suppressed. [Learn more](https://customer.io/docs/identifying-people/#identifiers).',
+      description: 'The ID of the person that this mobile device belongs to.',
       type: 'string',
+      required: true,
       default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.traits.email' }
-        }
-      },
-      required: true
+        '@path': '$.userId'
+      }
     }
   },
 

@@ -28,10 +28,7 @@ describe('CustomerIO', () => {
       it('should work with email', async () => {
         const email = 'foo@bar.com'
         const event = createTestEvent({
-          traits: {
-            email
-          },
-          userId: null
+          userId: email
         })
         const response = await action('unsuppressPerson', {
           event,
