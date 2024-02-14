@@ -124,7 +124,7 @@ export const sendCustomTraits = async (
             type: 'track',
             event: 'Responsys Response Message Received',
             properties: body,
-            anonymousID: '__responsys__API__response__'
+            anonymousId: '__responsys__API__response__'
           })
         }
       )
