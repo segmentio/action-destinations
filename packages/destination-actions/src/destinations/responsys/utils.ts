@@ -41,17 +41,6 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-export const transformDataFieldValues = (settings: Settings): Settings => {
-  if (settings.matchColumnName1 !== '' && settings.matchColumnName1 !== undefined) {
-    settings.matchColumnName1 = `${settings.matchColumnName1}_`
-  }
-
-  if (settings.matchColumnName2 !== '' && settings.matchColumnName2 !== undefined) {
-    settings.matchColumnName2 = `${settings.matchColumnName2}_`
-  }
-  return settings
-}
-
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],

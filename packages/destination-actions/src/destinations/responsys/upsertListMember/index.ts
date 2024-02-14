@@ -78,9 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    // const transformedSettings = transformDataFieldValues(data.settings)
-    // data.payload.map((payload) => validateListMemberPayload(payload.userData))
-    validateListMemberPayload(data.payload[0].userData)
+
     return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
   }
 }
