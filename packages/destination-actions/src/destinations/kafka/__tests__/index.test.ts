@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -10,7 +10,13 @@ describe('Kafka', () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = {}
+      const authData = {
+        brokers: 'localhost:9092',
+        saslAuthenticationMechanism: 'plain',
+        topic: 'test-topic',
+        username: 'username',
+        password: 'password'
+      }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
