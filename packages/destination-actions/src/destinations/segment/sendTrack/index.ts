@@ -20,7 +20,8 @@ import {
   timezone,
   group_id,
   properties,
-  traits
+  traits,
+  enable_batching
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -47,7 +48,8 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone,
     group_id,
     properties,
-    traits
+    traits,
+    enable_batching
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
