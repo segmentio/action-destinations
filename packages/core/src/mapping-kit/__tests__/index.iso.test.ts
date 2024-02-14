@@ -473,6 +473,64 @@ describe('@arrayPath', () => {
   })
 })
 
+describe('@json', () => {
+  test('encode', () => {
+    const output = transform({ neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    expect(output).toStrictEqual({ neat: '"bar"' })
+  })
+
+  test('encode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ neat: '{"bar":"baz"}' })
+  })
+
+  test('encode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: ['bar', 'baz'] }
+    )
+    expect(output).toStrictEqual({ neat: '["bar","baz"]' })
+  })
+
+  test('decode', () => {
+    const output = transform({ neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } }, { foo: '"bar"' })
+    expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('decode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '{"bar":"baz"}' }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz' } })
+  })
+
+  test('decode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '["bar","baz"]' }
+    )
+    expect(output).toStrictEqual({ neat: ['bar', 'baz'] })
+  })
+
+  test('invalid mode', () => {
+    expect(() => {
+      transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    }).toThrowError()
+  })
+
+  test('invalid value', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.bad' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({})
+  })
+})
+
 describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })

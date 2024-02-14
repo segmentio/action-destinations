@@ -160,5 +160,20 @@ describe('Display Video 360', () => {
         externalId: expectedExternalID
       })
     })
+
+    it('should succeed when the destination instance is flagged as a migration instance', async () => {
+      const migrationGetAudienceInput = {
+        ...getAudienceInput,
+        settings: {}, // Settings for migration instances are set as {} in the migration script.
+        externalId: 'iWasHereInTheBeforeTimes'
+      }
+
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      const r = await testDestination.getAudience(migrationGetAudienceInput)
+      expect(r).toEqual({
+        externalId: 'iWasHereInTheBeforeTimes'
+      })
+    })
   })
 })

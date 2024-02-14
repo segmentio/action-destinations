@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * Email (default) or SMS
+   */
+  channel_type?: string
+  /**
+   * A long or short code the app is configured to send from (if using for SMS).
+   */
+  sms_sender?: string
+  /**
    * The identifier assigned in Airship as the Named User
    */
   named_user_id?: string
@@ -22,7 +30,7 @@ export interface Payload {
    */
   channel_object: {
     /**
-     * Email address to register (required)
+     * Email address or mobile number to register (required)
      */
     address: string
     /**
@@ -65,6 +73,10 @@ export interface Payload {
      * If an email channel is suppressed, the reason for its suppression. Email channels with any suppression state set will not have any delivery to them fulfilled. If a more specific reason is not known, use imported. Possible values: spam_complaint, bounce, imported
      */
     suppression_state?: string
+    /**
+     * The date-time when a user gave explicit permission to receive SMS messages.
+     */
+    sms_opted_in?: string
     [k: string]: unknown
   }
 }

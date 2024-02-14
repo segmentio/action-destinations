@@ -1,0 +1,541 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: reportOfflineEvent action - all fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "ncANLMBwQ]L^fN",
+      "event_id": "ncANLMBwQ]L^fN",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {
+        "referrer": "ncANLMBwQ]L^fN",
+        "url": "ncANLMBwQ]L^fN",
+      },
+      "properties": Object {
+        "content_type": "product_group",
+        "contents": Array [
+          Object {
+            "brand": "ncANLMBwQ]L^fN",
+            "content_category": "ncANLMBwQ]L^fN",
+            "content_id": "ncANLMBwQ]L^fN",
+            "content_name": "ncANLMBwQ]L^fN",
+            "price": 16868157612359.68,
+            "quantity": 16868157612359.68,
+          },
+        ],
+        "currency": "SPL",
+        "description": "ncANLMBwQ]L^fN",
+        "order_id": "ncANLMBwQ]L^fN",
+        "query": "ncANLMBwQ]L^fN",
+        "shop_id": "ncANLMBwQ]L^fN",
+        "value": 16868157612359.68,
+      },
+      "test_event_code": "ncANLMBwQ]L^fN",
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "4aa8d801e7341adb0680c77e8a060d196bbe076f4cab73450791150061f267c1",
+        ],
+        "ip": "ncANLMBwQ]L^fN",
+        "lead_id": "ncANLMBwQ]L^fN",
+        "locale": "ncANLMBwQ]L^fN",
+        "phone": Array [
+          "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+        ],
+        "ttclid": "ncANLMBwQ]L^fN",
+        "ttp": "ncANLMBwQ]L^fN",
+        "user_agent": "ncANLMBwQ]L^fN",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "ncANLMBwQ]L^fN",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: reportOfflineEvent action - all fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "ncANLMBwQ]L^fN",
+      "event_id": "ncANLMBwQ]L^fN",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {
+        "referrer": "ncANLMBwQ]L^fN",
+        "url": "ncANLMBwQ]L^fN",
+      },
+      "properties": Object {
+        "content_type": "product_group",
+        "contents": Array [
+          Object {
+            "brand": "ncANLMBwQ]L^fN",
+            "content_category": "ncANLMBwQ]L^fN",
+            "content_id": "ncANLMBwQ]L^fN",
+            "content_name": "ncANLMBwQ]L^fN",
+            "price": 16868157612359.68,
+            "quantity": 16868157612359.68,
+          },
+        ],
+        "currency": "SPL",
+        "description": "ncANLMBwQ]L^fN",
+        "order_id": "ncANLMBwQ]L^fN",
+        "query": "ncANLMBwQ]L^fN",
+        "shop_id": "ncANLMBwQ]L^fN",
+        "value": 16868157612359.68,
+      },
+      "test_event_code": "ncANLMBwQ]L^fN",
+      "user": Object {
+        "email": Array [
+          "4aa8d801e7341adb0680c77e8a060d196bbe076f4cab73450791150061f267c1",
+        ],
+        "external_id": Array [
+          "4aa8d801e7341adb0680c77e8a060d196bbe076f4cab73450791150061f267c1",
+        ],
+        "ip": "ncANLMBwQ]L^fN",
+        "lead_id": "ncANLMBwQ]L^fN",
+        "locale": "ncANLMBwQ]L^fN",
+        "phone": Array [
+          "e6ec7c951f23c74bc97e0b5adb342c4859a51005e9724b0c184914a94e1b2502",
+        ],
+        "ttclid": "ncANLMBwQ]L^fN",
+        "ttp": "ncANLMBwQ]L^fN",
+        "user_agent": "ncANLMBwQ]L^fN",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "ncANLMBwQ]L^fN",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: reportOfflineEvent action - required fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "ncANLMBwQ]L^fN",
+      "event_id": "ncANLMBwQ]L^fN",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "ncANLMBwQ]L^fN",
+        "shop_id": "ncANLMBwQ]L^fN",
+      },
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "4aa8d801e7341adb0680c77e8a060d196bbe076f4cab73450791150061f267c1",
+        ],
+        "lead_id": "ncANLMBwQ]L^fN",
+        "phone": Array [],
+        "ttclid": "ncANLMBwQ]L^fN",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "ncANLMBwQ]L^fN",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: reportOfflineEvent action - required fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "ncANLMBwQ]L^fN",
+      "event_id": "ncANLMBwQ]L^fN",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "ncANLMBwQ]L^fN",
+        "shop_id": "ncANLMBwQ]L^fN",
+      },
+      "user": Object {
+        "email": Array [],
+        "external_id": Array [
+          "4aa8d801e7341adb0680c77e8a060d196bbe076f4cab73450791150061f267c1",
+        ],
+        "lead_id": "ncANLMBwQ]L^fN",
+        "phone": Array [
+          "5cdba0fbbbb18f19a4eb0d83b274c81aebc746dcae87b9e3ad99f3a170a4735b",
+        ],
+        "ttclid": "ncANLMBwQ]L^fN",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "ncANLMBwQ]L^fN",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - all fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {
+        "referrer": "fQ92^RLkQyhJ8TU3nYnh",
+        "url": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+      "properties": Object {
+        "content_type": "product_group",
+        "contents": Array [
+          Object {
+            "brand": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_category": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_id": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_name": "fQ92^RLkQyhJ8TU3nYnh",
+            "price": 80779872997212.16,
+            "quantity": 80779872997212.16,
+          },
+        ],
+        "currency": "FKP",
+        "description": "fQ92^RLkQyhJ8TU3nYnh",
+        "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "query": "fQ92^RLkQyhJ8TU3nYnh",
+        "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "value": 80779872997212.16,
+      },
+      "test_event_code": "fQ92^RLkQyhJ8TU3nYnh",
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+        ],
+        "ip": "fQ92^RLkQyhJ8TU3nYnh",
+        "lead_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "locale": "fQ92^RLkQyhJ8TU3nYnh",
+        "phone": Array [
+          "f337ffab71e9bf94c3cb7811bd7d6d7a3bee15022d27b5726b24224fc24e01a0",
+        ],
+        "ttclid": "fQ92^RLkQyhJ8TU3nYnh",
+        "ttp": "fQ92^RLkQyhJ8TU3nYnh",
+        "user_agent": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - all fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {
+        "referrer": "fQ92^RLkQyhJ8TU3nYnh",
+        "url": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+      "properties": Object {
+        "content_type": "product_group",
+        "contents": Array [
+          Object {
+            "brand": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_category": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_id": "fQ92^RLkQyhJ8TU3nYnh",
+            "content_name": "fQ92^RLkQyhJ8TU3nYnh",
+            "price": 80779872997212.16,
+            "quantity": 80779872997212.16,
+          },
+        ],
+        "currency": "FKP",
+        "description": "fQ92^RLkQyhJ8TU3nYnh",
+        "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "query": "fQ92^RLkQyhJ8TU3nYnh",
+        "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "value": 80779872997212.16,
+      },
+      "test_event_code": "fQ92^RLkQyhJ8TU3nYnh",
+      "user": Object {
+        "email": Array [
+          "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+        ],
+        "external_id": Array [
+          "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+        ],
+        "ip": "fQ92^RLkQyhJ8TU3nYnh",
+        "lead_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "locale": "fQ92^RLkQyhJ8TU3nYnh",
+        "phone": Array [
+          "e6ec7c951f23c74bc97e0b5adb342c4859a51005e9724b0c184914a94e1b2502",
+        ],
+        "ttclid": "fQ92^RLkQyhJ8TU3nYnh",
+        "ttp": "fQ92^RLkQyhJ8TU3nYnh",
+        "user_agent": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - required fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+        ],
+        "lead_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "phone": Array [],
+        "ttclid": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackNonPaymentOfflineConversion action - required fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_id": "fQ92^RLkQyhJ8TU3nYnh",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "shop_id": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+      "user": Object {
+        "email": Array [],
+        "external_id": Array [
+          "bd2c3e18a82a7b6aa1b4fb99a52d0d1abf03dc1fde2e0bfde9d87106162a0cf5",
+        ],
+        "lead_id": "fQ92^RLkQyhJ8TU3nYnh",
+        "phone": Array [
+          "5cdba0fbbbb18f19a4eb0d83b274c81aebc746dcae87b9e3ad99f3a170a4735b",
+        ],
+        "ttclid": "fQ92^RLkQyhJ8TU3nYnh",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "fQ92^RLkQyhJ8TU3nYnh",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - all fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "BkRZ5",
+      "event_id": "BkRZ5",
+      "event_time": 1704721970,
+      "limited_data_use": true,
+      "page": Object {
+        "referrer": "BkRZ5",
+        "url": "BkRZ5",
+      },
+      "properties": Object {
+        "content_type": "product",
+        "contents": Array [
+          Object {
+            "brand": "BkRZ5",
+            "content_category": "BkRZ5",
+            "content_id": "BkRZ5",
+            "content_name": "BkRZ5",
+            "price": -79287355210465.28,
+            "quantity": -79287355210465.28,
+          },
+        ],
+        "currency": "DZD",
+        "description": "BkRZ5",
+        "order_id": "BkRZ5",
+        "query": "BkRZ5",
+        "shop_id": "BkRZ5",
+        "value": -79287355210465.28,
+      },
+      "test_event_code": "BkRZ5",
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+        ],
+        "ip": "BkRZ5",
+        "lead_id": "BkRZ5",
+        "locale": "BkRZ5",
+        "phone": Array [
+          "03dec1b6379a35cbe10edb6ca30cf987b00116202c3825dece1d98c7a0718a09",
+        ],
+        "ttclid": "BkRZ5",
+        "ttp": "BkRZ5",
+        "user_agent": "BkRZ5",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "BkRZ5",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - all fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "BkRZ5",
+      "event_id": "BkRZ5",
+      "event_time": 1704721970,
+      "limited_data_use": true,
+      "page": Object {
+        "referrer": "BkRZ5",
+        "url": "BkRZ5",
+      },
+      "properties": Object {
+        "content_type": "product",
+        "contents": Array [
+          Object {
+            "brand": "BkRZ5",
+            "content_category": "BkRZ5",
+            "content_id": "BkRZ5",
+            "content_name": "BkRZ5",
+            "price": -79287355210465.28,
+            "quantity": -79287355210465.28,
+          },
+        ],
+        "currency": "DZD",
+        "description": "BkRZ5",
+        "order_id": "BkRZ5",
+        "query": "BkRZ5",
+        "shop_id": "BkRZ5",
+        "value": -79287355210465.28,
+      },
+      "test_event_code": "BkRZ5",
+      "user": Object {
+        "email": Array [
+          "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+        ],
+        "external_id": Array [
+          "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+        ],
+        "ip": "BkRZ5",
+        "lead_id": "BkRZ5",
+        "locale": "BkRZ5",
+        "phone": Array [
+          "e6ec7c951f23c74bc97e0b5adb342c4859a51005e9724b0c184914a94e1b2502",
+        ],
+        "ttclid": "BkRZ5",
+        "ttp": "BkRZ5",
+        "user_agent": "BkRZ5",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "BkRZ5",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - required fields with email 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "BkRZ5",
+      "event_id": "BkRZ5",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "BkRZ5",
+        "shop_id": "BkRZ5",
+      },
+      "user": Object {
+        "email": Array [
+          "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+        ],
+        "external_id": Array [
+          "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+        ],
+        "lead_id": "BkRZ5",
+        "phone": Array [],
+        "ttclid": "BkRZ5",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "BkRZ5",
+  "partner_name": "Segment",
+}
+`;
+
+exports[`Testing snapshot for actions-tiktok-offline-conversions destination: trackPaymentOfflineConversion action - required fields with phone 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "event": "BkRZ5",
+      "event_id": "BkRZ5",
+      "event_time": 1704721970,
+      "limited_data_use": false,
+      "page": Object {},
+      "properties": Object {
+        "contents": Array [],
+        "order_id": "BkRZ5",
+        "shop_id": "BkRZ5",
+      },
+      "user": Object {
+        "email": Array [],
+        "external_id": Array [
+          "6888d19c4f09018b86ec3aadede889119878797af81c69f2d34ec02d80f9c29e",
+        ],
+        "lead_id": "BkRZ5",
+        "phone": Array [
+          "5cdba0fbbbb18f19a4eb0d83b274c81aebc746dcae87b9e3ad99f3a170a4735b",
+        ],
+        "ttclid": "BkRZ5",
+      },
+    },
+  ],
+  "event_source": "offline",
+  "event_source_id": "BkRZ5",
+  "partner_name": "Segment",
+}
+`;

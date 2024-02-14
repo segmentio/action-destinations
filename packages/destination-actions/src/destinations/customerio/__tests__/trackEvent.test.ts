@@ -1,7 +1,7 @@
 import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { testRunner } from '../test-helper'
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('trackEvent', () => {
@@ -204,6 +204,71 @@ describe('CustomerIO', () => {
             anonymous_id: event.anonymousId
           },
           timestamp: dayjs.utc(timestamp).unix(),
+          type: 'person'
+        })
+      })
+
+      it.only('should succeed with mapping of preset and Journeys Step Transition event(presets)', async () => {
+        const userId = 'abc123'
+        const name = 'testEvent'
+        const data = {
+          journey_metadata: {
+            journey_id: 'test-journey-id',
+            journey_name: 'test-journey-name',
+            step_id: 'test-step-id',
+            step_name: 'test-step-name'
+          },
+          journey_context: {
+            appointment_booked: {
+              type: 'track',
+              event: 'Appointment Booked',
+              timestamp: '2021-09-01T00:00:00.000Z',
+              properties: {
+                appointment_id: 'test-appointment-id',
+                appointment_date: '2021-09-01T00:00:00.000Z',
+                appointment_type: 'test-appointment-type'
+              }
+            },
+            appointment_confirmed: {
+              type: 'track',
+              event: 'Appointment Confirmed',
+              timestamp: '2021-09-01T00:00:00.000Z',
+              properties: {
+                appointment_id: 'test-appointment-id',
+                appointment_date: '2021-09-01T00:00:00.000Z',
+                appointment_type: 'test-appointment-type'
+              }
+            }
+          }
+        }
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          event: name,
+          userId,
+          properties: data,
+          timestamp
+        })
+        const mapping = {
+          ...getDefaultMappings('trackEvent'),
+          convert_timestamp: false,
+          data: {
+            '@path': '$.properties'
+          }
+        }
+        const response = await action('trackEvent', { event, mapping, settings })
+
+        expect(response).toEqual({
+          action: 'event',
+          id: event.messageId,
+          identifiers: {
+            id: userId
+          },
+          name,
+          attributes: {
+            ...data,
+            anonymous_id: event.anonymousId
+          },
+          timestamp,
           type: 'person'
         })
       })

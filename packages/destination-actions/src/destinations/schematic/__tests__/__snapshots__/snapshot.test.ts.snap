@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-schematic destination: identifyUser action - all fields 1`] = `
+Object {
+  "body": Object {
+    "company": Object {
+      "keys": Object {
+        "testType": "G10lVP",
+      },
+      "name": "G10lVP",
+      "traits": Object {
+        "testType": "G10lVP",
+      },
+    },
+    "keys": Object {
+      "user_id": "G10lVP",
+    },
+    "name": "G10lVP",
+    "traits": Object {
+      "testType": "G10lVP",
+    },
+  },
+  "event_type": "identify",
+}
+`;
+
+exports[`Testing snapshot for actions-schematic destination: identifyUser action - required fields 1`] = `
+Object {
+  "body": Object {
+    "company": Object {},
+    "keys": Object {},
+  },
+  "event_type": "identify",
+}
+`;
+
+exports[`Testing snapshot for actions-schematic destination: trackEvent action - all fields 1`] = `
+Object {
+  "body": Object {
+    "company": Object {
+      "testType": "uvfeUI#M",
+    },
+    "event": "uvfeUI#M",
+    "traits": Object {
+      "testType": "uvfeUI#M",
+    },
+    "user": Object {
+      "user_id": "uvfeUI#M",
+    },
+  },
+  "event_type": "track",
+}
+`;
+
+exports[`Testing snapshot for actions-schematic destination: trackEvent action - required fields 1`] = `
+Object {
+  "body": Object {
+    "event": "uvfeUI#M",
+  },
+  "event_type": "track",
+}
+`;

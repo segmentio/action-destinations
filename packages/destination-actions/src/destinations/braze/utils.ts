@@ -60,10 +60,10 @@ function toBrazeGender(gender: string | null | undefined): string | null | undef
 }
 
 export function sendTrackEvent(request: RequestClient, settings: Settings, payload: TrackEventPayload) {
-  const { braze_id, external_id } = payload
+  const { braze_id, external_id, email } = payload
   const user_alias = getUserAlias(payload.user_alias)
 
-  if (!braze_id && !user_alias && !external_id) {
+  if (!braze_id && !user_alias && !external_id && !email) {
     throw new IntegrationError(
       'One of "external_id" or "user_alias" or "braze_id" is required.',
       'Missing required fields',
@@ -78,6 +78,7 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
         {
           braze_id,
           external_id,
+          email,
           user_alias,
           app_id: settings.app_id,
           name: payload.name,
@@ -92,7 +93,7 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
 
 export function sendBatchedTrackEvent(request: RequestClient, settings: Settings, payloads: TrackEventPayload[]) {
   const payload = payloads.map((payload) => {
-    const { braze_id, external_id } = payload
+    const { braze_id, external_id, email } = payload
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
 
@@ -108,6 +109,7 @@ export function sendBatchedTrackEvent(request: RequestClient, settings: Settings
     return {
       braze_id,
       external_id,
+      email,
       user_alias,
       app_id: settings.app_id,
       name: payload.name,
@@ -127,11 +129,11 @@ export function sendBatchedTrackEvent(request: RequestClient, settings: Settings
 }
 
 export function sendTrackPurchase(request: RequestClient, settings: Settings, payload: TrackPurchasePayload) {
-  const { braze_id, external_id } = payload
+  const { braze_id, external_id, email } = payload
   // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
   const user_alias = getUserAlias(payload.user_alias)
 
-  if (!braze_id && !user_alias && !external_id) {
+  if (!braze_id && !user_alias && !external_id && !email) {
     throw new IntegrationError(
       'One of "external_id" or "user_alias" or "braze_id" is required.',
       'Missing required fields',
@@ -149,6 +151,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
   const base = {
     braze_id,
     external_id,
+    email,
     user_alias,
     app_id: settings.app_id,
     time: toISO8601(payload.time),
@@ -179,7 +182,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
 export function sendBatchedTrackPurchase(request: RequestClient, settings: Settings, payloads: TrackPurchasePayload[]) {
   let payload = payloads
     .map((payload) => {
-      const { braze_id, external_id } = payload
+      const { braze_id, external_id, email } = payload
       // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
       const user_alias = getUserAlias(payload.user_alias)
 
@@ -201,6 +204,7 @@ export function sendBatchedTrackPurchase(request: RequestClient, settings: Setti
         braze_id,
         external_id,
         user_alias,
+        email,
         app_id: settings.app_id,
         time: toISO8601(payload.time),
         _update_existing_only: payload._update_existing_only
@@ -238,14 +242,14 @@ export function sendBatchedTrackPurchase(request: RequestClient, settings: Setti
 }
 
 export function updateUserProfile(request: RequestClient, settings: Settings, payload: UpdateUserProfilePayload) {
-  const { braze_id, external_id } = payload
+  const { braze_id, external_id, email } = payload
 
   // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
   const user_alias = getUserAlias(payload.user_alias)
 
-  if (!braze_id && !user_alias && !external_id) {
+  if (!braze_id && !user_alias && !external_id && !email) {
     throw new IntegrationError(
-      'One of "external_id" or "user_alias" or "braze_id" is required.',
+      'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
       'Missing required fields',
       400
     )
@@ -308,7 +312,7 @@ export function updateBatchedUserProfile(
   payloads: UpdateUserProfilePayload[]
 ) {
   const payload = payloads.map((payload) => {
-    const { braze_id, external_id } = payload
+    const { braze_id, external_id, email } = payload
 
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
@@ -342,7 +346,7 @@ export function updateBatchedUserProfile(
       date_of_first_session: toISO8601(payload.date_of_first_session),
       date_of_last_session: toISO8601(payload.date_of_last_session),
       dob: toDateFormat(payload.dob, 'YYYY-MM-DD'),
-      email: payload.email,
+      email,
       email_subscribe: payload.email_subscribe,
       email_open_tracking_disabled: payload.email_open_tracking_disabled,
       email_click_tracking_disabled: payload.email_click_tracking_disabled,
