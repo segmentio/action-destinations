@@ -113,6 +113,8 @@ type BasePayload = {
   object_id?: string
   object_type_id?: string
   person_id?: string
+  primary?: Identifiers
+  secondary?: Identifiers
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
