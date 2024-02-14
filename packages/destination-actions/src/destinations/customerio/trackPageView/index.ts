@@ -1,16 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { convertAttributeTimestamps, convertValidTimestamp, trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
-
-interface TrackPageViewPayload {
-  name: string
-  type: 'page'
-  timestamp?: string | number
-  data?: Record<string, unknown>
-  // Required for anonymous events
-  anonymous_id?: string
-}
+import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Page View',
@@ -33,6 +24,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.anonymousId'
+      }
+    },
+    event_id: {
+      label: 'Event ID',
+      description:
+        'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
+      type: 'string',
+      default: {
+        '@path': '$.messageId'
       }
     },
     url: {
@@ -67,41 +67,38 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-  perform: (request, { settings, payload }) => {
-    let timestamp: string | number | undefined = payload.timestamp
-    let data = payload.data
 
-    if (payload.convert_timestamp !== false) {
-      if (timestamp) {
-        timestamp = convertValidTimestamp(timestamp)
-      }
+  performBatch: (request, { payload: payloads, settings }) => {
+    return sendBatch(
+      request,
+      payloads.map((payload) => ({ action: 'page', payload: mapPayload(payload), settings, type: 'person' }))
+    )
+  },
 
-      if (data) {
-        data = convertAttributeTimestamps(data)
-      }
-    }
-
-    const body: TrackPageViewPayload = {
-      name: payload.url,
-      type: 'page',
-      data,
-      timestamp
-    }
-
-    let url: string
-
-    if (payload.id) {
-      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.id}/events`
-    } else {
-      url = `${trackApiEndpoint(settings.accountRegion)}/api/v1/events`
-      body.anonymous_id = payload.anonymous_id
-    }
-
-    return request(url, {
-      method: 'post',
-      json: body
-    })
+  perform: (request, { payload, settings }) => {
+    return sendSingle(request, { action: 'page', payload: mapPayload(payload), settings, type: 'person' })
   }
+}
+
+function mapPayload(payload: Payload) {
+  const { id, event_id, url, data, ...rest } = payload
+  const result: {
+    id?: string
+    person_id?: string
+    name: string
+    attributes?: Record<string, unknown>
+  } = {
+    ...rest,
+    person_id: id,
+    name: url,
+    attributes: data
+  }
+
+  if (event_id) {
+    result.id = event_id
+  }
+
+  return result
 }
 
 export default action
