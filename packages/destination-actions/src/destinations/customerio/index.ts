@@ -6,7 +6,6 @@ import deleteDevice from './deleteDevice'
 import deleteRelationship from './deleteRelationship'
 import deleteObject from './deleteObject'
 import deletePerson from './deletePerson'
-import mergePeople from './mergePeople'
 import reportDeliveryEvent from './reportDeliveryEvent'
 import suppressPerson from './suppressPerson'
 import unsuppressPerson from './unsuppressPerson'
@@ -69,7 +68,6 @@ const destination: DestinationDefinition<Settings> = {
     trackPageView,
     trackScreenView,
     createUpdateObject,
-    mergePeople,
     suppressPerson,
     unsuppressPerson,
     reportDeliveryEvent
