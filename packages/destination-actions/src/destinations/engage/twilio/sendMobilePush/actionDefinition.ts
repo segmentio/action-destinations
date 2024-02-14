@@ -234,6 +234,13 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    googleApiVersion: {
+      label: 'Google Api Version',
+      description: 'Controls the notification payload format',
+      type: 'string',
+      required: false,
+      choices: ['legacy', 'v1']
     }
   },
   perform: async (request, data) => {
