@@ -90,6 +90,7 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
       'segmentio:track',
       [{ event: event_name, userId, anonymousId, messageId, timestamp, receivedAt, properties }]
     ])
+    window.dispatchEvent(new CustomEvent(`jimo-segmentio-track:${event_name}`))
   }
 }
 
