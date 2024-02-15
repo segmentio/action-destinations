@@ -194,7 +194,6 @@ exports[`Testing snapshot for actions-moloco-rmp destination: land action - requ
 Object {
   "channel_type": "SITE",
   "event_type": "LAND",
-  "page_id": "LII!0LBdUlNj]8JR%M",
   "referrer_page_id": "LII!0LBdUlNj]8JR%M",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
