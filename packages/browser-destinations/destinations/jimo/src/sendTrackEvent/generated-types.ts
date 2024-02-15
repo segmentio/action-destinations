@@ -10,10 +10,6 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * The reception date of the event.
-   */
-  receivedAt: string
-  /**
    * The name of the event.
    */
   event_name: string

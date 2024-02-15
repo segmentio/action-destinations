@@ -20,7 +20,6 @@ describe('Jimo - Send Track Event', () => {
       payload: {
         messageId: '42',
         timestamp: 'timestamp-as-iso-string',
-        receivedAt: 'receivedAt-as-iso-string',
         userId: 'u1',
         anonymousId: 'a1',
         event_name: 'foo',
