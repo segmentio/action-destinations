@@ -120,7 +120,6 @@ describe('MolocoRmp.purchase', () => {
           sellerId: 'seller123',
           itemGroupId: 'itemGroup123'
         },
-        // revenue: -- missing mapping for a required field
         currency: 'USD',
         revenue: 100
       }
@@ -156,8 +155,10 @@ describe('MolocoRmp.purchase', () => {
             }
           }
         ],
+        // revenue -- missing mapping for a required field
       },
       useDefaultMappings: true,
     })).rejects.toThrowError(AggregateAjvError)
+
   })
 })
