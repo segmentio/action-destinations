@@ -73,24 +73,27 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
-      description: 'This represents consent for ad user data.',
+      description:
+        'This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ]
+      ],
+      default: 'GRANTED'
     },
     ad_personalization_consent_state: {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ]
+      ],
+      default: 'GRANTED'
     }
   },
 
