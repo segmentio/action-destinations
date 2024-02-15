@@ -27,15 +27,6 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    receivedAt: {
-      description: 'The reception date of the event.',
-      label: 'Received at',
-      type: 'string',
-      required: true,
-      default: {
-        '@path': '$.receivedAt'
-      }
-    },
     event_name: {
       description: 'The name of the event.',
       label: 'Event Name',
@@ -74,15 +65,7 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
     }
   },
   perform: (jimo, { payload }) => {
-    const {
-      event_name,
-      userId,
-      anonymousId,
-      timestamp,
-      /* receivedAt, (for some reason, receivedAt is undefined) */
-      messageId,
-      properties
-    } = payload
+    const { event_name, userId, anonymousId, timestamp, messageId, properties } = payload
     const receivedAt = timestamp
 
     jimo.push([
