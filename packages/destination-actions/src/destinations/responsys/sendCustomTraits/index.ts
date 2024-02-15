@@ -59,7 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
     validateCustomTraitsSettings(data.settings)
-    data.payload.map((payload) => validateListMemberPayload(payload.userData))
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }

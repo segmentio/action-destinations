@@ -41,17 +41,6 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-export const transformDataFieldValues = (settings: Settings): Settings => {
-  if (settings.matchColumnName1 !== '' && settings.matchColumnName1 !== undefined) {
-    settings.matchColumnName1 = `${settings.matchColumnName1}_`
-  }
-
-  if (settings.matchColumnName2 !== '' && settings.matchColumnName2 !== undefined) {
-    settings.matchColumnName2 = `${settings.matchColumnName2}_`
-  }
-  return settings
-}
-
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
@@ -124,7 +113,7 @@ export const sendCustomTraits = async (
             type: 'track',
             event: 'Responsys Response Message Received',
             properties: body,
-            anonymousID: '__responsys__API__response__'
+            anonymousId: '__responsys__API__response__'
           })
         }
       )
@@ -162,8 +151,8 @@ export const upsertListMembers = async (
     textValue: settings.textValue,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
-    matchColumnName1: settings.matchColumnName1,
-    matchColumnName2: settings.matchColumnName2 || '',
+    matchColumnName1: settings.matchColumnName1 + '_',
+    matchColumnName2: settings.matchColumnName2 ? settings.matchColumnName2 + '_' : '',
     matchOperator: settings.matchOperator,
     optoutValue: settings.optoutValue,
     rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
