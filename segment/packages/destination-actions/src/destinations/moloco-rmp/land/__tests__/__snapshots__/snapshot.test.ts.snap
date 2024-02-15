@@ -41,7 +41,6 @@ exports[`Testing snapshot for MolocoRmp's land destination action: required fiel
 Object {
   "channel_type": "APP",
   "event_type": "LAND",
-  "page_id": "ziisL0MJUd6S",
   "referrer_page_id": "ziisL0MJUd6S",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }

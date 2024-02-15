@@ -97,7 +97,7 @@ export interface Payload {
    *   such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
    *   Any value is acceptable if it helps identifying unique pages.
    */
-  pageId: string
+  pageId?: string
   /**
    * Similar to referrer in HTTP, this value indicates from which page the user came to the current page.
    */
