@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload, transformDataFieldValues } from '../utils'
+import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -70,16 +70,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    const transformedSettings = transformDataFieldValues(data.settings)
+    // const transformedSettings = transformDataFieldValues(data.settings)
     validateListMemberPayload(data.payload.userData)
 
-    return upsertListMembers(request, [data.payload], transformedSettings, userDataFieldNames)
+    return upsertListMembers(request, [data.payload], data.settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    const transformedSettings = transformDataFieldValues(data.settings)
-    return upsertListMembers(request, data.payload, transformedSettings, userDataFieldNames)
+
+    return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
   }
 }
 

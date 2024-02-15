@@ -1,22 +1,25 @@
-import nock from 'nock'
-import { /*createTestEvent,*/ createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Responsys', () => {
   describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
-
-      // This should match your authentication.fields
-      const authData = {
-        username: 'test001',
-        userPassword: 'test_secret',
-        baseUrl: 'https://your.destination.endpoint'
+    it('should validate settings correctly', async () => {
+      const settings: Settings = {
+        segmentWriteKey: 'testKey',
+        username: 'testUser',
+        userPassword: 'testPassword',
+        baseUrl: 'https://example.com',
+        profileListName: 'TESTLIST',
+        insertOnNoMatch: true,
+        matchColumnName1: 'EMAIL_ADDRESS',
+        updateOnMatch: 'REPLACE_ALL',
+        defaultPermissionStatus: 'OPTOUT'
       }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
   })
 })

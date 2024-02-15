@@ -2,7 +2,12 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import { sendCustomTraits, getUserDataFieldNames, validateCustomTraitsSettings } from '../utils'
+import {
+  sendCustomTraits,
+  getUserDataFieldNames,
+  validateCustomTraitsSettings,
+  validateListMemberPayload
+} from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -48,6 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A unique identifier assigned to a specific audience in Segment.',
       type: 'string',
       required: true,
+      unsafe_hidden: true,
       default: { '@path': '$.context.personas.computation_key' }
     },
     traits_or_props: {
@@ -82,6 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const userDataFieldNames: string[] = getUserDataFieldNames(data as unknown as Data)
 
     validateCustomTraitsSettings(data.settings)
+    validateListMemberPayload(data.payload.userData)
 
     return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames, true)
   },

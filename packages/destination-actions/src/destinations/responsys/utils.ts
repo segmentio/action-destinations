@@ -41,17 +41,6 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-export const transformDataFieldValues = (settings: Settings): Settings => {
-  if (settings.matchColumnName1 !== '' && settings.matchColumnName1 !== undefined) {
-    settings.matchColumnName1 = `${settings.matchColumnName1}_`
-  }
-
-  if (settings.matchColumnName2 !== '' && settings.matchColumnName2 !== undefined) {
-    settings.matchColumnName2 = `${settings.matchColumnName2}_`
-  }
-  return settings
-}
-
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
@@ -60,21 +49,22 @@ export const sendCustomTraits = async (
   isAudience?: boolean
 ) => {
   let userDataArray: unknown[]
-
   if (isAudience) {
-    userDataFieldNames.push('SEGMENT_AUDIENCE_KEY')
     const audiencePayloads = payload as unknown[] as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
+      const traitValue = obj.computation_key
+        ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
+        : {} // Check if computation_key exists, if yes, add it with value true
+      userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
       return {
         ...obj.userData,
-        SEGMENT_AUDIENCE_KEY: String(obj.traits_or_props[obj.computation_key])
+        ...traitValue
       }
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => obj.userData)
   }
-
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
@@ -123,7 +113,7 @@ export const sendCustomTraits = async (
             type: 'track',
             event: 'Responsys Response Message Received',
             properties: body,
-            anonymousID: '__responsys__API__response__'
+            anonymousId: '__responsys__API__response__'
           })
         }
       )
@@ -141,7 +131,6 @@ export const upsertListMembers = async (
   userDataFieldNames: string[]
 ) => {
   const userDataArray = payload.map((obj) => obj.userData)
-
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
@@ -162,8 +151,8 @@ export const upsertListMembers = async (
     textValue: settings.textValue,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
-    matchColumnName1: settings.matchColumnName1,
-    matchColumnName2: settings.matchColumnName2 || '',
+    matchColumnName1: settings.matchColumnName1 + '_',
+    matchColumnName2: settings.matchColumnName2 ? settings.matchColumnName2 + '_' : '',
     matchOperator: settings.matchOperator,
     optoutValue: settings.optoutValue,
     rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
