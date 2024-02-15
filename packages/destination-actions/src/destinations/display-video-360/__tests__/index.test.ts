@@ -28,8 +28,10 @@ const createAudienceInput = {
 const getAudienceInput = {
   settings: {
     oauth: {
-      clientId: '123',
-      clientSecret: '123'
+      refresh_token: 'freshy',
+      access_token: 'tok3n',
+      client_id: '123',
+      client_secret: '123'
     }
   },
   audienceSettings: {
