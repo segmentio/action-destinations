@@ -10,7 +10,7 @@ export interface Settings {
    */
   env: string
   /**
-   * If you send a custom event property on all events that contain the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.
+   * If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.
    */
   appVersionPropertyName?: string
 }
