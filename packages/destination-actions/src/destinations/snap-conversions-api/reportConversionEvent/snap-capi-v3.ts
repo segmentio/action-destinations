@@ -8,6 +8,7 @@ import {
   hash,
   hashEmailSafe,
   isNullOrUndefined,
+  splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined
 } from './utils'
@@ -62,10 +63,9 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           brands: products.map((product) => product.brand ?? ''),
           num_items: products.length
         }
-      : // FIXME: Need to parse these into arrays or comma-separated lists
-        {
-          content_ids: payload.item_ids,
-          content_category: payload.item_category,
+      : {
+          content_ids: splitListValueToArray(payload.item_ids ?? ''),
+          content_category: splitListValueToArray(payload.item_category ?? ''),
           brands: payload.brands,
           num_items: payload.number_items
         }

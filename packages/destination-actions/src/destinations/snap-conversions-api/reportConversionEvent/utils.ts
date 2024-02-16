@@ -65,3 +65,16 @@ export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
 
   return undefined
 }
+
+export const splitListValueToArray = (input: string): readonly string[] | undefined => {
+  // Default to comma seperated values unless semi-colons are present
+  const separator = input.includes(';') ? ';' : ','
+
+  // split on the separator, remove whitespace and remove any empty values.
+  const result = input
+    .split(separator)
+    .map((x) => x.trim())
+    .filter((x) => x != '')
+
+  return result.length > 0 ? result : undefined
+}
