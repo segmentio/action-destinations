@@ -9,23 +9,17 @@ export interface Payload {
    * Key-value pairs associated with a company (e.g. organization_id: 123456)
    */
   company_keys?: {
-    /**
-     * Segment groupId
-     */
-    groupId?: string
-    /**
-     * Organization ID
-     */
-    organization_id?: string
+    [k: string]: unknown
   }
   /**
    * Key-value pairs associated with a user (e.g. email: example@example.com)
    */
   user_keys?: {
     /**
-     * Segment userId
+     * Your unique ID for your user
      */
-    userId?: string
+    user_id?: string
+    [k: string]: unknown
   }
   /**
    * Additional properties to send with event

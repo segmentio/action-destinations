@@ -5,11 +5,12 @@ import { BASE_URL } from '../../constants'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
+const currentTimestamp = Date.now()
 
 const event = createTestEvent({
   event: 'Example Event',
   type: 'track',
-  timestamp: `${Date.now()}`,
+  timestamp: currentTimestamp.toString(),
   context: {
     traits: {
       email: 'testing@testing.com',
@@ -45,41 +46,18 @@ const payload = {
 
 describe('LinkedinConversions.streamConversion', () => {
   it('should successfully send the event', async () => {
-    const associateCampignToConversion = {
-      campaign: 'urn:li:sponsoredCampaign:123456`',
+    const associateCampignToConversion = JSON.stringify({
+      campaign: 'urn:li:sponsoredCampaign:56789',
       conversion: 'urn:lla:llaPartnerConversion:789123'
-    }
-
-    const streamConversionEvent = {
-      conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
-      conversionHappenedAt: Date.now(),
-      user: {
-        userIds: [
-          {
-            idType: 'SHA256_EMAIL',
-            idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
-          },
-          {
-            idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-            idValue: 'df5gf5-gh6t7-ph4j7h-fgf6n1'
-          }
-        ],
-        userInfo: {
-          firstName: 'mike',
-          lastName: 'smith',
-          title: 'software engineer',
-          companyName: 'microsoft',
-          countryCode: 'US'
-        }
-      }
-    }
+    })
 
     nock(
       `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId[0]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`
     )
-      .post(/.*/, associateCampignToConversion)
+      .put(/.*/, associateCampignToConversion)
       .reply(204)
-    nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
+
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
 
     await expect(
       testDestination.testAction('streamConversion', {
@@ -106,51 +84,31 @@ describe('LinkedinConversions.streamConversion', () => {
   })
 
   it('should bulk associate campaigns and successfully send the event when multiple campaigns are selected', async () => {
-    const multipleCampaigns = payload.campaignId.concat('56789')
-
-    const streamConversionEvent = {
-      conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
-      conversionHappenedAt: Date.now(),
-      user: {
-        userIds: [
-          {
-            idType: 'SHA256_EMAIL',
-            idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
-          },
-          {
-            idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-            idValue: 'df5gf5-gh6t7-ph4j7h-fgf6n1'
-          }
-        ],
-        userInfo: {
-          firstName: 'mike',
-          lastName: 'smith',
-          title: 'software engineer',
-          companyName: 'microsoft',
-          countryCode: 'US'
-        }
-      }
-    }
+    const multipleCampaigns = payload.campaignId.concat('12345')
 
     nock(`${BASE_URL}`)
-      .post(
-        '/campaignConversions?ids=List((campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[0]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}),(campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[1]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}))'
+      .put(
+        `/campaignConversions?ids=List((campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[0]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}),(campaign:urn%3Ali%3AsponsoredCampaign%3A${multipleCampaigns[1]},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId}))`
       )
       .reply(200)
-    nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
+
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
 
     await testDestination.testAction('streamConversion', {
       event,
       settings,
       mapping: {
         adAccountId: payload.adAccountId,
-        user: {
-          '@path': '$.context.traits.user'
+        userInfo: {
+          firstName: { '@path': '$.context.traits.user.userInfo.firstName' },
+          lastName: { '@path': '$.context.traits.user.userInfo.lastName' },
+          title: { '@path': '$.context.traits.user.userInfo.title' },
+          companyName: { '@path': '$.context.traits.user.userInfo.companyName' },
+          countryCode: { '@path': '$.context.traits.user.userInfo.countryCode' }
         },
+        userIds: { '@path': '$.context.traits.user.userIds' },
         campaignId: multipleCampaigns,
-        conversionHappenedAt: {
-          '@path': '$.timestamp'
-        },
+        conversionHappenedAt: currentTimestamp.toString(),
         onMappingSave: {
           inputs: {},
           outputs: {
@@ -280,43 +238,20 @@ describe('LinkedinConversions.dynamicField', () => {
 
 describe('LinkedinConversions.timestamp', () => {
   it('should convert a human readable date to a unix timestamp', async () => {
-    event.timestamp = new Date().toISOString()
+    event.timestamp = currentTimestamp.toString()
 
     const associateCampignToConversion = {
-      campaign: 'urn:li:sponsoredCampaign:123456`',
+      campaign: 'urn:li:sponsoredCampaign:56789',
       conversion: 'urn:lla:llaPartnerConversion:789123'
-    }
-
-    const streamConversionEvent = {
-      conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
-      conversionHappenedAt: 1698840732125,
-      user: {
-        userIds: [
-          {
-            idType: 'SHA256_EMAIL',
-            idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
-          },
-          {
-            idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-            idValue: 'df5gf5-gh6t7-ph4j7h-fgf6n1'
-          }
-        ],
-        userInfo: {
-          firstName: 'mike',
-          lastName: 'smith',
-          title: 'software engineer',
-          companyName: 'microsoft',
-          countryCode: 'US'
-        }
-      }
     }
 
     nock(
       `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`
     )
-      .post(/.*/, associateCampignToConversion)
+      .put(/.*/, associateCampignToConversion)
       .reply(204)
-    nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
+
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
 
     await expect(
       testDestination.testAction('streamConversion', {
@@ -343,43 +278,19 @@ describe('LinkedinConversions.timestamp', () => {
   })
 
   it('should convert a string unix timestamp to a number', async () => {
-    event.timestamp = Date.now().toString()
+    event.timestamp = currentTimestamp.toString()
 
     const associateCampignToConversion = {
-      campaign: 'urn:li:sponsoredCampaign:123456`',
+      campaign: 'urn:li:sponsoredCampaign:56789',
       conversion: 'urn:lla:llaPartnerConversion:789123'
-    }
-
-    const streamConversionEvent = {
-      conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
-      conversionHappenedAt: 1698840732125,
-      user: {
-        userIds: [
-          {
-            idType: 'SHA256_EMAIL',
-            idValue: 'bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1'
-          },
-          {
-            idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-            idValue: 'df5gf5-gh6t7-ph4j7h-fgf6n1'
-          }
-        ],
-        userInfo: {
-          firstName: 'mike',
-          lastName: 'smith',
-          title: 'software engineer',
-          companyName: 'microsoft',
-          countryCode: 'US'
-        }
-      }
     }
 
     nock(
       `${BASE_URL}/campaignConversions/(campaign:urn%3Ali%3AsponsoredCampaign%3A${payload.campaignId},conversion:urn%3Alla%3AllaPartnerConversion%3A${payload.conversionId})`
     )
-      .post(/.*/, associateCampignToConversion)
+      .put(/.*/, associateCampignToConversion)
       .reply(204)
-    nock(`${BASE_URL}/conversionEvents`).post(/.*/, streamConversionEvent).reply(201)
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
 
     await expect(
       testDestination.testAction('streamConversion', {
