@@ -5,10 +5,9 @@ export interface Payload {
    * The ID of the Static List that users will be synced to.
    */
   external_id: string
-  /**
-   * The user's email address to send to Marketo.
-   */
-  email?: string
+  email?: {
+    [k: string]: unknown
+  }
   /**
    * Enable batching of requests.
    */

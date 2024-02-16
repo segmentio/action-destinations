@@ -30,14 +30,19 @@ export async function addToList(
   // Marketo shows endpoint with trailing "/rest", which we don't want
   const api_endpoint = formatEndpoint(settings.api_endpoint)
 
-  const csvData = 'Email\n' + extractEmails(payloads, '\n')
+  const csvData = formatData(payloads)
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
     statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  const url = api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id)
+  const url =
+    api_endpoint +
+    BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id).replace(
+      'fieldToLookup',
+      payloads[0].lookup_field
+    )
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
@@ -108,10 +113,22 @@ function createFormData(csvData: string) {
   return formData
 }
 
+function formatData(payloads: AddToListPayload[]) {
+  if (payloads.length === 0) {
+    return ''
+  }
+
+  const allKeys = [...new Set(payloads.flatMap((payload) => Object.keys(payload.data)))]
+  const header = allKeys.join(',')
+  const csvData = payloads.map((payload) => allKeys.map((key) => payload.data[key] || '').join(',')).join('\n')
+
+  return `${header}\n${csvData}`
+}
+
 function extractEmails(payloads: AddToListPayload[], separator: string) {
   const emails = payloads
-    .filter((payload) => payload.email !== undefined)
-    .map((payload) => payload.email)
+    .filter((payload) => payload.data.email !== undefined)
+    .map((payload) => payload.data.email)
     .join(separator)
   return emails
 }

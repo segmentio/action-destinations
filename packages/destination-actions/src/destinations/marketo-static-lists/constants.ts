@@ -6,7 +6,7 @@ const OAUTH_ENDPOINT = 'identity/oauth/token'
 export const GET_FOLDER_ENDPOINT = `/rest/asset/${API_VERSION}/folder/byName.json?name=folderName`
 export const CREATE_LIST_ENDPOINT = `/rest/asset/${API_VERSION}/staticLists.json?folder=folderId&name=listName`
 export const GET_LIST_ENDPOINT = `/rest/asset/${API_VERSION}/staticList/listId.json`
-export const BULK_IMPORT_ENDPOINT = `/bulk/${API_VERSION}/leads.json?format=csv&listId=externalId`
+export const BULK_IMPORT_ENDPOINT = `/bulk/${API_VERSION}/leads.json?format=csv&listId=externalId&lookupField=fieldToLookup`
 export const GET_LEADS_ENDPOINT = `/rest/${API_VERSION}/leads.json?filterType=email&filterValues=emailsToFilter`
 export const REMOVE_USERS_ENDPOINT = `/rest/${API_VERSION}/lists/listId/leads.json?id=idsToDelete`
 
