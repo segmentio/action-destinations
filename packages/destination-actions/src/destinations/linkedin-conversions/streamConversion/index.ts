@@ -94,12 +94,11 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { payload, hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
 
-        console.log('hookOutputs', hookOutputs)
-        if (hookOutputs?.onMappingSave?.outputs?.id) {
+        if (hookOutputs?.onMappingSave?.outputs) {
           return await linkedIn.updateConversionRule(
             payload,
             hookInputs,
-            hookOutputs as HookBundle['onMappingSave']['outputs']
+            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
         }
 

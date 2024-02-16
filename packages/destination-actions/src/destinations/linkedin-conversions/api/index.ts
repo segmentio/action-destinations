@@ -9,7 +9,8 @@ import type {
   GetCampaignsListAPIResponse,
   Campaigns,
   ConversionRuleCreationResponse,
-  GetConversionRuleResponse
+  GetConversionRuleResponse,
+  ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
 export class LinkedInConversions {
@@ -105,8 +106,17 @@ export class LinkedInConversions {
   updateConversionRule = async (
     payload: Payload,
     hookInputs: HookBundle['onMappingSave']['inputs'],
-    hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
+    hookOutputs: HookBundle['onMappingSave']['outputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    if (!hookOutputs) {
+      return {
+        error: {
+          message: `Failed to update conversion rule: No existing rule to update.`,
+          code: 'CONVERSION_RULE_UPDATE_FAILURE'
+        }
+      }
+    }
+
     if (hookInputs?.conversionRuleId) {
       return this.getConversionRule(payload, hookInputs?.conversionRuleId)
     }
@@ -123,7 +133,7 @@ export class LinkedInConversions {
       }
 
       return {
-        successMessage: `No updates detected, using rule: ${hookOutputs?.id}.`,
+        successMessage: `No updates detected, using rule: ${hookOutputs.id}.`,
         savedData: {
           id: hookOutputs.id,
           name: hookOutputs.name,
@@ -134,38 +144,41 @@ export class LinkedInConversions {
     }
 
     try {
-      const { data } = await this.request<ConversionRuleCreationResponse>(
-        `${BASE_URL}/conversions/${this.conversionRuleId}`,
-        {
-          method: 'post',
-          searchParams: {
-            account: payload?.adAccountId
-          },
-          headers: {
-            'X-RestLi-Method': 'PARTIAL_UPDATE',
-            'Content-Type': 'application/json'
-          },
-          json: {
-            patch: {
-              $set: {
-                name: hookInputs?.name
-              }
+      await this.request<ConversionRuleUpdateResponse>(`${BASE_URL}/conversions/${hookOutputs.id}`, {
+        method: 'post',
+        searchParams: {
+          account: payload?.adAccountId
+        },
+        headers: {
+          'X-RestLi-Method': 'PARTIAL_UPDATE',
+          'Content-Type': 'application/json'
+        },
+        json: {
+          patch: {
+            $set: {
+              name: hookInputs?.name
             }
           }
         }
-      )
+      })
 
       return {
-        successMessage: `Conversion rule ${data.id} updated successfully!`,
+        successMessage: `Conversion rule ${hookOutputs.id} updated successfully!`,
         savedData: {
-          id: data.id,
-          name: data.name,
-          conversionType: data.type,
-          attribution_type: hookInputs?.attribution_type || 'UNKNOWN'
+          id: hookOutputs.id,
+          name: hookInputs?.name || hookOutputs.name,
+          conversionType: hookInputs?.conversionType || hookOutputs.conversionType,
+          attribution_type: hookInputs?.attribution_type || hookOutputs.attribution_type
         }
       }
     } catch (e) {
       return {
+        savedData: {
+          id: hookOutputs.id,
+          name: hookOutputs.name,
+          conversionType: hookOutputs.conversionType,
+          attribution_type: hookOutputs.attribution_type
+        },
         error: {
           message: `Failed to update conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
           code: 'CONVERSION_RULE_UPDATE_FAILURE'
