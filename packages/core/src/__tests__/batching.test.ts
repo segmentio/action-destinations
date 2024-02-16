@@ -219,7 +219,6 @@ describe('Batching', () => {
     })
 
     const promise = destination.onBatch([unsubscribedEvent, invalidEvent], basicBatchSettings)
-
     // The promise resolves because invalid events are ignored by the batch handler until we can get per-item responses hooked up
     await expect(promise).resolves.toMatchInlineSnapshot(`
             Array [
