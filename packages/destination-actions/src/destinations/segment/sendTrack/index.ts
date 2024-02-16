@@ -56,34 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const trackPayload: Object = {
-      userId: payload?.user_id,
-      anonymousId: payload?.anonymous_id,
-      timestamp: payload?.timestamp,
-      event: payload?.event_name,
-      context: {
-        traits: {
-          ...payload?.traits
-        },
-        app: payload?.application,
-        campaign: payload?.campaign_parameters,
-        device: payload?.device,
-        ip: payload?.ip_address,
-        locale: payload?.locale,
-        location: payload?.location,
-        network: payload?.network,
-        os: payload?.operating_system,
-        page: payload?.page,
-        screen: payload?.screen,
-        userAgent: payload?.user_agent,
-        timezone: payload?.timezone,
-        groupId: payload?.group_id
-      },
-      properties: {
-        ...payload?.properties
-      },
-      type: 'track'
-    }
+    const trackPayload: Object = convertPayload(payload)
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendTrack'])
     return { batch: [trackPayload] }

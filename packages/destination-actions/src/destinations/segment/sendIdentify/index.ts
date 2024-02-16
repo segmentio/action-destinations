@@ -53,32 +53,8 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const identifyPayload = {
-      userId: payload?.user_id,
-      anonymousId: payload?.anonymous_id,
-      timestamp: payload?.timestamp,
-      context: {
-        app: payload?.application,
-        campaign: payload?.campaign_parameters,
-        device: payload?.device,
-        ip: payload?.ip_address,
-        locale: payload?.locale,
-        location: payload?.location,
-        network: payload?.network,
-        os: payload?.operating_system,
-        page: payload?.page,
-        screen: payload?.screen,
-        userAgent: payload?.user_agent,
-        timezone: payload?.timezone,
-        groupId: payload?.group_id
-      },
-      traits: {
-        ...payload?.traits
-      },
-      type: 'identify'
-    }
-
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:identifyPayload'])
+    const identifyPayload = convertPayload(payload)
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendIdentify'])
     return { batch: [identifyPayload] }
   },
   performBatch: (_request, { payload, statsContext }) => {
