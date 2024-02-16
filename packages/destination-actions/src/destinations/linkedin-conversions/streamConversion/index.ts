@@ -83,11 +83,26 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
           required: true
+        },
+        attribution_type: {
+          label: 'Attribution Type',
+          description: 'The attribution type for the conversion rule.',
+          type: 'string',
+          required: true
         }
       },
-      performHook: async (request, { payload, hookInputs }) => {
+      performHook: async (request, { payload, hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
-        return await linkedIn.createConversionRule(payload, hookInputs)
+
+        if (hookOutputs?.onMappingSave?.outputs) {
+          return await linkedIn.updateConversionRule(
+            payload.adAccountId,
+            hookInputs,
+            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+          )
+        }
+
+        return await linkedIn.createConversionRule(payload.adAccountId, hookInputs)
       }
     }
   },
