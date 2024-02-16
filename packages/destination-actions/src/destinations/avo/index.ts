@@ -28,7 +28,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       appVersionPropertyName: {
-        label: 'App Version property',
+        label: 'App Version Property',
         description:
           'If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.',
         type: 'string',
