@@ -114,11 +114,11 @@ describe('CustomerIO', () => {
         await testDestination.testAction('trackEvent', { event, settings, useDefaultMappings: true })
         fail('This test should have thrown an error')
       } catch (e) {
-        expect(e.message).toBe("The root value is missing the required field 'name'.")
+        expect(e.message).toBe('The root value is missing the required field \'name\'.')
       }
     })
 
-    it("should not convert timestamp if it's invalid", async () => {
+    it('should not convert timestamp if it\'s invalid', async () => {
       const settings: Settings = {
         siteId: '12345',
         apiKey: 'abcde',
