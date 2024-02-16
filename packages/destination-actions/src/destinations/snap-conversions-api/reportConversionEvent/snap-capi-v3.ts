@@ -3,6 +3,7 @@ import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
   box,
+  emptyObjectToUndefined,
   emptyToUndefined,
   hash,
   hashEmailSafe,
@@ -82,7 +83,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         event_name: payload.event_type,
         event_source_url: payload.page_url,
         event_time: Date.parse(payload.timestamp),
-        user_data: {
+        user_data: emptyObjectToUndefined({
           client_ip_address: payload.ip_address,
           client_user_agent: payload.user_agent,
           em: box(email),
@@ -91,8 +92,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           ph: box(phone_number),
           sc_click_id: payload.click_id,
           sc_cookie1: payload.uuid_c1
-        },
-        custom_data: {
+        }),
+        custom_data: emptyObjectToUndefined({
           brands,
           content_category,
           content_ids,
@@ -102,7 +103,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
           value: payload.price
-        },
+        }),
 
         action_source,
 
