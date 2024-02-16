@@ -44,6 +44,10 @@ export const getAuthSettings = (settings: SettingsWithOauth): DV360AuthCredentia
 // Client_id and secret belong to the application.
 // Given the short expiration time of access tokens, we need to refresh them periodically.
 export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
+  if (!settings.refresh_token) {
+    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
     method: 'POST',
     body: new URLSearchParams({
