@@ -29,19 +29,16 @@ export class LinkedInConversions {
   }
 
   getConversionRule = async (
-    payload: Payload,
+    adAccount: string,
     conversionRuleId: string
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     try {
-      const { data } = await this.request<GetConversionRuleResponse>(
-        `${BASE_URL}/conversions/${this.conversionRuleId}`,
-        {
-          method: 'get',
-          searchParams: {
-            account: payload?.adAccountId
-          }
+      const { data } = await this.request<GetConversionRuleResponse>(`${BASE_URL}/conversions/${conversionRuleId}`, {
+        method: 'get',
+        searchParams: {
+          account: adAccount
         }
-      )
+      })
 
       return {
         successMessage: `Using existing Conversion Rule: ${conversionRuleId} `,
@@ -63,11 +60,11 @@ export class LinkedInConversions {
   }
 
   createConversionRule = async (
-    payload: Payload,
+    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(payload, hookInputs?.conversionRuleId)
+      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
     }
 
     try {
@@ -75,7 +72,7 @@ export class LinkedInConversions {
         method: 'post',
         json: {
           name: hookInputs?.name,
-          account: payload?.adAccountId,
+          account: adAccount,
           conversionMethod: 'CONVERSIONS_API',
           postClickAttributionWindowSize: 30,
           viewThroughAttributionWindowSize: 7,
@@ -104,7 +101,7 @@ export class LinkedInConversions {
   }
 
   updateConversionRule = async (
-    payload: Payload,
+    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs'],
     hookOutputs: HookBundle['onMappingSave']['outputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
@@ -118,7 +115,7 @@ export class LinkedInConversions {
     }
 
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(payload, hookInputs?.conversionRuleId)
+      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
     }
 
     const valuesChanged = this.conversionRuleValuesUpdated(hookInputs, hookOutputs)
@@ -147,7 +144,7 @@ export class LinkedInConversions {
       await this.request<ConversionRuleUpdateResponse>(`${BASE_URL}/conversions/${hookOutputs.id}`, {
         method: 'post',
         searchParams: {
-          account: payload?.adAccountId
+          account: adAccount
         },
         headers: {
           'X-RestLi-Method': 'PARTIAL_UPDATE',
@@ -155,9 +152,7 @@ export class LinkedInConversions {
         },
         json: {
           patch: {
-            $set: {
-              name: hookInputs?.name
-            }
+            $set: valuesChanged
           }
         }
       })
@@ -404,16 +399,21 @@ export class LinkedInConversions {
   private conversionRuleValuesUpdated = (
     hookInputs: HookBundle['onMappingSave']['inputs'],
     hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
-  ): boolean => {
-    const allStoredValuesExist =
-      hookInputs !== undefined &&
-      hookOutputs?.name !== undefined &&
-      hookOutputs?.conversionType !== undefined &&
-      hookOutputs?.attribution_type !== undefined
-    const allValuesMatch =
-      hookInputs?.name !== hookOutputs?.name ||
-      hookInputs?.conversionType !== hookOutputs?.conversionType ||
-      hookInputs?.attribution_type !== hookOutputs?.attribution_type
-    return allStoredValuesExist && allValuesMatch
+  ): Record<string, string> => {
+    const valuesChanged: Record<string, string> = {}
+
+    if (hookInputs?.name && hookInputs?.name !== hookOutputs?.name) {
+      valuesChanged.name = hookInputs?.name
+    }
+
+    if (hookInputs?.conversionType && hookInputs?.conversionType !== hookOutputs?.conversionType) {
+      valuesChanged.conversionType = hookInputs?.conversionType
+    }
+
+    if (hookInputs?.attribution_type && hookInputs?.attribution_type !== hookOutputs?.attribution_type) {
+      valuesChanged.attributionType = hookInputs?.attribution_type
+    }
+
+    return valuesChanged
   }
 }

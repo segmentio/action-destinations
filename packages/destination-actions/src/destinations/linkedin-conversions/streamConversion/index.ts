@@ -96,13 +96,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
         if (hookOutputs?.onMappingSave?.outputs) {
           return await linkedIn.updateConversionRule(
-            payload,
+            payload.adAccountId,
             hookInputs,
             hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
         }
 
-        return await linkedIn.createConversionRule(payload, hookInputs)
+        return await linkedIn.createConversionRule(payload.adAccountId, hookInputs)
       }
     }
   },
