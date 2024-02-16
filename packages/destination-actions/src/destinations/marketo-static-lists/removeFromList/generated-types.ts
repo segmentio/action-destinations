@@ -5,9 +5,14 @@ export interface Payload {
    * The ID of the Static List that users will be synced to.
    */
   external_id: string
-  email?: {
-    [k: string]: unknown
-  }
+  /**
+   * The lead field to use for deduplication and filtering. This field must be apart of the lead's info fields.
+   */
+  lookup_field: string
+  /**
+   * The value cooresponding to the lookup field.
+   */
+  field_value: string
   /**
    * Enable batching of requests.
    */

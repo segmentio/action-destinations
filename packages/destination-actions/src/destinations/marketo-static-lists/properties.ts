@@ -10,10 +10,24 @@ export const external_id: InputField = {
   unsafe_hidden: true,
   required: true
 }
+export const field_value: InputField = {
+  label: 'Field Value',
+  description: 'The value cooresponding to the lookup field.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.email' },
+      then: { '@path': '$.context.traits.email' },
+      else: { '@path': '$.properties.email' }
+    }
+  },
+  unsafe_hidden: true,
+  required: true
+}
 
 export const lookup_field: InputField = {
   label: 'Lookup Field',
-  description: `Field to use for deduplication. This field must be apart of the lead's info fields.`,
+  description: `The lead field to use for deduplication and filtering. This field must be apart of the lead's info fields.`,
   type: 'string',
   choices: [
     { label: 'Email', value: 'email' },
