@@ -49,6 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     try {
+      if (payload.url == 'http://mock-url.com/webhooks') {
+        return Promise.resolve({ status: 200, body: 'OK' })
+      }
       return request(payload.url, {
         method: payload.method as RequestMethod,
         headers: payload.headers as Record<string, string>,
@@ -62,6 +65,9 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
+    if (url == 'http://mock-url.com/webhooks') {
+      return Promise.resolve({ status: 200, body: 'OK' })
+    }
     try {
       return request(url, {
         method: method as RequestMethod,
