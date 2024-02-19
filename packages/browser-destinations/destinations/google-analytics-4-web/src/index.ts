@@ -87,7 +87,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       multiple: true
     },
     cookiePath: {
-      description: `Specifies the subpath used to store the analytics cookie.`,
+      description: `Specifies the subpath used to store the analytics cookie. We recommend to add a forward slash, / , in the first field as it is the Default Value for GA4.`,
       label: 'Cookie Path',
       type: 'string',
       multiple: true
