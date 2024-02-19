@@ -137,7 +137,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'denied'
+      default: undefined
     },
     adPersonalizationConsentState: {
       description:
@@ -148,7 +148,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'denied'
+      default: undefined
     },
     waitTimeToUpdateConsentStage: {
       description:
@@ -173,13 +173,24 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.gtag('js', new Date())
     if (settings.enableConsentMode) {
-      gtag('consent', 'default', {
+      const consent: {
+        ad_storage: ConsentParamsArg
+        analytics_storage: ConsentParamsArg
+        wait_for_update: number | undefined
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {
         ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
         analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg,
-        ad_user_data: settings.adUserDataConsentState as ConsentParamsArg,
-        ad_personalization: settings.adPersonalizationConsentState as ConsentParamsArg,
         wait_for_update: settings.waitTimeToUpdateConsentStage
-      })
+      }
+      if (settings.adUserDataConsentState) {
+        consent.ad_user_data = settings.adUserDataConsentState as ConsentParamsArg
+      }
+      if (settings.adPersonalizationConsentState) {
+        consent.ad_personalization = settings.adPersonalizationConsentState as ConsentParamsArg
+      }
+      gtag('consent', 'default', consent)
     }
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)

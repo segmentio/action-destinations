@@ -43,7 +43,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'denied'
+      default: undefined
     },
     ad_personalization_consent_state: {
       description:
@@ -54,7 +54,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'denied'
+      default: undefined
     },
     campaign_content: {
       description:
@@ -126,12 +126,22 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
   },
   perform: (gtag, { payload, settings }) => {
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'update', {
+      const consentParams: {
+        ad_storage: ConsentParamsArg
+        analytics_storage: ConsentParamsArg
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
-        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg,
-        ad_user_data: payload.ad_user_data_consent_state as ConsentParamsArg,
-        ad_personalization: payload.ad_personalization_consent_state as ConsentParamsArg
-      })
+        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_user_data_consent_state) {
+        consentParams.ad_user_data = payload.ad_user_data_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_personalization_consent_state) {
+        consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
+      }
+      window.gtag('consent', 'update', consentParams)
     }
     type ConfigType = { [key: string]: unknown }
 
