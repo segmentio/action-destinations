@@ -80,8 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ],
-      default: 'GRANTED'
+      ]
     },
     ad_personalization_consent_state: {
       label: 'Ad Personalization Consent State',
@@ -92,8 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ],
-      default: 'GRANTED'
+      ]
     }
   },
 
@@ -119,13 +117,23 @@ const action: ActionDefinition<Settings, Payload> = {
       callStartDateTime: convertTimestamp(payload.call_timestamp),
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       conversionValue: payload.value,
-      currencyCode: payload.currency,
-      consent: {
-        adUserData: payload.ad_user_data_consent_state,
-        adPersonalization: payload.ad_personalization_consent_state
+      currencyCode: payload.currency
+    }
+
+    // Add Consent Signals 'adUserData' if it is defined
+    if (payload.ad_user_data_consent_state) {
+      request_object['consent'] = {
+        adUserData: payload.ad_user_data_consent_state
       }
     }
 
+    // Add Consent Signals 'adPersonalization' if it is defined
+    if (payload.ad_personalization_consent_state) {
+      request_object['consent'] = {
+        ...request_object['consent'],
+        adPersonalization: payload.ad_personalization_consent_state
+      }
+    }
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)

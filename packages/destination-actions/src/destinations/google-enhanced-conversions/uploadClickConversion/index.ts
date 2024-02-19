@@ -200,8 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ],
-      default: 'GRANTED'
+      ]
     },
     ad_personalization_consent_state: {
       label: 'Ad Personalization Consent State',
@@ -212,8 +211,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
-      ],
-      default: 'GRANTED'
+      ]
     }
   },
 
@@ -260,9 +258,19 @@ const action: ActionDefinition<Settings, Payload> = {
         localTransactionCost: payload.local_cost,
         items: cartItems
       },
-      userIdentifiers: [],
-      consent: {
-        adUserData: payload.ad_user_data_consent_state,
+      userIdentifiers: []
+    }
+    // Add Consent Signals 'adUserData' if it is defined
+    if (payload.ad_user_data_consent_state) {
+      request_object['consent'] = {
+        adUserData: payload.ad_user_data_consent_state
+      }
+    }
+
+    // Add Consent Signals 'adPersonalization' if it is defined
+    if (payload.ad_personalization_consent_state) {
+      request_object['consent'] = {
+        ...request_object['consent'],
         adPersonalization: payload.ad_personalization_consent_state
       }
     }
