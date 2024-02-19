@@ -26,7 +26,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       default: {
         '@path': '$.traits'
       },
-      readOnly: true
+      readOnly: false
     }
   },
   perform: (pendo, event) => {
