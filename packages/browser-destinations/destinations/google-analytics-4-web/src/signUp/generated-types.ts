@@ -21,4 +21,8 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag
+   */
+  send_to?: boolean
 }

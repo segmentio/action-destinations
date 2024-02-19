@@ -12,6 +12,9 @@ const subscriptions: Subscription[] = [
       name: {
         '@path': '$.event'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       params: {
         '@path': '$.properties.params'
       }
@@ -42,7 +45,34 @@ describe('GoogleAnalytics4Web.customEvent', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 customEvent Event', async () => {
+  test('GA4 customEvent Event when send_to is false', async () => {
+    const context = new Context({
+      event: 'Custom Event',
+      type: 'track',
+      properties: {
+        send_to: false,
+        params: [
+          {
+            paramOne: 'test123',
+            paramTwo: 'test123',
+            paramThree: 123
+          }
+        ]
+      }
+    })
+    await customEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('Custom_Event'),
+      expect.objectContaining({
+        send_to: 'default',
+        ...[{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }]
+      })
+    )
+  })
+
+  test('GA4 customEvent Event when send_to is undefined', async () => {
     const context = new Context({
       event: 'Custom Event',
       type: 'track',
@@ -61,7 +91,37 @@ describe('GoogleAnalytics4Web.customEvent', () => {
     expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('Custom_Event'),
-      expect.objectContaining([{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }])
+      expect.objectContaining({
+        send_to: 'default',
+        ...[{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }]
+      })
+    )
+  })
+
+  test('GA4 customEvent Event when send_to is true', async () => {
+    const context = new Context({
+      event: 'Custom Event',
+      type: 'track',
+      properties: {
+        params: [
+          {
+            paramOne: 'test123',
+            paramTwo: 'test123',
+            paramThree: 123
+          }
+        ],
+        send_to: true
+      }
+    })
+    await customEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('Custom_Event'),
+      expect.objectContaining({
+        send_to: settings.measurementID,
+        ...[{ paramOne: 'test123', paramThree: 123, paramTwo: 'test123' }]
+      })
     )
   })
 })
