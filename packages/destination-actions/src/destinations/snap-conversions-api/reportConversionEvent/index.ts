@@ -28,11 +28,22 @@ import {
   page_url,
   sign_up_method,
   formatPayload,
+  COUNTRY_ISO_3166_CODES,
   CURRENCY_ISO_4217_CODES,
   conversionType,
   device_model,
   os_version,
-  click_id
+  click_id,
+  first_name,
+  middle_name,
+  last_name,
+  city,
+  state,
+  zip,
+  dob_month,
+  dob_day,
+  country,
+  region
 } from '../snap-capi-properties'
 
 const CONVERSION_EVENT_URL = 'https://tr.snapchat.com/v2/conversion'
@@ -69,13 +80,39 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method: sign_up_method,
     os_version: os_version,
     device_model: device_model,
-    click_id: click_id
+    click_id: click_id,
+    first_name: first_name,
+    middle_name: middle_name,
+    last_name: last_name,
+    city: city,
+    state: state,
+    zip: zip,
+    dob_month: dob_month,
+    dob_day: dob_day,
+    country: country,
+    region: region
   },
   perform: (request, data) => {
     if (data.payload.currency && !CURRENCY_ISO_4217_CODES.has(data.payload.currency.toUpperCase())) {
       throw new IntegrationError(
         `${data.payload.currency} is not a valid currency code.`,
         'Misconfigured required field',
+        400
+      )
+    }
+
+    if (data.payload.country && !COUNTRY_ISO_3166_CODES.has(data.payload.country)) {
+      throw new IntegrationError(
+        `${data.payload.country} is not a valid country code. It must be provided as a two letter ISO 3166 alpha-2 country code.`,
+        'Misconfigured optional field',
+        400
+      )
+    }
+
+    if (data.payload.country === 'US' && data.payload.region && data.payload.region.length !== 2) {
+      throw new IntegrationError(
+        `${data.payload.region} is not a valid region code. Given that country is US, region should be a two letter State code.`,
+        'Misconfigured optional field',
         400
       )
     }

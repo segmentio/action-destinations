@@ -126,4 +126,44 @@ export interface Payload {
    * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
    */
   click_id?: string
+  /**
+   * First name of the converted user.
+   */
+  first_name?: string
+  /**
+   * Middle name of the converted user.
+   */
+  middle_name?: string
+  /**
+   * Last name of the converted user.
+   */
+  last_name?: string
+  /**
+   * City associated with the conversion.
+   */
+  city?: string
+  /**
+   * State or region associated with the conversion.
+   */
+  state?: string
+  /**
+   * Zip or postal code associated with the conversion.
+   */
+  zip?: string
+  /**
+   * Birth month of the converted user.
+   */
+  dob_month?: string
+  /**
+   * Day of the month that the converted user was born.
+   */
+  dob_day?: string
+  /**
+   * Country associated with the conversion. Must be provided as a two letter [ISO 3166 alpha-2 country code](https://www.iso.org/obp/ui/#search).
+   */
+  country?: string
+  /**
+   * State or region associated with the conversion. If the country is `US`, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.
+   */
+  region?: string
 }

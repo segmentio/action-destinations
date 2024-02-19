@@ -67,6 +67,258 @@ export const CURRENCY_ISO_4217_CODES = new Set([
   'XOF'
 ])
 
+export const COUNTRY_ISO_3166_CODES = new Set([
+  'AD',
+  'AE',
+  'AF',
+  'AG',
+  'AI',
+  'AL',
+  'AM',
+  'AO',
+  'AQ',
+  'AR',
+  'AS',
+  'AT',
+  'AU',
+  'AW',
+  'AX',
+  'AZ',
+  'BA',
+  'BB',
+  'BD',
+  'BE',
+  'BF',
+  'BG',
+  'BH',
+  'BI',
+  'BJ',
+  'BL',
+  'BM',
+  'BN',
+  'BO',
+  'BQ',
+  'BR',
+  'BS',
+  'BT',
+  'BV',
+  'BW',
+  'BY',
+  'BZ',
+  'CA',
+  'CC',
+  'CD',
+  'CF',
+  'CG',
+  'CH',
+  'CI',
+  'CK',
+  'CL',
+  'CM',
+  'CN',
+  'CO',
+  'CR',
+  'CU',
+  'CV',
+  'CW',
+  'CX',
+  'CY',
+  'CZ',
+  'DE',
+  'DJ',
+  'DK',
+  'DM',
+  'DO',
+  'DZ',
+  'EC',
+  'EE',
+  'EG',
+  'EH',
+  'ER',
+  'ES',
+  'ET',
+  'FI',
+  'FJ',
+  'FK',
+  'FM',
+  'FO',
+  'FR',
+  'GA',
+  'GB',
+  'GD',
+  'GE',
+  'GF',
+  'GG',
+  'GH',
+  'GI',
+  'GL',
+  'GM',
+  'GN',
+  'GP',
+  'GQ',
+  'GR',
+  'GS',
+  'GT',
+  'GU',
+  'GW',
+  'GY',
+  'HK',
+  'HM',
+  'HN',
+  'HR',
+  'HT',
+  'HU',
+  'ID',
+  'IE',
+  'IL',
+  'IM',
+  'IN',
+  'IO',
+  'IQ',
+  'IR',
+  'IS',
+  'IT',
+  'JE',
+  'JM',
+  'JO',
+  'JP',
+  'KE',
+  'KG',
+  'KH',
+  'KI',
+  'KM',
+  'KN',
+  'KP',
+  'KR',
+  'KW',
+  'KY',
+  'KZ',
+  'LA',
+  'LB',
+  'LC',
+  'LI',
+  'LK',
+  'LR',
+  'LS',
+  'LT',
+  'LU',
+  'LV',
+  'LY',
+  'MA',
+  'MC',
+  'MD',
+  'ME',
+  'MF',
+  'MG',
+  'MH',
+  'MK',
+  'ML',
+  'MM',
+  'MN',
+  'MO',
+  'MP',
+  'MQ',
+  'MR',
+  'MS',
+  'MT',
+  'MU',
+  'MV',
+  'MW',
+  'MX',
+  'MY',
+  'MZ',
+  'NA',
+  'NC',
+  'NE',
+  'NF',
+  'NG',
+  'NI',
+  'NL',
+  'NO',
+  'NP',
+  'NR',
+  'NU',
+  'NZ',
+  'OM',
+  'PA',
+  'PE',
+  'PF',
+  'PG',
+  'PH',
+  'PK',
+  'PL',
+  'PM',
+  'PN',
+  'PR',
+  'PS',
+  'PT',
+  'PW',
+  'PY',
+  'QA',
+  'RE',
+  'RO',
+  'RS',
+  'RU',
+  'RW',
+  'SA',
+  'SB',
+  'SC',
+  'SD',
+  'SE',
+  'SG',
+  'SH',
+  'SI',
+  'SJ',
+  'SK',
+  'SL',
+  'SM',
+  'SN',
+  'SO',
+  'SR',
+  'SS',
+  'ST',
+  'SV',
+  'SX',
+  'SY',
+  'SZ',
+  'TC',
+  'TD',
+  'TF',
+  'TG',
+  'TH',
+  'TJ',
+  'TK',
+  'TL',
+  'TM',
+  'TN',
+  'TO',
+  'TR',
+  'TT',
+  'TV',
+  'TW',
+  'TZ',
+  'UA',
+  'UG',
+  'UM',
+  'US',
+  'UY',
+  'UZ',
+  'VA',
+  'VC',
+  'VE',
+  'VG',
+  'VI',
+  'VN',
+  'VU',
+  'WF',
+  'WS',
+  'YE',
+  'YT',
+  'ZA',
+  'ZM',
+  'ZW'
+])
+
 export const products: InputField = {
   label: 'Products',
   description:
@@ -360,6 +612,117 @@ export const click_id: InputField = {
   }
 }
 
+export const first_name: InputField = {
+  label: 'First name',
+  description: 'First name of the converted user.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.first_name' },
+      then: { '@path': '$.context.traits.first_name' },
+      else: { '@path': '$.properties.first_name' }
+    }
+  }
+}
+
+export const middle_name: InputField = {
+  label: 'Middle name',
+  description: 'Middle name of the converted user.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.middle_name' },
+      then: { '@path': '$.context.traits.middle_name' },
+      else: { '@path': '$.properties.middle_name' }
+    }
+  }
+}
+
+export const last_name: InputField = {
+  label: 'Last name',
+  description: 'Last name of the converted user.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.last_name' },
+      then: { '@path': '$.context.traits.last_name' },
+      else: { '@path': '$.properties.last_name' }
+    }
+  }
+}
+
+export const city: InputField = {
+  label: 'City',
+  description: 'City associated with the conversion.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.city' },
+      then: { '@path': '$.context.traits.address.city' },
+      else: { '@path': '$.properties.address.city' }
+    }
+  }
+}
+
+export const state: InputField = {
+  label: 'State',
+  description: 'State or region associated with the conversion.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.state' },
+      then: { '@path': '$.context.traits.address.state' },
+      else: { '@path': '$.properties.address.state' }
+    }
+  }
+}
+
+export const zip: InputField = {
+  label: 'Zip',
+  description: 'Zip or postal code associated with the conversion.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.postalCode' },
+      then: { '@path': '$.context.traits.address.postalCode' },
+      else: { '@path': '$.properties.address.postalCode' }
+    }
+  }
+}
+
+export const dob_month: InputField = {
+  label: 'Birth Month',
+  description: 'Birth month of the converted user.',
+  type: 'string'
+}
+
+export const dob_day: InputField = {
+  label: 'Birth Day',
+  description: 'Day of the month that the converted user was born.',
+  type: 'string'
+}
+
+export const country: InputField = {
+  label: 'Country',
+  description:
+    'Country associated with the conversion. Must be provided as a two letter [ISO 3166 alpha-2 country code](https://www.iso.org/obp/ui/#search).',
+  type: 'string'
+}
+
+export const region: InputField = {
+  label: 'Region',
+  description:
+    'State or region associated with the conversion. If the country is `US`, provide a two letter State code (`CA`, `WA`), otherwise provide the full region name.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.address.region' },
+      then: { '@path': '$.context.traits.address.region' },
+      else: { '@path': '$.properties.address.region' }
+    }
+  }
+}
+
 //Check to see what ids need to be passed depending on the event_conversion_type
 export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
   if (event_conversion_type === 'MOBILE_APP') {
@@ -407,7 +770,7 @@ const transformProperty = (property: string, items: Array<Record<string, string 
     .join(';')
 
 export const formatPayload = (payload: Payload): Object => {
-  //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
+  //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#data-hygiene
   if (payload.email) {
     //Removes all leading and trailing whitespace and converts all characters to lowercase.
     payload.email = payload.email.replace(/\s/g, '').toLowerCase()
@@ -421,6 +784,11 @@ export const formatPayload = (payload: Payload): Object => {
   if (payload.mobile_ad_id) {
     //Converts all characters to lowercase
     payload.mobile_ad_id = payload.mobile_ad_id.toLowerCase()
+  }
+
+  if (payload.idfv) {
+    //Converts all characters to lowercase
+    payload.idfv = payload.idfv.toLowerCase()
   }
 
   let item_ids: string | undefined = undefined
@@ -462,6 +830,16 @@ export const formatPayload = (payload: Payload): Object => {
     sign_up_method: payload?.sign_up_method,
     device_model: payload?.device_model,
     os_version: payload?.os_version,
-    click_id: payload?.click_id
+    click_id: payload?.click_id,
+    hashed_first_name_sha: hash(payload?.first_name),
+    hashed_middle_name_sha: hash(payload?.middle_name),
+    hashed_last_name_sha: hash(payload?.last_name),
+    hashed_city_sha: hash(payload?.city),
+    hashed_state_sha: hash(payload?.state),
+    hashed_zip: hash(payload?.zip),
+    hashed_dob_month: hash(payload?.dob_month),
+    hashed_dob_day: hash(payload?.dob_day),
+    country: payload?.country,
+    region: payload?.region
   }
 }
