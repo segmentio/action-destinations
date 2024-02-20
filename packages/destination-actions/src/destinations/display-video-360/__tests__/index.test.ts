@@ -14,6 +14,8 @@ const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 const createAudienceInput = {
   settings: {
     oauth: {
+      refresh_token: 'freshy',
+      access_token: 'tok3n',
       clientId: '123',
       clientSecret: '123'
     }
