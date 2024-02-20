@@ -16,6 +16,12 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Optional attributes for the relationship between the object and the user. When updating an relationship, attributes are added or updated, not removed.
+   */
+  relationship_attributes?: {
+    [k: string]: unknown
+  }
+  /**
    * The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
   user_id?: string
