@@ -76,7 +76,7 @@ describe('Batching', () => {
     const destination = new Destination(basicBatch)
     const res = await destination.onBatch(events, basicBatchSettings)
     expect(res[0]).toMatchObject({
-      output: 'successfully processed batch of events'
+      output: 'Action Executed'
     })
   })
 
@@ -223,7 +223,7 @@ describe('Batching', () => {
     await expect(promise).resolves.toMatchInlineSnapshot(`
             Array [
               Object {
-                "output": "successfully processed batch of events",
+                "output": "Action Executed",
               },
             ]
           `)
