@@ -2,6 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { authentication } from './common/auth'
 
+import home from './home'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -16,7 +18,9 @@ const destination: DestinationDefinition<Settings> = {
   //   // implement this function and should remove it completely.
   // },
 
-  actions: {}
+  actions: {
+    home
+  }
 }
 
 export default destination

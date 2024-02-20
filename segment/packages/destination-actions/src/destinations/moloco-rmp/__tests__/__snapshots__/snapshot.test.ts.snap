@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-moloco-rmp destination: home action - all fields 1`] = `
+Object {
+  "channel_type": "APP",
+  "decision_track_id": "EJ(KD9p9^^%i",
+  "device": Object {
+    "advertising_id": "EJ(KD9p9^^%i",
+    "ip": "EJ(KD9p9^^%i",
+    "language": "EJ(KD9p9^^%i",
+    "model": "EJ(KD9p9^^%i",
+    "os": "EJ(KD9P9^^%I",
+    "os_version": "EJ(KD9p9^^%i",
+    "ua": "EJ(KD9p9^^%i",
+    "unique_device_id": "EJ(KD9p9^^%i",
+  },
+  "event_id": "EJ(KD9p9^^%i",
+  "event_type": "HOME",
+  "items": Array [
+    Object {
+      "id": "EJ(KD9p9^^%i",
+      "item_group_id": "EJ(KD9p9^^%i",
+      "price": Object {
+        "amount": -5160557346816,
+        "currency": "LKR",
+      },
+      "quantity": -5160557346816,
+      "seller_id": "EJ(KD9p9^^%i",
+    },
+  ],
+  "page_id": "EJ(KD9p9^^%i",
+  "referrer_page_id": "EJ(KD9p9^^%i",
+  "revenue": Object {
+    "amount": -5160557346816,
+    "currency": "LKR",
+  },
+  "session_id": "EJ(KD9p9^^%i",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "EJ(KD9p9^^%i",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: home action - required fields 1`] = `
+Object {
+  "channel_type": "APP",
+  "event_type": "HOME",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
