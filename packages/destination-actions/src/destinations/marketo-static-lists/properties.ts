@@ -27,7 +27,7 @@ export const field_value: InputField = {
 
 export const lookup_field: InputField = {
   label: 'Lookup Field',
-  description: `The lead field to use for deduplication and filtering. This field must be apart of the lead's info fields.`,
+  description: `The lead field to use for deduplication and filtering. This field must be apart of the field(s) you are sending to Marketo.`,
   type: 'string',
   choices: [
     { label: 'Email', value: 'email' },
