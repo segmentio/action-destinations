@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-function snakeCase(str) {
+function snakeCase(str: string) {
   const result = str.replace(/([A-Z])/g, '$1')
   return result.split(' ').join('_').toLowerCase()
 }
