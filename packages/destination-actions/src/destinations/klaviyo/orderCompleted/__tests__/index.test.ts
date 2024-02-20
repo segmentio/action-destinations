@@ -102,7 +102,7 @@ describe('Order Completed', () => {
     const products = [
       {
         value: 10,
-        properties: { key: 'value' }
+        properties: { productKey: 'productValue' }
       }
     ]
 
@@ -129,7 +129,7 @@ describe('Order Completed', () => {
     nock(`${API_URL}`).post(`/events/`, requestBodyForEvent).reply(202, {})
 
     const requestBodyForProduct = createRequestBody(
-      products[0].properties,
+      { ...products[0].properties, ...properties },
       products[0].value,
       'Ordered Product',
       profile
