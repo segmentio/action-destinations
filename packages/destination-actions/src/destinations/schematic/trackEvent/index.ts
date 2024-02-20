@@ -2,6 +2,11 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+function snakeCase(str: string) {
+  const result = str.replace(/([A-Z])/g, '$1')
+  return result.split(' ').join('_').toLowerCase()
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send track events to Schematic',
@@ -9,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     event_name: {
       label: 'Event name',
-      description: 'Name of event',
+      description: 'Name of event (this will be snake cased in request)',
       type: 'string',
       required: true,
       default: { '@path': '$.event' }
@@ -46,7 +51,19 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional properties to send with event',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      required: false
+      required: false,
+      additionalProperties: true,
+      properties: {
+        raw_event_name: {
+          label: 'Raw Event Name',
+          description: 'Event name',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        raw_event_name: { '@path': '$.event' }
+      }
     }
   },
 
@@ -59,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
           company: payload.company_keys,
           user: payload.user_keys,
           traits: payload.traits,
-          event: payload.event_name
+          event: snakeCase(payload.event_name)
         },
         event_type: 'track'
       }
