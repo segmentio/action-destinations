@@ -80,6 +80,12 @@ export interface EventPayload {
 	 */
 	pageId?: string
 	/**
+	 * Tokens that can be used to identify a page. Alternative to page_id with a lower priority.
+	 */
+	pageIdentifierTokens?: {
+		[k: string]: unknown
+	}
+	/**
 	 * Similar to referer in HTTP, this value indicates from which page the user came to the current page.
 	 */
 	referrerPageId?: string

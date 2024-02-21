@@ -243,7 +243,6 @@ exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - 
 Object {
   "channel_type": "APP",
   "event_type": "PAGE_VIEW",
-  "page_id": "sFKH^2",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;

@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const event = new MolocoEvent(EventType.AddToWhishlist, {
   requireItems: true,
-  requirePageId: false,
+  requirePageIdentification: false,
   requireShippingCharge: false,
 })
 
