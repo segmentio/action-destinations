@@ -161,9 +161,9 @@ export class LinkedInConversions {
         successMessage: `Conversion rule ${hookOutputs.id} updated successfully!`,
         savedData: {
           id: hookOutputs.id,
-          name: hookInputs?.name || hookOutputs.name,
-          conversionType: hookInputs?.conversionType || hookOutputs.conversionType,
-          attribution_type: hookInputs?.attribution_type || hookOutputs.attribution_type
+          name: valuesChanged?.name || hookOutputs.name,
+          conversionType: valuesChanged?.conversionType || hookOutputs.conversionType,
+          attribution_type: valuesChanged?.attribution_type || hookOutputs.attribution_type
         }
       }
     } catch (e) {
@@ -407,7 +407,7 @@ export class LinkedInConversions {
     }
 
     if (hookInputs?.conversionType && hookInputs?.conversionType !== hookOutputs?.conversionType) {
-      valuesChanged.conversionType = hookInputs?.conversionType
+      valuesChanged.type = hookInputs?.conversionType
     }
 
     if (hookInputs?.attribution_type && hookInputs?.attribution_type !== hookOutputs?.attribution_type) {

@@ -35,14 +35,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         name: {
           type: 'string',
           label: 'Name',
-          description: 'The name of the conversion rule.',
-          required: true
+          description: 'The name of the conversion rule.'
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
-          required: true,
           choices: [
             { label: 'Add to Cart', value: 'ADD_TO_CART' },
             { label: 'Download', value: 'DOWNLOAD' },
@@ -58,7 +56,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
-          required: true,
           choices: [
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
