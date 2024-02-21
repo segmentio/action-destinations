@@ -240,7 +240,8 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       description: 'Controls the notification payload format',
       type: 'string',
       required: false,
-      choices: ['legacy', 'v1']
+      choices: ['legacy', 'v1'],
+      default: 'legacy'
     }
   },
   perform: async (request, data) => {
