@@ -12,7 +12,7 @@ describe('LinkedIn Conversions', () => {
     const adAccountId = 'urn:li:sponsoredAccount:123456'
     const hookInputs: HookBundle['onMappingSave']['inputs'] = {
       name: 'A different name that should trigger an update',
-      conversionType: 'LEAD',
+      conversionType: 'PURCHASE',
       attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
     }
 
@@ -29,6 +29,7 @@ describe('LinkedIn Conversions', () => {
           patch: {
             $set: {
               name: hookInputs.name,
+              type: hookInputs.conversionType,
               attributionType: hookInputs.attribution_type
             }
           }
@@ -45,7 +46,7 @@ describe('LinkedIn Conversions', () => {
         savedData: {
           id: hookOutputs.id,
           name: hookInputs.name,
-          conversionType: hookOutputs.conversionType,
+          conversionType: hookInputs.conversionType,
           attribution_type: hookInputs.attribution_type
         }
       })
@@ -118,6 +119,7 @@ describe('LinkedIn Conversions', () => {
           patch: {
             $set: {
               name: hookInputs.name,
+              type: hookInputs.conversionType,
               attributionType: hookInputs.attribution_type
             }
           }

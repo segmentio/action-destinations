@@ -13,6 +13,13 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
+
+interface ConversionRuleUpdateValues {
+  name?: string
+  type?: string
+  attributionType?: string
+}
+
 export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
@@ -162,8 +169,8 @@ export class LinkedInConversions {
         savedData: {
           id: hookOutputs.id,
           name: valuesChanged?.name || hookOutputs.name,
-          conversionType: valuesChanged?.conversionType || hookOutputs.conversionType,
-          attribution_type: valuesChanged?.attribution_type || hookOutputs.attribution_type
+          conversionType: valuesChanged?.type || hookOutputs.conversionType,
+          attribution_type: valuesChanged?.attributionType || hookOutputs.attribution_type
         }
       }
     } catch (e) {
@@ -399,8 +406,8 @@ export class LinkedInConversions {
   private conversionRuleValuesUpdated = (
     hookInputs: HookBundle['onMappingSave']['inputs'],
     hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
-  ): Record<string, string> => {
-    const valuesChanged: Record<string, string> = {}
+  ): ConversionRuleUpdateValues => {
+    const valuesChanged: ConversionRuleUpdateValues = {}
 
     if (hookInputs?.name && hookInputs?.name !== hookOutputs?.name) {
       valuesChanged.name = hookInputs?.name
