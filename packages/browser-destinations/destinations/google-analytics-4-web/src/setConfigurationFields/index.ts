@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties, params } from '../ga4-properties'
 type ConsentParamsArg = 'granted' | 'denied' | undefined
 
+const defaultCookieExpiryInSecond = 63072000
+const defaultCookieDomain = 'auto'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
@@ -95,8 +97,11 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
+    const checkCookiePathValue =
+      settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
+
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'update', {
+      gtag('consent', 'update', {
         ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
         analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
       })
@@ -112,16 +117,16 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookieUpdate != true) {
       config.cookie_update = false
     }
-    if (settings.cookieDomain != 'auto') {
+    if (settings.cookieDomain != defaultCookieDomain) {
       config.cookie_domain = settings.cookieDomain
     }
     if (settings.cookiePrefix) {
       config.cookie_prefix = settings.cookiePrefix
     }
-    if (settings.cookieExpirationInSeconds != 63072000) {
+    if (settings.cookieExpirationInSeconds != defaultCookieExpiryInSecond) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (settings.cookiePath != undefined && !settings.cookiePath.includes('/')) {
+    if (checkCookiePathValue) {
       config.cookie_path = settings.cookiePath
     }
     if (settings.pageView != true) {
