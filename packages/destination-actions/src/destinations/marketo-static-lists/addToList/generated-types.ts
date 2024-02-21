@@ -29,6 +29,7 @@ export interface Payload {
      * The user's phone number.
      */
     phone?: string
+    [k: string]: unknown
   }
   /**
    * Enable batching of requests.
