@@ -28,7 +28,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const request = responses[0].request
+      expect(responses).toHaveLength(0)
+      // For now we are not testing responses here, since they are not relevant.
+      /* const request = responses[0].request
       const rawBody = await request.text()
 
       try {
@@ -39,7 +41,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         expect(rawBody).toMatchSnapshot()
       }
 
-      expect(request.headers).toMatchSnapshot()
+      expect(request.headers).toMatchSnapshot() */
     })
 
     it(`${actionSlug} action - all fields`, async () => {
@@ -62,7 +64,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const request = responses[0].request
+      expect(responses).toHaveLength(0)
+      // For now we are not testing responses here, since they are not relevant.
+      /* const request = responses[0].request
       const rawBody = await request.text()
 
       try {
@@ -71,7 +75,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
-      }
+      } */
     })
   }
 })

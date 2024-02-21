@@ -1,4 +1,4 @@
-import { Kafka, Mechanism } from 'kafkajs'
+import { Kafka, SASLOptions } from 'kafkajs'
 
 import type { ActionDefinition } from '@segment/actions-core'
 
@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
         mechanism: settings.saslAuthenticationMechanism,
         username: settings.username,
         password: settings.password
-      } as unknown as Mechanism
+      } as SASLOptions
     })
 
     const producer = kafka.producer()
@@ -52,6 +52,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     await producer.send(structuredPayload)
     await producer.disconnect()
+
+    // We need to return something here.
+    return { status: 'ok' }
+    /* return [
+      {
+        request: {
+          text: async () => Promise.resolve(JSON.stringify(structuredPayload))
+        }
+      }
+    ] */
   }
 }
 
