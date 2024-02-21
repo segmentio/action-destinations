@@ -10,6 +10,7 @@ export const external_id: InputField = {
   unsafe_hidden: true,
   required: true
 }
+
 export const field_value: InputField = {
   label: 'Field Value',
   description: 'The value cooresponding to the lookup field.',
@@ -21,7 +22,6 @@ export const field_value: InputField = {
       else: { '@path': '$.properties.email' }
     }
   },
-  unsafe_hidden: true,
   required: true
 }
 
@@ -102,7 +102,8 @@ export const data: InputField = {
         else: { '@path': '$.properties.phoneNumber' }
       }
     }
-  }
+  },
+  additionalProperties: true
 }
 
 export const enable_batching: InputField = {
