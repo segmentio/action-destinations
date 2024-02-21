@@ -47,7 +47,11 @@ export function convertEvent(args: { eventType: EventType, payload: SegmentEvent
   }
 
   if (payload.items) {
-    body.items = payload.items.map(convertItemPayload);
+    body.items = []
+    for (const item of payload.items) {
+      const itemPayload = convertItemPayload({ payload: item, defaultCurrency: payload.defaultCurrency });
+      body.items.push(itemPayload);
+    }
   }
 
   if (payload.revenue) {
@@ -80,7 +84,8 @@ function convertMoneyPayload(payload: SegmentMoneyPayload): MolocoMoneyPayload {
   }
 }
 
-function convertItemPayload(payload: SegmentItemPayload): MolocoItemPayload {
+function convertItemPayload(args: { payload: SegmentItemPayload, defaultCurrency: string | undefined }): MolocoItemPayload {
+  const { payload, defaultCurrency } = args;
   const itemPayload: MolocoItemPayload = {
     id: payload.id
   }
@@ -98,10 +103,12 @@ function convertItemPayload(payload: SegmentItemPayload): MolocoItemPayload {
   }
 
   if (payload.price || payload.currency) {
-    if (!(payload.price && payload.currency)) {
+    const currency = payload.currency || defaultCurrency;
+  
+    if (!(payload.price && currency)) {
       throw new PayloadValidationError('price and currency should be both present or both absent')
     }
-    itemPayload.price = convertMoneyPayload({ price: payload.price, currency: payload.currency });
+    itemPayload.price = convertMoneyPayload({ price: payload.price, currency: currency });
   }
 
   return itemPayload;

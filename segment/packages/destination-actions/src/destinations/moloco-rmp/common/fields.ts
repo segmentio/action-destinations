@@ -131,6 +131,38 @@ export const DECISION_TRACK_ID: InputField = {
   required: false
 }
 
+export const DEFAULT_CURRENCY: InputField = {
+  label: 'Default Currency',
+  description: `The default currency value. If this is set, it will be used as a default currency value for items.
+  Available options are the followings
+  UNKNOWN_CURRENCY: Unknown currency.
+  USD: US Dollar.
+  KRW: Korean Won.
+  JPY: Japanese Yen.
+  EUR: EU Euro.
+  GBP: British Pound.
+  SEK: Swedish Krona.
+  INR: India Rupee.
+  THB: Thailand Baht.
+  IDR: Indonesia Rupiah.
+  CNY: China Yuan.
+  CAD: Canada Dollar.
+  RUB: Russia Ruble.
+  BRL: Brazil Real.
+  SGD: Singapore Dollar.
+  HKD: Hong Kong Dollar.
+  AUD: Autrailia Dollar.
+  PLN: Poland Zloty.
+  DKK: Denmark Krone.
+  VND: Viet Nam Dong.
+  MYR: Malaysia Ringgit.
+  PHP: Philippines Peso.
+  TRY: Turkey Lira.
+  VEF: Venezuela Bolívar.`,
+  type: 'string',
+  required: false
+}
+
 /* Variable Fields
   * The following fields may be included/excluded or have different label/description depending on the event type(action)
   * Due to its variance, each fields are defined as a function that returns InputField
