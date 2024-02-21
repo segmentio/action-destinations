@@ -70,7 +70,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           num_items: payload.number_items
         }
 
-  const extInfoVersion = iosAppIDRegex.test((settings.app_id ?? '').trim()) ? 'i2' : 'a2'
+  const { app_id } = settings
+  const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
 
   const result = {
     data: [
@@ -87,8 +88,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           client_ip_address: payload.ip_address,
           client_user_agent: payload.user_agent,
           em: box(email),
+          idfv: payload.idfv,
           madid,
-
           ph: box(phone_number),
           sc_click_id: payload.click_id,
           sc_cookie1: payload.uuid_c1
@@ -107,9 +108,10 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
 
         action_source,
 
-        app_data: !isNullOrUndefined(payload.os_version ?? payload.device_model)
-          ? {
-              extinfo: [
+        app_data: emptyObjectToUndefined({
+          app_id,
+          extinfo: !isNullOrUndefined(payload.os_version ?? payload.device_model)
+            ? [
                 extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
                 '', // app package name
                 '', // short version
@@ -127,8 +129,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
                 '', // freespace in external storage size
                 '' // device time zone
               ]
-            }
-          : undefined
+            : undefined
+        })
       }
     ],
     ...(isTest ? { test_event_code: 'segment_test' } : {})
