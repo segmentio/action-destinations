@@ -66,6 +66,35 @@ export interface Payload {
    */
   decisionTrackId?: string
   /**
+   * The default currency value. If this is set, it will be used as a default currency value for items.
+   *   Available options are the followings
+   *   UNKNOWN_CURRENCY: Unknown currency.
+   *   USD: US Dollar.
+   *   KRW: Korean Won.
+   *   JPY: Japanese Yen.
+   *   EUR: EU Euro.
+   *   GBP: British Pound.
+   *   SEK: Swedish Krona.
+   *   INR: India Rupee.
+   *   THB: Thailand Baht.
+   *   IDR: Indonesia Rupiah.
+   *   CNY: China Yuan.
+   *   CAD: Canada Dollar.
+   *   RUB: Russia Ruble.
+   *   BRL: Brazil Real.
+   *   SGD: Singapore Dollar.
+   *   HKD: Hong Kong Dollar.
+   *   AUD: Autrailia Dollar.
+   *   PLN: Poland Zloty.
+   *   DKK: Denmark Krone.
+   *   VND: Viet Nam Dong.
+   *   MYR: Malaysia Ringgit.
+   *   PHP: Philippines Peso.
+   *   TRY: Turkey Lira.
+   *   VEF: Venezuela Bolívar.
+   */
+  defaultCurrency?: string
+  /**
    * Item information list related to the event.
    */
   items: {
