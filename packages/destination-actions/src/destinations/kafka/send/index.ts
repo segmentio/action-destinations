@@ -55,13 +55,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // We need to return something here.
     return { status: 'ok' }
-    /* return [
-      {
-        request: {
-          text: async () => Promise.resolve(JSON.stringify(structuredPayload))
-        }
-      }
-    ] */
   }
 }
 
