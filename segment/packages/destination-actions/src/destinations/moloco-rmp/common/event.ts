@@ -8,10 +8,11 @@ import {
     SESSION_ID,
     DECISION_TRACK_ID,
     DEFAULT_CURRENCY,
+    createPageIdInputField,
+    createPageIdentifierTokensInputField,
     createItemsInputField,
     createRevenueInputField,
     createSearchQueryInputField,
-    createPageIdInputField,
     createReferrerPageIdInputField,
     createShippingChargeInputField
 } from './fields'
@@ -23,7 +24,7 @@ interface OptionalFieldsOption {
     requireItems?: boolean;
     requireRevenue?: boolean;
     requireSearchQuery?: boolean;
-    requirePageId?: boolean;
+    requirePageIdentification?: boolean;
     requireReferrerPageId?: boolean;
     requireShippingCharge?: boolean;
 }
@@ -57,6 +58,7 @@ export class MolocoEvent {
     revenue?: InputField = undefined;
     searchQuery?: InputField = undefined;
     pageId?: InputField = undefined;
+    pageIdentifierTokens?: InputField = undefined;
     referrerPageId?: InputField = undefined;
     shippingCharge?: InputField = undefined;
 
@@ -68,7 +70,7 @@ export class MolocoEvent {
             requireItems = undefined,
             requireRevenue = undefined,
             requireSearchQuery = undefined,
-            requirePageId = undefined,
+            requirePageIdentification = undefined,
             requireReferrerPageId = undefined,
             requireShippingCharge = undefined
         }: OptionalFieldsOption = {}
@@ -78,7 +80,7 @@ export class MolocoEvent {
             requireItems,
             requireRevenue,
             requireSearchQuery,
-            requirePageId,
+            requirePageIdentification,
             requireReferrerPageId,
             requireShippingCharge
         });
@@ -88,7 +90,10 @@ export class MolocoEvent {
         this.items = option.requireItems !== undefined ? createItemsInputField(option.requireItems) : undefined;
         this.revenue = option.requireRevenue !== undefined ? createRevenueInputField(option.requireRevenue) : undefined;
         this.searchQuery = option.requireSearchQuery !== undefined ? createSearchQueryInputField(option.requireSearchQuery) : undefined;
-        this.pageId = option.requirePageId !== undefined ? createPageIdInputField(option.requirePageId) : undefined;
+        if (option.requirePageIdentification !== undefined) {
+            this.pageId = createPageIdInputField({ requireIdentification: option.requirePageIdentification });
+            this.pageIdentifierTokens = createPageIdentifierTokensInputField({ requireIdentification: option.requirePageIdentification });
+        }
         this.referrerPageId = option.requireReferrerPageId !== undefined ? createReferrerPageIdInputField(option.requireReferrerPageId) : undefined;
         this.shippingCharge = option.requireShippingCharge !== undefined ? createShippingChargeInputField(option.requireShippingCharge) : undefined;
     }
@@ -123,6 +128,10 @@ export class MolocoEvent {
 
         if (this.pageId != undefined) {
             optionalFields.pageId = this.pageId;
+        }
+
+        if (this.pageIdentifierTokens != undefined) {   
+            optionalFields.pageIdentifierTokens = this.pageIdentifierTokens;
         }
 
         if (this.referrerPageId != undefined) {
