@@ -14,24 +14,33 @@ import {
   MarketoResponse
 } from './constants'
 
+// Keep only the scheme and host from the endpoint
+// Marketo UI shows endpoint with trailing "/rest", which we don't want
+export function formatEndpoint(endpoint: string) {
+  return endpoint.replace('/rest', '')
+}
+
 export async function addToList(
   request: RequestClient,
   settings: Settings,
   payloads: AddToListPayload[],
   statsContext?: StatsContext
 ) {
-  // Keep only the scheme and host from the endpoint
-  // Marketo shows endpoint with trailing "/rest", which we don't want
-  const api_endpoint = settings.api_endpoint.replace('/rest', '')
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
 
-  const csvData = 'Email\n' + extractEmails(payloads, '\n')
+  const csvData = formatData(payloads)
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
     statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
     throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  const url = api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id)
+  const url =
+    api_endpoint +
+    BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id).replace(
+      'fieldToLookup',
+      payloads[0].lookup_field
+    )
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
@@ -55,12 +64,15 @@ export async function removeFromList(
   payloads: RemoveFromListPayload[],
   statsContext?: StatsContext
 ) {
-  // Keep only the scheme and host from the endpoint
-  // Marketo shows endpoint with trailing "/rest", which we don't want
-  const api_endpoint = settings.api_endpoint.replace('/rest', '')
-  const emailsToRemove = extractEmails(payloads, ',')
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+  const usersToRemove = extractFilterData(payloads)
 
-  const getLeadsUrl = api_endpoint + GET_LEADS_ENDPOINT.replace('emailsToFilter', encodeURIComponent(emailsToRemove))
+  const getLeadsUrl =
+    api_endpoint +
+    GET_LEADS_ENDPOINT.replace('field', payloads[0].lookup_field).replace(
+      'emailsToFilter',
+      encodeURIComponent(usersToRemove)
+    )
 
   // Get lead ids from Marketo
   const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
@@ -102,12 +114,26 @@ function createFormData(csvData: string) {
   return formData
 }
 
-function extractEmails(payloads: AddToListPayload[], separator: string) {
-  const emails = payloads
-    .filter((payload) => payload.email !== undefined)
-    .map((payload) => payload.email)
-    .join(separator)
-  return emails
+function formatData(payloads: AddToListPayload[]) {
+  if (payloads.length === 0) {
+    return ''
+  }
+
+  const allKeys = [...new Set(payloads.flatMap((payload) => Object.keys(payload.data)))]
+  const header = allKeys.join(',')
+  const csvData = payloads
+    .map((payload) => allKeys.map((key) => payload.data[key as keyof typeof payload.data] || '').join(','))
+    .join('\n')
+
+  return `${header}\n${csvData}`
+}
+
+function extractFilterData(payloads: RemoveFromListPayload[]) {
+  const data = payloads
+    .filter((payload) => payload.field_value !== undefined)
+    .map((payload) => payload.field_value)
+    .join(',')
+  return data
 }
 
 function extractLeadIds(leads: MarketoLeads[]) {
