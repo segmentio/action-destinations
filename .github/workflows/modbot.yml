@@ -1,0 +1,17 @@
+name: Modbot
+
+on: [pull_request]
+
+jobs:
+  tests_check_job:
+    runs-on: ubuntu-latest
+    name: Test for test changes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install action deps
+        run: cd ./.github/actions/modbot && npm install
+      - name: Test Check
+        uses: ./.github/actions/modbot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,5 @@
+name: 'List Removed/Changed Tests'
+description: 'List Removed/Changed files'
+runs:
+  using: 'node20'
+  main: 'index.js'
