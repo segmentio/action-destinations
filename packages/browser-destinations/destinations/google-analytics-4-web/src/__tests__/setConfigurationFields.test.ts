@@ -1,6 +1,7 @@
 import googleAnalytics4Web, { destination } from '../index'
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
+import type { Settings } from '../generated-types'
 
 let mockGtag: GA
 let setConfigurationEvent: any
@@ -34,24 +35,31 @@ const subscriptions: Subscription[] = [
       },
       content_group: {
         '@path': '$.properties.content_group'
+      },
+      campaign_content: {
+        '@path': '$.properties.campaign_content'
+      },
+      campaign_id: {
+        '@path': '$.properties.campaign_id'
+      },
+      campaign_medium: {
+        '@path': '$.properties.campaign_medium'
+      },
+      campaign_name: {
+        '@path': '$.properties.campaign_name'
+      },
+      campaign_source: {
+        '@path': '$.properties.campaign_source'
+      },
+      campaign_term: {
+        '@path': '$.properties.campaign_term'
       }
     }
   }
 ]
 
 describe('Set Configuration Fields action', () => {
-  const settings: {
-    cookiePrefix?: undefined | string
-    enableConsentMode: boolean
-    measurementID: string
-    allowAdPersonalizationSignals: boolean
-    allowGoogleSignals: boolean
-    cookieDomain: string
-    cookieExpirationInSeconds: number
-    cookieUpdate: boolean
-    pageView: boolean
-    cookiePath?: string
-  } = {
+  const defaultSettings: Settings = {
     enableConsentMode: false,
     measurementID: 'G-XXXXXXXXXX',
     allowAdPersonalizationSignals: false,
@@ -64,28 +72,28 @@ describe('Set Configuration Fields action', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
 
-    const [trackEventPlugin] = await googleAnalytics4Web({
-      ...settings,
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...defaultSettings,
       subscriptions
     })
-    setConfigurationEvent = trackEventPlugin
+    setConfigurationEvent = setConfigurationEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockGtag = jest.fn()
       return Promise.resolve(mockGtag)
     })
-    await trackEventPlugin.load(Context.system(), {} as Analytics)
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  it('should call gtag with the correct config when consent mode is enabled', async () => {
-    settings.enableConsentMode = true
+  it('should configure consent when consent mode is enabled', async () => {
+    defaultSettings.enableConsentMode = true
 
-    const [trackEventPlugin] = await googleAnalytics4Web({
-      ...settings,
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...defaultSettings,
       subscriptions
     })
-    setConfigurationEvent = trackEventPlugin
-    await trackEventPlugin.load(Context.system(), {} as Analytics)
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
 
     const context = new Context({
       event: 'setConfigurationFields',
@@ -107,54 +115,17 @@ describe('Set Configuration Fields action', () => {
       allow_google_signals: false
     })
   })
-  it('should call gtag with the correct config when consent mode is disabled and having values in payload', async () => {
-    settings.enableConsentMode = false
-    const [trackEventPlugin] = await googleAnalytics4Web({
+  it('should configure cookie expiry time other then default value', async () => {
+    const settings = {
+      ...defaultSettings,
+      cookieExpirationInSeconds: 500
+    }
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
       ...settings,
       subscriptions
     })
-    setConfigurationEvent = trackEventPlugin
-    await trackEventPlugin.load(Context.system(), {} as Analytics)
-
-    const context = new Context({
-      event: 'setConfigurationFields',
-      type: 'page',
-      properties: {
-        screen_resolution: '800*600',
-        user_id: 'segment123',
-        page_title: 'User Registration Page',
-        page_referrer: 'Home',
-        language: 'EN',
-        content_group: '/home/login'
-      }
-    })
-
-    setConfigurationEvent.page?.(context)
-    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
-      screen_resolution: '800*600',
-      user_id: 'segment123',
-      page_title: 'User Registration Page',
-      page_referrer: 'Home',
-      language: 'EN',
-      content_group: '/home/login',
-      allow_ad_personalization_signals: false,
-      allow_google_signals: false
-    })
-  })
-  it('should call gtag with the correct config when consent mode is disabled and cookie other then default value', async () => {
-    settings.cookieUpdate = false
-    settings.cookieExpirationInSeconds = 5
-    settings.cookieDomain = 'example.com'
-    settings.cookiePrefix = 'stage'
-    settings.cookiePath = '/home'
-    settings.enableConsentMode = false
-
-    const [trackEventPlugin] = await googleAnalytics4Web({
-      ...settings,
-      subscriptions
-    })
-    setConfigurationEvent = trackEventPlugin
-    await trackEventPlugin.load(Context.system(), {} as Analytics)
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
 
     const context = new Context({
       event: 'setConfigurationFields',
@@ -167,11 +138,313 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
-      cookie_expires: 5,
-      cookie_update: false,
-      cookie_domain: 'example.com',
-      cookie_prefix: 'stage',
+      cookie_expires: 500
+    })
+  })
+  it('should configure cookie domain other then default value', async () => {
+    const settings = {
+      ...defaultSettings,
+      cookieDomain: 'example.com'
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      cookie_domain: 'example.com'
+    })
+  })
+  it('should configure cookie prefix other then default value', async () => {
+    const settings = {
+      ...defaultSettings,
+      cookiePrefix: 'stage'
+    }
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      cookie_prefix: 'stage'
+    })
+  })
+  it('should configure cookie path other then default value', async () => {
+    const settings = {
+      ...defaultSettings,
+      cookiePath: '/home'
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
       cookie_path: '/home'
+    })
+  })
+  it('should configure cookie update other then default value', async () => {
+    const settings = {
+      ...defaultSettings,
+      cookieUpdate: false
+    }
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      cookie_update: false
+    })
+  })
+  it('should not configure consent when consent mode is disabled', async () => {
+    const settings = {
+      ...defaultSettings,
+      enableConsentMode: false
+    }
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false
+    })
+  })
+  it('should update config if payload has screen resolution', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        screen_resolution: '800*600'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      screen_resolution: '800*600'
+    })
+  })
+  it('should update config if payload has user_id', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        user_id: 'segment-123'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      user_id: 'segment-123'
+    })
+  })
+  it('should update config if payload has page_title', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        page_title: 'User Registration Page'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      page_title: 'User Registration Page'
+    })
+  })
+  it('should update config if payload has language', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        language: 'EN'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      language: 'EN'
+    })
+  })
+  it('should update config if payload has content_group', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        content_group: '/home/login'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      content_group: '/home/login'
+    })
+  })
+  it('should update config if payload has campaign_term', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_term: 'running+shoes'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_term: 'running+shoes'
+    })
+  })
+  it('should update config if payload has campaign_source', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_source: 'google'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_source: 'google'
+    })
+  })
+  it('should update config if payload has campaign_name', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_name: 'spring_sale'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_name: 'spring_sale'
+    })
+  })
+  it('should update config if payload has campaign_medium', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_medium: 'cpc'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_medium: 'cpc'
+    })
+  })
+  it('should update config if payload has campaign_id', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_id: 'abc.123'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_id: 'abc.123'
+    })
+  })
+  it('should update config if payload has campaign_content', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        campaign_content: 'logolink'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      campaign_content: 'logolink'
     })
   })
 })
