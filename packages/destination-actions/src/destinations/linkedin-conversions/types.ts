@@ -100,6 +100,9 @@ export interface ConversionRuleCreationResponse {
   type: string
 }
 
+/** This request returns 204 no content */
+export interface ConversionRuleUpdateResponse {}
+
 /**
  * The shape of the response from LinkedIn when fetching a conversion rule by id.
  * Not all properties in this type are used, but they are included if needed in the future.
