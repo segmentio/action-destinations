@@ -6,9 +6,9 @@ Object {
     "company": Object {
       "testType": "H%fspr!Jez(TWP",
     },
-    "event": "H%fspr!Jez(TWP",
+    "event": "h%fspr!jez(twp",
     "traits": Object {
-      "testType": "H%fspr!Jez(TWP",
+      "raw_event_name": "H%fspr!Jez(TWP",
     },
     "user": Object {
       "user_id": "H%fspr!Jez(TWP",
@@ -21,7 +21,7 @@ Object {
 exports[`Testing snapshot for Schematic's trackEvent destination action: required fields 1`] = `
 Object {
   "body": Object {
-    "event": "H%fspr!Jez(TWP",
+    "event": "h%fspr!jez(twp",
   },
   "event_type": "track",
 }

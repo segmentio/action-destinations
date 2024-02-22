@@ -40,9 +40,9 @@ Object {
     "company": Object {
       "testType": "uvfeUI#M",
     },
-    "event": "uvfeUI#M",
+    "event": "uvfeui#m",
     "traits": Object {
-      "testType": "uvfeUI#M",
+      "raw_event_name": "uvfeUI#M",
     },
     "user": Object {
       "user_id": "uvfeUI#M",
@@ -55,7 +55,7 @@ Object {
 exports[`Testing snapshot for actions-schematic destination: trackEvent action - required fields 1`] = `
 Object {
   "body": Object {
-    "event": "uvfeUI#M",
+    "event": "uvfeui#m",
   },
   "event_type": "track",
 }
