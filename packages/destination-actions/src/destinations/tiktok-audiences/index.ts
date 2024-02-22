@@ -174,11 +174,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
+    addToAudience,
+    removeFromAudience,
     addUser,
     removeUser,
-    createAudience,
-    addToAudience,
-    removeFromAudience
+    createAudience
   }
 }
 
