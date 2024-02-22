@@ -66,15 +66,15 @@ export interface HookBundle {
       /**
        * The name of the conversion rule.
        */
-      name: string
+      name?: string
       /**
        * The type of conversion rule.
        */
-      conversionType: string
+      conversionType?: string
       /**
        * The attribution type for the conversion rule.
        */
-      attribution_type: string
+      attribution_type?: string
     }
     outputs?: {
       /**
@@ -89,6 +89,10 @@ export interface HookBundle {
        * The type of conversion rule.
        */
       conversionType: string
+      /**
+       * The attribution type for the conversion rule.
+       */
+      attribution_type: string
     }
   }
 }
