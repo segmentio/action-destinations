@@ -447,4 +447,82 @@ describe('Set Configuration Fields action', () => {
       campaign_content: 'logolink'
     })
   })
+
+  it('should update config if payload has send_page_view is true', async () => {
+    const settings = {
+      ...defaultSettings,
+      pageView: true
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false
+    })
+  })
+  it('should update config if payload has send_page_view is false', async () => {
+    const settings = {
+      ...defaultSettings,
+      pageView: false
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: false
+    })
+  })
+  it('should update config if payload has send_page_view is undefined', async () => {
+    const settings = {
+      ...defaultSettings,
+      pageView: undefined
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {}
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: true
+    })
+  })
 })

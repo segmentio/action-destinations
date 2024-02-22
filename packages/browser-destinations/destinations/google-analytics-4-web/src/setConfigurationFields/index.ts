@@ -97,7 +97,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
-    const checkCookiePathValue =
+    const checkCookiePathDefaultValue =
       settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
 
     if (settings.enableConsentMode) {
@@ -126,7 +126,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookieExpirationInSeconds != defaultCookieExpiryInSecond) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (checkCookiePathValue) {
+    if (checkCookiePathDefaultValue) {
       config.cookie_path = settings.cookiePath
     }
     if (settings.pageView != true) {
