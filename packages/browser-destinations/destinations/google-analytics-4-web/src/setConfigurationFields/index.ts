@@ -20,23 +20,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Ads Storage Consent State',
-      type: 'string',
-      choices: [
-        { label: 'Granted', value: 'granted' },
-        { label: 'Denied', value: 'denied' }
-      ],
-      default: 'granted'
+      type: 'string'
     },
     analytics_storage_consent_state: {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Analytics Storage Consent State',
-      type: 'string',
-      choices: [
-        { label: 'Granted', value: 'granted' },
-        { label: 'Denied', value: 'denied' }
-      ],
-      default: 'granted'
+      type: 'string'
     },
     ad_user_data_consent_state: {
       description:
@@ -134,13 +124,16 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
 
     if (settings.enableConsentMode) {
       const consentParams: {
-        ad_storage: ConsentParamsArg
-        analytics_storage: ConsentParamsArg
+        ad_storage?: ConsentParamsArg
+        analytics_storage?: ConsentParamsArg
         ad_user_data?: ConsentParamsArg
         ad_personalization?: ConsentParamsArg
-      } = {
-        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
-        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
+      } = {}
+      if (payload.ads_storage_consent_state) {
+        consentParams.ad_storage = payload.ads_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.analytics_storage_consent_state) {
+        consentParams.analytics_storage = payload.analytics_storage_consent_state as ConsentParamsArg
       }
       if (payload.ad_user_data_consent_state) {
         consentParams.ad_user_data = payload.ad_user_data_consent_state as ConsentParamsArg
