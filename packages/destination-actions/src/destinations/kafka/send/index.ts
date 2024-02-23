@@ -10,10 +10,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send data to a Kafka topic',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    messageKey: {
-      label: 'Message Key',
-      description: 'The key for the message (optional)',
-      type: 'string'
+    topic: {
+      label: 'Topic',
+      description: 'The Kafka topic to send messages to.',
+      type: 'string',
+      required: true
     },
     payload: {
       label: 'Payload',
@@ -22,11 +23,10 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.' }
     },
-    topic: {
-      label: 'Topic',
-      description: 'The Kafka topic to send messages to.',
-      type: 'string',
-      required: true
+    messageKey: {
+      label: 'Message Key',
+      description: 'The key for the message (optional)',
+      type: 'string'
     }
   },
   perform: async (_request, { settings, payload }) => {
