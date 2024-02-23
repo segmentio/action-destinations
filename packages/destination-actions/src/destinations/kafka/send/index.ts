@@ -12,60 +12,61 @@ import type { Payload } from './generated-types'
 //await admin.disconnect()
 
 const sendData = async (settings: Settings, payload: Payload[]) => {
+  const groupedPayloads: { [topic: string]: Payload[] } = {}
 
-    const groupedPayloads: { [topic: string]: Payload[] } = {};
-
-    payload.forEach(p => {
-      const { topic } = p;
-      if (!groupedPayloads[topic]) {
-        groupedPayloads[topic] = [];
-      }
-      groupedPayloads[topic].push(p);
-    });
-
-    interface PayloadGroup {
-      topic: string;
-      payloads: Payload[];
+  payload.forEach((p) => {
+    const { topic } = p
+    if (!groupedPayloads[topic]) {
+      groupedPayloads[topic] = []
     }
+    groupedPayloads[topic].push(p)
+  })
 
-    const payloadGroups: PayloadGroup[] = Object.keys(groupedPayloads).map(topic => ({
+  interface PayloadGroup {
+    topic: string
+    payloads: Payload[]
+  }
+
+  const payloadGroups: PayloadGroup[] = Object.keys(groupedPayloads).map((topic) => ({
+    topic,
+    payloads: groupedPayloads[topic]
+  }))
+
+  const kafka = new Kafka({
+    clientId: settings.clientId,
+    brokers: [settings.brokers],
+    ssl: true,
+    sasl: {
+      mechanism: settings.saslAuthenticationMechanism,
+      username: settings.username,
+      password: settings.password
+    } as SASLOptions
+  })
+
+  const producer = kafka.producer()
+
+  await producer.connect()
+
+  for (const group of payloadGroups) {
+    const { topic, payloads } = group
+
+    const messages = payloads.map((payload) => ({
+      value: JSON.stringify(payload.payload),
+      key: payload.key,
+      headers: payload?.headers ?? undefined,
+      partition: payload?.partition ?? payload?.default_partition ?? undefined,
+      partitionerType: settings.partitionerType
+    }))
+
+    const data = {
       topic,
-      payloads: groupedPayloads[topic]
-    }));
-  
-    const kafka = new Kafka({
-      clientId: settings.clientId,
-      brokers: [settings.brokers],
-      ssl: true,
-      sasl: {
-        mechanism: settings.saslAuthenticationMechanism,
-        username: settings.username,
-        password: settings.password
-      } as SASLOptions
-    })
-
-    const producer = kafka.producer()
-
-    await producer.connect()
-    
-    for (const group of payloadGroups) {
-      const { topic, payloads } = group;
-
-      const messages = payloads.map(payload => ({
-        value: JSON.stringify(payload.payload),
-        key: payload.key,
-        headers: payload?.headers ?? undefined
-      }));
-
-      const data = {
-        topic,
-        messages
-      };
-      
-      await producer.send(data as ProducerRecord)
+      messages
     }
 
-    await producer.disconnect()
+    await producer.send(data as ProducerRecord)
+  }
+
+  await producer.disconnect()
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -88,9 +89,19 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     headers: {
       label: 'Headers',
-      description: 'Header data to send to Kafka. Format is Header key, Header value.',
+      description: 'Header data to send to Kafka. Format is Header key, Header value (optional).',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
+    },
+    partition: {
+      label: 'Partition',
+      description: 'The partition to send the message to (optional)',
+      type: 'integer'
+    },
+    default_partition: {
+      label: 'Default Partition',
+      description: 'The default partition to send the message to (optional)',
+      type: 'integer'
     },
     key: {
       label: 'Message Key',
@@ -98,13 +109,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
-  perform: async (_request, { settings, payload }) => { 
+  perform: async (_request, { settings, payload }) => {
     await sendData(settings, [payload])
   },
   performBatch: async (_request, { settings, payload }) => {
     await sendData(settings, payload)
   }
 }
-
 
 export default action

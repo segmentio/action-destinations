@@ -12,11 +12,19 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Header data to send to Kafka
+   * Header data to send to Kafka. Format is Header key, Header value (optional).
    */
   headers?: {
     [k: string]: unknown
   }
+  /**
+   * The partition to send the message to (optional)
+   */
+  partition?: number
+  /**
+   * The default partition to send the message to (optional)
+   */
+  default_partition?: number
   /**
    * The key for the message (optional)
    */

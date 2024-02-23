@@ -21,4 +21,8 @@ export interface Settings {
    * The password for your Kafka instance.
    */
   password: string
+  /**
+   * The partitioner type for your Kafka instance. Defaults to "Default Partitioner".
+   */
+  partitionerType: string
 }
