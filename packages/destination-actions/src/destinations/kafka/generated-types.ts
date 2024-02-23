@@ -2,17 +2,17 @@
 
 export interface Settings {
   /**
-   * The brokers for your Kafka instance, in the format of `host:port`, separated by commas.
+   * The brokers for your Kafka instance, in the format of `host:port`. Accepts an array or strings or a single string.
    */
-  brokers: string
+  brokers: string[]
   /**
    * The SASL Authentication Mechanism for your Kafka instance.
    */
   saslAuthenticationMechanism: string
   /**
-   * The topic where Segment should send messages to.
+   * The client ID for your Kafka instance. Defaults to "segment-actions-kafka-producer".
    */
-  topic: string
+  clientId: string
   /**
    * The username for your Kafka instance.
    */

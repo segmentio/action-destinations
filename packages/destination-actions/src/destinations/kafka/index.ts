@@ -13,8 +13,9 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       brokers: {
         label: 'Brokers',
-        description: 'The brokers for your Kafka instance, in the format of `host:port`, separated by commas.',
+        description: 'The brokers for your Kafka instance, in the format of `host:port`. Accepts an array or strings or a single string.',
         type: 'string',
+        multiple: true,
         required: true
       },
       saslAuthenticationMechanism: {
@@ -29,11 +30,12 @@ const destination: DestinationDefinition<Settings> = {
           // { label: 'SCRAM/SHA-512', value: 'scram-sha-512' }
         ]
       },
-      topic: {
-        label: 'Topic',
-        description: 'The topic where Segment should send messages to.',
+      clientId: {
+        label: 'Client ID',
+        description: 'The client ID for your Kafka instance. Defaults to "segment-actions-kafka-producer".',
         type: 'string',
-        required: true
+        required: true,
+        default: 'segment-actions-kafka-producer'
       },
       username: {
         label: 'Username',

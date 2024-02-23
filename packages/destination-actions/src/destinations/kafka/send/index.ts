@@ -8,7 +8,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send data to a Kafka topic',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
     messageKey: {
       label: 'Message Key',
@@ -20,13 +20,19 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The data to send to Kafka',
       type: 'object',
       required: true,
-      default: '@properties'
+      default: { '@path': '$.' }
+    },
+    topic: {
+      label: 'Topic',
+      description: 'The Kafka topic to send messages to.',
+      type: 'string',
+      required: true
     }
   },
   perform: async (_request, { settings, payload }) => {
     const kafka = new Kafka({
-      clientId: 'segment-actions-kafka-producer',
-      brokers: String(settings.brokers).split(','),
+      clientId: settings.clientId,
+      brokers: settings.brokers,
       ssl: true,
       sasl: {
         mechanism: settings.saslAuthenticationMechanism,
@@ -38,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const producer = kafka.producer()
     await producer.connect()
     const structuredPayload = {
-      topic: settings.topic,
+      topic: payload.topic,
       messages: [] as { key?: string; value: string }[]
     }
 
