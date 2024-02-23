@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * The SASL Authentication Mechanism for your Kafka instance.
    */
-  saslAuthenticationMechanism: string
+  mechanism: string
   /**
    * The client ID for your Kafka instance. Defaults to "segment-actions-kafka-producer".
    */

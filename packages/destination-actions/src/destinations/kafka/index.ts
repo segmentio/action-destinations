@@ -25,12 +25,10 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         choices: [
           { label: 'Plain', value: 'plain' },
-          { label: 'Plain', value: 'scram-sha-256' },
-          { label: 'Plain', value: 'scram-sha-256' }
-          // Uncomment them when proper support is added
-          // { label: 'SCRAM/SHA-256', value: 'scram-sha-256' },
-          // { label: 'SCRAM/SHA-512', value: 'scram-sha-512' }
-        ]
+          { label: 'SCRAM/SHA-256', value: 'scram-sha-256' },
+          { label: 'SCRAM/SHA-512', value: 'scram-sha-512' }
+        ],
+        default: 'plain'
       },
       clientId: {
         label: 'Client ID',

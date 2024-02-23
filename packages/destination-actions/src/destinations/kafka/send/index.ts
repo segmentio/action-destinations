@@ -1,4 +1,4 @@
-import { Kafka, SASLOptions, ProducerRecord } from 'kafkajs'
+import { Kafka, SASLOptions, ProducerRecord, Partitioners } from 'kafkajs'
 
 import type { ActionDefinition } from '@segment/actions-core'
 
@@ -37,13 +37,15 @@ const sendData = async (settings: Settings, payload: Payload[]) => {
     brokers: [settings.brokers],
     ssl: true,
     sasl: {
-      mechanism: settings.saslAuthenticationMechanism,
+      mechanism: settings.mechanism,
       username: settings.username,
       password: settings.password
     } as SASLOptions
   })
 
-  const producer = kafka.producer()
+  const producer = kafka.producer({
+    createPartitioner: settings.partitionerType === 'LegacyPartitioner' ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner,
+  })
 
   await producer.connect()
 
