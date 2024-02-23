@@ -56,6 +56,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     structuredPayload.messages.push(message)
 
+    const admin = kafka.admin()
+    await admin.connect()
+    const topics = await admin.listTopics()
+    console.log(topics)
+    await admin.disconnect()
+
     await producer.send(structuredPayload)
     await producer.disconnect()
 
