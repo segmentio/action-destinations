@@ -24,7 +24,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       choices: [
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
-      ]
+      ],
+      default: 'granted'
     },
     analytics_storage_consent_state: {
       description:
@@ -34,7 +35,8 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       choices: [
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
-      ]
+      ],
+      default: 'granted'
     },
     ad_user_data_consent_state: {
       description:
