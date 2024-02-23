@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (_request, { settings, payload }) => {
     const kafka = new Kafka({
       clientId: settings.clientId,
-      brokers: settings.brokers,
+      brokers: [settings.brokers],
       ssl: true,
       sasl: {
         mechanism: settings.saslAuthenticationMechanism,
@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const producer = kafka.producer()
     await producer.connect()
     const structuredPayload = {
-      topic: payload.topic,
+      topic: String(payload.topic.split(',')),
       messages: [] as { key?: string; value: string }[]
     }
 

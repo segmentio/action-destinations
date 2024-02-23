@@ -13,9 +13,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       brokers: {
         label: 'Brokers',
-        description: 'The brokers for your Kafka instance, in the format of `host:port`. Accepts an array or strings or a single string.',
+        description: 'The brokers for your Kafka instance, in the format of `host:port`. Accepts a comma delimited string.',
         type: 'string',
-        multiple: true,
         required: true
       },
       saslAuthenticationMechanism: {

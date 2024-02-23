@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * The brokers for your Kafka instance, in the format of `host:port`. Accepts an array or strings or a single string.
    */
-  brokers: string[]
+  brokers: string
   /**
    * The SASL Authentication Mechanism for your Kafka instance.
    */
