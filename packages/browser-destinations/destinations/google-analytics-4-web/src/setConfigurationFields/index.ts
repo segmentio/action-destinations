@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties, params } from '../ga4-properties'
 type ConsentParamsArg = 'granted' | 'denied' | undefined
 
+const defaultCookieExpiryInSecond = 63072000
+const defaultCookieDomain = 'auto'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
@@ -125,6 +127,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
+    const checkCookiePathDefaultValue =
+      settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
+
     if (settings.enableConsentMode) {
       const consentParams: {
         ad_storage: ConsentParamsArg
@@ -141,7 +146,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       if (payload.ad_personalization_consent_state) {
         consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
       }
-      window.gtag('consent', 'update', consentParams)
+      gtag('consent', 'update', consentParams)
     }
     type ConfigType = { [key: string]: unknown }
 
@@ -151,23 +156,26 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       ...payload.params
     }
 
-    if (settings.cookieUpdate) {
-      config.cookie_update = settings.cookieUpdate
+    if (settings.cookieUpdate != true) {
+      config.cookie_update = false
     }
-    if (settings.cookieDomain) {
+    if (settings.cookieDomain != defaultCookieDomain) {
       config.cookie_domain = settings.cookieDomain
     }
     if (settings.cookiePrefix) {
       config.cookie_prefix = settings.cookiePrefix
     }
-    if (settings.cookieExpirationInSeconds) {
+    if (settings.cookieExpirationInSeconds != defaultCookieExpiryInSecond) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (settings.cookiePath) {
+    if (checkCookiePathDefaultValue) {
       config.cookie_path = settings.cookiePath
     }
-    if (settings.pageView) {
-      config.send_page_view = settings.pageView
+    if (settings.pageView != true) {
+      config.send_page_view = settings.pageView ?? true
+    }
+    if (settings.cookieFlags) {
+      config.cookie_flags = settings.cookieFlags
     }
 
     if (payload.screen_resolution) {
@@ -211,9 +219,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (payload.campaign_content) {
       config.campaign_content = payload.campaign_content
-    }
-    if (settings.pageView != true) {
-      config.send_page_view = settings.pageView
     }
 
     gtag('config', settings.measurementID, config)

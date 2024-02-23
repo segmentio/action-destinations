@@ -26,9 +26,9 @@ export interface Settings {
    */
   cookieFlags?: string[]
   /**
-   * Specifies the subpath used to store the analytics cookie.
+   * Specifies the subpath used to store the analytics cookie. We recommend to add a forward slash, / , in the first field as it is the Default Value for GA4.
    */
-  cookiePath?: string[]
+  cookiePath?: string
   /**
    * Specifies a prefix to prepend to the analytics cookie name.
    */

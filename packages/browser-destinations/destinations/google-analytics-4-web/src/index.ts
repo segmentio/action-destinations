@@ -70,35 +70,40 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     cookieDomain: {
       description: 'Specifies the domain used to store the analytics cookie. Set to “auto” by default.',
       label: 'Cookie Domain',
-      type: 'string'
+      type: 'string',
+      default: 'auto'
     },
     cookieExpirationInSeconds: {
       description: `Every time a hit is sent to GA4, the analytics cookie expiration time is updated to be the current time plus the value of this field. The default value is two years (63072000 seconds). Please input the expiration value in seconds. More information in [Google Documentation](https://developers.google.com/analytics/devguides/collection/ga4/reference/config#)`,
       label: 'Cookie Expiration In Seconds',
-      type: 'number'
+      type: 'number',
+      default: 63072000
     },
     cookieFlags: {
       description: `Appends additional flags to the analytics cookie.  See [write a new cookie](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie#write_a_new_cookie) for some examples of flags to set.`,
       label: 'Cookie Flag',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookiePath: {
-      description: `Specifies the subpath used to store the analytics cookie.`,
+      description: `Specifies the subpath used to store the analytics cookie. We recommend to add a forward slash, / , in the first field as it is the Default Value for GA4.`,
       label: 'Cookie Path',
       type: 'string',
-      multiple: true
+      default: '/'
     },
     cookiePrefix: {
       description: `Specifies a prefix to prepend to the analytics cookie name.`,
       label: 'Cookie Prefix',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookieUpdate: {
       description: `Set to false to not update  cookies on each page load. This has the effect of cookie expiration being relative to the first time a user visited. Set to true by default so update cookies on each page load.`,
       label: 'Cookie Update',
-      type: 'boolean'
+      type: 'boolean',
+      default: true
     },
     enableConsentMode: {
       description: `Set to true to enable Google’s [Consent Mode](https://support.google.com/analytics/answer/9976101?hl=en). Set to false by default.`,
