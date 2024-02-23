@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The brokers for your Kafka instance, in the format of `host:port`. Accepts an array or strings or a single string.
+   * The brokers for your Kafka instance, in the format of `host:port`. Accepts a comma delimited string.
    */
   brokers: string
   /**

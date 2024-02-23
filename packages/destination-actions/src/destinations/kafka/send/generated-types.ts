@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The key for the message (optional)
+   * The Kafka topic to send messages to.
    */
-  messageKey?: string
+  topic: string
   /**
    * The data to send to Kafka
    */
@@ -12,7 +12,13 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The Kafka topic to send messages to.
+   * Header data to send to Kafka
    */
-  topic: string
+  headers?: {
+    [k: string]: unknown
+  }
+  /**
+   * The key for the message (optional)
+   */
+  key?: string
 }
