@@ -155,6 +155,7 @@ register('65c36c1e127fb2c8188a414c', './stackadapt')
 register('65cb48feaca9d46bf269ac4a', './accoil-analytics')
 register('6578a19fbd1201d21f035156', './responsys')
 
+
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const definition = require(destinationPath).default
