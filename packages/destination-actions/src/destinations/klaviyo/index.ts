@@ -91,6 +91,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
         method: 'GET',
         headers: buildHeaders(apiKey)
       })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        const klaviyoErrorDetail = errorResponse.error.errors[0].detail
+        throw new IntegrationError(klaviyoErrorDetail, 'INVALID_REQUEST_DATA', response.status)
+      }
+
       const r = await response.json()
       const externalId = r.data.id
 
