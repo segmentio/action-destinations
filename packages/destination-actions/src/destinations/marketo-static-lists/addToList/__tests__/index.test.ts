@@ -45,7 +45,7 @@ describe('MarketoStaticLists.addToList', () => {
       Content-Disposition: form-data; name=\\"file\\"; filename=\\"leads.csv\\"
       Content-Type: text/csv
 
-      Email
+      email
       testing@testing.com
       ----SEGMENT-DATA----
       "

@@ -22,11 +22,12 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     },
     accountId: {
       label: 'Account ID',
-      description: 'Pendo Account ID',
+      description:
+        'Pendo Account ID. Maps to Segment groupId.  Note: If you plan to change this, enable the setting "Use custom Segment group trait for Pendo account id"',
       type: 'string',
       required: true,
       default: { '@path': '$.groupId' },
-      readOnly: true
+      readOnly: false
     },
     accountData: {
       label: 'Account Metadata',
@@ -34,7 +35,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.traits' },
-      readOnly: true
+      readOnly: false
     },
     parentAccountData: {
       label: 'Parent Account Metadata',

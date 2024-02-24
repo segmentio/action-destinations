@@ -5,7 +5,7 @@ import { commonFields } from '../common_fields'
 import { performOfflineEvent } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Payment Offline Conversion',
+  title: 'Track Offline Conversion',
   description: 'Send details of an in-store purchase or console purchase to the Tiktok Offline Events API',
   fields: {
     ...commonFields

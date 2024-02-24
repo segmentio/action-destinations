@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendSchemaAction from './sendSchemaToInspector'
 import { Environment } from './sendSchemaToInspector/avo-types'
@@ -14,8 +14,8 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        label: 'API Key',
-        description: 'Avo Inspector API Key',
+        label: 'Avo Inspector API Key',
+        description: 'Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.',
         type: 'string',
         required: true
       },
@@ -28,9 +28,9 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       appVersionPropertyName: {
-        label: 'App Version property',
+        label: 'App Version Property',
         description:
-          'Optionally set which property represents the app version in your events. If not set, the app version will be taken from the $.context.app.version',
+          'If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.',
         type: 'string',
         required: false
       }
@@ -50,7 +50,15 @@ const destination: DestinationDefinition<Settings> = {
       return resp
     }
   },
-
+  presets: [
+    {
+      name: 'Track Schema From Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendSchemaToInspector',
+      mapping: defaultValues(sendSchemaAction.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     sendSchemaToInspector: sendSchemaAction // Add your action here
   }

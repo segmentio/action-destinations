@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Name of event
+   * Name of event (this will be snake cased in request)
    */
   event_name: string
   /**
@@ -25,6 +25,10 @@ export interface Payload {
    * Additional properties to send with event
    */
   traits?: {
+    /**
+     * Event name
+     */
+    raw_event_name?: string
     [k: string]: unknown
   }
 }
