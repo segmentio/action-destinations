@@ -184,12 +184,16 @@ export interface InputField extends InputFieldJSONSchema {
   readOnly?: boolean
 
   /**
-   * Determines whether this field will be shown in the UI.
+   * Determines whether this field will be shown in the UI. This is useful for when some field becomes irrelevant based on
+   * the value of another field.
    */
-  depends_on?: SettingFilter
+  depends_on?: DependsOnConditions
 }
 
-export interface SettingsFilterCondition {
+/**
+ * A single condition defining whether a field should be shown.
+ */
+export interface Condition {
   /** The field key in the settings object to look at */
   fieldKey: string
   operator: 'is' | 'is_not'
@@ -202,9 +206,9 @@ export interface SettingsFilterCondition {
  * If match = 'any', then meeting any of the conditions defined will result in the field being shown.
  * If match = 'all', then meeting all of the conditions defined will result in the field being shown.
  */
-export interface SettingFilter {
+export interface DependsOnConditions {
   match?: 'any' | 'all'
-  conditions: SettingsFilterCondition[]
+  conditions: Condition[]
 }
 
 export type FieldValue = string | number | boolean | object | Directive
