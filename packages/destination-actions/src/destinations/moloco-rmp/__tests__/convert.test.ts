@@ -26,7 +26,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decisionTrackId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -75,7 +74,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decision_track_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -132,7 +130,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decisionTrackId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -181,7 +178,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decision_track_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -238,7 +234,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decisionTrackId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -287,7 +282,6 @@ describe('Moloco Rmp', () => {
           ip: '1192.158.1.38'
         },
         session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
-        decision_track_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         items: [
           {
             id: '123',
@@ -328,7 +322,7 @@ describe('Moloco Rmp', () => {
     })
 
 
-    it('tests an event payload with a missing field (decisionTrackId)', async () => {
+    it('tests an event payload with a missing field (sessionId)', async () => {
       const input: SegmentEventPayload = {
         eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
@@ -344,7 +338,6 @@ describe('Moloco Rmp', () => {
           language: 'en',
           ip: '1192.158.1.38'
         },
-        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',
@@ -392,7 +385,6 @@ describe('Moloco Rmp', () => {
           language: 'en',
           ip: '1192.158.1.38'
         },
-        session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',

@@ -3,7 +3,6 @@
 exports[`Testing snapshot for MolocoRmp's pageView destination action: all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "W97yQ",
   "device": Object {
     "advertising_id": "W97yQ",
     "ip": "W97yQ",

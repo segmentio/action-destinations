@@ -6,7 +6,6 @@ import {
     USER_ID,
     DEVICE,
     SESSION_ID,
-    DECISION_TRACK_ID,
     DEFAULT_CURRENCY,
     createPageIdInputField,
     createPageIdentifierTokensInputField,
@@ -50,7 +49,6 @@ export class MolocoEvent {
     userId: InputField = USER_ID;
     device: InputField = DEVICE;
     sessionId: InputField = SESSION_ID;
-    decisionTrackId: InputField = DECISION_TRACK_ID;
     defaultCurrency: InputField = DEFAULT_CURRENCY;
 
     // Optional Fields; some events have these fields as required or optional OR not at all
@@ -106,7 +104,6 @@ export class MolocoEvent {
             userId: this.userId,
             device: this.device,
             sessionId: this.sessionId,
-            decisionTrackId: this.decisionTrackId,
             defaultCurrency: this.defaultCurrency
         }
     }

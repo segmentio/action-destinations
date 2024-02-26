@@ -26,10 +26,9 @@ describe('MolocoRmp.search', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE',
-        searchQuery: {
-          '@path': '$.properties.context.page.query'
-        }
+        searchQuery: { '@path': '$.properties.context.page.query'}
       },
       useDefaultMappings: true,
     })
