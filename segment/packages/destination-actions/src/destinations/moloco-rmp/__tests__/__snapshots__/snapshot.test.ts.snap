@@ -3,7 +3,6 @@
 exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "FGR%xELDK6awh3Tp*s",
   "device": Object {
     "advertising_id": "FGR%xELDK6awh3Tp*s",
     "ip": "FGR%xELDK6awh3Tp*s",
@@ -55,7 +54,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: home action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "EJ(KD9p9^^%i",
   "device": Object {
     "advertising_id": "EJ(KD9p9^^%i",
     "ip": "EJ(KD9p9^^%i",
@@ -103,7 +101,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: itemPageView action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "ulD!k3rFUf8H",
   "device": Object {
     "advertising_id": "ulD!k3rFUf8H",
     "ip": "ulD!k3rFUf8H",
@@ -156,7 +153,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: land action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "LII!0LBdUlNj]8JR%M",
   "device": Object {
     "advertising_id": "LII!0LBdUlNj]8JR%M",
     "ip": "LII!0LBdUlNj]8JR%M",
@@ -202,7 +198,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "sFKH^2",
   "device": Object {
     "advertising_id": "sFKH^2",
     "ip": "sFKH^2",
@@ -250,7 +245,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "z*PO@ClIfz41i$",
   "device": Object {
     "advertising_id": "z*PO@ClIfz41i$",
     "ip": "z*PO@ClIfz41i$",
@@ -310,7 +304,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "A6r#IT*)oBgN#NJ98*^",
   "device": Object {
     "advertising_id": "A6r#IT*)oBgN#NJ98*^",
     "ip": "A6r#IT*)oBgN#NJ98*^",

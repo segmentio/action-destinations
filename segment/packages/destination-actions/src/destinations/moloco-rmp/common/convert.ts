@@ -42,10 +42,6 @@ export function convertEvent(args: { eventType: EventType, payload: SegmentEvent
     body.session_id = payload.sessionId;
   }
 
-  if (payload.decisionTrackId) {
-    body.decision_track_id = payload.decisionTrackId;
-  }
-
   if (payload.items) {
     body.items = []
     for (const item of payload.items) {

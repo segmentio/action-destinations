@@ -8,7 +8,6 @@ const event = new MolocoEvent(EventType.Home, {
   requireItems: false,
   requirePageIdentification: false,
   requireReferrerPageId: false,
-  requireRevenue: false,
 })
 
 const action: ActionDefinition<Settings, Payload> = {

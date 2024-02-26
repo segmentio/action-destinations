@@ -87,6 +87,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'SITE',
         },
       })
@@ -174,6 +175,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
         },
       })
@@ -265,6 +267,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
         },
       })
@@ -326,6 +329,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'SITE',
         },
       })
@@ -397,6 +401,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'SITE',
           eventId: { '@path': '$.eventId' }
         },
@@ -460,6 +465,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'SITE',
           eventId: { '@path': '$.eventId' }
         },
@@ -568,6 +574,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           items: [
             {
@@ -698,6 +705,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           items: {
             '@arrayPath': [
@@ -832,6 +840,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           defaultCurrency: { '@path': '$.context.defaultCurrency' },
           items: {
@@ -965,6 +974,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           defaultCurrency: { '@path': '$.context.defaultCurrency' },
           items: {
@@ -1071,6 +1081,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           pageId: { '@path': '$.pageId' },
           pageIdentifierTokens: {
@@ -1171,6 +1182,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
+          timestamp: { '@path': '$.timestamp' },
           channelType: 'APP',
           // pageId: { '@path': '$.pageId' }, -- no mapping for page_id
           pageIdentifierTokens: {

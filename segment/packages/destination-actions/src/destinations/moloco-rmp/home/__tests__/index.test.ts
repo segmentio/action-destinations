@@ -16,6 +16,7 @@ describe('MolocoRmp.home', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE'
       },
       useDefaultMappings: true,

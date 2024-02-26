@@ -29,6 +29,7 @@ describe('MolocoRmp.itemPageView', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE',
         items: [
           {

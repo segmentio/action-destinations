@@ -30,6 +30,7 @@ describe('MolocoRmp.purchase', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE',
         items: [
           {

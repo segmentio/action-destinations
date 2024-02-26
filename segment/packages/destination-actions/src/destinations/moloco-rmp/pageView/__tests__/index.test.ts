@@ -44,6 +44,7 @@ describe('MolocoRmp.pageView', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE'
         // page_id is default to context.page.path
       },
