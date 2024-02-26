@@ -1,75 +1,7 @@
-import { Kafka, SASLOptions, ProducerRecord, Partitioners } from 'kafkajs'
-
 import type { ActionDefinition } from '@segment/actions-core'
-
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-//   const admin = kafka.admin()
-//await admin.connect()
-//const topics = await admin.listTopics()
-//console.log(topics)
-//await admin.disconnect()
-
-const sendData = async (settings: Settings, payload: Payload[]) => {
-  const groupedPayloads: { [topic: string]: Payload[] } = {}
-
-  payload.forEach((p) => {
-    const { topic } = p
-    if (!groupedPayloads[topic]) {
-      groupedPayloads[topic] = []
-    }
-    groupedPayloads[topic].push(p)
-  })
-
-  interface PayloadGroup {
-    topic: string
-    payloads: Payload[]
-  }
-
-  const payloadGroups: PayloadGroup[] = Object.keys(groupedPayloads).map((topic) => ({
-    topic,
-    payloads: groupedPayloads[topic]
-  }))
-
-  const kafka = new Kafka({
-    clientId: settings.clientId,
-    brokers: [settings.brokers],
-    ssl: true,
-    sasl: {
-      mechanism: settings.mechanism,
-      username: settings.username,
-      password: settings.password
-    } as SASLOptions
-  })
-
-  const producer = kafka.producer({
-    createPartitioner: settings.partitionerType === 'LegacyPartitioner' ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner,
-  })
-
-  await producer.connect()
-
-  for (const group of payloadGroups) {
-    const { topic, payloads } = group
-
-    const messages = payloads.map((payload) => ({
-      value: JSON.stringify(payload.payload),
-      key: payload.key,
-      headers: payload?.headers ?? undefined,
-      partition: payload?.partition ?? payload?.default_partition ?? undefined,
-      partitionerType: settings.partitionerType
-    }))
-
-    const data = {
-      topic,
-      messages
-    }
-
-    await producer.send(data as ProducerRecord)
-  }
-
-  await producer.disconnect()
-}
+import { getTopics, sendData } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -78,9 +10,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     topic: {
       label: 'Topic',
-      description: 'The Kafka topic to send messages to.',
+      description: 'The Kafka topic to send messages to. This field auto-populates from your Kafka instance.',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     payload: {
       label: 'Payload',
@@ -109,6 +42,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message Key',
       description: 'The key for the message (optional)',
       type: 'string'
+    }
+  },
+  dynamicFields: {
+    topic: async (_, { settings }) => {
+      return getTopics(settings)
     }
   },
   perform: async (_request, { settings, payload }) => {

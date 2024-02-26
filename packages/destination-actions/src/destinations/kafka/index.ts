@@ -7,7 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Kafka',
   slug: 'actions-kafka',
   mode: 'cloud',
-
+  description: 'Send data to a Kafka topic',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -61,19 +61,7 @@ const destination: DestinationDefinition<Settings> = {
         default: 'DefaultPartitioner'
       }
     }
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // }
   },
-
-  extendRequest: () => {
-    return {
-      headers: {}
-    }
-  },
-
   actions: {
     send
   }

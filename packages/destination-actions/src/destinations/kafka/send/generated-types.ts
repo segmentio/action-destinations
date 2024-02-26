@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The Kafka topic to send messages to.
+   * The Kafka topic to send messages to. This field auto-populates from your Kafka instance.
    */
   topic: string
   /**
