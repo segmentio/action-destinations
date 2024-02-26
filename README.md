@@ -396,7 +396,7 @@ Conditional fields enable a field only when a predefined list of conditions are 
 
 For example, in the Salesforce destination the 'Bulk Upsert External ID' field is only relevant when the user has selected 'Operation: Upsert' and 'Enable Batching: True'. In all other cases the field will be hidden to streamline UX while setting up the mapping.
 
-To define a conditional field, the `InputField` should implement the `depends_on` property. This property lives in destination-kit and the definition can be found here: `packages/core/src/destination-kit/types.ts`.
+To define a conditional field, the `InputField` should implement the `depends_on` property. This property lives in destination-kit and the definition can be found here: [`packages/core/src/destination-kit/types.ts`](https://github.com/segmentio/action-destinations/blame/854a9e154547a54a7323dc3d4bf95bc31d31433a/packages/core/src/destination-kit/types.ts).
 
 The above Salesforce use case is defined like this:
 
@@ -404,7 +404,7 @@ The above Salesforce use case is defined like this:
 export const bulkUpsertExternalId: InputField = {
   // other properties skipped for brevity ...
   depends_on: {
-    match: 'all', // match is optional, and if left undefiend will default to matching all conditions
+    match: 'all', // match is optional and can be either 'any' or 'all'. If left undefiend it defaults to matching all conditions.
     conditions: [
       {
         fieldKey: 'operation', // field keys must match some other field in the same action
