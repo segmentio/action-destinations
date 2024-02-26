@@ -15,8 +15,7 @@ describe('MolocoRmp.purchase', () => {
           id: '123',
           price: 100,
           quantity: 1,
-          sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
+          sellerId: 'seller123'
         },
         currency: 'USD',
         revenue: 100
@@ -48,9 +47,6 @@ describe('MolocoRmp.purchase', () => {
             },
             sellerId: {
               '@path': '$.properties.item.sellerId'
-            },
-            itemGroupId: {
-              '@path': '$.properties.item.itemGroupId'
             }
           }
         ],
@@ -79,8 +75,7 @@ describe('MolocoRmp.purchase', () => {
           id: '123',
           price: 100,
           quantity: 1,
-          sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
+          sellerId: 'seller123'
         },
         currency: 'USD',
         revenue: 100
@@ -118,8 +113,7 @@ describe('MolocoRmp.purchase', () => {
           id: '123',
           price: 100,
           quantity: 1,
-          sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
+          sellerId: 'seller123'
         },
         currency: 'USD',
         revenue: 100
@@ -150,9 +144,6 @@ describe('MolocoRmp.purchase', () => {
             },
             sellerId: {
               '@path': '$.properties.item.sellerId'
-            },
-            itemGroupId: {
-              '@path': '$.properties.item.itemGroupId'
             }
           }
         ],

@@ -94,10 +94,6 @@ function convertItemPayload(args: { payload: SegmentItemPayload, defaultCurrency
     itemPayload.quantity = payload.quantity;
   }
 
-  if (payload.itemGroupId) {
-    itemPayload.item_group_id = payload.itemGroupId;
-  }
-
   if (payload.sellerId) {
     itemPayload.seller_id = payload.sellerId;
   }

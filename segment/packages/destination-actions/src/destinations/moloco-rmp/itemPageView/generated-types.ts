@@ -102,7 +102,7 @@ export interface Payload {
      */
     price?: number
     /**
-     * Currency information, REQUIRED IF PRICE IS GIVEN. Available options are the followings
+     * Currency information, REQUIRED IF PRICE IS GIVEN) Available options are the followings
      *   UNKNOWN_CURRENCY: Unknown currency.
      *   USD: US Dollar.
      *   KRW: Korean Won.
@@ -134,10 +134,6 @@ export interface Payload {
      */
     quantity?: number
     /**
-     * Unique identifier of the Item Group.
-     */
-    itemGroupId?: string
-    /**
      * Unique identifier of the Seller.
      */
     sellerId?: string
@@ -158,41 +154,4 @@ export interface Payload {
    * Similar to referrer in HTTP, this value indicates from which page the user came to the current page.
    */
   referrerPageId?: string
-  /**
-   * Shipping charge’s monetary amount in a specific currency.
-   */
-  shippingCharge?: {
-    /**
-     * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")
-     */
-    price: number
-    /**
-     * Currency information. Available options are the followings
-     *   UNKNOWN_CURRENCY: Unknown currency.
-     *   USD: US Dollar.
-     *   KRW: Korean Won.
-     *   JPY: Japanese Yen.
-     *   EUR: EU Euro.
-     *   GBP: British Pound.
-     *   SEK: Swedish Krona.
-     *   INR: India Rupee.
-     *   THB: Thailand Baht.
-     *   IDR: Indonesia Rupiah.
-     *   CNY: China Yuan.
-     *   CAD: Canada Dollar.
-     *   RUB: Russia Ruble.
-     *   BRL: Brazil Real.
-     *   SGD: Singapore Dollar.
-     *   HKD: Hong Kong Dollar.
-     *   AUD: Autrailia Dollar.
-     *   PLN: Poland Zloty.
-     *   DKK: Denmark Krone.
-     *   VND: Viet Nam Dong.
-     *   MYR: Malaysia Ringgit.
-     *   PHP: Philippines Peso.
-     *   TRY: Turkey Lira.
-     *   VEF: Venezuela Bolívar.
-     */
-    currency: string
-  }
 }

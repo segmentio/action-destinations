@@ -18,7 +18,6 @@ Object {
   "items": Array [
     Object {
       "id": "0ON[O$XBU3K!AzrrU",
-      "item_group_id": "0ON[O$XBU3K!AzrrU",
       "price": Object {
         "amount": 55442654007132.16,
         "currency": "CUP",
@@ -29,10 +28,6 @@ Object {
   ],
   "page_id": "0ON[O$XBU3K!AzrrU",
   "session_id": "0ON[O$XBU3K!AzrrU",
-  "shipping_charge": Object {
-    "amount": 55442654007132.16,
-    "currency": "CUP",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "0ON[O$XBU3K!AzrrU",
 }

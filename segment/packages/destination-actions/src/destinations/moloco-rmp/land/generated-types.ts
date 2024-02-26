@@ -102,7 +102,7 @@ export interface Payload {
      */
     price?: number
     /**
-     * Currency information, REQUIRED IF PRICE IS GIVEN. Available options are the followings
+     * Currency information, REQUIRED IF PRICE IS GIVEN) Available options are the followings
      *   UNKNOWN_CURRENCY: Unknown currency.
      *   USD: US Dollar.
      *   KRW: Korean Won.
@@ -133,10 +133,6 @@ export interface Payload {
      * Quantity of the item. Recommended.
      */
     quantity?: number
-    /**
-     * Unique identifier of the Item Group.
-     */
-    itemGroupId?: string
     /**
      * Unique identifier of the Seller.
      */
