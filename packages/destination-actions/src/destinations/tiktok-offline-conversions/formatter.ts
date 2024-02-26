@@ -36,6 +36,21 @@ export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
   return result
 }
 
+/**
+ *
+ * @param userId
+ * @returns Leading/Trailing spaces are trimmed and then userId is hashed.
+ */
+export function formatUserIds(userIds: string[] | undefined): string[] {
+  const result: string[] = []
+  if (userIds) {
+    userIds.forEach((userId: string) => {
+      result.push(hashAndEncode(userId.toLowerCase()))
+    })
+  }
+  return result
+}
+
 function hashAndEncode(property: string) {
   return createHash('sha256').update(property).digest('hex')
 }
