@@ -66,7 +66,7 @@ export interface HookBundle {
       /**
        * The name of the conversion rule.
        */
-      name: string
+      name?: string
       /**
        * The type of conversion rule.
        */

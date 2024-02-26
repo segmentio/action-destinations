@@ -36,7 +36,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'string',
           label: 'Name',
           description: 'The name of the conversion rule.',
-          required: true,
           depends_on: {
             match: 'all',
             conditions: [
