@@ -4,6 +4,8 @@ import { authentication } from './common/auth'
 
 import home from './home'
 
+import search from './search'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -19,7 +21,8 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    home
+    home,
+    search
   }
 }
 

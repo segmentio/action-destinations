@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MolocoRmp's search destination action: all fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "decision_track_id": "TVdeoPEfmlhx4",
+  "device": Object {
+    "advertising_id": "TVdeoPEfmlhx4",
+    "ip": "TVdeoPEfmlhx4",
+    "language": "TVdeoPEfmlhx4",
+    "model": "TVdeoPEfmlhx4",
+    "os": "TVDEOPEFMLHX4",
+    "os_version": "TVdeoPEfmlhx4",
+    "ua": "TVdeoPEfmlhx4",
+    "unique_device_id": "TVdeoPEfmlhx4",
+  },
+  "event_id": "TVdeoPEfmlhx4",
+  "event_type": "SEARCH",
+  "items": Array [
+    Object {
+      "id": "TVdeoPEfmlhx4",
+      "item_group_id": "TVdeoPEfmlhx4",
+      "price": Object {
+        "amount": 456586774446.08,
+        "currency": "KMF",
+      },
+      "quantity": 456586774446.08,
+      "seller_id": "TVdeoPEfmlhx4",
+    },
+  ],
+  "page_id": "TVdeoPEfmlhx4",
+  "referrer_page_id": "TVdeoPEfmlhx4",
+  "search_query": "TVdeoPEfmlhx4",
+  "session_id": "TVdeoPEfmlhx4",
+  "shipping_charge": Object {
+    "amount": 456586774446.08,
+    "currency": "KMF",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "TVdeoPEfmlhx4",
+}
+`;
+
+exports[`Testing snapshot for MolocoRmp's search destination action: required fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "event_type": "SEARCH",
+  "search_query": "TVdeoPEfmlhx4",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
