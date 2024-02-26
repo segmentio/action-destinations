@@ -153,6 +153,55 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - all fields 1`] = `
+Object {
+  "channel_type": "APP",
+  "decision_track_id": "sFKH^2",
+  "device": Object {
+    "advertising_id": "sFKH^2",
+    "ip": "sFKH^2",
+    "language": "sFKH^2",
+    "model": "sFKH^2",
+    "os": "SFKH^2",
+    "os_version": "sFKH^2",
+    "ua": "sFKH^2",
+    "unique_device_id": "sFKH^2",
+  },
+  "event_id": "sFKH^2",
+  "event_type": "PAGE_VIEW",
+  "items": Array [
+    Object {
+      "id": "sFKH^2",
+      "item_group_id": "sFKH^2",
+      "price": Object {
+        "amount": -74065445933547.52,
+        "currency": "ETB",
+      },
+      "quantity": -74065445933547.52,
+      "seller_id": "sFKH^2",
+    },
+  ],
+  "page_id": "sFKH^2",
+  "referrer_page_id": "sFKH^2",
+  "session_id": "sFKH^2",
+  "shipping_charge": Object {
+    "amount": -74065445933547.52,
+    "currency": "ETB",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "sFKH^2",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - required fields 1`] = `
+Object {
+  "channel_type": "APP",
+  "event_type": "PAGE_VIEW",
+  "page_id": "sFKH^2",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
 exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
