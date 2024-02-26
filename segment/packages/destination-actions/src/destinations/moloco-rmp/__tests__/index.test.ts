@@ -66,7 +66,7 @@ describe('Moloco Rmp', () => {
           userAgent:
             'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -83,7 +83,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: webEvent as SegmentEvent,
+        event: webEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -150,7 +150,7 @@ describe('Moloco Rmp', () => {
           traits: {},
           timezone: 'America/Los_Angeles',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -170,7 +170,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: iosEvent as SegmentEvent,
+        event: iosEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -240,7 +240,7 @@ describe('Moloco Rmp', () => {
           userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
           timezone: 'America/Los_Angeles',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -261,7 +261,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: androidEvent as SegmentEvent,
+        event: androidEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -305,7 +305,7 @@ describe('Moloco Rmp', () => {
           userAgent:
             'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -322,7 +322,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: event as SegmentEvent,
+        event: event,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -376,7 +376,7 @@ describe('Moloco Rmp', () => {
           userAgent:
             'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -393,7 +393,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: event as SegmentEvent,
+        event: event,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -439,7 +439,7 @@ describe('Moloco Rmp', () => {
           userAgent:
             'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -456,7 +456,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: event as SegmentEvent,
+        event: event,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -534,7 +534,7 @@ describe('Moloco Rmp', () => {
           userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
           timezone: 'America/Los_Angeles',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -564,7 +564,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: androidEvent as SegmentEvent,
+        event: androidEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
@@ -657,7 +657,7 @@ describe('Moloco Rmp', () => {
           userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
           timezone: 'America/Los_Angeles',
         }
-      }
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -694,7 +694,7 @@ describe('Moloco Rmp', () => {
       }
         
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
-        event: androidEvent as SegmentEvent,
+        event: androidEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
