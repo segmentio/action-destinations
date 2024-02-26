@@ -192,12 +192,13 @@ export interface InputField extends InputFieldJSONSchema {
 
 /**
  * A single condition defining whether a field should be shown.
+ * fieldKey: The field key in the fields object to look at
+ * operator: The operator to use when comparing the field value
+ * value: The value we expect that field to have, if undefined, we will match based on whether the field contains a value or not
  */
 export interface Condition {
-  /** The field key in the settings object to look at */
   fieldKey: string
   operator: 'is' | 'is_not'
-  /** The value we expect that setting to have */
   value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
 }
 
