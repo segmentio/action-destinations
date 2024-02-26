@@ -6,6 +6,8 @@ import home from './home'
 
 import search from './search'
 
+import addToWishlist from './addToWishlist'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -22,7 +24,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     home,
-    search
+    search,
+    addToWishlist
   }
 }
 

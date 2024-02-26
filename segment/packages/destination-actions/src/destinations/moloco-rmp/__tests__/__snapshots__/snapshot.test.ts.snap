@@ -1,5 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - all fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "decision_track_id": "FGR%xELDK6awh3Tp*s",
+  "device": Object {
+    "advertising_id": "FGR%xELDK6awh3Tp*s",
+    "ip": "FGR%xELDK6awh3Tp*s",
+    "language": "FGR%xELDK6awh3Tp*s",
+    "model": "FGR%xELDK6awh3Tp*s",
+    "os": "FGR%XELDK6AWH3TP*S",
+    "os_version": "FGR%xELDK6awh3Tp*s",
+    "ua": "FGR%xELDK6awh3Tp*s",
+    "unique_device_id": "FGR%xELDK6awh3Tp*s",
+  },
+  "event_id": "FGR%xELDK6awh3Tp*s",
+  "event_type": "ADD_TO_WISHLIST",
+  "items": Array [
+    Object {
+      "id": "FGR%xELDK6awh3Tp*s",
+      "item_group_id": "FGR%xELDK6awh3Tp*s",
+      "price": Object {
+        "amount": 57250726019072,
+        "currency": "PLN",
+      },
+      "quantity": 57250726019072,
+      "seller_id": "FGR%xELDK6awh3Tp*s",
+    },
+  ],
+  "page_id": "FGR%xELDK6awh3Tp*s",
+  "session_id": "FGR%xELDK6awh3Tp*s",
+  "shipping_charge": Object {
+    "amount": 57250726019072,
+    "currency": "PLN",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "FGR%xELDK6awh3Tp*s",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - required fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "event_type": "ADD_TO_WISHLIST",
+  "items": Array [
+    Object {
+      "id": "FGR%xELDK6awh3Tp*s",
+    },
+  ],
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
 exports[`Testing snapshot for actions-moloco-rmp destination: home action - all fields 1`] = `
 Object {
   "channel_type": "APP",
