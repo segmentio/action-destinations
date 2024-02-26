@@ -8,6 +8,8 @@ import search from './search'
 
 import addToWishlist from './addToWishlist'
 
+import itemPageView from './itemPageView'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -25,7 +27,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     home,
     search,
-    addToWishlist
+    addToWishlist,
+    itemPageView
   }
 }
 
