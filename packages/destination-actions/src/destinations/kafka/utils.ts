@@ -80,6 +80,8 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
       messages
     }
 
+    console.log(data)
+
     await producer.send(data as ProducerRecord)
   }
 
