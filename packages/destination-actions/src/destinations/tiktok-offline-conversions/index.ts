@@ -50,8 +50,8 @@ const multiProductContents = {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'TikTok Offline Conversions Sandbox',
-  slug: 'actions-tiktok-offline-conversions-sandbox',
+  name: 'TikTok Offline Conversions',
+  slug: 'actions-tiktok-offline-conversions',
   mode: 'cloud',
 
   authentication: {
