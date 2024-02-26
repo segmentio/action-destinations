@@ -18,7 +18,6 @@ Object {
   "items": Array [
     Object {
       "id": "SYvlLHdgX",
-      "item_group_id": "SYvlLHdgX",
       "price": Object {
         "amount": -35543909044060.16,
         "currency": "BIF",
@@ -30,10 +29,6 @@ Object {
   "page_id": "SYvlLHdgX",
   "referrer_page_id": "SYvlLHdgX",
   "session_id": "SYvlLHdgX",
-  "shipping_charge": Object {
-    "amount": -35543909044060.16,
-    "currency": "BIF",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "SYvlLHdgX",
 }

@@ -17,7 +17,6 @@ describe('MolocoRmp.addToWishlist', () => {
           currency: 'USD',
           quantity: 1,
           sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
         }
       }
     })
@@ -48,9 +47,6 @@ describe('MolocoRmp.addToWishlist', () => {
             sellerId: {
               '@path': '$.properties.item.sellerId'
             },
-            itemGroupId: {
-              '@path': '$.properties.item.itemGroupId'
-            }
           }
         ]
       },
@@ -72,7 +68,6 @@ describe('MolocoRmp.addToWishlist', () => {
           currency: 'USD',
           quantity: 1,
           sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
         }
       }
     })
@@ -102,9 +97,6 @@ describe('MolocoRmp.addToWishlist', () => {
         //     sellerId: {
         //       '@path': '$.properties.item.sellerId'
         //     },
-        //     itemGroupId: {
-        //       '@path': '$.properties.item.itemGroupId'
-        //     }
         //   }
         // ] -- missing required field
       },

@@ -32,7 +32,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -40,7 +39,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -82,7 +80,6 @@ describe('Moloco Rmp', () => {
               amount: 12.34
             },
             quantity: 1,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -92,7 +89,6 @@ describe('Moloco Rmp', () => {
               amount: 56.78
             },
             quantity: 2,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -136,7 +132,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -144,7 +139,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -186,7 +180,6 @@ describe('Moloco Rmp', () => {
               amount: 12.34
             },
             quantity: 1,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -196,7 +189,6 @@ describe('Moloco Rmp', () => {
               amount: 56.78
             },
             quantity: 2,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -240,7 +232,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -248,7 +239,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -290,7 +280,6 @@ describe('Moloco Rmp', () => {
               amount: 12.34
             },
             quantity: 1,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -300,7 +289,6 @@ describe('Moloco Rmp', () => {
               amount: 56.78
             },
             quantity: 2,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -344,7 +332,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -352,7 +339,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -393,7 +379,6 @@ describe('Moloco Rmp', () => {
               amount: 12.34
             },
             quantity: 1,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -403,7 +388,6 @@ describe('Moloco Rmp', () => {
               amount: 56.78
             },
             quantity: 2,
-            item_group_id: 'xyz',
             seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
@@ -446,7 +430,6 @@ describe('Moloco Rmp', () => {
             id: '123',
             price: 12.34,
             quantity: 1,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
@@ -454,7 +437,6 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            itemGroupId: 'xyz',
             sellerId: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ]

@@ -18,7 +18,6 @@ Object {
   "items": Array [
     Object {
       "id": "M7i8t#AejMHF0ojzM0NV",
-      "item_group_id": "M7i8t#AejMHF0ojzM0NV",
       "price": Object {
         "amount": 84218396593356.8,
         "currency": "RUB",
@@ -29,10 +28,6 @@ Object {
   ],
   "page_id": "M7i8t#AejMHF0ojzM0NV",
   "referrer_page_id": "M7i8t#AejMHF0ojzM0NV",
-  "revenue": Object {
-    "amount": 84218396593356.8,
-    "currency": "RUB",
-  },
   "session_id": "M7i8t#AejMHF0ojzM0NV",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "M7i8t#AejMHF0ojzM0NV",

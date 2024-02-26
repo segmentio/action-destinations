@@ -135,10 +135,6 @@ export interface ItemPayload {
 	 */
 	quantity?: number
 	/**
-	 * Unique identifier of the Item Group.
-	 */
-	itemGroupId?: string
-	/**
 	 * Unique identifier of the Seller.
 	 */
 	sellerId?: string

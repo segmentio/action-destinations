@@ -82,10 +82,6 @@ export type ItemPayload = {
 	 */
 	quantity?: number
 	/**
-	 * Unique identifier of the Item Group.
-	 */
-	item_group_id?: string
-	/**
 	 * Unique identifier of the Seller.
 	 */
 	seller_id?: string

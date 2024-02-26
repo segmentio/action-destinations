@@ -17,7 +17,6 @@ describe('MolocoRmp.itemPageView', () => {
           currency: 'USD',
           quantity: 1,
           sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
         }
       }
     })
@@ -47,9 +46,6 @@ describe('MolocoRmp.itemPageView', () => {
             },
             sellerId: {
               '@path': '$.properties.item.sellerId'
-            },
-            itemGroupId: {
-              '@path': '$.properties.item.itemGroupId'
             }
           }
         ]
@@ -71,8 +67,7 @@ describe('MolocoRmp.itemPageView', () => {
           price: 100,
           currency: 'USD',
           quantity: 1,
-          sellerId: 'seller123',
-          itemGroupId: 'itemGroup123'
+          sellerId: 'seller123'
         }
       }
     })
@@ -101,9 +96,6 @@ describe('MolocoRmp.itemPageView', () => {
         //     },
         //     sellerId: {
         //       '@path': '$.properties.item.sellerId'
-        //     },
-        //     itemGroupId: {
-        //       '@path': '$.properties.item.itemGroupId'
         //     }
         //   }
         // ] -- missing required field
