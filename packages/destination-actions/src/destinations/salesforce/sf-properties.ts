@@ -1,5 +1,4 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, InputField } from '@segment/actions-core'
 
 export const operation: InputField = {
   label: 'Operation',
