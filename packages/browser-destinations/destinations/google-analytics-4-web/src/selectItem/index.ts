@@ -8,7 +8,8 @@ import {
   user_id,
   items_single_products,
   item_list_name,
-  item_list_id
+  item_list_id,
+  send_to
 } from '../ga4-properties'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -25,15 +26,17 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       required: true
     },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'select_item', {
       item_list_id: payload.item_list_id,
       item_list_name: payload.item_list_name,
       items: payload.items,
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       ...payload.params
     })
   }

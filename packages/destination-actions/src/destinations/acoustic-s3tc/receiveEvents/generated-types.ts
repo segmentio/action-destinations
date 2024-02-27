@@ -32,9 +32,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Do Not Modify - Email is required
+   * The field to be used to uniquely identify the Recipient in Acoustic. This field is required with Email preferred but not required.
    */
-  email: string
+  uniqueRecipientId: string
   /**
    * Do Not Modify - The type of event. e.g. track or identify, this field is required
    */

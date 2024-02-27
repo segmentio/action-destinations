@@ -32,21 +32,39 @@ const createEventData = (payload: Payload) => ({
   }
 })
 
-const sendProductRequests = async (payload: Payload, eventData: EventData, request: RequestClient) => {
-  if (payload.products && Array.isArray(payload.products)) {
-    const productPromises = payload?.products?.map((product) => {
-      eventData.data.attributes.properties = product.properties
-      eventData.data.attributes.value = product.value
-      eventData.data.attributes.metric.data.attributes.name = 'Ordered Product'
-
-      return request(`${API_URL}/events/`, {
-        method: 'POST',
-        json: eventData
-      })
-    })
-
-    await Promise.all(productPromises)
+const sendProductRequests = async (payload: Payload, orderEventData: EventData, request: RequestClient) => {
+  if (!payload.products || !Array.isArray(payload.products)) {
+    return
   }
+
+  const productPromises = payload.products.map((product) => {
+    const productEventData = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { ...product.properties, ...orderEventData.data.attributes.properties },
+          value: product.value,
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'Ordered Product'
+              }
+            }
+          },
+          time: orderEventData.data.attributes.time,
+          profile: orderEventData.data.attributes.profile
+        }
+      }
+    }
+
+    return request(`${API_URL}/events/`, {
+      method: 'POST',
+      json: productEventData
+    })
+  })
+
+  await Promise.all(productPromises)
 }
 
 const action: ActionDefinition<Settings, Payload> = {

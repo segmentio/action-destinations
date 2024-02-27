@@ -14,6 +14,9 @@ const subscriptions: Subscription[] = [
       },
       value: {
         '@path': '$.properties.value'
+      },
+      send_to: {
+        '@path': '$.properties.send_to'
       }
     }
   }
@@ -42,7 +45,51 @@ describe('GoogleAnalytics4Web.generateLead', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 generateLead Event', async () => {
+  test('GA4 generateLead Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Generate Lead',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: false
+      }
+    })
+    await generateLeadEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('generate_lead'),
+      expect.objectContaining({
+        currency: 'USD',
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 generateLead Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Generate Lead',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: true
+      }
+    })
+    await generateLeadEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('generate_lead'),
+      expect.objectContaining({
+        currency: 'USD',
+        value: 10,
+        send_to: settings.measurementID
+      })
+    )
+  })
+  test('GA4 generateLead Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Generate Lead',
       type: 'track',
@@ -58,7 +105,8 @@ describe('GoogleAnalytics4Web.generateLead', () => {
       expect.stringContaining('generate_lead'),
       expect.objectContaining({
         currency: 'USD',
-        value: 10
+        value: 10,
+        send_to: 'default'
       })
     )
   })
