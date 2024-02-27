@@ -248,6 +248,66 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - all fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "decision_track_id": "z*PO@ClIfz41i$",
+  "device": Object {
+    "advertising_id": "z*PO@ClIfz41i$",
+    "ip": "z*PO@ClIfz41i$",
+    "language": "z*PO@ClIfz41i$",
+    "model": "z*PO@ClIfz41i$",
+    "os": "Z*PO@CLIFZ41I$",
+    "os_version": "z*PO@ClIfz41i$",
+    "ua": "z*PO@ClIfz41i$",
+    "unique_device_id": "z*PO@ClIfz41i$",
+  },
+  "event_id": "z*PO@ClIfz41i$",
+  "event_type": "PURCHASE",
+  "items": Array [
+    Object {
+      "id": "z*PO@ClIfz41i$",
+      "item_group_id": "z*PO@ClIfz41i$",
+      "price": Object {
+        "amount": 15155152394649.6,
+        "currency": "HUF",
+      },
+      "quantity": 15155152394649.6,
+      "seller_id": "z*PO@ClIfz41i$",
+    },
+  ],
+  "page_id": "z*PO@ClIfz41i$",
+  "revenue": Object {
+    "amount": 15155152394649.6,
+    "currency": "HUF",
+  },
+  "session_id": "z*PO@ClIfz41i$",
+  "shipping_charge": Object {
+    "amount": 15155152394649.6,
+    "currency": "HUF",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "z*PO@ClIfz41i$",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - required fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "event_type": "PURCHASE",
+  "items": Array [
+    Object {
+      "id": "z*PO@ClIfz41i$",
+    },
+  ],
+  "revenue": Object {
+    "amount": 15155152394649.6,
+    "currency": "HUF",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
 exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
