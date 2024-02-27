@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Engage Audience to a Kevel Segment. Only users with a Segment userId will be synced.',
+  description:
+    'Sync a Segment Engage Audience to a Kevel UserDB Interest. Only users with a Segment userId will be synced.',
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     segment_computation_key: {

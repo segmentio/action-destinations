@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Traits',
-  description: 'Sync user profile traits from Segment to Kevel',
+  description: 'Sync user profile traits from Segment to Kevel UserDB',
   defaultSubscription: 'type = "identify"',
   fields: {
     segment_user_id: {
