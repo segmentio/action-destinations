@@ -41,7 +41,7 @@ describe('validation', () => {
         let hasError = false
         try {
           validate(fixture.mapping)
-        } catch (error) {
+        } catch (error: any) {
           hasError = true
           if (typeof fixture.expectError === 'string') {
             expect(error.message).toMatch(fixture.expectError)

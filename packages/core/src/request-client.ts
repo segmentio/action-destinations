@@ -270,7 +270,7 @@ class RequestClient {
     }
 
     // Use our internal abort controller for fetch
-    this.options.signal = this.abortController.signal
+    this.options.signal = this.abortController.signal as AbortSignal & { reason?: string; throwIfAborted?: () => void }
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)
