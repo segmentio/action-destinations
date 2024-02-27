@@ -173,15 +173,15 @@ function createMoneyProperties(required: boolean): Record<string, InputField> {
       label: 'Price',
       description:
         'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")'
-        + required ? '' : ', REQUIRED IF CURRENCY IS GIVEN',
+        + (required ? '' : ', REQUIRED IF CURRENCY IS GIVEN'),
       type: 'number',
       required: required
     },
     currency: {
       label: 'Currency',
       description: 'Currency information'
-      + required ? '' : ', REQUIRED IF PRICE IS GIVEN'
-      + `Available options are the followings
+      + (required ? '' : ', REQUIRED IF PRICE IS GIVEN)')
+      + ` Available options are the followings
   UNKNOWN_CURRENCY: Unknown currency.
   USD: US Dollar.
   KRW: Korean Won.
@@ -268,17 +268,40 @@ export function createSearchQueryInputField(required: boolean): InputField {
   }
 }
 
-export function createPageIdInputField(required: boolean): InputField {
+// args is an object with a single property, requireIdentification
+// This is to differentiate this function's parameter effect from the other create*InputField functions
+// This function's parameter does not explicitly require the field to be required, but rather only changes the description
+// It's requirement will be checked from the Moloco RMP's side
+export function createPageIdInputField(args: { requireIdentification: boolean }): InputField {
+  const { requireIdentification } = args
+
   return {
     label: 'Page ID',
     description: `A string that can identify a context of the event,
   such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
-  Any value is acceptable if it helps identifying unique pages.`,
+  Any value is acceptable if it helps identifying unique pages.`
+    + (requireIdentification ? ', (At least one of page_id or page_identifier_tokens is required)':  ''),
     type: 'string',
-    required: required,
+    required: false,
     default: {
       '@path': '$.context.page.path'
     }
+  }
+}
+
+// args is an object with a single property, requireIdentification
+// This is to differentiate this function's parameter effect from the other create*InputField functions
+// This function's parameter does not explicitly require the field to be required, but rather only changes the description
+// It's requirement will be checked from the Moloco RMP's side
+export function createPageIdentifierTokensInputField(args: { requireIdentification: boolean }): InputField {
+  const { requireIdentification } = args
+
+  return {
+    label: 'Page Identifier Tokens',
+    description: 'Tokens that can be used to identify a page. Alternative to page_id with a lower priority.'
+    + (requireIdentification ? ', (At least one of page_id or page_identifier_tokens is required)':  ''),
+    type: 'object',
+    required: false
   }
 }
 

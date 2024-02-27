@@ -62,9 +62,13 @@ export function convertEvent(args: { eventType: EventType, payload: SegmentEvent
     body.search_query = payload.searchQuery;
   }
 
-  if (payload.pageId) {
-    body.page_id = payload.pageId;
-  }
+  if (payload.pageId || payload.pageIdentifierTokens) {
+    if (!(payload.pageId)) {
+      body.page_id = convertPageIdentifierTokensToPageId(payload.pageIdentifierTokens);
+    } else {
+      body.page_id = payload.pageId;
+    }
+  }  
 
   if (payload.referrerPageId) {
     body.referrer_page_id = payload.referrerPageId;
@@ -160,4 +164,11 @@ function convertDevicePayload(payload: SegmentDevicePayload): MolocoDevicePayloa
   }
 
   return devicePayload
+}
+
+function convertPageIdentifierTokensToPageId(tokens: { [k: string]: unknown } | undefined): string {
+  if (tokens === undefined) {
+    return ''
+  }
+  return Object.entries(tokens).map(([key, value]) => `${key}:${value}`).join(';')
 }

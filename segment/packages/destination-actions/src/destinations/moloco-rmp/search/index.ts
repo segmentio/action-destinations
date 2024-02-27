@@ -7,7 +7,7 @@ import type { Payload } from './generated-types'
 const event = new MolocoEvent(EventType.Search, {
   requireItems: false,
   requireSearchQuery: true,
-  requirePageId: false,
+  requirePageIdentification: false,
   requireReferrerPageId: false,
   requireShippingCharge: false,
 })

@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const event = new MolocoEvent(EventType.Home, {
   requireItems: false,
-  requirePageId: false,
+  requirePageIdentification: false,
   requireReferrerPageId: false,
   requireRevenue: false,
 })

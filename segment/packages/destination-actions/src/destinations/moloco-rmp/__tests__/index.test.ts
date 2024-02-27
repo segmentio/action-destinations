@@ -984,5 +984,205 @@ describe('Moloco Rmp', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
+
+    it('should validate the page_id conversion when both "page_id" and "page_identifier_tokens" are given ("page_id" should be used).' , async () => {
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      // A test event case with automatically collected fields
+      // Check the table's ANALYTICS.ANDROID column in the following link
+      // https://segment-docs.netlify.app/docs/connections/spec/common/#context-fields-automatically-collected
+      const event = {
+        pageId: 'page-id-1234',
+        anonymousId: 'anonId1234',
+        event: 'Test Event',
+        messageId: uuidv4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        context: {
+          app: {
+            name: 'AppName',
+            version: '1.0.0',
+            build: '1',
+          },
+          device: {
+            type: 'android',
+            id: '12345',
+            advertisingId: '12345',
+            adTrackingEnabled: true,
+            manufacturer: 'Samsung',
+            model: 'Galaxy S10',
+            name: 'galaxy',
+          },
+          library: {
+            name: 'analytics.ANDROID',
+            version: '2.11.1'
+          },
+          ip: '8.8.8.8',
+          locale: 'en-US',
+          network: {
+            carrier: 'T-Mobile US',
+            cellular: true,
+            wifi: false,
+            bluetooth: false,
+          },
+          os: {
+            name: 'Google Android',
+            version: '14.4.2'
+          },
+          screen: {
+            height: 1334,
+            width: 750,
+            density: 2.0
+          },
+          traits: {},
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
+          event: 'Product List Viewed',
+          vertical: 'fruit'
+        }
+      } as const
+
+      const expectedPayload: EventPayload = {
+        event_type: TEST_EVENT_TYPE,
+        event_id: event.messageId,
+        timestamp: event.timestamp,
+        channel_type: 'APP',
+        user_id: event.userId,
+        device: {
+          advertising_id: event.context.device.advertisingId,
+          ip: event.context.ip,
+          model: event.context.device.model,
+          os: event.context.os.name.toUpperCase(),
+          os_version: event.context.os.version,
+          ua: event.context.userAgent,
+          unique_device_id: event.context.device.id,
+        },
+        page_id: event.pageId, // -- still uses the pageId
+        session_id: event.anonymousId,
+      }
+        
+      const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
+        event: event,
+        settings: AUTH,
+        useDefaultMappings: true,
+        mapping: {
+          channelType: 'APP',
+          pageId: { '@path': '$.pageId' },
+          pageIdentifierTokens: {
+            event: { '@path': '$.context.event' },
+            vertical: { '@path': '$.context.vertical' }
+          }
+        },
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual(expectedPayload)
+    })
+
+    it('should validate the page_id conversion when only "page_identifier_tokens" is given.' , async () => {
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      // A test event case with automatically collected fields
+      // Check the table's ANALYTICS.ANDROID column in the following link
+      // https://segment-docs.netlify.app/docs/connections/spec/common/#context-fields-automatically-collected
+      const event = {
+        pageId: 'page-id-1234',
+        anonymousId: 'anonId1234',
+        event: 'Test Event',
+        messageId: uuidv4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        context: {
+          app: {
+            name: 'AppName',
+            version: '1.0.0',
+            build: '1',
+          },
+          device: {
+            type: 'android',
+            id: '12345',
+            advertisingId: '12345',
+            adTrackingEnabled: true,
+            manufacturer: 'Samsung',
+            model: 'Galaxy S10',
+            name: 'galaxy',
+          },
+          library: {
+            name: 'analytics.ANDROID',
+            version: '2.11.1'
+          },
+          ip: '8.8.8.8',
+          locale: 'en-US',
+          network: {
+            carrier: 'T-Mobile US',
+            cellular: true,
+            wifi: false,
+            bluetooth: false,
+          },
+          os: {
+            name: 'Google Android',
+            version: '14.4.2'
+          },
+          screen: {
+            height: 1334,
+            width: 750,
+            density: 2.0
+          },
+          traits: {},
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
+          event: 'Product List Viewed',
+          vertical: 'fruit'
+        }
+      } as const
+
+      const expectedPayload: EventPayload = {
+        event_type: TEST_EVENT_TYPE,
+        event_id: event.messageId,
+        timestamp: event.timestamp,
+        channel_type: 'APP',
+        user_id: event.userId,
+        device: {
+          advertising_id: event.context.device.advertisingId,
+          ip: event.context.ip,
+          model: event.context.device.model,
+          os: event.context.os.name.toUpperCase(),
+          os_version: event.context.os.version,
+          ua: event.context.userAgent,
+          unique_device_id: event.context.device.id,
+        },
+        page_id: "event:Product List Viewed;vertical:fruit", // stringified from pageIdentifierTokens
+        session_id: event.anonymousId,
+      }
+        
+      const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
+        event: event,
+        settings: AUTH,
+        useDefaultMappings: true,
+        mapping: {
+          channelType: 'APP',
+          // pageId: { '@path': '$.pageId' }, -- no mapping for page_id
+          pageIdentifierTokens: {
+            event: { '@path': '$.context.event' },
+            vertical: { '@path': '$.context.vertical' }
+          }
+        },
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual(expectedPayload)
+    })
   })
 })

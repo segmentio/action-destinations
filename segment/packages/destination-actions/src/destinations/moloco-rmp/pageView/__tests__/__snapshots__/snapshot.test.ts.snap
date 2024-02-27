@@ -44,7 +44,6 @@ exports[`Testing snapshot for MolocoRmp's pageView destination action: required 
 Object {
   "channel_type": "APP",
   "event_type": "PAGE_VIEW",
-  "page_id": "W97yQ",
   "timestamp": "2021-02-01T00:00:00.000Z",
 }
 `;

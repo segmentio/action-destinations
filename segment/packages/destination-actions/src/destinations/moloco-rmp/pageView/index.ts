@@ -6,7 +6,7 @@ import type { Payload } from './generated-types'
 
 const event = new MolocoEvent(EventType.PageView, {
   requireItems: false,
-  requirePageId: true,
+  requirePageIdentification: true,
   requireReferrerPageId: false,
   requireShippingCharge: false
 })
