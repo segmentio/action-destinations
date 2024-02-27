@@ -56,13 +56,11 @@ const badEvent = createTestEvent({
 
 describe('Kevel.syncAudience', () => {
   it('should not throw an error if the audience creation succeed - track', async () => {
-    const userId = 'uid1'
+    const payload = {}
     const networkId1 = 'networkId1'
     const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`
 
-    nock(baseUrl)
-      .post(`/interests?userKey=${userId}`, JSON.stringify(['kevel_segment_test_name']))
-      .reply(200)
+    nock(baseUrl).post(`/`, payload).reply(200)
 
     await expect(
       testDestination.testAction('syncAudience', {
@@ -77,13 +75,11 @@ describe('Kevel.syncAudience', () => {
   })
 
   it('should not throw an error if the audience creation succeed - track', async () => {
-    const userId = 'uid1'
+    const payload = {}
     const networkId1 = 'networkId1'
     const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`
 
-    nock(baseUrl)
-      .post(`/interests?userKey=${userId}`, JSON.stringify(['kevel_segment_test_name']))
-      .reply(200)
+    nock(baseUrl).post(`/`, payload).reply(200)
 
     await expect(
       testDestination.testAction('syncAudience', {
