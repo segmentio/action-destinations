@@ -16,7 +16,6 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'The brokers for your Kafka instance, in the format of `host:port`. Accepts a comma delimited string.',
         type: 'string',
-        multiple: true,
         required: true
       },
       mechanism: {
