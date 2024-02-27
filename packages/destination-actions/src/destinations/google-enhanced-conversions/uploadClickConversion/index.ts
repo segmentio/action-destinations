@@ -216,8 +216,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   dynamicFields: {
-    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
-      return getConversionActionDynamicData(request, settings, auth)
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
