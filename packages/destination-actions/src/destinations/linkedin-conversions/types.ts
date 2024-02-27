@@ -11,6 +11,16 @@ export interface ProfileAPIResponse {
   id: string
 }
 
+export interface LinkedInError {
+  response: {
+    data: {
+      message: string
+      code: string
+      status: number
+    }
+  }
+}
+
 export class LinkedInTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
@@ -65,6 +75,8 @@ export interface GetConversionListAPIResponse {
 export interface Conversions {
   name: string
   id: string
+  enabled: boolean
+  conversionMethod: string
 }
 
 export interface GetCampaignsListAPIResponse {

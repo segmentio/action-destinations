@@ -1,9 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { SUPPORTED_ID_TYPE } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
+import { LinkedInError } from '../types'
 
 const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
@@ -93,7 +94,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   fields: {
     adAccountId: {
       label: 'Ad Account',
-      description: 'A dynamic field dropdown which fetches all adAccounts.',
+      description: 'The ad account to use for the conversion event.',
       type: 'string',
       required: true,
       dynamic: true
@@ -113,6 +114,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description: 'The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.',
       type: 'object',
       required: false,
+      defaultObjectUI: 'keyvalue:only',
       properties: {
         currencyCode: {
           label: 'Currency Code',
@@ -130,7 +132,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     },
     eventId: {
       label: 'Event ID',
-      description: 'Will be used for deduplication in future.',
+      description: 'The unique id for each event. This field is optional and is used for deduplication.',
       type: 'string',
       required: false,
       default: {
@@ -143,6 +145,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         'Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".',
       type: 'object',
       multiple: true,
+      defaultObjectUI: 'keyvalue',
       properties: {
         idType: {
           label: 'ID Type',
@@ -163,6 +166,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       label: 'User Info',
       description: 'Object containing additional fields for user matching.',
       type: 'object',
+      defaultObjectUI: 'keyvalue',
       required: false,
       properties: {
         firstName: {
@@ -193,11 +197,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       }
     },
     campaignId: {
-      label: 'Campaign',
+      label: 'Campaigns',
       type: 'string',
+      multiple: true,
       required: true,
       dynamic: true,
-      description: 'A dynamic field dropdown which fetches all active campaigns.'
+      description:
+        'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.'
     }
   },
   dynamicFields: {
@@ -227,12 +233,36 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
-      await linkedinApiClient.associateCampignToConversion(payload)
+      await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
-      return error
+      throw handleRequestError(error)
     }
   }
+}
+
+function handleRequestError(error: unknown) {
+  const asLinkedInError = error as LinkedInError
+
+  if (!asLinkedInError) {
+    return new IntegrationError('Unknown error', 'UNKNOWN_ERROR', 500)
+  }
+
+  const status = asLinkedInError.response.data.status
+
+  if (status === 401) {
+    return new InvalidAuthenticationError(asLinkedInError.response.data.message, ErrorCodes.INVALID_AUTHENTICATION)
+  }
+
+  if (status === 501) {
+    return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', 501)
+  }
+
+  if (status === 408 || status === 423 || status === 429 || status >= 500) {
+    return new IntegrationError(asLinkedInError.response.data.message, 'RETRYABLE_ERROR', status)
+  }
+
+  return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', status)
 }
 
 function validate(payload: Payload, conversionTime: number) {

@@ -16,7 +16,7 @@ export function isDirective(value: FieldValue): value is Directive {
     value !== null &&
     typeof value === 'object' &&
     Object.keys(value).some((key) =>
-      ['@if', '@path', '@template', '@literal', '@arrayPath', '@case', '@replace'].includes(key)
+      ['@if', '@path', '@template', '@literal', '@arrayPath', '@case', '@replace', '@json'].includes(key)
     )
   )
 }
@@ -36,7 +36,7 @@ export function isTemplateDirective(value: FieldValue): value is TemplateDirecti
   return isDirective(value) && '@template' in value
 }
 
-export function getFieldValue(value: FieldValue): any {
+export function getFieldValue(value: FieldValue): unknown {
   if (isTemplateDirective(value)) {
     return value['@template']
   }
@@ -123,6 +123,24 @@ export function isReplaceDirective(value: FieldValue): value is ReplaceDirective
     'pattern' in value['@replace']
   )
 }
+
+export interface JSONDirective extends DirectiveMetadata {
+  '@json': {
+    value: FieldValue
+    mode: PrimitiveValue
+  }
+}
+
+export function isJSONDirective(value: FieldValue): value is JSONDirective {
+  return (
+    isDirective(value) &&
+    '@json' in value &&
+    value['@json'] !== null &&
+    typeof value['@json'] === 'object' &&
+    'value' in value['@json']
+  )
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -131,6 +149,7 @@ type DirectiveKeysToType<T> = {
   ['@path']: (input: PathDirective) => T
   ['@replace']: (input: ReplaceDirective) => T
   ['@template']: (input: TemplateDirective) => T
+  ['@json']: (input: JSONDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -155,6 +174,9 @@ function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>)
   if (isTemplateDirective(directive)) {
     return checker['@template'](directive)
   }
+  if (isJSONDirective(directive)) {
+    return checker['@json'](directive)
+  }
   return null
 }
 
@@ -166,6 +188,8 @@ export type Directive =
   | PathDirective
   | ReplaceDirective
   | TemplateDirective
+  | JSONDirective
+
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
 
@@ -188,7 +212,8 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@literal': (_: LiteralDirective) => [''],
         '@path': (input: PathDirective) => [input['@path']],
         '@replace': (input: ReplaceDirective) => getRawKeys(input['@replace'].value),
-        '@template': (input: TemplateDirective) => getTemplateKeys(input['@template'])
+        '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
+        '@json': (input: JSONDirective) => getRawKeys(input['@json'].value)
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {
