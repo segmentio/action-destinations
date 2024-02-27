@@ -5,7 +5,7 @@ import { PublishRequestAttribute } from './attribute'
 import { PublishRequestGoal } from './goal'
 import { Data } from 'ws'
 
-export type PublishRequestEvent {
+export interface PublishRequestEvent {
   historic?: boolean
   publishedAt: number
   units: PublishRequestUnit[]
@@ -20,7 +20,7 @@ export type PublishRequestEvent {
   attributes?: PublishRequestAttribute[]
 }
 
-export type DefaultPayload {
+export interface DefaultPayload {
   agent?: string
   application?: string
 }
