@@ -3,7 +3,6 @@
 exports[`Testing snapshot for MolocoRmp's purchase destination action: all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "Gxw(AXLlJ#6Uf]*Hp",
   "device": Object {
     "advertising_id": "Gxw(AXLlJ#6Uf]*Hp",
     "ip": "Gxw(AXLlJ#6Uf]*Hp",
@@ -19,7 +18,6 @@ Object {
   "items": Array [
     Object {
       "id": "Gxw(AXLlJ#6Uf]*Hp",
-      "item_group_id": "Gxw(AXLlJ#6Uf]*Hp",
       "price": Object {
         "amount": 52157945353338.88,
         "currency": "SOS",

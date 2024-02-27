@@ -9,7 +9,6 @@ const event = new MolocoEvent(EventType.Search, {
   requireSearchQuery: true,
   requirePageIdentification: false,
   requireReferrerPageId: false,
-  requireShippingCharge: false,
 })
 
 const action: ActionDefinition<Settings, Payload> = {

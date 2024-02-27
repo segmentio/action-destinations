@@ -3,7 +3,6 @@
 exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "FGR%xELDK6awh3Tp*s",
   "device": Object {
     "advertising_id": "FGR%xELDK6awh3Tp*s",
     "ip": "FGR%xELDK6awh3Tp*s",
@@ -19,7 +18,6 @@ Object {
   "items": Array [
     Object {
       "id": "FGR%xELDK6awh3Tp*s",
-      "item_group_id": "FGR%xELDK6awh3Tp*s",
       "price": Object {
         "amount": 57250726019072,
         "currency": "PLN",
@@ -30,10 +28,6 @@ Object {
   ],
   "page_id": "FGR%xELDK6awh3Tp*s",
   "session_id": "FGR%xELDK6awh3Tp*s",
-  "shipping_charge": Object {
-    "amount": 57250726019072,
-    "currency": "PLN",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "FGR%xELDK6awh3Tp*s",
 }
@@ -55,7 +49,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: home action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "EJ(KD9p9^^%i",
   "device": Object {
     "advertising_id": "EJ(KD9p9^^%i",
     "ip": "EJ(KD9p9^^%i",
@@ -71,7 +64,6 @@ Object {
   "items": Array [
     Object {
       "id": "EJ(KD9p9^^%i",
-      "item_group_id": "EJ(KD9p9^^%i",
       "price": Object {
         "amount": -5160557346816,
         "currency": "LKR",
@@ -82,10 +74,6 @@ Object {
   ],
   "page_id": "EJ(KD9p9^^%i",
   "referrer_page_id": "EJ(KD9p9^^%i",
-  "revenue": Object {
-    "amount": -5160557346816,
-    "currency": "LKR",
-  },
   "session_id": "EJ(KD9p9^^%i",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "EJ(KD9p9^^%i",
@@ -103,7 +91,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: itemPageView action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "ulD!k3rFUf8H",
   "device": Object {
     "advertising_id": "ulD!k3rFUf8H",
     "ip": "ulD!k3rFUf8H",
@@ -119,7 +106,6 @@ Object {
   "items": Array [
     Object {
       "id": "ulD!k3rFUf8H",
-      "item_group_id": "ulD!k3rFUf8H",
       "price": Object {
         "amount": -3847229789962.24,
         "currency": "USD",
@@ -131,10 +117,6 @@ Object {
   "page_id": "ulD!k3rFUf8H",
   "referrer_page_id": "ulD!k3rFUf8H",
   "session_id": "ulD!k3rFUf8H",
-  "shipping_charge": Object {
-    "amount": -3847229789962.24,
-    "currency": "USD",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "ulD!k3rFUf8H",
 }
@@ -156,7 +138,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: land action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "LII!0LBdUlNj]8JR%M",
   "device": Object {
     "advertising_id": "LII!0LBdUlNj]8JR%M",
     "ip": "LII!0LBdUlNj]8JR%M",
@@ -172,7 +153,6 @@ Object {
   "items": Array [
     Object {
       "id": "LII!0LBdUlNj]8JR%M",
-      "item_group_id": "LII!0LBdUlNj]8JR%M",
       "price": Object {
         "amount": 61196309008220.16,
         "currency": "PYG",
@@ -202,7 +182,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - all fields 1`] = `
 Object {
   "channel_type": "APP",
-  "decision_track_id": "sFKH^2",
   "device": Object {
     "advertising_id": "sFKH^2",
     "ip": "sFKH^2",
@@ -218,7 +197,6 @@ Object {
   "items": Array [
     Object {
       "id": "sFKH^2",
-      "item_group_id": "sFKH^2",
       "price": Object {
         "amount": -74065445933547.52,
         "currency": "ETB",
@@ -250,7 +228,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "z*PO@ClIfz41i$",
   "device": Object {
     "advertising_id": "z*PO@ClIfz41i$",
     "ip": "z*PO@ClIfz41i$",
@@ -266,7 +243,6 @@ Object {
   "items": Array [
     Object {
       "id": "z*PO@ClIfz41i$",
-      "item_group_id": "z*PO@ClIfz41i$",
       "price": Object {
         "amount": 15155152394649.6,
         "currency": "HUF",
@@ -310,7 +286,6 @@ Object {
 exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
 Object {
   "channel_type": "SITE",
-  "decision_track_id": "A6r#IT*)oBgN#NJ98*^",
   "device": Object {
     "advertising_id": "A6r#IT*)oBgN#NJ98*^",
     "ip": "A6r#IT*)oBgN#NJ98*^",
@@ -326,7 +301,6 @@ Object {
   "items": Array [
     Object {
       "id": "A6r#IT*)oBgN#NJ98*^",
-      "item_group_id": "A6r#IT*)oBgN#NJ98*^",
       "price": Object {
         "amount": 73826803122176,
         "currency": "MXN",
@@ -339,10 +313,6 @@ Object {
   "referrer_page_id": "A6r#IT*)oBgN#NJ98*^",
   "search_query": "A6r#IT*)oBgN#NJ98*^",
   "session_id": "A6r#IT*)oBgN#NJ98*^",
-  "shipping_charge": Object {
-    "amount": 73826803122176,
-    "currency": "MXN",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "A6r#IT*)oBgN#NJ98*^",
 }

@@ -44,6 +44,7 @@ describe('MolocoRmp.land', () => {
         apiKey: 'bar'
       },
       mapping: {
+        timestamp: { '@path': '$.timestamp' },
         channelType: 'SITE'
         // referrer_page_id is default to context.page.referrer
       },
