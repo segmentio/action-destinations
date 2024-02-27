@@ -133,6 +133,28 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       ],
       default: 'granted'
     },
+    adUserDataConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
+    },
+    adPersonalizationConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
+    },
     waitTimeToUpdateConsentStage: {
       description:
         'If your CMP loads asynchronously, it might not always run before the Google tag. To handle such situations, specify a millisecond value to control how long to wait before the consent state update is sent. Please input the wait_for_update in milliseconds.',
@@ -156,11 +178,24 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.gtag('js', new Date())
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'default', {
+      const consent: {
+        ad_storage: ConsentParamsArg
+        analytics_storage: ConsentParamsArg
+        wait_for_update: number | undefined
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {
         ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
         analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg,
         wait_for_update: settings.waitTimeToUpdateConsentStage
-      })
+      }
+      if (settings.adUserDataConsentState) {
+        consent.ad_user_data = settings.adUserDataConsentState as ConsentParamsArg
+      }
+      if (settings.adPersonalizationConsentState) {
+        consent.ad_personalization = settings.adPersonalizationConsentState as ConsentParamsArg
+      }
+      gtag('consent', 'default', consent)
     }
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)

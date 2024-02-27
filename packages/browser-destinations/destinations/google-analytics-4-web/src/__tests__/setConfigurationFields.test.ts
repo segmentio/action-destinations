@@ -53,6 +53,12 @@ const subscriptions: Subscription[] = [
       },
       campaign_term: {
         '@path': '$.properties.campaign_term'
+      },
+      ad_user_data_consent_state: {
+        '@path': '$.properties.ad_user_data_consent_state'
+      },
+      ad_personalization_consent_state: {
+        '@path': '$.properties.ad_personalization_consent_state'
       }
     }
   }
@@ -524,5 +530,89 @@ describe('Set Configuration Fields action', () => {
       allow_google_signals: false,
       send_page_view: true
     })
+  })
+
+  it('should update consent if payload has ad_user_data_consent_state granted', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_user_data_consent_state: 'granted'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
+      ad_user_data: 'granted'
+    })
+  })
+
+  it('should update consent if payload has ad_user_data_consent_state denied', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_user_data_consent_state: 'denied'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
+      ad_user_data: 'denied'
+    })
+  })
+
+  it('should update consent if payload has ad_user_data_consent_state undefined', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_user_data_consent_state: undefined
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {})
+  })
+
+  it('should update consent if payload has ad_personalization_consent_state granted', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_personalization_consent_state: 'granted'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
+      ad_personalization: 'granted'
+    })
+  })
+  it('should update consent if payload has ad_personalization_consent_state denied', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_personalization_consent_state: 'denied'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
+      ad_personalization: 'denied'
+    })
+  })
+  it('should update consent if payload has ad_personalization_consent_state undefined', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ad_personalization_consent_state: undefined
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {})
   })
 })

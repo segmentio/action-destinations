@@ -28,6 +28,28 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Analytics Storage Consent State',
       type: 'string'
     },
+    ad_user_data_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
+    },
+    ad_personalization_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
+    },
     campaign_content: {
       description:
         'Use campaign content to differentiate ads or links that point to the same URL. Setting this value will override the utm_content query parameter.',
@@ -101,10 +123,26 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
 
     if (settings.enableConsentMode) {
-      gtag('consent', 'update', {
-        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
-        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
-      })
+      const consentParams: {
+        ad_storage?: ConsentParamsArg
+        analytics_storage?: ConsentParamsArg
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {}
+      if (payload.ads_storage_consent_state) {
+        consentParams.ad_storage = payload.ads_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.analytics_storage_consent_state) {
+        consentParams.analytics_storage = payload.analytics_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_user_data_consent_state) {
+        consentParams.ad_user_data = payload.ad_user_data_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_personalization_consent_state) {
+        consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
+      }
+      gtag('consent', 'update', consentParams)
+
     }
     type ConfigType = { [key: string]: unknown }
 

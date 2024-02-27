@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, user_properties, params } from '../ga4-properties'
+import { user_id, user_properties, params, send_to } from '../ga4-properties'
 
 const normalizeEventName = (name: string, lowercase: boolean | undefined): string => {
   name = name.trim()
@@ -38,14 +38,16 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     },
     user_id: { ...user_id },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
 
     gtag('event', event_name, {
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       ...payload.params
     })
   }
