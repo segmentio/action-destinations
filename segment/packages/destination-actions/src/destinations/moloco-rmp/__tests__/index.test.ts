@@ -716,6 +716,273 @@ describe('Moloco Rmp', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
+
+    it('should validate items mapping with currency / when both default currency and currency for each item are given, it should use the latter.' , async () => {
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      // A test event case with automatically collected fields
+      // Check the table's ANALYTICS.ANDROID column in the following link
+      // https://segment-docs.netlify.app/docs/connections/spec/common/#context-fields-automatically-collected
+      const androidEvent = {
+        anonymousId: 'anonId1234',
+        event: 'Test Event',
+        messageId: uuidv4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        context: {
+          defaultCurrency: 'KRW',
+          product: [
+            {
+              id: '507f191',
+              name: 'Monopoly: 3rd Edition',
+              price: 19.99,
+              brand: 'Hasbro',
+              currency: 'USD',
+            },
+            {
+              id: 'nae2d1',
+              name: 'Hogwarts: 3rd Edition',
+              price: 29.99,
+              brand: 'Hasbro',
+              currency: 'USD',
+            }
+          ],
+          app: {
+            name: 'AppName',
+            version: '1.0.0',
+            build: '1',
+          },
+          device: {
+            type: 'android',
+            id: '12345',
+            advertisingId: '12345',
+            adTrackingEnabled: true,
+            manufacturer: 'Samsung',
+            model: 'Galaxy S10',
+            name: 'galaxy',
+          },
+          library: {
+            name: 'analytics.ANDROID',
+            version: '2.11.1'
+          },
+          ip: '8.8.8.8',
+          locale: 'en-US',
+          network: {
+            carrier: 'T-Mobile US',
+            cellular: true,
+            wifi: false,
+            bluetooth: false,
+          },
+          os: {
+            name: 'Google Android',
+            version: '14.4.2'
+          },
+          screen: {
+            height: 1334,
+            width: 750,
+            density: 2.0
+          },
+          traits: {},
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
+        }
+      }
+
+      const expectedPayload: EventPayload = {
+        event_type: TEST_EVENT_TYPE,
+        event_id: androidEvent.messageId,
+        timestamp: androidEvent.timestamp,
+        channel_type: 'APP',
+        user_id: androidEvent.userId,
+        device: {
+          advertising_id: androidEvent.context.device.advertisingId,
+          ip: androidEvent.context.ip,
+          model: androidEvent.context.device.model,
+          os: androidEvent.context.os.name.toUpperCase(),
+          os_version: androidEvent.context.os.version,
+          ua: androidEvent.context.userAgent,
+          unique_device_id: androidEvent.context.device.id,
+        },
+        items: [
+          {
+            id: androidEvent.context.product[0].id,
+            price: {
+              amount: androidEvent.context.product[0].price,
+              currency: androidEvent.context.product[0].currency,
+            }
+          },
+          {
+            id: androidEvent.context.product[1].id,
+            price: {
+              amount: androidEvent.context.product[1].price,
+              currency: androidEvent.context.product[0].currency,
+            }
+          }
+        ],
+        session_id: androidEvent.anonymousId,
+      }
+        
+      const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
+        event: androidEvent as SegmentEvent,
+        settings: AUTH,
+        useDefaultMappings: true,
+        mapping: {
+          channelType: 'APP',
+          defaultCurrency: { '@path': '$.context.defaultCurrency' },
+          items: {
+            '@arrayPath': [
+              '$.context.product',
+              {
+                id: { '@path': '$.id' },
+                price: { '@path': '$.price' },
+                currency: { '@path': '$.currency' }
+              }
+            ]
+          }
+        },
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual(expectedPayload)
+    })
+
+    it('should validate items mapping with currency / only default currency is given and it is used for each item.' , async () => {
+      nock(/.*/).persist().post(/.*/).reply(200)
+
+      // A test event case with automatically collected fields
+      // Check the table's ANALYTICS.ANDROID column in the following link
+      // https://segment-docs.netlify.app/docs/connections/spec/common/#context-fields-automatically-collected
+      const androidEvent = {
+        anonymousId: 'anonId1234',
+        event: 'Test Event',
+        messageId: uuidv4(),
+        properties: {},
+        receivedAt: new Date().toISOString(),
+        sentAt: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
+        traits: {},
+        type: 'track',
+        userId: 'user1234',
+        context: {
+          defaultCurrency: 'YEN',
+          product: [
+            {
+              id: '507f191',
+              name: 'Monopoly: 3rd Edition',
+              price: 19.99,
+              brand: 'Hasbro'
+            },
+            {
+              id: 'nae2d1',
+              name: 'Hogwarts: 3rd Edition',
+              price: 29.99,
+              brand: 'Hasbro'
+            }
+          ],
+          app: {
+            name: 'AppName',
+            version: '1.0.0',
+            build: '1',
+          },
+          device: {
+            type: 'android',
+            id: '12345',
+            advertisingId: '12345',
+            adTrackingEnabled: true,
+            manufacturer: 'Samsung',
+            model: 'Galaxy S10',
+            name: 'galaxy',
+          },
+          library: {
+            name: 'analytics.ANDROID',
+            version: '2.11.1'
+          },
+          ip: '8.8.8.8',
+          locale: 'en-US',
+          network: {
+            carrier: 'T-Mobile US',
+            cellular: true,
+            wifi: false,
+            bluetooth: false,
+          },
+          os: {
+            name: 'Google Android',
+            version: '14.4.2'
+          },
+          screen: {
+            height: 1334,
+            width: 750,
+            density: 2.0
+          },
+          traits: {},
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
+        }
+      }
+
+      const expectedPayload: EventPayload = {
+        event_type: TEST_EVENT_TYPE,
+        event_id: androidEvent.messageId,
+        timestamp: androidEvent.timestamp,
+        channel_type: 'APP',
+        user_id: androidEvent.userId,
+        device: {
+          advertising_id: androidEvent.context.device.advertisingId,
+          ip: androidEvent.context.ip,
+          model: androidEvent.context.device.model,
+          os: androidEvent.context.os.name.toUpperCase(),
+          os_version: androidEvent.context.os.version,
+          ua: androidEvent.context.userAgent,
+          unique_device_id: androidEvent.context.device.id,
+        },
+        items: [
+          {
+            id: androidEvent.context.product[0].id,
+            price: {
+              amount: androidEvent.context.product[0].price,
+              currency: androidEvent.context.defaultCurrency,
+            }
+          },
+          {
+            id: androidEvent.context.product[1].id,
+            price: {
+              amount: androidEvent.context.product[1].price,
+              currency: androidEvent.context.defaultCurrency,
+            }
+          }
+        ],
+        session_id: androidEvent.anonymousId,
+      }
+        
+      const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
+        event: androidEvent as SegmentEvent,
+        settings: AUTH,
+        useDefaultMappings: true,
+        mapping: {
+          channelType: 'APP',
+          defaultCurrency: { '@path': '$.context.defaultCurrency' },
+          items: {
+            '@arrayPath': [
+              '$.context.product',
+              {
+                id: { '@path': '$.id' },
+                price: { '@path': '$.price' },
+                currency: { '@path': '$.currency' }
+              }
+            ]
+          }
+        },
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual(expectedPayload)
+    })
   })
 })
-            
