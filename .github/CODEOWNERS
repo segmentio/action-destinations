@@ -6,11 +6,11 @@
 
 # Actions common lib folder
 
-actions-shared/ @segmentio/build-experience-team
+actions-shared/ @segmentio/build-experience-team @segmentio/strategic-connections-team
 
 # AJV utils
 
-ajv-human-errors/ @segmentio/build-experience-team
+ajv-human-errors/ @segmentio/build-experience-team @segmentio/strategic-connections-team
 
 # Browser destinations
 
@@ -18,15 +18,15 @@ browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connect
 
 # CLI private libs
 
-cli-internal/ @segmentio/build-experience-team
+cli-internal/ @segmentio/build-experience-team @segmentio/strategic-connections-team
 
 # CLI binary
 
-cli/ @segmentio/build-experience-team
+cli/ @segmentio/build-experience-team @segmentio/strategic-connections-team
 
 # Core actions runtime
 
-core/ @segmentio/build-experience-team
+core/ @segmentio/build-experience-team @segmentio/strategic-connections-team
 
 # Destination definitions and their actions
 
@@ -34,4 +34,4 @@ destination-actions/ @segmentio/strategic-connections-team @segmentio/build-expe
 
 # Utilities for event payload validation against an action's subscription AST.
 
-destination-subscriptions/ @segmentio/build-experience-team
+destination-subscriptions/ @segmentio/build-experience-team @segmentio/strategic-connections-team

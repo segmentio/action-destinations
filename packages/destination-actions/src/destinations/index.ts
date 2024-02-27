@@ -145,6 +145,17 @@ register('659eb79c1141e58effa2153e', './kevel')
 register('659eb601f8f615dac18db564', './aggregations-io')
 register('659eb6903c4d201ebd9e2f5c', './equals')
 register('65ae435952ce3b2244f99e22', './amazon-ads')
+register('65b8e9eca1b5903a031c6378', './schematic')
+register('65b8e9ae4bc3eee909e05c73', './courier')
+register('65b8e9531fc2c458f50fd55d', './tiktok-offline-conversions-sandbox')
+register('65b8e9108b442384abfd05f9', './tiktok-conversions-sandbox')
+register('65b8e89cd96df17201b04a49', './surveysparrow')
+register('65c2465d0d7d550aa8e7e5c6', './avo')
+register('65c36c1e127fb2c8188a414c', './stackadapt')
+register('65cb48feaca9d46bf269ac4a', './accoil-analytics')
+register('6578a19fbd1201d21f035156', './responsys')
+register('65dde5755698cb0dab09b489', './kafka')
+
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

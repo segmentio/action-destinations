@@ -10,8 +10,8 @@ import { TikTokAudiences } from '../api'
 // Consider it deprecated and do not emulate its behavior.
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Create Audience',
-  description: 'Creates a new audience in TikTok Audience Segment.',
+  title: 'Create Audience (Legacy)',
+  description: 'Use this action to create a new audience in TikTok Audience Segment. This is required for legacy instances of the TikTok Audience destination to create a partner audience within TikTok for syncing Engage audiences to.',
   defaultSubscription: 'event = "Create Audience"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
