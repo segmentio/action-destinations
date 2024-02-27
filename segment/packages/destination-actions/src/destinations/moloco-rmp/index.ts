@@ -16,6 +16,8 @@ import land from './land'
 
 import purchase from './purchase'
 
+import addToCart from './addToCart'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -37,7 +39,8 @@ const destination: DestinationDefinition<Settings> = {
     itemPageView,
     pageView,
     land,
-    purchase
+    purchase,
+    addToCart
   }
 }
 
