@@ -12,6 +12,8 @@ import itemPageView from './itemPageView'
 
 import pageView from './pageView'
 
+import land from './land'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Moloco Rmp',
   slug: 'actions-moloco-rmp',
@@ -31,7 +33,8 @@ const destination: DestinationDefinition<Settings> = {
     search,
     addToWishlist,
     itemPageView,
-    pageView
+    pageView,
+    land
   }
 }
 
