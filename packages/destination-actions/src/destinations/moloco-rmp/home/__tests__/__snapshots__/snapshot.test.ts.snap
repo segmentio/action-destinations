@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MolocoRmp's home destination action: all fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "device": Object {
+    "advertising_id": "M7i8t#AejMHF0ojzM0NV",
+    "ip": "M7i8t#AejMHF0ojzM0NV",
+    "language": "M7i8t#AejMHF0ojzM0NV",
+    "model": "M7i8t#AejMHF0ojzM0NV",
+    "os": "M7I8T#AEJMHF0OJZM0NV",
+    "os_version": "M7i8t#AejMHF0ojzM0NV",
+    "ua": "M7i8t#AejMHF0ojzM0NV",
+    "unique_device_id": "M7i8t#AejMHF0ojzM0NV",
+  },
+  "event_id": "M7i8t#AejMHF0ojzM0NV",
+  "event_type": "HOME",
+  "items": Array [
+    Object {
+      "id": "M7i8t#AejMHF0ojzM0NV",
+      "price": Object {
+        "amount": 84218396593356.8,
+        "currency": "RUB",
+      },
+      "quantity": 84218396593356.8,
+      "seller_id": "M7i8t#AejMHF0ojzM0NV",
+    },
+  ],
+  "page_id": "M7i8t#AejMHF0ojzM0NV",
+  "referrer_page_id": "M7i8t#AejMHF0ojzM0NV",
+  "session_id": "M7i8t#AejMHF0ojzM0NV",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "M7i8t#AejMHF0ojzM0NV",
+}
+`;
+
+exports[`Testing snapshot for MolocoRmp's home destination action: required fields 1`] = `
+Object {
+  "channel_type": "SITE",
+  "event_type": "HOME",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
