@@ -367,3 +367,10 @@ export const items_multi_products: InputField = {
     ]
   }
 }
+export const send_to: InputField = {
+  label: 'Send To',
+  type: 'boolean',
+  default: true,
+  description:
+    'If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag'
+}

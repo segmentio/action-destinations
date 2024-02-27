@@ -95,7 +95,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Complete Payment',
-      subscribe: 'event = "Payment Completed"',
+      subscribe: 'event = "Order Completed"',
       partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,
@@ -215,7 +215,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Place an Order',
-      subscribe: 'event = "Order Completed"',
+      subscribe: 'event = "Order Placed"',
       partnerAction: 'reportOfflineEvent',
       mapping: {
         ...multiProductContents,

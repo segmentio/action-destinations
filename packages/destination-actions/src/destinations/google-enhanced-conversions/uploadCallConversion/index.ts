@@ -70,6 +70,28 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    ad_user_data_consent_state: {
+      label: 'Ad User Data Consent State',
+      description:
+        'This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      type: 'string',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
+    },
+    ad_personalization_consent_state: {
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      description:
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
     }
   },
 
@@ -101,6 +123,20 @@ const action: ActionDefinition<Settings, Payload> = {
       currencyCode: payload.currency
     }
 
+    // Add Consent Signals 'adUserData' if it is defined
+    if (payload.ad_user_data_consent_state) {
+      request_object['consent'] = {
+        adUserData: payload.ad_user_data_consent_state
+      }
+    }
+
+    // Add Consent Signals 'adPersonalization' if it is defined
+    if (payload.ad_personalization_consent_state) {
+      request_object['consent'] = {
+        ...request_object['consent'],
+        adPersonalization: payload.ad_personalization_consent_state
+      }
+    }
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)

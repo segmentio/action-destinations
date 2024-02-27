@@ -14,6 +14,8 @@ const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 const createAudienceInput = {
   settings: {
     oauth: {
+      refresh_token: 'freshy',
+      access_token: 'tok3n',
       clientId: '123',
       clientSecret: '123'
     }
@@ -28,8 +30,10 @@ const createAudienceInput = {
 const getAudienceInput = {
   settings: {
     oauth: {
-      clientId: '123',
-      clientSecret: '123'
+      refresh_token: 'freshy',
+      access_token: 'tok3n',
+      client_id: '123',
+      client_secret: '123'
     }
   },
   audienceSettings: {
@@ -158,6 +162,21 @@ describe('Display Video 360', () => {
       const r = await testDestination.getAudience(getAudienceInput)
       expect(r).toEqual({
         externalId: expectedExternalID
+      })
+    })
+
+    it('should succeed when the destination instance is flagged as a migration instance', async () => {
+      const migrationGetAudienceInput = {
+        ...getAudienceInput,
+        settings: {}, // Settings for migration instances are set as {} in the migration script.
+        externalId: 'iWasHereInTheBeforeTimes'
+      }
+
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      const r = await testDestination.getAudience(migrationGetAudienceInput)
+      expect(r).toEqual({
+        externalId: 'iWasHereInTheBeforeTimes'
       })
     })
   })

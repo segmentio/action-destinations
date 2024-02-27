@@ -11,7 +11,8 @@ import {
   tax,
   items_multi_products,
   params,
-  user_properties
+  user_properties,
+  send_to
 } from '../ga4-properties'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
@@ -32,9 +33,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     tax: tax,
     value: { ...value, default: { '@path': '$.properties.total' } },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'purchase', {
       currency: payload.currency,
       transaction_id: payload.transaction_id,
@@ -45,6 +47,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       items: payload.items,
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       ...payload.params
     })
   }

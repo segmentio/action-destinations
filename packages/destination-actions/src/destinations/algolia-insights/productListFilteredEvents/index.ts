@@ -51,7 +51,7 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description: 'The ID associated with the user.',
-      label: 'userToken',
+      label: 'User Token',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -64,11 +64,11 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The timestamp of the event.',
-      label: 'timestamp',
+      label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
     extraProperties: {
-      label: 'extraProperties',
+      label: 'Extra Properties',
       required: false,
       description:
         'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',

@@ -390,6 +390,74 @@ const destination = {
 }
 ```
 
+## Conditional Fields
+
+Conditional fields enable a field only when a predefined list of conditions are met while the user steps through the mapping editor. This is useful when showing a field becomes unnecessary based on the value of some other field.
+
+For example, in the Salesforce destination the 'Bulk Upsert External ID' field is only relevant when the user has selected 'Operation: Upsert' and 'Enable Batching: True'. In all other cases the field will be hidden to streamline UX while setting up the mapping.
+
+To define a conditional field, the `InputField` should implement the `depends_on` property. This property lives in destination-kit and the definition can be found here: [`packages/core/src/destination-kit/types.ts`](https://github.com/segmentio/action-destinations/blame/854a9e154547a54a7323dc3d4bf95bc31d31433a/packages/core/src/destination-kit/types.ts).
+
+The above Salesforce use case is defined like this:
+
+```js
+export const bulkUpsertExternalId: InputField = {
+  // other properties skipped for brevity ...
+  depends_on: {
+    match: 'all', // match is optional and can be either 'any' or 'all'. If left undefiend it defaults to matching all conditions.
+    conditions: [
+      {
+        fieldKey: 'operation', // field keys must match some other field in the same action
+        operator: 'is',
+        value: 'upsert'
+      },
+      {
+        fieldKey: 'enable_batching',
+        operator: 'is',
+        value: true
+      }
+    ]
+  }
+}
+```
+
+Lists of values can also be included as match conditions. For example:
+
+```js
+export const recordMatcherOperator: InputField = {
+  // ...
+  depends_on: {
+    // This is interpreted as "show recordMatcherOperator if operation is (update or upsert or delete)"
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: ['update', 'upsert', 'delete']
+      }
+    ]
+  }
+}
+```
+
+The value can be undefined, which allows matching against empty fields or fields which contain any value. For example:
+
+```js
+export const name: InputField = {
+  // ...
+  depends_on: {
+    match: 'all',
+    // The name field will be shown only if conversionRuleId is not empty.
+    conditions: [
+      {
+        fieldKey: 'conversionRuleId',
+        operator: 'is_not',
+        value: undefined
+      }
+    ]
+  }
+}
+```
+
 ## Presets
 
 Presets are pre-built use cases to enable customers to get started quickly with an action destination. They include everything needed to generate a valid subscription.
