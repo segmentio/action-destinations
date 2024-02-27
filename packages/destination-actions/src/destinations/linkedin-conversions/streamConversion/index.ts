@@ -35,7 +35,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         name: {
           type: 'string',
           label: 'Name',
-          description: 'The name of the conversion rule.'
+          description: 'The name of the conversion rule.',
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         },
         conversionType: {
           type: 'string',
@@ -50,7 +60,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
             { label: 'Purchase', value: 'PURCHASE' },
             { label: 'Sign Up', value: 'SIGN_UP' },
             { label: 'Other', value: 'OTHER' }
-          ]
+          ],
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         },
         attribution_type: {
           label: 'Attribution Type',
@@ -59,7 +79,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           choices: [
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
-          ]
+          ],
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         }
       },
       outputTypes: {
