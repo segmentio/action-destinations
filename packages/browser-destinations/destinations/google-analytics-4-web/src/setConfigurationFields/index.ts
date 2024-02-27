@@ -142,6 +142,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
       }
       gtag('consent', 'update', consentParams)
+
     }
     type ConfigType = { [key: string]: unknown }
 
