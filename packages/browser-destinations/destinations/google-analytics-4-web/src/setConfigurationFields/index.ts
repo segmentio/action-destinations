@@ -92,6 +92,12 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Screen Resolution',
       type: 'string'
     },
+    send_page_view: {
+      description: 'Set to false to prevent sending a page_view.',
+      label: 'Send Page Views',
+      type: 'boolean',
+      default: true
+    },
     params: params
   },
   perform: (gtag, { payload, settings }) => {
@@ -124,8 +130,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (settings.cookiePath) {
       config.cookie_path = settings.cookiePath
     }
-    if (settings.pageView) {
-      config.send_page_view = settings.pageView
+
+    if (settings.pageView != true) {
+      config.send_page_view = settings.pageView ?? true
+    }
+
+    if (payload.send_page_view != true) {
+      config.send_page_view = payload.send_page_view ?? true
     }
 
     if (payload.screen_resolution) {
@@ -169,9 +180,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (payload.campaign_content) {
       config.campaign_content = payload.campaign_content
-    }
-    if (settings.pageView != true) {
-      config.send_page_view = settings.pageView
     }
 
     gtag('config', settings.measurementID, config)
