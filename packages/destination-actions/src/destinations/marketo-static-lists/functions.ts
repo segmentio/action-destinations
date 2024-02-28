@@ -32,6 +32,10 @@ export async function addToList(
   payloads: AddToListPayload[],
   statsContext?: StatsContext
 ) {
+  if (!payloads[0].external_id) {
+    throw new IntegrationError('No external_id found in payload', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const api_endpoint = formatEndpoint(settings.api_endpoint)
 
   const csvData = formatData(payloads)
@@ -70,6 +74,10 @@ export async function removeFromList(
   payloads: RemoveFromListPayload[],
   statsContext?: StatsContext
 ) {
+  if (!payloads[0].external_id) {
+    throw new IntegrationError('No external_id found in payload', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const api_endpoint = formatEndpoint(settings.api_endpoint)
   const usersToRemove = extractFilterData(payloads)
 
