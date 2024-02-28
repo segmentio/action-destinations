@@ -184,6 +184,10 @@ export async function createList(request: RequestClient, input: CreateListInput,
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
 
+  if (!input.audienceName) {
+    throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+  }
+
   // Format Marketo base endpoint
   const endpoint = formatEndpoint(input.settings.api_endpoint)
 
