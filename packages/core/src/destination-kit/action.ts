@@ -53,7 +53,7 @@ type HookValueTypes = string | boolean | number
 type GenericActionHookValues = Record<string, HookValueTypes>
 
 type GenericActionHookBundle = {
-  [K in ActionHookType]: {
+  [K in ActionHookType]?: {
     inputs?: GenericActionHookValues
     outputs?: GenericActionHookValues
   }
@@ -89,8 +89,8 @@ export interface ActionDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      GeneratedActionHookBundle[K]['outputs'],
-      GeneratedActionHookBundle[K]['inputs']
+      NonNullable<GeneratedActionHookBundle[K]>['outputs'],
+      NonNullable<GeneratedActionHookBundle[K]>['inputs']
     >
   }
 }
