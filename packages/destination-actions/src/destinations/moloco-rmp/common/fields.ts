@@ -88,7 +88,6 @@ export const DEVICE: InputField = {
       type: 'string',
       required: false,
     },
-    // TODO: Could extract from context.locale
     language: {
       label: 'Language',
       description: 'ISO-639-1 alpha-2 language code. (e.g., "en")',

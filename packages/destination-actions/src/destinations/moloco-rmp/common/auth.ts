@@ -17,8 +17,4 @@ export const authentication: AuthenticationScheme = {
             required: true
         }
     },
-
-    // // TODO: Consider implementing this function
-    // // Currently, we don't have a way to validate the authentication
-    // testAuthentication: (request, { settings: Settings }) => {}
 }

@@ -7,8 +7,6 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from './settings'
 
-const TEST_ENDPOINT = 'https://evt-sel-test.rmp-api.moloco.com/cdp/SEGMENT'
-
 export class MolocoAPIClient {
     url: string
     platform: string
@@ -24,9 +22,8 @@ export class MolocoAPIClient {
         this.request = request
     }
 
-    // TODO: return dynamic endpoint based on the platform
     private getEndpoint() {
-        return TEST_ENDPOINT
+        return `https://${this.platform.replace('_', '-')}-evt.rmp-api.moloco.com/cdp/SEGMENT`
     }
 
     private async _sendEvent(body: Record<string, any>): Promise<ModifiedResponse> {
