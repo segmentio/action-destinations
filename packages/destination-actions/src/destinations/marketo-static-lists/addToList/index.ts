@@ -79,12 +79,20 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
+    // Use list_id from hook as external id for RETL mappings
+    if (hookOutputs?.retlOnMappingSave?.outputs.new_list_id) {
+      payload.external_id = hookOutputs?.retlOnMappingSave?.outputs.new_list_id
+    }
     return addToList(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
+  performBatch: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
+    // Use list_id from hook as external id for RETL mappings
+    if (hookOutputs?.retlOnMappingSave?.outputs.new_list_id) {
+      payload[0].external_id = hookOutputs?.retlOnMappingSave?.outputs.new_list_id
+    }
     return addToList(request, settings, payload, statsContext)
   }
 }
