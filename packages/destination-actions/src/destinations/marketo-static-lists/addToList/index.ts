@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
-import { addToList } from '../functions'
+import { addToList, createList, getList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to List',
@@ -18,22 +18,81 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   hooks: {
     retlOnMappingSave: {
-      label: 'Create an audience in Marketo',
-      description:
-        'When saving this mapping, we will create an audience in Marketo using the fields you provided.',
-      inputFields: {},
-      outputTypes: {},
-      performHook: async (request, { payload, hookInputs }) => {
-        // do stuff
+      label: 'Create a new static list in Marketo',
+      description: 'When saving this mapping, we will create a static list in Marketo using the fields you provided.',
+      inputFields: {
+        list_id: {
+          type: 'string',
+          label: 'List ID',
+          description:
+            'The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.',
+          required: false
+        },
+        list_name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the Marketo Static List that you would like to create.',
+          required: false
+        }
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the created Marketo Static List that users will be synced to.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the created Marketo Static List that users will be synced to.',
+          required: false
+        }
+      },
+      performHook: async (request, { settings, hookInputs, statsContext }) => {
+        if (hookInputs.list_id) {
+          return getList(request, settings, hookInputs.list_id)
+        }
+
+        try {
+          const input = {
+            audienceName: hookInputs.list_name,
+            settings: settings
+          }
+          const listId = await createList(request, input, statsContext)
+
+          return {
+            successMessage: `List ${listId} created successfully!`,
+            savedData: {
+              id: listId,
+              name: hookInputs.list_name
+            }
+          }
+        } catch (e) {
+          return {
+            error: {
+              message: 'Failed to create list',
+              code: 'CREATE_LIST_FAILURE'
+            }
+          }
+        }
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
+    // Use list_id from hook as external id for RETL mappings
+    if (hookOutputs?.retlOnMappingSave?.outputs.id) {
+      payload.external_id = hookOutputs?.retlOnMappingSave?.outputs.id
+    }
     return addToList(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
+  performBatch: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
+    // Use list_id from hook as external id for RETL mappings
+    if (hookOutputs?.retlOnMappingSave?.outputs.new_list_id) {
+      payload[0].external_id = hookOutputs?.retlOnMappingSave?.outputs.new_list_id
+    }
     return addToList(request, settings, payload, statsContext)
   }
 }
