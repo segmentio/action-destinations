@@ -10,7 +10,8 @@ import {
   isNullOrUndefined,
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
+  emptyStringtoUndefined
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -70,8 +71,29 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           num_items: payload.number_items
         }
 
-  const { app_id } = settings
+  const app_id = emptyStringtoUndefined(settings.app_id)
+  const advertiser_tracking_enabled = isNullOrUndefined(app_id) ? undefined : 0
   const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
+  const extinfo = !isNullOrUndefined(payload.os_version ?? payload.device_model)
+    ? [
+        extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
+        '', // app package name
+        '', // short version
+        '', // long version
+        payload.os_version ?? '', // os version
+        payload.device_model ?? '', // device model name
+        '', // local
+        '', // timezone abbr
+        '', // carrier
+        '', //screen width
+        '', // screen height
+        '', // screen density
+        '', // cpu core
+        '', // external storage size
+        '', // freespace in external storage size
+        '' // device time zone
+      ]
+    : undefined
 
   const result = {
     data: [
@@ -110,26 +132,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
 
         app_data: emptyObjectToUndefined({
           app_id,
-          extinfo: !isNullOrUndefined(payload.os_version ?? payload.device_model)
-            ? [
-                extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
-                '', // app package name
-                '', // short version
-                '', // long version
-                payload.os_version ?? '', // os version
-                payload.device_model ?? '', // device model name
-                '', // local
-                '', // timezone abbr
-                '', // carrier
-                '', //screen width
-                '', // screen height
-                '', // screen density
-                '', // cpu core
-                '', // external storage size
-                '', // freespace in external storage size
-                '' // device time zone
-              ]
-            : undefined
+          advertiser_tracking_enabled,
+          extinfo
         })
       }
     ],
