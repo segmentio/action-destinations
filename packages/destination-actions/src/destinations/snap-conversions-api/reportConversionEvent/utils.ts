@@ -83,4 +83,4 @@ export const splitListValueToArray = (input: string): readonly string[] | undefi
 }
 
 export const emptyStringtoUndefined = (v: string | undefined): string | undefined =>
-  v != null && v.length > 0 ? v : undefined
+  (v ?? '').length > 0 ? v : undefined
