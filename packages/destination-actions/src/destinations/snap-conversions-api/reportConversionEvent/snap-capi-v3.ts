@@ -40,7 +40,12 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
-  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type] ?? 'other'
+  const app_id = emptyStringtoUndefined(settings.app_id)
+  const action_source =
+    eventConversionTypeToActionSource[payload.event_conversion_type] ??
+    // Snap only supports the app and website conversion types
+    // so set a sane default based upon the presence of an app_id
+    (!isNullOrUndefined(app_id) ? 'app' : 'website ')
 
   const event_id = emptyToUndefined(payload.client_dedup_id)
 
@@ -71,8 +76,10 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           num_items: payload.number_items
         }
 
-  const app_id = emptyStringtoUndefined(settings.app_id)
-  const advertiser_tracking_enabled = isNullOrUndefined(app_id) ? undefined : 0
+  // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
+  // However the field is required for app events, so hardcode the value to false (0)
+  // for any events sent that include app_data.
+  const advertiser_tracking_enabled = !isNullOrUndefined(app_id) ? 0 : undefined
   const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
   const extinfo = !isNullOrUndefined(payload.os_version ?? payload.device_model)
     ? [
