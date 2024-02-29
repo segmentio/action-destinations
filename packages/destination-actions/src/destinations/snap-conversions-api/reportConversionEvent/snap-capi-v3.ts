@@ -81,7 +81,9 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
   // for any events sent that include app_data.
   const advertiser_tracking_enabled = !isNullOrUndefined(app_id) ? 0 : undefined
   const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
-  const extinfo = !isNullOrUndefined(payload.os_version ?? payload.device_model)
+
+  // extinfo needs to be defined whenever app_data is included in the data payload
+  const extinfo = !isNullOrUndefined(app_id)
     ? [
         extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
         '', // app package name
@@ -101,6 +103,16 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         '' // device time zone
       ]
     : undefined
+
+  // Only set app data for app events
+  const app_data =
+    action_source === 'app'
+      ? emptyObjectToUndefined({
+          app_id,
+          advertiser_tracking_enabled,
+          extinfo
+        })
+      : undefined
 
   const result = {
     data: [
@@ -136,12 +148,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         }),
 
         action_source,
-
-        app_data: emptyObjectToUndefined({
-          app_id,
-          advertiser_tracking_enabled,
-          extinfo
-        })
+        app_data
       }
     ],
     ...(isTest ? { test_event_code: 'segment_test' } : {})
