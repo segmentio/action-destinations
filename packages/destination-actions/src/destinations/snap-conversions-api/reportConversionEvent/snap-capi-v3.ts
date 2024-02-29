@@ -48,7 +48,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
     eventConversionTypeToActionSource[payload.event_conversion_type] ??
     // Snap only supports the app and website conversion types
     // so set a sane default based upon the presence of an app_id
-    (!isNullOrUndefined(app_id) ? 'app' : 'website ')
+    (!isNullOrUndefined(app_id) ? 'app' : 'website')
 
   const event_id = emptyToUndefined(payload.client_dedup_id)
 
