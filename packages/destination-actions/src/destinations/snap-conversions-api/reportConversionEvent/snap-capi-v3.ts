@@ -10,7 +10,7 @@ import {
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
-  emptyStringtoUndefined
+  emptyStringToUndefined
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -42,13 +42,13 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
-  const app_id = emptyStringtoUndefined(settings.app_id)
+  const app_id = emptyStringToUndefined(settings.app_id)
 
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
 
-  const event_id = emptyStringtoUndefined(payload.client_dedup_id)
+  const event_id = emptyStringToUndefined(payload.client_dedup_id)
 
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
@@ -142,7 +142,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           content_ids,
           currency: payload.currency,
           num_items,
-          order_id: emptyStringtoUndefined(payload.transaction_id),
+          order_id: emptyStringToUndefined(payload.transaction_id),
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
           value: payload.price
@@ -160,8 +160,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
 
 export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
   const { snap_app_id, pixel_id } = settings
-  const snapAppID = emptyStringtoUndefined(snap_app_id)
-  const snapPixelID = emptyStringtoUndefined(pixel_id)
+  const snapAppID = emptyStringToUndefined(snap_app_id)
+  const snapPixelID = emptyStringToUndefined(pixel_id)
   const appOrPixelID = snapAppID ?? snapPixelID
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
