@@ -48,7 +48,10 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
   <T>(v: T | undefined, message: string): asserts v is T =>
     raiseMisconfiguredRequiredFieldErrorIf(isNullOrUndefined(v), message)
 
-export const box = <T>(v: T | undefined): readonly T[] => (!isNullOrUndefined(v) ? [v] : [])
+export const box = (v: string | undefined): readonly string[] | undefined => {
+  const vNormalized = emptyStringtoUndefined(v)
+  return !isNullOrUndefined(vNormalized) ? [vNormalized] : undefined
+}
 
 export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
   const properties = Object.getOwnPropertyNames(v)
@@ -79,4 +82,5 @@ export const splitListValueToArray = (input: string): readonly string[] | undefi
   return result.length > 0 ? result : undefined
 }
 
-export const emptyStringtoUndefined = (v: string | undefined) => (v != null && v.length > 0 ? v : undefined)
+export const emptyStringtoUndefined = (v: string | undefined): string | undefined =>
+  v != null && v.length > 0 ? v : undefined
