@@ -4,7 +4,6 @@ import { Settings } from '../generated-types'
 import {
   box,
   emptyObjectToUndefined,
-  emptyToUndefined,
   hash,
   hashEmailSafe,
   isNullOrUndefined,
@@ -49,7 +48,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
 
-  const event_id = emptyToUndefined(payload.client_dedup_id)
+  const event_id = emptyStringtoUndefined(payload.client_dedup_id)
 
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
@@ -143,7 +142,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           content_ids,
           currency: payload.currency,
           num_items,
-          order_id: emptyToUndefined(payload.transaction_id),
+          order_id: emptyStringtoUndefined(payload.transaction_id),
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
           value: payload.price
@@ -161,8 +160,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
 
 export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
   const { snap_app_id, pixel_id } = settings
-  const snapAppID = emptyToUndefined(snap_app_id)
-  const snapPixelID = emptyToUndefined(pixel_id)
+  const snapAppID = emptyStringtoUndefined(snap_app_id)
+  const snapPixelID = emptyStringtoUndefined(pixel_id)
   const appOrPixelID = snapAppID ?? snapPixelID
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')

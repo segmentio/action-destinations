@@ -30,9 +30,6 @@ export const transformProperty = (
 export const hashEmailSafe = (email: string | undefined): string | undefined =>
   isHashedEmail(String(email)) ? email : hash(email)
 
-export const emptyToUndefined = (str: string | undefined): string | undefined =>
-  str != null && str === '' ? undefined : str
-
 export const raiseMisconfiguredRequiredFieldErrorIf = (condition: boolean, message: string) => {
   if (condition) {
     throw new IntegrationError(message, 'Misconfigured required field', 400)
