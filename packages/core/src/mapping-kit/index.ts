@@ -132,7 +132,7 @@ registerDirective('@replace', (opts, payload) => {
   const ignorecase = opts.ignorecase
   const isGlobal = opts.global
   if (opts.value) {
-    const value = resolve(opts.value, payload)
+    const value = String(resolve(opts.value, payload))
     if (
       typeof value === 'string' &&
       typeof pattern === 'string' &&
