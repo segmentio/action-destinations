@@ -34,7 +34,10 @@ export const validatePayload = (payload: Payload): Payload => {
 
 const eventConversionTypeToActionSource: { [k in string]?: string } = {
   WEB: 'website',
-  MOBILE_APP: 'app'
+  MOBILE_APP: 'app',
+
+  // Use the snap event_conversion_type for offline events
+  OFFLINE: 'OFFLINE'
 }
 
 const iosAppIDRegex = new RegExp('^[0-9]+$')
