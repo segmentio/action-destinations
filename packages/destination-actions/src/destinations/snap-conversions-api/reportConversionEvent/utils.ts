@@ -48,10 +48,8 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
   <T>(v: T | undefined, message: string): asserts v is T =>
     raiseMisconfiguredRequiredFieldErrorIf(isNullOrUndefined(v), message)
 
-export const box = (v: string | undefined): readonly string[] | undefined => {
-  const vNormalized = emptyStringtoUndefined(v)
-  return !isNullOrUndefined(vNormalized) ? [vNormalized] : undefined
-}
+export const box = (v: string | undefined): readonly string[] | undefined =>
+  (v ?? '').length > 0 ? [v as string] : undefined
 
 export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
   const properties = Object.getOwnPropertyNames(v)
