@@ -771,6 +771,38 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('different+things')
   })
+  test('replace boolean', () => {
+    const payload = {
+      a: true
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
+  test('replace number', () => {
+    const payload = {
+      a: 1
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '1',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
 })
 
 describe('remove undefined values in objects', () => {

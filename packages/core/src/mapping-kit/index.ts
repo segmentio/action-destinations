@@ -132,7 +132,13 @@ registerDirective('@replace', (opts, payload) => {
   const ignorecase = opts.ignorecase
   const isGlobal = opts.global
   if (opts.value) {
-    const value = String(resolve(opts.value, payload))
+    let value = resolve(opts.value, payload)
+
+    // We want to be able to replace values that are boolean or numbers
+    if (typeof value === 'boolean' || typeof value === 'number') {
+      value = String(value)
+    }
+
     if (
       typeof value === 'string' &&
       typeof pattern === 'string' &&
