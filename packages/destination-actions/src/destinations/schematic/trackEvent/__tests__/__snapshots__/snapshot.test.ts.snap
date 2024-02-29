@@ -4,15 +4,14 @@ exports[`Testing snapshot for Schematic's trackEvent destination action: all fie
 Object {
   "body": Object {
     "company": Object {
-      "groupId": "H%fspr!Jez(TWP",
-      "organization_id": "H%fspr!Jez(TWP",
-    },
-    "event": "H%fspr!Jez(TWP",
-    "traits": Object {
       "testType": "H%fspr!Jez(TWP",
     },
+    "event": "h%fspr!jez(twp",
+    "traits": Object {
+      "raw_event_name": "H%fspr!Jez(TWP",
+    },
     "user": Object {
-      "userId": "H%fspr!Jez(TWP",
+      "user_id": "H%fspr!Jez(TWP",
     },
   },
   "event_type": "track",
@@ -22,7 +21,7 @@ Object {
 exports[`Testing snapshot for Schematic's trackEvent destination action: required fields 1`] = `
 Object {
   "body": Object {
-    "event": "H%fspr!Jez(TWP",
+    "event": "h%fspr!jez(twp",
   },
   "event_type": "track",
 }

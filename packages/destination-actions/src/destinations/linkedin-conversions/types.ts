@@ -11,6 +11,16 @@ export interface ProfileAPIResponse {
   id: string
 }
 
+export interface LinkedInError {
+  response: {
+    data: {
+      message: string
+      code: string
+      status: number
+    }
+  }
+}
+
 export class LinkedInTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
@@ -89,6 +99,9 @@ export interface ConversionRuleCreationResponse {
   name: string
   type: string
 }
+
+/** This request returns 204 no content */
+export interface ConversionRuleUpdateResponse {}
 
 /**
  * The shape of the response from LinkedIn when fetching a conversion rule by id.

@@ -59,6 +59,30 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-optimizely-data-platform destination: nonEcommCustomEvent action - all fields 1`] = `
+Object {
+  "action": "3!#ax",
+  "data": Object {
+    "testType": "3!#ax",
+  },
+  "timestamp": "3!#ax",
+  "user_identifiers": Object {
+    "anonymousId": "3!#ax",
+    "email": "elenal@fen.uz",
+    "optimizely_vuid": "3!#ax",
+    "userId": "3!#ax",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-data-platform destination: nonEcommCustomEvent action - required fields 1`] = `
+Object {
+  "action": "3!#ax",
+  "timestamp": "3!#ax",
+  "user_identifiers": Object {},
+}
+`;
+
 exports[`Testing snapshot for actions-optimizely-data-platform destination: upsertContact action - all fields 1`] = `
 Object {
   "address": Object {

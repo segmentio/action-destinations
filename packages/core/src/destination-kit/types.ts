@@ -182,6 +182,34 @@ export interface InputField extends InputFieldJSONSchema {
    * locked out from editing an empty field.
    */
   readOnly?: boolean
+
+  /**
+   * Determines whether this field will be shown in the UI. This is useful for when some field becomes irrelevant based on
+   * the value of another field.
+   */
+  depends_on?: DependsOnConditions
+}
+
+/**
+ * A single condition defining whether a field should be shown.
+ * fieldKey: The field key in the fields object to look at
+ * operator: The operator to use when comparing the field value
+ * value: The value we expect that field to have, if undefined, we will match based on whether the field contains a value or not
+ */
+export interface Condition {
+  fieldKey: string
+  operator: 'is' | 'is_not'
+  value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
+}
+
+/**
+ * If match is not set, it will default to 'all'
+ * If match = 'any', then meeting any of the conditions defined will result in the field being shown.
+ * If match = 'all', then meeting all of the conditions defined will result in the field being shown.
+ */
+export interface DependsOnConditions {
+  match?: 'any' | 'all'
+  conditions: Condition[]
 }
 
 export type FieldValue = string | number | boolean | object | Directive

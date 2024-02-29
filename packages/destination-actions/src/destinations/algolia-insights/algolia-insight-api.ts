@@ -6,6 +6,8 @@ export const algoliaApiPermissionsUrl = (settings: Settings) =>
 
 export type AlgoliaEventType = 'view' | 'click' | 'conversion'
 
+export type AlgoliaEventSubtype = 'addToCart' | 'purchase'
+
 type EventCommon = {
   eventName: string
   index: string
@@ -29,7 +31,16 @@ export type AlgoliaFilterClickedEvent = EventCommon & {
 }
 
 export type AlgoliaConversionEvent = EventCommon & {
+  eventSubtype?: AlgoliaEventSubtype
   objectIDs: string[]
+  objectData?: {
+    queryID?: string
+    price?: number | string
+    discount?: number | string
+    quantity?: number
+  }[]
+  value?: number
+  currency?: string
 }
 
 export type AlgoliaApiPermissions = {

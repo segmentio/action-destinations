@@ -9,7 +9,8 @@ import {
   coupon,
   payment_type,
   items_multi_products,
-  params
+  params,
+  send_to
 } from '../ga4-properties'
 
 // Change from unknown to the partner SDK types
@@ -29,9 +30,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       required: true
     },
     user_properties: user_properties,
-    params: params
+    params: params,
+    send_to: send_to
   },
-  perform: (gtag, { payload }) => {
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'add_payment_info', {
       currency: payload.currency,
       value: payload.value,
@@ -40,6 +42,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       items: payload.items,
       user_id: payload.user_id ?? undefined,
       user_properties: payload.user_properties,
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       ...payload.params
     })
   }

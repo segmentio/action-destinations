@@ -359,3 +359,23 @@ export const data_stream_type: InputField = {
     'The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: "Web" (default) and "Mobile App".',
   default: DataStreamType.Web
 }
+
+export const ad_user_data_consent: InputField = {
+  label: 'Ad User Data Consent State',
+  description:
+    'Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.',
+  type: 'string',
+  choices: [
+    { label: 'Granted', value: 'GRANTED' },
+    { label: 'Denied', value: 'DENIED' }
+  ]
+}
+export const ad_personalization_consent: InputField = {
+  label: 'Ad Personalization Consent State',
+  description: 'Sets consent for personalized advertising. Must be either GRANTED or DENIED.',
+  type: 'string',
+  choices: [
+    { label: 'Granted', value: 'GRANTED' },
+    { label: 'Denied', value: 'DENIED' }
+  ]
+}

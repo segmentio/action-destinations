@@ -4,6 +4,8 @@ import type { Payload } from './generated-types'
 import { user_id, user_properties, params } from '../ga4-properties'
 type ConsentParamsArg = 'granted' | 'denied' | undefined
 
+const defaultCookieExpiryInSecond = 63072000
+const defaultCookieDomain = 'auto'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
@@ -25,6 +27,28 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Analytics Storage Consent State',
       type: 'string'
+    },
+    ad_user_data_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
+    },
+    ad_personalization_consent_state: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined
     },
     campaign_content: {
       description:
@@ -101,11 +125,29 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
+    const checkCookiePathDefaultValue =
+      settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
+
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'update', {
-        ad_storage: payload.ads_storage_consent_state as ConsentParamsArg,
-        analytics_storage: payload.analytics_storage_consent_state as ConsentParamsArg
-      })
+      const consentParams: {
+        ad_storage?: ConsentParamsArg
+        analytics_storage?: ConsentParamsArg
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {}
+      if (payload.ads_storage_consent_state) {
+        consentParams.ad_storage = payload.ads_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.analytics_storage_consent_state) {
+        consentParams.analytics_storage = payload.analytics_storage_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_user_data_consent_state) {
+        consentParams.ad_user_data = payload.ad_user_data_consent_state as ConsentParamsArg
+      }
+      if (payload.ad_personalization_consent_state) {
+        consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
+      }
+      gtag('consent', 'update', consentParams)
     }
     type ConfigType = { [key: string]: unknown }
 
@@ -115,28 +157,26 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       ...payload.params
     }
 
-    if (settings.cookieUpdate) {
-      config.cookie_update = settings.cookieUpdate
+    if (settings.cookieUpdate != true) {
+      config.cookie_update = false
     }
-    if (settings.cookieDomain) {
+    if (settings.cookieDomain != defaultCookieDomain) {
       config.cookie_domain = settings.cookieDomain
     }
     if (settings.cookiePrefix) {
       config.cookie_prefix = settings.cookiePrefix
     }
-    if (settings.cookieExpirationInSeconds) {
+    if (settings.cookieExpirationInSeconds != defaultCookieExpiryInSecond) {
       config.cookie_expires = settings.cookieExpirationInSeconds
     }
-    if (settings.cookiePath) {
+    if (checkCookiePathDefaultValue) {
       config.cookie_path = settings.cookiePath
     }
-
     if (settings.pageView != true) {
       config.send_page_view = settings.pageView ?? true
     }
-
-    if (payload.send_page_view != true) {
-      config.send_page_view = payload.send_page_view ?? true
+    if (settings.cookieFlags) {
+      config.cookie_flags = settings.cookieFlags
     }
 
     if (payload.screen_resolution) {

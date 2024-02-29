@@ -20,6 +20,14 @@ export interface Payload {
    */
   analytics_storage_consent_state?: string
   /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_user_data_consent_state?: string
+  /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_personalization_consent_state?: string
+  /**
    * Use campaign content to differentiate ads or links that point to the same URL. Setting this value will override the utm_content query parameter.
    */
   campaign_content?: string

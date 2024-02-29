@@ -10,6 +10,16 @@ export const event_action: InputField = {
   }
 }
 
+export const data: InputField = {
+  label: 'Event Properties',
+  description: 'Additional information to send with your custom event',
+  type: 'object',
+  required: false,
+  default: {
+    '@path': '$.properties'
+  }
+}
+
 export const user_identifiers: InputField = {
   label: 'User identifiers',
   description: 'User identifier details to send to Optimizely. ',
