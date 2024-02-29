@@ -120,6 +120,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description: 'Set to false to prevent sending a page_view.',
       label: 'Send Page Views',
       type: 'boolean',
+      choices: [
+        { label: 'True', value: 'true' },
+        { label: 'False', value: 'false' }
+      ],
       default: true
     },
     params: params
@@ -174,6 +178,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (settings.pageView != true) {
       config.send_page_view = settings.pageView ?? true
+    }
+
+    if (payload.send_page_view != true) {
+      config.send_page_view = payload.send_page_view ?? true
     }
     if (settings.cookieFlags) {
       config.cookie_flags = settings.cookieFlags

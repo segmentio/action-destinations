@@ -59,6 +59,9 @@ const subscriptions: Subscription[] = [
       },
       ad_personalization_consent_state: {
         '@path': '$.properties.ad_personalization_consent_state'
+      },
+      send_page_view: {
+        '@path': '$.properties.send_page_view'
       }
     }
   }
@@ -118,7 +121,8 @@ describe('Set Configuration Fields action', () => {
     })
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
-      allow_google_signals: false
+      allow_google_signals: false,
+      send_page_view: true
     })
   })
   it('should configure cookie expiry time other then default value', async () => {
@@ -144,6 +148,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       cookie_expires: 500
     })
   })
@@ -171,6 +176,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       cookie_domain: 'example.com'
     })
   })
@@ -197,6 +203,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       cookie_prefix: 'stage'
     })
   })
@@ -224,6 +231,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       cookie_path: '/home'
     })
   })
@@ -250,6 +258,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       cookie_update: false
     })
   })
@@ -274,7 +283,8 @@ describe('Set Configuration Fields action', () => {
     setConfigurationEvent.page?.(context)
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
-      allow_google_signals: false
+      allow_google_signals: false,
+      send_page_view: true
     })
   })
   it('should update config if payload has screen resolution', () => {
@@ -290,6 +300,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       screen_resolution: '800*600'
     })
   })
@@ -306,6 +317,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       user_id: 'segment-123'
     })
   })
@@ -322,6 +334,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       page_title: 'User Registration Page'
     })
   })
@@ -338,6 +351,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       language: 'EN'
     })
   })
@@ -354,6 +368,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       content_group: '/home/login'
     })
   })
@@ -370,6 +385,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_term: 'running+shoes'
     })
   })
@@ -386,6 +402,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_source: 'google'
     })
   })
@@ -402,6 +419,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_name: 'spring_sale'
     })
   })
@@ -418,6 +436,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_medium: 'cpc'
     })
   })
@@ -434,6 +453,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_id: 'abc.123'
     })
   })
@@ -450,6 +470,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
+      send_page_view: true,
       campaign_content: 'logolink'
     })
   })
@@ -476,7 +497,8 @@ describe('Set Configuration Fields action', () => {
     setConfigurationEvent.page?.(context)
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
-      allow_google_signals: false
+      allow_google_signals: false,
+      send_page_view: true
     })
   })
   it('should update config if payload has send_page_view is false', async () => {
@@ -502,7 +524,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
-      send_page_view: false
+      send_page_view: true
     })
   })
   it('should update config if payload has send_page_view is undefined', async () => {
@@ -614,5 +636,53 @@ describe('Set Configuration Fields action', () => {
 
     setConfigurationEvent.page?.(context)
     expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {})
+  })
+  it('should update config if payload has send_page_view undefined', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        send_page_view: undefined
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: true
+    })
+  })
+  it('should update config if payload has send_page_view true', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        send_page_view: true
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false
+    })
+  })
+
+  it('should update config if payload has send_page_view false', () => {
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        send_page_view: false
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: false
+    })
   })
 })
