@@ -89,7 +89,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const apiKey = getAudienceInput.settings.api_key
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: buildHeaders(apiKey)
+        headers: buildHeaders(apiKey),
+        throwHttpErrors: false
       })
 
       if (!response.ok) {
