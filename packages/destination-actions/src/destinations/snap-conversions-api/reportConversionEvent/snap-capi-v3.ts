@@ -44,11 +44,10 @@ const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
   const app_id = emptyStringtoUndefined(settings.app_id)
-  const action_source =
-    eventConversionTypeToActionSource[payload.event_conversion_type] ??
-    // Snap only supports the app and website conversion types
-    // so set a sane default based upon the presence of an app_id
-    (!isNullOrUndefined(app_id) ? 'app' : 'website')
+
+  // event_conversion_type is a required parameter whose value is enforced as
+  // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
+  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
 
   const event_id = emptyToUndefined(payload.client_dedup_id)
 
