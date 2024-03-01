@@ -73,14 +73,14 @@ const action: ActionDefinition<Settings, Payload> = {
         type: 'identify',
         sent_at: new Date().toISOString(),
         body: {
+          keys: payload.user_keys,
+          name: payload.user_name,
+          traits: payload.user_traits,
           company: {
             keys: payload.company_keys,
             name: payload.company_name,
             traits: payload.company_traits
-          },
-          keys: payload.user_keys,
-          name: payload.user_name,
-          traits: payload.user_traits
+          }
         }
       }
     })
