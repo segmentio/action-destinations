@@ -30,7 +30,7 @@ export const getTopics = async (settings: Settings): Promise<DynamicFieldRespons
 const getKafka = (settings: Settings) => {
   return new Kafka({
     clientId: settings.clientId,
-    brokers: settings.brokers.trim().split(',').map((broker) => broker.trim()),
+    brokers: settings.brokers.trim().split(',').map(broker => broker.trim()),
     ssl: true,
     sasl: {
       mechanism: settings.mechanism,
