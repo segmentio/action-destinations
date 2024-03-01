@@ -23,9 +23,9 @@ export interface Payload {
     optimizely_vuid?: string
   }
   /**
-   * The name of the Optimizely event to send
+   * The name of the Optimizely Event Action.
    */
-  event_action: string
+  event_action?: string
   /**
    * Product details to associate with the event. Product ID field is required for each product
    */
