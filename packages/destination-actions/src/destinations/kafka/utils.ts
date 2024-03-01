@@ -30,10 +30,7 @@ export const getTopics = async (settings: Settings): Promise<DynamicFieldRespons
 const getKafka = (settings: Settings) => {
   return new Kafka({
     clientId: settings.clientId,
-    brokers: settings.brokers
-      .trim()
-      .split(',')
-      .map((broker) => broker.trim()),
+    brokers: settings.brokers.trim().split(',').map((broker) => broker.trim()),
     ssl: true,
     sasl: {
       mechanism: settings.mechanism,
@@ -46,7 +43,9 @@ const getKafka = (settings: Settings) => {
 const getProducer = (settings: Settings) => {
   return getKafka(settings).producer({
     createPartitioner:
-      settings.partitionerType === LEGACY_PARTITIONER ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner
+      settings.partitionerType === LEGACY_PARTITIONER
+        ? Partitioners.LegacyPartitioner
+        : Partitioners.DefaultPartitioner
   })
 }
 
@@ -63,16 +62,13 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
 
   const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
     topic,
-    messages: groupedPayloads[topic].map(
-      (payload) =>
-        ({
-          value: JSON.stringify(payload.payload),
-          key: payload.key,
-          headers: payload?.headers ?? undefined,
-          partition: payload?.partition ?? payload?.default_partition ?? undefined,
-          partitionerType: settings.partitionerType
-        } as Message)
-    )
+    messages: groupedPayloads[topic].map((payload) => ({
+      value: JSON.stringify(payload.payload),
+      key: payload.key,
+      headers: payload?.headers ?? undefined,
+      partition: payload?.partition ?? payload?.default_partition ?? undefined,
+      partitionerType: settings.partitionerType
+    }) as Message)
   }))
 
   const producer = getProducer(settings)
@@ -84,4 +80,5 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
   }
 
   await producer.disconnect()
+
 }
