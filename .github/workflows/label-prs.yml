@@ -22,7 +22,7 @@ jobs:
         with:
           # Required for the script to access team membership information.
           # Scope: members:read and contentes:read permission on the organization.
-          github-token: ${{ secrets.GH_PAT_MEMBER_AND_CONTENT_READONLY }}
+          github-token: ${{ secrets.GH_PAT_MEMBER_AND_PULL_REQUEST_READONLY }}
           script: |
             const script = require('./github/scripts/compute-labels.js')
             await script({github, context, core})
