@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
 
-// Default Page Mapping
+// Default Track Mapping
 const defaultTrackMapping = {
   event_name: {
     '@path': '$.event'
@@ -22,7 +22,9 @@ const defaultTrackMapping = {
   properties: {
     '@path': '$.properties'
   },
-  engage_space: 'engage-space-writekey'
+  timstamp: {
+    '@path': '$.timestamp'
+  }
 }
 
 describe('SegmentProfiles.sendTrack', () => {
@@ -53,6 +55,7 @@ describe('SegmentProfiles.sendTrack', () => {
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
+      timestamp: '2023-09-26T09:46:28.290Z',
       event: 'Test Event'
     })
 
