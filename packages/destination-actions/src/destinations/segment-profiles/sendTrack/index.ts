@@ -27,9 +27,15 @@ const action: ActionDefinition<Settings, Payload> = {
           anonymousId: payload?.anonymous_id,
           timestamp: payload?.timestamp,
           event: payload?.event_name,
+          integrations: {
+            // Setting 'integrations.All' to false will ensure that we don't send events
+            // to any destinations which is connected to the Segment Profiles space.
+            All: false
+          },
           properties: {
             ...payload?.properties
-          }
+          },
+          type: 'track'
         }
       ]
     }

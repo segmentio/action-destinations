@@ -6,10 +6,14 @@ Object {
     Object {
       "anonymousId": "arky4h2sh7k",
       "event": "Test Event",
+      "integrations": Object {
+        "All": false,
+      },
       "properties": Object {
         "plan": "Business",
       },
       "timestamp": undefined,
+      "type": "track",
       "userId": "test-user-ufi5bgkko5",
     },
   ],
