@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Key-value pairs associated with a company (e.g. organization_id: 123456)
    */
-  company_keys?: {
+  company_keys: {
     [k: string]: unknown
   }
   /**

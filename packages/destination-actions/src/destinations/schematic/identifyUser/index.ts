@@ -8,10 +8,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     company_keys: {
-      label: 'Company key name',
+      label: 'Company keys',
       description: 'Key-value pairs associated with a company (e.g. organization_id: 123456)',
       type: 'object',
-      required: false,
+      required: true,
       defaultObjectUI: 'keyvalue',
       additionalProperties: true
     },
@@ -65,10 +65,13 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    return request('https://api.schematichq.com/events', {
+    return request('https://c.schematichq.com/e', {
       method: 'post',
-      headers: { 'X-Schematic-Api-Key': `${settings.apiKey}` },
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
       json: {
+        api_key: `${settings.apiKey}`,
+        type: 'identify',
+        sent_at: new Date().toISOString(),
         body: {
           company: {
             keys: payload.company_keys,
@@ -78,8 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
           keys: payload.user_keys,
           name: payload.user_name,
           traits: payload.user_traits
-        },
-        event_type: 'identify'
+        }
       }
     })
   }
