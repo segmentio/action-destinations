@@ -15,10 +15,11 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties
   },
-  perform: (_, { payload }) => {
+  perform: (_, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendTrack`])
 
     return {
       batch: [
