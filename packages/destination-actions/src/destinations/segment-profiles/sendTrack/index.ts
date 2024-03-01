@@ -6,7 +6,7 @@ import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Track',
-  description: '',
+  description: 'Send a track call to Segment’s tracking API. This is used to record actions your users perform.',
   fields: {
     user_id,
     anonymous_id,
