@@ -15,15 +15,15 @@ export class MolocoAPIClient {
     request: RequestClient
 
     constructor(request: RequestClient, settings: Settings) {
-        this.url = this.getEndpoint()
         this.platform = settings.platformId
         this.apiKey = settings.apiKey
-    
         this.request = request
+
+        this.url = this.getEndpoint()
     }
 
     private getEndpoint() {
-        return `https://${this.platform.replace('_', '-')}-evt.rmp-api.moloco.com/cdp/SEGMENT`
+        return `https://${this.platform.replace(/_/g, '-')}-evt.rmp-api.moloco.com/cdp/SEGMENT`
     }
 
     private async _sendEvent(body: Record<string, any>): Promise<ModifiedResponse> {
