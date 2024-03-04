@@ -3,8 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync Audience to Kevel Audience',
-  description: 'Sync a Segment Engage Audience to a Kevel Audience. Only users with a Segment userId will be synced.',
+  title: 'Sync with Kevel Audience',
+  description:
+    "Share Segment user attributes and Segment Audiences from `track` and `identify` events to Kevel Audience using Kevel Audience tracking events and sharing data as `customFields`. By configuring Kevel Audience user attributes, this data can then be made available on the user's profile. Only users with a Segment userId will be synced.",
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     segment_user_id: {

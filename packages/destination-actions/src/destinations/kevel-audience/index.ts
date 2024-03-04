@@ -1,13 +1,13 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import syncAudience from './syncAudience'
+import syncKevelAudience from './syncKevelAudience'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Kevel Audience (Actions)',
   slug: 'actions-kevel-audience',
   description:
-    'Send Segment user profiles and Segment Audiences to Kevel Audience. Only users with a Segment userId will be synced.',
+    "Share Segment user attributes and Segment Audiences from `track` and `identify` events to Kevel Audience using Kevel Audience tracking events and sharing data as `customFields`. By configuring Kevel Audience user attributes, this data can then be made available on the user's profile. Only users with a Segment userId will be synced.",
   mode: 'cloud',
 
   authentication: {
@@ -15,12 +15,12 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       audienceDomain: {
         label: 'Kevel Audience Domain',
-        description: 'Your Kevel Audience Domain. Example: "cdp.yourdomain.com".',
+        description: 'Your Kevel Audience root subdomain. Example: "cdp.yourdomain.com".',
         type: 'string',
         required: true
       },
       userIdType: {
-        label: 'Kevel Audience user ID Type to map Segment ID to',
+        label: 'Kevel Audience user ID Type to map your Segment ID to',
         description: 'The Kevel Audience User ID Type to use. Example: "crm".',
         type: 'string',
         required: true
@@ -60,7 +60,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    syncAudience
+    syncKevelAudience
   }
 }
 

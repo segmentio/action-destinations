@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Kevel Audience Domain. Example: "cdp.yourdomain.com".
+   * Your Kevel Audience root subdomain. Example: "cdp.yourdomain.com".
    */
   audienceDomain: string
   /**

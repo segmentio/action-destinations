@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Traits',
-  description: 'Sync user profile traits from Segment to Kevel UserDB',
+  description:
+    'Sync user profile traits and segments from Segment to Kevel UserDB using `customProperties`. Read the [documentation for more details](https://dev.kevel.com/reference/set-custom-properties-alternative).',
   defaultSubscription: 'type = "identify"',
   fields: {
     segment_user_id: {

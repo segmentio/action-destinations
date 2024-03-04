@@ -9,7 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Kevel UserDB (Actions)',
   slug: 'actions-kevel-userdb',
   description:
-    'Send Segment user profiles and Segment Audiences to Kevel UserDB. Only users with a Segment userId will be synced.',
+    'Send Segment user profiles and Segment Audiences to Kevel UserDB for campaign targeting. Only users with a Segment userId will be synced.',
   mode: 'cloud',
 
   authentication: {

@@ -38,7 +38,7 @@ const goodIdentifyEvent = createTestEvent({
   properties: undefined
 })
 
-describe('Kevel.syncAudience', () => {
+describe('KevelAuddience.syncKevelAudience', () => {
   it('should not throw an error if the audience creation succeed - track', async () => {
     const baseUrl = 'https://tr.domain.brand.com/'
 
@@ -46,10 +46,8 @@ describe('Kevel.syncAudience', () => {
       .post('/events/server', (body) => body.customData.kevel_segment_test_name === true)
       .reply(200)
 
-    console.log(nock.activeMocks())
-
     await expect(
-      testDestination.testAction('syncAudience', {
+      testDestination.testAction('syncKevelAudience', {
         event: goodTrackEvent,
         settings: {
           audienceDomain: 'domain.brand.com',
@@ -72,7 +70,7 @@ describe('Kevel.syncAudience', () => {
       .reply(200)
 
     await expect(
-      testDestination.testAction('syncAudience', {
+      testDestination.testAction('syncKevelAudience', {
         event: goodIdentifyEvent,
         settings: {
           audienceDomain: 'domain.brand.com',
