@@ -83,8 +83,8 @@ async function computeFileBasedLabels(github, context, core) {
   const files = await github.paginate(opts)
 
   // The following regexes are used to match the new destinations
-  const newCloudDestinationRegex = /packages\/destination\-actions\/src\/destinations\/.*\/index\.ts/i
-  const newBrowserDestinationRegex = /packages\/browser\-destinations\/destinations\/.*\/src\/index\.ts/i
+  const newCloudDestinationRegex = /packages\/destination\-actions\/src\/destinations\/[^\/]+\/index\.ts/i
+  const newBrowserDestinationRegex = /packages\/browser\-destinations\/destinations\/[^\/]+\/src\/index\.ts/i
   const isNew = (filename) => newCloudDestinationRegex.test(filename) || newBrowserDestinationRegex.test(filename)
 
   const isNewDestination = files.some((file) => isNew(file.filename) && file.status === 'added')
