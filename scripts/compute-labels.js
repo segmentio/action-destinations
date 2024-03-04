@@ -15,12 +15,13 @@ async function computeAuthorLabels(github, context, core) {
   const EXTERNAL_LABEL = 'team:external'
   const SEGMENT_LABEL = 'team:segment'
 
+  // If team member label already exists, then no need to add any labels
   const existingLabels = context.payload.pull_request.labels.map((label) => label.name)
   if (existingLabels.some((label) => [SEGMENT_CORE_LABEL, EXTERNAL_LABEL, SEGMENT_LABEL].includes(label))) {
-    core.debug(`Not adding labels to PR as team labels already exist on the PR.`)
     return []
   }
 
+  // check against all internal teams
   const teamMembers = await Promise.all(
     teamSlugs.map(async (teamSlug) => {
       const team = await github.rest.teams.listMembersInOrg({
@@ -31,26 +32,31 @@ async function computeAuthorLabels(github, context, core) {
     })
   )
 
+  // Add labels based on the team membership
   const labels = []
   if (teamMembers.some((member) => member === true)) {
     labels.push(SEGMENT_CORE_LABEL)
   } else {
-    const res = await github.rest.orgs
+    // check if the user is a member of the organization - eg; Engage and other internal integration devs
+    await github.rest.orgs
       .checkMembershipForUser({
         org: organization,
         username: username
       })
+      // if the user is not a member of the organization, then add the external label
       .catch((e) => {
         if (e.status === 404) {
           labels.push(EXTERNAL_LABEL)
         }
       })
-    if (res) {
-      labels.push(SEGMENT_LABEL)
-    }
+      // if the user is a member of the organization, then add the segment label
+      .then((data) => {
+        if (data && data.status === 204) {
+          labels.push(SEGMENT_LABEL)
+        }
+      })
   }
-
-  core.debug(`Added Labels to PR: ${labels.join(',')}`)
+  core.debug(`Added ${labels.join(',')} labels to PR based on the author's team membership.`)
   return labels
 }
 
@@ -74,12 +80,15 @@ async function computeFileBasedLabels(github, context, core) {
   ]
 
   const newLabels = []
+
+  // Get the list of files in the PR
   const opts = github.rest.pulls.listFiles.endpoint.merge({
     owner: org,
     repo: repo,
     pull_number: pull_number
   })
 
+  // Paginate the list of files in the PR
   const files = await github.paginate(opts)
 
   // The following regexes are used to match the new destinations
@@ -87,6 +96,7 @@ async function computeFileBasedLabels(github, context, core) {
   const newBrowserDestinationRegex = /packages\/browser\-destinations\/destinations\/[^\/]+\/src\/index\.ts/i
   const isNew = (filename) => newCloudDestinationRegex.test(filename) || newBrowserDestinationRegex.test(filename)
 
+  // Check if the PR contains new destinations
   const isNewDestination = files.some((file) => isNew(file.filename) && file.status === 'added')
   if (isNewDestination) {
     newLabels.push(DEPLOY_REGISTRATION_LABEL)
@@ -98,14 +108,17 @@ async function computeFileBasedLabels(github, context, core) {
   const updateCorePackageRegex = /packages\/core\/.*/i
   const updatedDestinationSubscription = /packages\/destination\-subscriptions\/.*/i
 
+  // Check if the PR contains updates to browser destinations
   if (files.some((file) => updatedBrowserDestinationRegex.test(file.filename))) {
     newLabels.push(MODE_DEVICE_LABEL)
   }
 
+  // Check if the PR contains updates to cloud destinations
   if (files.some((file) => updatedCloudDestinationRegex.test(file.filename))) {
     newLabels.push(MODE_CLOUD_LABEL)
   }
 
+  // Check if the PR contains updates to core packages
   if (
     files.some(
       (file) => updateCorePackageRegex.test(file.filename) || updatedDestinationSubscription.test(file.filename)
@@ -114,6 +127,7 @@ async function computeFileBasedLabels(github, context, core) {
     newLabels.push(ACTIONS_CORE_LABEL)
   }
 
+  // Check if the PR contains changes that requires a push.
   const generatedTypesRegex = /packages\/.*\/generated\-types.ts/i
   if (files.some((file) => generatedTypesRegex.test(file.filename))) {
     newLabels.push(DEPLOY_PUSH_LABEL)
@@ -121,7 +135,10 @@ async function computeFileBasedLabels(github, context, core) {
 
   // Remove the existing custom labels if they are not required anymore
   const labelsToRemove = labels.filter((label) => allLabels.includes(label) && !newLabels.includes(label))
+
   core.debug(`Labels to remove: ${labelsToRemove.join(',')}`)
+  core.debug(`Labels to add: ${newLabels.join(',')}`)
+
   return {
     add: newLabels,
     remove: labelsToRemove
