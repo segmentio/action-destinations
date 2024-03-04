@@ -82,6 +82,7 @@ export const capiV3tests = () =>
       const { integration, event_name, event_time, user_data, custom_data, action_source, app_data } = data[0]
       const { em, ph } = user_data
       const { brands, content_category, content_ids, currency, num_items, value } = custom_data
+      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
@@ -92,7 +93,7 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('website')
-      expect(app_data).toBeUndefined()
+      expect(app_id).toBe('test123')
 
       expect(brands).toEqual(['Hasbro', 'Mattel'])
       expect(content_category).toEqual(['games', 'games'])
@@ -132,6 +133,7 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
+      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
@@ -146,7 +148,7 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('website')
-      expect(app_data).toBeUndefined()
+      expect(app_id).toBe('test123')
     })
 
     it('should fail web event without pixel_id', async () => {
@@ -232,6 +234,7 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
+      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('SAVE')
@@ -246,7 +249,7 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('other')
-      expect(app_data).toBeUndefined()
+      expect(app_id).toBe('test123')
     })
 
     it('should handle a mobile app event conversion type', async () => {
@@ -390,6 +393,7 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
+      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('CUSTOM_EVENT_5')
@@ -404,7 +408,7 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('app')
-      expect(app_data).toBeUndefined()
+      expect(app_id).toBe('123')
     })
 
     it('should fail event missing all Snap identifiers', async () => {
