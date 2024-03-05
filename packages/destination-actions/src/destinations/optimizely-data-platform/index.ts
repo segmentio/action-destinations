@@ -71,7 +71,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        type: 'product',
+        event_type: 'product',
         event_action: 'detail'
       },
       type: 'automatic'
@@ -82,7 +82,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        type: 'product',
+        event_type: 'product',
         event_action: 'add_to_cart'
       },
       type: 'automatic'
@@ -93,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        type: 'product',
+        event_type: 'product',
         event_action: 'remove_from_cart'
       },
       type: 'automatic'
@@ -104,7 +104,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...defaultValues(customEvent.fields),
-        type: 'order',
+        event_type: 'order',
         event_action: 'purchase'
       },
       type: 'automatic'
