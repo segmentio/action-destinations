@@ -38,38 +38,24 @@ const goodIdentifyEvent = createTestEvent({
   properties: undefined
 })
 
-const badEvent = createTestEvent({
-  userId: 'uid1',
-  context: {
-    personas: {
-      computation_key: 'kevel_segment_test_name'
-    },
-    traits: {
-      email: 'test@email.com'
-    }
-  },
-  properties: {
-    audience_key: 'kevel_segment_test_name',
-    kevel_segment_test_name: true
-  }
-})
-
-describe('Kevel.syncAudience', () => {
+describe('KevelAuddience.syncKevelAudience', () => {
   it('should not throw an error if the audience creation succeed - track', async () => {
-    const userId = 'uid1'
-    const networkId1 = 'networkId1'
-    const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`
+    const baseUrl = 'https://tr.domain.brand.com/'
 
     nock(baseUrl)
-      .post(`/interests?userKey=${userId}`, JSON.stringify(['kevel_segment_test_name']))
+      .post('/events/server', (body) => body.customData.kevel_segment_test_name === true)
       .reply(200)
 
     await expect(
-      testDestination.testAction('syncAudience', {
+      testDestination.testAction('syncKevelAudience', {
         event: goodTrackEvent,
         settings: {
-          networkId: networkId1,
-          apiKey: 'apiKey1'
+          audienceDomain: 'domain.brand.com',
+          userIdType: 'email_sha256',
+          apiKey: 'api_key',
+          clientId: 'client_id',
+          siteId: 'site_id',
+          eventType: 'segmentSync'
         },
         useDefaultMappings: true
       })
@@ -77,32 +63,25 @@ describe('Kevel.syncAudience', () => {
   })
 
   it('should not throw an error if the audience creation succeed - identify', async () => {
-    const userId = 'uid1'
-    const networkId1 = 'networkId1'
-    const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`
+    const baseUrl = 'https://tr.domain.brand.com'
 
     nock(baseUrl)
-      .post(`/interests?userKey=${userId}`, JSON.stringify(['kevel_segment_test_name']))
+      .post('/events/server', (body) => body.customData.kevel_segment_test_name === true)
       .reply(200)
 
     await expect(
-      testDestination.testAction('syncAudience', {
+      testDestination.testAction('syncKevelAudience', {
         event: goodIdentifyEvent,
         settings: {
-          networkId: networkId1,
-          apiKey: 'apiKey1'
+          audienceDomain: 'domain.brand.com',
+          userIdType: 'email_sha256',
+          apiKey: 'api_key',
+          clientId: 'client_id',
+          siteId: 'site_id',
+          eventType: 'segmentSync'
         },
         useDefaultMappings: true
       })
     ).resolves.not.toThrowError()
-  })
-
-  it('should throw an error if audience creation event missing mandatory field', async () => {
-    await expect(
-      testDestination.testAction('syncAudience', {
-        event: badEvent,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError("The root value is missing the required field 'segment_computation_action'")
   })
 })
