@@ -95,8 +95,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       if (!response.ok) {
         const errorResponse = await response.json()
-        const klaviyoErrorDetail = errorResponse.error.errors[0].detail
-        throw new IntegrationError(klaviyoErrorDetail, 'INVALID_REQUEST_DATA', response.status)
+        if (errorResponse.error && Array.isArray(errorResponse.error.errors) && errorResponse.error.errors.length > 0) {
+          const klaviyoErrorDetail = errorResponse.error.errors[0].detail
+          throw new IntegrationError(klaviyoErrorDetail, 'INVALID_REQUEST_DATA', response.status)
+        } else {
+          throw new IntegrationError('An unexpected error occurred', 'UNEXPECTED_ERROR', response.status || 500)
+        }
       }
 
       const r = await response.json()
