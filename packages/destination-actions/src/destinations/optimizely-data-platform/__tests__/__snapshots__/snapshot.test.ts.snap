@@ -37,6 +37,7 @@ Object {
   "action": "SjDZyt(p",
   "campaign": "SjDZyt(p",
   "campaign_event_value": "SjDZyt(p",
+  "campaign_id": "SjDZyt(p",
   "timestamp": "SjDZyt(p",
   "type": "email",
   "user_identifiers": Object {
@@ -53,6 +54,7 @@ Object {
   "action": "SjDZyt(p",
   "campaign": "SjDZyt(p",
   "campaign_event_value": null,
+  "campaign_id": "SjDZyt(p",
   "timestamp": "SjDZyt(p",
   "type": "email",
   "user_identifiers": Object {

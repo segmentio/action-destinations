@@ -49,6 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'email',
       action: payload.event_action,
       campaign: payload.campaign,
+      campaign_id: payload.campaign_id,
       user_identifiers: payload.user_identifiers,
       campaign_event_value: payload.link_url ?? null,
       timestamp: payload.timestamp
