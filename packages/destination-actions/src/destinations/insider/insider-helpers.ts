@@ -32,7 +32,13 @@ export function userProfilePayload(data: UserPayload) {
   const identifiers = {
     uuid: data.uuid,
     custom: {
-      segment_anonymous_id: data.segment_anonymous_id,
+      segment_anonymous_id: data.segment_anonymous_id
+    }
+  }
+
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
       ...data.custom_identifiers
     }
   }
