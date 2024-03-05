@@ -156,6 +156,14 @@ export const segment_anonymous_id: InputField = {
   default: { '@path': '$.anonymousId' }
 }
 
+export const custom_identifiers: InputField = {
+  label: 'Custom Identifiers',
+  type: 'object',
+  description: 'You can select your custom identifiers for the event.',
+  default: undefined,
+  additionalProperties: true
+}
+
 export const event_name: InputField = {
   label: 'Event Name',
   type: 'string',

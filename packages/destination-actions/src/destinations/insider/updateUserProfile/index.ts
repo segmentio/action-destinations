@@ -96,6 +96,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
+    custom_identifiers: {
+      label: 'Custom Identifiers',
+      type: 'object',
+      description: 'You can select you custom identifiers for the event.',
+      default: undefined
+    },
     city: {
       label: 'City',
       type: 'string',
