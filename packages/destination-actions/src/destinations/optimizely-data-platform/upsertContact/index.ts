@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { user_identifiers } from '../fields'
-import { hosts } from '../utils'
+import { hosts, getDOBDetails } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -109,19 +109,26 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: "The user's avatar image URL.",
       default: { '@path': '$.traits.avatar' }
+    },
+    additional_traits: {
+      label: 'Addition User Traits',
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
+      description: "Additional user profile details"
     }
   },
   perform: (request, { payload, settings }) => {
     const host = hosts[settings.region]
 
     const body = {
+      ...payload.additional_traits,
       user_identifiers: payload.user_identifiers,
       title: payload.title,
       name: payload.name,
       first_name: payload.firstname,
       last_name: payload.lastname,
       age: payload.age,
-      dob: payload.DOB,
+      ...getDOBDetails(payload.DOB),
       gender: payload.gender,
       phone: payload.phone,
       address: payload.address,
