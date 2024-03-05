@@ -22,6 +22,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The time the event was sent
+   */
+  sent_at: string | number
+  /**
    * Additional properties to send with event
    */
   traits?: {

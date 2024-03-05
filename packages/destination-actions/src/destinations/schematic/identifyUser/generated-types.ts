@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Key-value pairs associated with a company (e.g. organization_id: 123456)
    */
-  company_keys?: {
+  company_keys: {
     [k: string]: unknown
   }
   /**
@@ -31,6 +31,10 @@ export interface Payload {
    * User's full name
    */
   user_name?: string
+  /**
+   * The time the event was sent
+   */
+  sent_at: string | number
   /**
    * Properties associated with user
    */

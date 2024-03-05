@@ -46,6 +46,14 @@ const action: ActionDefinition<Settings, Payload> = {
         user_id: { '@path': '$.userId' }
       }
     },
+    sent_at: {
+      label: "Sent at",
+      description: "The time the event was sent",
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' },
+      unsafe_hidden: true
+    },
     traits: {
       label: 'Traits',
       description: 'Additional properties to send with event',
@@ -68,17 +76,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    return request('https://api.schematichq.com/events', {
+    return request('https://c.schematichq.com/e', {
       method: 'post',
-      headers: { 'X-Schematic-Api-Key': `${settings.apiKey}` },
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
       json: {
+        api_key: `${settings.apiKey}`,
+        type: 'track',
+        sent_at: new Date(payload.sent_at).toISOString(),
         body: {
           company: payload.company_keys,
           user: payload.user_keys,
           traits: payload.traits,
           event: snakeCase(payload.event_name)
-        },
-        event_type: 'track'
+        }
       }
     })
   }

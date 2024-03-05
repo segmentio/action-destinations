@@ -4,58 +4,48 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const SCHEMATIC_API_KEY = 'test'
-
-const identify_mapping = {
-  user_keys: {
-    email: 'example@example.com'
-  }
-}
-
-const auth = {
-  refreshToken: 'xyz321',
-  accessToken: 'abc123',
-  apiKey: SCHEMATIC_API_KEY
-}
-
-const settings = {
-  instanceUrl: 'https://api.schematichq.com',
-  apiKey: SCHEMATIC_API_KEY
-}
 
 describe('POST identify call', () => {
-  beforeEach(() => {
-    nock(`${settings.instanceUrl}`)
-      .post('/events')
-      .reply(201, {
-        data: {
-          api_key: '<string>',
-          body: {},
-          captured_at: '2023-11-07T05:31:56Z',
-          company_id: '<string>',
-          enriched_at: '2023-11-07T05:31:56Z',
-          environment_id: '<string>',
-          feature_id: '<string>',
-          id: '<string>',
-          loaded_at: '2023-11-07T05:31:56Z',
-          processed_at: '2023-11-07T05:31:56Z',
-          processing_status: '<string>',
-          sent_at: '2023-11-07T05:31:56Z',
-          subtype: '<string>',
-          type: '<string>',
-          updated_at: '2023-11-07T05:31:56Z',
-          user_id: '<string>'
-        },
-        params: {}
-      })
-    nock(`${settings.instanceUrl}`).post('/events').reply(400, { error: '<string>' })
-  })
 
   it('should update a user', async () => {
+    
+    const schematicPayload = {
+      "api_key": "test",
+      "type": "identify",
+      "sent_at": "2023-11-07T05:31:56.000Z",
+      "body": {
+        "keys": {
+          "user_id": "3456"
+        },
+        "name": "simpson",
+        "traits": {
+          "company_name": "company name 1",
+          "email": "homer@simpsons.com",
+          "name": "simpson",
+          "age": 42,
+          "source": "facebook"
+        },
+        "company": {
+          "keys": {
+            "company_key_1": "company_value_1"
+          },
+          "name": "company name 1",
+          "traits": {
+            "trait_1": "value_1"
+          }
+        }
+      }
+    }
+    
+
+    nock('https://c.schematichq.com').post('/e').reply(200, schematicPayload)
+
     const event = createTestEvent({
       type: 'identify',
       userId: '3456',
+      timestamp: '2023-11-07T05:31:56Z',
       traits: {
+        company_name: 'company name 1',
         email: 'homer@simpsons.com',
         name: 'simpson',
         age: 42,
@@ -65,11 +55,22 @@ describe('POST identify call', () => {
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
-      settings,
-      auth,
-      mapping: identify_mapping
+      settings: {
+        apiKey: 'test'
+      },
+      mapping: {
+        company_keys: {company_key_1: 'company_value_1'},
+        company_name:  { '@path': '$.traits.company_name' },
+        company_traits: { trait_1: 'value_1'},
+        user_keys: {user_id: '3456'},
+        user_name: { '@path': '$.traits.name' },
+        sent_at:  { '@path': '$.timestamp' },
+        user_traits: {'@path': '$.traits'}
+      }
     })
 
-    expect(responses[0].status).toBe(201)
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject(schematicPayload)
   })
 })

@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Schematic's identifyUser destination action: all fields 1`] = `
 Object {
+  "api_key": "A7WJL)2NKFy&pmtr0",
   "body": Object {
     "company": Object {
       "keys": Object {
@@ -20,16 +21,23 @@ Object {
       "testType": "A7WJL)2NKFy&pmtr0",
     },
   },
-  "event_type": "identify",
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
 
 exports[`Testing snapshot for Schematic's identifyUser destination action: required fields 1`] = `
 Object {
+  "api_key": "A7WJL)2NKFy&pmtr0",
   "body": Object {
-    "company": Object {},
+    "company": Object {
+      "keys": Object {
+        "testType": "A7WJL)2NKFy&pmtr0",
+      },
+    },
     "keys": Object {},
   },
-  "event_type": "identify",
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
