@@ -25,7 +25,7 @@ export interface Payload {
   /**
    * The Optimizely Event Type.
    */
-  event_type: string
+  event_type?: string
   /**
    * The name of the Optimizely Event Action.
    */

@@ -4,7 +4,7 @@ export const event_type: InputField = {
   label: 'Optimizely Event Type',
   description: 'The Optimizely Event Type.',
   type: 'string',
-  required: true,
+  required: false,
   default: {
     '@path': '$.event'
   }
