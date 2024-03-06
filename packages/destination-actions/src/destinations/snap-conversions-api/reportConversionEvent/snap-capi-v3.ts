@@ -90,6 +90,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         '', // app package name
         '', // short version
         '', // long version
+
+        // FIXME: extract from the user agent if available
         payload.os_version ?? '', // os version
         payload.device_model ?? '', // device model name
         '', // local
@@ -162,9 +164,10 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
   const { snap_app_id, pixel_id } = settings
   const snapAppID = emptyStringToUndefined(snap_app_id)
   const snapPixelID = emptyStringToUndefined(pixel_id)
-  const appOrPixelID = snapAppID ?? snapPixelID
 
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
+  // Some configurations specify both a snapPixelID and a snapAppID. In these cases
+  // check the conversion type to ensure that the right id is selected and used.
+  const appOrPixelID = event_conversion_type === 'WEB' ? snapPixelID : snapAppID
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
@@ -175,6 +178,8 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
     event_conversion_type === 'WEB' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`
   )
+
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
 
   return appOrPixelID
 }
