@@ -81,8 +81,8 @@ export class LinkedInConversions {
           name: hookInputs?.name,
           account: adAccount,
           conversionMethod: 'CONVERSIONS_API',
-          postClickAttributionWindowSize: 30,
-          viewThroughAttributionWindowSize: 7,
+          postClickAttributionWindowSize: hookInputs?.post_click_attribution_window_size || 30,
+          viewThroughAttributionWindowSize: hookInputs?.view_through_attribution_window_size || 7,
           attributionType: hookInputs?.attribution_type,
           type: hookInputs?.conversionType
         }

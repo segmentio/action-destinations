@@ -10,7 +10,7 @@ export const SUPPORTED_ID_TYPE = [
 ]
 
 interface Choice {
-  value: string
+  value: string | number
   label: string
 }
 
@@ -51,4 +51,11 @@ export const CONVERSION_TYPE_OPTIONS: Choice[] = [
   { label: 'Contact', value: 'CONTACT' },
   { label: 'Marketing Qualified Lead', value: 'MARKETING_QUALIFIED_LEAD' },
   { label: 'Sales Qualified Lead', value: 'SALES_QUALIFIED_LEAD' }
+]
+
+export const SUPPORTED_LOOKBACK_WINDOW_CHOICES: Choice[] = [
+  { label: '1 day', value: 1 },
+  { label: '7 days', value: 7 },
+  { label: '30 days', value: 30 },
+  { label: '90 days', value: 90 }
 ]

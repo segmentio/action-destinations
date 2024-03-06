@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
-import { SUPPORTED_ID_TYPE, CONVERSION_TYPE_OPTIONS } from '../constants'
+import { SUPPORTED_ID_TYPE, CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
 
@@ -81,6 +81,22 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
               }
             ]
           }
+        },
+        post_click_attribution_window_size: {
+          label: 'Post-Click Attribution Window Size',
+          description:
+            'Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.',
+          type: 'number',
+          default: 30,
+          choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES
+        },
+        view_through_attribution_window_size: {
+          label: 'View-Through Attribution Window Size',
+          description:
+            '	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
+          type: 'number',
+          default: 7,
+          choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES
         }
       },
       outputTypes: {
