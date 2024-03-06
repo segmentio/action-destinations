@@ -1,13 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, timestamp, event_name, group_id, properties } from '../segment-properties'
+import { user_id, anonymous_id, timestamp, event_name, group_id, properties, engage_space } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Track',
   description: 'Send a track call to Segment’s tracking API. This is used to record actions your users perform.',
   fields: {
+    engage_space,
     user_id,
     anonymous_id,
     timestamp,
