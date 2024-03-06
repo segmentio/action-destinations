@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const body = {
       user_identifiers: payload.user_identifiers,
       action: payload.event_action,
-      type: payload.event_type,
+      type: payload.event_type ?? 'custom',
       timestamp: payload.timestamp,
       data: payload.data
     }

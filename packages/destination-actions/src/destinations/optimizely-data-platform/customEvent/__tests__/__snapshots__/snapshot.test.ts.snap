@@ -27,7 +27,7 @@ Object {
   "action": "FX3MHiX9P^tIkXKVCa",
   "order_id": "FX3MHiX9P^tIkXKVCa",
   "timestamp": "FX3MHiX9P^tIkXKVCa",
-  "type": "FX3MHiX9P^tIkXKVCa",
+  "type": "custom",
   "user_identifiers": Object {},
 }
 `;

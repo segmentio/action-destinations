@@ -23,7 +23,7 @@ export interface Payload {
     optimizely_vuid?: string
   }
   /**
-   * The Optimizely Event Type.
+   * The Optimizely Event Type. Defaults to "custom" if not provided
    */
   event_type?: string
   /**

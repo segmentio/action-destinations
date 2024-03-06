@@ -2,7 +2,7 @@ import { InputField, Directive } from '@segment/actions-core/destination-kit/typ
 
 export const event_type: InputField = {
   label: 'Optimizely Event Type',
-  description: 'The Optimizely Event Type.',
+  description: 'The Optimizely Event Type. Defaults to "custom" if not provided',
   type: 'string',
   required: false,
   default: {

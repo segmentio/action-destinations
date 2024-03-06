@@ -27,7 +27,7 @@ Object {
   "action": "p$KWIG5p0vR(@gNw)lv@",
   "order_id": "p$KWIG5p0vR(@gNw)lv@",
   "timestamp": "p$KWIG5p0vR(@gNw)lv@",
-  "type": "p$KWIG5p0vR(@gNw)lv@",
+  "type": "custom",
   "user_identifiers": Object {},
 }
 `;
@@ -83,7 +83,7 @@ Object {
 exports[`Testing snapshot for actions-optimizely-data-platform destination: nonEcommCustomEvent action - required fields 1`] = `
 Object {
   "timestamp": "3!#ax",
-  "type": "3!#ax",
+  "type": "custom",
   "user_identifiers": Object {},
 }
 `;
