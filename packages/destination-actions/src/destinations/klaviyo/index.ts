@@ -79,9 +79,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
           data: { type: 'list', attributes: { name: audienceName } }
         }
       })
-      const r = await response.json()
+      await response.json()
       return {
-        externalId: r.data.id
+        externalId: 'r.data.id'
       }
     },
     async getAudience(request, getAudienceInput) {
