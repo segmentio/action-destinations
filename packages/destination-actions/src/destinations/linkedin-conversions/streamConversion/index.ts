@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
-import { SUPPORTED_ID_TYPE } from '../constants'
+import { SUPPORTED_ID_TYPE, CONVERSION_TYPE_OPTIONS } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
 
@@ -51,16 +51,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
-          choices: [
-            { label: 'Add to Cart', value: 'ADD_TO_CART' },
-            { label: 'Download', value: 'DOWNLOAD' },
-            { label: 'Install', value: 'INSTALL' },
-            { label: 'Key Page View', value: 'KEY_PAGE_VIEW' },
-            { label: 'Lead', value: 'LEAD' },
-            { label: 'Purchase', value: 'PURCHASE' },
-            { label: 'Sign Up', value: 'SIGN_UP' },
-            { label: 'Other', value: 'OTHER' }
-          ],
+          choices: CONVERSION_TYPE_OPTIONS,
           depends_on: {
             match: 'all',
             conditions: [
