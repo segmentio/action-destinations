@@ -195,7 +195,7 @@ export const performSnapCAPIv3 = async (
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
   const { event_conversion_type } = payload
-  const authToken = data.auth?.accessToken
+  const authToken = emptyStringToUndefined(data.auth?.accessToken)
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
