@@ -10,7 +10,8 @@ import {
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
-  emptyStringToUndefined
+  emptyStringToUndefined,
+  parseNumberSafe
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -74,7 +75,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           content_ids: splitListValueToArray(payload.item_ids ?? ''),
           content_category: splitListValueToArray(payload.item_category ?? ''),
           brands: payload.brands,
-          num_items: payload.number_items
+          num_items: parseNumberSafe(payload.number_items)
         }
 
   // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.

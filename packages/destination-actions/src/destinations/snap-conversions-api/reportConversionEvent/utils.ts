@@ -81,3 +81,13 @@ export const emptyStringToUndefined = (v: string | undefined): string | undefine
   const trimmed = v?.trim()
   return (trimmed ?? '').length > 0 ? trimmed : undefined
 }
+
+export const parseNumberSafe = (v: string | number | undefined): number | undefined => {
+  if (Number.isSafeInteger(v)) {
+    return v as number
+  } else if (v != null) {
+    const parsed = Number.parseInt(String(v) ?? '')
+    return Number.isSafeInteger(parsed) ? parsed : undefined
+  }
+  return undefined
+}

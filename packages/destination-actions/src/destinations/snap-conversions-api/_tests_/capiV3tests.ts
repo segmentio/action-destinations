@@ -661,4 +661,40 @@ export const capiV3tests = () =>
 
       expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
     })
+
+    it('should exclude number_items that is not a valid integer', async () => {
+      nock(/.*/).post(/.*/).reply(200)
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {}
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings: {
+          pixel_id: '  pixel123  '
+        },
+        useDefaultMappings: true,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        features,
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          number_items: 'six'
+        }
+      })
+
+      expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+
+      const body = JSON.parse(responses[0].options.body as string)
+      const { data } = body
+      expect(data.length).toBe(1)
+
+      const { custom_data } = data[0]
+
+      expect(custom_data).toBeUndefined()
+    })
   })
