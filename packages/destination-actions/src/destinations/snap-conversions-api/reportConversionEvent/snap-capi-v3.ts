@@ -171,7 +171,7 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
 
   // Some configurations specify both a snapPixelID and a snapAppID. In these cases
   // check the conversion type to ensure that the right id is selected and used.
-  const appOrPixelID = event_conversion_type === 'WEB' ? snapPixelID ?? snapAppID : snapAppID ?? snapPixelID
+  const appOrPixelID = event_conversion_type === 'WEB' ? snapPixelID : snapAppID
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),

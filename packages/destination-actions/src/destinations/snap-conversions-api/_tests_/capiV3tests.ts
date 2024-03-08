@@ -676,7 +676,7 @@ export const capiV3tests = () =>
         },
         useDefaultMappings: true,
         auth: {
-          accessToken,
+          accessToken: '    access123   ',
           refreshToken
         },
         features,
