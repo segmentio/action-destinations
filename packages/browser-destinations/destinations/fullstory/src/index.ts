@@ -67,12 +67,6 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       required: false,
       default: 'edge.fullstory.com'
     },
-    cookieDomain: {
-      description: 'Overrides the cookie domain.',
-      label: 'Cookie Domain',
-      type: 'string',
-      required: false
-    },
     recordCrossDomainIFrames: {
       description: 'Allows recording cross-domain iFrames.',
       label: 'Cookie Domain',
