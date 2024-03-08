@@ -27,8 +27,8 @@ describe('MolocoRmp.search', () => {
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channelType: 'SITE',
-        searchQuery: { '@path': '$.properties.context.page.query'}
+        channel_type: 'SITE',
+        search_query: { '@path': '$.properties.context.page.query'}
       },
       useDefaultMappings: true,
     })
@@ -57,7 +57,7 @@ describe('MolocoRmp.search', () => {
         apiKey: 'bar'
       },
       mapping: {
-        channelType: 'SITE',
+        channel_type: 'SITE',
         // searchQuery: {
         //   '@path': '$.properties.context.page.query'
         // } -- missing required field

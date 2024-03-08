@@ -13,14 +13,14 @@ Object {
     "ua": "s4J*^HlXF41",
     "unique_device_id": "s4J*^HlXF41",
   },
-  "event_id": "s4J*^HlXF41",
   "event_type": "ADD_TO_CART",
+  "id": "s4J*^HlXF41",
   "items": Array [
     Object {
       "id": "s4J*^HlXF41",
       "price": Object {
         "amount": -14916188928737.28,
-        "currency": "GBP",
+        "currency": "CNY",
       },
       "quantity": -14916188928737.28,
       "seller_id": "s4J*^HlXF41",
@@ -37,12 +37,16 @@ exports[`Testing snapshot for actions-moloco-rmp destination: addToCart action -
 Object {
   "channel_type": "APP",
   "event_type": "ADD_TO_CART",
+  "id": "s4J*^HlXF41",
   "items": Array [
     Object {
       "id": "s4J*^HlXF41",
     },
   ],
+  "page_id": "s4J*^HlXF41",
+  "session_id": "s4J*^HlXF41",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "s4J*^HlXF41",
 }
 `;
 
@@ -59,20 +63,24 @@ Object {
     "ua": "FGR%xELDK6awh3Tp*s",
     "unique_device_id": "FGR%xELDK6awh3Tp*s",
   },
-  "event_id": "FGR%xELDK6awh3Tp*s",
   "event_type": "ADD_TO_WISHLIST",
+  "id": "FGR%xELDK6awh3Tp*s",
   "items": Array [
     Object {
       "id": "FGR%xELDK6awh3Tp*s",
       "price": Object {
         "amount": 57250726019072,
-        "currency": "PLN",
+        "currency": "VND",
       },
       "quantity": 57250726019072,
       "seller_id": "FGR%xELDK6awh3Tp*s",
     },
   ],
   "page_id": "FGR%xELDK6awh3Tp*s",
+  "revenue": Object {
+    "amount": 57250726019072,
+    "currency": "VND",
+  },
   "session_id": "FGR%xELDK6awh3Tp*s",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "FGR%xELDK6awh3Tp*s",
@@ -83,12 +91,16 @@ exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist acti
 Object {
   "channel_type": "SITE",
   "event_type": "ADD_TO_WISHLIST",
+  "id": "FGR%xELDK6awh3Tp*s",
   "items": Array [
     Object {
       "id": "FGR%xELDK6awh3Tp*s",
     },
   ],
+  "page_id": "FGR%xELDK6awh3Tp*s",
+  "session_id": "FGR%xELDK6awh3Tp*s",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "FGR%xELDK6awh3Tp*s",
 }
 `;
 
@@ -105,21 +117,20 @@ Object {
     "ua": "EJ(KD9p9^^%i",
     "unique_device_id": "EJ(KD9p9^^%i",
   },
-  "event_id": "EJ(KD9p9^^%i",
   "event_type": "HOME",
+  "id": "EJ(KD9p9^^%i",
   "items": Array [
     Object {
       "id": "EJ(KD9p9^^%i",
       "price": Object {
         "amount": -5160557346816,
-        "currency": "LKR",
+        "currency": "CAD",
       },
       "quantity": -5160557346816,
       "seller_id": "EJ(KD9p9^^%i",
     },
   ],
   "page_id": "EJ(KD9p9^^%i",
-  "referrer_page_id": "EJ(KD9p9^^%i",
   "session_id": "EJ(KD9p9^^%i",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "EJ(KD9p9^^%i",
@@ -130,7 +141,11 @@ exports[`Testing snapshot for actions-moloco-rmp destination: home action - requ
 Object {
   "channel_type": "APP",
   "event_type": "HOME",
+  "id": "EJ(KD9p9^^%i",
+  "page_id": "EJ(KD9p9^^%i",
+  "session_id": "EJ(KD9p9^^%i",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "EJ(KD9p9^^%i",
 }
 `;
 
@@ -147,21 +162,20 @@ Object {
     "ua": "ulD!k3rFUf8H",
     "unique_device_id": "ulD!k3rFUf8H",
   },
-  "event_id": "ulD!k3rFUf8H",
   "event_type": "ITEM_PAGE_VIEW",
+  "id": "ulD!k3rFUf8H",
   "items": Array [
     Object {
       "id": "ulD!k3rFUf8H",
       "price": Object {
         "amount": -3847229789962.24,
-        "currency": "USD",
+        "currency": "CAD",
       },
       "quantity": -3847229789962.24,
       "seller_id": "ulD!k3rFUf8H",
     },
   ],
   "page_id": "ulD!k3rFUf8H",
-  "referrer_page_id": "ulD!k3rFUf8H",
   "session_id": "ulD!k3rFUf8H",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "ulD!k3rFUf8H",
@@ -172,12 +186,16 @@ exports[`Testing snapshot for actions-moloco-rmp destination: itemPageView actio
 Object {
   "channel_type": "APP",
   "event_type": "ITEM_PAGE_VIEW",
+  "id": "ulD!k3rFUf8H",
   "items": Array [
     Object {
       "id": "ulD!k3rFUf8H",
     },
   ],
+  "page_id": "ulD!k3rFUf8H",
+  "session_id": "ulD!k3rFUf8H",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "ulD!k3rFUf8H",
 }
 `;
 
@@ -194,14 +212,14 @@ Object {
     "ua": "LII!0LBdUlNj]8JR%M",
     "unique_device_id": "LII!0LBdUlNj]8JR%M",
   },
-  "event_id": "LII!0LBdUlNj]8JR%M",
   "event_type": "LAND",
+  "id": "LII!0LBdUlNj]8JR%M",
   "items": Array [
     Object {
       "id": "LII!0LBdUlNj]8JR%M",
       "price": Object {
         "amount": 61196309008220.16,
-        "currency": "PYG",
+        "currency": "MYR",
       },
       "quantity": 61196309008220.16,
       "seller_id": "LII!0LBdUlNj]8JR%M",
@@ -209,7 +227,6 @@ Object {
   ],
   "page_id": "LII!0LBdUlNj]8JR%M",
   "referrer_page_id": "LII!0LBdUlNj]8JR%M",
-  "search_query": "LII!0LBdUlNj]8JR%M",
   "session_id": "LII!0LBdUlNj]8JR%M",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "LII!0LBdUlNj]8JR%M",
@@ -220,8 +237,12 @@ exports[`Testing snapshot for actions-moloco-rmp destination: land action - requ
 Object {
   "channel_type": "SITE",
   "event_type": "LAND",
+  "id": "LII!0LBdUlNj]8JR%M",
+  "page_id": "LII!0LBdUlNj]8JR%M",
   "referrer_page_id": "LII!0LBdUlNj]8JR%M",
+  "session_id": "LII!0LBdUlNj]8JR%M",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "LII!0LBdUlNj]8JR%M",
 }
 `;
 
@@ -238,14 +259,14 @@ Object {
     "ua": "sFKH^2",
     "unique_device_id": "sFKH^2",
   },
-  "event_id": "sFKH^2",
   "event_type": "PAGE_VIEW",
+  "id": "sFKH^2",
   "items": Array [
     Object {
       "id": "sFKH^2",
       "price": Object {
         "amount": -74065445933547.52,
-        "currency": "ETB",
+        "currency": "KRW",
       },
       "quantity": -74065445933547.52,
       "seller_id": "sFKH^2",
@@ -254,10 +275,6 @@ Object {
   "page_id": "sFKH^2",
   "referrer_page_id": "sFKH^2",
   "session_id": "sFKH^2",
-  "shipping_charge": Object {
-    "amount": -74065445933547.52,
-    "currency": "ETB",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "sFKH^2",
 }
@@ -267,7 +284,12 @@ exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - 
 Object {
   "channel_type": "APP",
   "event_type": "PAGE_VIEW",
+  "id": "sFKH^2",
+  "page_id": "sFKH^2",
+  "referrer_page_id": "sFKH^2",
+  "session_id": "sFKH^2",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "sFKH^2",
 }
 `;
 
@@ -284,14 +306,14 @@ Object {
     "ua": "z*PO@ClIfz41i$",
     "unique_device_id": "z*PO@ClIfz41i$",
   },
-  "event_id": "z*PO@ClIfz41i$",
   "event_type": "PURCHASE",
+  "id": "z*PO@ClIfz41i$",
   "items": Array [
     Object {
       "id": "z*PO@ClIfz41i$",
       "price": Object {
         "amount": 15155152394649.6,
-        "currency": "HUF",
+        "currency": "SGD",
       },
       "quantity": 15155152394649.6,
       "seller_id": "z*PO@ClIfz41i$",
@@ -300,12 +322,12 @@ Object {
   "page_id": "z*PO@ClIfz41i$",
   "revenue": Object {
     "amount": 15155152394649.6,
-    "currency": "HUF",
+    "currency": "SGD",
   },
   "session_id": "z*PO@ClIfz41i$",
   "shipping_charge": Object {
     "amount": 15155152394649.6,
-    "currency": "HUF",
+    "currency": "SGD",
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "z*PO@ClIfz41i$",
@@ -316,16 +338,20 @@ exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - 
 Object {
   "channel_type": "SITE",
   "event_type": "PURCHASE",
+  "id": "z*PO@ClIfz41i$",
   "items": Array [
     Object {
       "id": "z*PO@ClIfz41i$",
     },
   ],
+  "page_id": "z*PO@ClIfz41i$",
   "revenue": Object {
     "amount": 15155152394649.6,
-    "currency": "HUF",
+    "currency": "SGD",
   },
+  "session_id": "z*PO@ClIfz41i$",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "z*PO@ClIfz41i$",
 }
 `;
 
@@ -342,14 +368,14 @@ Object {
     "ua": "A6r#IT*)oBgN#NJ98*^",
     "unique_device_id": "A6r#IT*)oBgN#NJ98*^",
   },
-  "event_id": "A6r#IT*)oBgN#NJ98*^",
   "event_type": "SEARCH",
+  "id": "A6r#IT*)oBgN#NJ98*^",
   "items": Array [
     Object {
       "id": "A6r#IT*)oBgN#NJ98*^",
       "price": Object {
         "amount": 73826803122176,
-        "currency": "MXN",
+        "currency": "PHP",
       },
       "quantity": 73826803122176,
       "seller_id": "A6r#IT*)oBgN#NJ98*^",
@@ -368,7 +394,12 @@ exports[`Testing snapshot for actions-moloco-rmp destination: search action - re
 Object {
   "channel_type": "SITE",
   "event_type": "SEARCH",
+  "id": "A6r#IT*)oBgN#NJ98*^",
+  "page_id": "A6r#IT*)oBgN#NJ98*^",
+  "referrer_page_id": "A6r#IT*)oBgN#NJ98*^",
   "search_query": "A6r#IT*)oBgN#NJ98*^",
+  "session_id": "A6r#IT*)oBgN#NJ98*^",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "A6r#IT*)oBgN#NJ98*^",
 }
 `;

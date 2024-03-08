@@ -13,14 +13,14 @@ Object {
     "ua": "W97yQ",
     "unique_device_id": "W97yQ",
   },
-  "event_id": "W97yQ",
   "event_type": "PAGE_VIEW",
+  "id": "W97yQ",
   "items": Array [
     Object {
       "id": "W97yQ",
       "price": Object {
         "amount": -82844332243025.92,
-        "currency": "NIO",
+        "currency": "UNKNOWN_CURRENCY",
       },
       "quantity": -82844332243025.92,
       "seller_id": "W97yQ",
@@ -29,10 +29,6 @@ Object {
   "page_id": "W97yQ",
   "referrer_page_id": "W97yQ",
   "session_id": "W97yQ",
-  "shipping_charge": Object {
-    "amount": -82844332243025.92,
-    "currency": "NIO",
-  },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "W97yQ",
 }
@@ -42,6 +38,11 @@ exports[`Testing snapshot for MolocoRmp's pageView destination action: required 
 Object {
   "channel_type": "APP",
   "event_type": "PAGE_VIEW",
+  "id": "W97yQ",
+  "page_id": "W97yQ",
+  "referrer_page_id": "W97yQ",
+  "session_id": "W97yQ",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "W97yQ",
 }
 `;

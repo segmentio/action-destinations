@@ -13,21 +13,20 @@ Object {
     "ua": "M7i8t#AejMHF0ojzM0NV",
     "unique_device_id": "M7i8t#AejMHF0ojzM0NV",
   },
-  "event_id": "M7i8t#AejMHF0ojzM0NV",
   "event_type": "HOME",
+  "id": "M7i8t#AejMHF0ojzM0NV",
   "items": Array [
     Object {
       "id": "M7i8t#AejMHF0ojzM0NV",
       "price": Object {
         "amount": 84218396593356.8,
-        "currency": "RUB",
+        "currency": "VEF",
       },
       "quantity": 84218396593356.8,
       "seller_id": "M7i8t#AejMHF0ojzM0NV",
     },
   ],
   "page_id": "M7i8t#AejMHF0ojzM0NV",
-  "referrer_page_id": "M7i8t#AejMHF0ojzM0NV",
   "session_id": "M7i8t#AejMHF0ojzM0NV",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "M7i8t#AejMHF0ojzM0NV",
@@ -38,6 +37,10 @@ exports[`Testing snapshot for MolocoRmp's home destination action: required fiel
 Object {
   "channel_type": "SITE",
   "event_type": "HOME",
+  "id": "M7i8t#AejMHF0ojzM0NV",
+  "page_id": "M7i8t#AejMHF0ojzM0NV",
+  "session_id": "M7i8t#AejMHF0ojzM0NV",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "M7i8t#AejMHF0ojzM0NV",
 }
 `;

@@ -13,14 +13,14 @@ Object {
     "ua": "Gxw(AXLlJ#6Uf]*Hp",
     "unique_device_id": "Gxw(AXLlJ#6Uf]*Hp",
   },
-  "event_id": "Gxw(AXLlJ#6Uf]*Hp",
   "event_type": "PURCHASE",
+  "id": "Gxw(AXLlJ#6Uf]*Hp",
   "items": Array [
     Object {
       "id": "Gxw(AXLlJ#6Uf]*Hp",
       "price": Object {
         "amount": 52157945353338.88,
-        "currency": "SOS",
+        "currency": "DKK",
       },
       "quantity": 52157945353338.88,
       "seller_id": "Gxw(AXLlJ#6Uf]*Hp",
@@ -29,12 +29,12 @@ Object {
   "page_id": "Gxw(AXLlJ#6Uf]*Hp",
   "revenue": Object {
     "amount": 52157945353338.88,
-    "currency": "SOS",
+    "currency": "DKK",
   },
   "session_id": "Gxw(AXLlJ#6Uf]*Hp",
   "shipping_charge": Object {
     "amount": 52157945353338.88,
-    "currency": "SOS",
+    "currency": "DKK",
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "Gxw(AXLlJ#6Uf]*Hp",
@@ -45,15 +45,19 @@ exports[`Testing snapshot for MolocoRmp's purchase destination action: required 
 Object {
   "channel_type": "SITE",
   "event_type": "PURCHASE",
+  "id": "Gxw(AXLlJ#6Uf]*Hp",
   "items": Array [
     Object {
       "id": "Gxw(AXLlJ#6Uf]*Hp",
     },
   ],
+  "page_id": "Gxw(AXLlJ#6Uf]*Hp",
   "revenue": Object {
     "amount": 52157945353338.88,
-    "currency": "SOS",
+    "currency": "DKK",
   },
+  "session_id": "Gxw(AXLlJ#6Uf]*Hp",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "Gxw(AXLlJ#6Uf]*Hp",
 }
 `;

@@ -13,14 +13,14 @@ Object {
     "ua": "TVdeoPEfmlhx4",
     "unique_device_id": "TVdeoPEfmlhx4",
   },
-  "event_id": "TVdeoPEfmlhx4",
   "event_type": "SEARCH",
+  "id": "TVdeoPEfmlhx4",
   "items": Array [
     Object {
       "id": "TVdeoPEfmlhx4",
       "price": Object {
         "amount": 456586774446.08,
-        "currency": "KMF",
+        "currency": "RUB",
       },
       "quantity": 456586774446.08,
       "seller_id": "TVdeoPEfmlhx4",
@@ -39,7 +39,12 @@ exports[`Testing snapshot for MolocoRmp's search destination action: required fi
 Object {
   "channel_type": "SITE",
   "event_type": "SEARCH",
+  "id": "TVdeoPEfmlhx4",
+  "page_id": "TVdeoPEfmlhx4",
+  "referrer_page_id": "TVdeoPEfmlhx4",
   "search_query": "TVdeoPEfmlhx4",
+  "session_id": "TVdeoPEfmlhx4",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "TVdeoPEfmlhx4",
 }
 `;

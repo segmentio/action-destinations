@@ -1,25 +1,50 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { EventType, MolocoEvent } from '../common/event'
+import { EventType } from '../common/event'
+import {
+  event_id,
+  timestamp,
+  channel_type,
+  user_id,
+  device,
+  session_id,
+  default_currency,
+  items,
+  page_id,
+  page_identifier_tokens,
+  referrer_page_id,
+} from '../common/fields'
 import { MolocoAPIClient } from '../common/request-client'
+import { convertEvent } from '../common/convert'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-const event = new MolocoEvent(EventType.PageView, {
-  requireItems: false,
-  requirePageIdentification: true,
-  requireReferrerPageId: false,
-  requireShippingCharge: false
-})
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 
-    'Represents a user viewing a certain page that is pertinent to sequence-based ML model training'
-    + ' (Ex. a user browsing sneakers)',
-  fields: event.getFields(),
+    'Represents a user viewing a certain page that is pertinent to sequence-based ML model training (Ex. a user browsing sneakers)',
+  fields: {
+    event_id,
+    timestamp,
+    channel_type,
+    user_id,
+    device,
+    session_id,
+    default_currency,
+    items,
+    page_id: {
+      ...page_id,
+      description: page_id.description + ' either page_id or page_identifier_tokens is required.'
+    },
+    page_identifier_tokens: {
+      ...page_identifier_tokens,
+      description: page_identifier_tokens.description + ' either page_id or page_identifier_tokens is required.'
+    
+    },
+    referrer_page_id
+  },
   perform: (request, data) => {
     const client = new MolocoAPIClient(request, data.settings)
-    const body = event.buildBody(data.payload)
+    const body = convertEvent({ eventType: EventType.PageView, payload: data.payload })
     return client.sendEvent(body)
   }
 }

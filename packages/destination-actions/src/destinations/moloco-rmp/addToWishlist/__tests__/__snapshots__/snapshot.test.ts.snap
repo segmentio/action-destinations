@@ -13,20 +13,24 @@ Object {
     "ua": "0ON[O$XBU3K!AzrrU",
     "unique_device_id": "0ON[O$XBU3K!AzrrU",
   },
-  "event_id": "0ON[O$XBU3K!AzrrU",
   "event_type": "ADD_TO_WISHLIST",
+  "id": "0ON[O$XBU3K!AzrrU",
   "items": Array [
     Object {
       "id": "0ON[O$XBU3K!AzrrU",
       "price": Object {
         "amount": 55442654007132.16,
-        "currency": "CUP",
+        "currency": "VND",
       },
       "quantity": 55442654007132.16,
       "seller_id": "0ON[O$XBU3K!AzrrU",
     },
   ],
   "page_id": "0ON[O$XBU3K!AzrrU",
+  "revenue": Object {
+    "amount": 55442654007132.16,
+    "currency": "VND",
+  },
   "session_id": "0ON[O$XBU3K!AzrrU",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "0ON[O$XBU3K!AzrrU",
@@ -37,11 +41,15 @@ exports[`Testing snapshot for MolocoRmp's addToWishlist destination action: requ
 Object {
   "channel_type": "SITE",
   "event_type": "ADD_TO_WISHLIST",
+  "id": "0ON[O$XBU3K!AzrrU",
   "items": Array [
     Object {
       "id": "0ON[O$XBU3K!AzrrU",
     },
   ],
+  "page_id": "0ON[O$XBU3K!AzrrU",
+  "session_id": "0ON[O$XBU3K!AzrrU",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "0ON[O$XBU3K!AzrrU",
 }
 `;

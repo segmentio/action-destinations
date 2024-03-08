@@ -61,7 +61,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: webEvent.messageId,
+        id: webEvent.messageId,
         timestamp: webEvent.timestamp,
         channel_type: 'SITE',
         user_id: webEvent.userId,
@@ -78,8 +78,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'SITE',
+          channel_type: 'SITE',
         },
       })
 
@@ -146,7 +145,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: iosEvent.messageId,
+        id: iosEvent.messageId,
         timestamp: iosEvent.timestamp,
         channel_type: 'APP',
         user_id: iosEvent.userId,
@@ -166,8 +165,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
+          channel_type: 'APP',
         },
       })
 
@@ -237,7 +235,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: androidEvent.messageId,
+        id: androidEvent.messageId,
         timestamp: androidEvent.timestamp,
         channel_type: 'APP',
         user_id: androidEvent.userId,
@@ -258,8 +256,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
+          channel_type: 'APP',
         },
       })
 
@@ -303,7 +300,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: event.messageId,
+        id: event.messageId,
         timestamp: event.timestamp,
         channel_type: 'SITE',
         user_id: event.userId,
@@ -320,8 +317,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'SITE',
+          channel_type: 'SITE',
         },
       })
 
@@ -375,7 +371,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: event.eventId,
+        id: event.eventId,
         timestamp: event.timestamp,
         channel_type: 'SITE',
         user_id: event.userId,
@@ -392,9 +388,8 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'SITE',
-          eventId: { '@path': '$.eventId' }
+          channel_type: 'SITE',
+          event_id: { '@path': '$.eventId' }
         },
       })
 
@@ -439,7 +434,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: event.eventId,
+        id: event.eventId,
         timestamp: event.timestamp,
         channel_type: 'SITE',
         user_id: event.userId,
@@ -457,8 +452,8 @@ describe('Moloco Rmp', () => {
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
-          channelType: 'SITE',
-          eventId: { '@path': '$.eventId' }
+          channel_type: 'SITE',
+          event_id: { '@path': '$.eventId' }
         },
       })
 
@@ -535,7 +530,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: androidEvent.messageId,
+        id: androidEvent.messageId,
         timestamp: androidEvent.timestamp,
         channel_type: 'APP',
         user_id: androidEvent.userId,
@@ -565,8 +560,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
+          channel_type: 'APP',
           items: [
             {
               id: { '@path': '$.context.product.id' },
@@ -659,7 +653,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: androidEvent.messageId,
+        id: androidEvent.messageId,
         timestamp: androidEvent.timestamp,
         channel_type: 'APP',
         user_id: androidEvent.userId,
@@ -696,8 +690,7 @@ describe('Moloco Rmp', () => {
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
+          channel_type: 'APP',
           items: {
             '@arrayPath': [
               '$.context.product',
@@ -794,7 +787,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: androidEvent.messageId,
+        id: androidEvent.messageId,
         timestamp: androidEvent.timestamp,
         channel_type: 'APP',
         user_id: androidEvent.userId,
@@ -832,8 +825,8 @@ describe('Moloco Rmp', () => {
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
-          defaultCurrency: { '@path': '$.context.defaultCurrency' },
+          channel_type: 'APP',
+          default_currency: { '@path': '$.context.defaultCurrency' },
           items: {
             '@arrayPath': [
               '$.context.product',
@@ -870,7 +863,7 @@ describe('Moloco Rmp', () => {
         type: 'track',
         userId: 'user1234',
         context: {
-          defaultCurrency: 'YEN',
+          defaultCurrency: 'JPY',
           product: [
             {
               id: '507f191',
@@ -928,7 +921,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: androidEvent.messageId,
+        id: androidEvent.messageId,
         timestamp: androidEvent.timestamp,
         channel_type: 'APP',
         user_id: androidEvent.userId,
@@ -966,8 +959,8 @@ describe('Moloco Rmp', () => {
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
-          defaultCurrency: { '@path': '$.context.defaultCurrency' },
+          channel_type: 'APP',
+          default_currency: { '@path': '$.context.defaultCurrency' },
           items: {
             '@arrayPath': [
               '$.context.product',
@@ -1050,7 +1043,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: event.messageId,
+        id: event.messageId,
         timestamp: event.timestamp,
         channel_type: 'APP',
         user_id: event.userId,
@@ -1073,9 +1066,9 @@ describe('Moloco Rmp', () => {
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
-          pageId: { '@path': '$.pageId' },
-          pageIdentifierTokens: {
+          channel_type: 'APP',
+          page_id: { '@path': '$.pageId' },
+          page_identifier_tokens: {
             event: { '@path': '$.context.event' },
             vertical: { '@path': '$.context.vertical' }
           }
@@ -1151,7 +1144,7 @@ describe('Moloco Rmp', () => {
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: event.messageId,
+        id: event.messageId,
         timestamp: event.timestamp,
         channel_type: 'APP',
         user_id: event.userId,
@@ -1174,9 +1167,9 @@ describe('Moloco Rmp', () => {
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
-          channelType: 'APP',
+          channel_type: 'APP',
           // pageId: { '@path': '$.pageId' }, -- no mapping for page_id
-          pageIdentifierTokens: {
+          page_identifier_tokens: {
             event: { '@path': '$.context.event' },
             vertical: { '@path': '$.context.vertical' }
           }

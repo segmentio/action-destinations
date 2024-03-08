@@ -11,45 +11,45 @@ describe('Moloco Rmp', () => {
   describe('testConvertEvent', () => {
     it('tests an event payload with all fields', async () => {
       const input: SegmentEventPayload = {
-        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
-        channelType: "APP",
-        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        channel_type: "APP",
+        user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
         device: {
           os: 'IOS',
-          osVersion: '15.0.2',
-          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
-          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          os_version: '15.0.2',
+          advertising_id: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          unique_device_id: '2b6f0cc904d137be2e1730235f5664094b831186',
           model: 'iPhone 12',
           ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
           language: 'en',
           ip: '1192.158.1.38'
         },
-        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
+        session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
         revenue: {
           currency: 'USD',
           price: 69.12,
         },
-        searchQuery: 'iphone',
-        pageId: '/home',
-        referrerPageId: 'google.com',
-        shippingCharge: {
+        search_query: 'iphone',
+        page_id: '/home',
+        referrer_page_id: 'google.com',
+        shipping_charge: {
           currency: 'USD',
           price: 5.00
         }
@@ -57,7 +57,7 @@ describe('Moloco Rmp', () => {
 
       const expectedOutput: MolocoEventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         channel_type: 'APP',
         timestamp: '2024-02-05T23:37:42.848Z',
         user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
@@ -111,45 +111,45 @@ describe('Moloco Rmp', () => {
 
     it('tests an event payload with all fields, but os.name should be capitalized', async () => {
       const input: SegmentEventPayload = {
-        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
-        channelType: "APP",
-        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        channel_type: "APP",
+        user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
         device: {
           os: 'iOS',
-          osVersion: '15.0.2',
-          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
-          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          os_version: '15.0.2',
+          advertising_id: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          unique_device_id: '2b6f0cc904d137be2e1730235f5664094b831186',
           model: 'iPhone 12',
           ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
           language: 'en',
           ip: '1192.158.1.38'
         },
-        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
+        session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
         revenue: {
           currency: 'USD',
           price: 69.12,
         },
-        searchQuery: 'iphone',
-        pageId: '/home',
-        referrerPageId: 'google.com',
-        shippingCharge: {
+        search_query: 'iphone',
+        page_id: '/home',
+        referrer_page_id: 'google.com',
+        shipping_charge: {
           currency: 'USD',
           price: 5.00
         }
@@ -157,7 +157,7 @@ describe('Moloco Rmp', () => {
 
       const expectedOutput: MolocoEventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         channel_type: 'APP',
         timestamp: '2024-02-05T23:37:42.848Z',
         user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
@@ -211,45 +211,45 @@ describe('Moloco Rmp', () => {
 
     it('tests an event payload with iPadOS, it should be converted into IOS', async () => {
       const input: SegmentEventPayload = {
-        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
-        channelType: "APP",
-        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        channel_type: "APP",
+        user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
         device: {
           os: 'iPadOS',
-          osVersion: '15.0.2',
-          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
-          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          os_version: '15.0.2',
+          advertising_id: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          unique_device_id: '2b6f0cc904d137be2e1730235f5664094b831186',
           model: 'iPhone 12',
           ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
           language: 'en',
           ip: '1192.158.1.38'
         },
-        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
+        session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
         revenue: {
           currency: 'USD',
           price: 69.12,
         },
-        searchQuery: 'iphone',
-        pageId: '/home',
-        referrerPageId: 'google.com',
-        shippingCharge: {
+        search_query: 'iphone',
+        page_id: '/home',
+        referrer_page_id: 'google.com',
+        shipping_charge: {
           currency: 'USD',
           price: 5.00
         }
@@ -257,7 +257,7 @@ describe('Moloco Rmp', () => {
 
       const expectedOutput: MolocoEventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         channel_type: 'APP',
         timestamp: '2024-02-05T23:37:42.848Z',
         user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
@@ -310,17 +310,17 @@ describe('Moloco Rmp', () => {
     })
 
 
-    it('tests an event payload with a missing field (sessionId)', async () => {
+    it('tests an event payload with a missing field (session_id)', async () => {
       const input: SegmentEventPayload = {
-        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
-        channelType: "APP",
-        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        channel_type: "APP",
+        user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
         device: {
           os: 'IOS',
-          osVersion: '15.0.2',
-          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
-          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          os_version: '15.0.2',
+          advertising_id: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          unique_device_id: '2b6f0cc904d137be2e1730235f5664094b831186',
           model: 'iPhone 12',
           ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
           language: 'en',
@@ -332,24 +332,24 @@ describe('Moloco Rmp', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ],
         revenue: {
           currency: 'USD',
           price: 69.12,
         },
-        searchQuery: 'iphone',
-        pageId: '/home',
-        referrerPageId: 'google.com',
-        shippingCharge: {
+        search_query: 'iphone',
+        page_id: '/home',
+        referrer_page_id: 'google.com',
+        shipping_charge: {
           currency: 'USD',
           price: 5.00
         }
@@ -357,7 +357,7 @@ describe('Moloco Rmp', () => {
 
       const expectedOutput: MolocoEventPayload = {
         event_type: TEST_EVENT_TYPE,
-        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         channel_type: 'APP',
         timestamp: '2024-02-05T23:37:42.848Z',
         user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
@@ -410,34 +410,34 @@ describe('Moloco Rmp', () => {
 
     it('tests whether items with price by without currency throws a validation error', async () => {
       const input: SegmentEventPayload = {
-        eventId: '12e64c12-f386-42c9-871b-8dg3e539ad19',
+        event_id: '12e64c12-f386-42c9-871b-8dg3e539ad19',
         timestamp: '2024-02-05T23:37:42.848Z',
-        channelType: "APP",
-        userId: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
+        channel_type: "APP",
+        user_id: 'wcsf20ge-c3d5-11ee-9a73-0n5e570313ef',
         device: {
           os: 'IOS',
-          osVersion: '15.0.2',
-          advertisingId: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
-          uniqueDeviceId: '2b6f0cc904d137be2e1730235f5664094b831186',
+          os_version: '15.0.2',
+          advertising_id: '7acefbed-d1f6-4e4e-aa26-74e93dd017e4',
+          unique_device_id: '2b6f0cc904d137be2e1730235f5664094b831186',
           model: 'iPhone 12',
           ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/111FFF',
           language: 'en',
           ip: '1192.158.1.38'
         },
-        sessionId: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
+        session_id: 'c3d5-fewf-11ee-9a73-0n5e570313ef',
         items: [
           {
             id: '123',
             price: 12.34,
             quantity: 1,
-            sellerId: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            sellerId: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
           }
         ]
       }

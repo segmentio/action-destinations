@@ -29,7 +29,7 @@ describe('MolocoRmp.addToCart', () => {
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channelType: 'SITE',
+        channel_type: 'SITE',
         items: [
           {
             id: {
@@ -79,7 +79,7 @@ describe('MolocoRmp.addToCart', () => {
         apiKey: 'bar'
       },
       mapping: {
-        channelType: 'SITE',
+        channel_type: 'SITE',
         // items: [
         //   {
         //     id: {

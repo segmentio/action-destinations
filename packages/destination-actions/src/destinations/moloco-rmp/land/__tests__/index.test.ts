@@ -45,7 +45,7 @@ describe('MolocoRmp.land', () => {
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channelType: 'SITE'
+        channel_type: 'SITE'
         // referrer_page_id is default to context.page.referrer
       },
       useDefaultMappings: true,
@@ -93,7 +93,7 @@ describe('MolocoRmp.land', () => {
         apiKey: 'bar'
       },
       mapping: {
-        channelType: 'SITE'
+        channel_type: 'SITE'
       },
       useDefaultMappings: true,
     })).rejects.toThrowError(AggregateAjvError)

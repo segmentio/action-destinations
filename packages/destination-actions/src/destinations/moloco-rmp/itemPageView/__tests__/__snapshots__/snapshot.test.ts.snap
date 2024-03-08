@@ -13,21 +13,20 @@ Object {
     "ua": "SYvlLHdgX",
     "unique_device_id": "SYvlLHdgX",
   },
-  "event_id": "SYvlLHdgX",
   "event_type": "ITEM_PAGE_VIEW",
+  "id": "SYvlLHdgX",
   "items": Array [
     Object {
       "id": "SYvlLHdgX",
       "price": Object {
         "amount": -35543909044060.16,
-        "currency": "BIF",
+        "currency": "INR",
       },
       "quantity": -35543909044060.16,
       "seller_id": "SYvlLHdgX",
     },
   ],
   "page_id": "SYvlLHdgX",
-  "referrer_page_id": "SYvlLHdgX",
   "session_id": "SYvlLHdgX",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "SYvlLHdgX",
@@ -38,11 +37,15 @@ exports[`Testing snapshot for MolocoRmp's itemPageView destination action: requi
 Object {
   "channel_type": "APP",
   "event_type": "ITEM_PAGE_VIEW",
+  "id": "SYvlLHdgX",
   "items": Array [
     Object {
       "id": "SYvlLHdgX",
     },
   ],
+  "page_id": "SYvlLHdgX",
+  "session_id": "SYvlLHdgX",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "SYvlLHdgX",
 }
 `;

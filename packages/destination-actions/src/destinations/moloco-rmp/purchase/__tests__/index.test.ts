@@ -30,7 +30,7 @@ describe('MolocoRmp.purchase', () => {
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channelType: 'SITE',
+        channel_type: 'SITE',
         items: [
           {
             id: {
@@ -89,7 +89,7 @@ describe('MolocoRmp.purchase', () => {
         apiKey: 'bar'
       },
       mapping: {
-        channelType: 'SITE',
+        channel_type: 'SITE',
         // items: -- missing mapping for a required field
         revenue: {
           price: {
@@ -127,7 +127,7 @@ describe('MolocoRmp.purchase', () => {
         apiKey: 'bar'
       },
       mapping: {
-        channelType: 'SITE',
+        channel_type: 'SITE',
         items: [
           {
             id: {

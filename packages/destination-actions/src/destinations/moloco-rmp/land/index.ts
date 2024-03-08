@@ -1,23 +1,45 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { EventType, MolocoEvent } from '../common/event'
+import { EventType } from '../common/event'
+import {
+  event_id,
+  timestamp,
+  channel_type,
+  user_id,
+  device,
+  session_id,
+  default_currency,
+  items,
+  page_id,
+  page_identifier_tokens,
+  referrer_page_id,
+} from '../common/fields'
 import { MolocoAPIClient } from '../common/request-client'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-const event = new MolocoEvent(EventType.Land, {
-  requireItems: false,
-  requireSearchQuery: false,
-  requirePageIdentification: false,
-  requireReferrerPageId: true
-})
+import { convertEvent } from '../common/convert'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Land',
   description: 'Represents a user visiting the client’s website from an external source (ex. Google Shopping)',
-  fields: event.getFields(),
+  fields: {
+    event_id,
+    timestamp,
+    channel_type,
+    user_id,
+    device,
+    session_id,
+    default_currency,
+    items,
+    page_id,
+    page_identifier_tokens,
+    referrer_page_id: {
+      ...referrer_page_id,
+      required: true
+    },
+  },
   perform: (request, data) => {
     const client = new MolocoAPIClient(request, data.settings)
-    const body = event.buildBody(data.payload)
+    const body = convertEvent({ eventType: EventType.Land, payload: data.payload })
     return client.sendEvent(body)
   }
 }

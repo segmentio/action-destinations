@@ -13,14 +13,14 @@ Object {
     "ua": "ziisL0MJUd6S",
     "unique_device_id": "ziisL0MJUd6S",
   },
-  "event_id": "ziisL0MJUd6S",
   "event_type": "LAND",
+  "id": "ziisL0MJUd6S",
   "items": Array [
     Object {
       "id": "ziisL0MJUd6S",
       "price": Object {
         "amount": -7208881776230.4,
-        "currency": "ISK",
+        "currency": "CAD",
       },
       "quantity": -7208881776230.4,
       "seller_id": "ziisL0MJUd6S",
@@ -28,7 +28,6 @@ Object {
   ],
   "page_id": "ziisL0MJUd6S",
   "referrer_page_id": "ziisL0MJUd6S",
-  "search_query": "ziisL0MJUd6S",
   "session_id": "ziisL0MJUd6S",
   "timestamp": "2021-02-01T00:00:00.000Z",
   "user_id": "ziisL0MJUd6S",
@@ -39,7 +38,11 @@ exports[`Testing snapshot for MolocoRmp's land destination action: required fiel
 Object {
   "channel_type": "APP",
   "event_type": "LAND",
+  "id": "ziisL0MJUd6S",
+  "page_id": "ziisL0MJUd6S",
   "referrer_page_id": "ziisL0MJUd6S",
+  "session_id": "ziisL0MJUd6S",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "ziisL0MJUd6S",
 }
 `;

@@ -13,14 +13,14 @@ Object {
     "ua": "2Tz2Ek0OF",
     "unique_device_id": "2Tz2Ek0OF",
   },
-  "event_id": "2Tz2Ek0OF",
   "event_type": "ADD_TO_CART",
+  "id": "2Tz2Ek0OF",
   "items": Array [
     Object {
       "id": "2Tz2Ek0OF",
       "price": Object {
         "amount": -35340104037826.56,
-        "currency": "SLL",
+        "currency": "INR",
       },
       "quantity": -35340104037826.56,
       "seller_id": "2Tz2Ek0OF",
@@ -37,11 +37,15 @@ exports[`Testing snapshot for MolocoRmp's addToCart destination action: required
 Object {
   "channel_type": "APP",
   "event_type": "ADD_TO_CART",
+  "id": "2Tz2Ek0OF",
   "items": Array [
     Object {
       "id": "2Tz2Ek0OF",
     },
   ],
+  "page_id": "2Tz2Ek0OF",
+  "session_id": "2Tz2Ek0OF",
   "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "2Tz2Ek0OF",
 }
 `;

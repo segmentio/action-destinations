@@ -3,13 +3,11 @@ import { EventType } from './event'
 import {
   EventPayload as SegmentEventPayload,
   ItemPayload as SegmentItemPayload,
-  MoneyPayload as SegmentMoneyPayload,
   DevicePayload as SegmentDevicePayload
 } from './payload/segment'
 import {
   EventPayload as MolocoEventPayload,
   ItemPayload as MolocoItemPayload,
-  MoneyPayload as MolocoMoneyPayload,
   DevicePayload as MolocoDevicePayload
 } from './payload/moloco'
 
@@ -22,80 +20,74 @@ export function convertEvent(args: { eventType: EventType, payload: SegmentEvent
 
   const body: MolocoEventPayload = {
     event_type: eventType,
-    channel_type: payload.channelType,
-    timestamp: payload.timestamp
+    channel_type: payload.channel_type,
+    timestamp: payload.timestamp,
   };
 
-  if (payload.eventId) {
-    body.event_id = payload.eventId;
+  if (payload.event_id) {
+    body.id = payload.event_id;
   }
 
-  if (payload.userId) {
-    body.user_id = payload.userId;
+  if (payload.user_id) {
+    body.user_id = payload.user_id;
   }
 
   if (payload.device) {
     body.device = convertDevicePayload(payload.device);
   }
-
-  if (payload.sessionId) {
-    body.session_id = payload.sessionId;
+  
+  if (payload.session_id) {
+    body.session_id = payload.session_id;
   }
 
   if (payload.items) {
     body.items = []
     for (const item of payload.items) {
-      const itemPayload = convertItemPayload({ payload: item, defaultCurrency: payload.defaultCurrency });
+      const itemPayload = convertItemPayload({ payload: item, defaultCurrency: payload.default_currency });
       body.items.push(itemPayload);
     }
   }
 
   if (payload.revenue) {
-    body.revenue = convertMoneyPayload(payload.revenue);
-  }
-
-  if (payload.searchQuery) {
-    body.search_query = payload.searchQuery;
-  }
-
-  if (payload.pageId || payload.pageIdentifierTokens) {
-    if (!(payload.pageId)) {
-      body.page_id = convertPageIdentifierTokensToPageId(payload.pageIdentifierTokens);
-    } else {
-      body.page_id = payload.pageId;
+    body.revenue = {
+      amount: payload.revenue.price,
+      currency: payload.revenue.currency
     }
-  }  
-
-  if (payload.referrerPageId) {
-    body.referrer_page_id = payload.referrerPageId;
   }
 
-  if (payload.shippingCharge) {
-    body.shipping_charge = convertMoneyPayload(payload.shippingCharge);
+  if (payload.search_query) {
+    body.search_query = payload.search_query;
+  }
+
+  if (payload.page_id || payload.page_identifier_tokens) {
+    if (!(payload.page_id)) {
+      body.page_id = convertPageIdentifierTokensToPageId(payload.page_identifier_tokens);
+    } else {
+      body.page_id = payload.page_id;
+    }
+  }
+
+  if (payload.referrer_page_id) {
+    body.referrer_page_id = payload.referrer_page_id;
+  }
+
+  if (payload.shipping_charge) {
+    body.shipping_charge = {
+      amount: payload.shipping_charge.price,
+      currency: payload.shipping_charge.currency
+    }
   }
 
   return body;
 }
 
-function convertMoneyPayload(payload: SegmentMoneyPayload): MolocoMoneyPayload {
-  return {
-    amount: payload.price,
-    currency: payload.currency
-  }
-}
-
 function convertItemPayload(args: { payload: SegmentItemPayload, defaultCurrency: string | undefined }): MolocoItemPayload {
   const { payload, defaultCurrency } = args;
+  
   const itemPayload: MolocoItemPayload = {
-    id: payload.id
-  }
-
-  if (payload.quantity) {
-    itemPayload.quantity = payload.quantity;
-  }
-
-  if (payload.sellerId) {
-    itemPayload.seller_id = payload.sellerId;
+    id: payload.id,
+    quantity: payload.quantity,
+    seller_id: payload.seller_id,
   }
 
   if (payload.price || payload.currency) {
@@ -104,7 +96,10 @@ function convertItemPayload(args: { payload: SegmentItemPayload, defaultCurrency
     if (!(payload.price && currency)) {
       throw new PayloadValidationError('price and currency should be both present or both absent')
     }
-    itemPayload.price = convertMoneyPayload({ price: payload.price, currency: currency });
+    itemPayload.price = {
+      amount: payload.price,
+      currency: currency
+    }
   }
 
   return itemPayload;
@@ -127,16 +122,16 @@ function convertDevicePayload(payload: SegmentDevicePayload): MolocoDevicePayloa
     devicePayload.os = convertOs(payload.os);
   }
 
-  if (payload.osVersion) {
-    devicePayload.os_version = payload.osVersion;
+  if (payload.os_version) {
+    devicePayload.os_version = payload.os_version;
   }
 
-  if (payload.advertisingId) {
-    devicePayload.advertising_id = payload.advertisingId;
+  if (payload.advertising_id) {
+    devicePayload.advertising_id = payload.advertising_id;
   }
 
-  if (payload.uniqueDeviceId) {
-    devicePayload.unique_device_id = payload.uniqueDeviceId;
+  if (payload.unique_device_id) {
+    devicePayload.unique_device_id = payload.unique_device_id;
   }
 
   if (payload.model) {
