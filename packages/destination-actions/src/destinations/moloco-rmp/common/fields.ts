@@ -22,13 +22,14 @@ export const timestamp: InputField = {
 
 export const channel_type: InputField = {
   label: 'Channel Type',
-  description: 'Type of channel, either APP or SITE',
+  description: 'Type of channel, either APP or SITE. Defaults to SITE.',
   type: 'string',
   required: true,
   choices: [
     { label: 'App', value: 'APP' },
     { label: 'Site', value: 'SITE' }
-  ]
+  ],
+  default: 'SITE'
 }
 
 export const user_id: InputField = {
