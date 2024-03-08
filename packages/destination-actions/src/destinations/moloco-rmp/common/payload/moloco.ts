@@ -5,9 +5,9 @@ export type EventPayload = {
    * Event Type. Available options are the followings
    *  SEARCH:	Represents a user searching for an item
    *  ITEM_PAGE_VIEW: Represents a user viewing an item page
-   *  ADD_TO_CART: Represents a user adding an item to his cart
+   *  ADD_TO_CART: Represents a user adding an item to their cart
    *  PURCHASE:	Represents a user purchasing an item
-   *  ADD_TO_WHISHLIST: Represents a user adding an item to his wishlist
+   *  ADD_TO_WHISHLIST: Represents a user adding an item to their wishlist
    *  HOME: Represents a user visiting a home page
    *  LAND: Represents a user visiting the client’s website from an external source (ex. Google Shopping)
    * 	PAGE_VIEW: Represents a user viewing a certain page that is pertinent to sequence-based ML model training (Ex. a user browsing sneakers)
