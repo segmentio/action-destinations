@@ -116,6 +116,16 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       label: 'Screen Resolution',
       type: 'string'
     },
+    send_page_view: {
+      description: 'Set to false to prevent sending a page_view.',
+      label: 'Send Page Views',
+      type: 'boolean',
+      choices: [
+        { label: 'True', value: 'true' },
+        { label: 'False', value: 'false' }
+      ],
+      default: true
+    },
     params: params
   },
   perform: (gtag, { payload, settings }) => {
@@ -142,7 +152,6 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         consentParams.ad_personalization = payload.ad_personalization_consent_state as ConsentParamsArg
       }
       gtag('consent', 'update', consentParams)
-
     }
     type ConfigType = { [key: string]: unknown }
 
@@ -169,6 +178,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
     if (settings.pageView != true) {
       config.send_page_view = settings.pageView ?? true
+    }
+
+    if (payload.send_page_view != true) {
+      config.send_page_view = payload.send_page_view ?? true
     }
     if (settings.cookieFlags) {
       config.cookie_flags = settings.cookieFlags

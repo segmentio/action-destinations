@@ -87,4 +87,10 @@ export interface Payload {
    * The user's avatar image URL.
    */
   avatar?: string
+  /**
+   * Additional user profile details
+   */
+  additional_traits?: {
+    [k: string]: unknown
+  }
 }

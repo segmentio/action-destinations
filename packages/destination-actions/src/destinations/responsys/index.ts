@@ -184,7 +184,9 @@ const destination: DestinationDefinition<Settings> = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `user_name=${settings.username}&password=${settings.userPassword}&auth_type=password`
+        body: `user_name=${encodeURIComponent(settings.username)}&password=${encodeURIComponent(
+          settings.userPassword
+        )}&auth_type=password`
       })
       return { accessToken: res.data.authToken }
     }

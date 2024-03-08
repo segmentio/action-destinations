@@ -23,12 +23,24 @@ describe('OptimizelyDataPlatform.nonEcommCustomEvent', () => {
         apiKey: 'abc123',
         region: 'US'
       },
-      useDefaultMappings: true
+      mapping: {
+        user_identifiers: {
+          anonymousId: 'anonId1234',
+          userId: 'user1234'
+        },
+        event_type: 'custom',
+        event_action: 'custom',
+        timestamp: '2024-02-09T15:30:51.046Z',
+        data: {
+          custom_field: 'hello',
+          custom_field_num: 12345
+        }
+      }
     })
 
-    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"custom\\",\\"timestamp\\":\\"2024-02-09T15:30:51.046Z\\",\\"data\\":{\\"custom_field\\":\\"hello\\",\\"custom_field_num\\":12345}}"`
-
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
+    expect(response[0].options.body).toMatchInlineSnapshot(
+      `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"custom\\",\\"type\\":\\"custom\\",\\"timestamp\\":\\"2024-02-09T15:30:51.046Z\\",\\"data\\":{\\"custom_field\\":\\"hello\\",\\"custom_field_num\\":12345}}"`
+    )
   })
 })

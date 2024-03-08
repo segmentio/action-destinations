@@ -34,7 +34,7 @@ export const getAuthSettings = (settings: SettingsWithOauth): DV360AuthCredentia
   return {
     refresh_token: settings.oauth.refresh_token,
     access_token: settings.oauth.access_token,
-    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIEND_ID,
+    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
     client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
   } as DV360AuthCredentials
 }

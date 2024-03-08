@@ -4,13 +4,13 @@ import { Settings } from '../generated-types'
 import {
   box,
   emptyObjectToUndefined,
-  emptyToUndefined,
   hash,
   hashEmailSafe,
   isNullOrUndefined,
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
+  emptyStringToUndefined
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -33,15 +33,22 @@ export const validatePayload = (payload: Payload): Payload => {
 
 const eventConversionTypeToActionSource: { [k in string]?: string } = {
   WEB: 'website',
-  MOBILE_APP: 'app'
+  MOBILE_APP: 'app',
+
+  // Use the snap event_conversion_type for offline events
+  OFFLINE: 'OFFLINE'
 }
 
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
-  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type] ?? 'other'
+  const app_id = emptyStringToUndefined(settings.app_id)
 
-  const event_id = emptyToUndefined(payload.client_dedup_id)
+  // event_conversion_type is a required parameter whose value is enforced as
+  // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
+  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
+
+  const event_id = emptyStringToUndefined(payload.client_dedup_id)
 
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
@@ -70,8 +77,43 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           num_items: payload.number_items
         }
 
-  const { app_id } = settings
+  // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
+  // However the field is required for app events, so hardcode the value to false (0)
+  // for any events sent that include app_data.
+  const advertiser_tracking_enabled = !isNullOrUndefined(app_id) ? 0 : undefined
   const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
+
+  // extinfo needs to be defined whenever app_data is included in the data payload
+  const extinfo = !isNullOrUndefined(app_id)
+    ? [
+        extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
+        '', // app package name
+        '', // short version
+        '', // long version
+        payload.os_version ?? '', // os version
+        payload.device_model ?? '', // device model name
+        '', // local
+        '', // timezone abbr
+        '', // carrier
+        '', //screen width
+        '', // screen height
+        '', // screen density
+        '', // cpu core
+        '', // external storage size
+        '', // freespace in external storage size
+        '' // device time zone
+      ]
+    : undefined
+
+  // Only set app data for app events
+  const app_data =
+    action_source === 'app'
+      ? emptyObjectToUndefined({
+          app_id,
+          advertiser_tracking_enabled,
+          extinfo
+        })
+      : undefined
 
   const result = {
     data: [
@@ -100,37 +142,14 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           content_ids,
           currency: payload.currency,
           num_items,
-          order_id: emptyToUndefined(payload.transaction_id),
+          order_id: emptyStringToUndefined(payload.transaction_id),
           search_string: payload.search_string,
           sign_up_method: payload.sign_up_method,
           value: payload.price
         }),
 
         action_source,
-
-        app_data: emptyObjectToUndefined({
-          app_id,
-          extinfo: !isNullOrUndefined(payload.os_version ?? payload.device_model)
-            ? [
-                extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
-                '', // app package name
-                '', // short version
-                '', // long version
-                payload.os_version ?? '', // os version
-                payload.device_model ?? '', // device model name
-                '', // local
-                '', // timezone abbr
-                '', // carrier
-                '', //screen width
-                '', // screen height
-                '', // screen density
-                '', // cpu core
-                '', // external storage size
-                '', // freespace in external storage size
-                '' // device time zone
-              ]
-            : undefined
-        })
+        app_data
       }
     ],
     ...(isTest ? { test_event_code: 'segment_test' } : {})
@@ -141,8 +160,8 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
 
 export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
   const { snap_app_id, pixel_id } = settings
-  const snapAppID = emptyToUndefined(snap_app_id)
-  const snapPixelID = emptyToUndefined(pixel_id)
+  const snapAppID = emptyStringToUndefined(snap_app_id)
+  const snapPixelID = emptyStringToUndefined(pixel_id)
   const appOrPixelID = snapAppID ?? snapPixelID
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
