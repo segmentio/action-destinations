@@ -89,8 +89,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const apiKey = getAudienceInput.settings.api_key
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: buildHeaders(apiKey)
+        headers: buildHeaders(apiKey),
+        throwHttpErrors: false
       })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        const klaviyoErrorDetail = errorResponse.errors[0].detail
+        throw new IntegrationError(klaviyoErrorDetail, 'INVALID_REQUEST_DATA', response.status)
+      }
+
       const r = await response.json()
       const externalId = r.data.id
 
