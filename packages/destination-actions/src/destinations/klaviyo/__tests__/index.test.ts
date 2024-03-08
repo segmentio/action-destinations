@@ -115,5 +115,24 @@ describe('Klaviyo (actions)', () => {
         externalId: 'XYZABC'
       })
     })
+
+    it('should throw an IntegrationError when the response is not ok', async () => {
+      const errorMessage = 'List not found'
+      nock(`${API_URL}/lists`)
+        .get(`/${listId}`)
+        .reply(404, {
+          success: false,
+          errors: [
+            {
+              detail: errorMessage
+            }
+          ]
+        })
+
+      const audiencePromise = testDestination.getAudience(getAudienceInput)
+      await expect(audiencePromise).rejects.toThrow(IntegrationError)
+      await expect(audiencePromise).rejects.toHaveProperty('message', errorMessage)
+      await expect(audiencePromise).rejects.toHaveProperty('code', 'INVALID_REQUEST_DATA')
+    })
   })
 })
