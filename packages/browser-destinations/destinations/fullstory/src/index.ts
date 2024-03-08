@@ -88,6 +88,13 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       required: false,
       default: false
     },
+    appHost: {
+      description: "Use this to set the app host for displaying session urls.",
+      label: 'App Host',
+      type: 'string',
+      required: false,
+      default: 'app.fullstory.com'
+    },
     debug: {
       description: 'Enables FullStory debug mode.',
       label: 'Debug mode',
