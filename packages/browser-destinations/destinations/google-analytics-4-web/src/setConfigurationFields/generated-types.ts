@@ -76,6 +76,10 @@ export interface Payload {
    */
   screen_resolution?: string
   /**
+   * Set to false to prevent sending a page_view.
+   */
+  send_page_view?: boolean
+  /**
    * The event parameters to send to Google Analytics 4.
    */
   params?: {

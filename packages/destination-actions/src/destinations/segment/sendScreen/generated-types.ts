@@ -227,4 +227,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   */
+  enable_batching?: boolean
 }

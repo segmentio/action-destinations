@@ -31,12 +31,26 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
         apiKey: 'abc123',
         region: 'US'
       },
-      useDefaultMappings: true
+      mapping: {
+        user_identifiers: {
+          anonymousId: 'anonId1234',
+          userId: 'user1234'
+        },
+        event_type: 'whatever',
+        event_action: 'purchase',
+        products: [
+          { product_id: '12345', qty: 2 },
+          { product_id: '67890', qty: 5 }
+        ],
+        order_id: '1234',
+        total: 20,
+        timestamp: '2024-03-01T18:11:27.649Z'
+      }
     })
 
-    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"timestamp\\":\\"${productEvent.timestamp}\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]}"`
-
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
+    expect(response[0].options.body).toMatchInlineSnapshot(
+      `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"type\\":\\"whatever\\",\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]}"`
+    )
   })
 })

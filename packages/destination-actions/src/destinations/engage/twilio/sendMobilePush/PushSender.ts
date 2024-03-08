@@ -146,12 +146,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         Sound: this.payload.customizations?.sound,
         Priority: this.payload.customizations?.priority,
         TimeToLive: this.payload.customizations?.ttl,
-        FcmPayload: {
-          mutable_content: true,
-          notification: {
-            badge: badgeAmount
-          }
-        },
+        FcmPayload: this.getFcmNotificationOverrides(badgeAmount),
         ApnPayload: {
           aps: {
             'mutable-content': 1,
@@ -169,6 +164,27 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
       return { requestBody, customData }
     } catch (error: unknown) {
       this.rethrowIntegrationError(error, () => new PayloadValidationError('Unable to construct Push API request body'))
+    }
+  }
+
+  private getFcmNotificationOverrides(badgeAmount: number) {
+    // FCM V1 format
+    if (this.payload.googleApiVersion === 'v1') {
+      return {
+        android: {
+          mutable_content: true,
+          notification: {
+            badge: badgeAmount
+          }
+        }
+      }
+    }
+    // FCM legacy format
+    return {
+      mutable_content: true,
+      notification: {
+        badge: badgeAmount
+      }
     }
   }
 

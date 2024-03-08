@@ -1,13 +1,20 @@
 import { InputField, Directive } from '@segment/actions-core/destination-kit/types'
 
-export const event_action: InputField = {
-  label: 'Optimizely Event Name',
-  description: 'The name of the Optimizely event to send',
+export const event_type: InputField = {
+  label: 'Optimizely Event Type',
+  description: 'The Optimizely Event Type. Defaults to "custom" if not provided',
   type: 'string',
-  required: true,
+  required: false,
   default: {
     '@path': '$.event'
   }
+}
+
+export const event_action: InputField = {
+  label: 'Optimizely Event Action',
+  description: 'The name of the Optimizely Event Action.',
+  type: 'string',
+  required: false
 }
 
 export const data: InputField = {

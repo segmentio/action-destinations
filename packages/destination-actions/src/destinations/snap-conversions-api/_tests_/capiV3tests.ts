@@ -82,7 +82,6 @@ export const capiV3tests = () =>
       const { integration, event_name, event_time, user_data, custom_data, action_source, app_data } = data[0]
       const { em, ph } = user_data
       const { brands, content_category, content_ids, currency, num_items, value } = custom_data
-      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
@@ -93,7 +92,8 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('website')
-      expect(app_id).toBe('test123')
+      // app_data is only defined when action_source is app
+      expect(app_data).toBeUndefined()
 
       expect(brands).toEqual(['Hasbro', 'Mattel'])
       expect(content_category).toEqual(['games', 'games'])
@@ -133,7 +133,6 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
-      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
@@ -148,7 +147,8 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('website')
-      expect(app_id).toBe('test123')
+      // app_data is only defined when action_source is app
+      expect(app_data).toBeUndefined()
     })
 
     it('should fail web event without pixel_id', async () => {
@@ -234,7 +234,6 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
-      const { app_id } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('SAVE')
@@ -248,8 +247,10 @@ export const capiV3tests = () =>
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(currency).toBe('USD')
       expect(value).toBe(15)
-      expect(action_source).toBe('other')
-      expect(app_id).toBe('test123')
+      expect(action_source).toBe('OFFLINE')
+
+      // App data is only defined for app events
+      expect(app_data).toBeUndefined()
     })
 
     it('should handle a mobile app event conversion type', async () => {
@@ -288,6 +289,7 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
+      const { extinfo, advertiser_tracking_enabled } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('SAVE')
@@ -302,7 +304,8 @@ export const capiV3tests = () =>
       expect(currency).toBe('USD')
       expect(value).toBe(15)
       expect(action_source).toBe('app')
-      expect(app_data.extinfo).toEqual(['i2', '', '', '', '17.2', 'iPhone12,1', '', '', '', '', '', '', '', '', '', ''])
+      expect(extinfo).toEqual(['i2', '', '', '', '17.2', 'iPhone12,1', '', '', '', '', '', '', '', '', '', ''])
+      expect(advertiser_tracking_enabled).toBe(0)
     })
 
     it('should fail invalid currency', async () => {
@@ -393,7 +396,7 @@ export const capiV3tests = () =>
         data[0]
       const { client_ip_address, client_user_agent, em, ph } = user_data
       const { currency, value } = custom_data
-      const { app_id } = app_data
+      const { app_id, advertiser_tracking_enabled } = app_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('CUSTOM_EVENT_5')
@@ -409,6 +412,7 @@ export const capiV3tests = () =>
       expect(value).toBe(15)
       expect(action_source).toBe('app')
       expect(app_id).toBe('123')
+      expect(advertiser_tracking_enabled).toBe(0)
     })
 
     it('should fail event missing all Snap identifiers', async () => {
@@ -472,12 +476,13 @@ export const capiV3tests = () =>
       expect(data.length).toBe(1)
 
       const { integration, event_name, event_time, user_data, action_source } = data[0]
-      const { em } = user_data
+      const { em, ph } = user_data
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
       expect(event_time).toBe(1652368875449)
       expect(em[0]).toBe('cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9')
+      expect(ph).toBeUndefined()
       expect(action_source).toBe('website')
     })
 

@@ -30,9 +30,6 @@ export const transformProperty = (
 export const hashEmailSafe = (email: string | undefined): string | undefined =>
   isHashedEmail(String(email)) ? email : hash(email)
 
-export const emptyToUndefined = (str: string | undefined): string | undefined =>
-  str != null && str === '' ? undefined : str
-
 export const raiseMisconfiguredRequiredFieldErrorIf = (condition: boolean, message: string) => {
   if (condition) {
     throw new IntegrationError(message, 'Misconfigured required field', 400)
@@ -48,7 +45,8 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
   <T>(v: T | undefined, message: string): asserts v is T =>
     raiseMisconfiguredRequiredFieldErrorIf(isNullOrUndefined(v), message)
 
-export const box = <T>(v: T | undefined): readonly T[] => (!isNullOrUndefined(v) ? [v] : [])
+export const box = (v: string | undefined): readonly string[] | undefined =>
+  (v ?? '').length > 0 ? [v as string] : undefined
 
 export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
   const properties = Object.getOwnPropertyNames(v)
@@ -78,3 +76,6 @@ export const splitListValueToArray = (input: string): readonly string[] | undefi
 
   return result.length > 0 ? result : undefined
 }
+
+export const emptyStringToUndefined = (v: string | undefined): string | undefined =>
+  (v ?? '').length > 0 ? v : undefined

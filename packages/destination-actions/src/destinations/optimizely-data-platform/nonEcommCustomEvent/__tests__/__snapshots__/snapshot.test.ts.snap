@@ -12,6 +12,7 @@ Object {
   ],
   "timestamp": "FX3MHiX9P^tIkXKVCa",
   "total": "FX3MHiX9P^tIkXKVCa",
+  "type": "FX3MHiX9P^tIkXKVCa",
   "user_identifiers": Object {
     "anonymousId": "FX3MHiX9P^tIkXKVCa",
     "email": "oriiwo@hovevut.bn",
@@ -26,6 +27,7 @@ Object {
   "action": "FX3MHiX9P^tIkXKVCa",
   "order_id": "FX3MHiX9P^tIkXKVCa",
   "timestamp": "FX3MHiX9P^tIkXKVCa",
+  "type": "custom",
   "user_identifiers": Object {},
 }
 `;
