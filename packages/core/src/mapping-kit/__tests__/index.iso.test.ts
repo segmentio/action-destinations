@@ -803,6 +803,42 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('granted')
   })
+  test('replace 2 values', () => {
+    const payload = {
+      a: 'something-great!'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '-',
+          replacement: ' ',
+          pattern2: 'great',
+          replacement2: 'awesome',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('something awesome!')
+  })
+  test('replace with 2 values but only second one exists', () => {
+    const payload = {
+      a: false
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          pattern2: 'false',
+          replacement2: 'denied',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('denied')
+  })
 })
 
 describe('remove undefined values in objects', () => {
