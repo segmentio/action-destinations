@@ -1,4 +1,9 @@
-import { IntegrationError, AudienceDestinationDefinition, PayloadValidationError } from '@segment/actions-core'
+import {
+  IntegrationError,
+  AudienceDestinationDefinition,
+  PayloadValidationError,
+  APIError
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import { API_URL } from './config'
@@ -96,7 +101,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       if (!response.ok) {
         const errorResponse = await response.json()
         const klaviyoErrorDetail = errorResponse.errors[0].detail
-        throw new IntegrationError(klaviyoErrorDetail, 'INVALID_REQUEST_DATA', response.status)
+        throw new APIError(klaviyoErrorDetail, response.status)
       }
 
       const r = await response.json()
