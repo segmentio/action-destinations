@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 
     'Represents a user viewing a certain page that is pertinent to sequence-based ML model training (Ex. a user browsing sneakers)',
-  defaultSubscription: 'type = "page" and properties.name != "Home"',
+  defaultSubscription: 'type = "page" and properties.name != "Home" and properties.name != "Land"',
   fields: {
     event_id,
     timestamp,

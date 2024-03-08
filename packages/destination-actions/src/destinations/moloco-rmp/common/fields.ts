@@ -122,7 +122,7 @@ export const session_id: InputField = {
 
 export const default_currency: InputField = {
   label: 'Default Currency',
-  description: 'The default currency value. If this is set, it will be used as a default currency value for items.',
+  description: 'The default currency value. Defaults to "USD". If this is set, it will be used as a default currency value for items.',
   choices: [
     {label: 'UNKNOWN_CURRENCY', value: 'UNKNOWN_CURRENCY'},
     {label: 'USD', value: 'USD'},
