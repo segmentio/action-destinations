@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { APIError, IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -116,7 +116,7 @@ describe('Klaviyo (actions)', () => {
       })
     })
 
-    it('should throw an IntegrationError when the response is not ok', async () => {
+    it('should throw an ApiError when the response is not ok', async () => {
       const errorMessage = 'List not found'
       nock(`${API_URL}/lists`)
         .get(`/${listId}`)
@@ -130,9 +130,9 @@ describe('Klaviyo (actions)', () => {
         })
 
       const audiencePromise = testDestination.getAudience(getAudienceInput)
-      await expect(audiencePromise).rejects.toThrow(IntegrationError)
+      await expect(audiencePromise).rejects.toThrow(APIError)
       await expect(audiencePromise).rejects.toHaveProperty('message', errorMessage)
-      await expect(audiencePromise).rejects.toHaveProperty('code', 'INVALID_REQUEST_DATA')
+      await expect(audiencePromise).rejects.toHaveProperty('status', 404)
     })
   })
 })
