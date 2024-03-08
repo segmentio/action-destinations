@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
             // record. Instead log the errors so that we can identify issues and resolve them.
 
             // FIXME: Should we add sampling here?
-            data.logger?.info(String(e))
+            data.logger?.crit(`snap-capi-v3\n\n${String(e)}`)
           }
         })()
       ])

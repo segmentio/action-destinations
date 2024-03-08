@@ -758,4 +758,128 @@ describe('sendMobilePush action', () => {
       expect(responses[1].data).toMatchObject(externalIds[0])
     })
   })
+
+  describe('Google Api Formatting', () => {
+    const externalId = {
+      type: 'android.push_token',
+      id: 'android-token-1',
+      channelType: 'ANDROID_PUSH',
+      subscriptionStatus: 'subscribed'
+    }
+
+    const androidLegacyReq = new URLSearchParams({
+      Body: defaultTemplate.types['twilio/text'].body,
+      Title: customizationTitle,
+      FcmPayload: JSON.stringify({
+        mutable_content: true,
+        notification: {
+          badge: 1
+        }
+      }),
+      ApnPayload: JSON.stringify({
+        aps: {
+          'mutable-content': 1,
+          badge: 1
+        }
+      }),
+      Recipients: JSON.stringify({
+        fcm: [{ addr: externalId.id }]
+      }),
+      CustomData: JSON.stringify({
+        space_id: spaceId,
+        badgeAmount: 1,
+        badgeStrategy: 'inc',
+        __segment_internal_external_id_key__: externalId.type,
+        __segment_internal_external_id_value__: externalId.id
+      })
+    })
+
+    const androidV1Req = new URLSearchParams({
+      Body: defaultTemplate.types['twilio/text'].body,
+      Title: customizationTitle,
+      FcmPayload: JSON.stringify({
+        android: {
+          mutable_content: true,
+          notification: {
+            badge: 1
+          }
+        }
+      }),
+      ApnPayload: JSON.stringify({
+        aps: {
+          'mutable-content': 1,
+          badge: 1
+        }
+      }),
+      Recipients: JSON.stringify({
+        fcm: [{ addr: externalId.id }]
+      }),
+      CustomData: JSON.stringify({
+        space_id: spaceId,
+        badgeAmount: 1,
+        badgeStrategy: 'inc',
+        __segment_internal_external_id_key__: externalId.type,
+        __segment_internal_external_id_value__: externalId.id
+      })
+    })
+
+    it('should format FCM overrides with legacy format when googleApiVersion field is not provided', async () => {
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      const notifyReqBody = androidLegacyReq
+
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
+      nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [externalId]
+        }
+      })
+      expect(responses[1].url).toStrictEqual(notifyReqUrl)
+      expect(responses[1].status).toEqual(201)
+      expect(responses[1].data).toMatchObject(externalId)
+    })
+
+    it('should format FCM overrides with legacy format when googleApiVersion field is set to legacy', async () => {
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      const notifyReqBody = androidLegacyReq
+
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
+      nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
+
+      const responses = await testAction({
+        mappingOverrides: {
+          googleApiVersion: 'legacy',
+          externalIds: [externalId]
+        }
+      })
+      expect(responses[1].url).toStrictEqual(notifyReqUrl)
+      expect(responses[1].status).toEqual(201)
+      expect(responses[1].data).toMatchObject(externalId)
+    })
+
+    it('should format FCM overrides with v1 format when googleApiVersion field is v1', async () => {
+      const externalId = {
+        type: 'android.push_token',
+        id: 'android-token-1',
+        channelType: 'ANDROID_PUSH',
+        subscriptionStatus: 'subscribed'
+      }
+      const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
+      const notifyReqBody = androidV1Req
+
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
+      nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
+
+      const responses = await testAction({
+        mappingOverrides: {
+          googleApiVersion: 'v1',
+          externalIds: [externalId]
+        }
+      })
+      expect(responses[1].url).toStrictEqual(notifyReqUrl)
+      expect(responses[1].status).toEqual(201)
+      expect(responses[1].data).toMatchObject(externalId)
+    })
+  })
 })
