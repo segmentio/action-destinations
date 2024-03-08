@@ -71,12 +71,15 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           brands: products.map((product) => product.brand ?? ''),
           num_items: products.length
         }
-      : {
-          content_ids: splitListValueToArray(payload.item_ids ?? ''),
-          content_category: splitListValueToArray(payload.item_category ?? ''),
-          brands: payload.brands,
-          num_items: parseNumberSafe(payload.number_items)
-        }
+      : (() => {
+          const content_ids = splitListValueToArray(payload.item_ids ?? '')
+          return {
+            content_ids,
+            content_category: splitListValueToArray(payload.item_category ?? ''),
+            brands: payload.brands,
+            num_items: parseNumberSafe(payload.number_items) ?? content_ids?.length
+          }
+        })()
 
   // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
   // However the field is required for app events, so hardcode the value to false (0)
