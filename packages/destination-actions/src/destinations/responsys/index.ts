@@ -169,6 +169,16 @@ const destination: DestinationDefinition<Settings> = {
         return Promise.reject('List Name must be in Uppercase')
       }
 
+      if (settings.profileExtensionTable){
+        if (settings.profileExtensionTable.toUpperCase() !== settings.profileExtensionTable) {
+          return Promise.reject('PET Name field must be in Uppercase')
+        }
+        const regex = /^[A-Z0-9_]+$/; 
+        if (!regex.test(settings.profileExtensionTable)) {
+          return Promise.reject('PET Name field must only contain uppercase letters, numbers and underscores');
+        }
+      }
+
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
       } else {
