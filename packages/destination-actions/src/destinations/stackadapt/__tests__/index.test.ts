@@ -39,6 +39,16 @@ const expectedProduct = {
   product_name: mockProduct.name
 }
 
+const defaultExpectedConversionArgs = {
+  action: 'Test Event',
+  utm_source: mockUtmSource,
+  user_id: mockUserId,
+  first_name: mockFirstName,
+  last_name: mockLastName,
+  email: mockEmail,
+  phone: mockPhone
+}
+
 const defaultExpectedParams = {
   segment_ss: '1',
   event_type: 'identify',
@@ -46,14 +56,9 @@ const defaultExpectedParams = {
   url: mockPageUrl,
   ref: mockReferrer,
   ip_fwd: mockIpAddress,
-  utm_source: mockUtmSource,
-  user_id: mockUserId,
-  first_name: mockFirstName,
-  last_name: mockLastName,
-  email: mockEmail,
-  phone: mockPhone,
+  ua_fwd: mockUserAgent,
   uid: mockPixelId,
-  args: `{"action":"Test Event"}`
+  args: JSON.stringify(defaultExpectedConversionArgs)
 }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
@@ -162,6 +167,7 @@ describe('StackAdapt', () => {
       const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
       expect(requestParams).toEqual(expectedParams)
       expect(JSON.parse(requestParams.args)).toEqual({
+        ...defaultExpectedConversionArgs,
         action: mockSingleProductAction,
         revenue: mockRevenue,
         order_id: mockOrderId,
@@ -202,6 +208,7 @@ describe('StackAdapt', () => {
       const requestParams = Object.fromEntries(new URL(responses[0].request.url).searchParams)
       expect(requestParams).toEqual(expectedParams)
       expect(JSON.parse(requestParams.args)).toEqual({
+        ...defaultExpectedConversionArgs,
         action: mockMultiProductAction,
         revenue: mockRevenue,
         order_id: mockOrderId,
