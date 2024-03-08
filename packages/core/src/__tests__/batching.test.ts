@@ -75,7 +75,9 @@ describe('Batching', () => {
   test('basic happy path', async () => {
     const destination = new Destination(basicBatch)
     const res = await destination.onBatch(events, basicBatchSettings)
-    expect(res).toEqual(expect.arrayContaining([{ output: 'successfully processed batch of events' }]))
+    expect(res[0]).toMatchObject({
+      output: 'Action Executed'
+    })
   })
 
   test('transforms all the payloads based on the subscription mapping', async () => {
@@ -221,7 +223,7 @@ describe('Batching', () => {
     await expect(promise).resolves.toMatchInlineSnapshot(`
             Array [
               Object {
-                "output": "successfully processed batch of events",
+                "output": "Action Executed",
               },
             ]
           `)

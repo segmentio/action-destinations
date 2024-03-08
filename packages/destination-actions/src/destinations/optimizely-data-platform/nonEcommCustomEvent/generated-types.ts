@@ -23,9 +23,13 @@ export interface Payload {
     optimizely_vuid?: string
   }
   /**
-   * The name of the Optimizely event to send
+   * The Optimizely Event Type. Defaults to "custom" if not provided
    */
-  event_action: string
+  event_type?: string
+  /**
+   * The name of the Optimizely Event Action.
+   */
+  event_action?: string
   /**
    * Additional information to send with your custom event
    */

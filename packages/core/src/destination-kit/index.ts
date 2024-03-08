@@ -603,7 +603,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
-    await action.executeBatch({
+    return action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
@@ -616,8 +616,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       transactionContext,
       stateContext
     })
-
-    return [{ output: 'successfully processed batch of events' }]
   }
 
   public async executeDynamicField(

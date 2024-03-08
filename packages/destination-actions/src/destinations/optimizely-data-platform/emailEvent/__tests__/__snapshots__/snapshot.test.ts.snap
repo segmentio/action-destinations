@@ -5,6 +5,7 @@ Object {
   "action": "4v7TZkJBZ*J1n#7wW@T%",
   "campaign": "4v7TZkJBZ*J1n#7wW@T%",
   "campaign_event_value": "4v7TZkJBZ*J1n#7wW@T%",
+  "campaign_id": "4v7TZkJBZ*J1n#7wW@T%",
   "timestamp": "4v7TZkJBZ*J1n#7wW@T%",
   "type": "email",
   "user_identifiers": Object {
@@ -21,6 +22,7 @@ Object {
   "action": "4v7TZkJBZ*J1n#7wW@T%",
   "campaign": "4v7TZkJBZ*J1n#7wW@T%",
   "campaign_event_value": null,
+  "campaign_id": "4v7TZkJBZ*J1n#7wW@T%",
   "timestamp": "4v7TZkJBZ*J1n#7wW@T%",
   "type": "email",
   "user_identifiers": Object {
