@@ -21,6 +21,7 @@ import { convertEvent } from '../common/convert'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Land',
   description: 'Represents a user visiting the client’s website from an external source (ex. Google Shopping)',
+  defaultSubscription: 'type = "page" and properties.name = "Land"',
   fields: {
     event_id,
     timestamp,

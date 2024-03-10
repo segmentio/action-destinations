@@ -40,9 +40,9 @@ const action: ActionDefinition<Settings, Payload> = {
     page_identifier_tokens,
     referrer_page_id
   },
-  perform: (request, data) => {
-    const client = new MolocoAPIClient(request, data.settings)
-    const body = convertEvent({ eventType: EventType.Search, payload: data.payload })
+  perform: (request, {payload, settings}) => {
+    const client = new MolocoAPIClient(request, settings)
+    const body = convertEvent({ eventType: EventType.Search, payload })
     return client.sendEvent(body)
   }
 }

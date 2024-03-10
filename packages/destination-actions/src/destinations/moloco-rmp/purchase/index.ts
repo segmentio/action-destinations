@@ -22,6 +22,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
   description: 'Represents a user purchasing an item',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     event_id,
     timestamp,

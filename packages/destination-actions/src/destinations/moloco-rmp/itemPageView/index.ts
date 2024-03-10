@@ -20,6 +20,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Item Page View',
   description: 'Represents a user viewing an item page',
+  defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: {
     event_id,
     timestamp,
@@ -30,7 +31,19 @@ const action: ActionDefinition<Settings, Payload> = {
     default_currency,
     items: {
       ...items,
-      required: true
+      required: true,
+      default: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            id: { '@path': '$.product_id' },
+            price: { '@path': '$.price' },
+            currency: { '@path': '$.currency' },
+            quantity: { '@path': '$.quantity' },
+            seller_id: { '@path': '$.seller_id'}
+          }
+        ]
+      }
     },
     page_id,
     page_identifier_tokens,  

@@ -1,5 +1,4 @@
 import nock from 'nock'
-import { AggregateAjvError } from '@segment/ajv-human-errors'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 

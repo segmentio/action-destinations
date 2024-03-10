@@ -34,6 +34,18 @@ const action: ActionDefinition<Settings, Payload> = {
     items: {
       ...items,
       required: true,
+      default: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            id: { '@path': '$.product_id' },
+            price: { '@path': '$.price' },
+            currency: { '@path': '$.currency' },
+            quantity: { '@path': '$.quantity' },
+            seller_id: { '@path': '$.seller_id'}
+          }
+        ]
+      }
     },
     revenue,
     page_id,

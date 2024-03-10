@@ -19,7 +19,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Home',
-  defaultSubscription: 'type = "page"',
+  defaultSubscription: 'type = "page" and properties.name = "Home"',
   description: 'Represents a user visiting a home page',
   fields: {
     event_id,

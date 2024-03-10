@@ -22,13 +22,14 @@ export const timestamp: InputField = {
 
 export const channel_type: InputField = {
   label: 'Channel Type',
-  description: 'Type of channel, either APP or SITE',
+  description: 'Type of channel, either APP or SITE. Defaults to SITE.',
   type: 'string',
   required: true,
   choices: [
     { label: 'App', value: 'APP' },
     { label: 'Site', value: 'SITE' }
-  ]
+  ],
+  default: 'SITE'
 }
 
 export const user_id: InputField = {
@@ -121,7 +122,7 @@ export const session_id: InputField = {
 
 export const default_currency: InputField = {
   label: 'Default Currency',
-  description: 'The default currency value. If this is set, it will be used as a default currency value for items.',
+  description: 'The default currency value. Defaults to "USD". If this is set, it will be used as a default currency value for items.',
   choices: [
     {label: 'UNKNOWN_CURRENCY', value: 'UNKNOWN_CURRENCY'},
     {label: 'USD', value: 'USD'},
@@ -148,6 +149,7 @@ export const default_currency: InputField = {
     {label: 'TRY', value: 'TRY'},
     {label: 'VEF', value: 'VEF'}
   ],
+  default: 'USD',
   type: 'string',
   required: false
 }
@@ -167,13 +169,13 @@ export const items: InputField = {
       },
       price: {
         label: 'Price',
-        description: 'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD") required if currency is provided',
+        description: 'Monetary amount without currency, e.g. 12.34. This field is required if the Currency field is populated.',
         type: 'number',
         required: false
       },
       currency: {
         label: 'Currency',
-        description: 'Currency information, required if price is provided',
+        description: 'Currency information. This field is required if the Price field is populated.',
         choices: [
           {label: 'UNKNOWN_CURRENCY', value: 'UNKNOWN_CURRENCY'},
           {label: 'USD', value: 'USD'},
@@ -206,7 +208,7 @@ export const items: InputField = {
       quantity: {
         label: 'Quantity',
         description: 'Quantity of the item. Recommended.',
-        type: 'number',
+        type: 'integer',
         required: false
       },
       seller_id: {
@@ -215,6 +217,18 @@ export const items: InputField = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties.products',
+        {
+          id: { '@path': '$.product_id' },
+          price: { '@path': '$.price' },
+          currency: { '@path': '$.currency' },
+          quantity: { '@path': '$.quantity' },
+          seller_id: { '@path': '$.seller_id'}
+        }
+      ]
     }
 }
 
@@ -223,16 +237,17 @@ export const revenue: InputField = {
   description: 'Revenue of the event',
   type: 'object',
   required: false,
+  additionalProperties: false,
   properties: {
     price: {
       label: 'Price',
-      description: 'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")',
+      description: 'Monetary amount without currency, e.g. 12.34. This field is required if the Currency field is populated.',
       type: 'number',
       required: true
     },
     currency: {
       label: 'Currency',
-      description: 'Currency information',
+      description: 'Currency information. This field is required if the Price field is populated.',
       choices: [
         {label: 'UNKNOWN_CURRENCY', value: 'UNKNOWN_CURRENCY'},
         {label: 'USD', value: 'USD'},
@@ -262,6 +277,10 @@ export const revenue: InputField = {
       type: 'string',
       required: true,
     },
+  },
+  default: {
+    price: { '@path': '$.properties.revenue' },
+    currency: { '@path': '$.properties.currency' }
   }
 }
 
@@ -269,14 +288,15 @@ export const search_query: InputField = {
   label: 'Search Query',
   description: 'Query string for the search.',
   type: 'string',
-  required: false
+  required: false,
+  default: {
+    '@path': '$.properties.query'
+  }
 }
 
 export const page_id: InputField = {
   label: 'Page ID',
-  description: `A string that can identify a context of the event,
-such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
-Any value is acceptable if it helps identifying unique pages.`,
+  description: `A string value used to uniquely identify a page. For example: "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar".`,
   type: 'string',
   required: false,
   default: {
@@ -288,6 +308,7 @@ export const page_identifier_tokens: InputField = {
   label: 'Page Identifier Tokens',
   description: 'Tokens that can be used to identify a page. Alternative to page_id with a lower priority.',
   type: 'object',
+  defaultObjectUI: 'keyvalue',
   required: false
 }
 
@@ -309,13 +330,13 @@ export const shipping_charge: InputField = {
   properties: {
     price: {
       label: 'Price',
-      description: 'Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")',
+      description: 'Monetary amount without currency, e.g. 12.34. This field is required if the Currency field is populated.',
       type: 'number',
       required: true
     },
     currency: {
       label: 'Currency',
-      description: 'Currency information',
+      description: 'Currency information. This field is required if the Price field is populated.',
       choices: [
         {label: 'UNKNOWN_CURRENCY', value: 'UNKNOWN_CURRENCY'},
         {label: 'USD', value: 'USD'},
@@ -343,7 +364,7 @@ export const shipping_charge: InputField = {
         {label: 'VEF', value: 'VEF'}
       ],
       type: 'string',
-      required: true,
-    },
+      required: true
+    }
   }
 }

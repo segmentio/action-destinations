@@ -18,91 +18,47 @@ import {
 export function convertEvent(args: { eventType: EventType, payload: SegmentEventPayload }): MolocoEventPayload {
   const { eventType, payload } = args;
 
-  const body: MolocoEventPayload = {
+  return {
     event_type: eventType,
     channel_type: payload.channel_type,
     timestamp: payload.timestamp,
-  };
-
-  if (payload.event_id) {
-    body.id = payload.event_id;
-  }
-
-  if (payload.user_id) {
-    body.user_id = payload.user_id;
-  }
-
-  if (payload.device) {
-    body.device = convertDevicePayload(payload.device);
-  }
-  
-  if (payload.session_id) {
-    body.session_id = payload.session_id;
-  }
-
-  if (payload.items) {
-    body.items = []
-    for (const item of payload.items) {
-      const itemPayload = convertItemPayload({ payload: item, defaultCurrency: payload.default_currency });
-      body.items.push(itemPayload);
-    }
-  }
-
-  if (payload.revenue) {
-    body.revenue = {
+    id: payload.event_id ?? undefined,
+    user_id: payload.user_id ?? undefined,
+    device: payload.device ? convertDevicePayload(payload.device): undefined,
+    session_id: payload.session_id ?? undefined,
+    revenue: payload.revenue ? {
       amount: payload.revenue.price,
       currency: payload.revenue.currency
-    }
-  }
-
-  if (payload.search_query) {
-    body.search_query = payload.search_query;
-  }
-
-  if (payload.page_id || payload.page_identifier_tokens) {
-    if (!(payload.page_id)) {
-      body.page_id = convertPageIdentifierTokensToPageId(payload.page_identifier_tokens);
-    } else {
-      body.page_id = payload.page_id;
-    }
-  }
-
-  if (payload.referrer_page_id) {
-    body.referrer_page_id = payload.referrer_page_id;
-  }
-
-  if (payload.shipping_charge) {
-    body.shipping_charge = {
+    } : undefined,
+    search_query: payload.search_query ?? undefined,
+    referrer_page_id: payload.referrer_page_id ?? undefined,
+    shipping_charge: payload.shipping_charge ?{
       amount: payload.shipping_charge.price,
       currency: payload.shipping_charge.currency
-    }
-  }
-
-  return body;
+    }: undefined,
+    items: payload.items ? payload.items.map(item => convertItemPayload({ payload: item, defaultCurrency: payload.default_currency })) : undefined,
+    page_id: payload.page_id || (payload.page_identifier_tokens ? convertPageIdentifierTokensToPageId(payload.page_identifier_tokens) : undefined)
+  } as MolocoEventPayload
 }
 
 function convertItemPayload(args: { payload: SegmentItemPayload, defaultCurrency: string | undefined }): MolocoItemPayload {
   const { payload, defaultCurrency } = args;
   
-  const itemPayload: MolocoItemPayload = {
+  const actualCurrency = payload.currency ?? defaultCurrency
+
+  if ((payload.price !== undefined && actualCurrency === undefined) || (payload.price === undefined && actualCurrency !== undefined)) {
+    throw new PayloadValidationError('Price and Currency/Default Currency should be both present or both absent');
+  }
+
+  return {
     id: payload.id,
     quantity: payload.quantity,
     seller_id: payload.seller_id,
-  }
-
-  if (payload.price || payload.currency) {
-    const currency = payload.currency || defaultCurrency;
-  
-    if (!(payload.price && currency)) {
-      throw new PayloadValidationError('price and currency should be both present or both absent')
-    }
-    itemPayload.price = {
+    price: payload.price && actualCurrency ? {
       amount: payload.price,
-      currency: currency
-    }
-  }
-
-  return itemPayload;
+      currency: actualCurrency
+    } : undefined
+  } as MolocoItemPayload;
 }
 
 function convertOs(os: string): string {
@@ -116,41 +72,16 @@ function convertOs(os: string): string {
 }
 
 function convertDevicePayload(payload: SegmentDevicePayload): MolocoDevicePayload {
-  const devicePayload: MolocoDevicePayload = {}
-
-  if (payload.os) {
-    devicePayload.os = convertOs(payload.os);
-  }
-
-  if (payload.os_version) {
-    devicePayload.os_version = payload.os_version;
-  }
-
-  if (payload.advertising_id) {
-    devicePayload.advertising_id = payload.advertising_id;
-  }
-
-  if (payload.unique_device_id) {
-    devicePayload.unique_device_id = payload.unique_device_id;
-  }
-
-  if (payload.model) {
-    devicePayload.model = payload.model;
-  }
-
-  if (payload.ua) {
-    devicePayload.ua = payload.ua;
-  }
-
-  if (payload.language) {
-    devicePayload.language = payload.language;
-  }
-
-  if (payload.ip) {
-    devicePayload.ip = payload.ip;
-  }
-
-  return devicePayload
+  return {
+    os: payload.os ? convertOs(payload.os) : undefined,
+    os_version: payload.os_version ?? undefined,
+    advertising_id: payload.advertising_id ?? undefined,
+    unique_device_id: payload.unique_device_id ?? undefined,
+    model: payload.model ?? undefined,
+    ua: payload.ua ?? undefined,
+    language: payload.language ?? undefined,
+    ip: payload.ip ?? undefined,
+  } as MolocoDevicePayload
 }
 
 function convertPageIdentifierTokensToPageId(tokens: { [k: string]: unknown } | undefined): string {

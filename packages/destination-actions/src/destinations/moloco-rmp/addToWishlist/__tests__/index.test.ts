@@ -11,13 +11,13 @@ describe('MolocoRmp.addToWishlist', () => {
 
     const event = createTestEvent({
       properties: {
-        item: {
-          id: '123',
-          price: 100,
-          currency: 'USD',
-          quantity: 1,
-          sellerId: 'seller123',
-        }
+        
+        id: '123',
+        price: 100,
+        currency: 'USD',
+        quantity: 1,
+        sellerId: 'seller123',
+        revenue: 100
       }
     })
 
@@ -33,19 +33,19 @@ describe('MolocoRmp.addToWishlist', () => {
         items: [
           {
             id: {
-              '@path': '$.properties.item.id'
+              '@path': '$.properties.id'
             },
             price: {
-              '@path': '$.properties.item.price'
+              '@path': '$.properties.price'
             },
             currency: {
-              '@path': '$.properties.item.currency'
+              '@path': '$.properties.currency'
             },
             quantity: {
-              '@path': '$.properties.item.quantity'
+              '@path': '$.properties.quantity'
             },
             sellerId: {
-              '@path': '$.properties.item.sellerId'
+              '@path': '$.properties.sellerId'
             },
           }
         ]

@@ -73,11 +73,11 @@ export interface Payload {
      */
     id: string
     /**
-     * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD") required if currency is provided
+     * Monetary amount without currency, e.g. 12.34. This field is required if the Currency field is populated.
      */
     price?: number
     /**
-     * Currency information, required if price is provided
+     * Currency information. This field is required if the Price field is populated.
      */
     currency?: string
     /**
@@ -94,18 +94,16 @@ export interface Payload {
    */
   revenue?: {
     /**
-     * Monetary amount without currency. (e.g., 12.34 for $12.34 if currency is "USD")
+     * Monetary amount without currency, e.g. 12.34. This field is required if the Currency field is populated.
      */
     price: number
     /**
-     * Currency information
+     * Currency information. This field is required if the Price field is populated.
      */
     currency: string
   }
   /**
-   * A string that can identify a context of the event,
-   * such as "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar.
-   * Any value is acceptable if it helps identifying unique pages.
+   * A string value used to uniquely identify a page. For example: "electronics", "categories/12312", "azd911d" or "/classes/foo/lectures/bar".
    */
   page_id?: string
   /**

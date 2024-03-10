@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import home from './home'
@@ -37,9 +38,66 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
-    },
+    }
   },
-
+  presets: [
+    {
+      name: 'Search',
+      subscribe: 'type = "track" and event = "Products Searched"',
+      partnerAction: 'search',
+      mapping: defaultValues(search.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'purchase',
+      mapping: defaultValues(purchase.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Page View',
+      subscribe: 'type = "page" and properties.name != "Home" and properties.name != "Land"',
+      partnerAction: 'pageView',
+      mapping: defaultValues(pageView.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Land',
+      subscribe: 'type = "page" and properties.name = "Land"',
+      partnerAction: 'land',
+      mapping: defaultValues(land.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Item Page View',
+      subscribe: 'type = "track" and event = "Product Viewed"',
+      partnerAction: 'itemPageView',
+      mapping: defaultValues(itemPageView.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Home',
+      subscribe: 'type = "page" and properties.name = "Home"',
+      partnerAction: 'home',
+      mapping: defaultValues(home.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Wishlist',
+      subscribe: 'type = "track" and event = "Product Added to Wishlist"',
+      partnerAction: 'addToWishlist',
+      mapping: defaultValues(addToWishlist.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'type = "track" and event = "Product Added"',
+      partnerAction: 'addToCart',
+      mapping: defaultValues(addToCart.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     home,
     search,

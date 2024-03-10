@@ -22,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
   description: 
     'Represents a user viewing a certain page that is pertinent to sequence-based ML model training (Ex. a user browsing sneakers)',
+  defaultSubscription: 'type = "page" and properties.name != "Home" and properties.name != "Land"',
   fields: {
     event_id,
     timestamp,
@@ -33,11 +34,11 @@ const action: ActionDefinition<Settings, Payload> = {
     items,
     page_id: {
       ...page_id,
-      description: page_id.description + ' either page_id or page_identifier_tokens is required.'
+      description: page_id.description + ' Either page_id or page_identifier_tokens is required.'
     },
     page_identifier_tokens: {
       ...page_identifier_tokens,
-      description: page_identifier_tokens.description + ' either page_id or page_identifier_tokens is required.'
+      description: page_identifier_tokens.description + ' Either page_id or page_identifier_tokens is required.'
     
     },
     referrer_page_id
