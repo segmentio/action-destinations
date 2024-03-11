@@ -50,6 +50,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "y$Fq1#L9R1N]w7PGv",
+          "testType": "y$Fq1#L9R1N]w7PGv",
         },
         "uuid": "y$Fq1#L9R1N]w7PGv",
       },
@@ -79,6 +80,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "y$Fq1#L9R1N]w7PGv",
+          "testType": "y$Fq1#L9R1N]w7PGv",
         },
         "uuid": "y$Fq1#L9R1N]w7PGv",
       },
