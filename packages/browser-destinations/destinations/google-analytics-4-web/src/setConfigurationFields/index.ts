@@ -181,7 +181,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     }
 
     if (payload.send_page_view != true) {
-      config.send_page_view = payload.send_page_view ?? true
+      config.send_page_view = payload.send_page_view ?? settings.pageView ?? true
     }
     if (settings.cookieFlags) {
       config.cookie_flags = settings.cookieFlags
