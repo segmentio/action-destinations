@@ -101,6 +101,14 @@ export interface HookBundle {
        * The attribution type for the conversion rule.
        */
       attribution_type: string
+      /**
+       * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.
+       */
+      post_click_attribution_window_size: number
+      /**
+       * 	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad.
+       */
+      view_through_attribution_window_size: number
     }
   }
 }

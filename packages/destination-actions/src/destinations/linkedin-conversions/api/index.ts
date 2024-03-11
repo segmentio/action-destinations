@@ -18,6 +18,8 @@ interface ConversionRuleUpdateValues {
   name?: string
   type?: string
   attributionType?: string
+  postClickAttributionWindowSize?: number
+  viewThroughAttributionWindowSize?: number
 }
 
 export class LinkedInConversions {
@@ -53,7 +55,9 @@ export class LinkedInConversions {
           id: conversionRuleId,
           name: data.name || `No name returned for rule: ${conversionRuleId}`,
           conversionType: data.type || `No type returned for rule: ${conversionRuleId}`,
-          attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`
+          attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`,
+          post_click_attribution_window_size: data.postClickAttributionWindowSize || 30,
+          view_through_attribution_window_size: data.viewThroughAttributionWindowSize || 7
         }
       }
     } catch (e) {
@@ -94,7 +98,9 @@ export class LinkedInConversions {
           id: data.id,
           name: data.name,
           conversionType: data.type,
-          attribution_type: hookInputs?.attribution_type || 'UNKNOWN'
+          attribution_type: data.attributionType || 'UNKNOWN',
+          post_click_attribution_window_size: data.postClickAttributionWindowSize,
+          view_through_attribution_window_size: data.viewThroughAttributionWindowSize
         }
       }
     } catch (e) {
@@ -142,7 +148,9 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: hookOutputs.name,
           conversionType: hookOutputs.conversionType,
-          attribution_type: hookOutputs.attribution_type
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         }
       }
     }
@@ -170,7 +178,11 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: valuesChanged?.name || hookOutputs.name,
           conversionType: valuesChanged?.type || hookOutputs.conversionType,
-          attribution_type: valuesChanged?.attributionType || hookOutputs.attribution_type
+          attribution_type: valuesChanged?.attributionType || hookOutputs.attribution_type,
+          post_click_attribution_window_size:
+            valuesChanged?.postClickAttributionWindowSize || hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size:
+            valuesChanged?.viewThroughAttributionWindowSize || hookOutputs.view_through_attribution_window_size
         }
       }
     } catch (e) {
@@ -179,7 +191,9 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: hookOutputs.name,
           conversionType: hookOutputs.conversionType,
-          attribution_type: hookOutputs.attribution_type
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         },
         error: {
           message: `Failed to update conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
@@ -419,6 +433,20 @@ export class LinkedInConversions {
 
     if (hookInputs?.attribution_type && hookInputs?.attribution_type !== hookOutputs?.attribution_type) {
       valuesChanged.attributionType = hookInputs?.attribution_type
+    }
+
+    if (
+      hookInputs?.post_click_attribution_window_size &&
+      hookInputs?.post_click_attribution_window_size !== hookOutputs?.post_click_attribution_window_size
+    ) {
+      valuesChanged.postClickAttributionWindowSize = hookInputs?.post_click_attribution_window_size
+    }
+
+    if (
+      hookInputs?.view_through_attribution_window_size &&
+      hookInputs?.view_through_attribution_window_size !== hookOutputs?.view_through_attribution_window_size
+    ) {
+      valuesChanged.viewThroughAttributionWindowSize = hookInputs?.view_through_attribution_window_size
     }
 
     return valuesChanged
