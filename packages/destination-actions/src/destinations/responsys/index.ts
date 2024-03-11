@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
@@ -166,13 +166,27 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (_, { settings }) => {
       if (settings.profileListName.toUpperCase() !== settings.profileListName) {
-        return Promise.reject('List Name must be in Uppercase')
+        throw new IntegrationError('List Name field must be in Uppercase', 'INVALID_PROFILE_LIST_NAME', 400)
+      }
+
+      if (settings.profileExtensionTable) {
+        if (settings.profileExtensionTable.toUpperCase() !== settings.profileExtensionTable) {
+          throw new IntegrationError('PET Name field must be in Uppercase', 'INVALID_PET_NAME', 400)
+        }
+        const regex = /^[A-Z0-9_]+$/
+        if (!regex.test(settings.profileExtensionTable)) {
+          throw new IntegrationError(
+            'The PET Name field must be capitalized and may only contain letters from A to Z, numbers from 0 to 9, and underscore characters.',
+            'INVALID_PET_NAME',
+            400
+          )
+        }
       }
 
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
       } else {
-        return Promise.reject('Responsys endpoint URL must start with https://')
+        throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
     },
     refreshAccessToken: async (request, { settings }) => {
