@@ -41,11 +41,12 @@ describe('MolocoRmp.land', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channel_type: 'SITE'
+
         // referrer_page_id is default to context.page.referrer
       },
       useDefaultMappings: true,
@@ -90,10 +91,11 @@ describe('MolocoRmp.land', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
-        channel_type: 'SITE'
+
       },
       useDefaultMappings: true,
     })).rejects.toThrowError(AggregateAjvError)

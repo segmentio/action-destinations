@@ -23,11 +23,11 @@ describe('MolocoRmp.search', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channel_type: 'SITE',
         search_query: { '@path': '$.properties.context.page.query'}
       },
       useDefaultMappings: true,
@@ -54,10 +54,10 @@ describe('MolocoRmp.search', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
-        channel_type: 'SITE',
         // searchQuery: {
         //   '@path': '$.properties.context.page.query'
         // } -- missing required field

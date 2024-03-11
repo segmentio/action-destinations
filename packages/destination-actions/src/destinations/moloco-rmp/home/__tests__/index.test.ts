@@ -13,11 +13,11 @@ describe('MolocoRmp.home', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
-        timestamp: { '@path': '$.timestamp' },
-        channel_type: 'SITE'
+        timestamp: { '@path': '$.timestamp' }
       },
       useDefaultMappings: true,
     })

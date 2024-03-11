@@ -25,7 +25,8 @@ describe('MolocoRmp.addToWishlist', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar', 
+        channel_type: 'SITE'
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },

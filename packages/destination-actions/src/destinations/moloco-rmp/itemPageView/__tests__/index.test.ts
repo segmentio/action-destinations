@@ -25,11 +25,12 @@ describe('MolocoRmp.itemPageView', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE',
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        channel_type: 'SITE',
+
         items: [
           {
             id: {
@@ -76,10 +77,10 @@ describe('MolocoRmp.itemPageView', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE',
       },
       mapping: {
-        channel_type: 'SITE',
         // items: [
         //   {
         //     id: {

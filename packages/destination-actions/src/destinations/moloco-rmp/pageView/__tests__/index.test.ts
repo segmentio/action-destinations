@@ -40,10 +40,11 @@ describe('MolocoRmp.pageView', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar'
+        apiKey: 'bar',
+        channel_type: 'SITE'
       },
       mapping: {
-        channel_type: 'SITE'
+
         // page_id is default to context.page.path
       },
       useDefaultMappings: true,
