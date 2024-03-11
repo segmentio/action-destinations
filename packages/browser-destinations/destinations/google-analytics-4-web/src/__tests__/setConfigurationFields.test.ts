@@ -524,7 +524,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
-      send_page_view: true
+      send_page_view: false
     })
   })
   it('should update config if payload has send_page_view is undefined', async () => {
@@ -543,7 +543,9 @@ describe('Set Configuration Fields action', () => {
     const context = new Context({
       event: 'setConfigurationFields',
       type: 'page',
-      properties: {}
+      properties: {
+        send_page_view: undefined
+      }
     })
 
     setConfigurationEvent.page?.(context)
@@ -551,6 +553,35 @@ describe('Set Configuration Fields action', () => {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
       send_page_view: true
+    })
+  })
+
+  it('should fallback to settings.pageView send_page_view is undefined', async () => {
+    const settings = {
+      ...defaultSettings,
+      pageView: false
+    }
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...settings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        send_page_view: undefined
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: false
     })
   })
 
