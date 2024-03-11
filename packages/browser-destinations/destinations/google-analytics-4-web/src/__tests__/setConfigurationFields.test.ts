@@ -642,7 +642,7 @@ describe('Set Configuration Fields action', () => {
     expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
       allow_ad_personalization_signals: false,
       allow_google_signals: false,
-      send_page_view: false
+      send_page_view: true
     })
   })
 
