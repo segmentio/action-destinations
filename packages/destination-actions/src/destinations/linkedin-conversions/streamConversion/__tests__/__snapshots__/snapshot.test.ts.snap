@@ -3,7 +3,7 @@
 exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: all fields 1`] = `
 Object {
   "conversion": "urn:lla:llaPartnerConversion:1234",
-  "conversionHappenedAt": 1710285946442,
+  "conversionHappenedAt": null,
   "conversionValue": Object {
     "amount": "RK^DrO",
     "currencyCode": "RK^DrO",
@@ -30,7 +30,7 @@ Object {
 exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: required fields 1`] = `
 Object {
   "conversion": "urn:lla:llaPartnerConversion:1234",
-  "conversionHappenedAt": 1710285946416,
+  "conversionHappenedAt": null,
   "user": Object {
     "userIds": Array [
       Object {
