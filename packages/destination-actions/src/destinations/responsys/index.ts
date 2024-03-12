@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
