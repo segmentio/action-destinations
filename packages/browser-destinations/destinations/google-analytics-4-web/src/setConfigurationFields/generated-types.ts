@@ -76,7 +76,7 @@ export interface Payload {
    */
   screen_resolution?: string
   /**
-   * Set to false to prevent sending a page_view.
+   * Selection overrides toggled value set within Settings
    */
   send_page_view?: boolean
   /**
