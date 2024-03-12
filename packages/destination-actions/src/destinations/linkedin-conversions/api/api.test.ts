@@ -13,14 +13,18 @@ describe('LinkedIn Conversions', () => {
     const hookInputs: HookBundle['onMappingSave']['inputs'] = {
       name: 'A different name that should trigger an update',
       conversionType: 'PURCHASE',
-      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
     }
 
     const hookOutputs: HookBundle['onMappingSave']['outputs'] = {
       id: '56789',
       name: 'The original name',
       conversionType: 'LEAD',
-      attribution_type: 'LAST_TOUCH_BY_CONVERSION'
+      attribution_type: 'LAST_TOUCH_BY_CONVERSION',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
     }
 
     it('should update a conversion rule', async () => {
@@ -47,7 +51,9 @@ describe('LinkedIn Conversions', () => {
           id: hookOutputs.id,
           name: hookInputs.name,
           conversionType: hookInputs.conversionType,
-          attribution_type: hookInputs.attribution_type
+          attribution_type: hookInputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         }
       })
     })
@@ -60,15 +66,18 @@ describe('LinkedIn Conversions', () => {
           name: hookInputs.name,
           account: adAccountId,
           conversionMethod: 'CONVERSIONS_API',
-          postClickAttributionWindowSize: 30,
-          viewThroughAttributionWindowSize: 7,
+          postClickAttributionWindowSize: hookInputs.post_click_attribution_window_size,
+          viewThroughAttributionWindowSize: hookInputs.view_through_attribution_window_size,
           attributionType: hookInputs.attribution_type,
           type: hookInputs.conversionType
         })
         .reply(201, {
           id: mockReturnedId,
           name: hookInputs.name,
-          type: hookInputs.conversionType
+          type: hookInputs.conversionType,
+          attributionType: hookInputs.attribution_type,
+          postClickAttributionWindowSize: hookInputs.post_click_attribution_window_size,
+          viewThroughAttributionWindowSize: hookInputs.view_through_attribution_window_size
         })
       const createResult = await linkedIn.createConversionRule(adAccountId, hookInputs)
 
@@ -78,7 +87,9 @@ describe('LinkedIn Conversions', () => {
           id: mockReturnedId,
           name: hookInputs.name,
           conversionType: hookInputs.conversionType,
-          attribution_type: hookInputs.attribution_type
+          attribution_type: hookInputs.attribution_type,
+          post_click_attribution_window_size: hookInputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookInputs.view_through_attribution_window_size
         }
       })
     })
@@ -88,7 +99,9 @@ describe('LinkedIn Conversions', () => {
         id: '5678',
         name: 'Exists already',
         type: 'PURCHASE',
-        attributionType: 'LAST_TOUCH_BY_CAMPAIGN'
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 1,
+        viewThroughAttributionWindowSize: 1
       }
 
       nock(`${BASE_URL}`)
@@ -108,7 +121,9 @@ describe('LinkedIn Conversions', () => {
           id: existingRule.id,
           name: existingRule.name,
           conversionType: existingRule.type,
-          attribution_type: existingRule.attributionType
+          attribution_type: existingRule.attributionType,
+          post_click_attribution_window_size: existingRule.postClickAttributionWindowSize,
+          view_through_attribution_window_size: existingRule.viewThroughAttributionWindowSize
         }
       })
     })
@@ -140,7 +155,9 @@ describe('LinkedIn Conversions', () => {
           id: hookOutputs.id,
           name: hookOutputs.name,
           conversionType: hookOutputs.conversionType,
-          attribution_type: hookOutputs.attribution_type
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         }
       })
     })
