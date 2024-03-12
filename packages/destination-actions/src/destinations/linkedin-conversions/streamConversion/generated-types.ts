@@ -56,9 +56,9 @@ export interface HookBundle {
        */
       adAccountId: string
       /**
-       * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.
+       * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.
        */
-      campaignId: string[]
+      campaignId?: string[]
       /**
        * The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.
        */

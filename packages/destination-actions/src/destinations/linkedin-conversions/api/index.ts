@@ -382,7 +382,12 @@ export class LinkedInConversions {
     })
   }
 
-  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+  async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
+    // Associating campaigns is not required to create or update a conversion rule, or to stream a conversion event
+    if (!campaignIds || campaignIds.length === 0) {
+      return
+    }
+
     if (campaignIds.length === 1) {
       return this.associateCampignToConversion(campaignIds[0])
     }

@@ -27,12 +27,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           }
         },
         campaignId: {
-          label: 'Campaigns',
+          label: 'Add Campaigns to Conversion',
           description:
-            'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.',
+            'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.',
           type: 'string',
           multiple: true,
-          required: true,
+          required: false,
           dynamic: async (request, { hookInputs }) => {
             const linkedIn = new LinkedInConversions(request)
             return linkedIn.getCampaignsList(hookInputs?.adAccountId)
@@ -164,6 +164,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
 
+        try {
+          await linkedIn.bulkAssociateCampaignToConversion(hookInputs?.campaignId)
+        } catch (error) {
+          return {
+            error: {
+              message: `Failed to associate campaigns to conversion rule, please try again: ${JSON.stringify(error)}`,
+              code: 'ASSOCIATE_CAMPAIGN_TO_CONVERSION_ERROR'
+            }
+          }
+        }
+
         if (hookOutputs?.onMappingSave?.outputs) {
           return await linkedIn.updateConversionRule(
             hookInputs,
@@ -291,7 +302,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
     try {
-      await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       throw handleRequestError(error)
