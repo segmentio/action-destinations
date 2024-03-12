@@ -33,9 +33,9 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'string',
           multiple: true,
           required: true,
-          dynamic: async (request, { payload }) => {
+          dynamic: async (request, { hookInputs }) => {
             const linkedIn = new LinkedInConversions(request)
-            return linkedIn.getCampaignsList(payload.adAccountId)
+            return linkedIn.getCampaignsList(hookInputs?.adAccountId)
           }
         },
         /**
@@ -49,9 +49,9 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           description:
             'The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.',
           required: false,
-          dynamic: async (request, { payload }) => {
+          dynamic: async (request, { hookInputs }) => {
             const linkedIn = new LinkedInConversions(request)
-            return linkedIn.getConversionRulesList(payload.adAccountId)
+            return linkedIn.getConversionRulesList(hookInputs?.adAccountId)
           }
         },
         name: {
@@ -161,18 +161,17 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: true
         }
       },
-      performHook: async (request, { payload, hookInputs, hookOutputs }) => {
+      performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
 
         if (hookOutputs?.onMappingSave?.outputs) {
           return await linkedIn.updateConversionRule(
-            payload.adAccountId,
             hookInputs,
             hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
         }
 
-        return await linkedIn.createConversionRule(payload.adAccountId, hookInputs)
+        return await linkedIn.createConversionRule(hookInputs)
       }
     }
   },
