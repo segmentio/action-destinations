@@ -2,14 +2,42 @@
 
 exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: all fields 1`] = `
 Object {
-  "campaign": "urn:li:sponsoredCampaign:RK^DrO",
   "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": 1710285946442,
+  "conversionValue": Object {
+    "amount": "RK^DrO",
+    "currencyCode": "RK^DrO",
+  },
+  "eventId": "RK^DrO",
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+      },
+    ],
+    "userInfo": Object {
+      "companyName": "RK^DrO",
+      "countryCode": "RK^DrO",
+      "firstName": "RK^DrO",
+      "lastName": "RK^DrO",
+      "title": "RK^DrO",
+    },
+  },
 }
 `;
 
 exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: required fields 1`] = `
 Object {
-  "campaign": "urn:li:sponsoredCampaign:RK^DrO",
   "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": 1710285946416,
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+      },
+    ],
+  },
 }
 `;

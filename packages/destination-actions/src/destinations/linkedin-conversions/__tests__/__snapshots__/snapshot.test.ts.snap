@@ -2,14 +2,42 @@
 
 exports[`Testing snapshot for actions-linkedin-conversions destination: streamConversion action - all fields 1`] = `
 Object {
-  "campaign": "urn:li:sponsoredCampaign:Fuj)Xdj",
   "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": 1710285946348,
+  "conversionValue": Object {
+    "amount": "Fuj)Xdj",
+    "currencyCode": "Fuj)Xdj",
+  },
+  "eventId": "Fuj)Xdj",
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+      },
+    ],
+    "userInfo": Object {
+      "companyName": "Fuj)Xdj",
+      "countryCode": "Fuj)Xdj",
+      "firstName": "Fuj)Xdj",
+      "lastName": "Fuj)Xdj",
+      "title": "Fuj)Xdj",
+    },
+  },
 }
 `;
 
 exports[`Testing snapshot for actions-linkedin-conversions destination: streamConversion action - required fields 1`] = `
 Object {
-  "campaign": "urn:li:sponsoredCampaign:Fuj)Xdj",
   "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": 1710285946318,
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+      },
+    ],
+  },
 }
 `;
