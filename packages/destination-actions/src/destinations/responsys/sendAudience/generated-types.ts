@@ -37,4 +37,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * The timestamp of when the event occurred.
+   */
+  timestamp: string | number
 }
