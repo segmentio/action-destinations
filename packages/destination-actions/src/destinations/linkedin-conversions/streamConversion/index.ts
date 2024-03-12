@@ -16,6 +16,28 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
       inputFields: {
+        adAccountId: {
+          label: 'Ad Account',
+          description: 'The ad account to use for the conversion event.',
+          type: 'string',
+          required: true,
+          dynamic: async (request) => {
+            const linkedIn = new LinkedInConversions(request)
+            return linkedIn.getAdAccounts()
+          }
+        },
+        campaignId: {
+          label: 'Campaigns',
+          description:
+            'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.',
+          type: 'string',
+          multiple: true,
+          required: true,
+          dynamic: async (request, { payload }) => {
+            const linkedIn = new LinkedInConversions(request)
+            return linkedIn.getCampaignsList(payload.adAccountId)
+          }
+        },
         /**
          * The configuration fields for a LinkedIn CAPI conversion rule.
          * Detailed information on these parameters can be found at
@@ -155,13 +177,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     }
   },
   fields: {
-    adAccountId: {
-      label: 'Ad Account',
-      description: 'The ad account to use for the conversion event.',
-      type: 'string',
-      required: true,
-      dynamic: true
-    },
     conversionHappenedAt: {
       label: 'Timestamp',
       description:
@@ -258,25 +273,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: false
         }
       }
-    },
-    campaignId: {
-      label: 'Campaigns',
-      type: 'string',
-      multiple: true,
-      required: true,
-      dynamic: true,
-      description:
-        'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.'
-    }
-  },
-  dynamicFields: {
-    adAccountId: async (request) => {
-      const linkedIn = new LinkedInConversions(request)
-      return linkedIn.getAdAccounts()
-    },
-    campaignId: async (request, { payload }) => {
-      const linkedIn = new LinkedInConversions(request)
-      return linkedIn.getCampaignsList(payload.adAccountId)
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
