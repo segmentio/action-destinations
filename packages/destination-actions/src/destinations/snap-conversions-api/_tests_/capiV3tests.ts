@@ -2,16 +2,17 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
+import { buildRequestURL } from '../reportConversionEvent/snap-capi-v3'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2022-05-12T15:21:15.449Z'
 const settings: Settings = {
   snap_app_id: 'test123',
-  pixel_id: 'test123',
-  app_id: 'test123'
+  pixel_id: 'pixel123',
+  app_id: 'app123'
 }
-const accessToken = 'test123'
-const refreshToken = 'test123'
+const accessToken = 'access123'
+const refreshToken = 'refresh123'
 
 const testEvent = createTestEvent({
   timestamp: timestamp,
@@ -607,5 +608,93 @@ export const capiV3tests = () =>
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       )
       expect(action_source).toBe('website')
+    })
+
+    it('should always use the pixel id in settings for web events', async () => {
+      nock(/.*/).post(/.*/).reply(200)
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {}
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        features,
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB'
+        }
+      })
+
+      expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+    })
+
+    it('should trim a pixel id with leading or trailing whitespace', async () => {
+      nock(/.*/).post(/.*/).reply(200)
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {}
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings: {
+          pixel_id: '  pixel123  '
+        },
+        useDefaultMappings: true,
+        auth: {
+          accessToken,
+          refreshToken
+        },
+        features,
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB'
+        }
+      })
+
+      expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+    })
+
+    it('should exclude number_items that is not a valid integer', async () => {
+      nock(/.*/).post(/.*/).reply(200)
+      const event = createTestEvent({
+        ...testEvent,
+        properties: {}
+      })
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings: {
+          pixel_id: '  pixel123  '
+        },
+        useDefaultMappings: true,
+        auth: {
+          accessToken: '    access123   ',
+          refreshToken
+        },
+        features,
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          number_items: 'six'
+        }
+      })
+
+      expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+
+      const body = JSON.parse(responses[0].options.body as string)
+      const { data } = body
+      expect(data.length).toBe(1)
+
+      const { custom_data } = data[0]
+
+      expect(custom_data).toBeUndefined()
     })
   })
