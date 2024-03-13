@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * The ID of the Static List that users will be synced to.
    */
-  external_id: string
+  external_id?: string
   /**
    * The lead field to use for deduplication and filtering. This field must be apart of the field(s) you are sending to Marketo.
    */
@@ -43,4 +43,26 @@ export interface Payload {
    * The name of the current Segment event.
    */
   event_name: string
+}
+// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+
+export interface HookBundle {
+  onMappingSave: {
+    inputs?: {
+      /**
+       * The ID of the Marketo static list that users will be synced to. If defined, we will not create a new list.
+       */
+      list_id?: string
+      /**
+       * The Name of the Marketo static list that users will be synced to. If defined, we will not create a new list.
+       */
+      list_name?: string
+    }
+    outputs?: {
+      /**
+       * The ID of the created Marketo static list that users will be synced to.
+       */
+      new_list_id: string
+    }
+  }
 }
