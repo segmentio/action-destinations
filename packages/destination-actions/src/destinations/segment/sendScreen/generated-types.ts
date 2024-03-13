@@ -228,7 +228,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   * This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
    */
   enable_batching?: boolean
 }
