@@ -15,7 +15,7 @@ Object {
       "user_id": "H%fspr!Jez(TWP",
     },
   },
-  "sent_at": "2024-03-01T23:31:37.505Z",
+  "sent_at": "2021-02-01T00:00:00.000Z",
   "type": "track",
 }
 `;
@@ -26,7 +26,7 @@ Object {
   "body": Object {
     "event": "h%fspr!jez(twp",
   },
-  "sent_at": "2024-03-01T23:31:37.497Z",
+  "sent_at": "2021-02-01T00:00:00.000Z",
   "type": "track",
 }
 `;

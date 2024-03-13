@@ -60,6 +60,13 @@ const action: ActionDefinition<Settings, Payload> = {
       additionalProperties: true,
       required: false
     },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Time the event took place',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' }
+    },
     user_keys: {
       label: 'User keys',
       description: 'Key-value pairs associated with a user (e.g. email: example@example.com)',
@@ -107,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         api_key: `${settings.apiKey}`,
         type: 'track',
-        sent_at: new Date().toISOString(),
+        sent_at: new Date(payload.timestamp).toISOString(),
         body: {
           traits: payload.traits,
           company: payload.company_keys,

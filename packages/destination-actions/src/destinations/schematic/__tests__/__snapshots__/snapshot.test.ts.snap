@@ -21,7 +21,7 @@ Object {
       "testType": "G10lVP",
     },
   },
-  "sent_at": "2024-03-01T23:31:37.050Z",
+  "sent_at": "2023-01-01T00:00:00.000Z",
   "type": "identify",
 }
 `;
@@ -37,7 +37,7 @@ Object {
     },
     "keys": Object {},
   },
-  "sent_at": "2024-03-01T23:31:37.045Z",
+  "sent_at": "2023-01-01T00:00:00.000Z",
   "type": "identify",
 }
 `;
@@ -57,7 +57,7 @@ Object {
       "user_id": "uvfeUI#M",
     },
   },
-  "sent_at": "2024-03-01T23:31:37.041Z",
+  "sent_at": "2023-01-01T00:00:00.000Z",
   "type": "track",
 }
 `;
@@ -68,7 +68,7 @@ Object {
   "body": Object {
     "event": "uvfeui#m",
   },
-  "sent_at": "2024-03-01T23:31:37.032Z",
+  "sent_at": "2023-01-01T00:00:00.000Z",
   "type": "track",
 }
 `;

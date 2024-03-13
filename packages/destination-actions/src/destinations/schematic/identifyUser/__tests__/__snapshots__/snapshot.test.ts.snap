@@ -21,7 +21,7 @@ Object {
       "testType": "A7WJL)2NKFy&pmtr0",
     },
   },
-  "sent_at": "2024-03-01T23:31:37.391Z",
+  "sent_at": "2021-02-01T00:00:00.000Z",
   "type": "identify",
 }
 `;
@@ -37,7 +37,7 @@ Object {
     },
     "keys": Object {},
   },
-  "sent_at": "2024-03-01T23:31:37.382Z",
+  "sent_at": "2021-02-01T00:00:00.000Z",
   "type": "identify",
 }
 `;

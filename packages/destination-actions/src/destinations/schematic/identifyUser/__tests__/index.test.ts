@@ -6,14 +6,13 @@ const testDestination = createTestIntegration(Destination)
 
 const SCHEMATIC_API_KEY = 'test'
 
-const identify_mapping = {
-  user_keys: {
-    email: 'example@example.com'
-  },
-  company_keys: {
-    c_id: '1234'
-  }
+const mapping = {
+  user_keys: { email: 'test@test.com' },
+  company_keys: { org_id: '1234' },
+  timestamp: { '@path': '$.timestamp' }
 }
+
+const ts = '2023-01-01T00:00:00.000Z'
 
 const auth = {
   refreshToken: 'xyz321',
@@ -22,7 +21,7 @@ const auth = {
 }
 
 const settings = {
-  instanceUrl: 'https://api.schematichq.com',
+  instanceUrl: 'https://c.schematichq.com',
   apiKey: SCHEMATIC_API_KEY
 }
 
@@ -35,22 +34,12 @@ describe('POST identify call', () => {
 
   it('should update a user', async () => {
     const event = createTestEvent({
-      api_key: SCHEMATIC_API_KEY,
       type: 'identify',
-      sent_at: new Date().toISOString(),
-      body: {
-        keys: { id: '1234' },
-        traits: {
-          email: 'homer@simpsons.com',
-          name: 'simpson',
-          age: 42,
-          source: 'facebook'
-        },
-        company: {
-          keys: {
-            c_id: '1234'
-          }
-        }
+      timestamp: new Date(ts).toISOString(),
+      traits: {
+        name: 'simpson',
+        age: 42,
+        source: 'facebook'
       }
     })
 
@@ -58,7 +47,7 @@ describe('POST identify call', () => {
       event,
       settings,
       auth,
-      mapping: identify_mapping
+      mapping
     })
 
     expect(responses[0].status).toBe(200)

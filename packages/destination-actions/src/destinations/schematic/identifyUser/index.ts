@@ -29,6 +29,13 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       required: false
     },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Time the event took place',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' }
+    },
     user_keys: {
       label: 'User keys',
       description: 'Key-value pairs associated with a user (e.g. email: example@example.com)',
@@ -71,7 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         api_key: `${settings.apiKey}`,
         type: 'identify',
-        sent_at: new Date().toISOString(),
+        sent_at: new Date(payload.timestamp).toISOString(),
         body: {
           keys: payload.user_keys,
           name: payload.user_name,
