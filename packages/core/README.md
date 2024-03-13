@@ -1,6 +1,6 @@
 # @segment/actions-core
 
-The core runtime engine for actions, including mapping-kit transforms.
+The core runtime engine for actions, including mapping-kit transforms
 
 ## License
 

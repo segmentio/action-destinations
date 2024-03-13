@@ -2,10 +2,19 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
+export const validateCustomTraits = ({
+  profileExtensionTable,
+  timestamp
+}: {
+  profileExtensionTable?: string
+  timestamp: string | number
+}): void => {
+  if (shouldRetry(timestamp)) {
+    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.')
+  }
   if (
     !(
       typeof profileExtensionTable !== 'undefined' &&
@@ -19,6 +28,12 @@ export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profil
       400
     )
   }
+}
+
+const RETRY_MINUTES = 2
+
+export const shouldRetry = (timestamp: string | number): boolean => {
+  return (new Date().getTime() - new Date(timestamp).getTime()) / (1000 * 60) < RETRY_MINUTES
 }
 
 export const validateListMemberPayload = ({

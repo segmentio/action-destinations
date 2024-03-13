@@ -124,4 +124,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * Controls the notification payload format
+   */
+  googleApiVersion?: string
 }

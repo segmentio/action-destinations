@@ -2,12 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import {
-  sendCustomTraits,
-  getUserDataFieldNames,
-  validateCustomTraitsSettings,
-  validateListMemberPayload
-} from '../utils'
+import { sendCustomTraits, getUserDataFieldNames, validateCustomTraits, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -81,22 +76,36 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [{ label: 'Audience', value: 'audience' }]
     },
     enable_batching: enable_batching,
-    batch_size: batch_size
+    batch_size: batch_size,
+    timestamp: {
+      label: 'Timestamp',
+      description: 'The timestamp of when the event occurred.',
+      type: 'datetime',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.timestamp'
+      }
+    }
   },
 
   perform: async (request, data) => {
+    const { payload, settings } = data
+
     const userDataFieldNames: string[] = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraitsSettings(data.settings)
-    validateListMemberPayload(data.payload.userData)
+    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload.timestamp })
+    validateListMemberPayload(payload.userData)
 
-    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames, true)
+    return sendCustomTraits(request, [payload], data.settings, userDataFieldNames, true)
   },
 
   performBatch: async (request, data) => {
+    const { payload, settings } = data
+
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraitsSettings(data.settings)
+    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload[0].timestamp })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames, true)
   }

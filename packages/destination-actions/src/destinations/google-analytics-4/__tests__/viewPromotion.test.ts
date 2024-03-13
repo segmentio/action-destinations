@@ -747,4 +747,97 @@ describe('GA4', () => {
       ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
+
+  it('should append consent correct', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+    const event = createTestEvent({
+      event: 'Promotion Viewed',
+      userId: '3456fff',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-567890',
+      type: 'track',
+      properties: {
+        promotion_id: 'promo_1',
+        creative: 'top_banner_2',
+        name: '75% store-wide shoe sale',
+        position: 'home_banner_top',
+        products: [
+          {
+            product_id: '507f1f77bcf86cd799439011',
+            sku: '45790-32',
+            name: 'Monopoly: 3rd Edition',
+            price: 19,
+            quantity: 1,
+            category: 'Games',
+            promotion: 'SUPER SUMMER SALE; 3% off',
+            slot: '2',
+            promo_id: '12345',
+            creative_name: 'Sale'
+          }
+        ]
+      }
+    })
+    const responses = await testDestination.testAction('viewPromotion', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        client_id: {
+          '@path': '$.userId'
+        },
+        creative_slot: {
+          '@path': '$.properties.creative'
+        },
+        promotion_id: {
+          '@path': '$.properties.promotion_id'
+        },
+        promotion_name: {
+          '@path': '$.properties.name'
+        },
+        timestamp_micros: {
+          '@path': '$.timestamp'
+        },
+        engagement_time_msec: 2,
+        location_id: {
+          '@path': '$.properties.promotion_id'
+        },
+        items: [
+          {
+            item_name: {
+              '@path': `$.properties.products.0.name`
+            },
+            item_id: {
+              '@path': `$.properties.products.0.product_id`
+            },
+            promotion_name: {
+              '@path': `$.properties.products.0.promotion`
+            },
+            creative_slot: {
+              '@path': `$.properties.products.0.slot`
+            },
+            promotion_id: {
+              '@path': `$.properties.products.0.promo_id`
+            },
+            creative_name: {
+              '@path': `$.properties.products.0.creative_name`
+            }
+          }
+        ],
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      },
+      useDefaultMappings: false
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"3456fff\\",\\"events\\":[{\\"name\\":\\"view_promotion\\",\\"params\\":{\\"creative_slot\\":\\"top_banner_2\\",\\"location_id\\":\\"promo_1\\",\\"promotion_id\\":\\"promo_1\\",\\"promotion_name\\":\\"75% store-wide shoe sale\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_id\\":\\"507f1f77bcf86cd799439011\\",\\"promotion_name\\":\\"SUPER SUMMER SALE; 3% off\\",\\"creative_slot\\":\\"2\\",\\"promotion_id\\":\\"12345\\",\\"creative_name\\":\\"Sale\\"}],\\"engagement_time_msec\\":2}}],\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
+  })
 })

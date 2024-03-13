@@ -37,12 +37,27 @@ describe('OptimizelyDataPlatform.upsertContact', () => {
         apiKey: 'abc123',
         region: 'US'
       },
-      useDefaultMappings: true
+      mapping: {
+        user_identifiers: {
+          anonymousId: 'anonId1234',
+          userId: 'user1234',
+          email: 'test@test.com'
+        },
+        title: 'Mr',
+        name: 'John Doe',
+        first_name: 'John',
+        last_name: 'Doe',
+        age: 50,
+        dob_year: 1990,
+        dob_month: 1,
+        dob_day: 1
+      }
     })
 
-    const expectedBody = `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"first_name\\":\\"John\\",\\"last_name\\":\\"Doe\\",\\"age\\":50,\\"dob\\":\\"01/01/1990\\",\\"gender\\":\\"male\\",\\"phone\\":\\"1234567890\\",\\"address\\":{\\"street\\":\\"Victoria st\\",\\"city\\":\\"London\\",\\"state\\":\\"London\\",\\"country\\":\\"UK\\"},\\"company\\":\\"Optimizely\\",\\"image_url\\":\\"https://image-url.com\\"}"`
-
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
+    // The expected body is a stringified JSON object
+    expect(response[0].options.body).toMatchInlineSnapshot(
+      `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"age\\":50}"`
+    )
   })
 })

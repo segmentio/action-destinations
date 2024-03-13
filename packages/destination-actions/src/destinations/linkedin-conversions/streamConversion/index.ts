@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
-import { SUPPORTED_ID_TYPE } from '../constants'
+import { SUPPORTED_ID_TYPE, CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
 
@@ -36,33 +36,67 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'string',
           label: 'Name',
           description: 'The name of the conversion rule.',
-          required: true
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
-          required: true,
-          choices: [
-            { label: 'Add to Cart', value: 'ADD_TO_CART' },
-            { label: 'Download', value: 'DOWNLOAD' },
-            { label: 'Install', value: 'INSTALL' },
-            { label: 'Key Page View', value: 'KEY_PAGE_VIEW' },
-            { label: 'Lead', value: 'LEAD' },
-            { label: 'Purchase', value: 'PURCHASE' },
-            { label: 'Sign Up', value: 'SIGN_UP' },
-            { label: 'Other', value: 'OTHER' }
-          ]
+          choices: CONVERSION_TYPE_OPTIONS,
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         },
         attribution_type: {
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
-          required: true,
           choices: [
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
-          ]
+          ],
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'conversionRuleId',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
+        },
+        post_click_attribution_window_size: {
+          label: 'Post-Click Attribution Window Size',
+          description:
+            'Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.',
+          type: 'number',
+          default: 30,
+          choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES
+        },
+        view_through_attribution_window_size: {
+          label: 'View-Through Attribution Window Size',
+          description:
+            '	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
+          type: 'number',
+          default: 7,
+          choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES
         }
       },
       outputTypes: {
@@ -83,11 +117,40 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
           required: true
+        },
+        attribution_type: {
+          label: 'Attribution Type',
+          description: 'The attribution type for the conversion rule.',
+          type: 'string',
+          required: true
+        },
+        post_click_attribution_window_size: {
+          label: 'Post-Click Attribution Window Size',
+          description:
+            'Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.',
+          type: 'number',
+          required: true
+        },
+        view_through_attribution_window_size: {
+          label: 'View-Through Attribution Window Size',
+          description:
+            'Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
+          type: 'number',
+          required: true
         }
       },
-      performHook: async (request, { payload, hookInputs }) => {
+      performHook: async (request, { payload, hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
-        return await linkedIn.createConversionRule(payload, hookInputs)
+
+        if (hookOutputs?.onMappingSave?.outputs) {
+          return await linkedIn.updateConversionRule(
+            payload.adAccountId,
+            hookInputs,
+            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+          )
+        }
+
+        return await linkedIn.createConversionRule(payload.adAccountId, hookInputs)
       }
     }
   },

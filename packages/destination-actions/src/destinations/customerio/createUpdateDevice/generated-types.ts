@@ -22,6 +22,12 @@ export interface Payload {
    */
   last_used?: string
   /**
+   * Optional data that you can reference to segment your audience, like a person's attributes, but specific to a device.
+   */
+  attributes?: {
+    [k: string]: unknown
+  }
+  /**
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean

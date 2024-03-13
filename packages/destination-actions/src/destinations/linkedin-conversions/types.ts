@@ -98,7 +98,13 @@ export interface ConversionRuleCreationResponse {
   id: string
   name: string
   type: string
+  attributionType: string
+  postClickAttributionWindowSize: number
+  viewThroughAttributionWindowSize: number
 }
+
+/** This request returns 204 no content */
+export interface ConversionRuleUpdateResponse {}
 
 /**
  * The shape of the response from LinkedIn when fetching a conversion rule by id.
@@ -112,4 +118,6 @@ export interface GetConversionRuleResponse {
   id?: string
   attributionType?: string
   account?: string
+  postClickAttributionWindowSize?: number
+  viewThroughAttributionWindowSize?: number
 }

@@ -31,4 +31,12 @@ export interface Payload {
   custom_variables?: {
     [k: string]: unknown
   }
+  /**
+   * This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   */
+  ad_user_data_consent_state?: string
+  /**
+   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   */
+  ad_personalization_consent_state?: string
 }

@@ -27,6 +27,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "I[VT4ujd%6E",
+          "testType": "I[VT4ujd%6E",
         },
         "email": "hig@mirhag.ws",
         "phone_number": "I[VT4ujd%6E",
@@ -47,6 +48,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "I[VT4ujd%6E",
+          "testType": "I[VT4ujd%6E",
         },
         "uuid": "I[VT4ujd%6E",
       },

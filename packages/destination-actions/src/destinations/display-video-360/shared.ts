@@ -1,7 +1,6 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT } from './constants'
 import type { RefreshTokenResponse } from './types'
-import type { OAuth2ClientCredentials } from '@segment/actions-core/destination-kit/oauth2'
 
 import {
   UserIdType,
@@ -15,35 +14,46 @@ import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings, Settings } from './generated-types'
 import { GetAudienceInput } from '@segment/actions-core/destination-kit/execute'
 
-type SettingsWithOauth = Settings & { oauth: OAuth2ClientCredentials }
+type SettingsWithOauth = Settings & { oauth: DV360AuthCredentials }
+type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
 export const isLegacyDestinationMigration = (
   getAudienceInput: GetAudienceInput,
-  authSettings: OAuth2ClientCredentials
+  authSettings: DV360AuthCredentials
 ): boolean => {
-  const noOAuth = !authSettings.clientId || !authSettings.clientSecret
+  const noOAuth = !authSettings.refresh_token || !authSettings.access_token
   const hasExternalAudienceId = getAudienceInput.externalId !== undefined
   return noOAuth && hasExternalAudienceId
 }
 
-export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
+export const getAuthSettings = (settings: SettingsWithOauth): DV360AuthCredentials => {
   if (!settings.oauth) {
-    return {} as OAuth2ClientCredentials
+    return {} as DV360AuthCredentials
   }
 
   return {
-    clientId: settings.oauth.clientId,
-    clientSecret: settings.oauth.clientSecret
-  } as OAuth2ClientCredentials
+    refresh_token: settings.oauth.refresh_token,
+    access_token: settings.oauth.access_token,
+    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
+    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+  } as DV360AuthCredentials
 }
 
-export const getAuthToken = async (request: RequestClient, settings: OAuth2ClientCredentials) => {
+// Use the refresh token to get a new access token.
+// Refresh tokens are long-lived and belong to the user.
+// Client_id and secret belong to the application.
+// Given the short expiration time of access tokens, we need to refresh them periodically.
+export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
+  if (!settings.refresh_token) {
+    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
     method: 'POST',
     body: new URLSearchParams({
-      refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
-      client_id: settings.clientId,
-      client_secret: settings.clientSecret,
+      refresh_token: settings.refresh_token,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
       grant_type: 'refresh_token'
     })
   })
