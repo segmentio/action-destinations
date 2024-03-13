@@ -96,7 +96,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       if (externalId !== getAudienceInput.externalId) {
         throw new IntegrationError(
-          "Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.",
+          `Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.`,
           'INVALID_REQUEST_DATA',
           400
         )
