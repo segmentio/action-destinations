@@ -128,15 +128,33 @@ describe('Order Completed', () => {
 
     nock(`${API_URL}`).post(`/events/`, requestBodyForEvent).reply(202, {})
 
-    const requestBodyForProduct = createRequestBody(
-      { ...products[0].properties, ...properties },
-      products[0].value,
-      'Ordered Product',
-      profile
-    )
+    // const requestBodyForProduct = createRequestBody(
+    //   { ...products[0].properties, ...properties },
+    //   products[0].value,
+    //   'Ordered Product',
+    //   profile
+    // )
+    nock(`${API_URL}`)
+      .post(`/events/`, (body) => {
+        // Validate that body has the correct structure using function
+        // Can’t use an object because unique_id is randomly generated
+        return (
+          body.data &&
+          body.data.type === `event` &&
+          body.data.attributes &&
+          body.data.attributes.properties &&
+          typeof body.data.attributes.unique_id === `string` &&
+          body.data.attributes.unique_id.length === 10 &&
+          body.data.attributes.metric &&
+          body.data.attributes.metric.data &&
+          body.data.attributes.metric.data.type === `metric` &&
+          body.data.attributes.metric.data.attributes &&
+          body.data.attributes.metric.data.attributes.name === `Ordered Product` &&
+          body.data.attributes.profile
+        )
+      })
+      .reply(200, {})
 
-    nock(`${API_URL}`).post(`/events/`, requestBodyForProduct).reply(200, {})
-
-    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
+    await expect(testDestination.testAction(`orderCompleted`, { event, mapping, settings })).resolves.not.toThrowError()
   })
 })
