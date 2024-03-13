@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: { ...event_name }
   },
   hooks: {
-    retlOnMappingSave: {
+    onMappingSave: {
       label: 'Create a new static list in Marketo',
       description: 'When saving this mapping, we will create a static list in Marketo using the fields you provided.',
       inputFields: {
