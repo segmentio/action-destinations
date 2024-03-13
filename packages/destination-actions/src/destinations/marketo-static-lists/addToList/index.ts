@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       performHook: async (request, { settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
-          // TODO maybe add a verification method to verify this id is valid to use?
+          // TODO add a verification method to verify this id is valid to use
           return {
             successMessage: `Using existing list ${hookInputs.list_id} created successfully!`,
             savedData: {
