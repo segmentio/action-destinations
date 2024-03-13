@@ -31,8 +31,7 @@ import {
   os_version,
   click_id
 } from '../snap-capi-properties'
-import { performSnapCAPIv2 } from './snap-capi-v2'
-import { performSnapCAPIv3 } from './snap-capi-v3'
+import { performSnapCAPIv3 as perform } from './snap-capi-v3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -68,43 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     device_model: device_model,
     click_id: click_id
   },
-  perform: async (request, data) => {
-    const { features } = data
-    const testCAPIv3 = features?.['actions-snap-api-migration-test-capiv3'] ?? false
-    const useCAPIv3 = features?.['actions-snap-api-migration-use-capiv3'] ?? false
-
-    // Intentionally check the test flag first and prefer the test branch
-    // this is to prevent a bad config where both testCAPIv3 and useCAPIv3
-    // are both set to true.
-    if (testCAPIv3) {
-      const [v2result, _v3result] = await Promise.all([
-        performSnapCAPIv2(request, data),
-
-        (async () => {
-          try {
-            return await performSnapCAPIv3(request, data)
-          } catch (e) {
-            // In test mode, we swallow any errors thrown by the v3 connector.
-            // This is to prevent these errors from causing the segment client from
-            // retrying requests caused by v3 errors, when v2 is the request of
-            // record. Instead log the errors so that we can identify issues and resolve them.
-
-            // FIXME: Should we add sampling here?
-            data.logger?.crit(`snap-capi-v3\n\n${String(e)}`)
-          }
-        })()
-      ])
-
-      // In the test state, we send event to both the v2 and v3 endpoints
-      // but only return the result of the v2 endpoint since v3's result
-      // is only used by snap to verify.
-      return v2result
-    } else if (useCAPIv3) {
-      return performSnapCAPIv3(request, data, testCAPIv3)
-    } else {
-      return performSnapCAPIv2(request, data)
-    }
-  }
+  perform
 }
 
 export default action
