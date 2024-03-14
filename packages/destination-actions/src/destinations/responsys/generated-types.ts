@@ -73,4 +73,14 @@ export interface Settings {
    * Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.
    */
   optinValue?: string
+  /**
+   * If checked, all User Data in Mappings will be converted to strings before being sent to Responsys.
+   *                       For example the value 1 will be sent as "1"
+   */
+  stringify_all_data_list?: boolean
+  /**
+   * If checked, all User Data in Mappings will be converted to strings before being sent to Responsys.
+   *                       For example the value 1 will be sent as "1"
+   */
+  stringify_all_data_pet?: boolean
 }

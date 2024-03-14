@@ -85,7 +85,7 @@ export const sendCustomTraits = async (
     return userDataFieldNames.map((fieldName) => {
       if ((userData as Record<string, string>) && fieldName in (userData as Record<string, string>)) {
         const value = (userData as Record<string, string>)[fieldName]
-        return payload[0].stringify_all_data && typeof value !== 'string' ? JSON.stringify(value) : value
+        return settings.stringify_all_data_pet && typeof value !== 'string' ? JSON.stringify(value) : value
       } else {
         return ''
       }
@@ -150,11 +150,15 @@ export const upsertListMembers = async (
   userDataFieldNames: string[]
 ) => {
   const userDataArray = payload.map((obj) => obj.userData)
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
-        ? (userData as Record<string, string>)[fieldName]
-        : ''
+      if ((userData as Record<string, string>) && fieldName in (userData as Record<string, string>)) {
+        const value = (userData as Record<string, string>)[fieldName]
+        return settings.stringify_all_data_list && typeof value !== 'string' ? JSON.stringify(value) : value
+      } else {
+        return ''
+      }
     })
   })
 
