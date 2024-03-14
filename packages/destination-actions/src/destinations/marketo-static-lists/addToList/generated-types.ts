@@ -50,19 +50,23 @@ export interface HookBundle {
   onMappingSave: {
     inputs?: {
       /**
-       * The ID of the Marketo static list that users will be synced to. If defined, we will not create a new list.
+       * The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.
        */
       list_id?: string
       /**
-       * The Name of the Marketo static list that users will be synced to. If defined, we will not create a new list.
+       * The name of the Marketo Static List that you would like to create.
        */
       list_name?: string
     }
     outputs?: {
       /**
-       * The ID of the created Marketo static list that users will be synced to.
+       * The ID of the created Marketo Static List that users will be synced to.
        */
-      new_list_id: string
+      id?: string
+      /**
+       * The name of the created Marketo Static List that users will be synced to.
+       */
+      name?: string
     }
   }
 }

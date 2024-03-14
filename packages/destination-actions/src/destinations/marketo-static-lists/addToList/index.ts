@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
-import { addToList, createList } from '../functions'
+import { addToList, createList, getList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to List',
@@ -25,34 +25,33 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'List ID',
           description:
-            'The ID of the Marketo static list that users will be synced to. If defined, we will not create a new list.',
+            'The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.',
           required: false
         },
         list_name: {
           type: 'string',
           label: 'List Name',
-          description:
-            'The Name of the Marketo static list that users will be synced to. If defined, we will not create a new list.',
+          description: 'The name of the Marketo Static List that you would like to create.',
           required: false
         }
       },
       outputTypes: {
-        new_list_id: {
+        id: {
           type: 'string',
           label: 'ID',
-          description: 'The ID of the created Marketo static list that users will be synced to.',
-          required: true
+          description: 'The ID of the created Marketo Static List that users will be synced to.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the created Marketo Static List that users will be synced to.',
+          required: false
         }
       },
       performHook: async (request, { settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
-          // TODO add a verification method to verify this id is valid to use
-          return {
-            successMessage: `Using existing list ${hookInputs.list_id} created successfully!`,
-            savedData: {
-              id: hookInputs.list_id
-            }
-          }
+          return getList(request, settings, hookInputs.list_id)
         }
 
         try {
@@ -65,7 +64,8 @@ const action: ActionDefinition<Settings, Payload> = {
           return {
             successMessage: `List ${listId} created successfully!`,
             savedData: {
-              id: listId
+              id: listId,
+              name: hookInputs.list_name
             }
           }
         } catch (e) {
@@ -82,8 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
     // Use list_id from hook as external id for RETL mappings
-    if (hookOutputs?.retlOnMappingSave?.outputs.new_list_id) {
-      payload.external_id = hookOutputs?.retlOnMappingSave?.outputs.new_list_id
+    if (hookOutputs?.retlOnMappingSave?.outputs.id) {
+      payload.external_id = hookOutputs?.retlOnMappingSave?.outputs.id
     }
     return addToList(request, settings, [payload], statsContext)
   },
