@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, ActionHookResponse } from '@segment/actions-core'
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
@@ -164,6 +164,16 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
 
+        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
+        if (hookOutputs?.onMappingSave?.outputs) {
+          hookReturn = await linkedIn.updateConversionRule(
+            hookInputs,
+            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+          )
+        }
+
+        hookReturn = await linkedIn.createConversionRule(hookInputs)
+
         try {
           await linkedIn.bulkAssociateCampaignToConversion(hookInputs?.campaignId)
         } catch (error) {
@@ -175,14 +185,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           }
         }
 
-        if (hookOutputs?.onMappingSave?.outputs) {
-          return await linkedIn.updateConversionRule(
-            hookInputs,
-            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
-          )
-        }
-
-        return await linkedIn.createConversionRule(hookInputs)
+        return hookReturn
       }
     }
   },
