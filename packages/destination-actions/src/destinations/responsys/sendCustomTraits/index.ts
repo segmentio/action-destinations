@@ -37,6 +37,15 @@ const action: ActionDefinition<Settings, Payload> = {
         CUSTOMER_ID_: { '@path': '$.userId' }
       }
     },
+    stringify_all_data: {
+      label: 'Convert All Data to String',
+      description: `If checked, all data is converted to String before sending to Responsys;
+                    otherwise, data is sent as is and must match to the data type in Responsys.
+                    eg. Value 1 will be sent as 1 if unchecked and as "1" if checked.`,
+      type: 'boolean',
+      default: false,
+      required: false
+    },
     enable_batching: enable_batching,
     batch_size: batch_size,
     timestamp: {

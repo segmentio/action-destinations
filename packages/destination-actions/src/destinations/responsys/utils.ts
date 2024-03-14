@@ -13,7 +13,7 @@ export const validateCustomTraits = ({
   timestamp: string | number
 }): void => {
   if (shouldRetry(timestamp)) {
-    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.')
+    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.', 429)
   }
   if (
     !(
@@ -80,11 +80,15 @@ export const sendCustomTraits = async (
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => obj.userData)
   }
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
-        ? (userData as Record<string, string>)[fieldName]
-        : ''
+      if ((userData as Record<string, string>) && fieldName in (userData as Record<string, string>)) {
+        const value = (userData as Record<string, string>)[fieldName]
+        return payload[0].stringify_all_data && typeof value !== 'string' ? JSON.stringify(value) : value
+      } else {
+        return ''
+      }
     })
   })
 
