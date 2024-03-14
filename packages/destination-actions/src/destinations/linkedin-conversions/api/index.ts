@@ -26,8 +26,11 @@ export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
 
-  constructor(request: RequestClient, conversionRuleId?: string) {
+  constructor(request: RequestClient) {
     this.request = request
+  }
+
+  setConversionRuleId(conversionRuleId: string): void {
     this.conversionRuleId = conversionRuleId
   }
 

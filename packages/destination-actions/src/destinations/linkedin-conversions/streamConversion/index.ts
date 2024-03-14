@@ -162,10 +162,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         }
       },
       performHook: async (request, { hookInputs, hookOutputs }) => {
-        const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
+        const linkedIn = new LinkedInConversions(request)
 
         let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
         if (hookOutputs?.onMappingSave?.outputs) {
+          linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
+
           hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
             hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
@@ -173,6 +175,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         }
 
         hookReturn = await linkedIn.createConversionRule(hookInputs)
+        if (hookReturn.error || !hookReturn.savedData) {
+          return hookReturn
+        }
+        linkedIn.setConversionRuleId(hookReturn.savedData.id)
 
         try {
           await linkedIn.bulkAssociateCampaignToConversion(hookInputs?.campaignId)
@@ -303,7 +309,9 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       throw new PayloadValidationError('Conversion Rule ID is required.')
     }
 
-    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
+    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
+    linkedinApiClient.setConversionRuleId(conversionRuleId)
+
     try {
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
