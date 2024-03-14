@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     userData: {
-      label: 'Recepient Data',
+      label: 'Recipient Data',
       description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
