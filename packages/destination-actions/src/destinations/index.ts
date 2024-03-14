@@ -156,6 +156,7 @@ register('65cb48feaca9d46bf269ac4a', './accoil-analytics')
 register('6578a19fbd1201d21f035156', './responsys')
 register('65dde5755698cb0dab09b489', './kafka')
 register('65e71d50e1191c6273d1df1d', './kevel-audience')
+register('65f05e455b125cddd886b793', './moloco-rmp')
 
 
 function register(id: MetadataId, destinationPath: string) {
