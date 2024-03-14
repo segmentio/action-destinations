@@ -17,7 +17,8 @@ import {
   OAUTH_ENDPOINT,
   RefreshTokenResponse,
   MarketoListResponse,
-  CREATE_LIST_ENDPOINT
+  CREATE_LIST_ENDPOINT,
+  GET_LIST_ENDPOINT
 } from './constants'
 
 // Keep only the scheme and host from the endpoint
@@ -178,6 +179,37 @@ export async function getAccessToken(request: RequestClient, settings: Settings)
   })
 
   return res.data.access_token
+}
+
+export async function getList(request: RequestClient, settings: Settings, id: string) {
+  const accessToken = await getAccessToken(request, settings)
+  const endpoint = formatEndpoint(settings.api_endpoint)
+
+  const getListUrl = endpoint + GET_LIST_ENDPOINT.replace('listId', id)
+
+  const getListResponse = await request<MarketoListResponse>(getListUrl, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (!getListResponse.data.success && getListResponse.data.errors) {
+    return {
+      error: {
+        message: getListResponse.data.errors[0].message,
+        code: 'LIST_ID_VERIFICATION_FAILURE'
+      }
+    }
+  }
+
+  return {
+    successMessage: `Using existing list ${id}.`,
+    savedData: {
+      id: id,
+      name: getListResponse.data.result[0].name
+    }
+  }
 }
 
 export async function createList(request: RequestClient, input: CreateListInput, statsContext?: StatsContext) {
