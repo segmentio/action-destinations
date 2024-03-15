@@ -2,10 +2,19 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profileExtensionTable?: string }): void => {
+export const validateCustomTraits = ({
+  profileExtensionTable,
+  timestamp
+}: {
+  profileExtensionTable?: string
+  timestamp: string | number
+}): void => {
+  if (shouldRetry(timestamp)) {
+    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.', 429)
+  }
   if (
     !(
       typeof profileExtensionTable !== 'undefined' &&
@@ -19,6 +28,12 @@ export const validateCustomTraitsSettings = ({ profileExtensionTable }: { profil
       400
     )
   }
+}
+
+const RETRY_MINUTES = 2
+
+export const shouldRetry = (timestamp: string | number): boolean => {
+  return (new Date().getTime() - new Date(timestamp).getTime()) / (1000 * 60) < RETRY_MINUTES
 }
 
 export const validateListMemberPayload = ({
@@ -41,6 +56,14 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
+const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
+  const stringifiedObj: Record<string, string> = {}
+  for (const key in obj) {
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
+  }
+  return stringifiedObj
+}
+
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
@@ -54,17 +77,20 @@ export const sendCustomTraits = async (
     userDataArray = audiencePayloads.map((obj) => {
       const traitValue = obj.computation_key
         ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {} // Check if computation_key exists, if yes, add it with value true
+        : {}
+
       userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+
       return {
-        ...obj.userData,
-        ...traitValue
+        ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
+        ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
       }
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
-    userDataArray = customTraitsPayloads.map((obj) => obj.userData)
+    userDataArray = customTraitsPayloads.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
   }
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
@@ -90,6 +116,8 @@ export const sendCustomTraits = async (
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
+
+  console.log(recordData.records)
 
   const response = await request(endpoint.href, {
     method: 'POST',
@@ -130,7 +158,8 @@ export const upsertListMembers = async (
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
-  const userDataArray = payload.map((obj) => obj.userData)
+  const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
