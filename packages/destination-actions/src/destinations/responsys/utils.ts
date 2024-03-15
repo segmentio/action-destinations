@@ -56,10 +56,10 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-const stringifyObject = (obj: Record<string, unknown>) : Record<string, string> => {
+const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
   const stringifiedObj: Record<string, string> = {}
   for (const key in obj) {
-    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key] as string
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
   }
   return stringifiedObj
 }
@@ -77,19 +77,18 @@ export const sendCustomTraits = async (
     userDataArray = audiencePayloads.map((obj) => {
       const traitValue = obj.computation_key
         ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {} 
+        : {}
 
       userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
-      
+
       return {
-        ...(obj.stringify ? stringifyObject(obj.userData): obj.userData),
+        ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
         ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
       }
-
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
-    userDataArray = customTraitsPayloads.map((obj) => obj.stringify ? stringifyObject(obj.userData) : obj.userData)
+    userDataArray = customTraitsPayloads.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
   }
 
   const records: unknown[][] = userDataArray.map((userData) => {
@@ -117,8 +116,6 @@ export const sendCustomTraits = async (
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
-
-  console.log(recordData.records)
 
   const response = await request(endpoint.href, {
     method: 'POST',
@@ -159,7 +156,7 @@ export const upsertListMembers = async (
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
-  const userDataArray = payload.map((obj) => obj.stringify ? stringifyObject(obj.userData) : obj.userData)
+  const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
 
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
