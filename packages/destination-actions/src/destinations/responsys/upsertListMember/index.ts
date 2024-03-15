@@ -64,6 +64,13 @@ const action: ActionDefinition<Settings, Payload> = {
         MOBILE_NUMBER_: { '@path': '$.traits.phone' }
       }
     },
+    stringify: {
+      label: 'Stringify Recipient Data',
+      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     enable_batching: enable_batching,
     batch_size: batch_size
   },

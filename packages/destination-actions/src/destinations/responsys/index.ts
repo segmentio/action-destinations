@@ -162,22 +162,6 @@ const destination: DestinationDefinition<Settings> = {
         description:
           "Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.",
         type: 'string'
-      },
-      stringify_all_data_list: {
-        label: 'Stringify All User Data for Upsert List Member Action',
-        description: `If checked, all User Data in Mappings will be converted to strings before being sent to Responsys. 
-                      For example the value 1 will be sent as "1"`,
-        type: 'boolean',
-        default: false,
-        required: false
-      },
-      stringify_all_data_pet: {
-        label: 'Stringify All User Data for Send Custom Traits/Audience Action',
-        description: `If checked, all User Data in Mappings will be converted to strings before being sent to Responsys. 
-                      For example the value 1 will be sent as "1"`,
-        type: 'boolean',
-        default: false,
-        required: false
       }
     },
     testAuthentication: (_, { settings }) => {

@@ -56,6 +56,14 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
+const stringifyObject = (obj: Record<string, unknown>) : Record<string, string> => {
+  const stringifiedObj: Record<string, string> = {}
+  for (const key in obj) {
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key] as string
+  }
+  return stringifiedObj
+}
+
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
@@ -69,26 +77,26 @@ export const sendCustomTraits = async (
     userDataArray = audiencePayloads.map((obj) => {
       const traitValue = obj.computation_key
         ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {} // Check if computation_key exists, if yes, add it with value true
+        : {} 
+
       userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+      
       return {
-        ...obj.userData,
-        ...traitValue
+        ...(obj.stringify ? stringifyObject(obj.userData): obj.userData),
+        ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
       }
+
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
-    userDataArray = customTraitsPayloads.map((obj) => obj.userData)
+    userDataArray = customTraitsPayloads.map((obj) => obj.stringify ? stringifyObject(obj.userData) : obj.userData)
   }
 
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      if ((userData as Record<string, string>) && fieldName in (userData as Record<string, string>)) {
-        const value = (userData as Record<string, string>)[fieldName]
-        return settings.stringify_all_data_pet && typeof value !== 'string' ? JSON.stringify(value) : value
-      } else {
-        return ''
-      }
+      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
+        ? (userData as Record<string, string>)[fieldName]
+        : ''
     })
   })
 
@@ -109,6 +117,8 @@ export const sendCustomTraits = async (
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
+
+  console.log(recordData.records)
 
   const response = await request(endpoint.href, {
     method: 'POST',
@@ -149,16 +159,13 @@ export const upsertListMembers = async (
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
-  const userDataArray = payload.map((obj) => obj.userData)
+  const userDataArray = payload.map((obj) => obj.stringify ? stringifyObject(obj.userData) : obj.userData)
 
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      if ((userData as Record<string, string>) && fieldName in (userData as Record<string, string>)) {
-        const value = (userData as Record<string, string>)[fieldName]
-        return settings.stringify_all_data_list && typeof value !== 'string' ? JSON.stringify(value) : value
-      } else {
-        return ''
-      }
+      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
+        ? (userData as Record<string, string>)[fieldName]
+        : ''
     })
   })
 
