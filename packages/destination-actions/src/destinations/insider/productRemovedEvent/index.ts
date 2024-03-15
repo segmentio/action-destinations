@@ -9,8 +9,7 @@ import {
   timestamp,
   user_attributes,
   uuid,
-  append_arrays,
-  custom_identifiers
+  append_arrays
 } from '../insider-properties'
 import { API_BASE, sendBulkTrackEvents, sendTrackEvent, UPSERT_ENDPOINT } from '../insider-helpers'
 
@@ -24,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
     append_arrays: { ...append_arrays },
     uuid: { ...uuid },
     segment_anonymous_id: { ...segment_anonymous_id },
-    custom_identifiers: { ...custom_identifiers },
     timestamp: { ...timestamp },
     parameters: {
       ...getEventParameteres([

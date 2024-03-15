@@ -12,8 +12,7 @@ import {
   timestamp,
   user_attributes,
   uuid,
-  append_arrays,
-  custom_identifiers
+  append_arrays
 } from '../insider-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -26,7 +25,6 @@ const action: ActionDefinition<Settings, Payload> = {
     append_arrays: { ...append_arrays },
     uuid: { ...uuid },
     segment_anonymous_id: { ...segment_anonymous_id },
-    custom_identifiers: { ...custom_identifiers },
     event_name: { ...event_name },
     timestamp: { ...timestamp },
     parameters: { ...getEventParameteres([]) },

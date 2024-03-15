@@ -110,8 +110,6 @@ export interface ReplaceDirective extends DirectiveMetadata {
     ignorecase: PrimitiveValue
     pattern: string
     replacement: string
-    pattern2: string
-    replacement2: string
     value?: FieldValue
   }
 }

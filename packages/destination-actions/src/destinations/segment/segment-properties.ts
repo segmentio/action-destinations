@@ -347,8 +347,6 @@ export const traits: InputField = {
 export const enable_batching: InputField = {
   type: 'boolean',
   label: 'Batch Data to segment',
-  description:
-    'This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.',
-  default: false,
-  unsafe_hidden: true
+  description: 'When enabled, the action will send batch data. Segment accepts batches of up to 225 events.',
+  default: true
 }

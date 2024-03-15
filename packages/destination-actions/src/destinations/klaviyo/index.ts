@@ -1,9 +1,4 @@
-import {
-  IntegrationError,
-  AudienceDestinationDefinition,
-  PayloadValidationError,
-  APIError
-} from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import { API_URL } from './config'
@@ -94,16 +89,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const apiKey = getAudienceInput.settings.api_key
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: buildHeaders(apiKey),
-        throwHttpErrors: false
+        headers: buildHeaders(apiKey)
       })
-
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        const klaviyoErrorDetail = errorResponse.errors[0].detail
-        throw new APIError(klaviyoErrorDetail, response.status)
-      }
-
       const r = await response.json()
       const externalId = r.data.id
 

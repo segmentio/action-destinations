@@ -134,7 +134,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         view_through_attribution_window_size: {
           label: 'View-Through Attribution Window Size',
           description:
-            'Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
+            '	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad.',
           type: 'number',
           required: true
         }

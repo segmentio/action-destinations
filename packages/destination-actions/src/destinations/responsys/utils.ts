@@ -13,7 +13,7 @@ export const validateCustomTraits = ({
   timestamp: string | number
 }): void => {
   if (shouldRetry(timestamp)) {
-    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.')
+    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.', 429)
   }
   if (
     !(

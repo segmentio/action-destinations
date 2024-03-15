@@ -36,13 +36,6 @@ export function userProfilePayload(data: UserPayload) {
     }
   }
 
-  if (data.custom_identifiers) {
-    identifiers.custom = {
-      ...identifiers.custom,
-      ...data.custom_identifiers
-    }
-  }
-
   if (data.email_as_identifier) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -141,13 +134,6 @@ export function sendTrackEvent(
     uuid: data.uuid,
     custom: {
       segment_anonymous_id: data.segment_anonymous_id
-    }
-  }
-
-  if (data.custom_identifiers) {
-    identifiers.custom = {
-      ...identifiers.custom,
-      ...data.custom_identifiers
     }
   }
 
@@ -279,8 +265,7 @@ export function bulkUserProfilePayload(data: UserPayload[]) {
     const identifiers = {
       uuid: userPayload.uuid,
       custom: {
-        segment_anonymous_id: userPayload.segment_anonymous_id,
-        ...userPayload.custom_identifiers
+        segment_anonymous_id: userPayload.segment_anonymous_id
       }
     }
 
@@ -393,13 +378,6 @@ export function sendBulkTrackEvents(
       uuid: data.uuid,
       custom: {
         segment_anonymous_id: data.segment_anonymous_id
-      }
-    }
-
-    if (data.custom_identifiers) {
-      identifiers.custom = {
-        ...identifiers.custom,
-        ...data.custom_identifiers
       }
     }
 

@@ -59,6 +59,3 @@ export const SUPPORTED_LOOKBACK_WINDOW_CHOICES: Choice[] = [
   { label: '30 days', value: 30 },
   { label: '90 days', value: 90 }
 ]
-
-export const DEFAULT_POST_CLICK_LOOKBACK_WINDOW = 30
-export const DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW = 7

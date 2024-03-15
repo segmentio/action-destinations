@@ -10,8 +10,7 @@ import {
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
-  emptyStringToUndefined,
-  parseNumberSafe
+  emptyStringToUndefined
 } from './utils'
 import { CURRENCY_ISO_4217_CODES } from '../snap-capi-properties'
 
@@ -71,15 +70,12 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
           brands: products.map((product) => product.brand ?? ''),
           num_items: products.length
         }
-      : (() => {
-          const content_ids = splitListValueToArray(payload.item_ids ?? '')
-          return {
-            content_ids,
-            content_category: splitListValueToArray(payload.item_category ?? ''),
-            brands: payload.brands,
-            num_items: parseNumberSafe(payload.number_items) ?? content_ids?.length
-          }
-        })()
+      : {
+          content_ids: splitListValueToArray(payload.item_ids ?? ''),
+          content_category: splitListValueToArray(payload.item_category ?? ''),
+          brands: payload.brands,
+          num_items: payload.number_items
+        }
 
   // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
   // However the field is required for app events, so hardcode the value to false (0)
@@ -94,8 +90,6 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         '', // app package name
         '', // short version
         '', // long version
-
-        // FIXME: extract from the user agent if available
         payload.os_version ?? '', // os version
         payload.device_model ?? '', // device model name
         '', // local
@@ -168,10 +162,9 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
   const { snap_app_id, pixel_id } = settings
   const snapAppID = emptyStringToUndefined(snap_app_id)
   const snapPixelID = emptyStringToUndefined(pixel_id)
+  const appOrPixelID = snapAppID ?? snapPixelID
 
-  // Some configurations specify both a snapPixelID and a snapAppID. In these cases
-  // check the conversion type to ensure that the right id is selected and used.
-  const appOrPixelID = event_conversion_type === 'WEB' ? snapPixelID : snapAppID
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
@@ -182,8 +175,6 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
     event_conversion_type === 'WEB' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`
   )
-
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
 
   return appOrPixelID
 }
@@ -198,7 +189,7 @@ export const performSnapCAPIv3 = async (
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
   const { event_conversion_type } = payload
-  const authToken = emptyStringToUndefined(data.auth?.accessToken)
+  const authToken = data.auth?.accessToken
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 

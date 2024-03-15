@@ -50,12 +50,6 @@ export interface Payload {
    */
   segment_anonymous_id?: string
   /**
-   * You can select you custom identifiers for the event.
-   */
-  custom_identifiers?: {
-    [k: string]: unknown
-  }
-  /**
    * City
    */
   city?: string
