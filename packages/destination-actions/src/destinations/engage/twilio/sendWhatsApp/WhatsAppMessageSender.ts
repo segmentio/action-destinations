@@ -19,15 +19,39 @@ export class WhatsAppMessageSender extends PhoneMessageSender<Payload> {
 
   @track()
   async getBody(phone: string) {
-    let parsedPhone
+    if (!this.payload.contentSid) {
+      throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
+    }
 
+    const params: Record<string, string> = {
+      ContentSid: this.payload.contentSid,
+      From: this.payload.from,
+      To: this.parsePhoneNumber(phone)
+    }
+    const contentVariables = await this.getVariables()
+
+    if (contentVariables) params['ContentVariables'] = contentVariables
+
+    return new URLSearchParams(params)
+  }
+
+  @track()
+  private parsePhoneNumber(phone: string): string {
+    let parsedPhone
     try {
       // Defaulting to US for now as that's where most users will seemingly be. Though
       // any number already given in e164 format should parse correctly even with the
       // default region being US.
       parsedPhone = phoneUtil.parse(phone, 'US')
+      // parsedPhone will not be valid nor possible if an erroneous region is added to it (US)
+      if (!phoneUtil.isPossibleNumber(parsedPhone) || !phoneUtil.isValidNumber(parsedPhone)) {
+        // the number we received may already have a region code embedded in it but may be missing a "+", or it may be truly invalid
+        // try again, adding a "+" in front of the number
+        parsedPhone = phoneUtil.parse('+' + phone, 'US')
+      }
       parsedPhone = phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
-      parsedPhone = `whatsapp:${parsedPhone}`
+      // return E164 number with whatsapp prepended
+      return `whatsapp:${parsedPhone}`
     } catch (e) {
       const underlyingError = e as Error
       throw new IntegrationError(
@@ -36,21 +60,6 @@ export class WhatsAppMessageSender extends PhoneMessageSender<Payload> {
         400
       )
     }
-
-    if (!this.payload.contentSid) {
-      throw new IntegrationError('A valid whatsApp Content SID was not provided.', `INVALID_CONTENT_SID`, 400)
-    }
-
-    const params: Record<string, string> = {
-      ContentSid: this.payload.contentSid,
-      From: this.payload.from,
-      To: parsedPhone
-    }
-    const contentVariables = await this.getVariables()
-
-    if (contentVariables) params['ContentVariables'] = contentVariables
-
-    return new URLSearchParams(params)
   }
 
   @track({
