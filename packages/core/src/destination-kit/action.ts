@@ -152,6 +152,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  hookInputs?: GenericActionHookValues
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
