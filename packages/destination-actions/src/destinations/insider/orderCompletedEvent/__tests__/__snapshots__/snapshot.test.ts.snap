@@ -50,6 +50,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "^nSY[JM",
+          "testType": "^nSY[JM",
         },
         "email": "ciboba@duzehoc.lt",
         "phone_number": "^nSY[JM",
@@ -81,6 +82,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "^nSY[JM",
+          "testType": "^nSY[JM",
         },
         "uuid": "^nSY[JM",
       },

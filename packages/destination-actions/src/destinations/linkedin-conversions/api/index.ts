@@ -1,5 +1,5 @@
 import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
-import { BASE_URL } from '../constants'
+import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
   ProfileAPIResponse,
   GetAdAccountsAPIResponse,
@@ -56,8 +56,9 @@ export class LinkedInConversions {
           name: data.name || `No name returned for rule: ${conversionRuleId}`,
           conversionType: data.type || `No type returned for rule: ${conversionRuleId}`,
           attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`,
-          post_click_attribution_window_size: data.postClickAttributionWindowSize || 30,
-          view_through_attribution_window_size: data.viewThroughAttributionWindowSize || 7
+          post_click_attribution_window_size: data.postClickAttributionWindowSize || DEFAULT_POST_CLICK_LOOKBACK_WINDOW,
+          view_through_attribution_window_size:
+            data.viewThroughAttributionWindowSize || DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW
         }
       }
     } catch (e) {
@@ -85,8 +86,10 @@ export class LinkedInConversions {
           name: hookInputs?.name,
           account: adAccount,
           conversionMethod: 'CONVERSIONS_API',
-          postClickAttributionWindowSize: hookInputs?.post_click_attribution_window_size || 30,
-          viewThroughAttributionWindowSize: hookInputs?.view_through_attribution_window_size || 7,
+          postClickAttributionWindowSize:
+            hookInputs?.post_click_attribution_window_size || DEFAULT_POST_CLICK_LOOKBACK_WINDOW,
+          viewThroughAttributionWindowSize:
+            hookInputs?.view_through_attribution_window_size || DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW,
           attributionType: hookInputs?.attribution_type,
           type: hookInputs?.conversionType
         }

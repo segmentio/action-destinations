@@ -77,13 +77,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: enable_batching,
     batch_size: batch_size,
-    stringify: {
-      label: 'Stringify Recipient Data',
-      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
-      type: 'boolean',
-      required: true,
-      default: false
-    },
     timestamp: {
       label: 'Timestamp',
       description: 'The timestamp of when the event occurred.',

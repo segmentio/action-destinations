@@ -106,7 +106,7 @@ export interface HookBundle {
        */
       post_click_attribution_window_size: number
       /**
-       * 	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad.
+       * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
        */
       view_through_attribution_window_size: number
     }

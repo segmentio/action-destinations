@@ -77,5 +77,17 @@ export const splitListValueToArray = (input: string): readonly string[] | undefi
   return result.length > 0 ? result : undefined
 }
 
-export const emptyStringToUndefined = (v: string | undefined): string | undefined =>
-  (v ?? '').length > 0 ? v : undefined
+export const emptyStringToUndefined = (v: string | undefined): string | undefined => {
+  const trimmed = v?.trim()
+  return (trimmed ?? '').length > 0 ? trimmed : undefined
+}
+
+export const parseNumberSafe = (v: string | number | undefined): number | undefined => {
+  if (Number.isSafeInteger(v)) {
+    return v as number
+  } else if (v != null) {
+    const parsed = Number.parseInt(String(v) ?? '')
+    return Number.isSafeInteger(parsed) ? parsed : undefined
+  }
+  return undefined
+}

@@ -117,7 +117,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       type: 'string'
     },
     send_page_view: {
-      description: 'Set to false to prevent sending a page_view.',
+      description: 'Selection overrides toggled value set within Settings',
       label: 'Send Page Views',
       type: 'boolean',
       choices: [
@@ -176,12 +176,9 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     if (checkCookiePathDefaultValue) {
       config.cookie_path = settings.cookiePath
     }
-    if (settings.pageView != true) {
-      config.send_page_view = settings.pageView ?? true
-    }
 
-    if (payload.send_page_view != true) {
-      config.send_page_view = payload.send_page_view ?? true
+    if (payload.send_page_view != true || settings.pageView != true) {
+      config.send_page_view = payload.send_page_view ?? settings.pageView ?? true
     }
     if (settings.cookieFlags) {
       config.cookie_flags = settings.cookieFlags

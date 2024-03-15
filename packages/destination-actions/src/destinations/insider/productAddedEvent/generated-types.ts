@@ -22,6 +22,12 @@ export interface Payload {
    */
   segment_anonymous_id?: string
   /**
+   * You can select your custom identifiers for the event.
+   */
+  custom_identifiers?: {
+    [k: string]: unknown
+  }
+  /**
    * When the event occurred
    */
   timestamp: string | number
