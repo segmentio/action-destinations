@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Chartmogul's sendContact destination action: all fields 1`] = `
+Object {
+  "anonymous_id": "xd0rHoH^PTr",
+  "company": Object {
+    "id": "xd0rHoH^PTr",
+    "name": "xd0rHoH^PTr",
+  },
+  "email": "vuha@telwozok.in",
+  "first_name": "xd0rHoH^PTr",
+  "last_name": "xd0rHoH^PTr",
+  "linked_in": "xd0rHoH^PTr",
+  "message_id": "xd0rHoH^PTr",
+  "name": "xd0rHoH^PTr",
+  "phone": "xd0rHoH^PTr",
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "title": "xd0rHoH^PTr",
+  "twitter": "xd0rHoH^PTr",
+  "type": "xd0rHoH^PTr",
+  "user_id": "xd0rHoH^PTr",
+}
+`;
+
+exports[`Testing snapshot for Chartmogul's sendContact destination action: required fields 1`] = `
+Object {
+  "anonymous_id": "xd0rHoH^PTr",
+  "message_id": "xd0rHoH^PTr",
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "type": "xd0rHoH^PTr",
+  "user_id": "xd0rHoH^PTr",
+}
+`;
