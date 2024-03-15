@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The ad account to use for the conversion event.
-   */
-  adAccountId: string
-  /**
    * Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.
    */
   conversionHappenedAt: string
@@ -49,16 +45,20 @@ export interface Payload {
     title?: string
     countryCode?: string
   }
-  /**
-   * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.
-   */
-  campaignId: string[]
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 
 export interface HookBundle {
   onMappingSave: {
     inputs?: {
+      /**
+       * The ad account to use for the conversion event.
+       */
+      adAccountId: string
+      /**
+       * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.
+       */
+      campaignId?: string[]
       /**
        * The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.
        */
@@ -80,7 +80,7 @@ export interface HookBundle {
        */
       post_click_attribution_window_size?: number
       /**
-       * 	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
+       * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
        */
       view_through_attribution_window_size?: number
     }

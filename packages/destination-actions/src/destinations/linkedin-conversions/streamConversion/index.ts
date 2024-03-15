@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, ActionHookResponse } from '@segment/actions-core'
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
@@ -16,6 +16,28 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description:
         'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
       inputFields: {
+        adAccountId: {
+          label: 'Ad Account',
+          description: 'The ad account to use for the conversion event.',
+          type: 'string',
+          required: true,
+          dynamic: async (request) => {
+            const linkedIn = new LinkedInConversions(request)
+            return linkedIn.getAdAccounts()
+          }
+        },
+        campaignId: {
+          label: 'Add Campaigns to Conversion',
+          description:
+            'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.',
+          type: 'string',
+          multiple: true,
+          required: false,
+          dynamic: async (request, { hookInputs }) => {
+            const linkedIn = new LinkedInConversions(request)
+            return linkedIn.getCampaignsList(hookInputs?.adAccountId)
+          }
+        },
         /**
          * The configuration fields for a LinkedIn CAPI conversion rule.
          * Detailed information on these parameters can be found at
@@ -27,9 +49,9 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           description:
             'The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.',
           required: false,
-          dynamic: async (request, { payload }) => {
+          dynamic: async (request, { hookInputs }) => {
             const linkedIn = new LinkedInConversions(request)
-            return linkedIn.getConversionRulesList(payload.adAccountId)
+            return linkedIn.getConversionRulesList(hookInputs?.adAccountId)
           }
         },
         name: {
@@ -93,7 +115,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         view_through_attribution_window_size: {
           label: 'View-Through Attribution Window Size',
           description:
-            '	Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
+            'Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.',
           type: 'number',
           default: 7,
           choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES
@@ -139,29 +161,41 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: true
         }
       },
-      performHook: async (request, { payload, hookInputs, hookOutputs }) => {
-        const linkedIn = new LinkedInConversions(request, hookInputs?.conversionRuleId)
+      performHook: async (request, { hookInputs, hookOutputs }) => {
+        const linkedIn = new LinkedInConversions(request)
 
+        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
         if (hookOutputs?.onMappingSave?.outputs) {
-          return await linkedIn.updateConversionRule(
-            payload.adAccountId,
+          linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
+
+          hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
             hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
         }
 
-        return await linkedIn.createConversionRule(payload.adAccountId, hookInputs)
+        hookReturn = await linkedIn.createConversionRule(hookInputs)
+        if (hookReturn.error || !hookReturn.savedData) {
+          return hookReturn
+        }
+        linkedIn.setConversionRuleId(hookReturn.savedData.id)
+
+        try {
+          await linkedIn.bulkAssociateCampaignToConversion(hookInputs?.campaignId)
+        } catch (error) {
+          return {
+            error: {
+              message: `Failed to associate campaigns to conversion rule, please try again: ${JSON.stringify(error)}`,
+              code: 'ASSOCIATE_CAMPAIGN_TO_CONVERSION_ERROR'
+            }
+          }
+        }
+
+        return hookReturn
       }
     }
   },
   fields: {
-    adAccountId: {
-      label: 'Ad Account',
-      description: 'The ad account to use for the conversion event.',
-      type: 'string',
-      required: true,
-      dynamic: true
-    },
     conversionHappenedAt: {
       label: 'Timestamp',
       description:
@@ -258,25 +292,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: false
         }
       }
-    },
-    campaignId: {
-      label: 'Campaigns',
-      type: 'string',
-      multiple: true,
-      required: true,
-      dynamic: true,
-      description:
-        'Select one or more advertising campaigns from your ad account to associate with the configured conversion rule.'
-    }
-  },
-  dynamicFields: {
-    adAccountId: async (request) => {
-      const linkedIn = new LinkedInConversions(request)
-      return linkedIn.getAdAccounts()
-    },
-    campaignId: async (request, { payload }) => {
-      const linkedIn = new LinkedInConversions(request)
-      return linkedIn.getCampaignsList(payload.adAccountId)
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
@@ -294,9 +309,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       throw new PayloadValidationError('Conversion Rule ID is required.')
     }
 
-    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request, conversionRuleId)
+    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
+    linkedinApiClient.setConversionRuleId(conversionRuleId)
+
     try {
-      await linkedinApiClient.bulkAssociateCampaignToConversion(payload.campaignId)
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       throw handleRequestError(error)
