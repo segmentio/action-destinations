@@ -70,7 +70,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should send WhatsApp for partially formatted E164 number in non-default region', async () => {
       // EU number without "+"
-      const phone = '447720376181'
+      const phone = '441112276181'
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
@@ -101,7 +101,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     it('should send WhatsApp for fully formatted E164 number in non-default region', async () => {
       // EU number with "+"
-      const phone = '+447720376181'
+      const phone = '+441112276181'
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
@@ -131,7 +131,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should send WhatsApp for partially formatted E164 number in default region "US"', async () => {
-      const phone = '16146369373'
+      const phone = '11116369373'
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
@@ -158,7 +158,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     })
 
     it('should send WhatsApp for fully formatted E164 number in default region "US"', async () => {
-      const phone = '+11231233212'
+      const phone = '+11116369373'
       const expectedTwilioRequest = new URLSearchParams({
         ContentSid: defaultTemplateSid,
         From: 'MG1111222233334444',
