@@ -76,7 +76,11 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     storage.set('analytics_session_id.last_access', newSession)
 
-    if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
+    if (
+      context.event.integrations?.All !== false ||
+      context.event.integrations['Actions Amplitude'] ||
+      context.event.integrations['Amplitude (Actions)']
+    ) {
       context.updateEvent('integrations.Actions Amplitude', {})
       context.updateEvent('integrations.Actions Amplitude.session_id', id)
     }
