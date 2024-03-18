@@ -67,7 +67,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
     products.length > 0
       ? {
           content_ids: products.map(({ item_id }) => item_id),
-          content_category: products.map(({ item_category }) => item_category),
+          content_category: products.map(({ item_category }) => item_category ?? ''),
           brands: products.map((product) => product.brand ?? ''),
           num_items: products.length
         }
