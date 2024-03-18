@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
         list_name: {
           type: 'string',
           label: 'List Name',
-          description: 'The Name of the Marketo Static List that you would like to create.',
+          description: 'The name of the Marketo Static List that you would like to create.',
           required: false
         }
       },
