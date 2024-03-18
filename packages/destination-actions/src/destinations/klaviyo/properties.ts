@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const list_id: InputField = {
   label: 'List Id',
-  description: "'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'",
+  description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
   type: 'string',
   default: {
     '@path': '$.context.personas.external_audience_id'
