@@ -42,44 +42,8 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
-export const formatPayload = (payload: Payload, settings: Settings): object => {
+const buildAppData = (payload: Payload, settings: Settings) => {
   const app_id = emptyStringToUndefined(settings.app_id)
-
-  // event_conversion_type is a required parameter whose value is enforced as
-  // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
-  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
-
-  const event_id = emptyStringToUndefined(payload.client_dedup_id)
-
-  // Removes all leading and trailing whitespace and converts all characters to lowercase.
-  const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
-
-  // Removes all non-numberic characters and leading zeros.
-  const phone_number = hash(payload.phone_number?.replace(/\D|^0+/g, ''))
-
-  // Converts all characters to lowercase
-  const madid = payload.mobile_ad_id?.toLowerCase()
-
-  // If customer populates products array, use it instead of the individual fields
-  const products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
-
-  const { content_ids, content_category, brands, num_items } =
-    products.length > 0
-      ? {
-          content_ids: products.map(({ item_id }) => item_id),
-          content_category: products.map(({ item_category }) => item_category ?? ''),
-          brands: products.map((product) => product.brand ?? ''),
-          num_items: products.length
-        }
-      : (() => {
-          const content_ids = splitListValueToArray(payload.item_ids ?? '')
-          return {
-            content_ids,
-            content_category: splitListValueToArray(payload.item_category ?? ''),
-            brands: payload.brands,
-            num_items: parseNumberSafe(payload.number_items) ?? content_ids?.length
-          }
-        })()
 
   // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
   // However the field is required for app events, so hardcode the value to false (0)
@@ -112,14 +76,80 @@ export const formatPayload = (payload: Payload, settings: Settings): object => {
     : undefined
 
   // Only set app data for app events
-  const app_data =
-    action_source === 'app'
-      ? emptyObjectToUndefined({
-          app_id,
-          advertiser_tracking_enabled,
-          extinfo
-        })
-      : undefined
+  return emptyObjectToUndefined({
+    app_id,
+    advertiser_tracking_enabled,
+    extinfo
+  })
+}
+
+const buildUserData = (payload: Payload) => {
+  // Removes all leading and trailing whitespace and converts all characters to lowercase.
+  const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
+
+  // Removes all non-numberic characters and leading zeros.
+  const phone_number = hash(payload.phone_number?.replace(/\D|^0+/g, ''))
+
+  // Converts all characters to lowercase
+  const madid = payload.mobile_ad_id?.toLowerCase()
+
+  return emptyObjectToUndefined({
+    client_ip_address: payload.ip_address,
+    client_user_agent: payload.user_agent,
+    em: box(email),
+    idfv: payload.idfv,
+    madid,
+    ph: box(phone_number),
+    sc_click_id: payload.click_id,
+    sc_cookie1: payload.uuid_c1
+  })
+}
+
+const buildCustomData = (payload: Payload) => {
+  // If customer populates products array, use it instead of the individual fields
+  const products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
+
+  const { content_ids, content_category, brands, num_items } =
+    products.length > 0
+      ? {
+          content_ids: products.map(({ item_id }) => item_id),
+          content_category: products.map(({ item_category }) => item_category ?? ''),
+          brands: products.map((product) => product.brand ?? ''),
+          num_items: products.length
+        }
+      : (() => {
+          const content_ids = splitListValueToArray(payload.item_ids ?? '')
+          return {
+            content_ids,
+            content_category: splitListValueToArray(payload.item_category ?? ''),
+            brands: payload.brands,
+            num_items: parseNumberSafe(payload.number_items) ?? content_ids?.length
+          }
+        })()
+
+  return emptyObjectToUndefined({
+    brands,
+    content_category,
+    content_ids,
+    currency: payload.currency,
+    num_items,
+    order_id: emptyStringToUndefined(payload.transaction_id),
+    search_string: payload.search_string,
+    sign_up_method: payload.sign_up_method,
+    value: payload.price
+  })
+}
+
+export const formatPayload = (payload: Payload, settings: Settings): object => {
+  // event_conversion_type is a required parameter whose value is enforced as
+  // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
+  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
+
+  const event_id = emptyStringToUndefined(payload.client_dedup_id)
+
+  const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
+  const user_data = buildUserData(payload)
+  const custom_data = buildCustomData(payload)
 
   const result = {
     data: [
@@ -132,28 +162,8 @@ export const formatPayload = (payload: Payload, settings: Settings): object => {
         event_name: payload.event_type,
         event_source_url: payload.page_url,
         event_time: Date.parse(payload.timestamp),
-        user_data: emptyObjectToUndefined({
-          client_ip_address: payload.ip_address,
-          client_user_agent: payload.user_agent,
-          em: box(email),
-          idfv: payload.idfv,
-          madid,
-          ph: box(phone_number),
-          sc_click_id: payload.click_id,
-          sc_cookie1: payload.uuid_c1
-        }),
-        custom_data: emptyObjectToUndefined({
-          brands,
-          content_category,
-          content_ids,
-          currency: payload.currency,
-          num_items,
-          order_id: emptyStringToUndefined(payload.transaction_id),
-          search_string: payload.search_string,
-          sign_up_method: payload.sign_up_method,
-          value: payload.price
-        }),
-
+        user_data,
+        custom_data,
         action_source,
         app_data
       }
