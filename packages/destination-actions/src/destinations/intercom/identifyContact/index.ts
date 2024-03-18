@@ -25,15 +25,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'External ID',
       default: {
         '@path': '$.userId'
-      },
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'role',
-            operator: 'is_not',
-            value: 'lead'
-          }
-        ]
       }
     },
     email: {
