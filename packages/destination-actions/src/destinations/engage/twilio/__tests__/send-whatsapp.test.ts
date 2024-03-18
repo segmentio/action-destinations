@@ -39,6 +39,36 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(responses.length).toEqual(0)
     })
 
+    it('should abort when there are no external IDs in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: []
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is an empty `phone` external ID in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '', subscriptionStatus: 'subscribed' }]
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is a null `phone` external ID in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: null, subscriptionStatus: 'subscribed' }]
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
     it('should abort when there is no `channelType` in the external ID payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
