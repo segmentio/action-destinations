@@ -7,6 +7,8 @@ import { API_URL } from './config'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Mantle (Actions)',
+  description:
+    'Track important revenue metrics for your Shopify apps. Manage plans and pricing. Improve customer relationships. Focus on growing your business.',
   slug: 'actions-mantle',
   mode: 'cloud',
 

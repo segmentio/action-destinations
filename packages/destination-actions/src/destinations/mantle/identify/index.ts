@@ -15,32 +15,40 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The unique identifier for the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle',
       type: 'string',
-      required: true
+      required: true,
+      default: { '@path': '$.traits.shopId' }
     },
     myshopifyDomain: {
       label: 'Shopify Shop Domain',
       description:
         'The unique .myshopify.com domain of the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle',
       type: 'string',
-      required: true
+      required: true,
+      default: { '@path': '$.traits.shopifyDomain' }
     },
     name: {
       label: 'Name',
       description: 'The name of the customer / shop',
       type: 'string',
-      required: false
+      required: false,
+      default: { '@path': '$.traits.name' }
     },
     email: {
       label: 'Email',
       description: 'The email of the customer',
       type: 'string',
-      required: false
+      required: false,
+      default: { '@path': '$.traits.email' }
     },
     customFields: {
       label: 'Custom Fields',
       description: 'The custom fields of the customer / shop',
       type: 'object',
-      required: false
+      required: false,
+      defaultObjectUI: 'keyvalue',
+      default: {
+        '@path': '$.traits'
+      }
     }
   },
   perform: (request, data) => {
