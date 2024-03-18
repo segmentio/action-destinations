@@ -308,23 +308,24 @@ export class LinkedInConversions {
     }
   }
 
-  private parseIdFromUrn = (urn?: string): [string, boolean] => {
+  private parseIdFromUrn = (urn?: string): string | undefined => {
     if (!urn) {
-      return ['', true]
+      return
     }
 
     const parts = urn.split(':')
     const id = parts.pop()
     if (!id) {
-      return ['', true]
+      return
     }
 
-    return [id, false]
+    return id
   }
-  getCampaignsList = async (adAccountUrn?: string): Promise<DynamicFieldResponse> => {
-    const [adAccountId, err] = this.parseIdFromUrn(adAccountUrn)
 
-    if (err) {
+  getCampaignsList = async (adAccountUrn?: string): Promise<DynamicFieldResponse> => {
+    const adAccountId = this.parseIdFromUrn(adAccountUrn)
+
+    if (!adAccountId) {
       return {
         choices: [],
         error: {
