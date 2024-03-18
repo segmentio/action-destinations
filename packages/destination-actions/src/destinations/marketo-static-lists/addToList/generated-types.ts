@@ -54,7 +54,7 @@ export interface HookBundle {
        */
       list_id?: string
       /**
-       * The Name of the Marketo Static List that you would like to create.
+       * The name of the Marketo Static List that you would like to create.
        */
       list_name?: string
     }
