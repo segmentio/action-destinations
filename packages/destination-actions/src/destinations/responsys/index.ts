@@ -9,8 +9,8 @@ interface RefreshTokenResponse {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Responsys Cloud (Actions)',
-  slug: 'actions-responsys-cloud',
+  name: 'Responsys (Actions)',
+  slug: 'actions-responsys',
   mode: 'cloud',
   description: 'Send Profile List Member and Profile Extension Table data to Responsys.',
   authentication: {
