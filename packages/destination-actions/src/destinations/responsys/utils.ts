@@ -2,18 +2,29 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, PayloadValidationError, RetryableError, StatsContext } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const validateCustomTraits = ({
   profileExtensionTable,
-  timestamp
+  timestamp, 
+  statsContext
 }: {
   profileExtensionTable?: string
-  timestamp: string | number
+  timestamp: string | number,
+  statsContext: StatsContext | undefined
 }): void => {
+  const statsClient = statsContext?.statsClient
+  const statsTag = statsContext?.tags
   if (shouldRetry(timestamp)) {
+    if (statsClient && statsTag) {
+      statsClient?.incr('responsysShouldRetryTRUE', 1, statsTag)
+    }
     throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.', 429)
+  } else {
+    if (statsClient && statsTag) {
+      statsClient?.incr('responsysShouldRetryFALSE', 1, statsTag)
+    }
   }
   if (
     !(
