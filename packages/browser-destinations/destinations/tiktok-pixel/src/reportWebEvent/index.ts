@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatPhone } from './formatter'
+import { formatPhone, handleArrayInput } from './formatter'
 import { TikTokPixel } from '../types'
 import { commonFields } from '../common_fields'
 
@@ -17,9 +17,9 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   perform: (ttq, { payload }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
       ttq.identify({
-        email: payload.email,
-        phone_number: formatPhone(payload.phone_number),
-        external_id: payload.external_id
+        email: handleArrayInput(payload.email),
+        phone_number: formatPhone(handleArrayInput(payload.phone_number)),
+        external_id: handleArrayInput(payload.external_id)
       })
     }
 
@@ -28,8 +28,8 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
       {
         contents: payload.contents ? payload.contents : [],
         content_type: payload.content_type ? payload.content_type : undefined,
-        currency: payload.currency ? payload.currency : undefined,
-        value: payload.value ? payload.value : undefined,
+        currency: payload.currency ? payload.currency : 'USD',
+        value: payload.value ? payload.value : 0,
         query: payload.query ? payload.query : undefined,
         description: payload.description ? payload.description : undefined,
         order_id: payload.order_id ? payload.order_id : undefined,

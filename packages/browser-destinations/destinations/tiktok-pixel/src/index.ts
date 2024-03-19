@@ -217,19 +217,21 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       type: 'boolean',
       description:
         'In order to help facilitate advertiser\'s compliance with the right to opt-out of sale and sharing of personal data under certain U.S. state privacy laws, TikTok offers a Limited Data Use ("LDU") feature. For more information, please refer to TikTok\'s [documentation page](https://business-api.tiktok.com/portal/docs?id=1770092377990145).'
+    },
+    useExistingPixel: {
+      // TODO: HOW TO DELETE (reusing will not include Segment Partner name)
+      label: 'Use Existing Pixel',
+      type: 'boolean',
+      default: false,
+      description:
+        'Important! Changing this setting may block data collection to Segment if not done correctly. Select "true" to use an existing TikTok Pixel which is already installed on your website. The Pixel MUST be installed on your website when this is set to "true" or all data collection to Segment may fail.'
     }
-    // useExistingPixel: {  // TODO: HOW TO DELETE (reusing will not include Segment Partner name)
-    //   label: 'Use Existing Pixel',
-    //   type: 'boolean',
-    //   description:
-    //     'Important! Changing this setting may block data collection to Segment if not done correctly. Select "true" to use an existing TikTok Pixel which is already installed on your website. The Pixel MUST be installed on your website when this is set to "true" or all data collection to Segment may fail.'
-    // }
   },
   initialize: async ({ settings }, deps) => {
-    // if (!settings.useExistingPixel) {
-    //   initScript(settings.pixelCode)
-    // }
-    initScript(settings)
+    if (!settings.useExistingPixel) {
+      initScript(settings)
+    }
+
     await deps.resolveWhen(() => window.ttq != null, 100)
     return window.ttq
   },

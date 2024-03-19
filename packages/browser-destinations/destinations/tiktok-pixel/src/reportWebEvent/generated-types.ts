@@ -12,11 +12,11 @@ export interface Payload {
   /**
    * A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.
    */
-  phone_number?: string
+  phone_number?: string[]
   /**
    * A single email address. TikTok Pixel will be hash this value before sending to TikTok.
    */
-  email?: string
+  email?: string[]
   /**
    * Order ID of the transaction.
    */
@@ -28,7 +28,7 @@ export interface Payload {
   /**
    * Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.
    */
-  external_id?: string
+  external_id?: string[]
   /**
    * Related item details for the event.
    */

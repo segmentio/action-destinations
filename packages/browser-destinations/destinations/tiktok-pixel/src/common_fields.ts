@@ -21,6 +21,7 @@ export const commonFields: Record<string, InputField> = {
     description:
       'A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.',
     type: 'string',
+    multiple: true,
     default: {
       '@if': {
         exists: { '@path': '$.properties.phone' },
@@ -33,6 +34,7 @@ export const commonFields: Record<string, InputField> = {
     label: 'Email',
     description: 'A single email address. TikTok Pixel will be hash this value before sending to TikTok.',
     type: 'string',
+    multiple: true,
     default: {
       '@if': {
         exists: { '@path': '$.properties.email' },
@@ -62,6 +64,7 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.',
     type: 'string',
+    multiple: true,
     default: {
       '@if': {
         exists: { '@path': '$.userId' },
