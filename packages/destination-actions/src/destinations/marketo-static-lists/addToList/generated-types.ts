@@ -35,7 +35,7 @@ export interface Payload {
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 
 export interface HookBundle {
-  onMappingSave: {
+  retlOnMappingSave: {
     inputs?: {
       /**
        * The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.
