@@ -169,7 +169,8 @@ function parseErrorResponse(response: MarketoResponse) {
 }
 
 export async function getAccessToken(request: RequestClient, settings: Settings) {
-  const res = await request<RefreshTokenResponse>(`${settings.api_endpoint}/${OAUTH_ENDPOINT}`, {
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+  const res = await request<RefreshTokenResponse>(`${api_endpoint}/${OAUTH_ENDPOINT}`, {
     method: 'POST',
     body: new URLSearchParams({
       client_id: settings.client_id,
