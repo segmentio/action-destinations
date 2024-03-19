@@ -22,7 +22,7 @@ export const email: InputField = {
 }
 
 export const external_id: InputField = {
-  label: 'External ID',
+  label: `External ID`,
   description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.`,
   type: 'string'
 }
