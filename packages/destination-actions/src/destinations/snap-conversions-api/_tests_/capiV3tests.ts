@@ -200,7 +200,7 @@ export const capiV3tests = () =>
             event_conversion_type: 'MOBILE_APP'
           }
         })
-      ).rejects.toThrowError('If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined')
+      ).rejects.toThrowError('If event conversion type is "MOBILE_APP" then Snap App ID must be defined')
     })
 
     it('should handle an offline event conversion type', async () => {

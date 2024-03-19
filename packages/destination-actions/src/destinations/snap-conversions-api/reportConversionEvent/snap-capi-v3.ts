@@ -67,7 +67,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
     products.length > 0
       ? {
           content_ids: products.map(({ item_id }) => item_id),
-          content_category: products.map(({ item_category }) => item_category),
+          content_category: products.map(({ item_category }) => item_category ?? ''),
           brands: products.map((product) => product.brand ?? ''),
           num_items: products.length
         }
@@ -171,11 +171,26 @@ export const validateAppOrPixelID = (settings: Settings, event_conversion_type: 
 
   // Some configurations specify both a snapPixelID and a snapAppID. In these cases
   // check the conversion type to ensure that the right id is selected and used.
-  const appOrPixelID = event_conversion_type === 'WEB' ? snapPixelID : snapAppID
+  const appOrPixelID = (() => {
+    switch (event_conversion_type) {
+      case 'WEB':
+      case 'OFFLINE':
+        return snapPixelID
+      case 'MOBILE_APP':
+        return snapAppID
+      default:
+        return undefined
+    }
+  })()
+
+  raiseMisconfiguredRequiredFieldErrorIf(
+    event_conversion_type === 'OFFLINE' && isNullOrUndefined(snapPixelID),
+    'If event conversion type is "OFFLINE" then Pixel ID must be defined'
+  )
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
-    'If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined'
+    'If event conversion type is "MOBILE_APP" then Snap App ID must be defined'
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
