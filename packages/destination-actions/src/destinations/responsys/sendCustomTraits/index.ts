@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     userData: {
-      label: 'Recepient Data',
+      label: 'Recipient Data',
       description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
@@ -39,6 +39,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: enable_batching,
     batch_size: batch_size,
+    stringify: {
+      label: 'Stringify Recipient Data',
+      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     timestamp: {
       label: 'Timestamp',
       description: 'The timestamp of when the event occurred.',
@@ -52,11 +59,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const { payload, settings } = data
+    const { payload, settings, statsContext } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload.timestamp })
+    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload.timestamp, statsContext: statsContext })
 
     validateListMemberPayload(payload.userData)
 
@@ -64,11 +71,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, data) => {
-    const { payload, settings } = data
+    const { payload, settings, statsContext } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload[0].timestamp })
+    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload[0].timestamp, statsContext: statsContext })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }

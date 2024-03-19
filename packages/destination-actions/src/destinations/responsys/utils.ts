@@ -2,18 +2,29 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError, RetryableError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, PayloadValidationError, RetryableError, StatsContext } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const validateCustomTraits = ({
   profileExtensionTable,
-  timestamp
+  timestamp, 
+  statsContext
 }: {
   profileExtensionTable?: string
-  timestamp: string | number
+  timestamp: string | number,
+  statsContext: StatsContext | undefined
 }): void => {
+  const statsClient = statsContext?.statsClient
+  const statsTag = statsContext?.tags
   if (shouldRetry(timestamp)) {
-    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.')
+    if (statsClient && statsTag) {
+      statsClient?.incr('responsysShouldRetryTRUE', 1, statsTag)
+    }
+    throw new RetryableError('Event timestamp is within the retry window. Artificial delay to retry this event.', 429)
+  } else {
+    if (statsClient && statsTag) {
+      statsClient?.incr('responsysShouldRetryFALSE', 1, statsTag)
+    }
   }
   if (
     !(
@@ -56,6 +67,14 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
+const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
+  const stringifiedObj: Record<string, string> = {}
+  for (const key in obj) {
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
+  }
+  return stringifiedObj
+}
+
 export const sendCustomTraits = async (
   request: RequestClient,
   payload: CustomTraitsPayload[] | AudiencePayload[],
@@ -69,17 +88,20 @@ export const sendCustomTraits = async (
     userDataArray = audiencePayloads.map((obj) => {
       const traitValue = obj.computation_key
         ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {} // Check if computation_key exists, if yes, add it with value true
+        : {}
+
       userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+
       return {
-        ...obj.userData,
-        ...traitValue
+        ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
+        ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
       }
     })
   } else {
     const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
-    userDataArray = customTraitsPayloads.map((obj) => obj.userData)
+    userDataArray = customTraitsPayloads.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
   }
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
@@ -145,7 +167,8 @@ export const upsertListMembers = async (
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
-  const userDataArray = payload.map((obj) => obj.userData)
+  const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
+
   const records: unknown[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
