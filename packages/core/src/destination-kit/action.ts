@@ -49,7 +49,7 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 }
 
-type HookValueTypes = string | boolean | number
+type HookValueTypes = string | boolean | number | Array<string | boolean | number>
 type GenericActionHookValues = Record<string, HookValueTypes>
 
 type GenericActionHookBundle = {
@@ -152,6 +152,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  hookInputs?: GenericActionHookValues
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {

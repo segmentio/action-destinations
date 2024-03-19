@@ -26,8 +26,11 @@ export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
 
-  constructor(request: RequestClient, conversionRuleId?: string) {
+  constructor(request: RequestClient) {
     this.request = request
+  }
+
+  setConversionRuleId(conversionRuleId: string): void {
     this.conversionRuleId = conversionRuleId
   }
 
@@ -72,11 +75,19 @@ export class LinkedInConversions {
   }
 
   createConversionRule = async (
-    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    if (!hookInputs?.adAccountId) {
+      return {
+        error: {
+          message: `Failed to create conversion rule: No Ad Account selected.`,
+          code: 'CONVERSION_RULE_CREATION_FAILURE'
+        }
+      }
+    }
+
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
+      return this.getConversionRule(hookInputs.adAccountId, hookInputs?.conversionRuleId)
     }
 
     try {
@@ -84,7 +95,7 @@ export class LinkedInConversions {
         method: 'post',
         json: {
           name: hookInputs?.name,
-          account: adAccount,
+          account: hookInputs.adAccountId,
           conversionMethod: 'CONVERSIONS_API',
           postClickAttributionWindowSize:
             hookInputs?.post_click_attribution_window_size || DEFAULT_POST_CLICK_LOOKBACK_WINDOW,
@@ -117,7 +128,6 @@ export class LinkedInConversions {
   }
 
   updateConversionRule = async (
-    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs'],
     hookOutputs: HookBundle['onMappingSave']['outputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
@@ -130,8 +140,17 @@ export class LinkedInConversions {
       }
     }
 
+    if (!hookInputs?.adAccountId) {
+      return {
+        error: {
+          message: `Failed to update conversion rule: No Ad Account selected.`,
+          code: 'CONVERSION_RULE_UPDATE_FAILURE'
+        }
+      }
+    }
+
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
+      return this.getConversionRule(hookInputs.adAccountId, hookInputs?.conversionRuleId)
     }
 
     const valuesChanged = this.conversionRuleValuesUpdated(hookInputs, hookOutputs)
@@ -162,7 +181,7 @@ export class LinkedInConversions {
       await this.request<ConversionRuleUpdateResponse>(`${BASE_URL}/conversions/${hookOutputs.id}`, {
         method: 'post',
         searchParams: {
-          account: adAccount
+          account: hookInputs.adAccountId
         },
         headers: {
           'X-RestLi-Method': 'PARTIAL_UPDATE',
@@ -237,7 +256,7 @@ export class LinkedInConversions {
     }
   }
 
-  getConversionRulesList = async (adAccountId: string): Promise<DynamicFieldResponse> => {
+  getConversionRulesList = async (adAccountId?: string): Promise<DynamicFieldResponse> => {
     if (!adAccountId || !adAccountId.length) {
       return {
         choices: [],
@@ -289,11 +308,24 @@ export class LinkedInConversions {
     }
   }
 
-  getCampaignsList = async (adAccountUrn: string): Promise<DynamicFieldResponse> => {
-    const parts = adAccountUrn.split(':')
-    const adAccountId = parts.pop()
+  private parseIdFromUrn = (urn?: string): string | undefined => {
+    if (!urn) {
+      return
+    }
 
-    if (!adAccountId || !adAccountId.length) {
+    const parts = urn.split(':')
+    const id = parts.pop()
+    if (!id) {
+      return
+    }
+
+    return id
+  }
+
+  getCampaignsList = async (adAccountUrn?: string): Promise<DynamicFieldResponse> => {
+    const adAccountId = this.parseIdFromUrn(adAccountUrn)
+
+    if (!adAccountId) {
       return {
         choices: [],
         error: {
@@ -354,7 +386,12 @@ export class LinkedInConversions {
     })
   }
 
-  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+  async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
+    // Associating campaigns is not required to create or update a conversion rule, or to stream a conversion event
+    if (!campaignIds || campaignIds.length === 0) {
+      return
+    }
+
     if (campaignIds.length === 1) {
       return this.associateCampignToConversion(campaignIds[0])
     }
