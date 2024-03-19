@@ -208,6 +208,7 @@ interface AuthSettings<Settings> {
 interface RefreshAuthSettings<Settings> {
   settings: Settings
   auth: OAuth2ClientCredentials
+  statsContext?: StatsContext
 }
 
 interface Authentication<Settings> {
@@ -421,7 +422,73 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
   }
 
-  async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
+  audienceRunnerFactory = (
+    operation: 'create' | 'get',
+    audienceDefinition: AudienceDestinationDefinition,
+    requestClient: ReturnType<typeof createRequestClient>,
+    audienceInput: CreateAudienceInput<Settings, AudienceSettings> | GetAudienceInput<Settings, AudienceSettings>
+  ) => {
+    const run = async () => {
+      if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+        throw new Error('Unexpected call to createAudience')
+      }
+
+      switch (operation) {
+        case 'create':
+          return await audienceDefinition.audienceConfig?.createAudience(
+            requestClient,
+            audienceInput as CreateAudienceInput<Settings, AudienceSettings>
+          )
+        case 'get':
+          return await audienceDefinition.audienceConfig?.getAudience(
+            requestClient,
+            audienceInput as GetAudienceInput<Settings, AudienceSettings>
+          )
+      }
+    }
+
+    return run
+  }
+
+  audienceRetryFactory = (destinationSettings: Settings, settings: JSONObject, options?: OnEventOptions) => {
+    const onFailedAttempt = async (error: any) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      // Copied from onSubscriptions -> I don't think this options object will have the onTokenRefresh function...
+
+      if (options) {
+        await options?.onTokenRefresh?.(newTokens)
+      }
+    }
+    return onFailedAttempt
+  }
+
+  async createAudience(
+    createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>,
+    requestOptions?: OnEventOptions
+  ) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
@@ -437,10 +504,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+    const run = this.audienceRunnerFactory('create', audienceDefinition, requestClient, createAudienceInput)
+    const onFailedAttempt = this.audienceRetryFactory(
+      destinationSettings,
+      createAudienceInput.settings as unknown as JSONObject,
+      requestOptions
+    )
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
-  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
+  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>, requestOptions?: OnEventOptions) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
@@ -456,7 +529,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+    const run = this.audienceRunnerFactory('get', audienceDefinition, requestClient, getAudienceInput)
+    const onFailedAttempt = this.audienceRetryFactory(
+      destinationSettings,
+      getAudienceInput.settings as unknown as JSONObject,
+      requestOptions
+    )
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   async testAuthentication(settings: Settings): Promise<void> {
@@ -491,7 +570,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   async refreshAccessToken(
     settings: Settings,
     oauthData: OAuth2ClientCredentials,
-    synchronizeRefreshAccessToken?: () => Promise<void>
+    synchronizeRefreshAccessToken?: () => Promise<void>,
+    requestOptions?: OnEventOptions
   ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
@@ -517,7 +597,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     // Invoke synchronizeRefreshAccessToken handler if synchronizeRefreshAccessToken option is passed.
     // This will ensure that there is only one active refresh happening at a time.
     await synchronizeRefreshAccessToken?.()
-    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+    return this.authentication.refreshAccessToken(requestClient, {
+      settings,
+      auth: oauthData,
+      statsContext: requestOptions?.statsContext
+    })
   }
 
   private partnerAction(
