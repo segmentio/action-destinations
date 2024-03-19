@@ -59,3 +59,9 @@ export const properties: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.'
+}

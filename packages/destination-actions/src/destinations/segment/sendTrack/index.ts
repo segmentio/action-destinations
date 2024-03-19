@@ -21,6 +21,7 @@ import {
   group_id,
   properties,
   traits,
+  message_id,
   enable_batching
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
@@ -49,6 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties,
     traits,
+    message_id,
     enable_batching
   },
   perform: (_request, { payload, statsContext }) => {
@@ -80,6 +82,7 @@ function convertPayload(data: Payload) {
     anonymousId: data?.anonymous_id,
     timestamp: data?.timestamp,
     event: data?.event_name,
+    messageId: data?.message_id,
     context: {
       traits: {
         ...data?.traits
