@@ -15,16 +15,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The unique identifier for the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle',
       type: 'string',
-      required: true,
-      default: { '@path': '$.traits.shopId' }
+      required: true
     },
     myshopifyDomain: {
       label: 'Shopify Shop Domain',
       description:
         'The unique .myshopify.com domain of the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle',
       type: 'string',
-      required: true,
-      default: { '@path': '$.traits.shopifyDomain' }
+      required: true
     },
     name: {
       label: 'Name',
@@ -47,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       defaultObjectUI: 'keyvalue',
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits.custom_fields'
       }
     }
   },

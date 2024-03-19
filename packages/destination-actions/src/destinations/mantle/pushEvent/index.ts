@@ -28,8 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The unique identifier for the customer. This is used to associate the event with a customer in Mantle. It can be the internal customer ID, API token, Shopify shop ID, or Shopify shop domain',
       type: 'string',
-      required: true,
-      default: { '@path': '$.properties.shopifyDomain' }
+      required: true
     },
     properties: {
       label: 'Event Properties',
