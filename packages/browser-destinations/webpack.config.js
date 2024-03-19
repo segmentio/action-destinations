@@ -62,6 +62,7 @@ const unobfuscatedOutput = {
   entry: entries,
   mode: process.env.NODE_ENV || 'development',
   devtool: 'source-map',
+  target: ['web', 'es5'],
   output: {
     chunkFilename: '[name]/[contenthash].js',
     filename: (file) =>
@@ -153,5 +154,4 @@ const obfuscatedOutput = {
     }
   }
 }
-
 module.exports = [unobfuscatedOutput, obfuscatedOutput]
