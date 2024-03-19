@@ -44,3 +44,9 @@ export const timestamp: InputField = {
     '@path': '$.timestamp'
   }
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.'
+}
