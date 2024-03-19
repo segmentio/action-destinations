@@ -128,12 +128,6 @@ describe('Order Completed', () => {
 
     nock(`${API_URL}`).post(`/events/`, requestBodyForEvent).reply(202, {})
 
-    // const requestBodyForProduct = createRequestBody(
-    //   { ...products[0].properties, ...properties },
-    //   products[0].value,
-    //   'Ordered Product',
-    //   profile
-    // )
     nock(`${API_URL}`)
       .post(`/events/`, (body) => {
         // Validate that body has the correct structure using function

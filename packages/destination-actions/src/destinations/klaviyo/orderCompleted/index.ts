@@ -40,6 +40,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
   }
 
   const productPromises = payload.products.map((product) => {
+    delete orderEventData.data.attributes.properties?.products
     const productEventData = {
       data: {
         type: 'event',
