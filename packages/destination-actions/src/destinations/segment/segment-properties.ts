@@ -354,5 +354,5 @@ export const enable_batching: InputField = {
 export const message_id: InputField = {
   type: 'string',
   label: 'MessageId',
-  description: 'The Segment messageId.'
+  description: 'The Segment messageId'
 }
