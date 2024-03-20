@@ -1,69 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-export const CURRENCY_ISO_4217_CODES = new Set([
-  'USD',
-  'AED',
-  'AUD',
-  'BGN',
-  'BRL',
-  'CAD',
-  'CHF',
-  'CLP',
-  'CNY',
-  'COP',
-  'CZK',
-  'DKK',
-  'EGP',
-  'EUR',
-  'GBP',
-  'GIP',
-  'HKD',
-  'HRK',
-  'HUF',
-  'IDR',
-  'ILS',
-  'INR',
-  'JPY',
-  'KRW',
-  'KWD',
-  'KZT',
-  'LBP',
-  'MXN',
-  'MYR',
-  'NGN',
-  'NOK',
-  'NZD',
-  'PEN',
-  'PHP',
-  'PKR',
-  'PLN',
-  'QAR',
-  'RON',
-  'RUB',
-  'SAR',
-  'SEK',
-  'SGD',
-  'THB',
-  'TRY',
-  'TWD',
-  'TZS',
-  'UAH',
-  'VND',
-  'ZAR',
-  'ALL',
-  'BHD',
-  'DZD',
-  'GHS',
-  'IQD',
-  'ISK',
-  'JOD',
-  'KES',
-  'MAD',
-  'OMR',
-  'XOF'
-])
-
-export const products: InputField = {
+const products: InputField = {
   label: 'Products',
   description:
     "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
@@ -109,14 +46,14 @@ export const products: InputField = {
   }
 }
 
-export const event_type: InputField = {
+const event_type: InputField = {
   label: 'Event Type',
   description:
     'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
   type: 'string'
 }
 
-export const event_conversion_type: InputField = {
+const event_conversion_type: InputField = {
   label: 'Event Conversion Type',
   description: 'Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.',
   type: 'string',
@@ -127,13 +64,13 @@ export const event_conversion_type: InputField = {
   ]
 }
 
-export const event_tag: InputField = {
+const event_tag: InputField = {
   label: 'Event Tag',
   description: 'Custom event label.',
   type: 'string'
 }
 
-export const timestamp: InputField = {
+const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
     'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
@@ -143,7 +80,7 @@ export const timestamp: InputField = {
   }
 }
 
-export const email: InputField = {
+const email: InputField = {
   label: 'Email',
   description:
     'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
@@ -157,7 +94,7 @@ export const email: InputField = {
   }
 }
 
-export const mobile_ad_id: InputField = {
+const mobile_ad_id: InputField = {
   label: 'Mobile Ad Identifier',
   description:
     'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
@@ -167,7 +104,7 @@ export const mobile_ad_id: InputField = {
   }
 }
 
-export const uuid_c1: InputField = {
+const uuid_c1: InputField = {
   label: 'uuid_c1 Cookie',
   description:
     'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
@@ -177,7 +114,7 @@ export const uuid_c1: InputField = {
   }
 }
 
-export const idfv: InputField = {
+const idfv: InputField = {
   label: 'Identifier for Vendor',
   description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
   type: 'string',
@@ -186,7 +123,7 @@ export const idfv: InputField = {
   }
 }
 
-export const phone_number: InputField = {
+const phone_number: InputField = {
   label: 'Phone Number',
   description:
     'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
@@ -200,7 +137,7 @@ export const phone_number: InputField = {
   }
 }
 
-export const user_agent: InputField = {
+const user_agent: InputField = {
   label: 'User Agent',
   description:
     'User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
@@ -210,7 +147,7 @@ export const user_agent: InputField = {
   }
 }
 
-export const ip_address: InputField = {
+const ip_address: InputField = {
   label: 'IP Address',
   description:
     'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
@@ -220,7 +157,7 @@ export const ip_address: InputField = {
   }
 }
 
-export const item_category: InputField = {
+const item_category: InputField = {
   label: 'Item Category',
   description: 'Category of the item. This field accepts a string.',
   type: 'string',
@@ -229,7 +166,7 @@ export const item_category: InputField = {
   }
 }
 
-export const brands: InputField = {
+const brands: InputField = {
   label: 'Brand',
   description: 'Brand associated with the item. This field accepts a string or a list of strings',
   type: 'string',
@@ -239,7 +176,7 @@ export const brands: InputField = {
   }
 }
 
-export const item_ids: InputField = {
+const item_ids: InputField = {
   label: 'Item ID',
   description:
     'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
@@ -249,13 +186,13 @@ export const item_ids: InputField = {
   }
 }
 
-export const description: InputField = {
+const description: InputField = {
   label: 'Description',
   description: 'A string description for additional info.',
   type: 'string'
 }
 
-export const number_items: InputField = {
+const number_items: InputField = {
   label: 'Number of Items',
   description: 'Number of items. This field accepts a string only. e.g. "5"',
   type: 'string',
@@ -264,7 +201,7 @@ export const number_items: InputField = {
   }
 }
 
-export const price: InputField = {
+const price: InputField = {
   label: 'Price',
   description:
     "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
@@ -278,7 +215,7 @@ export const price: InputField = {
   }
 }
 
-export const currency: InputField = {
+const currency: InputField = {
   label: 'Currency',
   description: 'Currency for the value specified as ISO 4217 code.',
   type: 'string',
@@ -287,7 +224,7 @@ export const currency: InputField = {
   }
 }
 
-export const transaction_id: InputField = {
+const transaction_id: InputField = {
   label: 'Transaction ID',
   description:
     'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
@@ -297,20 +234,20 @@ export const transaction_id: InputField = {
   }
 }
 
-export const level: InputField = {
+const level: InputField = {
   label: 'Level',
   description: 'Represents a level in the context of a game.',
   type: 'string'
 }
 
-export const client_dedup_id: InputField = {
+const client_dedup_id: InputField = {
   label: 'Client Deduplication ID',
   description:
     'If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
   type: 'string'
 }
 
-export const search_string: InputField = {
+const search_string: InputField = {
   label: 'Search String',
   description: 'The text string that was searched for.',
   type: 'string',
@@ -319,7 +256,7 @@ export const search_string: InputField = {
   }
 }
 
-export const page_url: InputField = {
+const page_url: InputField = {
   label: 'Page URL',
   description: 'The URL of the web page where the event took place.',
   type: 'string',
@@ -328,25 +265,25 @@ export const page_url: InputField = {
   }
 }
 
-export const sign_up_method: InputField = {
+const sign_up_method: InputField = {
   label: 'Sign Up Method',
   description: 'A string indicating the sign up method.',
   type: 'string'
 }
 
-export const device_model: InputField = {
+const device_model: InputField = {
   label: 'Device Model',
   description: 'The user’s device model.',
   type: 'string'
 }
 
-export const os_version: InputField = {
+const os_version: InputField = {
   label: 'OS Version',
   description: 'The user’s OS version.',
   type: 'string'
 }
 
-export const click_id: InputField = {
+const click_id: InputField = {
   label: 'Click ID',
   description:
     "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
@@ -355,3 +292,36 @@ export const click_id: InputField = {
     '@path': '$.integrations.Snap Conversions Api.click_id'
   }
 }
+
+const snap_capi_input_fields_v2 = {
+  products,
+  event_type: { ...event_type, required: true },
+  event_conversion_type: { ...event_conversion_type, required: true },
+  event_tag,
+  timestamp: { ...timestamp, required: true },
+  email,
+  mobile_ad_id,
+  uuid_c1,
+  idfv,
+  phone_number,
+  user_agent,
+  ip_address,
+  item_category,
+  brands,
+  item_ids,
+  description,
+  number_items,
+  price,
+  currency,
+  transaction_id,
+  level,
+  client_dedup_id,
+  search_string,
+  page_url,
+  sign_up_method,
+  os_version,
+  device_model,
+  click_id
+}
+
+export default snap_capi_input_fields_v2
