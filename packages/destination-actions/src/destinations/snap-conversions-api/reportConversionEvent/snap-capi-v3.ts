@@ -406,35 +406,42 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 const buildAppData = (payload: Payload, settings: Settings) => {
+  const { app_data } = payload
   const app_id = emptyStringToUndefined(settings.app_id)
 
-  // FIXME: Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
+  // Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
   // However the field is required for app events, so hardcode the value to false (0)
   // for any events sent that include app_data.
-  const advertiser_tracking_enabled = !isNullOrUndefined(app_id) ? 0 : undefined
-  const extInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
+  const appDataAdvertiserTrackingEnabled = app_data?.advertiser_tracking_enabled ? 1 : 0
+  const appDataIfAppIdIsDefined = !isNullOrUndefined(app_id) ? 0 : undefined
+  const advertiser_tracking_enabled = app_data != null ? appDataAdvertiserTrackingEnabled : appDataIfAppIdIsDefined
+
+  const appDataApplicationTrackingEnabled = app_data?.application_tracking_enabled ? 1 : 0
+  const application_tracking_enabled = app_data != null ? appDataApplicationTrackingEnabled : undefined
+
+  const appDataExtInfoVersion = app_data?.version
+  const appIDExtInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
+  const extInfoVersion = appDataExtInfoVersion ?? appIDExtInfoVersion
 
   // extinfo needs to be defined whenever app_data is included in the data payload
   const extinfo = !isNullOrUndefined(app_id)
     ? [
         extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
-        '', // app package name
-        '', // short version
-        '', // long version
-
-        // FIXME: extract from the user agent if available
-        payload.os_version ?? '', // os version
-        payload.device_model ?? '', // device model name
-        '', // local
-        '', // timezone abbr
-        '', // carrier
-        '', //screen width
-        '', // screen height
-        '', // screen density
-        '', // cpu core
-        '', // external storage size
-        '', // freespace in external storage size
-        '' // device time zone
+        app_data?.packageName ?? '',
+        app_data?.shortVersion ?? '',
+        app_data?.longVersion ?? '',
+        app_data?.osVersion ?? payload.os_version ?? '', // os version
+        app_data?.deviceName ?? payload.device_model ?? '', // device model name
+        app_data?.locale ?? '',
+        app_data?.timezone ?? '',
+        app_data?.carrier ?? '',
+        app_data?.width ?? '',
+        app_data?.height ?? '',
+        app_data?.density ?? '',
+        app_data?.cpuCores ?? '',
+        app_data?.storageSize ?? '',
+        app_data?.freeStorage ?? '',
+        app_data?.deviceTimezone ?? ''
       ]
     : undefined
 
@@ -442,6 +449,7 @@ const buildAppData = (payload: Payload, settings: Settings) => {
   return emptyObjectToUndefined({
     app_id,
     advertiser_tracking_enabled,
+    application_tracking_enabled,
     extinfo
   })
 }
