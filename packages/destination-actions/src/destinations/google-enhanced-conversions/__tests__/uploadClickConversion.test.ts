@@ -25,7 +25,13 @@ describe('GoogleEnhancedConversions', () => {
               quantity: 3,
               price: 10.99
             }
-          ]
+          ],
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
         }
       })
 
