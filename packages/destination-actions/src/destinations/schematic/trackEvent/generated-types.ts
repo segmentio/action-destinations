@@ -12,6 +12,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Time the event took place
+   */
+  timestamp: string | number
+  /**
    * Key-value pairs associated with a user (e.g. email: example@example.com)
    */
   user_keys?: {
