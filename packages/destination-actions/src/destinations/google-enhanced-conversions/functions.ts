@@ -17,6 +17,7 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { OfflineUserAddressInfo } from './interfaces'
 
 export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
@@ -176,4 +177,22 @@ export const commonHashedEmailValidation = (email: string): string => {
   }
 
   return String(hash(email))
+}
+
+/**
+ * Maps the address info to the payload.
+ * @see https://developers.google.com/google-ads/api/rest/reference/rest/v14/UserIdentifier#OfflineUserAddressInfo
+ * @param payload The action payload.
+ * @returns The mapped user address info.
+ */
+export function mapAddressInfoToPayload(payload: { [key: string]: any }): OfflineUserAddressInfo {
+  return {
+    hashedFirstName: String(hash(payload.first_name)),
+    hashedLastName: String(hash(payload.last_name)),
+    hashedStreetAddress: String(hash(payload.street_address)),
+    city: payload.city,
+    state: payload.state,
+    countryCode: payload.country,
+    postalCode: payload.postal_code
+  }
 }

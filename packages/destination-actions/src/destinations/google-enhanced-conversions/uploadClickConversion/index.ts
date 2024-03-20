@@ -16,7 +16,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  mapAddressInfoToPayload
 } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -183,6 +184,93 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    first_name: {
+      label: 'First Name',
+      description:
+        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.firstName' },
+          then: { '@path': '$.properties.firstName' },
+          else: { '@path': '$.context.traits.firstName' }
+        }
+      }
+    },
+    last_name: {
+      label: 'Last Name',
+      description:
+        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.lastName' },
+          then: { '@path': '$.properties.lastName' },
+          else: { '@path': '$.context.traits.lastName' }
+        }
+      }
+    },
+    city: {
+      label: 'City',
+      description: 'City of the user who performed the conversion.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.address.city,' },
+          then: { '@path': '$.properties.address.city,' },
+          else: { '@path': '$.context.traits.address.city' }
+        }
+      }
+    },
+    state: {
+      label: 'State',
+      description: 'State of the user who performed the conversion.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.address.state,' },
+          then: { '@path': '$.properties.address.state,' },
+          else: { '@path': '$.context.traits.address.state' }
+        }
+      }
+    },
+    country: {
+      label: 'Country',
+      description: '2-letter country code in ISO-3166-1 alpha-2 of the user who performed the conversion.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.address.country,' },
+          then: { '@path': '$.properties.address.country,' },
+          else: { '@path': '$.context.traits.address.country' }
+        }
+      }
+    },
+    postal_code: {
+      label: 'Postal Code',
+      description: 'Postal code of the user who performed the conversion.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.address.postalCode,' },
+          then: { '@path': '$.properties.address.postalCode,' },
+          else: { '@path': '$.context.traits.address.postalCode' }
+        }
+      }
+    },
+    street_address: {
+      label: 'Street Address',
+      description:
+        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.address.street,' },
+          then: { '@path': '$.properties.address.street,' },
+          else: { '@path': '$.context.traits.address.street' }
+        }
+      }
+    },
     custom_variables: {
       label: 'Custom Variables',
       description:
@@ -299,6 +387,21 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+    }
+
+    const containsAddressInfo =
+      payload.first_name ||
+      payload.last_name ||
+      payload.city ||
+      payload.state ||
+      payload.country ||
+      payload.postal_code ||
+      payload.street_address
+
+    if (containsAddressInfo) {
+      request_object.userIdentifiers.push({
+        addressInfo: mapAddressInfoToPayload(payload)
+      })
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(

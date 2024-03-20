@@ -79,6 +79,34 @@ export interface Payload {
     price?: number
   }[]
   /**
+   * First name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   */
+  first_name?: string
+  /**
+   * Last name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   */
+  last_name?: string
+  /**
+   * City of the user who performed the conversion.
+   */
+  city?: string
+  /**
+   * State of the user who performed the conversion.
+   */
+  state?: string
+  /**
+   * 2-letter country code in ISO-3166-1 alpha-2 of the user who performed the conversion.
+   */
+  country?: string
+  /**
+   * Postal code of the user who performed the conversion.
+   */
+  postal_code?: string
+  /**
+   * Street address of the user who performed the conversion. Segment will hash this value before sending to Google.
+   */
+  street_address?: string
+  /**
    * The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables)
    */
   custom_variables?: {

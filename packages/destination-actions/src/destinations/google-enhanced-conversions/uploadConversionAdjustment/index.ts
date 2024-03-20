@@ -5,7 +5,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  mapAddressInfoToPayload
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -291,15 +292,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (containsAddressInfo) {
       request_object.userIdentifiers.push({
-        addressInfo: {
-          hashedFirstName: hash(payload.first_name),
-          hashedLastName: hash(payload.last_name),
-          hashedStreetAddress: hash(payload.street_address),
-          city: payload.city,
-          state: payload.state,
-          countryCode: payload.country,
-          postalCode: payload.postal_code
-        }
+        addressInfo: mapAddressInfoToPayload(payload)
       })
     }
 
