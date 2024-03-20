@@ -102,3 +102,9 @@ export const subscription_groups: InputField = {
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.'
+}

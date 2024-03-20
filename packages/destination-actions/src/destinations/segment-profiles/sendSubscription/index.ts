@@ -15,7 +15,8 @@ import {
   android_push_token,
   android_push_subscription_status,
   ios_push_subscription_status,
-  ios_push_token
+  ios_push_token,
+  message_id
 } from './subscription-properties'
 import {
   InvalidSubscriptionStatusError,
@@ -278,7 +279,8 @@ const action: ActionDefinition<Settings, Payload> = {
     ios_push_token,
     ios_push_subscription_status,
     traits,
-    timestamp
+    timestamp,
+    message_id
   },
   perform: (_request, { payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
@@ -308,6 +310,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // to any destinations which is connected to the Segment Profiles space
         All: false
       },
+      messageId: payload?.message_id,
       type: 'identify'
     }
 

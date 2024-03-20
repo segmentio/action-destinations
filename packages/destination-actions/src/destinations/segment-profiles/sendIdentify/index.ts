@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, group_id, traits, engage_space, timestamp } from '../segment-properties'
+import { user_id, anonymous_id, group_id, traits, engage_space, timestamp, message_id } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -15,7 +15,8 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymous_id,
     group_id,
     traits,
-    timestamp
+    timestamp,
+    message_id
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -25,6 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       groupId: payload?.group_id,
+      messageId: payload?.message_id,
       traits: {
         ...payload?.traits
       },
