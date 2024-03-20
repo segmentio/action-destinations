@@ -160,8 +160,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.address.city,' },
-          then: { '@path': '$.properties.address.city,' },
+          exists: { '@path': '$.properties.address.city' },
+          then: { '@path': '$.properties.address.city' },
           else: { '@path': '$.context.traits.address.city' }
         }
       }
@@ -172,8 +172,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.address.state,' },
-          then: { '@path': '$.properties.address.state,' },
+          exists: { '@path': '$.properties.address.state' },
+          then: { '@path': '$.properties.address.state' },
           else: { '@path': '$.context.traits.address.state' }
         }
       }
@@ -184,8 +184,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.address.country,' },
-          then: { '@path': '$.properties.address.country,' },
+          exists: { '@path': '$.properties.address.country' },
+          then: { '@path': '$.properties.address.country' },
           else: { '@path': '$.context.traits.address.country' }
         }
       }
@@ -196,8 +196,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.properties.address.postalCode,' },
-          then: { '@path': '$.properties.address.postalCode,' },
+          exists: { '@path': '$.properties.address.postalCode' },
+          then: { '@path': '$.properties.address.postalCode' },
           else: { '@path': '$.context.traits.address.postalCode' }
         }
       }
