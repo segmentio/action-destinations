@@ -187,9 +187,9 @@ export const commonHashedEmailValidation = (email: string): string => {
  */
 export function mapAddressInfoToPayload(payload: { [key: string]: any }): OfflineUserAddressInfo {
   return {
-    hashedFirstName: String(hash(payload.first_name)),
-    hashedLastName: String(hash(payload.last_name)),
-    hashedStreetAddress: String(hash(payload.street_address)),
+    hashedFirstName: hash(payload.first_name),
+    hashedLastName: hash(payload.last_name),
+    hashedStreetAddress: hash(payload.street_address),
     city: payload.city,
     state: payload.state,
     countryCode: payload.country,
