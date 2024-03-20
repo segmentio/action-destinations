@@ -103,8 +103,14 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     properties[key] = schema
 
     // Grab all the field keys with `required: true`
-    if (field.required) {
+    if (field.required === true) {
       required.push(key)
+    }
+
+    if (field.required && typeof field.required === 'object') {
+      schema.dependencies = { 'stuff'
+      }
+
     }
   }
 
@@ -113,6 +119,7 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     type: 'object',
     additionalProperties: options?.additionalProperties || false,
     properties,
-    required
+    required,
+    dependencies: {}
   }
 }

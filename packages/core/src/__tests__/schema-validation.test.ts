@@ -39,6 +39,17 @@ const schema = fieldsToJsonSchema({
       }
     }
   },
+  last_name: {
+    label: 'Last Name',
+    type: 'string',
+    required: {
+      conditions: [{
+      fieldKey: 'operation',
+      operator: 'is',
+      value: 'create'
+    }]
+    }
+  },
   array: {
     label: 'array',
     type: 'string',
@@ -62,6 +73,18 @@ const schema = fieldsToJsonSchema({
 })
 
 describe('validateSchema', () => {
+  describe('conditional fields', () => {
+    it('should validate conditional fields', () => {
+      const payload = {
+        operation: 'create',
+      }
+
+      const validated = validateSchema(payload, schema, { schemaKey: `testSchema` })
+
+      expect(validated).toBe(false)
+    })
+  })
+
   it('should remove any keys that are not specified', () => {
     const payload = {
       nope: 'not a property'
