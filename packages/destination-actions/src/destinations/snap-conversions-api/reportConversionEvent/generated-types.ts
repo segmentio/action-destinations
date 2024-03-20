@@ -2,6 +2,150 @@
 
 export interface Payload {
   /**
+   * These fields support sending app events to Snapchat through the Conversions API.
+   */
+  app_data?: {
+    /**
+     * *Required for app events*
+     *               Use this field to specify ATT permission on an iOS 14.5+ device. Set to 0 for disabled or 1 for enabled.
+     */
+    advertiser_tracking_enabled?: boolean
+    /**
+     * *Required for app events*
+     *               A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled.
+     */
+    application_tracking_enabled?: boolean
+    /**
+     * *Required for app events* Example: 'i2'.
+     */
+    version?: string
+    /**
+     * Example: 'com.snapchat.sdk.samples.hello'.
+     */
+    packageName?: string
+    /**
+     * Example: '1.0'.
+     */
+    shortVersion?: string
+    /**
+     * Example: '1.0 long'.
+     */
+    longVersion?: string
+    /**
+     * Example: '13.4.1'.
+     */
+    osVersion?: string
+    /**
+     * Example: 'iPhone5,1'.
+     */
+    deviceName?: string
+    /**
+     * Example: 'En_US'.
+     */
+    locale?: string
+    /**
+     * Example: 'PST'.
+     */
+    timezone?: string
+    /**
+     * Example: 'AT&T'.
+     */
+    carrier?: string
+    /**
+     * Example: '1080'.
+     */
+    width?: string
+    /**
+     * Example: '1920'.
+     */
+    height?: string
+    /**
+     * Example: '2.0'.
+     */
+    density?: string
+    /**
+     * Example: '8'.
+     */
+    cpuCores?: string
+    /**
+     * Example: '64'.
+     */
+    storageSize?: string
+    /**
+     * Example: '32'.
+     */
+    freeStorage?: string
+    /**
+     * Example: 'USA/New York'.
+     */
+    deviceTimezone?: string
+  }
+  /**
+   * These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.
+   */
+  user_data?: {
+    /**
+     * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
+     */
+    externalId?: string[]
+    /**
+     * An email address in lowercase.
+     */
+    email?: string
+    /**
+     * A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.
+     */
+    phone?: string
+    /**
+     * Gender in lowercase. Either f or m.
+     */
+    gender?: string
+    /**
+     * A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.
+     */
+    dateOfBirth?: string
+    /**
+     * A last name in lowercase.
+     */
+    lastName?: string
+    /**
+     * A first name in lowercase.
+     */
+    firstName?: string
+    /**
+     * A city in lowercase without spaces or punctuation. Example: menlopark.
+     */
+    city?: string
+    /**
+     * A two-letter state code in lowercase. Example: ca.
+     */
+    state?: string
+    /**
+     * A five-digit zip code for United States. For other locations, follow each country`s standards.
+     */
+    zip?: string
+    /**
+     * A two-letter country code in lowercase.
+     */
+    country?: string
+    /**
+     * The IP address of the browser corresponding to the event.
+     */
+    client_ip_address?: string
+    /**
+     * The user agent for the browser corresponding to the event. This is required if action source is “website”.
+     */
+    client_user_agent?: string
+    /**
+     * The subscription ID for the user in this transaction.
+     */
+    subscriptionID?: string
+    /**
+     * This is the identifier associated with your Snapchat Lead Ad.
+     */
+    leadID?: number
+  }
+  /**
    * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
    */
   products?: {

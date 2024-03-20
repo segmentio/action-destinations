@@ -14,7 +14,7 @@ import {
   parseNumberSafe
 } from './utils'
 
-export const CURRENCY_ISO_4217_CODES = new Set([
+const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
   'AED',
   'AUD',
@@ -77,7 +77,308 @@ export const CURRENCY_ISO_4217_CODES = new Set([
   'XOF'
 ])
 
-export const validatePayload = (payload: Payload): Payload => {
+const US_STATE_CODES = new Map<string, string>([
+  ['arizona', 'az'],
+  ['alabama', 'al'],
+  ['alaska', 'ak'],
+  ['arkansas', 'ar'],
+  ['california', 'ca'],
+  ['colorado', 'co'],
+  ['connecticut', 'ct'],
+  ['delaware', 'de'],
+  ['florida', 'fl'],
+  ['georgia', 'ga'],
+  ['hawaii', 'hi'],
+  ['idaho', 'id'],
+  ['illinois', 'il'],
+  ['indiana', 'in'],
+  ['iowa', 'ia'],
+  ['kansas', 'ks'],
+  ['kentucky', 'ky'],
+  ['louisiana', 'la'],
+  ['maine', 'me'],
+  ['maryland', 'md'],
+  ['massachusetts', 'ma'],
+  ['michigan', 'mi'],
+  ['minnesota', 'mn'],
+  ['mississippi', 'ms'],
+  ['missouri', 'mo'],
+  ['montana', 'mt'],
+  ['nebraska', 'ne'],
+  ['nevada', 'nv'],
+  ['newhampshire', 'nh'],
+  ['newjersey', 'nj'],
+  ['newmexico', 'nm'],
+  ['newyork', 'ny'],
+  ['northcarolina', 'nc'],
+  ['northdakota', 'nd'],
+  ['ohio', 'oh'],
+  ['oklahoma', 'ok'],
+  ['oregon', 'or'],
+  ['pennsylvania', 'pa'],
+  ['rhodeisland', 'ri'],
+  ['southcarolina', 'sc'],
+  ['southdakota', 'sd'],
+  ['tennessee', 'tn'],
+  ['texas', 'tx'],
+  ['utah', 'ut'],
+  ['vermont', 'vt'],
+  ['virginia', 'va'],
+  ['washington', 'wa'],
+  ['westvirginia', 'wv'],
+  ['wisconsin', 'wi'],
+  ['wyoming', 'wy']
+])
+
+const COUNTRY_CODES = new Map<string, string>([
+  ['afghanistan', 'af'],
+  ['alandislands', 'ax'],
+  ['albania', 'al'],
+  ['algeria', 'dz'],
+  ['americansamoa', 'as'],
+  ['andorra', 'ad'],
+  ['angola', 'ao'],
+  ['anguilla', 'ai'],
+  ['antarctica', 'aq'],
+  ['antiguaandbarbuda', 'ag'],
+  ['argentina', 'ar'],
+  ['armenia', 'am'],
+  ['aruba', 'aw'],
+  ['australia', 'au'],
+  ['austria', 'at'],
+  ['azerbaijan', 'az'],
+  ['bahamas', 'bs'],
+  ['bahrain', 'bh'],
+  ['bangladesh', 'bd'],
+  ['barbados', 'bb'],
+  ['belarus', 'by'],
+  ['belgium', 'be'],
+  ['belize', 'bz'],
+  ['benin', 'bj'],
+  ['bermuda', 'bm'],
+  ['bhutan', 'bt'],
+  ['bolivia', 'bo'],
+  ['bosniaandherzegovina', 'ba'],
+  ['botswana', 'bw'],
+  ['bouvetisland', 'bv'],
+  ['brazil', 'br'],
+  ['britishindianoceanterritory', 'io'],
+  ['bruneidarussalam', 'bn'],
+  ['bulgaria', 'bg'],
+  ['burkinafaso', 'bf'],
+  ['burundi', 'bi'],
+  ['cambodia', 'kh'],
+  ['cameroon', 'cm'],
+  ['canada', 'ca'],
+  ['capeverde', 'cv'],
+  ['caymanislands', 'ky'],
+  ['centralafricanrepublic', 'cf'],
+  ['chad', 'td'],
+  ['chile', 'cl'],
+  ['china', 'cn'],
+  ['christmasisland', 'cx'],
+  ['cocos(keeling)islands', 'cc'],
+  ['colombia', 'co'],
+  ['comoros', 'km'],
+  ['congo', 'cg'],
+  ['congo,democraticrepublic', 'cd'],
+  ['cookislands', 'ck'],
+  ['costarica', 'cr'],
+  ["coted'ivoire", 'ci'],
+  ['croatia', 'hr'],
+  ['cuba', 'cu'],
+  ['cyprus', 'cy'],
+  ['czechrepublic', 'cz'],
+  ['denmark', 'dk'],
+  ['djibouti', 'dj'],
+  ['dominica', 'dm'],
+  ['dominicanrepublic', 'do'],
+  ['ecuador', 'ec'],
+  ['egypt', 'eg'],
+  ['elsalvador', 'sv'],
+  ['equatorialguinea', 'gq'],
+  ['eritrea', 'er'],
+  ['estonia', 'ee'],
+  ['ethiopia', 'et'],
+  ['falklandislands(malvinas)', 'fk'],
+  ['faroeislands', 'fo'],
+  ['fiji', 'fj'],
+  ['finland', 'fi'],
+  ['france', 'fr'],
+  ['frenchguiana', 'gf'],
+  ['frenchpolynesia', 'pf'],
+  ['frenchsouthernterritories', 'tf'],
+  ['gabon', 'ga'],
+  ['gambia', 'gm'],
+  ['georgia', 'ge'],
+  ['germany', 'de'],
+  ['ghana', 'gh'],
+  ['gibraltar', 'gi'],
+  ['greece', 'gr'],
+  ['greenland', 'gl'],
+  ['grenada', 'gd'],
+  ['guadeloupe', 'gp'],
+  ['guam', 'gu'],
+  ['guatemala', 'gt'],
+  ['guernsey', 'gg'],
+  ['guinea', 'gn'],
+  ['guinea-bissau', 'gw'],
+  ['guyana', 'gy'],
+  ['haiti', 'ht'],
+  ['heardisland&mcdonaldislands', 'hm'],
+  ['holysee(vaticancitystate)', 'va'],
+  ['honduras', 'hn'],
+  ['hongkong', 'hk'],
+  ['hungary', 'hu'],
+  ['iceland', 'is'],
+  ['india', 'in'],
+  ['indonesia', 'id'],
+  ['iran,islamicrepublicof', 'ir'],
+  ['iraq', 'iq'],
+  ['ireland', 'ie'],
+  ['isleofman', 'im'],
+  ['israel', 'il'],
+  ['italy', 'it'],
+  ['jamaica', 'jm'],
+  ['japan', 'jp'],
+  ['jersey', 'je'],
+  ['jordan', 'jo'],
+  ['kazakhstan', 'kz'],
+  ['kenya', 'ke'],
+  ['kiribati', 'ki'],
+  ['korea', 'kr'],
+  ['kuwait', 'kw'],
+  ['kyrgyzstan', 'kg'],
+  ["laopeople'sdemocraticrepublic", 'la'],
+  ['latvia', 'lv'],
+  ['lebanon', 'lb'],
+  ['lesotho', 'ls'],
+  ['liberia', 'lr'],
+  ['libyanarabjamahiriya', 'ly'],
+  ['liechtenstein', 'li'],
+  ['lithuania', 'lt'],
+  ['luxembourg', 'lu'],
+  ['macao', 'mo'],
+  ['macedonia', 'mk'],
+  ['madagascar', 'mg'],
+  ['malawi', 'mw'],
+  ['malaysia', 'my'],
+  ['maldives', 'mv'],
+  ['mali', 'ml'],
+  ['malta', 'mt'],
+  ['marshallislands', 'mh'],
+  ['martinique', 'mq'],
+  ['mauritania', 'mr'],
+  ['mauritius', 'mu'],
+  ['mayotte', 'yt'],
+  ['mexico', 'mx'],
+  ['micronesia,federatedstatesof', 'fm'],
+  ['moldova', 'md'],
+  ['monaco', 'mc'],
+  ['mongolia', 'mn'],
+  ['montenegro', 'me'],
+  ['montserrat', 'ms'],
+  ['morocco', 'ma'],
+  ['mozambique', 'mz'],
+  ['myanmar', 'mm'],
+  ['namibia', 'na'],
+  ['nauru', 'nr'],
+  ['nepal', 'np'],
+  ['netherlands', 'nl'],
+  ['netherlandsantilles', 'an'],
+  ['newcaledonia', 'nc'],
+  ['newzealand', 'nz'],
+  ['nicaragua', 'ni'],
+  ['niger', 'ne'],
+  ['nigeria', 'ng'],
+  ['niue', 'nu'],
+  ['norfolkisland', 'nf'],
+  ['northernmarianaislands', 'mp'],
+  ['norway', 'no'],
+  ['oman', 'om'],
+  ['pakistan', 'pk'],
+  ['palau', 'pw'],
+  ['palestinianterritory,occupied', 'ps'],
+  ['panama', 'pa'],
+  ['papuanewguinea', 'pg'],
+  ['paraguay', 'py'],
+  ['peru', 'pe'],
+  ['philippines', 'ph'],
+  ['pitcairn', 'pn'],
+  ['poland', 'pl'],
+  ['portugal', 'pt'],
+  ['puertorico', 'pr'],
+  ['qatar', 'qa'],
+  ['reunion', 're'],
+  ['romania', 'ro'],
+  ['russianfederation', 'ru'],
+  ['rwanda', 'rw'],
+  ['saintbarthelemy', 'bl'],
+  ['sainthelena', 'sh'],
+  ['saintkittsandnevis', 'kn'],
+  ['saintlucia', 'lc'],
+  ['saintmartin', 'mf'],
+  ['saintpierreandmiquelon', 'pm'],
+  ['saintvincentandgrenadines', 'vc'],
+  ['samoa', 'ws'],
+  ['sanmarino', 'sm'],
+  ['saotomeandprincipe', 'st'],
+  ['saudiarabia', 'sa'],
+  ['senegal', 'sn'],
+  ['serbia', 'rs'],
+  ['seychelles', 'sc'],
+  ['sierraleone', 'sl'],
+  ['singapore', 'sg'],
+  ['slovakia', 'sk'],
+  ['slovenia', 'si'],
+  ['solomonislands', 'sb'],
+  ['somalia', 'so'],
+  ['southafrica', 'za'],
+  ['southgeorgiaandsandwichisl.', 'gs'],
+  ['spain', 'es'],
+  ['srilanka', 'lk'],
+  ['sudan', 'sd'],
+  ['suriname', 'sr'],
+  ['svalbardandjanmayen', 'sj'],
+  ['swaziland', 'sz'],
+  ['sweden', 'se'],
+  ['switzerland', 'ch'],
+  ['syrianarabrepublic', 'sy'],
+  ['taiwan', 'tw'],
+  ['tajikistan', 'tj'],
+  ['tanzania', 'tz'],
+  ['thailand', 'th'],
+  ['timor-leste', 'tl'],
+  ['togo', 'tg'],
+  ['tokelau', 'tk'],
+  ['tonga', 'to'],
+  ['trinidadandtobago', 'tt'],
+  ['tunisia', 'tn'],
+  ['turkey', 'tr'],
+  ['turkmenistan', 'tm'],
+  ['turksandcaicosislands', 'tc'],
+  ['tuvalu', 'tv'],
+  ['uganda', 'ug'],
+  ['ukraine', 'ua'],
+  ['unitedarabemirates', 'ae'],
+  ['unitedkingdom', 'gb'],
+  ['unitedstates', 'us'],
+  ['unitedstatesoutlyingislands', 'um'],
+  ['uruguay', 'uy'],
+  ['uzbekistan', 'uz'],
+  ['vanuatu', 'vu'],
+  ['venezuela', 've'],
+  ['vietnam', 'vn'],
+  ['virginislands,british', 'vg'],
+  ['virginislands,u.s.', 'vi'],
+  ['wallisandfutuna', 'wf'],
+  ['westernsahara', 'eh'],
+  ['yemen', 'ye'],
+  ['zambia', 'zm'],
+  ['zimbabwe', 'zw']
+])
+
+const validatePayload = (payload: Payload): Payload => {
   raiseMisconfiguredRequiredFieldErrorIf(
     !isNullOrUndefined(payload.currency) && !CURRENCY_ISO_4217_CODES.has(payload.currency.toUpperCase()),
     `${payload.currency} is not a valid currency code.`
@@ -146,24 +447,78 @@ const buildAppData = (payload: Payload, settings: Settings) => {
 }
 
 const buildUserData = (payload: Payload) => {
+  const { user_data } = payload
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
-  const email = hashEmailSafe(payload.email?.replace(/\s/g, '').toLowerCase())
+  const normalizedEmail = (user_data?.email ?? payload.email)?.replace(/\s/g, '').toLowerCase()
+  const email = hashEmailSafe(normalizedEmail)
 
   // Removes all non-numberic characters and leading zeros.
-  const phone_number = hash(payload.phone_number?.replace(/\D|^0+/g, ''))
+  const normalizedPhoneNumber = (user_data?.phone ?? payload.phone_number)?.replace(/\D|^0+/g, '')
+  const phone_number = hash(normalizedPhoneNumber)
 
   // Converts all characters to lowercase
   const madid = payload.mobile_ad_id?.toLowerCase()
 
+  const normalizedGender = user_data?.gender?.replace(/\s/g, '').toLowerCase()
+  const gender = normalizedGender === 'male' ? 'm' : normalizedGender === 'female' ? 'f' : normalizedGender
+  const hashedGender = hash(gender)
+
+  const normalizedLastName = user_data?.lastName?.replace(/\s/g, '')?.toLowerCase()
+  const hashedLastName = hash(normalizedLastName)
+
+  const normalizedFirstName = user_data?.firstName?.replace(/\s/g, '')?.toLowerCase()
+  const hashedFirstName = hash(normalizedFirstName)
+
+  const client_ip_address = user_data?.client_ip_address ?? payload.ip_address
+  const client_user_agent = user_data?.client_user_agent ?? payload.user_agent
+
+  const normalizedCity = user_data?.city?.replace(/\s/g, '')?.toLowerCase()
+  const hashedCity = hash(normalizedCity)
+
+  const normalizedState = user_data?.state?.replace(/\s/g, '').toLowerCase()
+  // checks if the full US state name is used instead of the two letter abbreviation
+  const state = US_STATE_CODES.get(normalizedState ?? '') ?? normalizedState
+  const hashedState = hash(state)
+
+  const normalizedZip = user_data?.zip?.replace(/\s/g, '').toLowerCase()
+  const hashedZip = hash(normalizedZip)
+
+  const normalizedCountry = user_data?.country?.replace(/\s/g, '').toLowerCase()
+  const country = COUNTRY_CODES.get(normalizedCountry ?? '') ?? normalizedCountry
+  const hashedCountry = hash(country)
+
+  const external_id = user_data?.externalId?.map((id) => {
+    const normalizedId = id.replace(/\s/g, '').toLowerCase()
+    return hash(normalizedId) as string
+  })
+
+  const db = hash(user_data?.dateOfBirth)
+  const lead_id = user_data?.leadID
+  const subscription_id = user_data?.subscriptionID
+
+  const sc_click_id = payload.click_id
+  const sc_cookie1 = payload.uuid_c1
+
   return emptyObjectToUndefined({
-    client_ip_address: payload.ip_address,
-    client_user_agent: payload.user_agent,
+    client_ip_address,
+    client_user_agent,
+    country: hashedCountry,
+    ct: hashedCity,
+    db,
     em: box(email),
+    external_id,
+    fn: hashedFirstName,
+    ge: hashedGender,
     idfv: payload.idfv,
+    lead_id,
+    ln: hashedLastName,
     madid,
     ph: box(phone_number),
-    sc_click_id: payload.click_id,
-    sc_cookie1: payload.uuid_c1
+    sc_click_id,
+    sc_cookie1,
+    st: hashedState,
+    subscription_id,
+    zp: hashedZip
   })
 }
 
@@ -202,7 +557,7 @@ const buildCustomData = (payload: Payload) => {
   })
 }
 
-export const formatPayload = (payload: Payload, settings: Settings): object => {
+const formatPayload = (payload: Payload, settings: Settings): object => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
@@ -235,7 +590,7 @@ export const formatPayload = (payload: Payload, settings: Settings): object => {
   return result
 }
 
-export const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
+const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
   const { snap_app_id, pixel_id } = settings
   const snapAppID = emptyStringToUndefined(snap_app_id)
   const snapPixelID = emptyStringToUndefined(pixel_id)
