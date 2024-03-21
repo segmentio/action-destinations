@@ -5,23 +5,22 @@ Object {
   "conversion": "urn:lla:llaPartnerConversion:1234",
   "conversionHappenedAt": null,
   "conversionValue": Object {
-    "amount": "RK^DrO",
-    "currencyCode": "RK^DrO",
+    "amount": "100",
+    "currencyCode": "USD",
   },
-  "eventId": "RK^DrO",
   "user": Object {
     "userIds": Array [
       Object {
-        "idType": "SHA256_EMAIL",
-        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+        "type": "SHA256_EMAIL",
+        "value": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
       },
     ],
     "userInfo": Object {
-      "companyName": "RK^DrO",
-      "countryCode": "RK^DrO",
-      "firstName": "RK^DrO",
-      "lastName": "RK^DrO",
-      "title": "RK^DrO",
+      "companyName": "microsoft",
+      "countryCode": "US",
+      "firstName": "mike",
+      "lastName": "smith",
+      "title": "software engineer",
     },
   },
 }
@@ -34,8 +33,8 @@ Object {
   "user": Object {
     "userIds": Array [
       Object {
-        "idType": "SHA256_EMAIL",
-        "idValue": "bad8677b6c86f5d308ee82786c183482a5995f066694246c58c4df37b0cc41f1",
+        "type": "SHA256_EMAIL",
+        "value": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
       },
     ],
   },
