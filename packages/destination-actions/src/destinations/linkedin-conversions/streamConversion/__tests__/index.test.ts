@@ -75,7 +75,7 @@ describe('LinkedinConversions.streamConversion', () => {
         conversionHappenedAt: currentTimestamp,
         conversionValue: {
           currencyCode: 'USD',
-          amount: 100
+          amount: '100'
         },
         user: {
           userIds: [
