@@ -336,10 +336,6 @@ function validate(payload: Payload, conversionTime: number) {
   if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
     throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
   }
-
-  if (payload.userInfo && (!payload.userInfo.firstName || !payload.userInfo.lastName)) {
-    throw new PayloadValidationError('Both firstName and lastName are required in userInfo.')
-  }
 }
 
 function isNotEpochTimestampInMilliseconds(timestamp: string) {
