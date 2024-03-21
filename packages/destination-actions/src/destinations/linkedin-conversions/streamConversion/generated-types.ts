@@ -23,24 +23,27 @@ export interface Payload {
    */
   eventId?: string
   /**
-   * Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".
+   * Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
    */
-  userIds?: {
-    /**
-     * Valid values are: SHA256_EMAIL, LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID, ACXIOM_ID, ORACLE_MOAT_ID
-     */
-    idType: string
-    /**
-     * The value of the identifier.
-     */
-    idValue: string
-  }[]
+  email?: string
   /**
-   * Object containing additional fields for user matching.
+   * First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   */
+  linkedInUUID?: string
+  /**
+   * User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   */
+  acxiomID?: string
+  /**
+   * User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   */
+  oracleID?: string
+  /**
+   * Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.
    */
   userInfo?: {
-    firstName?: string
-    lastName?: string
+    firstName: string
+    lastName: string
     companyName?: string
     title?: string
     countryCode?: string
