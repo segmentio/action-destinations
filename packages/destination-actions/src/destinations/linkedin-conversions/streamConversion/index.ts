@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     onMappingSave: {
       label: 'Create a Conversion Rule',
       description:
-        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.',
+        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.\n To configure: either provide an existing conversion rule ID or fill in the fields below to create a new conversion rule.',
       inputFields: {
         adAccountId: {
           label: 'Ad Account',
@@ -152,9 +152,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
             hookInputs,
             hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
+        } else {
+          hookReturn = await linkedIn.createConversionRule(hookInputs)
         }
 
-        hookReturn = await linkedIn.createConversionRule(hookInputs)
         if (hookReturn.error || !hookReturn.savedData) {
           return hookReturn
         }
