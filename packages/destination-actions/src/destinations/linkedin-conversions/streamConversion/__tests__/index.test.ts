@@ -33,7 +33,20 @@ const payload = {
 
 describe('LinkedinConversions.streamConversion', () => {
   it('should successfully send the event with strictly required fields', async () => {
-    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              type: 'SHA256_EMAIL',
+              value: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
 
     await expect(
       testDestination.testAction('streamConversion', {
@@ -43,6 +56,64 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with all fields', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: 100
+        },
+        user: {
+          userIds: [
+            {
+              type: 'SHA256_EMAIL',
+              value: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          }
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
           },
           onMappingSave: {
             inputs: {},
