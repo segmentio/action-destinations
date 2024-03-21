@@ -2,12 +2,7 @@ import type { ActionDefinition, ActionHookResponse } from '@segment/actions-core
 import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
-import {
-  SUPPORTED_ID_TYPE,
-  CONVERSION_TYPE_OPTIONS,
-  SUPPORTED_LOOKBACK_WINDOW_CHOICES,
-  DEPENDS_ON_CONVERSION_RULE_ID
-} from '../constants'
+import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
 
@@ -217,32 +212,38 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         '@path': '$.messageId'
       }
     },
-    userIds: {
-      label: 'User Ids',
+    email: {
+      label: 'Email',
       description:
-        'Either userIds or userInfo is required. List of one or more identifiers to match the conversion user with objects containing "idType" and "idValue".',
-      type: 'object',
-      multiple: true,
-      defaultObjectUI: 'keyvalue',
-      properties: {
-        idType: {
-          label: 'ID Type',
-          description: `Valid values are: ${SUPPORTED_ID_TYPE.join(', ')}`,
-          choices: SUPPORTED_ID_TYPE,
-          type: 'string',
-          required: true
-        },
-        idValue: {
-          label: 'ID Value',
-          description: 'The value of the identifier.',
-          type: 'string',
-          required: true
-        }
-      }
+        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      type: 'string',
+      required: false
+    },
+    linkedInUUID: {
+      label: 'LinkedIn First Party Ads Tracking UUID',
+      description:
+        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      type: 'string',
+      required: false
+    },
+    acxiomID: {
+      label: 'Acxiom ID',
+      description:
+        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      type: 'string',
+      required: false
+    },
+    oracleID: {
+      label: 'Oracle ID',
+      description:
+        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      type: 'string',
+      required: false
     },
     userInfo: {
       label: 'User Info',
-      description: 'Object containing additional fields for user matching.',
+      description:
+        'Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: false,
@@ -250,12 +251,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         firstName: {
           label: 'First Name',
           type: 'string',
-          required: false
+          required: true
         },
         lastName: {
           label: 'Last Name',
           type: 'string',
-          required: false
+          required: true
         },
         companyName: {
           label: 'Company Name',
@@ -332,21 +333,12 @@ function validate(payload: Payload, conversionTime: number) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
-  if (
-    payload.userIds &&
-    Array.isArray(payload.userIds) &&
-    payload.userIds?.length === 0 &&
-    (!payload.userInfo || !(payload.userInfo.firstName && payload.userInfo.lastName))
-  ) {
-    throw new PayloadValidationError('Either userIds array or userInfo with firstName and lastName should be present.')
-  } else if (payload.userIds && payload.userIds.length !== 0) {
-    const isValidUserIds = payload.userIds.every((obj) => {
-      return SUPPORTED_ID_TYPE.includes(obj.idType)
-    })
+  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  }
 
-    if (!isValidUserIds) {
-      throw new PayloadValidationError(`Invalid idType in userIds field. Allowed idType will be: ${SUPPORTED_ID_TYPE}`)
-    }
+  if (payload.userInfo && (!payload.userInfo.firstName || !payload.userInfo.lastName)) {
+    throw new PayloadValidationError('Both firstName and lastName are required in userInfo.')
   }
 }
 

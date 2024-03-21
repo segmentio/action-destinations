@@ -13,6 +13,7 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
+import { createHash } from 'crypto'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -20,6 +21,11 @@ interface ConversionRuleUpdateValues {
   attributionType?: string
   postClickAttributionWindowSize?: number
   viewThroughAttributionWindowSize?: number
+}
+
+interface UserID {
+  type: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
+  value: string
 }
 
 export class LinkedInConversions {
@@ -370,7 +376,49 @@ export class LinkedInConversions {
     }
   }
 
+  private hashValue = (val: string): string => {
+    const hash = createHash('sha256')
+    hash.update(val)
+    return hash.digest('hex')
+  }
+
+  private buildUserIdsArray = (payload: Payload): UserID[] => {
+    const userIds: UserID[] = []
+
+    if (payload.email) {
+      const hashedEmail = this.hashValue(payload.email)
+      userIds.push({
+        type: 'SHA256_EMAIL',
+        value: hashedEmail
+      })
+    }
+
+    if (payload.linkedInUUID) {
+      userIds.push({
+        type: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+        value: payload.linkedInUUID
+      })
+    }
+
+    if (payload.acxiomID) {
+      userIds.push({
+        type: 'AXCIOM_ID',
+        value: payload.acxiomID
+      })
+    }
+
+    if (payload.oracleID) {
+      userIds.push({
+        type: 'ORACLE_MOAT_ID',
+        value: payload.oracleID
+      })
+    }
+
+    return userIds
+  }
+
   async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -379,7 +427,7 @@ export class LinkedInConversions {
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
         user: {
-          userIds: payload.userIds,
+          userIds,
           userInfo: payload.userInfo
         }
       }
