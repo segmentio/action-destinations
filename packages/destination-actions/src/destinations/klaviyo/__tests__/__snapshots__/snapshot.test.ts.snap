@@ -78,6 +78,7 @@ Object {
         "testType": "mTdOx(Nl)",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "mTdOx(Nl)",
       "value": -35080566000844.8,
     },
     "type": "event",
