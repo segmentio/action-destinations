@@ -1,4 +1,4 @@
-import { Kafka, SASLOptions, ProducerRecord, Partitioners } from 'kafkajs'
+import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig } from 'kafkajs'
 import { DynamicFieldResponse, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
@@ -13,9 +13,17 @@ interface Message {
   partition?: number
   partitionerType?: typeof LEGACY_PARTITIONER | typeof DEFAULT_PARTITIONER
 }
+
 interface TopicMessages {
   topic: string
   messages: Message[]
+}
+
+interface SSLConfig {
+  ca: string[]
+  rejectUnauthorized: boolean,
+  key?: string,
+  cert?: string,
 }
 
 export const getTopics = async (settings: Settings): Promise<DynamicFieldResponse> => {
@@ -28,45 +36,69 @@ export const getTopics = async (settings: Settings): Promise<DynamicFieldRespons
 }
 
 const getKafka = (settings: Settings) => {
-  return new Kafka({
+  const kafkaConfig = {
     clientId: settings.clientId,
     brokers: settings.brokers
       .trim()
       .split(',')
       .map((broker) => broker.trim()),
-    ssl: settings.ssl === 'none' ? false : true,
-    sasl: {
-      mechanism: settings.mechanism,
-      ...(settings.mechanism === 'aws'
-        ? {
-            accessKeyId: settings.username,
-            secretAccessKey: settings.password,
-            authorizationIdentity: settings.authorizationIdentity
-          }
-        : { username: settings.username, password: settings.password })
-    } as SASLOptions
-  })
+    sasl:((): SASLOptions | undefined => {
+        switch(settings.mechanism){
+          case 'plain':
+            return {
+              username: settings?.username,
+              password: settings?.password,
+              mechanism: settings.mechanism
+            }  as SASLOptions
+          case 'scram-sha-256':
+          case 'scram-sha-512':
+            return {
+              username: settings.username,
+              password: settings.password,
+              mechanism: settings.mechanism
+            } as SASLOptions
+          case 'aws':
+            return {
+              accessKeyId: settings.accessKeyId,
+              secretAccessKey: settings.secretAccessKey,
+              authorizationIdentity: settings.authorizationIdentity,
+              mechanism: settings.mechanism
+            } as SASLOptions
+          default:
+            return undefined
+        }
+    })(),
+    ssl: (() => {
+      if(settings?.ssl_ca){
+        const ssl: SSLConfig = {
+          ca: [`-----BEGIN CERTIFICATE-----\n${settings.ssl_ca.trim()}\n-----END CERTIFICATE-----`],
+          rejectUnauthorized: settings.ssl_reject_unauthorized_ca
+        }
+        if(settings.mechanism === 'client-cert-auth'){
+          ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`,
+          ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`
+        }
+        return ssl
+      }
+      else if(settings.ssl_enabled){
+        return settings.ssl_enabled
+      } 
+      return undefined
+    })()
+  } as unknown as KafkaConfig
+
+  console.log(kafkaConfig)
+
+  return new Kafka(kafkaConfig)
 }
 
 const getProducer = (settings: Settings) => {
   return getKafka(settings).producer({
-    createPartitioner:
-      settings.partitionerType === LEGACY_PARTITIONER ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner
+    createPartitioner: settings.partitionerType === LEGACY_PARTITIONER ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner
   })
 }
 
-export const validate = (settings: Settings) => {
-  if (settings.mechanism === 'aws' && ['', undefined].includes(settings.authorizationIdentity)) {
-    throw new IntegrationError(
-      'AWS mechanism requires an authorization identity',
-      ErrorCodes.INVALID_AUTHENTICATION,
-      400
-    )
-  }
-}
-
 export const sendData = async (settings: Settings, payload: Payload[]) => {
-  validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
 

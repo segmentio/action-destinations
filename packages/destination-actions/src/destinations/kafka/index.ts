@@ -11,6 +11,13 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
+      clientId: {
+        label: 'Client ID',
+        description: "The client ID for your Kafka instance. Defaults to 'segment-actions-kafka-producer'.",
+        type: 'string',
+        required: true,
+        default: 'segment-actions-kafka-producer'
+      },
       brokers: {
         label: 'Brokers',
         description:
@@ -19,38 +26,18 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       mechanism: {
-        label: 'SASL Authentication Mechanism',
-        description: 'The Authentication Mechanism for your Kafka instance.',
+        label: 'Authentication Mechanism',
+        description: "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
         type: 'string',
         required: true,
         choices: [
           { label: 'Plain', value: 'plain' },
-          { label: 'SCRAM/SHA-256', value: 'scram-sha-256' },
-          { label: 'SCRAM/SHA-512', value: 'scram-sha-512' },
-          { label: 'AWS IAM', value: 'aws' }
+          { label: 'SCRAM-SHA-256', value: 'scram-sha-256' },
+          { label: 'SCRAM-SHA-512', value: 'scram-sha-512' },
+          { label: 'AWS IAM', value: 'aws' },
+          { label: 'Client Certificate', value: 'client-cert-auth' }
         ],
         default: 'plain'
-      },
-      clientId: {
-        label: 'Client ID',
-        description: "The client ID for your Kafka instance. Defaults to 'segment-actions-kafka-producer'.",
-        type: 'string',
-        required: true,
-        default: 'segment-actions-kafka-producer'
-      },
-      username: {
-        label: 'Username or IAM Access Key ID',
-        description:
-          'The username for your Kafka instance. If using AWS IAM Authentication this should be your AWS Access Key ID.',
-        type: 'string',
-        required: true
-      },
-      password: {
-        label: 'Password or IAM Secret Key',
-        description:
-          'The password for your Kafka instance. If using AWS IAM Authentication this should be your AWS Secret Key.',
-        type: 'password',
-        required: true
       },
       partitionerType: {
         label: 'Partitioner Type',
@@ -63,24 +50,72 @@ const destination: DestinationDefinition<Settings> = {
         ],
         default: 'DefaultPartitioner'
       },
-      authorizationIdentity: {
-        label: 'AWS Authorization Identify',
+      username: {
+        label: 'Username',
         description:
-          "The aws:userid of the AWS IAM identity. Required if 'SASL Authentication Mechanism' field is set to 'AWS IAM'.",
+          'The username for your Kafka instance. Should be populated only if using PLAIN or SCRAM Authentication Mechanisms.',
         type: 'string',
-        required: false,
-        default: ''
+        required: false
       },
-      ssl: {
-        label: 'SSL Configuration Options',
-        description: 'Indicates the type of SSL to be used.',
+      password: {
+        label: 'Password',
+        description:
+          'The password for your Kafka instance. Should only be populated if using PLAIN or SCRAM Authentication Mechanisms.',
+        type: 'password',
+        required: false
+      },
+      accessKeyId: {
+        label: 'AWS Access Key ID',
+        description:
+          'The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.',
         type: 'string',
+        required: false
+      },
+      secretAccessKey : {
+        label: 'AWS Secret Key',
+        description:
+          'The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.',
+        type: 'password',
+        required: false
+      },
+      authorizationIdentity: {
+        label: 'AWS Authorization Identity',
+        description:
+          'AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.',
+        type: 'string',
+        required: false
+      },
+      ssl_enabled: {
+        label: 'SSL Enabled',
+        description: 'Indicates if SSL should be enabled.',
+        type: 'boolean',
         required: true,
-        choices: [
-          { label: 'No SSL Encryption', value: 'none' },
-          { label: 'Default SSL Encryption', value: 'default' }
-        ],
-        default: 'default'
+        default: true
+      },
+      ssl_ca: {
+        label: 'SSL Certificate Authority',
+        description: 'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        type: 'string',
+        required: false
+      },
+      ssl_key: {
+        label: 'SSL Client Key',
+        description: 'The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        type: 'string',
+        required: false
+      },
+      ssl_cert: {
+        label: 'SSL Client Certificate',
+        description: 'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        type: 'string',
+        required: false
+      },
+      ssl_reject_unauthorized_ca: {
+        label: 'SSL - Reject Unauthorized Certificate Authority',
+        description: 'Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.',
+        type: 'boolean',
+        required: true,
+        default: true
       }
     }
   },
