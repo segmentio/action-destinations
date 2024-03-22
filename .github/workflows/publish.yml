@@ -58,6 +58,7 @@ jobs:
           yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
       - name: Push Release Tag
+        id: push-release-tag
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
@@ -74,13 +75,15 @@ jobs:
           esac
 
           tag=$(printf release-$(date '+%Y-%m-%d%%s') $suffix)
-
           git tag -a $tag -m "Release $tag"
           git push origin $tag
+          echo "release-tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ steps.push-release-tag.outputs.release-tag }}
         with:
           script: |
             const script = require('./scripts/create-github-release.js')

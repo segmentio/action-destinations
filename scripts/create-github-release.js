@@ -1,6 +1,6 @@
 // This is a github action script and can be run only from github actions. It is not possible to run this script locally.
 module.exports = async ({ github, context, core, exec }) => {
-  const { GITHUB_RUN_NUMBER, GITHUB_SHA } = process.env
+  const { GITHUB_SHA, RELEASE_TAG } = process.env
   const { data } = await github.rest.search.commits({
     q: `Publish repo:${context.repo.owner}/action-destinations`,
     per_page: 2,
@@ -13,7 +13,7 @@ module.exports = async ({ github, context, core, exec }) => {
   const lastCommit = data.items[1]
   const prs = await getPRsBetweenCommits(github, context, core, lastCommit, currentCommit)
 
-  const currentReleaseTag = `v${GITHUB_RUN_NUMBER}`
+  const currentReleaseTag = RELEASE_TAG
   const latestRelease = await github.rest.repos
     .getLatestRelease({
       owner: context.repo.owner,
@@ -134,7 +134,7 @@ function formatChangeLog(prs, currentRelease, prevRelease, packageTags) {
 
   const packageURLs = packageTags
     .filter((tag) => tag.includes('@segment/'))
-    .map((tag) => `- [${tag}](https://www.npmjs.com/package/${formatNPMPackageURL(tag)})`)
+    .map((tag) => `- ${formatNPMPackageURL(tag)}`)
     .join('\n')
 
   const changelog = `
