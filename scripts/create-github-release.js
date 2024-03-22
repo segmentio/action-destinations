@@ -1,8 +1,7 @@
-// This is a github action script and can be run only from github actions. It is not possible to run this script locally.
 module.exports = async ({ github, context, core, exec }) => {
   const { GITHUB_SHA, RELEASE_TAG } = process.env
   const { data } = await github.rest.search.commits({
-    q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
+    q: `Publish repo:${context.repo.owner}/action-destinations`,
     per_page: 2,
     sort: 'committer-date'
   })
@@ -26,7 +25,8 @@ module.exports = async ({ github, context, core, exec }) => {
 
   const latestReleaseTag = latestRelease ? latestRelease.data.tag_name : null
   const packageTags = await extractPackageTags(GITHUB_SHA, exec, core)
-  const changeLog = formatChangeLog(prs, currentReleaseTag, latestReleaseTag, packageTags)
+  const tagsContext = { currentReleaseTag, latestReleaseTag, packageTags }
+  const changeLog = formatChangeLog(prs, tagsContext, context)
 
   await github.rest.repos.createRelease({
     owner: context.repo.owner,
@@ -39,7 +39,6 @@ module.exports = async ({ github, context, core, exec }) => {
   return
 }
 
-// Extracts the package tags from the commit SHA
 async function extractPackageTags(sha, exec, core) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
   if (exitCode !== 0) {
@@ -48,37 +47,39 @@ async function extractPackageTags(sha, exec, core) {
   return stdout.split('\n').filter(Boolean)
 }
 
-// Fetches the PRs between two commits
 async function getPRsBetweenCommits(github, context, core, lastCommit, currentCommit) {
   const lastCommitDate = new Date(lastCommit.commit.committer.date)
   const currentCommitDate = new Date(currentCommit.commit.committer.date)
-  // GraphQL query to get PRs between two commits
+  const owner = context.repo.owner
+  const repo = context.repo.repo
+  // GraphQL query to get PRs between two commits. Assumption is the PR might not have more than 100 files and 10 labels.
+  // If the PR has more than 100 files or 10 labels, we might need to paginate the query.
   try {
     const prsMerged = await github.graphql(`{
-      search(first:100, type: ISSUE, query: "repo:${context.repo.owner}/${context.repo.repo} is:pr merged:${lastCommitDate.toISOString()}..${currentCommitDate.toISOString()}") {
-        issueCount
-        nodes {
-          ... on PullRequest {
-            number
-            title
-            url
-            author {
-              login
+    search(first:100, type: ISSUE, query: "repo:${owner}/${repo} is:pr merged:${lastCommitDate.toISOString()}..${currentCommitDate.toISOString()}") {
+      issueCount
+      nodes {
+        ... on PullRequest {
+          number
+          title
+          url
+          author {
+            login
+          }
+          files(first: 100) {
+            nodes {
+              path
             }
-            files(first: 100) {
-              nodes {
-                path
-              }
-            }
-            labels(first: 10, orderBy: {direction: DESC, field: CREATED_AT}) {
-              nodes {
-                name
-              }
+          }
+          labels(first: 10, orderBy: {direction: DESC, field: CREATED_AT}) {
+            nodes {
+              name
             }
           }
         }
       }
-       }`)
+    }
+     }`)
 
     core.info(`Found ${prsMerged.search.issueCount} PRs between commits`)
 
@@ -97,8 +98,8 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
   }
 }
 
-// Formats the changelog
-function formatChangeLog(prs, currentRelease, prevRelease, packageTags) {
+function formatChangeLog(prs, tagsContext, context) {
+  const { currentRelease, prevRelease, packageTags } = tagsContext
   const prsWithAffectedDestinations = prs.map(mapPRWithAffectedDestinations)
   const internalPRS = prsWithAffectedDestinations.filter(
     (pr) => pr.labels.includes('team:segment-core') || pr.labels.includes('team:segment')
@@ -132,40 +133,40 @@ function formatChangeLog(prs, currentRelease, prevRelease, packageTags) {
     }
   ]
 
-  const packageURLs = packageTags
+  const formattedPackageTags = packageTags
     .filter((tag) => tag.includes('@segment/'))
-    .map((tag) => `- ${formatNPMPackageURL(tag)}`)
+    .map((tag) => `- [${tag}](https://www.npmjs.com/package/${formatNPMPackageURL(tag)})`)
     .join('\n')
 
   const changelog = `
-      # What's Changed
-      
-      [Commits](https://github.com/segmentio/action-destinations/compare/${prevRelease}...${currentRelease})
-  
-      ## Packages Published
-  
-      ${packageURLs}
-  
-      ## Internal PRs
-      
-      |${tableConfig.map((config) => config.label).join('|')}|
-      |${tableConfig.map(() => '---').join('|')}|
-      ${internalPRS
-        .map((pr) => {
-          return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
-        })
-        .join('\n')}
-          
-      ## External PRs
-      
-      |${tableConfig.map((config) => config.label).join('|')}|
-      |${tableConfig.map(() => '---').join('|')}|
-      ${externalPRs
-        .map((pr) => {
-          return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
-        })
-        .join('\n')}
-      `.replace(/  +/g, '')
+    # What's New
+    
+    https://github.com/${context.repo.owner}/${context.repo.repo}compare/${prevRelease}...${currentRelease}
+
+    ## Packages Published
+
+    ${formattedPackageTags}
+
+    ## Internal PRs
+    
+    |${tableConfig.map((config) => config.label).join('|')}|
+    |${tableConfig.map(() => '---').join('|')}|
+    ${internalPRS
+      .map((pr) => {
+        return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
+      })
+      .join('\n')}
+        
+    ## External PRs
+    
+    |${tableConfig.map((config) => config.label).join('|')}|
+    |${tableConfig.map(() => '---').join('|')}|
+    ${externalPRs
+      .map((pr) => {
+        return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
+      })
+      .join('\n')}
+    `.replace(/  +/g, '')
   return changelog
 }
 
