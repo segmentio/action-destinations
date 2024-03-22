@@ -24,8 +24,8 @@ interface ConversionRuleUpdateValues {
 }
 
 interface UserID {
-  type: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
-  value: string
+  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
+  idValue: string
 }
 
 export class LinkedInConversions {
@@ -388,29 +388,29 @@ export class LinkedInConversions {
     if (payload.email) {
       const hashedEmail = this.hashValue(payload.email)
       userIds.push({
-        type: 'SHA256_EMAIL',
-        value: hashedEmail
+        idType: 'SHA256_EMAIL',
+        idValue: hashedEmail
       })
     }
 
     if (payload.linkedInUUID) {
       userIds.push({
-        type: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-        value: payload.linkedInUUID
+        idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+        idValue: payload.linkedInUUID
       })
     }
 
     if (payload.acxiomID) {
       userIds.push({
-        type: 'AXCIOM_ID',
-        value: payload.acxiomID
+        idType: 'AXCIOM_ID',
+        idValue: payload.acxiomID
       })
     }
 
     if (payload.oracleID) {
       userIds.push({
-        type: 'ORACLE_MOAT_ID',
-        value: payload.oracleID
+        idType: 'ORACLE_MOAT_ID',
+        idValue: payload.oracleID
       })
     }
 
