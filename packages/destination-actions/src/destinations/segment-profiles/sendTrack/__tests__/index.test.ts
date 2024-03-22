@@ -10,6 +10,7 @@ beforeEach(() => nock.cleanAll())
 
 // Default Track Mapping
 const defaultTrackMapping = {
+  engage_space: 'space-write-key',
   event_name: {
     '@path': '$.event'
   },
@@ -42,7 +43,8 @@ describe('SegmentProfiles.sendTrack', () => {
         mapping: {
           event_name: {
             '@path': '$.event'
-          }
+          },
+          engage_space: 'space-write-key'
         }
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)

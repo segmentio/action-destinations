@@ -54,7 +54,7 @@ export const event_name: InputField = {
 
 export const properties: InputField = {
   label: 'Properties',
-  description: 'Free-form dictionary of properties that describe the screen.',
+  description: 'Free-form dictionary of properties that describe the event.',
   type: 'object',
   defaultObjectUI: 'keyvalue',
   additionalProperties: true

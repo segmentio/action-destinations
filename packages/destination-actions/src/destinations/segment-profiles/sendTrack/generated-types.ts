@@ -26,7 +26,7 @@ export interface Payload {
    */
   group_id?: string
   /**
-   * Free-form dictionary of properties that describe the screen.
+   * Free-form dictionary of properties that describe the event.
    */
   properties?: {
     [k: string]: unknown
