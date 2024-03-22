@@ -40,8 +40,8 @@ describe('LinkedinConversions.streamConversion', () => {
         user: {
           userIds: [
             {
-              type: 'SHA256_EMAIL',
-              value: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
             }
           ]
         }
@@ -80,8 +80,8 @@ describe('LinkedinConversions.streamConversion', () => {
         user: {
           userIds: [
             {
-              type: 'SHA256_EMAIL',
-              value: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
             }
           ],
           userInfo: {
