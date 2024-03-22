@@ -238,7 +238,9 @@ registerDirective('@flatten', (opts, payload) => {
     throw new Error('@flatten requires a string separator')
   }
 
-  return flattenObject(payload, '', separator)
+  const value = resolve(opts.value, payload)
+
+  return flattenObject(value, '', separator)
 })
 
 registerDirective('@json', (opts, payload) => {
