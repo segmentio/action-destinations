@@ -2,7 +2,7 @@
 module.exports = async ({ github, context, core, exec }) => {
   const { GITHUB_SHA, RELEASE_TAG } = process.env
   const { data } = await github.rest.search.commits({
-    q: `Publish repo:${context.repo.owner}/action-destinations`,
+    q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
     per_page: 2,
     sort: 'committer-date'
   })
@@ -55,7 +55,7 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
   // GraphQL query to get PRs between two commits
   try {
     const prsMerged = await github.graphql(`{
-      search(first:100, type: ISSUE, query: "repo:segmentio/action-destinations is:pr merged:${lastCommitDate.toISOString()}..${currentCommitDate.toISOString()}") {
+      search(first:100, type: ISSUE, query: "repo:${context.repo.owner}/${context.repo.repo} is:pr merged:${lastCommitDate.toISOString()}..${currentCommitDate.toISOString()}") {
         issueCount
         nodes {
           ... on PullRequest {
@@ -140,7 +140,7 @@ function formatChangeLog(prs, currentRelease, prevRelease, packageTags) {
   const changelog = `
       # What's Changed
       
-      [Commits](https://github.com/segmentio/action-destinations-deploy-automation/compare/${prevRelease}...${currentRelease})
+      [Commits](https://github.com/segmentio/action-destinations/compare/${prevRelease}...${currentRelease})
   
       ## Packages Published
   
