@@ -75,8 +75,8 @@ const getKafka = (settings: Settings) => {
           rejectUnauthorized: settings.ssl_reject_unauthorized_ca
         }
         if (settings.mechanism === 'client-cert-auth') {
-          ;(ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`),
-            (ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`)
+          ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`,
+          ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`
         }
         return ssl
       } else if (settings.ssl_enabled) {
