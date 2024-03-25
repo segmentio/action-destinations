@@ -1,18 +1,22 @@
 module.exports = async ({ github, context, core, exec }) => {
   const { GITHUB_SHA, RELEASE_TAG } = process.env
   const { data } = await github.rest.search.commits({
-    q: `Publish repo:${context.repo.owner}/action-destinations`,
+    q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
     per_page: 2,
     sort: 'committer-date'
   })
+
   if (data.items.length < 2) {
     core.error(`No previous release commits found`)
   }
-  const currentCommit = data.items[0]
-  const lastCommit = data.items[1]
-  const prs = await getPRsBetweenCommits(github, context, core, lastCommit, currentCommit)
 
-  const currentReleaseTag = RELEASE_TAG
+  const newPublish = data.items[0]
+  const previousPublish = data.items[1]
+  const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
+
+  const newReleaseTag = RELEASE_TAG
+
+  // Fetch the latest github release
   const latestRelease = await github.rest.repos
     .getLatestRelease({
       owner: context.repo.owner,
@@ -24,17 +28,25 @@ module.exports = async ({ github, context, core, exec }) => {
     })
 
   const latestReleaseTag = latestRelease ? latestRelease.data.tag_name : null
+
   const packageTags = await extractPackageTags(GITHUB_SHA, exec, core)
-  const tagsContext = { currentReleaseTag, latestReleaseTag, packageTags }
+  const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
   const changeLog = formatChangeLog(prs, tagsContext, context)
 
-  await github.rest.repos.createRelease({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    tag_name: currentReleaseTag,
-    name: currentReleaseTag,
-    body: changeLog
-  })
+  await github.rest.repos
+    .createRelease({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      tag_name: newReleaseTag,
+      name: newReleaseTag,
+      body: changeLog
+    })
+    .then(() => {
+      core.info(`Release ${newReleaseTag} created successfully`)
+    })
+    .catch((e) => {
+      core.error(`Failed to create release: ${e.message}`)
+    })
 
   return
 }
@@ -133,6 +145,9 @@ function formatChangeLog(prs, tagsContext, context) {
     }
   ]
 
+  // if there is no previous release, we simply print the current release
+  const releaseDiff = prevRelease ? `${prevRelease}...${currentRelease}` : currentRelease
+
   const formattedPackageTags = packageTags
     .filter((tag) => tag.includes('@segment/'))
     .map((tag) => `- [${tag}](https://www.npmjs.com/package/${formatNPMPackageURL(tag)})`)
@@ -141,11 +156,11 @@ function formatChangeLog(prs, tagsContext, context) {
   const changelog = `
     # What's New
     
-    https://github.com/${context.repo.owner}/${context.repo.repo}compare/${prevRelease}...${currentRelease}
+    https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${releaseDiff}
 
     ## Packages Published
 
-    ${formattedPackageTags}
+    ${formattedPackageTags || 'No packages published'}
 
     ## Internal PRs
     
