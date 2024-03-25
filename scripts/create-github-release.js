@@ -169,21 +169,13 @@ function formatChangeLog(prs, tagsContext, context) {
     
     |${tableConfig.map((config) => config.label).join('|')}|
     |${tableConfig.map(() => '---').join('|')}|
-    ${internalPRS
-      .map((pr) => {
-        return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
-      })
-      .join('\n')}
+    ${internalPRS.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
         
     ## External PRs
     
     |${tableConfig.map((config) => config.label).join('|')}|
     |${tableConfig.map(() => '---').join('|')}|
-    ${externalPRs
-      .map((pr) => {
-        return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
-      })
-      .join('\n')}
+    ${externalPRs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
     `
   // trim double spaces and return the changelog
   return changelog.replace(/  +/g, '')
