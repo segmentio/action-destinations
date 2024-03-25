@@ -1,7 +1,6 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Kafka, KafkaConfig, Partitioners } from 'kafkajs'
-import { key } from 'src/destinations/salesforce-marketing-cloud/sfmc-properties'
 
 const testDestination = createTestIntegration(Destination)
 
