@@ -56,7 +56,11 @@ async function extractPackageTags(sha, exec, core) {
   if (exitCode !== 0) {
     core.error(`Failed to extract package tags: ${stderr}`)
   }
-  return stdout.split('\n').filter(Boolean)
+  // filter out only the tags that are related to segment packages
+  return stdout
+    .split('\n')
+    .filter(Boolean)
+    .filter((tag) => tag.includes('@segment/') && !tag.includes('staging'))
 }
 
 async function getPRsBetweenCommits(github, context, core, lastCommit, currentCommit) {
@@ -149,7 +153,6 @@ function formatChangeLog(prs, tagsContext, context) {
   const releaseDiff = prevRelease ? `${prevRelease}...${currentRelease}` : currentRelease
 
   const formattedPackageTags = packageTags
-    .filter((tag) => tag.includes('@segment/'))
     .map((tag) => `- [${tag}](https://www.npmjs.com/package/${formatNPMPackageURL(tag)})`)
     .join('\n')
 
@@ -181,8 +184,9 @@ function formatChangeLog(prs, tagsContext, context) {
         return `|${tableConfig.map((config) => pr[config.value]).join('|')}|`
       })
       .join('\n')}
-    `.replace(/  +/g, '')
-  return changelog
+    `
+  // trim double spaces and return the changelog
+  return changelog.replace(/  +/g, '')
 }
 
 function mapPRWithAffectedDestinations(pr) {
