@@ -176,7 +176,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
-      errors.push(e)
+      errors.push(e as Error)
     }
   })
 
@@ -211,7 +211,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
-      errors.push(error)
+      errors.push(error as Error)
     }
   })
 
@@ -237,11 +237,12 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
       try {
         fn(v, [...stack, name])
       } catch (e) {
+        const err: Error = e as Error
         if (e instanceof ValidationError || e instanceof AggregateError) {
           throw e
         }
 
-        throw new ValidationError(e.message, stack)
+        throw new ValidationError(err.message, stack)
       }
     }
   })
@@ -301,6 +302,17 @@ directive('@json', (v, stack) => {
     {
       value: { required: validateDirectiveOrRaw },
       mode: { required: validateAllowedStrings('encode', 'decode') }
+    },
+    stack
+  )
+})
+
+directive('@flatten', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      separator: { optional: validateString },
+      value: { required: validateDirectiveOrRaw }
     },
     stack
   )
