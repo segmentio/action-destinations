@@ -10,7 +10,7 @@ export interface Settings {
    */
   brokers: string
   /**
-   * The Authentication Mechanism for your Kafka instance. For SCRAM or PLAIN you must provide values for the 'Username' and 'Password' fields. For AWS IAM, you must provide values for the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' you must provide values for the 'SSL Client Key' and 'SSL Client Certificate' fields
+   * Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields
    */
   mechanism: string
   /**
@@ -42,15 +42,15 @@ export interface Settings {
    */
   ssl_enabled: boolean
   /**
-   * The Certificate Authority for your Kafka instance. Do not include the `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` lines.
+   * The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.
    */
   ssl_ca?: string
   /**
-   * The Client Key for your Kafka instance. Do not include the `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` lines.
+   * The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.
    */
   ssl_key?: string
   /**
-   * The Certificate Authority for your Kafka instance. Do not include the `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` lines.
+   * The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.
    */
   ssl_cert?: string
   /**

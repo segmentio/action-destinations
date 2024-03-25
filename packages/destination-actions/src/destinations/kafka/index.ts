@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
+import { validate, getTopics } from './utils'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
@@ -27,7 +27,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       mechanism: {
         label: 'Authentication Mechanism',
-        description: "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
+        description:
+          "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
         type: 'string',
         required: true,
         choices: [
@@ -71,7 +72,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: false
       },
-      secretAccessKey : {
+      secretAccessKey: {
         label: 'AWS Secret Key',
         description:
           'The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.',
@@ -94,29 +95,37 @@ const destination: DestinationDefinition<Settings> = {
       },
       ssl_ca: {
         label: 'SSL Certificate Authority',
-        description: 'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        description:
+          'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
         type: 'string',
         required: false
       },
       ssl_key: {
         label: 'SSL Client Key',
-        description: 'The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        description:
+          'The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
         type: 'string',
         required: false
       },
       ssl_cert: {
         label: 'SSL Client Certificate',
-        description: 'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
+        description:
+          'The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
         type: 'string',
         required: false
       },
       ssl_reject_unauthorized_ca: {
         label: 'SSL - Reject Unauthorized Certificate Authority',
-        description: 'Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.',
+        description:
+          'Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.',
         type: 'boolean',
         required: true,
         default: true
       }
+    },
+    testAuthentication: async (_, { settings }) => {
+      validate(settings)
+      return await getTopics(settings)
     }
   },
   actions: {
