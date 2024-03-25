@@ -1,5 +1,5 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
-export default async ({ github, context, core, exec }) => {
+module.exports = async ({ github, context, core, exec }) => {
   const { GITHUB_SHA, RELEASE_TAG } = process.env
   const { data } = await github.rest.search.commits({
     q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
