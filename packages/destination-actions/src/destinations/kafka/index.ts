@@ -40,17 +40,6 @@ const destination: DestinationDefinition<Settings> = {
         ],
         default: 'plain'
       },
-      partitionerType: {
-        label: 'Partitioner Type',
-        description: "The partitioner type for your Kafka instance. Defaults to 'Default Partitioner'.",
-        type: 'string',
-        required: true,
-        choices: [
-          { label: 'Default Partitioner', value: 'DefaultPartitioner' },
-          { label: 'Legacy Partitioner', value: 'LegacyPartitioner' }
-        ],
-        default: 'DefaultPartitioner'
-      },
       username: {
         label: 'Username',
         description:

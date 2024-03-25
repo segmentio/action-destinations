@@ -14,10 +14,6 @@ export interface Settings {
    */
   mechanism: string
   /**
-   * The partitioner type for your Kafka instance. Defaults to 'Default Partitioner'.
-   */
-  partitionerType: string
-  /**
    * The username for your Kafka instance. Should be populated only if using PLAIN or SCRAM Authentication Mechanisms.
    */
   username?: string

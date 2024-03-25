@@ -4,14 +4,13 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 
 export const DEFAULT_PARTITIONER = 'DefaultPartitioner'
-export const LEGACY_PARTITIONER = 'LegacyPartitioner'
 
 interface Message {
   value: string
   key?: string
   headers?: { [key: string]: string }
   partition?: number
-  partitionerType?: typeof LEGACY_PARTITIONER | typeof DEFAULT_PARTITIONER
+  partitionerType?: typeof DEFAULT_PARTITIONER
 }
 
 interface TopicMessages {
@@ -75,8 +74,8 @@ const getKafka = (settings: Settings) => {
           rejectUnauthorized: settings.ssl_reject_unauthorized_ca
         }
         if (settings.mechanism === 'client-cert-auth') {
-          ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`,
-          ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`
+          ;(ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`),
+            (ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`)
         }
         return ssl
       } else if (settings.ssl_enabled) {
@@ -126,8 +125,7 @@ export const validate = (settings: Settings) => {
 
 const getProducer = (settings: Settings) => {
   return getKafka(settings).producer({
-    createPartitioner:
-      settings.partitionerType === LEGACY_PARTITIONER ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner
+    createPartitioner: Partitioners.DefaultPartitioner
   })
 }
 
@@ -153,7 +151,7 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
           key: payload.key,
           headers: payload?.headers ?? undefined,
           partition: payload?.partition ?? payload?.default_partition ?? undefined,
-          partitionerType: settings.partitionerType
+          partitionerType: DEFAULT_PARTITIONER
         } as Message)
     )
   }))
