@@ -64,7 +64,7 @@ jobs:
           git config user.email ${{ github.actor }}@users.noreply.github.com
 
           commit=${{ github.sha }}
-          if ! n=$(git rev-list --count $commit~ --since="00:00"); then
+          if ! n=$(git rev-list --count $commit~ --grep "Publish" --since="00:00"); then
               echo 'failed to calculate tag'
               exit 1
           fi
