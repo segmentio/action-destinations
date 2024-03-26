@@ -378,14 +378,6 @@ const COUNTRY_CODES = new Map<string, string>([
   ['zimbabwe', 'zw']
 ])
 
-const eventConversionTypeToActionSource: { [k in string]?: string } = {
-  WEB: 'website',
-  MOBILE_APP: 'app',
-
-  // Use the snap event_conversion_type for offline events
-  OFFLINE: 'OFFLINE'
-}
-
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
 const buildAppData = (payload: Payload, settings: Settings) => {
@@ -550,10 +542,31 @@ const buildCustomData = (payload: Payload) => {
   })
 }
 
+const eventConversionTypeToActionSource: { [k in string]?: string } = {
+  WEB: 'website',
+  MOBILE_APP: 'app',
+
+  // Use the snap event_conversion_type for offline events
+  OFFLINE: 'OFFLINE'
+}
+
+const getSupportedActionSource = (action_source: string | undefined): string | undefined => {
+  const normalizedActionSource = emptyStringToUndefined(action_source)
+
+  // Snap doesn't support all the defined action sources, so fall back to OFFLINE if specified.
+  return ['website', 'app'].indexOf(normalizedActionSource ?? '') > -1
+    ? normalizedActionSource
+    : normalizedActionSource != null
+    ? 'OFFLINE'
+    : undefined
+}
+
 const buildPayloadData = (payload: Payload, settings: Settings) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
-  const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
+  const action_source =
+    getSupportedActionSource(payload.action_source) ??
+    eventConversionTypeToActionSource[payload.event_conversion_type ?? '']
 
   const event_id = emptyStringToUndefined(payload.event_id) ?? emptyStringToUndefined(payload.client_dedup_id)
 
@@ -582,39 +595,39 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   }
 }
 
-const validateSettingsConfig = (settings: Settings, event_conversion_type: string) => {
+const validateSettingsConfig = (settings: Settings, action_source: string | undefined) => {
   const { snap_app_id, pixel_id } = settings
   const snapAppID = emptyStringToUndefined(snap_app_id)
   const snapPixelID = emptyStringToUndefined(pixel_id)
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type === 'OFFLINE' && isNullOrUndefined(snapPixelID),
+    action_source === 'OFFLINE' && isNullOrUndefined(snapPixelID),
     'If event conversion type is "OFFLINE" then Pixel ID must be defined'
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
+    action_source === 'app' && isNullOrUndefined(snapAppID),
     'If event conversion type is "MOBILE_APP" then Snap App ID must be defined'
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    event_conversion_type === 'WEB' && isNullOrUndefined(snapPixelID),
+    action_source === 'website' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "WEB" then Pixel ID must be defined`
   )
 }
 
-const buildRequestURL = (settings: Settings, event_conversion_type: string, authToken: string) => {
+const buildRequestURL = (settings: Settings, action_source: string | undefined, authToken: string) => {
   const { snap_app_id, pixel_id } = settings
 
   // Some configurations specify both a snapPixelID and a snapAppID. In these cases
   // check the conversion type to ensure that the right id is selected and used.
   const appOrPixelID = emptyStringToUndefined(
     (() => {
-      switch (event_conversion_type) {
-        case 'WEB':
+      switch (action_source) {
+        case 'website':
         case 'OFFLINE':
           return pixel_id
-        case 'MOBILE_APP':
+        case 'app':
           return snap_app_id
         default:
           return undefined
@@ -627,9 +640,15 @@ const buildRequestURL = (settings: Settings, event_conversion_type: string, auth
 
 const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
   const {
+    action_source,
     custom_data = {} as NonNullable<typeof payload.custom_data>,
     user_data = {} as NonNullable<typeof payload.user_data>
   } = payload
+
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
+    action_source,
+    "The root value is missing the required field 'action_source'."
+  )
 
   raiseMisconfiguredRequiredFieldErrorIf(
     !isNullOrUndefined(custom_data.currency) && !CURRENCY_ISO_4217_CODES.has(custom_data.currency),
@@ -650,14 +669,15 @@ export const performSnapCAPIv3 = async (
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
-  const { event_conversion_type } = payload
   const authToken = emptyStringToUndefined(data.auth?.accessToken)
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
-  validateSettingsConfig(settings, event_conversion_type)
 
-  const url = buildRequestURL(settings, event_conversion_type, authToken)
   const payloadData = buildPayloadData(payload, settings)
+
+  validateSettingsConfig(settings, payloadData.action_source)
+
+  const url = buildRequestURL(settings, payloadData.action_source, authToken)
 
   validatePayload(payloadData)
 

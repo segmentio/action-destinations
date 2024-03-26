@@ -53,17 +53,6 @@ const event_type: InputField = {
   type: 'string'
 }
 
-const event_conversion_type: InputField = {
-  label: 'Event Conversion Type',
-  description: 'Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.',
-  type: 'string',
-  choices: [
-    { label: 'Offline', value: 'OFFLINE' },
-    { label: 'Web', value: 'WEB' },
-    { label: 'Mobile App', value: 'MOBILE_APP' }
-  ]
-}
-
 const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
@@ -134,7 +123,6 @@ const sign_up_method: InputField = {
 const snap_capi_input_fields_common = {
   products,
   event_type: { ...event_type, required: true },
-  event_conversion_type: { ...event_conversion_type, required: true },
   timestamp: { ...timestamp, required: true },
   price,
   currency,

@@ -53,6 +53,17 @@ const email: InputField = {
   }
 }
 
+const event_conversion_type: InputField = {
+  label: 'Event Conversion Type',
+  description: 'Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.',
+  type: 'string',
+  choices: [
+    { label: 'Offline', value: 'OFFLINE' },
+    { label: 'Web', value: 'WEB' },
+    { label: 'Mobile App', value: 'MOBILE_APP' }
+  ]
+}
+
 const event_tag: InputField = {
   label: 'Event Tag',
   description: 'Custom event label.',
@@ -169,6 +180,7 @@ const snap_capi_input_fields_deprecated = {
   description,
   device_model,
   email,
+  event_conversion_type,
   event_tag,
   idfv,
   ip_address,

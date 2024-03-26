@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * This field allows you to specify where your conversions occurred.
+   */
+  action_source?: string
+  /**
    * These fields support sending app events to Snapchat through the Conversions API.
    */
   app_data?: {
@@ -199,10 +203,6 @@ export interface Payload {
    */
   event_type: string
   /**
-   * Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.
-   */
-  event_conversion_type: string
-  /**
    * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.
    */
   timestamp: string
@@ -254,6 +254,10 @@ export interface Payload {
    * Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
   email?: string
+  /**
+   * Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.
+   */
+  event_conversion_type?: string
   /**
    * Custom event label.
    */

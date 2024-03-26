@@ -1,6 +1,20 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
-// FIXME: Can we make field properties required?
+const action_source: InputField = {
+  label: 'Action Source',
+  description: 'This field allows you to specify where your conversions occurred.',
+  type: 'string',
+  choices: [
+    { label: 'EMAIL', value: 'email' },
+    { label: 'WEBSITE', value: 'website' },
+    { label: 'APP', value: 'app' },
+    { label: 'PHONE CALL', value: 'phone_call' },
+    { label: 'CHAT', value: 'chat' },
+    { label: 'PHYSICAL STORE', value: 'physical_store' },
+    { label: 'SYSTEM GENERATED', value: 'system_generated' },
+    { label: 'OTHER', value: 'other' }
+  ]
+}
 
 const app_data: InputField = {
   label: 'App Events Fields',
@@ -141,7 +155,7 @@ const app_data: InputField = {
   }
 }
 
-export const user_data: InputField = {
+const user_data: InputField = {
   label: 'User Data',
   description:
     'These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.',
@@ -303,13 +317,13 @@ export const user_data: InputField = {
   }
 }
 
-export const data_processing_options: InputField = {
+const data_processing_options: InputField = {
   label: 'Data Processing Options',
   description: `The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.`,
   type: 'boolean'
 }
 
-export const data_processing_options_country: InputField = {
+const data_processing_options_country: InputField = {
   label: 'Data Processing Country',
   description:
     'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
@@ -320,7 +334,7 @@ export const data_processing_options_country: InputField = {
   ]
 }
 
-export const data_processing_options_state: InputField = {
+const data_processing_options_state: InputField = {
   label: 'Data Processing State',
   description:
     'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
@@ -331,7 +345,7 @@ export const data_processing_options_state: InputField = {
   ]
 }
 
-export const event_id: InputField = {
+const event_id: InputField = {
   label: 'Event ID',
   description:
     'If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
@@ -342,6 +356,7 @@ export const event_id: InputField = {
 }
 
 const snap_capi_input_fields_v3 = {
+  action_source,
   app_data,
   event_id,
   user_data,
