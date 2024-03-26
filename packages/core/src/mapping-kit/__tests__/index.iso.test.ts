@@ -531,6 +531,23 @@ describe('@json', () => {
   })
 })
 
+describe('@flatten', () => {
+  test('simple', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: { bar: 'baz', aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', 'aces.a': 1, 'aces.b': 2 } })
+  })
+  test('array value first', () => {
+    const output = transform(
+      { result: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: [{ fazz: 'bar', fizz: 'baz' }] }
+    )
+    expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
+  })
+})
+
 describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })
