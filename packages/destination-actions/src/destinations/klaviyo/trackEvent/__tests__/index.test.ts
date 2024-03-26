@@ -31,6 +31,7 @@ describe('Track Event', () => {
           properties: { key: 'value' },
           time: '2022-01-01T00:00:00.000Z',
           value: 10,
+          unique_id: 'text-example-xyz',
           metric: {
             data: {
               type: 'metric',
@@ -63,7 +64,8 @@ describe('Track Event', () => {
       profile: { email: 'test@example.com', phone_number: '1234567890' },
       metric_name: 'event_name',
       properties: { key: 'value' },
-      value: 10
+      value: 10,
+      unique_id: 'text-example-xyz'
     }
 
     await expect(
@@ -79,6 +81,7 @@ describe('Track Event', () => {
           properties: { key: 'value' },
           time: '2022-01-01T00:00:00.000Z',
           value: 10,
+          unique_id: 'text-example-123',
           metric: {
             data: {
               type: 'metric',
@@ -111,7 +114,8 @@ describe('Track Event', () => {
       profile: { email: 'test@example.com', phone_number: '1234567890' },
       metric_name: 'event_name',
       properties: { key: 'value' },
-      value: 10
+      value: 10,
+      unique_id: 'text-example-123'
     }
 
     await expect(
