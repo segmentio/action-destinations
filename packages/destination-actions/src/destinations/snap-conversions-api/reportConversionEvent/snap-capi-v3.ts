@@ -576,6 +576,8 @@ const formatPayload = (payload: Payload, settings: Settings): object => {
   const user_data = buildUserData(payload)
   const custom_data = buildCustomData(payload)
 
+  const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : []
+
   const result = {
     data: [
       {
@@ -590,7 +592,10 @@ const formatPayload = (payload: Payload, settings: Settings): object => {
         user_data,
         custom_data,
         action_source,
-        app_data
+        app_data,
+        data_processing_options,
+        data_processing_options_country: payload.data_processing_options_country,
+        data_processing_options_state: payload.data_processing_options_state
       }
     ]
   }

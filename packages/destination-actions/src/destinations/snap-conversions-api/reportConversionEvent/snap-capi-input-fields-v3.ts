@@ -268,6 +268,40 @@ export const user_data: InputField = {
   }
 }
 
-const snap_capi_input_fields_v3 = { app_data, user_data }
+export const data_processing_options: InputField = {
+  label: 'Data Processing Options',
+  description: `The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.`,
+  type: 'boolean'
+}
+
+export const data_processing_options_country: InputField = {
+  label: 'Data Processing Country',
+  description:
+    'A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
+  type: 'number',
+  choices: [
+    { label: `Use Snapchat's Geolocation Logic`, value: 0 },
+    { label: 'United States of America', value: 1 }
+  ]
+}
+
+export const data_processing_options_state: InputField = {
+  label: 'Data Processing State',
+  description:
+    'A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.',
+  type: 'number',
+  choices: [
+    { label: "Use Snapchat's Geolocation Logic", value: 0 },
+    { label: 'California', value: 1000 }
+  ]
+}
+
+const snap_capi_input_fields_v3 = {
+  app_data,
+  user_data,
+  data_processing_options,
+  data_processing_options_country,
+  data_processing_options_state
+}
 
 export default snap_capi_input_fields_v3
