@@ -693,14 +693,14 @@ export const performSnapCAPIv3 = async (
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
-  const authToken = emptyStringToUndefined(data.auth?.accessToken)
-
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
   const payloadData = buildPayloadData(payload, settings)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)
+
+  const authToken = emptyStringToUndefined(data.auth?.accessToken)
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
   const url = buildRequestURL(settings, payloadData.action_source, authToken)
 
