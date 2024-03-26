@@ -89,9 +89,25 @@ export interface Payload {
    */
   custom_data?: {
     /**
+     * The brands associated with the event.
+     */
+    brands?: string[]
+    /**
+     * The content categories associated with the event.
+     */
+    content_category?: string[]
+    /**
+     * The content IDs associated with the event, such as product SKUs.
+     */
+    content_ids?: string[]
+    /**
      * Currency for the value specified as ISO 4217 code.
      */
     currency?: string
+    /**
+     * The number of items when checkout was initiated.
+     */
+    num_items?: number
     /**
      * Order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
      */
@@ -219,23 +235,6 @@ export interface Payload {
     idfv?: string
   }
   /**
-   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
-   */
-  products?: {
-    /**
-     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
-     */
-    item_id?: string
-    /**
-     * Category of the item. This field accepts a string.
-     */
-    item_category?: string
-    /**
-     * Brand associated with the item. This field accepts a string.
-     */
-    brand?: string
-  }[]
-  /**
    * Brand associated with the item. This field accepts a string or a list of strings
    */
   brands?: string[]
@@ -319,6 +318,23 @@ export interface Payload {
    * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
    */
   price?: number
+  /**
+   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
+   */
+  products?: {
+    /**
+     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
+     */
+    item_id?: string
+    /**
+     * Category of the item. This field accepts a string.
+     */
+    item_category?: string
+    /**
+     * Brand associated with the item. This field accepts a string.
+     */
+    brand?: string
+  }[]
   /**
    * The text string that was searched for.
    */

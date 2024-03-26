@@ -510,26 +510,29 @@ const buildUserData = (payload: Payload) => {
 const buildCustomData = (payload: Payload) => {
   const { custom_data } = payload
 
-  // If customer populates products array, use it instead of the individual fields
-  const products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
+  const deprecated_products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
 
-  const { content_ids, content_category, brands, num_items } =
-    products.length > 0
-      ? {
-          content_ids: products.map(({ item_id }) => item_id),
-          content_category: products.map(({ item_category }) => item_category ?? ''),
-          brands: products.map((product) => product.brand ?? ''),
-          num_items: products.length
-        }
-      : (() => {
-          const content_ids = splitListValueToArray(payload.item_ids ?? '')
-          return {
-            content_ids,
-            content_category: splitListValueToArray(payload.item_category ?? ''),
-            brands: payload.brands,
-            num_items: parseNumberSafe(payload.number_items) ?? content_ids?.length
-          }
-        })()
+  const content_ids =
+    custom_data?.content_ids ??
+    (deprecated_products.length > 0 ? deprecated_products.map(({ item_id }) => item_id ?? '') : undefined) ??
+    splitListValueToArray(payload.item_ids ?? '')
+
+  const content_category =
+    custom_data?.content_category ??
+    (deprecated_products.length > 0
+      ? deprecated_products.map(({ item_category }) => item_category ?? '')
+      : undefined) ??
+    splitListValueToArray(payload.item_category ?? '')
+
+  const brands =
+    custom_data?.brands ??
+    (deprecated_products.length > 0 ? deprecated_products.map((product) => product.brand ?? '') : undefined) ??
+    payload.brands
+
+  const num_items =
+    custom_data?.num_items ?? deprecated_products.length > 0
+      ? deprecated_products.length
+      : parseNumberSafe(payload.number_items) ?? content_ids?.length
 
   const currency = emptyStringToUndefined(custom_data?.currency ?? payload.currency)?.toUpperCase()
   const order_id = emptyStringToUndefined(custom_data?.order_id ?? payload.transaction_id)

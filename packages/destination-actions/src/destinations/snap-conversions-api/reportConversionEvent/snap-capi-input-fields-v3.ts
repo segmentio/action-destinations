@@ -160,9 +160,24 @@ const custom_data: InputField = {
   description: 'The custom data object can be used to pass custom properties.',
   type: 'object',
   properties: {
-    //brands,
-    //content_category,
-    //content_ids,
+    brands: {
+      label: 'Brands',
+      description: 'The brands associated with the event.',
+      type: 'string',
+      multiple: true
+    },
+    content_category: {
+      label: 'Content Category',
+      description: 'The content categories associated with the event.',
+      type: 'string',
+      multiple: true
+    },
+    content_ids: {
+      label: 'Content IDs',
+      description: 'The content IDs associated with the event, such as product SKUs.',
+      type: 'string',
+      multiple: true
+    },
     currency: {
       label: 'Currency',
       description: 'Currency for the value specified as ISO 4217 code.',
@@ -171,7 +186,11 @@ const custom_data: InputField = {
         '@path': '$.properties.currency'
       }
     },
-    //num_items,
+    num_items: {
+      label: 'Number of Items',
+      description: 'The number of items when checkout was initiated.',
+      type: 'integer'
+    },
     order_id: {
       label: 'Order ID',
       description:
