@@ -65,6 +65,7 @@ Object {
           "userAgent": "(m6Ifxh1N4",
         },
         "groupId": "(m6Ifxh1N4",
+        "messageId": "(m6Ifxh1N4",
         "timestamp": "(m6Ifxh1N4",
         "traits": Object {
           "testType": "(m6Ifxh1N4",
@@ -99,6 +100,7 @@ Object {
           "userAgent": undefined,
         },
         "groupId": "(m6Ifxh1N4",
+        "messageId": "(m6Ifxh1N4",
         "timestamp": undefined,
         "traits": Object {},
         "type": "group",
@@ -175,6 +177,7 @@ Object {
           "timezone": ")#1JCeQHYVLgzRan",
           "userAgent": ")#1JCeQHYVLgzRan",
         },
+        "messageId": ")#1JCeQHYVLgzRan",
         "timestamp": ")#1JCeQHYVLgzRan",
         "traits": Object {
           "testType": ")#1JCeQHYVLgzRan",
@@ -209,6 +212,7 @@ Object {
           "timezone": undefined,
           "userAgent": undefined,
         },
+        "messageId": ")#1JCeQHYVLgzRan",
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",
@@ -285,6 +289,7 @@ Object {
           "timezone": "qB3uqzs44u!@O",
           "userAgent": "qB3uqzs44u!@O",
         },
+        "messageId": "qB3uqzs44u!@O",
         "name": "qB3uqzs44u!@O",
         "properties": Object {
           "category": "qB3uqzs44u!@O",
@@ -327,6 +332,7 @@ Object {
           "timezone": undefined,
           "userAgent": undefined,
         },
+        "messageId": "qB3uqzs44u!@O",
         "name": undefined,
         "properties": Object {
           "category": undefined,
@@ -411,6 +417,7 @@ Object {
           },
           "userAgent": "s62Sv8d1C1w",
         },
+        "messageId": "s62Sv8d1C1w",
         "name": "s62Sv8d1C1w",
         "properties": Object {
           "name": "s62Sv8d1C1w",
@@ -446,6 +453,7 @@ Object {
           "screen": undefined,
           "userAgent": undefined,
         },
+        "messageId": "s62Sv8d1C1w",
         "name": undefined,
         "properties": Object {
           "name": undefined,
@@ -529,6 +537,7 @@ Object {
           "userAgent": "CYyxkIddLM",
         },
         "event": "CYyxkIddLM",
+        "messageId": "CYyxkIddLM",
         "properties": Object {
           "testType": "CYyxkIddLM",
         },
@@ -565,6 +574,7 @@ Object {
           "userAgent": undefined,
         },
         "event": "CYyxkIddLM",
+        "messageId": "CYyxkIddLM",
         "properties": Object {},
         "timestamp": undefined,
         "type": "track",

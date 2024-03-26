@@ -2,16 +2,22 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError, RetryableError, StatsContext } from '@segment/actions-core'
+import {
+  RequestClient,
+  IntegrationError,
+  PayloadValidationError,
+  RetryableError,
+  StatsContext
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const validateCustomTraits = ({
   profileExtensionTable,
-  timestamp, 
+  timestamp,
   statsContext
 }: {
   profileExtensionTable?: string
-  timestamp: string | number,
+  timestamp: string | number
   statsContext: StatsContext | undefined
 }): void => {
   const statsClient = statsContext?.statsClient

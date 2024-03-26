@@ -16,7 +16,7 @@ export function isDirective(value: FieldValue): value is Directive {
     value !== null &&
     typeof value === 'object' &&
     Object.keys(value).some((key) =>
-      ['@if', '@path', '@template', '@literal', '@arrayPath', '@case', '@replace', '@json'].includes(key)
+      ['@if', '@path', '@template', '@literal', '@arrayPath', '@case', '@replace', '@json', '@flatten'].includes(key)
     )
   )
 }
@@ -143,6 +143,23 @@ export function isJSONDirective(value: FieldValue): value is JSONDirective {
   )
 }
 
+export interface FlattenDirective extends DirectiveMetadata {
+  '@flatten': {
+    value: FieldValue
+    separator: string
+  }
+}
+
+export function isFlattenDirective(value: FieldValue): value is FlattenDirective {
+  return (
+    isDirective(value) &&
+    '@flatten' in value &&
+    value['@flatten'] !== null &&
+    typeof value['@flatten'] === 'object' &&
+    'value' in value['@flatten']
+  )
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -152,6 +169,7 @@ type DirectiveKeysToType<T> = {
   ['@replace']: (input: ReplaceDirective) => T
   ['@template']: (input: TemplateDirective) => T
   ['@json']: (input: JSONDirective) => T
+  ['@flatten']: (input: FlattenDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -179,6 +197,9 @@ function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>)
   if (isJSONDirective(directive)) {
     return checker['@json'](directive)
   }
+  if (isFlattenDirective(directive)) {
+    return checker['@flatten'](directive)
+  }
   return null
 }
 
@@ -191,6 +212,7 @@ export type Directive =
   | ReplaceDirective
   | TemplateDirective
   | JSONDirective
+  | FlattenDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -215,7 +237,8 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@path': (input: PathDirective) => [input['@path']],
         '@replace': (input: ReplaceDirective) => getRawKeys(input['@replace'].value),
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
-        '@json': (input: JSONDirective) => getRawKeys(input['@json'].value)
+        '@json': (input: JSONDirective) => getRawKeys(input['@json'].value),
+        '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value)
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

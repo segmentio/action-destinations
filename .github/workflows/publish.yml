@@ -56,3 +56,35 @@ jobs:
       - name: Publish
         run: |
           yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+
+      - name: Generate and Push Release Tag
+        id: push-release-tag
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+
+          commit=${{ github.sha }}
+          if ! n=$(git rev-list --count $commit~ --grep "Publish" --since="00:00"); then
+              echo 'failed to calculate tag'
+              exit 1
+          fi
+
+          case "$n" in
+              0) suffix="" ;; # first commit of the day gets no suffix
+              *) suffix=".$n" ;; # subsequent commits get a suffix, starting with .1
+          esac
+
+          tag=$(printf release-$(date '+%Y-%m-%d%%s') $suffix)
+          git tag -a $tag -m "Release $tag"
+          git push origin $tag
+          echo "release-tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: Create Github Release
+        id: create-github-release
+        uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ steps.push-release-tag.outputs.release-tag }}
+        with:
+          script: |
+            const script = require('./scripts/create-github-release.js')
+            await script({github, context, core, exec})
