@@ -65,6 +65,7 @@ Object {
           "timezone": "l1ibvt$6IJOK*&*ZgReE",
           "userAgent": "l1ibvt$6IJOK*&*ZgReE",
         },
+        "messageId": "l1ibvt$6IJOK*&*ZgReE",
         "timestamp": "l1ibvt$6IJOK*&*ZgReE",
         "traits": Object {
           "testType": "l1ibvt$6IJOK*&*ZgReE",
@@ -99,6 +100,7 @@ Object {
           "timezone": undefined,
           "userAgent": undefined,
         },
+        "messageId": "l1ibvt$6IJOK*&*ZgReE",
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",

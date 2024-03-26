@@ -63,7 +63,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload.timestamp, statsContext: statsContext })
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload.timestamp,
+      statsContext: statsContext
+    })
 
     validateListMemberPayload(payload.userData)
 
@@ -75,7 +79,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload[0].timestamp, statsContext: statsContext })
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload[0].timestamp,
+      statsContext: statsContext
+    })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }

@@ -19,6 +19,7 @@ import {
   user_agent,
   timezone,
   traits,
+  message_id,
   enable_batching
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
@@ -45,6 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     traits,
+    message_id,
     enable_batching
   },
   perform: (_request, { payload, statsContext }) => {
@@ -78,6 +80,7 @@ function convertPayload(data: Payload) {
     anonymousId: data?.anonymous_id,
     groupId: data?.group_id,
     timestamp: data?.timestamp,
+    messageId: data?.message_id,
     context: {
       app: data?.application,
       campaign: data?.campaign_parameters,

@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         id: {
           label: 'Company Id',
-          type: 'string', 
+          type: 'string',
           required: true
         },
         name: {

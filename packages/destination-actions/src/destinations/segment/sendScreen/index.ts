@@ -20,6 +20,7 @@ import {
   screen,
   locale,
   location,
+  message_id,
   enable_batching
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
@@ -47,6 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone,
     group_id,
     properties,
+    message_id,
     enable_batching
   },
   perform: (_request, { payload, statsContext }) => {
@@ -78,6 +80,7 @@ function convertPayload(data: Payload) {
     anonymousId: data?.anonymous_id,
     timestamp: data?.timestamp,
     name: data?.screen_name,
+    messageId: data?.message_id,
     context: {
       app: data?.application,
       campaign: data?.campaign_parameters,
