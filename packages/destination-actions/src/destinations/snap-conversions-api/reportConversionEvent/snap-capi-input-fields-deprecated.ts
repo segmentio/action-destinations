@@ -10,6 +10,16 @@ const brands: InputField = {
   }
 }
 
+const click_id: InputField = {
+  label: 'Click ID',
+  description:
+    "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.click_id'
+  }
+}
+
 const description: InputField = {
   label: 'Description',
   description: 'A string description for additional info.',
@@ -33,6 +43,15 @@ const email: InputField = {
       then: { '@path': '$.properties.email' },
       else: { '@path': '$.traits.email' }
     }
+  }
+}
+
+const idfv: InputField = {
+  label: 'Identifier for Vendor',
+  description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
+  type: 'string',
+  default: {
+    '@path': '$.context.device.id'
   }
 }
 
@@ -69,6 +88,16 @@ const level: InputField = {
   label: 'Level',
   description: 'Represents a level in the context of a game.',
   type: 'string'
+}
+
+const mobile_ad_id: InputField = {
+  label: 'Mobile Ad Identifier',
+  description:
+    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
+  type: 'string',
+  default: {
+    '@path': '$.context.device.advertisingId'
+  }
 }
 
 const number_items: InputField = {
@@ -110,19 +139,33 @@ const user_agent: InputField = {
   }
 }
 
+const uuid_c1: InputField = {
+  label: 'uuid_c1 Cookie',
+  description:
+    'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.uuid_c1'
+  }
+}
+
 const snap_capi_input_fields_deprecated = {
   brands,
+  click_id,
   description,
   device_model,
   email,
+  idfv,
   ip_address,
   item_category,
   item_ids,
   level,
+  mobile_ad_id,
   number_items,
   os_version,
   phone_number,
-  user_agent
+  user_agent,
+  uuid_c1
 }
 
 export default snap_capi_input_fields_deprecated

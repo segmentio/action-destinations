@@ -448,7 +448,7 @@ const buildUserData = (payload: Payload) => {
   const phone_number = hash(normalizedPhoneNumber)
 
   // Converts all characters to lowercase
-  const madid = payload.mobile_ad_id?.toLowerCase()
+  const madid = (user_data?.madid ?? payload.mobile_ad_id)?.toLowerCase()
 
   const normalizedGender = user_data?.gender?.replace(/\s/g, '').toLowerCase()
   const gender = normalizedGender === 'male' ? 'm' : normalizedGender === 'female' ? 'f' : normalizedGender
@@ -487,8 +487,10 @@ const buildUserData = (payload: Payload) => {
   const lead_id = user_data?.leadID
   const subscription_id = user_data?.subscriptionID
 
-  const sc_click_id = payload.click_id
-  const sc_cookie1 = payload.uuid_c1
+  const idfv = user_data?.idfv ?? payload.idfv
+
+  const sc_click_id = user_data?.sc_click_id ?? payload.click_id
+  const sc_cookie1 = user_data?.sc_cookie1 ?? payload.uuid_c1
 
   return emptyObjectToUndefined({
     client_ip_address,
@@ -500,7 +502,7 @@ const buildUserData = (payload: Payload) => {
     external_id,
     fn: hashedFirstName,
     ge: hashedGender,
-    idfv: payload.idfv,
+    idfv,
     lead_id,
     ln: hashedLastName,
     madid,

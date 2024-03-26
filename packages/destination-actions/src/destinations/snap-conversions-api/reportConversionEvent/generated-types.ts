@@ -144,6 +144,22 @@ export interface Payload {
      * This is the identifier associated with your Snapchat Lead Ad.
      */
     leadID?: number
+    /**
+     * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+     */
+    madid?: string
+    /**
+     * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
+     */
+    sc_click_id?: string
+    /**
+     * Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.
+     */
+    sc_cookie1?: string
+    /**
+     * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
+     */
+    idfv?: string
   }
   /**
    * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.
@@ -191,18 +207,6 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-   */
-  mobile_ad_id?: string
-  /**
-   * Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.
-   */
-  uuid_c1?: string
-  /**
-   * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
-   */
-  idfv?: string
-  /**
    * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
    */
   price?: number
@@ -231,13 +235,13 @@ export interface Payload {
    */
   sign_up_method?: string
   /**
-   * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
-   */
-  click_id?: string
-  /**
    * Brand associated with the item. This field accepts a string or a list of strings
    */
   brands?: string[]
+  /**
+   * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
+   */
+  click_id?: string
   /**
    * A string description for additional info.
    */
@@ -250,6 +254,10 @@ export interface Payload {
    * Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
   email?: string
+  /**
+   * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
+   */
+  idfv?: string
   /**
    * IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
@@ -267,6 +275,10 @@ export interface Payload {
    */
   level?: string
   /**
+   * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+   */
+  mobile_ad_id?: string
+  /**
    * Number of items. This field accepts a string only. e.g. "5"
    */
   number_items?: string
@@ -282,4 +294,8 @@ export interface Payload {
    * User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
   user_agent?: string
+  /**
+   * Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.
+   */
+  uuid_c1?: string
 }
