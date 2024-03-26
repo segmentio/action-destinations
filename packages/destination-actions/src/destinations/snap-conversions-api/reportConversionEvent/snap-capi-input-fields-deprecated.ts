@@ -192,6 +192,52 @@ const price: InputField = {
   }
 }
 
+const products: InputField = {
+  label: 'Products',
+  description:
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+  type: 'object',
+  multiple: true,
+  additionalProperties: false,
+  properties: {
+    item_id: {
+      label: 'Item ID',
+      type: 'string',
+      description:
+        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
+      allowNull: false
+    },
+    item_category: {
+      label: 'Category',
+      type: 'string',
+      description: 'Category of the item. This field accepts a string.',
+      allowNull: false
+    },
+    brand: {
+      label: 'Brand',
+      type: 'string',
+      description: 'Brand associated with the item. This field accepts a string.',
+      allowNull: false
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': 'product_id'
+        },
+        item_category: {
+          '@path': 'category'
+        },
+        brand: {
+          '@path': 'brand'
+        }
+      }
+    ]
+  }
+}
+
 const search_string: InputField = {
   label: 'Search String',
   description: 'The text string that was searched for.',
@@ -269,6 +315,7 @@ const snap_capi_input_fields_deprecated = {
   page_url,
   phone_number,
   price,
+  products,
   search_string,
   sign_up_method,
   timestamp,
