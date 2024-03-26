@@ -46,16 +46,6 @@ const products: InputField = {
   }
 }
 
-const timestamp: InputField = {
-  label: 'Event Timestamp',
-  description:
-    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
-  type: 'string',
-  default: {
-    '@path': '$.timestamp'
-  }
-}
-
 const price: InputField = {
   label: 'Price',
   description:
@@ -115,7 +105,6 @@ const sign_up_method: InputField = {
 
 const snap_capi_input_fields_common = {
   products,
-  timestamp: { ...timestamp, required: true },
   price,
   currency,
   transaction_id,
