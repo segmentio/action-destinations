@@ -191,10 +191,6 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-   */
-  email?: string
-  /**
    * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
   mobile_ad_id?: string
@@ -207,38 +203,6 @@ export interface Payload {
    */
   idfv?: string
   /**
-   * Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-   */
-  phone_number?: string
-  /**
-   * User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-   */
-  user_agent?: string
-  /**
-   * IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-   */
-  ip_address?: string
-  /**
-   * Category of the item. This field accepts a string.
-   */
-  item_category?: string
-  /**
-   * Brand associated with the item. This field accepts a string or a list of strings
-   */
-  brands?: string[]
-  /**
-   * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
-   */
-  item_ids?: string
-  /**
-   * A string description for additional info.
-   */
-  description?: string
-  /**
-   * Number of items. This field accepts a string only. e.g. "5"
-   */
-  number_items?: string
-  /**
    * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
    */
   price?: number
@@ -250,10 +214,6 @@ export interface Payload {
    * Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
    */
   transaction_id?: string
-  /**
-   * Represents a level in the context of a game.
-   */
-  level?: string
   /**
    * If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
    */
@@ -271,15 +231,55 @@ export interface Payload {
    */
   sign_up_method?: string
   /**
-   * The user’s OS version.
+   * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
    */
-  os_version?: string
+  click_id?: string
+  /**
+   * Brand associated with the item. This field accepts a string or a list of strings
+   */
+  brands?: string[]
+  /**
+   * A string description for additional info.
+   */
+  description?: string
   /**
    * The user’s device model.
    */
   device_model?: string
   /**
-   * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
+   * Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
-  click_id?: string
+  email?: string
+  /**
+   * IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+   */
+  ip_address?: string
+  /**
+   * Category of the item. This field accepts a string.
+   */
+  item_category?: string
+  /**
+   * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
+   */
+  item_ids?: string
+  /**
+   * Represents a level in the context of a game.
+   */
+  level?: string
+  /**
+   * Number of items. This field accepts a string only. e.g. "5"
+   */
+  number_items?: string
+  /**
+   * The user’s OS version.
+   */
+  os_version?: string
+  /**
+   * Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+   */
+  phone_number?: string
+  /**
+   * User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+   */
+  user_agent?: string
 }

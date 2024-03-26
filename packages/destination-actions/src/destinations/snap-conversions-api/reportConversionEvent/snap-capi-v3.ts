@@ -378,7 +378,7 @@ const COUNTRY_CODES = new Map<string, string>([
   ['zimbabwe', 'zw']
 ])
 
-const validatePayload = (payload: Payload): Payload => {
+const FIXME_validatePayload = (payload: Payload): Payload => {
   raiseMisconfiguredRequiredFieldErrorIf(
     !isNullOrUndefined(payload.currency) && !CURRENCY_ISO_4217_CODES.has(payload.currency.toUpperCase()),
     `${payload.currency} is not a valid currency code.`
@@ -656,7 +656,7 @@ export const performSnapCAPIv3 = async (
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
   const url = buildRequestURL(validateAppOrPixelID(settings, event_conversion_type), authToken)
-  const json = formatPayload(validatePayload(payload), settings)
+  const json = formatPayload(FIXME_validatePayload(payload), settings)
 
   return request(url, {
     method: 'post',
