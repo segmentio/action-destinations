@@ -362,6 +362,16 @@ const event_name: InputField = {
   type: 'string'
 }
 
+const event_time: InputField = {
+  label: 'Event Timestamp',
+  description:
+    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.',
+  type: 'string',
+  default: {
+    '@path': '$.timestamp'
+  }
+}
+
 const snap_capi_input_fields_v3 = {
   action_source,
   app_data,
@@ -370,6 +380,7 @@ const snap_capi_input_fields_v3 = {
   data_processing_options_state,
   event_id,
   event_name,
+  event_time,
   user_data
 }
 

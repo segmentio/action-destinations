@@ -576,6 +576,9 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
 
   const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : []
 
+  const ISO_8601_event_time = payload.event_time ?? payload.timestamp
+  const event_time = ISO_8601_event_time != null ? Date.parse(ISO_8601_event_time) : undefined
+
   return {
     integration: 'segment',
     event_id,
@@ -584,7 +587,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
     // translating them
     event_name: payload.event_name ?? payload.event_type,
     event_source_url: payload.page_url,
-    event_time: Date.parse(payload.timestamp),
+    event_time,
     user_data,
     custom_data,
     action_source,
@@ -642,6 +645,7 @@ const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
   const {
     action_source,
     event_name,
+    event_time,
     custom_data = {} as NonNullable<typeof payload.custom_data>,
     user_data = {} as NonNullable<typeof payload.user_data>
   } = payload
@@ -654,6 +658,11 @@ const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
     event_name,
     "The root value is missing the required field 'event_name'."
+  )
+
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
+    event_time,
+    "The root value is missing the required field 'event_time'."
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
