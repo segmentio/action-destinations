@@ -105,6 +105,10 @@ export interface Payload {
    */
   event_name?: string
   /**
+   * The URL of the web page where the event took place.
+   */
+  event_source_url?: string
+  /**
    * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.
    */
   event_time?: string
@@ -223,10 +227,6 @@ export interface Payload {
    */
   search_string?: string
   /**
-   * The URL of the web page where the event took place.
-   */
-  page_url?: string
-  /**
    * A string indicating the sign up method.
    */
   sign_up_method?: string
@@ -298,6 +298,10 @@ export interface Payload {
    * The user’s OS version.
    */
   os_version?: string
+  /**
+   * The URL of the web page where the event took place.
+   */
+  page_url?: string
   /**
    * Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */

@@ -88,15 +88,6 @@ const search_string: InputField = {
   }
 }
 
-const page_url: InputField = {
-  label: 'Page URL',
-  description: 'The URL of the web page where the event took place.',
-  type: 'string',
-  default: {
-    '@path': '$.context.page.url'
-  }
-}
-
 const sign_up_method: InputField = {
   label: 'Sign Up Method',
   description: 'A string indicating the sign up method.',
@@ -109,7 +100,6 @@ const snap_capi_input_fields_common = {
   currency,
   transaction_id,
   search_string,
-  page_url,
   sign_up_method
 }
 

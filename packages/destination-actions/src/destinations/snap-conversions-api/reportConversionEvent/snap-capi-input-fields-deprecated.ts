@@ -146,6 +146,15 @@ const os_version: InputField = {
   type: 'string'
 }
 
+const page_url: InputField = {
+  label: 'Page URL',
+  description: 'The URL of the web page where the event took place.',
+  type: 'string',
+  default: {
+    '@path': '$.context.page.url'
+  }
+}
+
 const phone_number: InputField = {
   label: 'Phone Number',
   description:
@@ -208,6 +217,7 @@ const snap_capi_input_fields_deprecated = {
   mobile_ad_id,
   number_items,
   os_version,
+  page_url,
   phone_number,
   timestamp,
   user_agent,
