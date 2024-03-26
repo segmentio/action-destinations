@@ -20,6 +20,13 @@ const click_id: InputField = {
   }
 }
 
+const client_dedup_id: InputField = {
+  label: 'Client Deduplication ID',
+  description:
+    'If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
+  type: 'string'
+}
+
 const description: InputField = {
   label: 'Description',
   description: 'A string description for additional info.',
@@ -44,6 +51,12 @@ const email: InputField = {
       else: { '@path': '$.traits.email' }
     }
   }
+}
+
+const event_tag: InputField = {
+  label: 'Event Tag',
+  description: 'Custom event label.',
+  type: 'string'
 }
 
 const idfv: InputField = {
@@ -152,9 +165,11 @@ const uuid_c1: InputField = {
 const snap_capi_input_fields_deprecated = {
   brands,
   click_id,
+  client_dedup_id,
   description,
   device_model,
   email,
+  event_tag,
   idfv,
   ip_address,
   item_category,

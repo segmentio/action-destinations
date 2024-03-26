@@ -64,12 +64,6 @@ const event_conversion_type: InputField = {
   ]
 }
 
-const event_tag: InputField = {
-  label: 'Event Tag',
-  description: 'Custom event label.',
-  type: 'string'
-}
-
 const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
@@ -113,13 +107,6 @@ const transaction_id: InputField = {
   }
 }
 
-const client_dedup_id: InputField = {
-  label: 'Client Deduplication ID',
-  description:
-    'If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
-  type: 'string'
-}
-
 const search_string: InputField = {
   label: 'Search String',
   description: 'The text string that was searched for.',
@@ -148,12 +135,10 @@ const snap_capi_input_fields_common = {
   products,
   event_type: { ...event_type, required: true },
   event_conversion_type: { ...event_conversion_type, required: true },
-  event_tag,
   timestamp: { ...timestamp, required: true },
   price,
   currency,
   transaction_id,
-  client_dedup_id,
   search_string,
   page_url,
   sign_up_method

@@ -555,7 +555,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
 
-  const event_id = emptyStringToUndefined(payload.client_dedup_id)
+  const event_id = emptyStringToUndefined(payload.event_id) ?? emptyStringToUndefined(payload.client_dedup_id)
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
