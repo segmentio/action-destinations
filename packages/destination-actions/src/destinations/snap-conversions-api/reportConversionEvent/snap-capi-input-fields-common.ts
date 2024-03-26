@@ -46,61 +46,8 @@ const products: InputField = {
   }
 }
 
-const price: InputField = {
-  label: 'Price',
-  description:
-    "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
-  type: 'number',
-  default: {
-    '@if': {
-      exists: { '@path': '$.properties.revenue' },
-      then: { '@path': '$.properties.revenue' },
-      else: { '@path': '$.properties.total' }
-    }
-  }
-}
-
-const currency: InputField = {
-  label: 'Currency',
-  description: 'Currency for the value specified as ISO 4217 code.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.currency'
-  }
-}
-
-const transaction_id: InputField = {
-  label: 'Transaction ID',
-  description:
-    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.order_id'
-  }
-}
-
-const search_string: InputField = {
-  label: 'Search String',
-  description: 'The text string that was searched for.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.query'
-  }
-}
-
-const sign_up_method: InputField = {
-  label: 'Sign Up Method',
-  description: 'A string indicating the sign up method.',
-  type: 'string'
-}
-
 const snap_capi_input_fields_common = {
-  products,
-  price,
-  currency,
-  transaction_id,
-  search_string,
-  sign_up_method
+  products
 }
 
 export default snap_capi_input_fields_common

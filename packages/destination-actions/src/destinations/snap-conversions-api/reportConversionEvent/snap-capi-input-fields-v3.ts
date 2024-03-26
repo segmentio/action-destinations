@@ -155,6 +155,61 @@ const app_data: InputField = {
   }
 }
 
+const custom_data: InputField = {
+  label: 'Custom Data',
+  description: 'The custom data object can be used to pass custom properties.',
+  type: 'object',
+  properties: {
+    //brands,
+    //content_category,
+    //content_ids,
+    currency: {
+      label: 'Currency',
+      description: 'Currency for the value specified as ISO 4217 code.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.currency'
+      }
+    },
+    //num_items,
+    order_id: {
+      label: 'Order ID',
+      description:
+        'Order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.order_id'
+      }
+    },
+    search_string: {
+      label: 'Search String',
+      description: 'The text string that was searched for.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.query'
+      }
+    },
+    sign_up_method: {
+      label: 'Sign Up Method',
+      description: 'A string indicating the sign up method.',
+      type: 'string'
+    },
+    value: {
+      label: 'Value',
+      description:
+        "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
+      type: 'number',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.revenue' },
+          then: { '@path': '$.properties.revenue' },
+          else: { '@path': '$.properties.total' }
+        }
+      }
+    }
+  }
+}
+
 const user_data: InputField = {
   label: 'User Data',
   description:
@@ -177,7 +232,14 @@ const user_data: InputField = {
       label: 'Phone',
       description:
         'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.',
-      type: 'string'
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.phone' },
+          then: { '@path': '$.properties.phone' },
+          else: { '@path': '$.traits.phone' }
+        }
+      }
     },
     gender: {
       label: 'Gender',
@@ -384,6 +446,7 @@ const event_time: InputField = {
 const snap_capi_input_fields_v3 = {
   action_source,
   app_data,
+  custom_data,
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
