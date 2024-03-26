@@ -85,9 +85,25 @@ export interface Payload {
     deviceTimezone?: string
   }
   /**
+   * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.
+   */
+  data_processing_options?: boolean
+  /**
+   * A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
+   */
+  data_processing_options_country?: number
+  /**
+   * A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
+   */
+  data_processing_options_state?: number
+  /**
    * If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
    */
   event_id?: string
+  /**
+   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
+   */
+  event_name?: string
   /**
    * These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.
    */
@@ -170,18 +186,6 @@ export interface Payload {
     idfv?: string
   }
   /**
-   * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.
-   */
-  data_processing_options?: boolean
-  /**
-   * A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
-   */
-  data_processing_options_country?: number
-  /**
-   * A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
-   */
-  data_processing_options_state?: number
-  /**
    * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
    */
   products?: {
@@ -198,10 +202,6 @@ export interface Payload {
      */
     brand?: string
   }[]
-  /**
-   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
-   */
-  event_type: string
   /**
    * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.
    */
@@ -262,6 +262,10 @@ export interface Payload {
    * Custom event label.
    */
   event_tag?: string
+  /**
+   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
+   */
+  event_type?: string
   /**
    * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
    */
