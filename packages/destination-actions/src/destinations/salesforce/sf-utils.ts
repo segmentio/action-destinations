@@ -127,8 +127,14 @@ const buildCSVFromHeaderMap = (
       }
     }
 
-    const uniqueIdValue = getUniqueIdValue(payloads[i])
-    rows += `${row}"${uniqueIdValue}"\n`
+    if (payloads[i].operation === 'create') {
+      // Remove the trailing comma from the row, there is no unique ID to append
+      row = row.substring(0, row.length - 1)
+      rows += `${row}\n`
+    } else {
+      const uniqueIdValue = getUniqueIdValue(payloads[i])
+      rows += `${row}"${uniqueIdValue}"\n`
+    }
   }
   return rows
 }
@@ -159,6 +165,11 @@ const getUniqueIdValue = (payload: GenericPayload): string => {
 export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
+
+  if (payloads[0].operation === 'create') {
+    // Remove the trailing comma, since there is no unique ID to append
+    csv = csv.substring(0, csv.length - 1)
+  }
 
   csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
 
