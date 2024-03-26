@@ -362,6 +362,15 @@ const event_name: InputField = {
   type: 'string'
 }
 
+const event_source_url: InputField = {
+  label: 'Event Source URL',
+  description: 'The URL of the web page where the event took place.',
+  type: 'string',
+  default: {
+    '@path': '$.context.page.url'
+  }
+}
+
 const event_time: InputField = {
   label: 'Event Timestamp',
   description:
@@ -380,6 +389,7 @@ const snap_capi_input_fields_v3 = {
   data_processing_options_state,
   event_id,
   event_name,
+  event_source_url,
   event_time,
   user_data
 }

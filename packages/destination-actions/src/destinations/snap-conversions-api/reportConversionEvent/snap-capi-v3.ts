@@ -568,7 +568,14 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
     getSupportedActionSource(payload.action_source) ??
     eventConversionTypeToActionSource[payload.event_conversion_type ?? '']
 
+  // Snaps CAPI v3 supports the legacy v2 events so don't bother
+  // translating them
+  const event_name = payload.event_name ?? payload.event_type
+  const event_source_url = payload.event_source_url ?? payload.page_url
   const event_id = emptyStringToUndefined(payload.event_id) ?? emptyStringToUndefined(payload.client_dedup_id)
+
+  const ISO_8601_event_time = payload.event_time ?? payload.timestamp
+  const event_time = ISO_8601_event_time != null ? Date.parse(ISO_8601_event_time) : undefined
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
@@ -576,17 +583,11 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
 
   const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : []
 
-  const ISO_8601_event_time = payload.event_time ?? payload.timestamp
-  const event_time = ISO_8601_event_time != null ? Date.parse(ISO_8601_event_time) : undefined
-
   return {
     integration: 'segment',
     event_id,
-
-    // Snaps CAPI v3 supports the legacy v2 events so don't bother
-    // translating them
-    event_name: payload.event_name ?? payload.event_type,
-    event_source_url: payload.page_url,
+    event_name,
+    event_source_url,
     event_time,
     user_data,
     custom_data,
