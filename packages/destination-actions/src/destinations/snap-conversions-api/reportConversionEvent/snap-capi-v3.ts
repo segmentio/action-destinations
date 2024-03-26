@@ -378,23 +378,6 @@ const COUNTRY_CODES = new Map<string, string>([
   ['zimbabwe', 'zw']
 ])
 
-const FIXME_validatePayload = (payload: Payload): Payload => {
-  raiseMisconfiguredRequiredFieldErrorIf(
-    !isNullOrUndefined(payload.currency) && !CURRENCY_ISO_4217_CODES.has(payload.currency.toUpperCase()),
-    `${payload.currency} is not a valid currency code.`
-  )
-
-  raiseMisconfiguredRequiredFieldErrorIf(
-    isNullOrUndefined(payload.email) &&
-      isNullOrUndefined(payload.phone_number) &&
-      isNullOrUndefined(payload.mobile_ad_id) &&
-      (isNullOrUndefined(payload.ip_address) || isNullOrUndefined(payload.user_agent)),
-    `Payload must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`
-  )
-
-  return payload
-}
-
 const eventConversionTypeToActionSource: { [k in string]?: string } = {
   WEB: 'website',
   MOBILE_APP: 'app',
@@ -556,7 +539,7 @@ const buildCustomData = (payload: Payload) => {
     brands,
     content_category,
     content_ids,
-    currency: payload.currency,
+    currency: payload.currency?.toUpperCase(),
     num_items,
     order_id: emptyStringToUndefined(payload.transaction_id),
     search_string: payload.search_string,
@@ -565,7 +548,7 @@ const buildCustomData = (payload: Payload) => {
   })
 }
 
-const formatPayload = (payload: Payload, settings: Settings): object => {
+const buildPayloadData = (payload: Payload, settings: Settings) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = eventConversionTypeToActionSource[payload.event_conversion_type]
@@ -578,49 +561,29 @@ const formatPayload = (payload: Payload, settings: Settings): object => {
 
   const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : []
 
-  const result = {
-    data: [
-      {
-        integration: 'segment',
-        event_id,
+  return {
+    integration: 'segment',
+    event_id,
 
-        // Snaps CAPI v3 supports the legacy v2 events so don't bother
-        // translating them
-        event_name: payload.event_type,
-        event_source_url: payload.page_url,
-        event_time: Date.parse(payload.timestamp),
-        user_data,
-        custom_data,
-        action_source,
-        app_data,
-        data_processing_options,
-        data_processing_options_country: payload.data_processing_options_country,
-        data_processing_options_state: payload.data_processing_options_state
-      }
-    ]
+    // Snaps CAPI v3 supports the legacy v2 events so don't bother
+    // translating them
+    event_name: payload.event_type,
+    event_source_url: payload.page_url,
+    event_time: Date.parse(payload.timestamp),
+    user_data,
+    custom_data,
+    action_source,
+    app_data,
+    data_processing_options,
+    data_processing_options_country: payload.data_processing_options_country,
+    data_processing_options_state: payload.data_processing_options_state
   }
-
-  return result
 }
 
-const validateAppOrPixelID = (settings: Settings, event_conversion_type: string): string => {
+const validateSettingsConfig = (settings: Settings, event_conversion_type: string) => {
   const { snap_app_id, pixel_id } = settings
   const snapAppID = emptyStringToUndefined(snap_app_id)
   const snapPixelID = emptyStringToUndefined(pixel_id)
-
-  // Some configurations specify both a snapPixelID and a snapAppID. In these cases
-  // check the conversion type to ensure that the right id is selected and used.
-  const appOrPixelID = (() => {
-    switch (event_conversion_type) {
-      case 'WEB':
-      case 'OFFLINE':
-        return snapPixelID
-      case 'MOBILE_APP':
-        return snapAppID
-      default:
-        return undefined
-    }
-  })()
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'OFFLINE' && isNullOrUndefined(snapPixelID),
@@ -634,16 +597,51 @@ const validateAppOrPixelID = (settings: Settings, event_conversion_type: string)
 
   raiseMisconfiguredRequiredFieldErrorIf(
     event_conversion_type === 'WEB' && isNullOrUndefined(snapPixelID),
-    `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`
+    `If event conversion type is "WEB" then Pixel ID must be defined`
   )
-
-  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(appOrPixelID, 'Missing valid app or pixel ID')
-
-  return appOrPixelID
 }
 
-export const buildRequestURL = (appOrPixelID: string, authToken: string) =>
-  `https://tr.snapchat.com/v3/${appOrPixelID}/events?access_token=${authToken}`
+const buildRequestURL = (settings: Settings, event_conversion_type: string, authToken: string) => {
+  const { snap_app_id, pixel_id } = settings
+
+  // Some configurations specify both a snapPixelID and a snapAppID. In these cases
+  // check the conversion type to ensure that the right id is selected and used.
+  const appOrPixelID = emptyStringToUndefined(
+    (() => {
+      switch (event_conversion_type) {
+        case 'WEB':
+        case 'OFFLINE':
+          return pixel_id
+        case 'MOBILE_APP':
+          return snap_app_id
+        default:
+          return undefined
+      }
+    })()
+  )
+
+  return `https://tr.snapchat.com/v3/${appOrPixelID}/events?access_token=${authToken}`
+}
+
+const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
+  const {
+    custom_data = {} as NonNullable<typeof payload.custom_data>,
+    user_data = {} as NonNullable<typeof payload.user_data>
+  } = payload
+
+  raiseMisconfiguredRequiredFieldErrorIf(
+    !isNullOrUndefined(custom_data.currency) && !CURRENCY_ISO_4217_CODES.has(custom_data.currency),
+    `${custom_data.currency} is not a valid currency code.`
+  )
+
+  raiseMisconfiguredRequiredFieldErrorIf(
+    isNullOrUndefined(user_data.em) &&
+      isNullOrUndefined(user_data.ph) &&
+      isNullOrUndefined(user_data.madid) &&
+      (isNullOrUndefined(user_data.client_ip_address) || isNullOrUndefined(user_data.client_user_agent)),
+    `Payload must contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields`
+  )
+}
 
 export const performSnapCAPIv3 = async (
   request: RequestClient,
@@ -654,12 +652,17 @@ export const performSnapCAPIv3 = async (
   const authToken = emptyStringToUndefined(data.auth?.accessToken)
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
+  validateSettingsConfig(settings, event_conversion_type)
 
-  const url = buildRequestURL(validateAppOrPixelID(settings, event_conversion_type), authToken)
-  const json = formatPayload(FIXME_validatePayload(payload), settings)
+  const url = buildRequestURL(settings, event_conversion_type, authToken)
+  const payloadData = buildPayloadData(payload, settings)
+
+  validatePayload(payloadData)
 
   return request(url, {
     method: 'post',
-    json
+    json: {
+      data: [payloadData]
+    }
   })
 }

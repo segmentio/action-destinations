@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { buildRequestURL } from '../reportConversionEvent/snap-capi-v3'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2022-05-12T15:21:15.449Z'
@@ -331,7 +330,24 @@ describe('Snap Conversions API ', () => {
         expect(currency).toBe('USD')
         expect(value).toBe(15)
         expect(action_source).toBe('app')
-        expect(extinfo).toEqual(['i2', '', '', '', '17.2', 'iPhone12,1', '', '', '', '', '', '', '', '', '', ''])
+        expect(extinfo).toEqual([
+          'i2',
+          '',
+          '',
+          '',
+          '17.2',
+          'iPhone12,1',
+          'en-US',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'Europe/Amsterdam'
+        ])
         expect(advertiser_tracking_enabled).toBe(0)
       })
 
@@ -360,7 +376,7 @@ describe('Snap Conversions API ', () => {
               event_conversion_type: 'WEB'
             }
           })
-        ).rejects.toThrowError('Galleon is not a valid currency code.')
+        ).rejects.toThrowError('GALLEON is not a valid currency code.')
       })
 
       it('should fail missing event conversion type', async () => {
@@ -666,7 +682,7 @@ describe('Snap Conversions API ', () => {
           }
         })
 
-        expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+        expect(responses[0].url).toBe('https://tr.snapchat.com/v3/pixel123/events?access_token=access123')
       })
 
       it('should trim a pixel id with leading or trailing whitespace', async () => {
@@ -693,7 +709,7 @@ describe('Snap Conversions API ', () => {
           }
         })
 
-        expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+        expect(responses[0].url).toBe('https://tr.snapchat.com/v3/pixel123/events?access_token=access123')
       })
 
       it('should exclude number_items that is not a valid integer', async () => {
@@ -721,7 +737,7 @@ describe('Snap Conversions API ', () => {
           }
         })
 
-        expect(responses[0].url).toBe(buildRequestURL('pixel123', 'access123'))
+        expect(responses[0].url).toBe('https://tr.snapchat.com/v3/pixel123/events?access_token=access123')
 
         const body = JSON.parse(responses[0].options.body as string)
         const { data } = body

@@ -34,7 +34,7 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
 export const box = (v: string | undefined): readonly string[] | undefined =>
   (v ?? '').length > 0 ? [v as string] : undefined
 
-export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
+export const emptyObjectToUndefined = <T extends { [k in string]?: unknown }>(v: T) => {
   const properties = Object.getOwnPropertyNames(v)
 
   if (properties.length === 0) {
