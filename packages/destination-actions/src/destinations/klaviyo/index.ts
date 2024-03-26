@@ -12,6 +12,7 @@ import addProfileToList from './addProfileToList'
 import removeProfileFromList from './removeProfileFromList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
+import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
 
 const destination: AudienceDestinationDefinition<Settings> = {
@@ -125,7 +126,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
     addProfileToList,
     removeProfileFromList,
     trackEvent,
-    orderCompleted
+    orderCompleted,
+    subscribeProfile
   }
 }
 
