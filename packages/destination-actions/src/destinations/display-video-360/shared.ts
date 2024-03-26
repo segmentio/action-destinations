@@ -1,5 +1,5 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { OAUTH_URL, USER_UPLOAD_ENDPOINT } from './constants'
+import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 
 import {
@@ -70,7 +70,8 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, acc
     // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
-    'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
+    'Login-Customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`,
+    'Linked-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
 }
 
