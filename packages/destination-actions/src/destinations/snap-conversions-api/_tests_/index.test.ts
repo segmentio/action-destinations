@@ -398,7 +398,7 @@ describe('Snap Conversions API ', () => {
               event_type: 'PURCHASE'
             }
           })
-        ).rejects.toThrowError("The root value is missing the required field 'event_conversion_type'.")
+        ).rejects.toThrowError("The root value is missing the required field 'action_source'.")
       })
 
       it('should handle a custom event', async () => {
