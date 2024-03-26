@@ -32,7 +32,7 @@ export const getAuthSettings = (settings: SettingsWithOauth): DV360AuthCredentia
   }
 
   return {
-    refresh_token: settings.oauth.refresh_token,
+    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
     access_token: settings.oauth.access_token,
     client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
     client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
@@ -40,8 +40,7 @@ export const getAuthSettings = (settings: SettingsWithOauth): DV360AuthCredentia
 }
 
 // Use the refresh token to get a new access token.
-// Refresh tokens are long-lived and belong to the user.
-// Client_id and secret belong to the application.
+// Refresh tokens, Client_id and secret are long-lived and belong to the DMP.
 // Given the short expiration time of access tokens, we need to refresh them periodically.
 export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
   if (!settings.refresh_token) {
