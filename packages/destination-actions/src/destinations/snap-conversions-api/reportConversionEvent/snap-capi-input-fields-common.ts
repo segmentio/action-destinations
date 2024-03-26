@@ -80,35 +80,6 @@ const timestamp: InputField = {
   }
 }
 
-const mobile_ad_id: InputField = {
-  label: 'Mobile Ad Identifier',
-  description:
-    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@path': '$.context.device.advertisingId'
-  }
-}
-
-const uuid_c1: InputField = {
-  label: 'uuid_c1 Cookie',
-  description:
-    'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
-  type: 'string',
-  default: {
-    '@path': '$.integrations.Snap Conversions Api.uuid_c1'
-  }
-}
-
-const idfv: InputField = {
-  label: 'Identifier for Vendor',
-  description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
-  type: 'string',
-  default: {
-    '@path': '$.context.device.id'
-  }
-}
-
 const price: InputField = {
   label: 'Price',
   description:
@@ -173,33 +144,19 @@ const sign_up_method: InputField = {
   type: 'string'
 }
 
-const click_id: InputField = {
-  label: 'Click ID',
-  description:
-    "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
-  type: 'string',
-  default: {
-    '@path': '$.integrations.Snap Conversions Api.click_id'
-  }
-}
-
 const snap_capi_input_fields_common = {
   products,
   event_type: { ...event_type, required: true },
   event_conversion_type: { ...event_conversion_type, required: true },
   event_tag,
   timestamp: { ...timestamp, required: true },
-  mobile_ad_id,
-  uuid_c1,
-  idfv,
   price,
   currency,
   transaction_id,
   client_dedup_id,
   search_string,
   page_url,
-  sign_up_method,
-  click_id
+  sign_up_method
 }
 
 export default snap_capi_input_fields_common

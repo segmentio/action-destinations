@@ -225,6 +225,41 @@ export const user_data: InputField = {
       label: 'Lead ID',
       description: 'This is the identifier associated with your Snapchat Lead Ad.',
       type: 'integer'
+    },
+    madid: {
+      label: 'Mobile Ad Identifier',
+      description:
+        'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
+      type: 'string',
+      default: {
+        '@path': '$.context.device.advertisingId'
+      }
+    },
+    sc_click_id: {
+      label: 'Click ID',
+      description:
+        "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
+      type: 'string',
+      default: {
+        '@path': '$.integrations.Snap Conversions Api.click_id'
+      }
+    },
+    sc_cookie1: {
+      label: 'uuid_c1 Cookie',
+      description:
+        'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
+      type: 'string',
+      default: {
+        '@path': '$.integrations.Snap Conversions Api.uuid_c1'
+      }
+    },
+    idfv: {
+      label: 'Identifier for Vendor',
+      description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
+      type: 'string',
+      default: {
+        '@path': '$.context.device.id'
+      }
     }
   },
   default: {
