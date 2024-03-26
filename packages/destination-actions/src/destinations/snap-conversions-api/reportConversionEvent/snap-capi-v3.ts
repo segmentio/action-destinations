@@ -508,6 +508,8 @@ const buildUserData = (payload: Payload) => {
 }
 
 const buildCustomData = (payload: Payload) => {
+  const { custom_data } = payload
+
   // If customer populates products array, use it instead of the individual fields
   const products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
 
@@ -529,16 +531,22 @@ const buildCustomData = (payload: Payload) => {
           }
         })()
 
+  const currency = emptyStringToUndefined(custom_data?.currency ?? payload.currency)?.toUpperCase()
+  const order_id = emptyStringToUndefined(custom_data?.order_id ?? payload.transaction_id)
+  const search_string = emptyStringToUndefined(custom_data?.search_string ?? payload.search_string)
+  const sign_up_method = emptyStringToUndefined(custom_data?.sign_up_method ?? payload.sign_up_method)
+  const value = custom_data?.value ?? payload.price
+
   return emptyObjectToUndefined({
     brands,
     content_category,
     content_ids,
-    currency: payload.currency?.toUpperCase(),
+    currency,
     num_items,
-    order_id: emptyStringToUndefined(payload.transaction_id),
-    search_string: payload.search_string,
-    sign_up_method: payload.sign_up_method,
-    value: payload.price
+    order_id,
+    search_string,
+    sign_up_method,
+    value
   })
 }
 
@@ -691,11 +699,10 @@ export const performSnapCAPIv3 = async (
 
   const payloadData = buildPayloadData(payload, settings)
 
+  validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)
 
   const url = buildRequestURL(settings, payloadData.action_source, authToken)
-
-  validatePayload(payloadData)
 
   return request(url, {
     method: 'post',

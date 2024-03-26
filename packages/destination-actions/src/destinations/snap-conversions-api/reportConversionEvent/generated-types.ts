@@ -85,6 +85,31 @@ export interface Payload {
     deviceTimezone?: string
   }
   /**
+   * The custom data object can be used to pass custom properties.
+   */
+  custom_data?: {
+    /**
+     * Currency for the value specified as ISO 4217 code.
+     */
+    currency?: string
+    /**
+     * Order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
+     */
+    order_id?: string
+    /**
+     * The text string that was searched for.
+     */
+    search_string?: string
+    /**
+     * A string indicating the sign up method.
+     */
+    sign_up_method?: string
+    /**
+     * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
+     */
+    value?: number
+  }
+  /**
    * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.
    */
   data_processing_options?: boolean
@@ -211,26 +236,6 @@ export interface Payload {
     brand?: string
   }[]
   /**
-   * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
-   */
-  price?: number
-  /**
-   * Currency for the value specified as ISO 4217 code.
-   */
-  currency?: string
-  /**
-   * Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
-   */
-  transaction_id?: string
-  /**
-   * The text string that was searched for.
-   */
-  search_string?: string
-  /**
-   * A string indicating the sign up method.
-   */
-  sign_up_method?: string
-  /**
    * Brand associated with the item. This field accepts a string or a list of strings
    */
   brands?: string[]
@@ -242,6 +247,10 @@ export interface Payload {
    * If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
    */
   client_dedup_id?: string
+  /**
+   * Currency for the value specified as ISO 4217 code.
+   */
+  currency?: string
   /**
    * A string description for additional info.
    */
@@ -307,9 +316,25 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
+   */
+  price?: number
+  /**
+   * The text string that was searched for.
+   */
+  search_string?: string
+  /**
+   * A string indicating the sign up method.
+   */
+  sign_up_method?: string
+  /**
    * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.
    */
   timestamp?: string
+  /**
+   * Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.
+   */
+  transaction_id?: string
   /**
    * User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
    */
