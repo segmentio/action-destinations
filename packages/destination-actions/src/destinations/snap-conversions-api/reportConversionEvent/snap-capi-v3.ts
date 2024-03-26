@@ -42,7 +42,7 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 
 const iosAppIDRegex = new RegExp('^[0-9]+$')
 
-export const formatPayload = (payload: Payload, settings: Settings, isTest = true): object => {
+export const formatPayload = (payload: Payload, settings: Settings): object => {
   const app_id = emptyStringToUndefined(settings.app_id)
 
   // event_conversion_type is a required parameter whose value is enforced as
@@ -157,8 +157,7 @@ export const formatPayload = (payload: Payload, settings: Settings, isTest = tru
         action_source,
         app_data
       }
-    ],
-    ...(isTest ? { test_event_code: 'segment_test' } : {})
+    ]
   }
 
   return result
@@ -208,8 +207,7 @@ export const buildRequestURL = (appOrPixelID: string, authToken: string) =>
 
 export const performSnapCAPIv3 = async (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload>,
-  isTest = true
+  data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
   const { event_conversion_type } = payload
@@ -218,7 +216,7 @@ export const performSnapCAPIv3 = async (
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
 
   const url = buildRequestURL(validateAppOrPixelID(settings, event_conversion_type), authToken)
-  const json = formatPayload(validatePayload(payload), settings, isTest)
+  const json = formatPayload(validatePayload(payload), settings)
 
   return request(url, {
     method: 'post',
