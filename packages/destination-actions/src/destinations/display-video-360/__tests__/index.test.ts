@@ -62,6 +62,12 @@ const getAudienceResponse = [
 ]
 
 describe('Display Video 360', () => {
+  beforeEach(() => {
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID = 'Clientz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET = 'Scretz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN = 'Freshy'
+  })
+
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
