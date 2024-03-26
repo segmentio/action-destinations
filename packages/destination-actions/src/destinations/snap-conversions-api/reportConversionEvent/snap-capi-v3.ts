@@ -582,7 +582,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
 
     // Snaps CAPI v3 supports the legacy v2 events so don't bother
     // translating them
-    event_name: payload.event_type,
+    event_name: payload.event_name ?? payload.event_type,
     event_source_url: payload.page_url,
     event_time: Date.parse(payload.timestamp),
     user_data,
@@ -641,6 +641,7 @@ const buildRequestURL = (settings: Settings, action_source: string | undefined, 
 const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
   const {
     action_source,
+    event_name,
     custom_data = {} as NonNullable<typeof payload.custom_data>,
     user_data = {} as NonNullable<typeof payload.user_data>
   } = payload
@@ -648,6 +649,11 @@ const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
     action_source,
     "The root value is missing the required field 'action_source'."
+  )
+
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
+    event_name,
+    "The root value is missing the required field 'event_name'."
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(

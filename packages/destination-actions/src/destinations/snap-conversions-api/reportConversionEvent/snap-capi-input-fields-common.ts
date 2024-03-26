@@ -46,13 +46,6 @@ const products: InputField = {
   }
 }
 
-const event_type: InputField = {
-  label: 'Event Type',
-  description:
-    'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
-  type: 'string'
-}
-
 const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
@@ -122,7 +115,6 @@ const sign_up_method: InputField = {
 
 const snap_capi_input_fields_common = {
   products,
-  event_type: { ...event_type, required: true },
   timestamp: { ...timestamp, required: true },
   price,
   currency,

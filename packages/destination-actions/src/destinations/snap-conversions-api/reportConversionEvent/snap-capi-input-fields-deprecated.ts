@@ -70,6 +70,13 @@ const event_tag: InputField = {
   type: 'string'
 }
 
+const event_type: InputField = {
+  label: 'Event Type',
+  description:
+    'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
+  type: 'string'
+}
+
 const idfv: InputField = {
   label: 'Identifier for Vendor',
   description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
@@ -182,6 +189,7 @@ const snap_capi_input_fields_deprecated = {
   email,
   event_conversion_type,
   event_tag,
+  event_type,
   idfv,
   ip_address,
   item_category,

@@ -355,14 +355,22 @@ const event_id: InputField = {
   }
 }
 
+const event_name: InputField = {
+  label: 'Event Name',
+  description:
+    'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
+  type: 'string'
+}
+
 const snap_capi_input_fields_v3 = {
   action_source,
   app_data,
-  event_id,
-  user_data,
   data_processing_options,
   data_processing_options_country,
-  data_processing_options_state
+  data_processing_options_state,
+  event_id,
+  event_name,
+  user_data
 }
 
 export default snap_capi_input_fields_v3
