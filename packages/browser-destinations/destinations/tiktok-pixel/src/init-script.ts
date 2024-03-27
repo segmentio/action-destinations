@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-export function initScript(pixelCode) {
+export function initScript(settings) {
   !(function (w, d, t) {
     w.TiktokAnalyticsObject = t
     var ttq = (w[t] = w[t] || [])
@@ -44,7 +44,9 @@ export function initScript(pixelCode) {
         a.parentNode.insertBefore(o, a)
       })
 
-    ttq.load(pixelCode)
+    ttq.load(settings.pixelCode, {
+      limited_data_use: settings.ldu ? settings.ldu : false
+    })
     ttq.page()
   })(window, document, 'ttq')
 }
