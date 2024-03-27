@@ -19,6 +19,7 @@ import truncate from 'lodash/truncate'
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
   readonly logger: EngageLogger = new EngageLogger(this)
   readonly statsClient: EngageStats = new EngageStats(this)
+  readonly dataFeedCache = this.executeInput.dataFeedCache
   readonly currentOperation: OperationContext | undefined
 
   readonly payload: TPayload
@@ -69,7 +70,15 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           errorDetails.code?.toLowerCase().includes('etimedout')
 
         // CHANNELS-651 somehow Timeouts are not retried by Integrations, this is fixing it
-        if (isTimeoutError && !respError.status) respError.status = 408
+        if (isTimeoutError) {
+          const status = errorDetails.status ?? respError.status ?? 408
+          respError.status = status
+          errorDetails.status = status
+
+          const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
+          respError.code = errorCode
+          errorDetails.code = errorCode
+        }
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
         if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)

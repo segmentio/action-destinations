@@ -35,3 +35,27 @@ export const engage_space: InputField = {
   required: true,
   dynamic: true
 }
+
+export const timestamp: InputField = {
+  label: 'Timestamp',
+  description: 'The timestamp of the event.',
+  type: 'datetime',
+  default: {
+    '@path': '$.timestamp'
+  }
+}
+
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: 'Name of the action that a user has performed.',
+  type: 'string',
+  required: true
+}
+
+export const properties: InputField = {
+  label: 'Properties',
+  description: 'Free-form dictionary of properties that describe the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}

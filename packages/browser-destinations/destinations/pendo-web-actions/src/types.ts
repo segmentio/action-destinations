@@ -1,27 +1,25 @@
+import { ID } from '@segment/analytics-next'
+
 export type Visitor = {
-  id?: string | null | undefined
+  id: ID
+  [propName: string]: unknown
 }
 
 export type Account = {
-  id?: string | null | undefined
+  id: ID
+  [propName: string]: unknown
 }
 
-export type InitializeData = {
+export type PendoOptions = {
   visitor?: Visitor
   account?: Account
   parentAccount?: Account
 }
 
-export type identifyPayload = {
-  visitor: { [key: string]: string }
-  account?: { [key: string]: string }
-  parentAccount?: { [key: string]: string }
-}
-
 export type PendoSDK = {
-  initialize: ({ visitor, account }: InitializeData) => void
+  initialize: ({ visitor, account }: PendoOptions) => void
   track: (eventName: string, metadata?: { [key: string]: unknown }) => void
-  identify: (data: identifyPayload) => void
+  identify: (data: PendoOptions) => void
   flushNow: (force: boolean) => void
   isReady: () => boolean
 }

@@ -136,6 +136,16 @@ function validateString(v: unknown, stack: string[] = []) {
   return
 }
 
+function validateAllowedStrings(...allowed: string[]) {
+  return (v: unknown, stack: string[] = []) => {
+    validateString(v, stack)
+    const str = v as string
+    if (!allowed.includes(str.toLowerCase())) {
+      throw new ValidationError(`should be one of ${allowed.join(', ')} but it is ${JSON.stringify(str)}`, stack)
+    }
+  }
+}
+
 function validateBoolean(v: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(v)
   if (type !== 'boolean') {
@@ -166,7 +176,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
-      errors.push(e)
+      errors.push(e as Error)
     }
   })
 
@@ -201,7 +211,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
-      errors.push(error)
+      errors.push(error as Error)
     }
   })
 
@@ -227,11 +237,12 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
       try {
         fn(v, [...stack, name])
       } catch (e) {
+        const err: Error = e as Error
         if (e instanceof ValidationError || e instanceof AggregateError) {
           throw e
         }
 
-        throw new ValidationError(e.message, stack)
+        throw new ValidationError(err.message, stack)
       }
     }
   })
@@ -283,6 +294,28 @@ directive('@arrayPath', (v, stack) => {
 
 directive('@path', (v, stack) => {
   validateDirectiveOrString(v, stack)
+})
+
+directive('@json', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      value: { required: validateDirectiveOrRaw },
+      mode: { required: validateAllowedStrings('encode', 'decode') }
+    },
+    stack
+  )
+})
+
+directive('@flatten', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      separator: { optional: validateString },
+      value: { required: validateDirectiveOrRaw }
+    },
+    stack
+  )
 })
 
 directive('@template', (v, stack) => {

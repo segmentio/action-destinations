@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { apiLookupActionFields } from '../previewApiLookup'
+import { apiLookupActionFields } from '../../utils/apiLookups'
 import { SendEmailPerformer } from './SendEmailPerformer'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
@@ -119,6 +119,12 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    ipPool: {
+      label: 'IP Pool',
+      description: 'Send email with an ip pool',
+      type: 'string',
+      default: ''
+    },
     sendBasedOnOptOut: {
       label: 'Send OptOut',
       description: 'Send to any subscription status other than unsubscribed',
@@ -131,6 +137,15 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       properties: apiLookupActionFields
+    },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
     },
     externalIds: {
       label: 'External IDs',

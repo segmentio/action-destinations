@@ -133,6 +133,13 @@ export const phone_number_as_identifier: InputField = {
   default: true
 }
 
+export const append_arrays: InputField = {
+  label: 'Append Array Fields',
+  type: 'boolean',
+  description: 'If enabled, new data for array fields will be appended to the existing values in Insider.',
+  default: false
+}
+
 export const uuid: InputField = {
   label: 'UUID',
   type: 'string',
@@ -147,6 +154,14 @@ export const segment_anonymous_id: InputField = {
   description:
     'An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.',
   default: { '@path': '$.anonymousId' }
+}
+
+export const custom_identifiers: InputField = {
+  label: 'Custom Identifiers',
+  type: 'object',
+  description: 'You can select your custom identifiers for the event.',
+  default: undefined,
+  additionalProperties: true
 }
 
 export const event_name: InputField = {

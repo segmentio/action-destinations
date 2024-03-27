@@ -38,12 +38,20 @@ describe('OptimizelyDataPlatform.emailEvent', () => {
         apiKey: 'abc123',
         region: 'US'
       },
-      useDefaultMappings: true
+      mapping: {
+        user_identifiers: {
+          anonymousId: 'anonId1234',
+          userId: 'user1234',
+          email: 'test@test.com'
+        },
+        event_type: 'email',
+        event_action: 'opened',
+        campaign: 'opti-test-campaign',
+        timestamp: '2024-03-01T18:11:27.649Z'
+      }
     })
 
-    const expectedBody = `"{\\"type\\":\\"email\\",\\"action\\":\\"Email Opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test.email@test.com\\"},\\"campaign_event_value\\":\\"https://url-from-email-clicked.com\\",\\"timestamp\\":\\"${emailEvent.timestamp}\\"}"`
-
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(expectedBody)
+    expect(response[0].options.body).toMatchInlineSnapshot(`"{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}"`)
   })
 })

@@ -6,29 +6,32 @@ import {
   selected_advertiser_id,
   audience_id,
   email,
+  phone,
   send_email,
+  send_phone,
   send_advertising_id,
   advertising_id,
   event_name,
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
-import { MIGRATION_FLAG_NAME } from '../constants'
 
 // NOTE
 // This action is not used by the native Segment Audiences feature.
 // TODO: Remove on cleanup.
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Remove Users',
+  title: 'Remove Users (Legacy)',
   description: 'Remove contacts from an Engage Audience to a TikTok Audience Segment.',
   defaultSubscription: 'event = "Audience Exited"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
     audience_id: { ...audience_id },
     email: { ...email },
+    phone: { ...phone },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
+    send_phone: { ...send_phone },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching }
@@ -74,18 +77,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, features }) => {
-    if (features && features[MIGRATION_FLAG_NAME]) {
-      return
-    }
-    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
+  perform: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('removeUserLegacy', 1, statsContext?.tags)
     return processPayload(request, settings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload, statsContext, features }) => {
-    if (features && features[MIGRATION_FLAG_NAME]) {
-      return
-    }
-    statsContext?.statsClient?.incr('removeUser', 1, statsContext?.tags)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    statsContext?.statsClient?.incr('removeUserLegacy', 1, statsContext?.tags)
     return processPayload(request, settings, payload, 'delete')
   }
 }

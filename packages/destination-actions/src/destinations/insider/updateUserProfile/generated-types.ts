@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number_as_identifier?: boolean
   /**
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
+   */
+  append_arrays?: boolean
+  /**
    * Age of a user.
    */
   age?: number
@@ -45,6 +49,12 @@ export interface Payload {
    * An Anonymous Identifier. The Anonymous Id string is used as identifier when sending data to Insider. Anonymous Id is required if the UUID field is empty.
    */
   segment_anonymous_id?: string
+  /**
+   * You can select you custom identifiers for the event.
+   */
+  custom_identifiers?: {
+    [k: string]: unknown
+  }
   /**
    * City
    */

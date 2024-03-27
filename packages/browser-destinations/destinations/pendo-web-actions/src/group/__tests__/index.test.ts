@@ -18,6 +18,9 @@ const subscriptions: Subscription[] = [
       },
       accountData: {
         '@path': '$.traits'
+      },
+      parentAccountData: {
+        '@path': '$.traits.parentAccount'
       }
     }
   }
@@ -46,7 +49,8 @@ describe('Pendo.group', () => {
         initialize: jest.fn(),
         isReady: jest.fn(),
         track: jest.fn(),
-        identify: jest.fn()
+        identify: jest.fn(),
+        flushNow: jest.fn()
       }
       return Promise.resolve(mockPendo)
     })
@@ -67,6 +71,27 @@ describe('Pendo.group', () => {
     expect(mockPendo.identify).toHaveBeenCalledWith({
       account: { id: 'company_id_1', company_name: 'Megacorp 2000' },
       visitor: { id: 'testUserId' }
+    })
+  })
+
+  test('parentAccountData is being deduped from accountData correctly', async () => {
+    const context = new Context({
+      type: 'group',
+      userId: 'testUserId',
+      traits: {
+        company_name: 'Megacorp 2000',
+        parentAccount: {
+          id: 'some_id'
+        }
+      },
+      groupId: 'company_id_1'
+    })
+    await groupAction.group?.(context)
+
+    expect(mockPendo.identify).toHaveBeenCalledWith({
+      account: { id: 'company_id_1', company_name: 'Megacorp 2000' },
+      visitor: { id: 'testUserId' },
+      parentAccount: { id: 'some_id' }
     })
   })
 })

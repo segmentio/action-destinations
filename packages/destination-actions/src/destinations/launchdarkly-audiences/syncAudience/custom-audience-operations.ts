@@ -34,9 +34,14 @@ const snakeCaseToSentenceCase = (key: string) => {
  * @param audienceId audience ID
  * @param include include or exclude the context from LaunchDarkly's segment
  */
-const createContextForBatch = (contextKey: string, audienceId: string, audienceAction: AudienceAction) => ({
+const createContextForBatch = (
+  contextKey: string,
+  audienceKey: string,
+  audienceId: string,
+  audienceAction: AudienceAction
+) => ({
   userId: contextKey,
-  cohortName: snakeCaseToSentenceCase(audienceId),
+  cohortName: snakeCaseToSentenceCase(audienceKey),
   cohortId: audienceId,
   value: audienceAction === CONSTANTS.ADD ? true : false
 })
@@ -78,7 +83,7 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
   const audienceMap = new Map<AudienceName, AudienceBatch>()
 
   for (const p of payload) {
-    const audienceId = p.segment_audience_key
+    const audienceId = p.segment_audience_id
     const contextKey = getContextKey(p)
 
     let audienceBatch: AudienceBatch = {
@@ -97,7 +102,9 @@ const parseCustomAudienceBatches = (payload: Payload[], settings: Settings): Aud
       audienceMap.set(audienceId, audienceBatch)
     }
 
-    audienceBatch.batch.push(createContextForBatch(contextKey, audienceId, p.audience_action as AudienceAction))
+    audienceBatch.batch.push(
+      createContextForBatch(contextKey, p.segment_audience_key, audienceId, p.audience_action as AudienceAction)
+    )
   }
 
   return Array.from(audienceMap.values())

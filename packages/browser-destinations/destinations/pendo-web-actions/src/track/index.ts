@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { PendoSDK } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   title: 'Send Track Event',
   description: 'Send Segment track() events to Pendo',
@@ -17,7 +16,8 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       required: true,
       default: {
         '@path': '$.event'
-      }
+      },
+      readOnly: false
     },
     metadata: {
       label: 'Metadata',
@@ -25,12 +25,12 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       type: 'object',
       default: {
         '@path': '$.properties'
-      }
+      },
+      readOnly: false
     }
   },
   perform: (pendo, { payload }) => {
     pendo.track(payload.event, payload.metadata)
-    pendo.flushNow(true)
   }
 }
 

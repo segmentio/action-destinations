@@ -2,8 +2,12 @@ import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 
 const defaultTemplateSid = 'my_template'
-const defaultTo = 'whatsapp:+1234567891'
-const defaultTags = JSON.stringify({})
+const phoneNumber = '+1234567891'
+const defaultTo = `whatsapp:${phoneNumber}`
+const defaultTags = JSON.stringify({
+  external_id_type: 'phone',
+  external_id_value: phoneNumber
+})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const spaceId = 'd'
@@ -19,7 +23,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       traitEnrichment: true,
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+        { type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
       ]
     })
   })
@@ -35,10 +39,40 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(responses.length).toEqual(0)
     })
 
+    it('should abort when there are no external IDs in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: []
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is an empty `phone` external ID in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '', subscriptionStatus: 'subscribed' }]
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
+    it('should abort when there is a null `phone` external ID in the payload', async () => {
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: null, subscriptionStatus: 'subscribed' }]
+        }
+      })
+
+      expect(responses.length).toEqual(0)
+    })
+
     it('should abort when there is no `channelType` in the external ID payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed' }]
         }
       })
 
@@ -58,6 +92,149 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .reply(201, {})
 
       const responses = await testAction()
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send WhatsApp for partially formatted E164 number in non-default region', async () => {
+      // EU number without "+"
+      const phone = '441112276181'
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: `whatsapp:+${phone}`,
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: phone // expect external id to stay the same.. without "+"
+        })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [
+            // EU number without "+"
+            { type: 'phone', id: phone, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+          ]
+        }
+      })
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send WhatsApp for fully formatted E164 number in non-default region', async () => {
+      // EU number with "+"
+      const phone = '+441112276181'
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: `whatsapp:${phone}`,
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: phone
+        })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [
+            // EU number wtih "+"
+            { type: 'phone', id: phone, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
+          ]
+        }
+      })
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send WhatsApp for partially formatted E164 number in default region "US"', async () => {
+      const phone = '11116369373'
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: `whatsapp:+${phone}`,
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: phone
+        })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: phone, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }]
+        }
+      })
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send WhatsApp for fully formatted E164 number in default region "US"', async () => {
+      const phone = '+11116369373'
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: `whatsapp:${phone}`,
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: phone
+        })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: phone, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }]
+        }
+      })
+      expect(responses.map((response) => response.url)).toStrictEqual([
+        'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+      ])
+      expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should send WhatsApp for fully formatted E164 number for default region "US"', async () => {
+      const phone = '+11231233212'
+      const expectedTwilioRequest = new URLSearchParams({
+        ContentSid: defaultTemplateSid,
+        From: 'MG1111222233334444',
+        To: `whatsapp:${phone}`,
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: phone
+        })
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: phone, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }]
+        }
+      })
       expect(responses.map((response) => response.url)).toStrictEqual([
         'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
       ])
@@ -137,7 +314,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'whatsapp' }]
         }
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -162,7 +339,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'whatsapp' }]
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'whatsapp' }]
           }
         })
         expect(responses).toHaveLength(0)
@@ -188,7 +365,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           externalIds: [
             {
               type: 'phone',
-              id: '+1234567891',
+              id: phoneNumber,
               subscriptionStatus: randomSubscriptionStatusPhrase,
               channelType: 'whatsapp'
             }
@@ -205,7 +382,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ContentSid: defaultTemplateSid,
         From: from,
         To: 'whatsapp:+19195551234',
-        Tags: defaultTags
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: '(919) 555 1234'
+        })
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')

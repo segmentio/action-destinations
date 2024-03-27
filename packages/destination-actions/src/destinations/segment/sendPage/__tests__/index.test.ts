@@ -1,8 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../../errors'
 const testDestination = createTestIntegration(Destination)
 
 beforeEach(() => nock.cleanAll())
@@ -41,34 +40,7 @@ describe('Segment.sendPage', () => {
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
 
-  test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
-    const event = createTestEvent({
-      name: 'Home',
-      properties: {
-        title: 'Home | Example Company',
-        url: 'http://www.example.com'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
-    })
-
-    await expect(
-      testDestination.testAction('sendPage', {
-        event,
-        mapping: defaultPageMapping,
-        settings: {
-          source_write_key: 'test-source-write-key',
-          endpoint: 'incorrect-endpoint'
-        }
-      })
-    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
-  })
-
-  test('Should send an page event to Segment', async () => {
-    // Mock: Segment Page Call
-    const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/page').reply(200, { success: true })
-
+  test('Should return transformed event', async () => {
     const event = createTestEvent({
       name: 'Home',
       properties: {
@@ -83,41 +55,7 @@ describe('Segment.sendPage', () => {
       event,
       mapping: defaultPageMapping,
       settings: {
-        source_write_key: 'test-source-write-key',
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.json).toMatchObject({
-      userId: event.userId,
-      anonymousId: event.anonymousId,
-      properties: {
-        name: event.name,
-        ...event.properties
-      },
-      context: {}
-    })
-  })
-
-  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
-    const event = createTestEvent({
-      name: 'Home',
-      properties: {
-        title: 'Home | Example Company',
-        url: 'http://www.example.com'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k'
-    })
-
-    const responses = await testDestination.testAction('sendPage', {
-      event,
-      mapping: defaultPageMapping,
-      settings: {
-        source_write_key: 'test-source-write-key',
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
+        source_write_key: 'test-source-write-key'
       },
       features: {
         'actions-segment-tapi-internal-enabled': true
@@ -135,6 +73,59 @@ describe('Segment.sendPage', () => {
           properties: {
             name: event.name,
             ...event.properties
+          },
+          context: {}
+        }
+      ]
+    })
+  })
+
+  it('should work with batch events', async () => {
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        name: 'Home',
+        properties: {
+          title: 'Home | Example Company',
+          url: 'http://www.example.com'
+        },
+        userId: 'test-user-ufi5bgkko5',
+        anonymousId: 'arky4h2sh7k'
+      }),
+      createTestEvent({
+        name: 'Home',
+        properties: {
+          title: 'Home | Example Company',
+          url: 'http://www.example.com'
+        },
+        userId: 'test-user-ufi5bgkko5'
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction('sendPage', {
+      events,
+      mapping: defaultPageMapping,
+      settings: {
+        source_write_key: 'test-source-write-key'
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(1)
+    expect(results[0].data).toMatchObject({
+      batch: [
+        {
+          userId: events[0].userId,
+          anonymousId: events[0].anonymousId,
+          properties: {
+            ...events[0].properties
+          },
+          context: {}
+        },
+        {
+          userId: events[1].userId,
+          properties: {
+            ...events[1].properties
           },
           context: {}
         }

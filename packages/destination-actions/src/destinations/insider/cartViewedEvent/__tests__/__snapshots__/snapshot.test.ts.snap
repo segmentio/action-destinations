@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Insider's cartViewedEvent destination action: all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -49,9 +50,11 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "uh[f!Dz)ZqkDd$x",
+          "testType": "uh[f!Dz)ZqkDd$x",
         },
         "uuid": "uh[f!Dz)ZqkDd$x",
       },
+      "not_append": true,
     },
   ],
 }
@@ -59,6 +62,7 @@ Object {
 
 exports[`Testing snapshot for Insider's cartViewedEvent destination action: required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -76,9 +80,11 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "uh[f!Dz)ZqkDd$x",
+          "testType": "uh[f!Dz)ZqkDd$x",
         },
         "uuid": "uh[f!Dz)ZqkDd$x",
       },
+      "not_append": true,
     },
   ],
 }

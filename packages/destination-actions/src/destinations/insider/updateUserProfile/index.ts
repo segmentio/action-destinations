@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userProfilePayload, API_BASE, UPSERT_ENDPOINT } from '../insider-helpers'
+import { userProfilePayload, API_BASE, UPSERT_ENDPOINT, bulkUserProfilePayload } from '../insider-helpers'
+import { append_arrays } from '../insider-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update a User Profile',
@@ -20,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'If true, Phone Number will be sent as identifier to Insider',
       default: true
     },
+    append_arrays: { ...append_arrays },
     age: {
       label: 'Age',
       type: 'number',
@@ -94,6 +96,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
+    custom_identifiers: {
+      label: 'Custom Identifiers',
+      type: 'object',
+      description: 'You can select you custom identifiers for the event.',
+      default: undefined
+    },
     city: {
       label: 'City',
       type: 'string',
@@ -149,6 +157,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
       method: 'post',
       json: userProfilePayload(data.payload)
+    })
+  },
+  performBatch: (request, { payload }) => {
+    return request(`${API_BASE}${UPSERT_ENDPOINT}`, {
+      method: 'post',
+      json: bulkUserProfilePayload(payload)
     })
   }
 }

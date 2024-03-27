@@ -1,13 +1,30 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { register, associate_named_user, getChannelId } from '../utilities'
+import { register, associate_named_user, getChannelId, EMAIL, SMS } from '../utilities'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Register And Associate',
-  description: 'Register an Email address and associate it with a Named User ID.',
-  defaultSubscription: 'type = "track" and event="Email Address Registered"',
+  description: 'Register an Email address or SMS number and associate it with a Named User ID.',
+  defaultSubscription: 'type = "track" and event="Address Registered"',
   fields: {
+    channel_type: {
+      label: 'Channel Type',
+      description: 'Email (default) or SMS',
+      type: 'string',
+      choices: [
+        { label: 'Email', value: EMAIL },
+        { label: 'SMS', value: SMS }
+      ],
+      default: EMAIL,
+      required: false
+    },
+    sms_sender: {
+      label: 'SMS Sender',
+      description: 'A long or short code the app is configured to send from (if using for SMS).',
+      type: 'string',
+      required: false
+    },
     named_user_id: {
       label: 'Airship Named User ID',
       description: 'The identifier assigned in Airship as the Named User',
@@ -60,8 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       properties: {
         address: {
-          label: 'Email Address',
-          description: 'Email address to register (required)',
+          label: 'Email Address or MSISDN',
+          description: 'Email address or mobile number to register (required)',
           type: 'string',
           required: true
         },
@@ -126,10 +143,16 @@ const action: ActionDefinition<Settings, Payload> = {
             'If an email channel is suppressed, the reason for its suppression. Email channels with any suppression state set will not have any delivery to them fulfilled. If a more specific reason is not known, use imported. Possible values: spam_complaint, bounce, imported',
           type: 'string',
           required: false
+        },
+        sms_opted_in: {
+          label: 'SMS Opt In Date-Time',
+          description: 'The date-time when a user gave explicit permission to receive SMS messages.',
+          type: 'string',
+          required: false
         }
       },
       default: {
-        address: { '@path': '$.properties.email' },
+        address: { '@path': '$.properties.address' },
         new_address: { '@path': '$.properties.new_email' },
         commercial_opted_in: { '@path': '$.properties.commercial_opted_in' },
         commercial_opted_out: { '@path': '$.properties.commercial_opted_out' },
@@ -139,7 +162,8 @@ const action: ActionDefinition<Settings, Payload> = {
         open_tracking_opted_out: { '@path': '$.properties.open_tracking_opted_out' },
         transactional_opted_in: { '@path': '$.properties.transactional_opted_in' },
         transactional_opted_out: { '@path': '$.properties.transactional_opted_out' },
-        suppression_state: { '@path': '$.context.suppression_state' }
+        suppression_state: { '@path': '$.context.suppression_state' },
+        sms_opted_in: { '@path': '$.properties.sms_opted_in' }
       }
     }
   },
@@ -170,9 +194,13 @@ const action: ActionDefinition<Settings, Payload> = {
     const data = JSON.parse(response_content)
 
     const channel_id = data.channel_id
+    let channel_type = EMAIL.toLowerCase()
+    if (payload.channel_type) {
+      channel_type = payload.channel_type.toLowerCase()
+    }
     if (payload.named_user_id && payload.named_user_id.length > 0) {
-      // If there's a Named User ID to associate with the email address, do it here
-      return await associate_named_user(request, settings, channel_id, payload.named_user_id)
+      // If there's a Named User ID to associate with the address, do it here
+      return await associate_named_user(request, settings, channel_id, payload.named_user_id, channel_type)
     } else {
       // If not, simply return the registration request, success or failure, for Segment to handle as per policy
       return register_response

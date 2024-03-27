@@ -90,6 +90,10 @@ export interface Payload {
    */
   send?: boolean
   /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -120,4 +124,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * Controls the notification payload format
+   */
+  googleApiVersion?: string
 }

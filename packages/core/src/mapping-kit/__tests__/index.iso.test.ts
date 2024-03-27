@@ -473,6 +473,81 @@ describe('@arrayPath', () => {
   })
 })
 
+describe('@json', () => {
+  test('encode', () => {
+    const output = transform({ neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    expect(output).toStrictEqual({ neat: '"bar"' })
+  })
+
+  test('encode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ neat: '{"bar":"baz"}' })
+  })
+
+  test('encode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: ['bar', 'baz'] }
+    )
+    expect(output).toStrictEqual({ neat: '["bar","baz"]' })
+  })
+
+  test('decode', () => {
+    const output = transform({ neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } }, { foo: '"bar"' })
+    expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('decode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '{"bar":"baz"}' }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz' } })
+  })
+
+  test('decode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '["bar","baz"]' }
+    )
+    expect(output).toStrictEqual({ neat: ['bar', 'baz'] })
+  })
+
+  test('invalid mode', () => {
+    expect(() => {
+      transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    }).toThrowError()
+  })
+
+  test('invalid value', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.bad' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({})
+  })
+})
+
+describe('@flatten', () => {
+  test('simple', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: { bar: 'baz', aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', 'aces.a': 1, 'aces.b': 2 } })
+  })
+  test('array value first', () => {
+    const output = transform(
+      { result: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: [{ fazz: 'bar', fizz: 'baz' }] }
+    )
+    expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
+  })
+})
+
 describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })
@@ -712,6 +787,74 @@ describe('@replace', () => {
       payload
     )
     expect(output).toStrictEqual('different+things')
+  })
+  test('replace boolean', () => {
+    const payload = {
+      a: true
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
+  test('replace number', () => {
+    const payload = {
+      a: 1
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '1',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
+  test('replace 2 values', () => {
+    const payload = {
+      a: 'something-great!'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '-',
+          replacement: ' ',
+          pattern2: 'great',
+          replacement2: 'awesome',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('something awesome!')
+  })
+  test('replace with 2 values but only second one exists', () => {
+    const payload = {
+      a: false
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          pattern2: 'false',
+          replacement2: 'denied',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('denied')
   })
 })
 

@@ -16,7 +16,7 @@ describe('Send Events Action', () => {
     s3_secret: 'secret',
     s3_region: 'us-east-1',
     s3_bucket_accesspoint_alias: 'my-bucket',
-    fileNamePrefix: 'prefix'
+    fileNamePrefix: 'prefix_'
   } as Settings
 
   test('perform ValidateSettings call with valid payload and settings', async () => {

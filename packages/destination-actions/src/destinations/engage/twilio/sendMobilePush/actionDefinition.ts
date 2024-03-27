@@ -163,6 +163,15 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       required: false,
       default: false
     },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -225,6 +234,17 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    googleApiVersion: {
+      label: 'Google Api Version',
+      description: 'Controls the notification payload format',
+      type: 'string',
+      required: false,
+      choices: [
+        { label: 'legacy', value: 'legacy' },
+        { label: 'v1', value: 'v1' }
+      ],
+      default: 'legacy'
     }
   },
   perform: async (request, data) => {

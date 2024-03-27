@@ -6,19 +6,19 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Segment can set the Pendo Account ID upon page load. This can be overridden via the Account ID field in the Send Identify/Group Actions
-   */
-  accountId?: string
-  /**
-   * Segment can set the Pendo Parent Account ID upon page load. This can be overridden via the Parent Account ID field in the Send Identify/Group Actions. Note: Contact Pendo to request enablement of Parent Account feature.
-   */
-  parentAccountId?: string
-  /**
-   * The Pendo Region you'd like to send data to
+   * The region for your Pendo subscription.
    */
   region: string
   /**
-   * Segment can set the Pendo Visitor ID upon page load to either the Segment userId or anonymousId. This can be overridden via the Visitor ID field in the Send Identify/Group Actions
+   * If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.
    */
-  setVisitorIdOnLoad: string
+  cnameContentHost?: string
+  /**
+   * Override sending Segment's user traits on load. This will prevent Pendo from initializing with the user traits from Segment (analytics.user().traits()). Allowing you to adjust the mapping of visitor metadata in Segment's identify event.
+   */
+  disableUserTraitsOnLoad?: boolean
+  /**
+   * Override sending Segment's group id for Pendo's account id. This will prevent Pendo from initializing with the group id from Segment (analytics.group().id()). Allowing you to adjust the mapping of account id in Segment's group event.
+   */
+  disableGroupIdAndTraitsOnLoad?: boolean
 }

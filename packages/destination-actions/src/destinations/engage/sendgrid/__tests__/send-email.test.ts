@@ -5,13 +5,14 @@ import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
+import { FLAGON_NAME_DATA_FEEDS } from '../../utils/apiLookups'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
 
 function createDefaultActionProps() {
   return {
-    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true },
+    features: { [FLAGON_NAME_LOG_INFO]: true, [FLAGON_NAME_LOG_ERROR]: true, [FLAGON_NAME_DATA_FEEDS]: true },
     logger: loggerMock
   }
 }
@@ -131,6 +132,7 @@ describe.each([
       traitEnrichment: true,
       groupId: '',
       byPassSubscription: false,
+      ipPool: '',
       sendBasedOnOptOut: false,
       toEmail: '',
       externalIds: {
@@ -762,7 +764,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -802,9 +804,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -845,7 +851,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_preferences_link]">Manage Preferences</a> | <a href="[upa_unsubscribe_link]">Unsubscribe</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -885,9 +891,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -928,7 +938,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment. Here is an <a href="[upa_unsubscribe_link]">Unsubscribe</a> link.</p>  <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
       const expectedSendGridRequest = {
         personalizations: [
           {
@@ -968,9 +978,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -1083,6 +1097,396 @@ describe.each([
           body: undefined,
           bodyHtml: bodyHtml,
           bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Adds list-unsubscribe headers with subscription tracking turned off', async () => {
+      const bodyHtml =
+        '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
+      const replacedHtmlWithLink =
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: false,
+            substitution_tag: '[unsubscribe]'
+          }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              unsubscribeLink: 'http://global_unsubscribe_link',
+              preferencesLink: 'http://preferences_link',
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Do not add list-unsubscribe headers when sendgrid substitution tag is used', async () => {
+      const bodyHtml = '<p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a>'
+      const replacedHtmlWithLink =
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a></body></html>'
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              unsubscribeLink: 'http://global_unsubscribe_link',
+              preferencesLink: 'http://preferences_link',
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is empty', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: ' '
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is <nil>', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: '<nil>'
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is null', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: null
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show the correct non-string trait in the subject when a trait is non-string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi true` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: true
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi true')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when a trait is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hi {{profile.traits.lastName | default: "Person"}}',
+          traits: {
+            firstName: userData.firstName,
+            lastName: undefined
+          }
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi Person')).some((item) => item)
+      ).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('should show a default in the subject when traits is null', async () => {
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: null
+        })
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          subject: 'Hello {{profile.traits.last_name | default: "you"}}'
         })
       })
 
@@ -1495,6 +1899,119 @@ describe.each([
     )
   })
 
+  describe('ip pool', () => {
+    beforeEach(() => {
+      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+        .get('/traits?limit=200')
+        .reply(200, {
+          traits: {
+            firstName: userData.firstName,
+            lastName: userData.lastName
+          }
+        })
+    })
+
+    it('sends the email to ip pool when name is specified', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: 'testPoolName' })
+      })
+
+      expect(responses[0].options.body).toContain('"ip_pool_name":"testPoolName"')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is null', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: null })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is undefined', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: undefined })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is empty string', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({ ipPool: '' })
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('sends the email to ip pool when name is not specified', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            { id: userData.email, type: 'email', collection: 'users', isSubscribed: true, encoding: 'none' }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping()
+      })
+
+      expect(responses[0].options.body).not.toContain('ip_pool_name')
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+  })
+
   describe('subscription groups', () => {
     beforeEach(() => {
       nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
@@ -1729,7 +2246,7 @@ describe.each([
       const bodyHtml =
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
-        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://group_unsubscribe_link">Unsubscribe</a> | <a href="http://preferences_link">Manage Preferences</a></body></html>'
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://group_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
 
       const expectedSendGridRequest = {
         personalizations: [
@@ -1770,9 +2287,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://group_unsubscribe_link>'
         }
       }
 
@@ -1839,92 +2360,7 @@ describe.each([
   })
 
   describe('api lookups', () => {
-    it('liquid renders url with profile traits before requesting', async () => {
-      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-
-      const apiLookupRequest = nock(`https://fakeweather.com`)
-        .get(`/api/${userData.lastName}`)
-        .reply(200, {
-          current: {
-            temperature: 70
-          }
-        })
-
-      await sendgrid.testAction('sendEmail', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId,
-          external_ids: [
-            {
-              collection: 'users',
-              encoding: 'none',
-              id: userData.email,
-              isSubscribed: true,
-              type: 'email'
-            }
-          ]
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          apiLookups: {
-            id: '1',
-            name: 'weather',
-            url: 'https://fakeweather.com/api/{{profile.traits.lastName}}',
-            method: 'get',
-            cacheTtl: 0,
-            responseType: 'json'
-          }
-        })
-      })
-
-      expect(apiLookupRequest.isDone()).toBe(true)
-    })
-
-    it('liquid renders body with profile traits before requesting', async () => {
-      nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-
-      const apiLookupRequest = nock(`https://fakeweather.com`)
-        .post(`/api`, `lastName is ${userData.lastName}`)
-        .reply(200, {
-          current: {
-            temperature: 70
-          }
-        })
-
-      await sendgrid.testAction('sendEmail', {
-        event: createMessagingTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          userId: userData.userId,
-          external_ids: [
-            {
-              collection: 'users',
-              encoding: 'none',
-              id: userData.email,
-              isSubscribed: true,
-              type: 'email'
-            }
-          ]
-        }),
-        settings,
-        mapping: getDefaultMapping({
-          apiLookups: {
-            id: '1',
-            name: 'weather',
-            url: 'https://fakeweather.com/api',
-            body: 'lastName is {{profile.traits.lastName}}',
-            method: 'post',
-            cacheTtl: 0,
-            responseType: 'json'
-          }
-        })
-      })
-
-      expect(apiLookupRequest.isDone()).toBe(true)
-    })
-
-    it('are called and responses are passed to email body liquid renderer before sending', async () => {
+    it('are called and successful responses are passed to email body liquid renderer before sending', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', {
           ...sendgridRequestBody,
@@ -1955,6 +2391,7 @@ describe.each([
         })
 
       const responses = await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
         event: createMessagingTestEvent({
           timestamp,
           event: 'Audience Entered',
@@ -1991,7 +2428,7 @@ describe.each([
             }
           ],
           bodyHtml:
-            'Current temperature: {{lookups.weather.current.temperature}}, Current bitcoin price: {{lookups.btcPrice.current.price}}'
+            'Current temperature: {{datafeeds.weather.current.temperature}}, Current bitcoin price: {{datafeeds.btcPrice.current.price}}'
         })
       })
 
@@ -1999,11 +2436,13 @@ describe.each([
       expect(sendGridRequest.isDone()).toBe(true)
     })
 
-    it('should throw error if at least one api lookup fails', async () => {
-      nock(`https://fakeweather.com`).get('/api').reply(429)
+    it('should rethrow request client error if at least one api lookup fails with shouldRetryOnRetryableError == true', async () => {
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       await expect(
         sendgrid.testAction('sendEmail', {
+          ...defaultActionProps,
           event: createMessagingTestEvent({
             timestamp,
             event: 'Audience Entered',
@@ -2020,21 +2459,75 @@ describe.each([
           }),
           settings,
           mapping: getDefaultMapping({
-            apiLookups: {
+            apiLookups: [
+              {
+                id: '1',
+                name: 'weather',
+                url: 'https://fakeweather.com/api',
+                method: 'get',
+                cacheTtl: 0,
+                responseType: 'json',
+                shouldRetryOnRetryableError: true
+              }
+            ]
+          })
+        })
+      ).rejects.toThrowError('Too Many Requests')
+
+      expect(dataFeedNock.isDone()).toEqual(true)
+      expect(sendGridRequest.isDone()).toEqual(false)
+      expectErrorLogged('Too Many Requests')
+    })
+
+    it('should send message with empty data if api lookup fails with shouldRetryOnRetryableError == false', async () => {
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', {
+          ...sendgridRequestBody,
+          content: [
+            {
+              type: 'text/html',
+              value: `<html><head></head><body>Current temperature: 99</body></html>`
+            }
+          ]
+        })
+        .reply(200, {})
+      const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
+
+      await sendgrid.testAction('sendEmail', {
+        ...defaultActionProps,
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          apiLookups: [
+            {
               id: '1',
               name: 'weather',
               url: 'https://fakeweather.com/api',
               method: 'get',
               cacheTtl: 0,
-              responseType: 'json'
+              responseType: 'json',
+              shouldRetryOnRetryableError: false
             }
-          }),
-          ...defaultActionProps
+          ],
+          bodyHtml: 'Current temperature: {{datafeeds.weather.current.temperature | default: 99 }}'
         })
-      ).rejects.toThrowError('Too Many Requests')
+      })
 
-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
-      expect(sendGridRequest.isDone()).toEqual(false)
+      expect(dataFeedNock.isDone()).toBe(true)
+      expect(sendGridRequest.isDone()).toEqual(true)
       expectErrorLogged('Too Many Requests')
     })
   })

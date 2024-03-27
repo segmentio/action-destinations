@@ -1,8 +1,9 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject, transformEventName } from '../utils'
+import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
+import { HubSpotError } from '../errors'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -23,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
       type: 'string',
+      dynamic: true,
       required: true
     },
     occurredAt: {
@@ -67,9 +69,32 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload, settings, features }) => {
-    const shouldTransformEventName = features && features['actions-hubspot-event-name']
-    const eventName = shouldTransformEventName ? transformEventName(payload.eventName) : payload.eventName
+  dynamicFields: {
+    eventName: async (request): Promise<DynamicFieldResponse> => {
+      try {
+        const result: GetCustomEventResponse = await request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+          method: 'get',
+          skipResponseCloning: true
+        })
+        const choices = result.data.results.map((event) => {
+          return { value: event.fullyQualifiedName, label: event.name }
+        })
+        return {
+          choices
+        }
+      } catch (err) {
+        return {
+          choices: [],
+          error: {
+            message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+            code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+          }
+        }
+      }
+    }
+  },
+  perform: (request, { payload, settings }) => {
+    const eventName = transformEventName(payload.eventName)
 
     const event: CustomBehavioralEvent = {
       eventName: eventName,
