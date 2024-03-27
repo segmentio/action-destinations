@@ -19,12 +19,14 @@ export function flat(data?: Properties, prefix = ''): FlattenProperties | undefi
   }
   let result: FlattenProperties = {}
   for (const key in data) {
-    if (typeof data[key] == 'object' && data[key] !== null) {
+    if (typeof data[key] == 'object' && data[key] !== null && !Array.isArray(data[key])) {
       const flatten = flat(data[key] as Properties, prefix + '.' + key)
       result = { ...result, ...flatten }
     } else {
       const stringifiedValue = stringify(data[key])
-      result[(prefix + '.' + key).replace(/^\./, '')] = stringifiedValue
+      // replaces the first . or .word.
+      const identifier = (prefix + '.' + key).replace(/^\.(\w+\.)?/, '')
+      result[identifier] = stringifiedValue
     }
   }
   return result

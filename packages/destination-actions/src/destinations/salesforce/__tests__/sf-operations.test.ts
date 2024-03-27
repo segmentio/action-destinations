@@ -457,6 +457,23 @@ describe('Salesforce', () => {
   describe('Bulk Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
 
+    const bulkInsertPayloads: GenericPayload[] = [
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
     const bulkUpsertPayloads: GenericPayload[] = [
       {
         operation: 'upsert',
@@ -531,6 +548,40 @@ describe('Salesforce', () => {
         description: 'Krusty Krab'
       }
     ]
+
+    it('should correctly insert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          operation: 'insert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(bulkInsertPayloads, 'Account')
+    })
 
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
@@ -679,6 +730,22 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       await sf.bulkHandler([...bulkUpdatePayloads, missingRecordPayload], 'Account')
+    })
+
+    it('should fail if a user selects a bulk delete operation', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'delete',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
+        'Unsupported operation: Bulk API does not support the delete operation'
+      )
     })
 
     it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {

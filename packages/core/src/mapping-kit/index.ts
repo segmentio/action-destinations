@@ -6,6 +6,7 @@ import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
+import { flattenObject } from './flatten'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -221,6 +222,25 @@ registerStringDirective('@template', (template: string, payload) => {
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
 registerDirective('@literal', (value, payload) => {
   return resolve(value, payload)
+})
+
+registerDirective('@flatten', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@flatten requires an object with a "separator" key')
+  }
+
+  if (!opts.separator) {
+    throw new Error('@flatten requires a "separator" key')
+  }
+
+  const separator = resolve(opts.separator, payload)
+  if (typeof separator !== 'string') {
+    throw new Error('@flatten requires a string separator')
+  }
+
+  const value = resolve(opts.value, payload)
+
+  return flattenObject(value, '', separator)
 })
 
 registerDirective('@json', (opts, payload) => {

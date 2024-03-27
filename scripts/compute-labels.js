@@ -1,4 +1,4 @@
-// This is a github action script and can be run only from github actions. It is not possible to run this script locally.
+// This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core }) => {
   const authorLabels = await computeAuthorLabels(github, context, core)
   const { add, remove } = await computeFileBasedLabels(github, context, core)
