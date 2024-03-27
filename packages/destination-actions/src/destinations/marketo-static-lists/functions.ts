@@ -31,10 +31,14 @@ export async function addToList(
   request: RequestClient,
   settings: Settings,
   payloads: AddToListPayload[],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  hookOutputs?: { id: string; name: string }
 ) {
-  if (!payloads[0].external_id) {
-    throw new IntegrationError('No external_id found in payload', 'INVALID_REQUEST_DATA', 400)
+  // If the list ID is provided in the hook outputs, use it
+  const list_id = hookOutputs?.id ?? payloads[0].external_id
+
+  if (!list_id) {
+    throw new IntegrationError('No list ID found in payload', 'INVALID_REQUEST_DATA', 400)
   }
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
@@ -48,10 +52,7 @@ export async function addToList(
 
   const url =
     api_endpoint +
-    BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id).replace(
-      'fieldToLookup',
-      payloads[0].lookup_field
-    )
+    BULK_IMPORT_ENDPOINT.replace('externalId', list_id).replace('fieldToLookup', payloads[0].lookup_field)
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
