@@ -82,6 +82,7 @@ describe.each([
           source_id: 'sourceId',
           space_id: 'spaceId',
           user_id: userData.userId,
+          event_ocurred_ts: '2024-03-23T23:02:40.563Z',
           __segment_internal_external_id_key__: 'email',
           __segment_internal_external_id_value__: userData.email
         }
@@ -304,6 +305,7 @@ describe.each([
               journey_id: 'journeyId',
               journey_state_id: 'journeyStateId',
               audience_id: 'audienceId',
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -359,7 +361,8 @@ describe.each([
           customArgs: {
             journey_id: 'journeyId',
             journey_state_id: 'journeyStateId',
-            audience_id: 'audienceId'
+            audience_id: 'audienceId',
+            event_ocurred_ts: '2024-03-23T23:02:40.563Z'
           },
           previewText: 'unused',
           subject: 'Test email with metadata',
@@ -423,6 +426,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -505,6 +509,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -603,6 +608,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -682,6 +688,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -782,6 +789,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -869,6 +877,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -956,6 +965,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -1043,6 +1053,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -1126,6 +1137,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -1212,6 +1224,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
@@ -2265,6 +2278,7 @@ describe.each([
               source_id: 'sourceId',
               space_id: 'spaceId',
               user_id: userData.userId,
+              event_ocurred_ts: '2024-03-23T23:02:40.563Z',
               __segment_internal_external_id_key__: 'email',
               __segment_internal_external_id_value__: userData.email
             }
