@@ -228,7 +228,9 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     }
   },
   initialize: async ({ settings }, deps) => {
-    initScript(settings)
+    if (!settings.useExistingPixel) {
+      initScript(settings)
+    }
     await deps.resolveWhen(() => window.ttq != null, 100)
     return window.ttq
   },
