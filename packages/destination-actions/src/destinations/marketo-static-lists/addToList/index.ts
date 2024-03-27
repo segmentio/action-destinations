@@ -81,19 +81,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
-    // Use list_id from hook as external id for RETL mappings
-    if (hookOutputs?.retlOnMappingSave?.outputs.id) {
-      payload.external_id = hookOutputs?.retlOnMappingSave?.outputs.id
-    }
-    return addToList(request, settings, [payload], statsContext)
+    return addToList(request, settings, [payload], statsContext, hookOutputs?.retlOnMappingSave?.outputs)
   },
   performBatch: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
-    // Use list_id from hook as external id for RETL mappings
-    if (hookOutputs?.retlOnMappingSave?.outputs.id) {
-      payload[0].external_id = hookOutputs?.retlOnMappingSave?.outputs.id
-    }
-    return addToList(request, settings, payload, statsContext)
+    return addToList(request, settings, payload, statsContext, hookOutputs?.retlOnMappingSave?.outputs)
   }
 }
 
