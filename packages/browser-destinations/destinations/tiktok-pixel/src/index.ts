@@ -220,18 +220,15 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     },
     useExistingPixel: {
       // TODO: HOW TO DELETE (reusing will not include Segment Partner name)
-      label: 'Use Existing Pixel',
+      label: '[Deprecated]Use Existing Pixel',
       type: 'boolean',
       default: false,
-      description:
-        'Important! Changing this setting may block data collection to Segment if not done correctly. Select "true" to use an existing TikTok Pixel which is already installed on your website. The Pixel MUST be installed on your website when this is set to "true" or all data collection to Segment may fail.'
+      required: false,
+      description: 'Deprecated. Please do not provide any value.'
     }
   },
   initialize: async ({ settings }, deps) => {
-    if (!settings.useExistingPixel) {
-      initScript(settings)
-    }
-
+    initScript(settings)
     await deps.resolveWhen(() => window.ttq != null, 100)
     return window.ttq
   },
