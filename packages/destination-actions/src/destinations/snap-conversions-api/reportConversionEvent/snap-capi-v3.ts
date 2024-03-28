@@ -399,34 +399,32 @@ const buildAppData = (payload: Payload, settings: Settings) => {
   const extInfoVersion = appDataExtInfoVersion ?? appIDExtInfoVersion
 
   // extinfo needs to be defined whenever app_data is included in the data payload
-  const extinfo = !isNullOrUndefined(app_id)
-    ? [
-        extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
-        app_data?.packageName ?? '',
-        app_data?.shortVersion ?? '',
-        app_data?.longVersion ?? '',
-        app_data?.osVersion ?? payload.os_version ?? '', // os version
-        app_data?.deviceName ?? payload.device_model ?? '', // device model name
-        app_data?.locale ?? '',
-        app_data?.timezone ?? '',
-        app_data?.carrier ?? '',
-        app_data?.width ?? '',
-        app_data?.height ?? '',
-        app_data?.density ?? '',
-        app_data?.cpuCores ?? '',
-        app_data?.storageSize ?? '',
-        app_data?.freeStorage ?? '',
-        app_data?.deviceTimezone ?? ''
-      ]
-    : undefined
+  const extinfo = [
+    extInfoVersion, // required per spec version must be a2 for Android, must be i2 for iOS
+    app_data?.packageName ?? '',
+    app_data?.shortVersion ?? '',
+    app_data?.longVersion ?? '',
+    app_data?.osVersion ?? payload.os_version ?? '', // os version
+    app_data?.deviceName ?? payload.device_model ?? '', // device model name
+    app_data?.locale ?? '',
+    app_data?.timezone ?? '',
+    app_data?.carrier ?? '',
+    app_data?.width ?? '',
+    app_data?.height ?? '',
+    app_data?.density ?? '',
+    app_data?.cpuCores ?? '',
+    app_data?.storageSize ?? '',
+    app_data?.freeStorage ?? '',
+    app_data?.deviceTimezone ?? ''
+  ]
 
   // Only set app data for app events
-  return emptyObjectToUndefined({
+  return {
     app_id,
     advertiser_tracking_enabled,
     application_tracking_enabled,
     extinfo
-  })
+  }
 }
 
 const buildUserData = (payload: Payload) => {
