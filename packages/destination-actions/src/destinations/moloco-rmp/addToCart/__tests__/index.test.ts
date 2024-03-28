@@ -5,7 +5,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('MolocoRmp.addToCart', () => {
+describe('MolocoMCM.addToCart', () => {
   it('should successfully build an event and send', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 

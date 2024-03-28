@@ -1,4 +1,4 @@
-// This is a generalization of a payload to be delivered to the Moloco RMP API.
+// This is a generalization of a payload to be delivered to the Moloco MCM API.
 // ./segment/payload should be converted into this interface after converting through ../body-builder/buildBody
 export type EventPayload = {
   /**
@@ -66,7 +66,7 @@ export type EventPayload = {
 }
 
 
-// Generalized payload to be passed to Moloco RMP API
+// Generalized payload to be passed to Moloco MCM API
 // after ./segement/ItemPayload going through the conversion logic
 export type ItemPayload = {
 	/**
@@ -87,7 +87,7 @@ export type ItemPayload = {
 	seller_id?: string
 }
 
-// Generalized payload to be passed to Moloco RMP API
+// Generalized payload to be passed to Moloco MCM API
 // after ./segement/MoneyPayload going through the conversion logic
 export interface MoneyPayload {
 	/**
@@ -124,7 +124,7 @@ export interface MoneyPayload {
 	amount: number
 }
 
-// Generalized payload to be passed to Moloco RMP API
+// Generalized payload to be passed to Moloco MCM API
 // after ./segement/DevicePayload going through the conversion logic
 export interface DevicePayload {
 	/**

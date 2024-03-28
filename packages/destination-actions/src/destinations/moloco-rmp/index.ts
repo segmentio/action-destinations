@@ -19,10 +19,10 @@ import purchase from './purchase'
 import addToCart from './addToCart'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Moloco Rmp',
+  name: 'Moloco MCM',
   slug: 'actions-moloco-rmp',
   mode: 'cloud',
-  description: 'This destination sends user events to Moloco RMP for machine learning and ad attribution.',
+  description: 'This destination sends user events to Moloco MCM for machine learning and ad attribution.',
   authentication: {
     scheme: 'custom',
     fields: {

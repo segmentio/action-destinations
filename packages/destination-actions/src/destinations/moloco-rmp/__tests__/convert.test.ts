@@ -7,7 +7,7 @@ import { convertEvent } from '../common/convert'
 
 const TEST_EVENT_TYPE = EventType.Home
 
-describe('Moloco Rmp', () => {
+describe('Moloco MCM', () => {
   describe('testConvertEvent', () => {
     it('tests an event payload with all fields', async () => {
       const input: SegmentEventPayload = {

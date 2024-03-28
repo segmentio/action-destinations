@@ -1,0 +1,405 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-moloco-rmp destination: addToCart action - all fields 1`] = `
+Object {
+  "channel_type": "s4J*^HlXF41",
+  "device": Object {
+    "advertising_id": "s4J*^HlXF41",
+    "ip": "s4J*^HlXF41",
+    "language": "s4J*^HlXF41",
+    "model": "s4J*^HlXF41",
+    "os": "S4J*^HLXF41",
+    "os_version": "s4J*^HlXF41",
+    "ua": "s4J*^HlXF41",
+    "unique_device_id": "s4J*^HlXF41",
+  },
+  "event_type": "ADD_TO_CART",
+  "id": "s4J*^HlXF41",
+  "items": Array [
+    Object {
+      "id": "s4J*^HlXF41",
+      "price": Object {
+        "amount": -14916188928737.28,
+        "currency": "CNY",
+      },
+      "quantity": -1491618892873728,
+      "seller_id": "s4J*^HlXF41",
+    },
+  ],
+  "page_id": "s4J*^HlXF41",
+  "session_id": "s4J*^HlXF41",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "s4J*^HlXF41",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: addToCart action - required fields 1`] = `
+Object {
+  "channel_type": "s4J*^HlXF41",
+  "event_type": "ADD_TO_CART",
+  "id": "s4J*^HlXF41",
+  "items": Array [
+    Object {
+      "id": "s4J*^HlXF41",
+    },
+  ],
+  "page_id": "s4J*^HlXF41",
+  "session_id": "s4J*^HlXF41",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "s4J*^HlXF41",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - all fields 1`] = `
+Object {
+  "channel_type": "FGR%xELDK6awh3Tp*s",
+  "device": Object {
+    "advertising_id": "FGR%xELDK6awh3Tp*s",
+    "ip": "FGR%xELDK6awh3Tp*s",
+    "language": "FGR%xELDK6awh3Tp*s",
+    "model": "FGR%xELDK6awh3Tp*s",
+    "os": "FGR%XELDK6AWH3TP*S",
+    "os_version": "FGR%xELDK6awh3Tp*s",
+    "ua": "FGR%xELDK6awh3Tp*s",
+    "unique_device_id": "FGR%xELDK6awh3Tp*s",
+  },
+  "event_type": "ADD_TO_WISHLIST",
+  "id": "FGR%xELDK6awh3Tp*s",
+  "items": Array [
+    Object {
+      "id": "FGR%xELDK6awh3Tp*s",
+      "price": Object {
+        "amount": 57250726019072,
+        "currency": "VND",
+      },
+      "quantity": 5725072601907200,
+      "seller_id": "FGR%xELDK6awh3Tp*s",
+    },
+  ],
+  "page_id": "FGR%xELDK6awh3Tp*s",
+  "revenue": Object {
+    "amount": 57250726019072,
+    "currency": "VND",
+  },
+  "session_id": "FGR%xELDK6awh3Tp*s",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "FGR%xELDK6awh3Tp*s",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: addToWishlist action - required fields 1`] = `
+Object {
+  "channel_type": "FGR%xELDK6awh3Tp*s",
+  "event_type": "ADD_TO_WISHLIST",
+  "id": "FGR%xELDK6awh3Tp*s",
+  "items": Array [
+    Object {
+      "id": "FGR%xELDK6awh3Tp*s",
+    },
+  ],
+  "page_id": "FGR%xELDK6awh3Tp*s",
+  "session_id": "FGR%xELDK6awh3Tp*s",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "FGR%xELDK6awh3Tp*s",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: home action - all fields 1`] = `
+Object {
+  "channel_type": "EJ(KD9p9^^%i",
+  "device": Object {
+    "advertising_id": "EJ(KD9p9^^%i",
+    "ip": "EJ(KD9p9^^%i",
+    "language": "EJ(KD9p9^^%i",
+    "model": "EJ(KD9p9^^%i",
+    "os": "EJ(KD9P9^^%I",
+    "os_version": "EJ(KD9p9^^%i",
+    "ua": "EJ(KD9p9^^%i",
+    "unique_device_id": "EJ(KD9p9^^%i",
+  },
+  "event_type": "HOME",
+  "id": "EJ(KD9p9^^%i",
+  "items": Array [
+    Object {
+      "id": "EJ(KD9p9^^%i",
+      "price": Object {
+        "amount": -5160557346816,
+        "currency": "CAD",
+      },
+      "quantity": -516055734681600,
+      "seller_id": "EJ(KD9p9^^%i",
+    },
+  ],
+  "page_id": "EJ(KD9p9^^%i",
+  "session_id": "EJ(KD9p9^^%i",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "EJ(KD9p9^^%i",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: home action - required fields 1`] = `
+Object {
+  "channel_type": "EJ(KD9p9^^%i",
+  "event_type": "HOME",
+  "id": "EJ(KD9p9^^%i",
+  "page_id": "EJ(KD9p9^^%i",
+  "session_id": "EJ(KD9p9^^%i",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "EJ(KD9p9^^%i",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: itemPageView action - all fields 1`] = `
+Object {
+  "channel_type": "ulD!k3rFUf8H",
+  "device": Object {
+    "advertising_id": "ulD!k3rFUf8H",
+    "ip": "ulD!k3rFUf8H",
+    "language": "ulD!k3rFUf8H",
+    "model": "ulD!k3rFUf8H",
+    "os": "ULD!K3RFUF8H",
+    "os_version": "ulD!k3rFUf8H",
+    "ua": "ulD!k3rFUf8H",
+    "unique_device_id": "ulD!k3rFUf8H",
+  },
+  "event_type": "ITEM_PAGE_VIEW",
+  "id": "ulD!k3rFUf8H",
+  "items": Array [
+    Object {
+      "id": "ulD!k3rFUf8H",
+      "price": Object {
+        "amount": -3847229789962.24,
+        "currency": "CAD",
+      },
+      "quantity": -384722978996224,
+      "seller_id": "ulD!k3rFUf8H",
+    },
+  ],
+  "page_id": "ulD!k3rFUf8H",
+  "session_id": "ulD!k3rFUf8H",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "ulD!k3rFUf8H",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: itemPageView action - required fields 1`] = `
+Object {
+  "channel_type": "ulD!k3rFUf8H",
+  "event_type": "ITEM_PAGE_VIEW",
+  "id": "ulD!k3rFUf8H",
+  "items": Array [
+    Object {
+      "id": "ulD!k3rFUf8H",
+    },
+  ],
+  "page_id": "ulD!k3rFUf8H",
+  "session_id": "ulD!k3rFUf8H",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "ulD!k3rFUf8H",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: land action - all fields 1`] = `
+Object {
+  "channel_type": "LII!0LBdUlNj]8JR%M",
+  "device": Object {
+    "advertising_id": "LII!0LBdUlNj]8JR%M",
+    "ip": "LII!0LBdUlNj]8JR%M",
+    "language": "LII!0LBdUlNj]8JR%M",
+    "model": "LII!0LBdUlNj]8JR%M",
+    "os": "LII!0LBDULNJ]8JR%M",
+    "os_version": "LII!0LBdUlNj]8JR%M",
+    "ua": "LII!0LBdUlNj]8JR%M",
+    "unique_device_id": "LII!0LBdUlNj]8JR%M",
+  },
+  "event_type": "LAND",
+  "id": "LII!0LBdUlNj]8JR%M",
+  "items": Array [
+    Object {
+      "id": "LII!0LBdUlNj]8JR%M",
+      "price": Object {
+        "amount": 61196309008220.16,
+        "currency": "MYR",
+      },
+      "quantity": 6119630900822016,
+      "seller_id": "LII!0LBdUlNj]8JR%M",
+    },
+  ],
+  "page_id": "LII!0LBdUlNj]8JR%M",
+  "referrer_page_id": "LII!0LBdUlNj]8JR%M",
+  "session_id": "LII!0LBdUlNj]8JR%M",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "LII!0LBdUlNj]8JR%M",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: land action - required fields 1`] = `
+Object {
+  "channel_type": "LII!0LBdUlNj]8JR%M",
+  "event_type": "LAND",
+  "id": "LII!0LBdUlNj]8JR%M",
+  "page_id": "LII!0LBdUlNj]8JR%M",
+  "referrer_page_id": "LII!0LBdUlNj]8JR%M",
+  "session_id": "LII!0LBdUlNj]8JR%M",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "LII!0LBdUlNj]8JR%M",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - all fields 1`] = `
+Object {
+  "channel_type": "sFKH^2",
+  "device": Object {
+    "advertising_id": "sFKH^2",
+    "ip": "sFKH^2",
+    "language": "sFKH^2",
+    "model": "sFKH^2",
+    "os": "SFKH^2",
+    "os_version": "sFKH^2",
+    "ua": "sFKH^2",
+    "unique_device_id": "sFKH^2",
+  },
+  "event_type": "PAGE_VIEW",
+  "id": "sFKH^2",
+  "items": Array [
+    Object {
+      "id": "sFKH^2",
+      "price": Object {
+        "amount": -74065445933547.52,
+        "currency": "KRW",
+      },
+      "quantity": -7406544593354752,
+      "seller_id": "sFKH^2",
+    },
+  ],
+  "page_id": "sFKH^2",
+  "referrer_page_id": "sFKH^2",
+  "session_id": "sFKH^2",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "sFKH^2",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: pageView action - required fields 1`] = `
+Object {
+  "channel_type": "sFKH^2",
+  "event_type": "PAGE_VIEW",
+  "id": "sFKH^2",
+  "page_id": "sFKH^2",
+  "referrer_page_id": "sFKH^2",
+  "session_id": "sFKH^2",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "sFKH^2",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - all fields 1`] = `
+Object {
+  "channel_type": "z*PO@ClIfz41i$",
+  "device": Object {
+    "advertising_id": "z*PO@ClIfz41i$",
+    "ip": "z*PO@ClIfz41i$",
+    "language": "z*PO@ClIfz41i$",
+    "model": "z*PO@ClIfz41i$",
+    "os": "Z*PO@CLIFZ41I$",
+    "os_version": "z*PO@ClIfz41i$",
+    "ua": "z*PO@ClIfz41i$",
+    "unique_device_id": "z*PO@ClIfz41i$",
+  },
+  "event_type": "PURCHASE",
+  "id": "z*PO@ClIfz41i$",
+  "items": Array [
+    Object {
+      "id": "z*PO@ClIfz41i$",
+      "price": Object {
+        "amount": 15155152394649.6,
+        "currency": "SGD",
+      },
+      "quantity": 1515515239464960,
+      "seller_id": "z*PO@ClIfz41i$",
+    },
+  ],
+  "page_id": "z*PO@ClIfz41i$",
+  "revenue": Object {
+    "amount": 15155152394649.6,
+    "currency": "SGD",
+  },
+  "session_id": "z*PO@ClIfz41i$",
+  "shipping_charge": Object {
+    "amount": 15155152394649.6,
+    "currency": "SGD",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "z*PO@ClIfz41i$",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: purchase action - required fields 1`] = `
+Object {
+  "channel_type": "z*PO@ClIfz41i$",
+  "event_type": "PURCHASE",
+  "id": "z*PO@ClIfz41i$",
+  "items": Array [
+    Object {
+      "id": "z*PO@ClIfz41i$",
+    },
+  ],
+  "page_id": "z*PO@ClIfz41i$",
+  "revenue": Object {
+    "amount": 15155152394649.6,
+    "currency": "SGD",
+  },
+  "session_id": "z*PO@ClIfz41i$",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "z*PO@ClIfz41i$",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: search action - all fields 1`] = `
+Object {
+  "channel_type": "A6r#IT*)oBgN#NJ98*^",
+  "device": Object {
+    "advertising_id": "A6r#IT*)oBgN#NJ98*^",
+    "ip": "A6r#IT*)oBgN#NJ98*^",
+    "language": "A6r#IT*)oBgN#NJ98*^",
+    "model": "A6r#IT*)oBgN#NJ98*^",
+    "os": "A6R#IT*)OBGN#NJ98*^",
+    "os_version": "A6r#IT*)oBgN#NJ98*^",
+    "ua": "A6r#IT*)oBgN#NJ98*^",
+    "unique_device_id": "A6r#IT*)oBgN#NJ98*^",
+  },
+  "event_type": "SEARCH",
+  "id": "A6r#IT*)oBgN#NJ98*^",
+  "items": Array [
+    Object {
+      "id": "A6r#IT*)oBgN#NJ98*^",
+      "price": Object {
+        "amount": 73826803122176,
+        "currency": "PHP",
+      },
+      "quantity": 7382680312217600,
+      "seller_id": "A6r#IT*)oBgN#NJ98*^",
+    },
+  ],
+  "page_id": "A6r#IT*)oBgN#NJ98*^",
+  "referrer_page_id": "A6r#IT*)oBgN#NJ98*^",
+  "search_query": "A6r#IT*)oBgN#NJ98*^",
+  "session_id": "A6r#IT*)oBgN#NJ98*^",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "A6r#IT*)oBgN#NJ98*^",
+}
+`;
+
+exports[`Testing snapshot for actions-moloco-rmp destination: search action - required fields 1`] = `
+Object {
+  "channel_type": "A6r#IT*)oBgN#NJ98*^",
+  "event_type": "SEARCH",
+  "id": "A6r#IT*)oBgN#NJ98*^",
+  "page_id": "A6r#IT*)oBgN#NJ98*^",
+  "referrer_page_id": "A6r#IT*)oBgN#NJ98*^",
+  "search_query": "A6r#IT*)oBgN#NJ98*^",
+  "session_id": "A6r#IT*)oBgN#NJ98*^",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "A6r#IT*)oBgN#NJ98*^",
+}
+`;

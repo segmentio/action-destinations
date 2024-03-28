@@ -1,48 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for MolocoRmp's pageView destination action: all fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's pageView destination action: all fields 1`] = `
 Object {
-  "channel_type": "W97yQ",
+  "channel_type": "@02bil#T2ADm",
   "device": Object {
-    "advertising_id": "W97yQ",
-    "ip": "W97yQ",
-    "language": "W97yQ",
-    "model": "W97yQ",
-    "os": "W97YQ",
-    "os_version": "W97yQ",
-    "ua": "W97yQ",
-    "unique_device_id": "W97yQ",
+    "advertising_id": "@02bil#T2ADm",
+    "ip": "@02bil#T2ADm",
+    "language": "@02bil#T2ADm",
+    "model": "@02bil#T2ADm",
+    "os": "@02BIL#T2ADM",
+    "os_version": "@02bil#T2ADm",
+    "ua": "@02bil#T2ADm",
+    "unique_device_id": "@02bil#T2ADm",
   },
   "event_type": "PAGE_VIEW",
-  "id": "W97yQ",
+  "id": "@02bil#T2ADm",
   "items": Array [
     Object {
-      "id": "W97yQ",
+      "id": "@02bil#T2ADm",
       "price": Object {
-        "amount": -82844332243025.92,
-        "currency": "UNKNOWN_CURRENCY",
+        "amount": -8327272301854.72,
+        "currency": "CNY",
       },
-      "quantity": -8284433224302592,
-      "seller_id": "W97yQ",
+      "quantity": -832727230185472,
+      "seller_id": "@02bil#T2ADm",
     },
   ],
-  "page_id": "W97yQ",
-  "referrer_page_id": "W97yQ",
-  "session_id": "W97yQ",
+  "page_id": "@02bil#T2ADm",
+  "referrer_page_id": "@02bil#T2ADm",
+  "session_id": "@02bil#T2ADm",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "W97yQ",
+  "user_id": "@02bil#T2ADm",
 }
 `;
 
-exports[`Testing snapshot for MolocoRmp's pageView destination action: required fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's pageView destination action: required fields 1`] = `
 Object {
-  "channel_type": "W97yQ",
+  "channel_type": "@02bil#T2ADm",
   "event_type": "PAGE_VIEW",
-  "id": "W97yQ",
-  "page_id": "W97yQ",
-  "referrer_page_id": "W97yQ",
-  "session_id": "W97yQ",
+  "id": "@02bil#T2ADm",
+  "page_id": "@02bil#T2ADm",
+  "referrer_page_id": "@02bil#T2ADm",
+  "session_id": "@02bil#T2ADm",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "W97yQ",
+  "user_id": "@02bil#T2ADm",
 }
 `;
