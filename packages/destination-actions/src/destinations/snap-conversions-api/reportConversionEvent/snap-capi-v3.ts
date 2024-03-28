@@ -509,29 +509,16 @@ const buildUserData = (payload: Payload) => {
 const buildCustomData = (payload: Payload) => {
   const { custom_data } = payload
 
-  const deprecated_products = (payload.products ?? []).filter(({ item_id }) => item_id != null)
+  const products = payload.products?.filter(({ item_id }) => item_id != null)
 
-  const content_ids =
-    custom_data?.content_ids ??
-    (deprecated_products.length > 0 ? deprecated_products.map(({ item_id }) => item_id ?? '') : undefined) ??
-    splitListValueToArray(payload.item_ids ?? '')
+  const content_ids = products?.map(({ item_id }) => item_id ?? '') ?? splitListValueToArray(payload.item_ids ?? '')
 
   const content_category =
-    custom_data?.content_category ??
-    (deprecated_products.length > 0
-      ? deprecated_products.map(({ item_category }) => item_category ?? '')
-      : undefined) ??
-    splitListValueToArray(payload.item_category ?? '')
+    products?.map(({ item_category }) => item_category ?? '') ?? splitListValueToArray(payload.item_category ?? '')
 
-  const brands =
-    custom_data?.brands ??
-    (deprecated_products.length > 0 ? deprecated_products.map((product) => product.brand ?? '') : undefined) ??
-    payload.brands
+  const brands = products?.map((product) => product.brand ?? '') ?? payload.brands
 
-  const num_items =
-    custom_data?.num_items ?? deprecated_products.length > 0
-      ? deprecated_products.length
-      : parseNumberSafe(payload.number_items) ?? content_ids?.length
+  const num_items = custom_data?.num_items ?? products?.length ?? parseNumberSafe(payload.number_items)
 
   const currency = emptyStringToUndefined(custom_data?.currency ?? payload.currency)?.toUpperCase()
   const order_id = emptyStringToUndefined(custom_data?.order_id ?? payload.transaction_id)

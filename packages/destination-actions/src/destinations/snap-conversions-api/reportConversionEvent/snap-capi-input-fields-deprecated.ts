@@ -2,13 +2,9 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 
 const brands: InputField = {
   label: '[Deprecated] Brand',
-  // FIXME
-  description: 'Brand associated with the item. This field accepts a string or a list of strings',
+  description: '[Deprecated] Use products',
   type: 'string',
-  multiple: true,
-  default: {
-    '@path': '$.properties.brand'
-  }
+  multiple: true
 }
 
 const click_id: InputField = {
@@ -84,23 +80,14 @@ const ip_address: InputField = {
 
 const item_category: InputField = {
   label: '[Deprecated] Item Category',
-  // FIXME
-  description: 'Category of the item. This field accepts a string.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.category'
-  }
+  description: 'Deprecated. Use products',
+  type: 'string'
 }
 
 const item_ids: InputField = {
   label: '[Deprecated] Item ID',
-  // FIXME
-  description:
-    'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.product_id'
-  }
+  description: 'Deprecated. Use products.',
+  type: 'string'
 }
 
 const level: InputField = {
@@ -143,53 +130,6 @@ const price: InputField = {
   label: '[Deprecated] Price',
   description: 'Deprecated. Use custom_data.value',
   type: 'number'
-}
-
-const products: InputField = {
-  label: '[Deprecated] Products',
-  //  FIXME:
-  description:
-    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
-  type: 'object',
-  multiple: true,
-  additionalProperties: false,
-  properties: {
-    item_id: {
-      label: 'Item ID',
-      type: 'string',
-      description:
-        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
-      allowNull: false
-    },
-    item_category: {
-      label: 'Category',
-      type: 'string',
-      description: 'Category of the item. This field accepts a string.',
-      allowNull: false
-    },
-    brand: {
-      label: 'Brand',
-      type: 'string',
-      description: 'Brand associated with the item. This field accepts a string.',
-      allowNull: false
-    }
-  },
-  default: {
-    '@arrayPath': [
-      '$.properties.products',
-      {
-        item_id: {
-          '@path': 'product_id'
-        },
-        item_category: {
-          '@path': 'category'
-        },
-        brand: {
-          '@path': 'brand'
-        }
-      }
-    ]
-  }
 }
 
 const search_string: InputField = {
@@ -250,7 +190,6 @@ const snap_capi_input_fields_deprecated = {
   page_url,
   phone_number,
   price,
-  products,
   search_string,
   sign_up_method,
   timestamp,

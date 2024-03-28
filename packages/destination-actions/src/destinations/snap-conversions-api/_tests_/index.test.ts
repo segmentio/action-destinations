@@ -100,7 +100,7 @@ describe('Snap Conversions API ', () => {
         expect(brands).toEqual(['Hasbro', 'Mattel'])
         expect(content_category).toEqual(['games', 'games'])
         expect(content_ids).toEqual(['123', '456'])
-        expect(num_items).toBe(2)
+        expect(num_items).toBe(10)
       })
 
       it('should handle a basic event', async () => {

@@ -2,9 +2,102 @@
 
 export interface Payload {
   /**
+   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
+   */
+  event_name?: string
+  /**
+   * If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
+   */
+  event_id?: string
+  /**
+   * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.
+   */
+  event_time?: string
+  /**
    * This field allows you to specify where your conversions occurred.
    */
   action_source?: string
+  /**
+   * These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.
+   */
+  user_data?: {
+    /**
+     * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
+     */
+    externalId?: string[]
+    /**
+     * An email address in lowercase.
+     */
+    email?: string
+    /**
+     * A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.
+     */
+    phone?: string
+    /**
+     * Gender in lowercase. Either f or m.
+     */
+    gender?: string
+    /**
+     * A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.
+     */
+    dateOfBirth?: string
+    /**
+     * A last name in lowercase.
+     */
+    lastName?: string
+    /**
+     * A first name in lowercase.
+     */
+    firstName?: string
+    /**
+     * A city in lowercase without spaces or punctuation. Example: menlopark.
+     */
+    city?: string
+    /**
+     * A two-letter state code in lowercase. Example: ca.
+     */
+    state?: string
+    /**
+     * A five-digit zip code for United States. For other locations, follow each country`s standards.
+     */
+    zip?: string
+    /**
+     * A two-letter country code in lowercase.
+     */
+    country?: string
+    /**
+     * The IP address of the browser corresponding to the event.
+     */
+    client_ip_address?: string
+    /**
+     * The user agent for the browser corresponding to the event. This is required if action source is “website”.
+     */
+    client_user_agent?: string
+    /**
+     * The subscription ID for the user in this transaction.
+     */
+    subscriptionID?: string
+    /**
+     * This is the identifier associated with your Snapchat Lead Ad.
+     */
+    leadID?: number
+    /**
+     * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
+     */
+    madid?: string
+    /**
+     * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
+     */
+    sc_click_id?: string
+    /**
+     * Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.
+     */
+    sc_cookie1?: string
+    /**
+     * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
+     */
+    idfv?: string
+  }
   /**
    * These fields support sending app events to Snapchat through the Conversions API.
    */
@@ -89,18 +182,6 @@ export interface Payload {
    */
   custom_data?: {
     /**
-     * The brands associated with the event.
-     */
-    brands?: string[]
-    /**
-     * The content categories associated with the event.
-     */
-    content_category?: string[]
-    /**
-     * The content IDs associated with the event, such as product SKUs.
-     */
-    content_ids?: string[]
-    /**
      * Currency for the value specified as ISO 4217 code.
      */
     currency?: string
@@ -138,104 +219,28 @@ export interface Payload {
    */
   data_processing_options_state?: number
   /**
-   * If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.
-   */
-  event_id?: string
-  /**
-   * The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).
-   */
-  event_name?: string
-  /**
    * The URL of the web page where the event took place.
    */
   event_source_url?: string
   /**
-   * The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.
+   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
    */
-  event_time?: string
+  products?: {
+    /**
+     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
+     */
+    item_id?: string
+    /**
+     * Category of the item. This field accepts a string.
+     */
+    item_category?: string
+    /**
+     * Brand associated with the item. This field accepts a string.
+     */
+    brand?: string
+  }[]
   /**
-   * These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.
-   */
-  user_data?: {
-    /**
-     * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.
-     */
-    externalId?: string[]
-    /**
-     * An email address in lowercase.
-     */
-    email?: string
-    /**
-     * A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.
-     */
-    phone?: string
-    /**
-     * Gender in lowercase. Either f or m.
-     */
-    gender?: string
-    /**
-     * A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.
-     */
-    dateOfBirth?: string
-    /**
-     * A last name in lowercase.
-     */
-    lastName?: string
-    /**
-     * A first name in lowercase.
-     */
-    firstName?: string
-    /**
-     * A city in lowercase without spaces or punctuation. Example: menlopark.
-     */
-    city?: string
-    /**
-     * A two-letter state code in lowercase. Example: ca.
-     */
-    state?: string
-    /**
-     * A five-digit zip code for United States. For other locations, follow each country`s standards.
-     */
-    zip?: string
-    /**
-     * A two-letter country code in lowercase.
-     */
-    country?: string
-    /**
-     * The IP address of the browser corresponding to the event.
-     */
-    client_ip_address?: string
-    /**
-     * The user agent for the browser corresponding to the event. This is required if action source is “website”.
-     */
-    client_user_agent?: string
-    /**
-     * The subscription ID for the user in this transaction.
-     */
-    subscriptionID?: string
-    /**
-     * This is the identifier associated with your Snapchat Lead Ad.
-     */
-    leadID?: number
-    /**
-     * Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).
-     */
-    madid?: string
-    /**
-     * The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)
-     */
-    sc_click_id?: string
-    /**
-     * Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.
-     */
-    sc_cookie1?: string
-    /**
-     * IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.
-     */
-    idfv?: string
-  }
-  /**
-   * Brand associated with the item. This field accepts a string or a list of strings
+   * [Deprecated] Use products
    */
   brands?: string[]
   /**
@@ -283,11 +288,11 @@ export interface Payload {
    */
   ip_address?: string
   /**
-   * Category of the item. This field accepts a string.
+   * Deprecated. Use products
    */
   item_category?: string
   /**
-   * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
+   * Deprecated. Use products.
    */
   item_ids?: string
   /**
@@ -318,23 +323,6 @@ export interface Payload {
    * Deprecated. Use custom_data.value
    */
   price?: number
-  /**
-   * Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field
-   */
-  products?: {
-    /**
-     * Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.
-     */
-    item_id?: string
-    /**
-     * Category of the item. This field accepts a string.
-     */
-    item_category?: string
-    /**
-     * Brand associated with the item. This field accepts a string.
-     */
-    brand?: string
-  }[]
   /**
    * Deprecated. Use custom_data.search_string
    */
