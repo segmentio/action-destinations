@@ -160,24 +160,6 @@ const custom_data: InputField = {
   description: 'The custom data object can be used to pass custom properties.',
   type: 'object',
   properties: {
-    brands: {
-      label: 'Brands',
-      description: 'The brands associated with the event.',
-      type: 'string',
-      multiple: true
-    },
-    content_category: {
-      label: 'Content Category',
-      description: 'The content categories associated with the event.',
-      type: 'string',
-      multiple: true
-    },
-    content_ids: {
-      label: 'Content IDs',
-      description: 'The content IDs associated with the event, such as product SKUs.',
-      type: 'string',
-      multiple: true
-    },
     currency: {
       label: 'Currency',
       description: 'Currency for the value specified as ISO 4217 code.',
@@ -468,18 +450,67 @@ const event_time: InputField = {
   }
 }
 
+// Ideally this would be a property in custom_data, but object fields cannot contain complex types.
+const products: InputField = {
+  label: 'Products',
+  description:
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+  type: 'object',
+  multiple: true,
+  additionalProperties: false,
+  properties: {
+    item_id: {
+      label: 'Item ID',
+      type: 'string',
+      description:
+        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
+      allowNull: false
+    },
+    item_category: {
+      label: 'Category',
+      type: 'string',
+      description: 'Category of the item. This field accepts a string.',
+      allowNull: false
+    },
+    brand: {
+      label: 'Brand',
+      type: 'string',
+      description: 'Brand associated with the item. This field accepts a string.',
+      allowNull: false
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': 'product_id'
+        },
+        item_category: {
+          '@path': 'category'
+        },
+        brand: {
+          '@path': 'brand'
+        }
+      }
+    ]
+  }
+}
+
+// The order here is important and impacts the UI for event testing.
 const snap_capi_input_fields_v3 = {
+  event_name,
+  event_id,
+  event_time,
   action_source,
+  user_data,
   app_data,
   custom_data,
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
-  event_id,
-  event_name,
   event_source_url,
-  event_time,
-  user_data
+  products
 }
 
 export default snap_capi_input_fields_v3
