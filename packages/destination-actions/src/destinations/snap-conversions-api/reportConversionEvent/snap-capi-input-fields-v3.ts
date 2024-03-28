@@ -181,10 +181,7 @@ const custom_data: InputField = {
     currency: {
       label: 'Currency',
       description: 'Currency for the value specified as ISO 4217 code.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.currency'
-      }
+      type: 'string'
     },
     num_items: {
       label: 'Number of Items',
@@ -195,18 +192,12 @@ const custom_data: InputField = {
       label: 'Order ID',
       description:
         'Order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.order_id'
-      }
+      type: 'string'
     },
     search_string: {
       label: 'Search String',
       description: 'The text string that was searched for.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.query'
-      }
+      type: 'string'
     },
     sign_up_method: {
       label: 'Sign Up Method',
@@ -217,13 +208,27 @@ const custom_data: InputField = {
       label: 'Value',
       description:
         "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
-      type: 'number',
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.revenue' },
-          then: { '@path': '$.properties.revenue' },
-          else: { '@path': '$.properties.total' }
-        }
+      type: 'number'
+    }
+  },
+  default: {
+    currency: {
+      '@path': '$.properties.currency'
+    },
+    num_items: {
+      '@path': '$.properties.quantity'
+    },
+    order_id: {
+      '@path': '$.properties.order_id'
+    },
+    search_string: {
+      '@path': '$.properties.query'
+    },
+    value: {
+      '@if': {
+        exists: { '@path': '$.properties.revenue' },
+        then: { '@path': '$.properties.revenue' },
+        else: { '@path': '$.properties.total' }
       }
     }
   }
@@ -251,14 +256,7 @@ const user_data: InputField = {
       label: 'Phone',
       description:
         'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.',
-      type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.phone' },
-          then: { '@path': '$.properties.phone' },
-          else: { '@path': '$.traits.phone' }
-        }
-      }
+      type: 'string'
     },
     gender: {
       label: 'Gender',
@@ -325,36 +323,24 @@ const user_data: InputField = {
       label: 'Mobile Ad Identifier',
       description:
         'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-      type: 'string',
-      default: {
-        '@path': '$.context.device.advertisingId'
-      }
+      type: 'string'
     },
     sc_click_id: {
       label: 'Click ID',
       description:
         "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
-      type: 'string',
-      default: {
-        '@path': '$.integrations.Snap Conversions Api.click_id'
-      }
+      type: 'string'
     },
     sc_cookie1: {
       label: 'uuid_c1 Cookie',
       description:
         'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
-      type: 'string',
-      default: {
-        '@path': '$.integrations.Snap Conversions Api.uuid_c1'
-      }
+      type: 'string'
     },
     idfv: {
       label: 'Identifier for Vendor',
       description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
-      type: 'string',
-      default: {
-        '@path': '$.context.device.id'
-      }
+      type: 'string'
     }
   },
   default: {
@@ -366,10 +352,18 @@ const user_data: InputField = {
       }
     },
     email: {
-      '@path': '$.context.traits.email'
+      '@if': {
+        exists: { '@path': '$.properties.email' },
+        then: { '@path': '$.properties.email' },
+        else: { '@path': '$.traits.email' }
+      }
     },
     phone: {
-      '@path': '$.context.traits.phone'
+      '@if': {
+        exists: { '@path': '$.properties.phone' },
+        then: { '@path': '$.properties.phone' },
+        else: { '@path': '$.traits.phone' }
+      }
     },
     dateOfBirth: {
       '@path': '$.context.traits.birthday'
@@ -394,6 +388,18 @@ const user_data: InputField = {
     },
     client_user_agent: {
       '@path': '$.context.userAgent'
+    },
+    idfv: {
+      '@path': '$.context.device.id'
+    },
+    madid: {
+      '@path': '$.context.device.advertisingId'
+    },
+    sc_click_id: {
+      '@path': '$.integrations.Snap Conversions Api.click_id'
+    },
+    sc_cookie1: {
+      '@path': '$.integrations.Snap Conversions Api.uuid_c1'
     }
   }
 }
