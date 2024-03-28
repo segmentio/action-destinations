@@ -1,7 +1,8 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 
 const brands: InputField = {
-  label: 'Brand',
+  label: '[Deprecated] Brand',
+  // FIXME
   description: 'Brand associated with the item. This field accepts a string or a list of strings',
   type: 'string',
   multiple: true,
@@ -11,60 +12,44 @@ const brands: InputField = {
 }
 
 const click_id: InputField = {
-  label: 'Click ID',
-  description:
-    "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
-  type: 'string',
-  default: {
-    '@path': '$.integrations.Snap Conversions Api.click_id'
-  }
+  label: '[Deprecated] Click ID',
+  description: 'Deprecated. Use user_data.sc_click_id',
+  type: 'string'
 }
 
 const client_dedup_id: InputField = {
-  label: 'Client Deduplication ID',
-  description:
-    'If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same client_dedup_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.',
+  label: '[Deprecated] Client Deduplication ID',
+  description: 'Deprecated. Use event_id',
   type: 'string'
 }
 
 const currency: InputField = {
-  label: 'Currency',
-  description: 'Currency for the value specified as ISO 4217 code.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.currency'
-  }
+  label: '[Deprecated] Currency',
+  description: 'Deprecated. Use custom_data.currency',
+  type: 'string'
 }
 
 const description: InputField = {
-  label: 'Description',
-  description: 'A string description for additional info.',
+  label: '[Deprecated] Description',
+  description: 'Deprecated. No longer supported.',
   type: 'string'
 }
 
 const device_model: InputField = {
-  label: 'Device Model',
-  description: 'The user’s device model.',
+  label: '[Deprecated] Device Model',
+  description: 'Deprecated. Use app_data.deviceName',
   type: 'string'
 }
 
 const email: InputField = {
-  label: 'Email',
-  description:
-    'Email address of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@if': {
-      exists: { '@path': '$.properties.email' },
-      then: { '@path': '$.properties.email' },
-      else: { '@path': '$.traits.email' }
-    }
-  }
+  label: '[Deprecated] Email',
+  description: 'Deprecated. Use user_data.email',
+  type: 'string'
 }
 
 const event_conversion_type: InputField = {
-  label: 'Event Conversion Type',
-  description: 'Where the event took place. This must be OFFLINE, WEB, or MOBILE_APP.',
+  label: '[Deprecated] Event Conversion Type',
+  description: 'Deprecated. Use action_source.',
   type: 'string',
   choices: [
     { label: 'Offline', value: 'OFFLINE' },
@@ -74,39 +59,32 @@ const event_conversion_type: InputField = {
 }
 
 const event_tag: InputField = {
-  label: 'Event Tag',
-  description: 'Custom event label.',
+  label: '[Deprecated] Event Tag',
+  description: 'Deprecated. No longer supported.',
   type: 'string'
 }
 
 const event_type: InputField = {
-  label: 'Event Type',
-  description:
-    'The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).',
+  label: '[Deprecated] Event Type',
+  description: 'Deprecated. Use event_name',
   type: 'string'
 }
 
 const idfv: InputField = {
-  label: 'Identifier for Vendor',
-  description: 'IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.',
-  type: 'string',
-  default: {
-    '@path': '$.context.device.id'
-  }
+  label: '[Deprecated] Identifier for Vendor',
+  description: 'Deprecated. Use user_data.idfv',
+  type: 'string'
 }
 
 const ip_address: InputField = {
-  label: 'IP Address',
-  description:
-    'IP address of the device or browser. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@path': '$.context.ip'
-  }
+  label: '[Deprecated] IP Address',
+  description: 'Deprecated. Use user_data.client_ip_address',
+  type: 'string'
 }
 
 const item_category: InputField = {
-  label: 'Item Category',
+  label: '[Deprecated] Item Category',
+  // FIXME
   description: 'Category of the item. This field accepts a string.',
   type: 'string',
   default: {
@@ -115,7 +93,8 @@ const item_category: InputField = {
 }
 
 const item_ids: InputField = {
-  label: 'Item ID',
+  label: '[Deprecated] Item ID',
+  // FIXME
   description:
     'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
   type: 'string',
@@ -125,75 +104,50 @@ const item_ids: InputField = {
 }
 
 const level: InputField = {
-  label: 'Level',
-  description: 'Represents a level in the context of a game.',
+  label: '[Deprecated] Level',
+  description: 'Deprecated. No longer supported.',
   type: 'string'
 }
 
 const mobile_ad_id: InputField = {
-  label: 'Mobile Ad Identifier',
-  description:
-    'Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@path': '$.context.device.advertisingId'
-  }
+  label: '[Deprecated] Mobile Ad Identifier',
+  description: 'Deprecated. Use user_data.madid',
+  type: 'string'
 }
 
 const number_items: InputField = {
-  label: 'Number of Items',
-  description: 'Number of items. This field accepts a string only. e.g. "5"',
-  type: 'string',
-  default: {
-    '@path': '$.properties.quantity'
-  }
+  label: '[Deprecated] Number of Items',
+  description: 'Deprecated. Use custom_data.num_items.',
+  type: 'string'
 }
 
 const os_version: InputField = {
-  label: 'OS Version',
-  description: 'The user’s OS version.',
+  label: '[Deprecated] OS Version',
+  description: 'Deprecated. Use app_data.version',
   type: 'string'
 }
 
 const page_url: InputField = {
-  label: 'Page URL',
-  description: 'The URL of the web page where the event took place.',
-  type: 'string',
-  default: {
-    '@path': '$.context.page.url'
-  }
+  label: '[Deprecated] Page URL',
+  description: 'Deprecated. Use event_source_url',
+  type: 'string'
 }
 
 const phone_number: InputField = {
-  label: 'Phone Number',
-  description:
-    'Phone number of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@if': {
-      exists: { '@path': '$.properties.phone' },
-      then: { '@path': '$.properties.phone' },
-      else: { '@path': '$.traits.phone' }
-    }
-  }
+  label: '[Deprecated] Phone Number',
+  description: 'Deprecated. Use user_data.phone',
+  type: 'string'
 }
 
 const price: InputField = {
-  label: 'Price',
-  description:
-    "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
-  type: 'number',
-  default: {
-    '@if': {
-      exists: { '@path': '$.properties.revenue' },
-      then: { '@path': '$.properties.revenue' },
-      else: { '@path': '$.properties.total' }
-    }
-  }
+  label: '[Deprecated] Price',
+  description: 'Deprecated. Use custom_data.value',
+  type: 'number'
 }
 
 const products: InputField = {
-  label: 'Products',
+  label: '[Deprecated] Products',
+  //  FIXME:
   description:
     "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
   type: 'object',
@@ -239,58 +193,39 @@ const products: InputField = {
 }
 
 const search_string: InputField = {
-  label: 'Search String',
-  description: 'The text string that was searched for.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.query'
-  }
+  label: '[Deprecated] Search String',
+  description: 'Deprecated. Use custom_data.search_string',
+  type: 'string'
 }
 
 const sign_up_method: InputField = {
-  label: 'Sign Up Method',
-  description: 'A string indicating the sign up method.',
+  label: '[Deprecated] Sign Up Method',
+  description: 'Deprecated. Use custom_data.sign_up_method',
   type: 'string'
 }
 
 const timestamp: InputField = {
-  label: 'Event Timestamp',
-  description:
-    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
-  type: 'string',
-  default: {
-    '@path': '$.timestamp'
-  }
+  label: '[Deprecated] Event Timestamp',
+  description: 'Deprecated. Use event_time',
+  type: 'string'
 }
 
 const transaction_id: InputField = {
-  label: 'Transaction ID',
-  description:
-    'Transaction ID or order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.',
-  type: 'string',
-  default: {
-    '@path': '$.properties.order_id'
-  }
+  label: '[Deprecated] Transaction ID',
+  description: 'Deprecated. Use custom_data.order_id',
+  type: 'string'
 }
 
 const user_agent: InputField = {
-  label: 'User Agent',
-  description:
-    'User agent from the user’s device. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).',
-  type: 'string',
-  default: {
-    '@path': '$.context.userAgent'
-  }
+  label: '[Deprecated] User Agent',
+  description: 'Deprecated. Use user_data.client_user_agent',
+  type: 'string'
 }
 
 const uuid_c1: InputField = {
-  label: 'uuid_c1 Cookie',
-  description:
-    'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
-  type: 'string',
-  default: {
-    '@path': '$.integrations.Snap Conversions Api.uuid_c1'
-  }
+  label: '[Deprecated] uuid_c1 Cookie',
+  description: 'Deprecated. Use user_data.sc_cookie1',
+  type: 'string'
 }
 
 const snap_capi_input_fields_deprecated = {

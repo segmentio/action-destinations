@@ -26,9 +26,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Payment Info Entered"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_BILLING',
-      event_conversion_type: 'WEB'
+      event_name: 'ADD_BILLING',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -37,9 +37,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_CART',
-      event_conversion_type: 'WEB'
+      event_name: 'ADD_CART',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -48,9 +48,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Added to Wishlist"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'ADD_TO_WISHLIST',
-      event_conversion_type: 'WEB'
+      event_name: 'ADD_TO_WISHLIST',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -59,9 +59,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Application Installed"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'APP_INSTALL',
-      event_conversion_type: 'WEB'
+      event_name: 'APP_INSTALL',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -70,9 +70,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product List Viewed"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'LIST_VIEW',
-      event_conversion_type: 'WEB'
+      event_name: 'LIST_VIEW',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -81,9 +81,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Application Opened"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'APP_OPEN',
-      event_conversion_type: 'WEB'
+      event_name: 'APP_OPEN',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -92,9 +92,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Signed In"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'LOGIN',
-      event_conversion_type: 'WEB'
+      event_name: 'LOGIN',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -103,9 +103,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "page"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'PAGE_VIEW',
-      event_conversion_type: 'WEB'
+      event_name: 'PAGE_VIEW',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -114,9 +114,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Order Completed"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'PURCHASE',
-      event_conversion_type: 'WEB'
+      event_name: 'PURCHASE',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -125,9 +125,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Products Searched"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SEARCH',
-      event_conversion_type: 'WEB'
+      event_name: 'SEARCH',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -136,9 +136,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Shared"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SHARE',
-      event_conversion_type: 'WEB'
+      event_name: 'SHARE',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -147,9 +147,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Signed Up"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'SIGN_UP',
-      event_conversion_type: 'WEB'
+      event_name: 'SIGN_UP',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -158,9 +158,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Checkout Started"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'START_CHECKOUT',
-      event_conversion_type: 'WEB'
+      event_name: 'START_CHECKOUT',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   },
@@ -169,9 +169,9 @@ const presets: DestinationDefinition['presets'] = [
     subscribe: 'event = "Product Viewed"',
     partnerAction: 'reportConversionEvent',
     mapping: {
-      ...DEFAULT_VALS,
-      event_type: 'VIEW_CONTENT',
-      event_conversion_type: 'WEB'
+      event_name: 'VIEW_CONTENT',
+      action_source: 'website',
+      ...DEFAULT_VALS
     },
     type: 'automatic'
   }
