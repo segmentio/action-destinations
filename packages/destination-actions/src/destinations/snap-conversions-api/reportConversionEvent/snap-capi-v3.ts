@@ -11,7 +11,8 @@ import {
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
   emptyStringToUndefined,
-  parseNumberSafe
+  parseNumberSafe,
+  parseDateSafe
 } from './utils'
 
 const CURRENCY_ISO_4217_CODES = new Set([
@@ -583,8 +584,11 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   const event_source_url = payload.event_source_url ?? payload.page_url
   const event_id = emptyStringToUndefined(payload.event_id) ?? emptyStringToUndefined(payload.client_dedup_id)
 
-  const ISO_8601_event_time = payload.event_time ?? payload.timestamp
-  const event_time = ISO_8601_event_time != null ? Date.parse(ISO_8601_event_time) : undefined
+  const payload_event_time = payload.event_time ?? payload.timestamp
+  // Handle the case where a number is passed instead of an ISO8601 timestamp
+  const event_time_number = parseNumberSafe(payload_event_time ?? '')
+  const event_time_date_time = parseDateSafe(payload_event_time ?? '')
+  const event_time = event_time_date_time ?? event_time_number
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
