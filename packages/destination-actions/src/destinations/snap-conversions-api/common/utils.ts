@@ -77,8 +77,3 @@ export const parseNumberSafe = (v: string | number | undefined): number | undefi
   }
   return undefined
 }
-
-export const parseDateSafe = (v: string | undefined): number | undefined => {
-  const parsed = Date.parse(v ?? '')
-  return Number.isSafeInteger(parsed) ? parsed : undefined
-}
