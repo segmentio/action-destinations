@@ -205,6 +205,94 @@ export interface Payload {
      * Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.
      */
     value?: number
+    /**
+     * The desired hotel check-in date in the hotel's time-zone. Accepted formats are YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD and YYYY-MM-DDThh:mm:ssTZD
+     */
+    checkin_date?: string
+    /**
+     * End date of travel
+     */
+    travel_end?: string
+    /**
+     * Start date of travel
+     */
+    travel_start?: string
+    /**
+     * The suggested destinations
+     */
+    suggested_destinations?: string
+    /**
+     * The destination airport. Make sure to use the IATA code of the airport
+     */
+    destination_airport?: string
+    /**
+     * The country based on the location the user intends to visit
+     */
+    country?: string
+    /**
+     * The city based on the location the user intends to visit
+     */
+    city?: string
+    /**
+     * This could be the state, district, or region of interest to the user
+     */
+    region?: string
+    /**
+     * The neighborhood the user is interested in
+     */
+    neighborhood?: string
+    /**
+     * The starting date and time for travel
+     */
+    departing_departure_date?: string
+    /**
+     * The arrival date and time at the destination for the travel
+     */
+    departing_arrival_date?: string
+    /**
+     * The number of adults staying
+     */
+    num_adults?: number
+    /**
+     * The official IATA code of origin airport
+     */
+    origin_airport?: string
+    /**
+     * The starting date and time of the return journey
+     */
+    returning_departure_date?: string
+    /**
+     * The date and time when the return journey is complete
+     */
+    returning_arrival_date?: string
+    /**
+     * The number of children staying
+     */
+    num_children?: number
+    /**
+     * This represents the hotels score relative to other hotels to an advertiser
+     */
+    hotel_score?: string
+    /**
+     * The postal /zip code
+     */
+    postal_code?: string
+    /**
+     * The number of infants staying
+     */
+    num_infants?: number
+    /**
+     * Any preferred neighborhoods for the stay
+     */
+    preferred_neighborhoods?: string
+    /**
+     * The minimum and maximum hotel star rating supplied as a tuple. This is what the user would use for filtering hotels
+     */
+    preferred_star_ratings?: string
+    /**
+     * The suggested hotels
+     */
+    suggested_hotels?: string
   }
   /**
    * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.

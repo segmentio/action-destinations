@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InputField, Optional } from '@segment/actions-core/destination-kit/types'
 
 const action_source: InputField = {
   label: 'Action Source',
@@ -155,6 +155,119 @@ const app_data: InputField = {
   }
 }
 
+const custom_data_travel_properties: Record<string, Optional<InputField, 'description'>> = {
+  checkin_date: {
+    label: 'Check-In Date',
+    description: `The desired hotel check-in date in the hotel's time-zone. Accepted formats are YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD and YYYY-MM-DDThh:mm:ssTZD`,
+    type: 'string'
+  },
+  travel_end: {
+    label: 'Travel End',
+    description: `End date of travel`,
+    type: 'string'
+  },
+  travel_start: {
+    label: 'Travel Start',
+    description: `Start date of travel`,
+    type: 'string'
+  },
+  suggested_destinations: {
+    label: 'Suggests Destinations',
+    description: `The suggested destinations`,
+    type: 'string'
+  },
+  destination_airport: {
+    label: 'Destination Airport',
+    description: `The destination airport. Make sure to use the IATA code of the airport`,
+    type: 'string'
+  },
+  country: {
+    label: 'Country',
+    description: `The country based on the location the user intends to visit`,
+    type: 'string'
+  },
+  city: {
+    label: 'City',
+    description: `The city based on the location the user intends to visit`,
+    type: 'string'
+  },
+  region: {
+    label: 'Region',
+    description: `This could be the state, district, or region of interest to the user`,
+    type: 'string'
+  },
+  neighborhood: {
+    label: 'Neighborhood',
+    description: `The neighborhood the user is interested in`,
+    type: 'string'
+  },
+  departing_departure_date: {
+    label: 'Departing Departure Date',
+    description: `The starting date and time for travel`,
+    type: 'string'
+  },
+  departing_arrival_date: {
+    label: 'Departing Arrival Date',
+    description: `The arrival date and time at the destination for the travel`,
+    type: 'string'
+  },
+  num_adults: {
+    label: 'Num Adults',
+    description: `The number of adults staying`,
+    type: 'integer'
+  },
+  origin_airport: {
+    label: 'Origin Airport',
+    description: `The official IATA code of origin airport`,
+    type: 'string'
+  },
+  returning_departure_date: {
+    label: 'Returning Departure Date',
+    description: `The starting date and time of the return journey`,
+    type: 'string'
+  },
+  returning_arrival_date: {
+    label: 'Returning Arrival Date',
+    description: `The date and time when the return journey is complete`,
+    type: 'string'
+  },
+  num_children: {
+    label: 'Num Children',
+    description: `The number of children staying`,
+    type: 'integer'
+  },
+  hotel_score: {
+    label: 'Hotel Score',
+    description: `This represents the hotels score relative to other hotels to an advertiser`,
+    type: 'string'
+  },
+  postal_code: {
+    label: 'Postal Code',
+    description: `The postal /zip code`,
+    type: 'string'
+  },
+  num_infants: {
+    label: 'Num Infants',
+    description: `The number of infants staying`,
+    type: 'integer'
+  },
+  preferred_neighborhoods: {
+    label: 'Preferred Neighborhoods',
+    description: `Any preferred neighborhoods for the stay`,
+    type: 'string'
+  },
+  preferred_star_ratings: {
+    label: 'Preferred Star Ratings',
+    description: `The minimum and maximum hotel star rating supplied as a tuple. This is what the user would use for filtering hotels`,
+    type: 'string'
+  },
+  suggested_hotels: {
+    label: 'Suggested Hotels',
+    description: `The suggested hotels`,
+    type: 'string'
+  }
+}
+
 const custom_data: InputField = {
   label: 'Custom Data',
   description: 'The custom data object can be used to pass custom properties.',
@@ -191,7 +304,8 @@ const custom_data: InputField = {
       description:
         "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
       type: 'number'
-    }
+    },
+    ...custom_data_travel_properties
   },
   default: {
     currency: {

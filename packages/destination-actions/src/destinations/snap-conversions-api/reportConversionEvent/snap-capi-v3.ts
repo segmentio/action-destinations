@@ -388,9 +388,7 @@ const buildAppData = (payload: Payload, settings: Settings) => {
   // Ideally advertisers on iOS 14.5+ would pass the ATT_STATUS from the device.
   // However the field is required for app events, so hardcode the value to false (0)
   // for any events sent that include app_data.
-  const appDataAdvertiserTrackingEnabled = app_data?.advertiser_tracking_enabled ? 1 : 0
-  const appDataIfAppIdIsDefined = !isNullOrUndefined(app_id) ? 0 : undefined
-  const advertiser_tracking_enabled = app_data != null ? appDataAdvertiserTrackingEnabled : appDataIfAppIdIsDefined
+  const advertiser_tracking_enabled = app_data?.advertiser_tracking_enabled ? 1 : 0
 
   const appDataApplicationTrackingEnabled = app_data?.application_tracking_enabled ? 1 : 0
   const application_tracking_enabled = app_data != null ? appDataApplicationTrackingEnabled : undefined
@@ -483,7 +481,7 @@ const buildUserData = (payload: Payload) => {
   const sc_click_id = user_data?.sc_click_id ?? payload.click_id
   const sc_cookie1 = user_data?.sc_cookie1 ?? payload.uuid_c1
 
-  return emptyObjectToUndefined({
+  return {
     client_ip_address,
     client_user_agent,
     country: hashedCountry,
@@ -503,7 +501,7 @@ const buildUserData = (payload: Payload) => {
     st: hashedState,
     subscription_id,
     zp: hashedZip
-  })
+  }
 }
 
 const buildCustomData = (payload: Payload) => {
@@ -526,6 +524,54 @@ const buildCustomData = (payload: Payload) => {
   const sign_up_method = emptyStringToUndefined(custom_data?.sign_up_method ?? payload.sign_up_method)
   const value = custom_data?.value ?? payload.price
 
+  const checkin_date = emptyStringToUndefined(custom_data?.checkin_date)
+  const travel_end = emptyStringToUndefined(custom_data?.travel_end)
+  const travel_start = emptyStringToUndefined(custom_data?.travel_start)
+  const suggested_destinations = emptyStringToUndefined(custom_data?.suggested_destinations)
+  const destination_airport = emptyStringToUndefined(custom_data?.destination_airport)
+  const country = emptyStringToUndefined(custom_data?.country)
+  const city = emptyStringToUndefined(custom_data?.city)
+  const region = emptyStringToUndefined(custom_data?.region)
+  const neighborhood = emptyStringToUndefined(custom_data?.neighborhood)
+  const departing_departure_date = emptyStringToUndefined(custom_data?.departing_departure_date)
+  const departing_arrival_date = emptyStringToUndefined(custom_data?.departing_arrival_date)
+  const num_adults = custom_data?.num_adults
+  const origin_airport = emptyStringToUndefined(custom_data?.origin_airport)
+  const returning_departure_date = emptyStringToUndefined(custom_data?.returning_departure_date)
+  const returning_arrival_date = emptyStringToUndefined(custom_data?.returning_arrival_date)
+  const num_children = custom_data?.num_children
+  const hotel_score = emptyStringToUndefined(custom_data?.hotel_score)
+  const postal_code = emptyStringToUndefined(custom_data?.postal_code)
+  const num_infants = custom_data?.num_infants
+  const preferred_neighborhoods = emptyStringToUndefined(custom_data?.preferred_neighborhoods)
+  const preferred_star_ratings = emptyStringToUndefined(custom_data?.preferred_star_ratings)
+  const suggested_hotels = emptyStringToUndefined(custom_data?.suggested_hotels)
+
+  const dta_fields = {
+    checkin_date,
+    travel_end,
+    travel_start,
+    suggested_destinations,
+    destination_airport,
+    country,
+    city,
+    region,
+    neighborhood,
+    departing_departure_date,
+    departing_arrival_date,
+    num_adults,
+    origin_airport,
+    returning_departure_date,
+    returning_arrival_date,
+    num_children,
+    hotel_score,
+    postal_code,
+    num_infants,
+    preferred_neighborhoods,
+    preferred_star_ratings,
+    suggested_hotels
+  }
+
   return emptyObjectToUndefined({
     brands,
     content_category,
@@ -535,7 +581,8 @@ const buildCustomData = (payload: Payload) => {
     order_id,
     search_string,
     sign_up_method,
-    value
+    value,
+    ...dta_fields
   })
 }
 
@@ -648,7 +695,7 @@ const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
     event_name,
     event_time,
     custom_data = {} as NonNullable<typeof payload.custom_data>,
-    user_data = {} as NonNullable<typeof payload.user_data>
+    user_data
   } = payload
 
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(
