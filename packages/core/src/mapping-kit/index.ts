@@ -267,6 +267,13 @@ registerDirective('@json', (opts, payload) => {
   }
 })
 
+registerDirective('@merge', (arr, payload) => {
+  if (!Array.isArray(arr)) throw new Error(`@merge: expected array, got ${typeof arr}`)
+
+  const objects = arr.map((v) => resolve(v, payload))
+  return Object.assign({}, ...objects)
+})
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve

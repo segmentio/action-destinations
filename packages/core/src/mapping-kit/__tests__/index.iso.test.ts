@@ -879,3 +879,37 @@ describe('remove undefined values in objects', () => {
     })
   })
 })
+
+describe('@merge', () => {
+  test('empty', () => {
+    const output = transform({ '@merge': [] }, {})
+    expect(output).toStrictEqual({})
+  })
+
+  test('one object', () => {
+    const output = transform({ '@merge': [{ cool: true }] }, {})
+    expect(output).toStrictEqual({ cool: true })
+  })
+
+  test('simple overwrite', () => {
+    const output = transform({ '@merge': [{ cool: true }, { cool: 'you bet' }] }, {})
+    expect(output).toStrictEqual({ cool: 'you bet' })
+  })
+
+  test('nested directive', () => {
+    const output = transform({ '@merge': [{ cool: true }, { '@path': 'foo' }] }, { foo: { bar: 'baz' } })
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('invalid type', () => {
+    expect(() => {
+      transform({ '@merge': { oops: true } })
+    }).toThrowError()
+  })
+
+  test('invalid nested type', () => {
+    expect(() => {
+      transform({ '@merge': [{}, 1] })
+    }).toThrowError()
+  })
+})

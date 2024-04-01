@@ -106,6 +106,21 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
   }
 }
 
+function validateDirectiveOrObject(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  switch (type) {
+    case 'directive':
+      return validateDirective(v, stack)
+    case 'object':
+      return validateObject(v, stack)
+    default:
+      throw new ValidationError(
+        `should be a string or a mapping directive but it is ${indefiniteArticle(type)} ${type}`,
+        stack
+      )
+  }
+}
+
 type validator = (v: unknown, stack: string[]) => void
 function chain(...validators: validator[]) {
   return (v: unknown, stack: string[] = []) => {
@@ -316,6 +331,14 @@ directive('@flatten', (v, stack) => {
     },
     stack
   )
+})
+
+directive('@merge', (v, stack) => {
+  const data = v as unknown[]
+  validateArray(data, stack)
+  data.forEach((obj) => {
+    validateDirectiveOrObject(obj)
+  })
 })
 
 directive('@template', (v, stack) => {
