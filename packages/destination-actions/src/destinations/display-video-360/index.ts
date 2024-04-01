@@ -1,35 +1,18 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 
 import type { Settings, AudienceSettings } from './generated-types'
-import type { RefreshTokenResponse } from './types'
 
 import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, OAUTH_URL } from './constants'
-import { buildHeaders, getAuthToken, getAuthSettings, isLegacyDestinationMigration } from './shared'
+import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
+import { buildHeaders, getAuthToken, getAuthSettings } from './shared'
 import { handleRequestError } from './errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
   slug: 'actions-display-video-360',
   mode: 'cloud',
-  authentication: {
-    scheme: 'oauth2',
-    fields: {}, // Fields is required. Left empty on purpose.
-    refreshAccessToken: async (request, { auth }) => {
-      const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
-        method: 'POST',
-        body: new URLSearchParams({
-          refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
-          client_id: auth.clientId,
-          client_secret: auth.clientSecret,
-          grant_type: 'refresh_token'
-        })
-      })
-      return { accessToken: data.access_token }
-    }
-  },
   audienceFields: {
     advertiserId: {
       type: 'string',
@@ -56,15 +39,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, statsContext, settings } = createAudienceInput
+      const { audienceName, audienceSettings, statsContext } = createAudienceInput
       const { advertiserId, accountType } = audienceSettings || {}
       const { statsClient, tags: statsTags } = statsContext || {}
       const statsName = 'createAudience'
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
-      // @ts-ignore - TS doesn't know about the oauth property
-      const authSettings = getAuthSettings(settings)
+      const authSettings = getAuthSettings()
 
       if (!audienceName) {
         statsTags?.push('error:missing-settings')
@@ -121,15 +103,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const { statsContext, audienceSettings, settings } = getAudienceInput
+      const { statsContext, audienceSettings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { advertiserId, accountType } = audienceSettings || {}
       const statsName = 'getAudience'
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
-      // @ts-ignore - TS doesn't know about the oauth property
-      const authSettings = getAuthSettings(settings)
+      const authSettings = getAuthSettings()
 
       if (!advertiserId) {
         statsTags?.push('error:missing-settings')
@@ -141,17 +122,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      // Legacy destinations don't have an auth object until customers log-in to the new destination.
-      // However, the bulkUploader API doesn't require an auth object, so we can use the externalId to verify ownership.
-      // Only legacy destinations will have an externalId and no auth object.
-      if (isLegacyDestinationMigration(getAudienceInput, authSettings)) {
-        statsClient?.incr(`${statsName}.legacy`, 1, statsTags)
-
-        return {
-          externalId: getAudienceInput.externalId
-        }
       }
 
       const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
