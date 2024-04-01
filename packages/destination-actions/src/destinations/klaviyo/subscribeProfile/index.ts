@@ -5,6 +5,7 @@ import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
+import { SubscribeProfile } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -29,16 +30,20 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: { '@path': '$context.traits.phone' }
     },
-    enable_batching: {
-      type: 'boolean',
-      label: 'Batch Data to Klaviyo',
-      description: 'When enabled, the action will use the klaviyo batch API.'
-    },
     list_id: {
       label: 'List Id',
       description: `The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.`,
       type: 'string',
       dynamic: true
+    },
+    consented_at: {
+      label: 'Consented At',
+      description: `The timestamp of when the profile's consent was gathered.
+      `,
+      type: 'datetime',
+      default: {
+        '@path': '$.timestamp'
+      }
     }
   },
   dynamicFields: {
@@ -46,48 +51,29 @@ const action: ActionDefinition<Settings, Payload> = {
       return getListIdDynamicData(request)
     }
   },
-  perform: (request, { payload }) => {
-    const { email, klaviyo_id, phone_number } = payload
+  perform: async (request, { payload }) => {
+    const { email, klaviyo_id, phone_number, consented_at } = payload
 
-    if (!email && !phone_number && !klaviyo_id) {
-      throw new PayloadValidationError('One of Phone Number, Email, or Klaviyo Id is required.')
+    if (!email && !phone_number) {
+      throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, klaviyo_id, consented_at)
     const eventData = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
           custom_source: 'Segment Klaviyo (Actions) Destination',
           profiles: {
-            data: [
-              {
-                type: 'profile',
-                attributes: {
-                  email: 'jason.tu@segment.com',
-                  phone_number: '+17067675127',
-                  subscriptions: {
-                    email: {
-                      marketing: {
-                        consent: 'SUBSCRIBED'
-                      }
-                    },
-                    sms: {
-                      marketing: {
-                        consent: 'SUBSCRIBED',
-                        consented_at: '2023-08-23T14:00:00-0400'
-                      }
-                    }
-                  }
-                }
-              }
-            ]
+            data: [profileToSubscribe]
           }
         }
       }
     }
 
+    console.log(JSON.stringify(eventData, null, 2))
     // subscribe requires use of 2024-02-15 api version
-    return request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+    return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
       headers: {
         revision: '2024-02-15'
@@ -95,6 +81,42 @@ const action: ActionDefinition<Settings, Payload> = {
       json: eventData
     })
   }
+}
+
+function formatSubscribeProfile(
+  email: string | undefined,
+  phone_number: string | undefined,
+  klaviyo_id: string | undefined,
+  consented_at: string | number | undefined
+) {
+  const profileToSubscribe: SubscribeProfile = {
+    type: 'profile',
+    attributes: {
+      id: klaviyo_id || undefined,
+      email,
+      phone_number,
+      subscriptions: {}
+    }
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'SUBSCRIBED',
+        consented_at: consented_at
+      }
+    }
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'SUBSCRIBED',
+        consented_at: consented_at
+      }
+    }
+  }
+  return profileToSubscribe
 }
 
 export default action

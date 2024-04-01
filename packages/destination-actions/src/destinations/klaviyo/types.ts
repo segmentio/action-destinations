@@ -136,3 +136,26 @@ export interface Profile {
 export interface GetProfileResponse {
   data: Profile[]
 }
+
+export interface SubscribeProfile {
+  type: string
+  attributes: {
+    id?: string
+    email?: string
+    phone_number?: string
+    subscriptions: {
+      email?: {
+        marketing: {
+          consent: string
+          consented_at?: string | number
+        }
+      }
+      sms?: {
+        marketing: {
+          consent: string
+          consented_at?: string | number
+        }
+      }
+    }
+  }
+}

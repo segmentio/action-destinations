@@ -14,11 +14,12 @@ export interface Payload {
    */
   phone_number?: string
   /**
-   * When enabled, the action will use the klaviyo batch API.
-   */
-  enable_batching?: boolean
-  /**
    * The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.
    */
   list_id?: string
+  /**
+   * The timestamp of when the profile's consent was gathered.
+   *
+   */
+  consented_at?: string | number
 }
