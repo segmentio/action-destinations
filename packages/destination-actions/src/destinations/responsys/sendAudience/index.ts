@@ -124,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
       profileExtensionTable: settings.profileExtensionTable,
       timestamp: payload[0].timestamp,
       statsContext: statsContext,
-      retry: payload.retry
+      retry: payload[0].retry
     })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames, true)
