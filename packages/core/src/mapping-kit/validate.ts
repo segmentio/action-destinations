@@ -115,7 +115,7 @@ function validateDirectiveOrObject(v: unknown, stack: string[] = []) {
       return validateObject(v, stack)
     default:
       throw new ValidationError(
-        `should be a string or a mapping directive but it is ${indefiniteArticle(type)} ${type}`,
+        `should be a object or a mapping directive but it is ${indefiniteArticle(type)} ${type}`,
         stack
       )
   }
