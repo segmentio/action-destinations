@@ -45,10 +45,6 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
-      - name: Fetch Latest Tags
-        run: |
-          git fetch --tags
-
       - name: Set NPM Token
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
