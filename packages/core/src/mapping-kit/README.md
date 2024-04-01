@@ -209,78 +209,6 @@ suite][schema.test.js] is a good source-of-truth for current implementation beha
 
 [schema.test.js]: https://github.com/segmentio/fab-5-engine/blob/master/packages/destination-actions/src/lib/mapping-kit/__tests__
 
-## Options
-
-Options can be passed to the `transform()` function as the third parameter:
-
-```js
-const output = transform(mapping, input, options)
-```
-
-Available options:
-
-```js
-{
-  merge: true // default false
-}
-```
-
-### merge
-
-If true, `merge` will cause the mapped value to be merged onto the input payload. This is useful
-when you only want to map/transform a small number of fields:
-
-```json
-Input:
-
-{
-  "a": {
-    "b": 1
-  },
-  "c": 2
-}
-
-Options:
-
-{
-  "merge": true
-}
-
-Mappings:
-
-{}
-=>
-{
-  "a": {
-    "b": 1
-  },
-  "c": 2
-}
-
-{
-  "a": 3
-}
-=>
-{
-  "a": 3,
-  "c": 2
-}
-
-{
-  "a": {
-    "c": 3
-  }
-}
-=>
-{
-  "a": {
-    "b": 1,
-    "c": 3
-  },
-  "c": 2
-}
-```
-
 ## Removing values from object
 
 `undefined` values in objects are removed from the mapped output while `null` is not:
@@ -637,4 +565,85 @@ Mappings:
 }
 =>
 "just@the-first"
+```
+
+### @merge
+
+The @merge directive accepts a list of one or more objects (either raw objects or directives that
+resolve to objects) and resolves to a single object. The resolved object is built by combining each
+object in turn, overwriting any duplicate keys.
+
+```json
+Input:
+
+{
+  "traits": {
+    "name": "Mr. Rogers",
+    "greeting": "Neighbor",
+    "neighborhood": "Latrobe"
+
+  },
+  "properties": {
+    "neighborhood": "Make Believe"
+  }
+}
+
+Mappings:
+
+{
+  "@merge": [
+    { "@path": "traits" },
+    { "@path": "properties" }
+  ]
+}
+=>
+{
+  "name": "Mr. Rogers",
+  "greeting": "Neighbor",
+  "neighborhood": "Make Believe"
+}
+
+{
+  "@merge": [
+    { "@path": "properties" },
+    { "@path": "traits" }
+  ]
+}
+=>
+{
+  "name": "Mr. Rogers",
+  "greeting": "Neighbor",
+  "neighborhood": "Latrobe"
+}
+```
+
+The @merge directive is especially useful for providing default values:
+
+```json
+Input:
+
+{
+  "traits": {
+    "name": "Mr. Rogers"
+  }
+}
+
+Mapping:
+
+{
+  "@merge": [
+    {
+      "name": "Missing name",
+      "neighborhood": "Missing neighborhood"
+    },
+    { "@path": "traits" }
+  ]
+}
+
+Output:
+
+{
+  "name": "Mr. Rogers",
+  "neighborhood": "Missing neighborhood"
+}
 ```
