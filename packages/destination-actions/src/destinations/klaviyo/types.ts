@@ -159,3 +159,23 @@ export interface SubscribeProfile {
     }
   }
 }
+
+export interface SubscribeEventData {
+  data: {
+    type: string
+    attributes: {
+      custom_source: string
+      profiles: {
+        data: SubscribeProfile[]
+      }
+    }
+    relationships?: {
+      list: {
+        data: {
+          type: string
+          id: string
+        }
+      }
+    }
+  }
+}

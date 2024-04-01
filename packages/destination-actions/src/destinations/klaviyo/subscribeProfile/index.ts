@@ -5,7 +5,7 @@ import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { SubscribeProfile } from '../types'
+import { SubscribeProfile, SubscribeEventData } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -14,21 +14,35 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     klaviyo_id: {
       label: 'Klaviyo Id',
-      description: `The Id of the profile to subscribe. If provided, this will be used to perform the profile lookup.`,
+      description: `The unique userId of the profile in Klaviyo. If provided, this will be used to perform the profile lookup. One of email or phone number is still required.`,
       type: 'string'
     },
     email: {
       label: 'Email',
-      description: `Individual's email address. One of ID, Phone Number or Email required.`,
+      description: `The email address to subscribe or to set on the profile if the email channel is omitted.`,
       type: 'string',
       format: 'email',
       default: { '@path': '$context.traits.email' }
     },
+    subscribe_email: {
+      label: 'Subscribe Profile to Email Marketing',
+      description: `Controls the subscription status for email marketing. If set to "yes", the profile's consent preferences for email marketing are set to "SUBSCRIBED"; otherwise, the email channel is omitted.`,
+      type: 'boolean',
+      required: true,
+      default: true
+    },
     phone_number: {
       label: 'Phone Number',
-      description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
+      description: `The phone number to subscribe or to set on the profile if SMS channel is omitted. This must be in E.164 format.`,
       type: 'string',
       default: { '@path': '$context.traits.phone' }
+    },
+    subscribe_sms: {
+      label: 'Subscribe Profile to SMS Marketing',
+      description: `Controls the subscription status for SMS marketing. If set to "yes", the profile's consent preferences for SMS marketing are set to "SUBSCRIBED"; otherwise, the SMS channel is omitted.`,
+      type: 'boolean',
+      required: true,
+      default: true
     },
     list_id: {
       label: 'List Id',
@@ -52,14 +66,24 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, klaviyo_id, phone_number, consented_at } = payload
-
+    const { email, klaviyo_id, phone_number, consented_at, list_id, subscribe_email, subscribe_sms } = payload
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, klaviyo_id, consented_at)
-    const eventData = {
+    if (!subscribe_email && !subscribe_sms) {
+      throw new PayloadValidationError('At least one marketing channel (Email or SMS) needs to be subscribed to.')
+    }
+
+    const profileToSubscribe = formatSubscribeProfile(
+      email,
+      phone_number,
+      klaviyo_id,
+      consented_at,
+      subscribe_sms,
+      subscribe_email
+    )
+    const eventData: SubscribeEventData = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
@@ -71,7 +95,19 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
+    if (list_id) {
+      eventData.data.relationships = {
+        list: {
+          data: {
+            type: 'list',
+            id: list_id
+          }
+        }
+      }
+    }
+
     console.log(JSON.stringify(eventData, null, 2))
+    return
     // subscribe requires use of 2024-02-15 api version
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
@@ -87,7 +123,9 @@ function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
   klaviyo_id: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  subscribe_sms: boolean,
+  subscribe_email: boolean
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -99,7 +137,7 @@ function formatSubscribeProfile(
     }
   }
 
-  if (email) {
+  if (email && subscribe_email) {
     profileToSubscribe.attributes.subscriptions.email = {
       marketing: {
         consent: 'SUBSCRIBED',
@@ -108,7 +146,7 @@ function formatSubscribeProfile(
     }
   }
 
-  if (phone_number) {
+  if (phone_number && subscribe_sms) {
     profileToSubscribe.attributes.subscriptions.sms = {
       marketing: {
         consent: 'SUBSCRIBED',
