@@ -8,6 +8,7 @@ const testDestination = createTestIntegration(Destination)
 const currentTimestamp = Date.now()
 
 const event = createTestEvent({
+  messageId: 'this-is-an-event-id12345',
   event: 'Example Event',
   type: 'track',
   timestamp: currentTimestamp.toString(),
@@ -138,6 +139,7 @@ describe('LinkedinConversions.streamConversion', () => {
       .post('', {
         conversion: 'urn:lla:llaPartnerConversion:789123',
         conversionHappenedAt: currentTimestamp,
+        eventId: 'this-is-an-event-id12345',
         conversionValue: {
           currencyCode: 'USD',
           amount: '200'
@@ -159,8 +161,6 @@ describe('LinkedinConversions.streamConversion', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          // Do not map event ID since it is randomly generated
-          eventId: null,
           onMappingSave: {
             inputs: {},
             outputs: {
