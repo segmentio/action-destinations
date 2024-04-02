@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# This script is executed after the version is bumped by lerna. It generates a release tag.
+# The release tag generated will be pushed to the repository by lerna version.
 set -e
 sha=$(git rev-parse HEAD);
 branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD);
