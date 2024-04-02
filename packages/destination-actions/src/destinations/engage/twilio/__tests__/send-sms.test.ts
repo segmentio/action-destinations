@@ -25,7 +25,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
         { type: 'phone', id: phoneNumber, subscriptionStatus: 'true', channelType: 'sms' }
       ],
-      sendBasedOnOptOut: false
+      sendBasedOnOptOut: false,
+      eventOccurredTS: '2024-03-23T23:02:40.563Z'
     })
   })
 
@@ -781,8 +782,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           campaign_name: 'c-3',
           campaign_key: '4',
           user_id: 'u-5',
-          message_id: 'm-6',
-          event_ocurred_ts: '2024-03-23T23:02:40.563Z'
+          message_id: 'm-6'
         }
       }
     })
