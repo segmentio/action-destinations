@@ -1,0 +1,16 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * The data to send to Kafka
+   */
+  payload: {
+    [k: string]: unknown
+  }
+  /**
+   * Header data to send to Kafka. Format is Header key, Header value (optional).
+   */
+  headers?: {
+    [k: string]: unknown
+  }
+}
