@@ -13,7 +13,7 @@ git pull --ff-only
 echo "Running lerna version minor..."
 lerna version minor --no-private -y
 
-# Generate and push release tag
+# Generate and push release tag. Release tag format: release-YYYY-MM-DD[.N] e.g. release-2024-01-01
 if ! n=$(git rev-list --count $sha~ --grep "Publish" --since="00:00"); then
     echo 'failed to calculate tag'
     exit 1
