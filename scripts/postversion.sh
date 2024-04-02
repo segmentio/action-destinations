@@ -14,7 +14,7 @@ fi;
 
 # Generate and push release tag. Release tag format: release-YYYY-MM-DD[.N] e.g. release-2024-01-01
 if ! n=$(git rev-list --count $sha~ --grep "Publish" --since="00:00"); then
-    echo 'Failed to find compute release tag. Exiting.'
+    echo 'Failed to compute release tag. Exiting.'
     exit 1
 else 
     case "$n" in
