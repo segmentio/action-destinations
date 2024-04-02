@@ -54,9 +54,9 @@ jobs:
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
-      - name: Publish
-        run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+      # - name: Publish
+      #   run: |
+      #     yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish
