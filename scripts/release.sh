@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e # exit with nonzero exit code if anything fails
 branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD);
 sha=$(git rev-parse HEAD);
 
@@ -10,19 +11,20 @@ fi;
 
 git pull --ff-only
 echo "Running lerna version minor..."
-lerna version prerelease --no-private --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version
+lerna version minor --no-private -y
 
-# Generate and add release tag
+# Generate and push release tag
 if ! n=$(git rev-list --count $sha~ --grep "Publish" --since="00:00"); then
     echo 'failed to calculate tag'
     exit 1
 fi
+
 case "$n" in
     0) suffix="" ;; # first commit of the day gets no suffix
     *) suffix=".$n" ;; # subsequent commits get a suffix, starting with .1
 esac
 
 tag=$(printf release-$(date '+%Y-%m-%d%%s') $suffix)
-echo "Tagging release with $tag"
+echo "Tagging $sha with $tag"
 git tag -a $tag -m "Release $tag"
 git push origin $tag
