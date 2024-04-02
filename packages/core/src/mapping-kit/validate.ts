@@ -334,8 +334,15 @@ directive('@flatten', (v, stack) => {
 })
 
 directive('@merge', (v, stack) => {
-  const data = v as unknown[]
-  validateArray(data, stack)
+  validateObjectWithFields(
+    v,
+    {
+      direction: { optional: validateAllowedStrings('left', 'right') },
+      objects: { required: validateArray }
+    },
+    stack
+  )
+  const data = (v as Record<string, unknown>).objects as unknown[]
   data.forEach((obj) => {
     validateDirectiveOrObject(obj)
   })

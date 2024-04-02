@@ -569,9 +569,7 @@ Mappings:
 
 ### @merge
 
-The @merge directive accepts a list of one or more objects (either raw objects or directives that
-resolve to objects) and resolves to a single object. The resolved object is built by combining each
-object in turn, overwriting any duplicate keys.
+The @merge directive resolves a list of objects to a single object. It accepts a list of one or more objects (either raw objects or directives that resolve to objects), and a direction that determines how overwrites will be applied for duplicate keys. The resolved object is built by combining each object in turn, moving in the specified direction, overwriting any duplicate keys.
 
 ```json
 Input:
@@ -591,10 +589,13 @@ Input:
 Mappings:
 
 {
-  "@merge": [
-    { "@path": "traits" },
-    { "@path": "properties" }
-  ]
+  "@merge": {
+    "objects": [
+      { "@path": "traits" },
+      { "@path": "properties" }
+    ],
+    "direction": "right"
+  }
 }
 =>
 {
@@ -604,10 +605,13 @@ Mappings:
 }
 
 {
-  "@merge": [
-    { "@path": "properties" },
-    { "@path": "traits" }
-  ]
+  "@merge": {
+    "objects": [
+      { "@path": "properties" },
+      { "@path": "traits" }
+    ],
+    "direction": "right"
+  }
 }
 =>
 {
@@ -631,13 +635,16 @@ Input:
 Mapping:
 
 {
-  "@merge": [
-    {
-      "name": "Missing name",
-      "neighborhood": "Missing neighborhood"
-    },
-    { "@path": "traits" }
-  ]
+  "@merge": {
+    "objects": [
+      {
+        "name": "Missing name",
+        "neighborhood": "Missing neighborhood"
+      },
+      { "@path": "traits" }
+    ],
+    "direction": "right"
+  }
 }
 
 Output:

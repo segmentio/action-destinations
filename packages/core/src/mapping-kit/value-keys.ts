@@ -172,11 +172,20 @@ export function isFlattenDirective(value: FieldValue): value is FlattenDirective
 }
 
 export interface MergeDirective extends DirectiveMetadata {
-  '@merge': { [key: string]: FieldValue }[]
+  '@merge': {
+    objects: { [key: string]: FieldValue }[]
+    direction: 'left' | 'right'
+  }
 }
 
 export function isMergeDirective(value: FieldValue): value is MergeDirective {
-  return isDirective(value) && '@merge' in value && Array.isArray(value['@merge'])
+  return (
+    isDirective(value) &&
+    '@merge' in value &&
+    value['@merge'] !== null &&
+    typeof value['@merge'] === 'object' &&
+    'objects' in value['@merge']
+  )
 }
 
 type DirectiveKeysToType<T> = {
@@ -260,7 +269,7 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
         '@json': (input: JSONDirective) => getRawKeys(input['@json'].value),
         '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value),
-        '@merge': (input: MergeDirective) => input['@merge'].flatMap(getRawKeys)
+        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects)
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {
