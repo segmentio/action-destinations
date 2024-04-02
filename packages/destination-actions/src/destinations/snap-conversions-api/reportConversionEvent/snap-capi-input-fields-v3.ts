@@ -461,23 +461,61 @@ const user_data: InputField = {
         else: { '@path': '$.traits.phone' }
       }
     },
+    gender: {
+      '@if': {
+        exists: { '@path': '$.context.traits.gender' },
+        then: { '@path': '$.context.traits.gender' },
+        else: { '@path': '$.properties.gender' }
+      }
+    },
     dateOfBirth: {
-      '@path': '$.context.traits.birthday'
+      '@if': {
+        exists: { '@path': '$.context.traits.birthday' },
+        then: { '@path': '$.context.traits.birthday' },
+        else: { '@path': '$.properties.birthday' }
+      }
     },
     lastName: {
-      '@path': '$.context.traits.lastName'
+      '@if': {
+        exists: { '@path': '$.context.traits.last_name' },
+        then: { '@path': '$.context.traits.last_name' },
+        else: { '@path': '$.properties.last_name' }
+      }
     },
     firstName: {
-      '@path': '$.context.traits.firstName'
+      '@if': {
+        exists: { '@path': '$.context.traits.first_name' },
+        then: { '@path': '$.context.traits.first_name' },
+        else: { '@path': '$.properties.first_name' }
+      }
     },
     city: {
-      '@path': '$.context.traits.address.city'
+      '@if': {
+        exists: { '@path': '$.context.traits.address.city' },
+        then: { '@path': '$.context.traits.address.city' },
+        else: { '@path': '$.properties.address.city' }
+      }
     },
     state: {
-      '@path': '$.context.traits.address.state'
+      '@if': {
+        exists: { '@path': '$.context.traits.address.state' },
+        then: { '@path': '$.context.traits.address.state' },
+        else: { '@path': '$.properties.address.state' }
+      }
+    },
+    country: {
+      '@if': {
+        exists: { '@path': '$.context.traits.address.country' },
+        then: { '@path': '$.context.traits.address.country' },
+        else: { '@path': '$.properties.address.country' }
+      }
     },
     zip: {
-      '@path': '$.context.traits.address.postalCode'
+      '@if': {
+        exists: { '@path': '$.context.traits.address.postalCode' },
+        then: { '@path': '$.context.traits.address.postalCode' },
+        else: { '@path': '$.properties.address.postalCode' }
+      }
     },
     client_ip_address: {
       '@path': '$.context.ip'
