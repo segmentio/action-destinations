@@ -307,6 +307,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         .filter((payload) => validateSchema(payload, schema, validationOptions))
     }
 
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
     if (payloads.length === 0) {
       return
     }
@@ -324,7 +335,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         logger: bundle.logger,
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
-        stateContext: bundle.stateContext
+        stateContext: bundle.stateContext,
+        hookOutputs
       }
       await this.performRequest(this.definition.performBatch, data)
     }
