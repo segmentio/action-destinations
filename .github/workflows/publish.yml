@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - staging
 
 jobs:
   build-and-publish:
@@ -25,7 +26,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_PAT }}
-          fetch-depth: 0 # Required as we compute the version based on the number of commits since the last tag
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -45,6 +45,10 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
+      - name: Fetch Latest Tags
+        run: |
+          git fetch --tags
+
       - name: Set NPM Token
         run: |
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
@@ -54,29 +58,25 @@ jobs:
         run: |
           yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
-      - name: Generate and Push Release Tag
-        id: push-release-tag
+  release:
+    needs: build-and-publish
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for computing changelog
+
+      - name: Get Release tag
+        id: get_release_tag
         run: |
-          git config user.name ${{ github.actor }}
-          git config user.email ${{ github.actor }}@users.noreply.github.com
-
-          commit=${{ github.sha }}
-          if ! n=$(git rev-list --count $commit~ --grep "Publish" --since="00:00"); then
-              echo 'failed to calculate tag'
-              exit 1
+          if ! tag=$(git describe --abbrev=0 --tags --match "release-*"); then
+            echo "No release tag found, skipping release"
+            exit 1
           fi
-
-          case "$n" in
-              0) suffix="" ;; # first commit of the day gets no suffix
-              *) suffix=".$n" ;; # subsequent commits get a suffix, starting with .1
-          esac
-
-          tag=$(printf release-$(date '+%Y-%m-%d%%s') $suffix)
-          git tag -a $tag -m "Release $tag"
-          git push origin $tag
           echo "release-tag=$tag" >> $GITHUB_OUTPUT
 
-      - name: Create Github Release
+      - name: Create Release
         id: create-github-release
         uses: actions/github-script@v7
         env:
