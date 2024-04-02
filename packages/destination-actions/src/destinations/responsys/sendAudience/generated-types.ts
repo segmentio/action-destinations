@@ -45,4 +45,8 @@ export interface Payload {
    * The timestamp of when the event occurred.
    */
   timestamp: string | number
+  /**
+   * If true, a delay of 30 seconds will be added before retrying a failed request.
+   */
+  retry?: boolean
 }
