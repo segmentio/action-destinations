@@ -10,7 +10,7 @@ fi;
 
 git pull --ff-only
 echo "Running lerna version minor..."
-lerna version minor --no-private -y
+lerna version prerelease --no-private --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version
 
 # Generate and add release tag
 if ! n=$(git rev-list --count $sha~ --grep "Publish" --since="00:00"); then
