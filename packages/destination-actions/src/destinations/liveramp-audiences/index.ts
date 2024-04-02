@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
         default: true
       },
       __segment_internal_engage_batch_sync: {
-        label: 'Supports batch sync via ADS',
+        label: 'Supports batch sync via ADS.',
         description: '',
         type: 'boolean',
         required: true,
