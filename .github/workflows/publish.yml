@@ -76,7 +76,7 @@ jobs:
           fi
           echo "release-tag=$tag" >> $GITHUB_OUTPUT
 
-      - name: Create Release
+      - name: Create Github Release
         id: create-github-release
         uses: actions/github-script@v7
         env:
