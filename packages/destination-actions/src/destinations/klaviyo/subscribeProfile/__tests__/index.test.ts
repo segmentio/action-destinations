@@ -1,9 +1,7 @@
-// import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { PayloadValidationError } from '@segment/actions-core'
 import nock from 'nock'
-import { SubscribeEventData } from '../../types'
 const testDestination = createTestIntegration(Destination)
 
 const apiKey = 'fake-api-key'
@@ -33,7 +31,21 @@ describe('Subscribe Profile', () => {
       }
     })
     // subscribe_email: false, subscribe_sms: false,
-    const mapping = generateMapping(false, false, '', '')
+    const mapping = {
+      klaviyo_id: '',
+      subscribe_email: false,
+      subscribe_sms: false,
+      list_id: '',
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
 
     await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
       PayloadValidationError
@@ -51,7 +63,21 @@ describe('Subscribe Profile', () => {
       }
     })
     // subscribe_email: true, subscribe_sms: false,
-    const mapping = generateMapping(true, false, '', '')
+    const mapping = {
+      klaviyo_id: '',
+      subscribe_email: true,
+      subscribe_sms: false,
+      list_id: '',
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
 
     await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
       PayloadValidationError
@@ -69,104 +95,34 @@ describe('Subscribe Profile', () => {
       }
     })
     // subscribe_email: false, subscribe_sms: true,
-    const mapping = generateMapping(false, true, '', '')
+    const mapping = {
+      klaviyo_id: '',
+      subscribe_email: false,
+      subscribe_sms: true,
+      list_id: '',
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
     await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
       PayloadValidationError
     )
   })
 
-  it('Formats the correct request body when list id is empty', async () => {
+  it('formats the correct request body when list id is empty', async () => {
     const payload = {
       email: 'segment@email.com',
       phone_number: '+17067675219',
       subscribe_email: true,
       subscribe_sms: true,
       list_id: '',
-      klaviyo_id: ''
-    }
-
-    const event = createTestEvent({
-      type: 'track',
-      context: {
-        traits: {
-          email: payload.email,
-          phone_number: payload.phone_number
-        }
-      },
-      timestamp: '2024-04-01T18:37:06.558Z'
-    })
-    const mapping = generateMapping(payload.subscribe_email, payload.subscribe_sms, payload.list_id, payload.klaviyo_id)
-    const expectedRequestBody = generateExpectedRequestBody(
-      payload.list_id,
-      payload.klaviyo_id,
-      payload.email,
-      payload.phone_number
-    )
-
-    const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
-
-    // Intercept POST requests and ensure the request bodies match after mappings
-    scope
-      .post('/', (body) => {
-        return JSON.stringify(body) === JSON.stringify(expectedRequestBody)
-      })
-      .reply(200, 'Request body matches')
-
-    await expect(
-      testDestination.testAction('subscribeProfile', { event, settings, mapping })
-    ).resolves.not.toThrowError()
-  })
-
-  it('Formats the correct request body when list id is populated', async () => {
-    const payload = {
-      email: 'segment@email.com',
-      phone_number: '+17067675219',
-      subscribe_email: true,
-      subscribe_sms: true,
-      list_id: '12345',
-      klaviyo_id: ''
-    }
-
-    const event = createTestEvent({
-      type: 'track',
-      context: {
-        traits: {
-          email: payload.email,
-          phone_number: payload.phone_number
-        }
-      },
-      timestamp: '2024-04-01T18:37:06.558Z'
-    })
-    const mapping = generateMapping(payload.subscribe_email, payload.subscribe_sms, payload.list_id, payload.klaviyo_id)
-    const expectedRequestBody = generateExpectedRequestBody(
-      payload.list_id,
-      payload.klaviyo_id,
-      payload.email,
-      payload.phone_number
-    )
-
-    const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
-
-    // Intercept POST requests and ensure the request bodies match after mappings
-    scope
-      .post('/', (body) => {
-        return JSON.stringify(body) === JSON.stringify(expectedRequestBody)
-      })
-      .reply(200, 'Request body matches')
-
-    await expect(
-      testDestination.testAction('subscribeProfile', { event, settings, mapping })
-    ).resolves.not.toThrowError()
-  })
-
-  it('test nock format', async () => {
-    const payload = {
-      email: 'segment@email.com',
-      phone_number: '+17067675219',
-      subscribe_email: true,
-      subscribe_sms: true,
-      list_id: '',
-      klaviyo_id: '',
+      klaviyo_id: '6789',
       timestamp: '2024-04-01T18:37:06.558Z'
     }
 
@@ -180,6 +136,7 @@ describe('Subscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
+                  id: payload.klaviyo_id,
                   email: payload.email,
                   phone_number: payload.phone_number,
                   subscriptions: {
@@ -218,10 +175,262 @@ describe('Subscribe Profile', () => {
     })
 
     const mapping = {
-      klaviyo_id: '',
+      klaviyo_id: payload.klaviyo_id,
+      subscribe_email: payload.subscribe_email,
+      subscribe_sms: payload.subscribe_sms,
+      list_id: payload.list_id,
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
+
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
+  it('formats the correct request body when list id is populated', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
       subscribe_email: true,
       subscribe_sms: true,
-      list_id: '',
+      list_id: '12345',
+      klaviyo_id: '6789',
+      timestamp: '2024-04-01T18:37:06.558Z'
+    }
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          custom_source: 'Segment Klaviyo (Actions) Destination',
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  id: payload.klaviyo_id,
+                  email: payload.email,
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    },
+                    sms: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        relationships: {
+          list: {
+            data: {
+              type: 'list',
+              id: payload.list_id
+            }
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-create-jobs/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: payload.timestamp,
+      context: {
+        traits: {
+          email: payload.email,
+          phone_number: payload.phone_number
+        }
+      }
+    })
+
+    const mapping = {
+      klaviyo_id: payload.klaviyo_id,
+      subscribe_email: payload.subscribe_email,
+      subscribe_sms: payload.subscribe_sms,
+      list_id: payload.list_id,
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
+
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
+  it('formats the correct request body when only email channel is subscribed', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
+      subscribe_email: true,
+      subscribe_sms: false,
+      list_id: '12345',
+      klaviyo_id: '6789',
+      timestamp: '2024-04-01T18:37:06.558Z'
+    }
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          custom_source: 'Segment Klaviyo (Actions) Destination',
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  id: payload.klaviyo_id,
+                  email: payload.email,
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        relationships: {
+          list: {
+            data: {
+              type: 'list',
+              id: payload.list_id
+            }
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-create-jobs/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: payload.timestamp,
+      context: {
+        traits: {
+          email: payload.email,
+          phone_number: payload.phone_number
+        }
+      }
+    })
+
+    const mapping = {
+      klaviyo_id: payload.klaviyo_id,
+      subscribe_email: payload.subscribe_email,
+      subscribe_sms: payload.subscribe_sms,
+      list_id: payload.list_id,
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
+
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
+  it('formats the correct request body when only sms channel is subscribed', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
+      subscribe_email: false,
+      subscribe_sms: true,
+      list_id: '12345',
+      klaviyo_id: '6789',
+      timestamp: '2024-04-01T18:37:06.558Z'
+    }
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          custom_source: 'Segment Klaviyo (Actions) Destination',
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  id: payload.klaviyo_id,
+                  email: payload.email,
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        relationships: {
+          list: {
+            data: {
+              type: 'list',
+              id: payload.list_id
+            }
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-create-jobs/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: payload.timestamp,
+      context: {
+        traits: {
+          email: payload.email,
+          phone_number: payload.phone_number
+        }
+      }
+    })
+
+    const mapping = {
+      klaviyo_id: payload.klaviyo_id,
+      subscribe_email: payload.subscribe_email,
+      subscribe_sms: payload.subscribe_sms,
+      list_id: payload.list_id,
       consented_at: {
         '@path': '$.timestamp'
       },
@@ -238,75 +447,3 @@ describe('Subscribe Profile', () => {
     ).resolves.not.toThrowError()
   })
 })
-
-function generateMapping(subscribe_email: boolean, subscribe_sms: boolean, list_id: string, klaviyo_id: string) {
-  const mapping = {
-    klaviyo_id,
-    subscribe_email,
-    subscribe_sms,
-    list_id,
-    consented_at: {
-      '@path': '$.timestamp'
-    },
-    email: {
-      '@path': '$.context.traits.email'
-    },
-    phone_number: {
-      '@path': '$.context.traits.phone_number'
-    }
-  }
-  return mapping
-}
-
-function generateExpectedRequestBody(list_id: string, klaviyo_id: string, email: string, phone_number: string) {
-  const requestBody: SubscribeEventData = {
-    data: {
-      type: 'profile-subscription-bulk-create-job',
-      attributes: {
-        custom_source: 'Segment Klaviyo (Actions) Destination',
-        profiles: {
-          data: [
-            {
-              type: 'profile',
-              attributes: {
-                email,
-                phone_number,
-                subscriptions: {
-                  email: {
-                    marketing: {
-                      consent: 'SUBSCRIBED',
-                      consented_at: '2024-04-01T18:37:06.558Z'
-                    }
-                  },
-                  sms: {
-                    marketing: {
-                      consent: 'SUBSCRIBED',
-                      consented_at: '2024-04-01T18:37:06.558Z'
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    }
-  }
-
-  if (klaviyo_id !== '') {
-    requestBody.data.attributes.profiles.data[0].attributes.id = klaviyo_id
-  }
-
-  if (list_id !== '') {
-    requestBody.data.relationships = {
-      list: {
-        data: {
-          type: 'list',
-          id: list_id
-        }
-      }
-    }
-  }
-
-  return requestBody
-}
