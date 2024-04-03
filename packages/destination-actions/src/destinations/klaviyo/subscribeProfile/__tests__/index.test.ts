@@ -32,22 +32,44 @@ describe('Subscribe Profile', () => {
         }
       }
     })
-    const mapping = {
-      klaviyo_id: '12345',
-      subscribe_email: false,
-      subscribe_sms: false,
-      list_id: 'WB2LME',
-      consented_at: {
-        '@path': '$.timestamp'
-      },
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      phone_number: {
-        '@path': '$.context.traits.phone_number'
-      }
-    }
+    // subscribe_email: false, subscribe_sms: false,
+    const mapping = generateMapping(false, false, '', '')
 
+    await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
+      PayloadValidationError
+    )
+  })
+
+  it('should throw error if (email = "", email_subscribed = true; phone = "+17065802344", subscribe_sms = false)', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          email: '',
+          phone_number: '+17065802344'
+        }
+      }
+    })
+    // subscribe_email: true, subscribe_sms: false,
+    const mapping = generateMapping(true, false, '', '')
+
+    await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
+      PayloadValidationError
+    )
+  })
+
+  it('should throw error if (email = "valid@email.com", email_subscribed = false; phone = "", subscribe_sms = true)', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          email: 'valid@email.com',
+          phone_number: ''
+        }
+      }
+    })
+    // subscribe_email: false, subscribe_sms: true,
+    const mapping = generateMapping(false, true, '', '')
     await expect(testDestination.testAction('subscribeProfile', { event, settings, mapping })).rejects.toThrowError(
       PayloadValidationError
     )
@@ -64,22 +86,8 @@ describe('Subscribe Profile', () => {
       },
       timestamp: '2024-04-01T18:37:06.558Z'
     })
-    const mapping = {
-      klaviyo_id: '',
-      subscribe_email: true,
-      subscribe_sms: true,
-      list_id: '',
-      consented_at: {
-        '@path': '$.timestamp'
-      },
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      phone_number: {
-        '@path': '$.context.traits.phone_number'
-      }
-    }
-    const expectedRequestBody = generateExpectedRequestBody()
+    const mapping = generateMapping(true, true, '', '')
+    const expectedRequestBody = generateExpectedRequestBody('', '')
 
     const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
 
@@ -109,22 +117,8 @@ describe('Subscribe Profile', () => {
       },
       timestamp: '2024-04-01T18:37:06.558Z'
     })
-    const mapping = {
-      klaviyo_id: '',
-      subscribe_email: true,
-      subscribe_sms: true,
-      list_id: '12345',
-      consented_at: {
-        '@path': '$.timestamp'
-      },
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      phone_number: {
-        '@path': '$.context.traits.phone_number'
-      }
-    }
-    const expectedRequestBody = generateExpectedRequestBody('12345')
+    const mapping = generateMapping(true, true, '12345', '')
+    const expectedRequestBody = generateExpectedRequestBody('12345', '')
 
     const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
 
@@ -144,7 +138,26 @@ describe('Subscribe Profile', () => {
   })
 })
 
-function generateExpectedRequestBody(listId = '') {
+function generateMapping(subscribe_email: boolean, subscribe_sms: boolean, list_id: string, klaviyo_id: string) {
+  const mapping = {
+    klaviyo_id,
+    subscribe_email,
+    subscribe_sms,
+    list_id,
+    consented_at: {
+      '@path': '$.timestamp'
+    },
+    email: {
+      '@path': '$.context.traits.email'
+    },
+    phone_number: {
+      '@path': '$.context.traits.phone_number'
+    }
+  }
+  return mapping
+}
+
+function generateExpectedRequestBody(listId: string, klaviyo_id: string) {
   const requestBody: SubscribeEventData = {
     data: {
       type: 'profile-subscription-bulk-create-job',
@@ -177,6 +190,10 @@ function generateExpectedRequestBody(listId = '') {
         }
       }
     }
+  }
+
+  if (klaviyo_id !== '') {
+    requestBody.data.attributes.profiles.data[0].attributes.id = klaviyo_id
   }
 
   if (listId !== '') {
