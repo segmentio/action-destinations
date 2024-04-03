@@ -7,10 +7,10 @@ module.exports = async ({ github, context, core, exec }) => {
   }
 
   // Get the last two commits that have the word "Publish" in the commit message along with the date
-  const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
+  const [newPublish, previousPublish] = await getPreviousNCommits(core, exec, GITHUB_SHA, 2)
   const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
 
-  // Get tag for the current release from the git repository
+  // Get tag for the current release
   const newReleaseTag = await getReleaseTag(core, exec)
 
   // Fetch the latest github release
@@ -31,42 +31,37 @@ module.exports = async ({ github, context, core, exec }) => {
   const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
   const changeLog = formatChangeLog(prs, tagsContext, context)
 
-  // If DRY_RUN is set, then log the changelog and return
-  if (Boolean(DRY_RUN)) {
+  if (!Boolean(DRY_RUN)) {
+    await github.rest.repos
+      .createRelease({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        tag_name: newReleaseTag,
+        name: newReleaseTag,
+        body: changeLog
+      })
+      .then(() => {
+        core.info(`Release ${newReleaseTag} created successfully`)
+      })
+      .catch((e) => {
+        core.error(`Failed to create release: ${e.message}`)
+      })
+  } else {
     core.info(`DRY_RUN: Release ${newReleaseTag} will be created with the following changelog: \n${changeLog}`)
-    return
   }
-
-  // Create a new release
-  await github.rest.repos
-    .createRelease({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      tag_name: newReleaseTag,
-      name: newReleaseTag,
-      body: changeLog
-    })
-    .then(() => {
-      core.info(`Release ${newReleaseTag} created successfully`)
-    })
-    .catch((e) => {
-      core.error(`Failed to create release: ${e.message}`)
-    })
   return
 }
 
-// Get the last two commits that have the word "Publish" in the commit message along with the date
-async function getPreviousTwoPublishCommits(core, exec) {
+async function getPreviousNCommits(core, exec, sha, n = 2) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
     'log',
     '--grep=Publish',
     '-n',
-    `2`,
+    `${n}`,
     '--format="%H|%ai"'
   ])
 
   if (exitCode !== 0) {
-    // if the publish commits are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
   }
   return stdout.split('\n').map((commit) => {
@@ -75,7 +70,6 @@ async function getPreviousTwoPublishCommits(core, exec) {
   })
 }
 
-// Get the latest release tag
 async function getReleaseTag(core, exec) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
     'describe',
@@ -84,13 +78,11 @@ async function getReleaseTag(core, exec) {
     '--match=release-*'
   ])
   if (exitCode !== 0) {
-    // if the release tag is not found, then we cannot proceed further
     core.error(`Failed to get release tag. Unable to proceed further: ${stderr}`)
   }
   return stdout.trim()
 }
 
-// Extract package tags that are published in the current release by lerna version
 async function extractPackageTags(sha, exec, core) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
   if (exitCode !== 0) {
@@ -217,7 +209,6 @@ function formatChangeLog(prs, tagsContext, context) {
   return changelog.replace(/  +/g, '')
 }
 
-// Format the PRs in a table
 function formatTable(prs, tableConfig, title = '') {
   return `
     ${title}
@@ -228,7 +219,6 @@ function formatTable(prs, tableConfig, title = '') {
     `
 }
 
-// Map PRs with affected destinations based on the files changed
 function mapPRWithAffectedDestinations(pr) {
   let affectedDestinations = []
   if (pr.labels.includes('mode:cloud')) {
