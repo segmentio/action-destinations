@@ -158,6 +158,85 @@ describe('Subscribe Profile', () => {
       testDestination.testAction('subscribeProfile', { event, settings, mapping })
     ).resolves.not.toThrowError()
   })
+
+  it('test nock format', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
+      subscribe_email: true,
+      subscribe_sms: true,
+      list_id: '',
+      klaviyo_id: '',
+      timestamp: '2024-04-01T18:37:06.558Z'
+    }
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          custom_source: 'Segment Klaviyo (Actions) Destination',
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: payload.email,
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    },
+                    sms: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: payload.timestamp
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-create-jobs/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: payload.timestamp,
+      context: {
+        traits: {
+          email: payload.email,
+          phone_number: payload.phone_number
+        }
+      }
+    })
+
+    const mapping = {
+      klaviyo_id: '',
+      subscribe_email: true,
+      subscribe_sms: true,
+      list_id: '',
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
+
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
 })
 
 function generateMapping(subscribe_email: boolean, subscribe_sms: boolean, list_id: string, klaviyo_id: string) {
