@@ -49,7 +49,6 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
       campaign_key: this.payload.customArgs && this.payload.customArgs['campaign_key'],
       user_id: this.payload.customArgs && this.payload.customArgs['user_id'],
       message_id: this.payload.customArgs && this.payload.customArgs['message_id'],
-      event_occurred_ts: this.payload.customArgs && this.payload.customArgs['event_occurred_ts'],
       external_id_type: recepient.type,
       external_id_value: phone
     }

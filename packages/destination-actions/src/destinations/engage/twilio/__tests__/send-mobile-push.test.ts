@@ -44,7 +44,8 @@ const testAction = createTestAction({
       badgeStrategy: null,
       ttl: null,
       tapActionButtons: null
-    }
+    },
+    eventOccurredTS: '2024-03-23'
   })
 })
 
@@ -112,7 +113,7 @@ describe('sendMobilePush action', () => {
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
       notifyReqBody.append(
         'DeliveryCallbackUrl',
-        `http://localhost.com/?space_id=spaceid&__segment_internal_external_id_key__=${externalId.type}&__segment_internal_external_id_value__=${externalId.id}#rp=all&rc=600`
+        `http://localhost.com/?space_id=spaceid&event_occurred_ts=2024-03-23&__segment_internal_external_id_key__=${externalId.type}&__segment_internal_external_id_value__=${externalId.id}#rp=all&rc=600`
       )
 
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
