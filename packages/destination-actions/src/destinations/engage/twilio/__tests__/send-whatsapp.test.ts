@@ -25,7 +25,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
         { type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
       ],
-      eventOccurredTS: '2024-03-23'
+      eventOccurredTS: '2024-03-23T23:02:40.563Z'
     })
   })
 
@@ -270,7 +270,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         To: defaultTo,
         Tags: defaultTags,
         StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&event_occurred_ts=2024-03-23&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
+          'http://localhost/?foo=bar&space_id=d&event_occurred_ts=2024-03-23T23%3A02%3A40.563Z&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
