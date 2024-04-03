@@ -58,7 +58,7 @@ jobs:
           yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
   release:
-    needs: build-and-publish
+    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
@@ -67,20 +67,12 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for computing changelog
           fetch-tags: true
 
-      - name: Get Release tag
-        id: get-release-tag
-        run: |
-          if ! tag=$(git describe --abbrev=0 --tags --match "release-*"); then
-            echo "No release tag found, skipping release"
-            exit 1
-          fi
-          echo "release-tag=$tag" >> $GITHUB_OUTPUT
-
       - name: Create Github Release
         id: create-github-release
         uses: actions/github-script@v7
         env:
           RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
+          DRY_RUN: ${{ env.ACT }} # will be true when testing locally with https://github.com/nektos/act
         with:
           script: |
             const script = require('./scripts/create-github-release.js')

@@ -1,21 +1,17 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core, exec }) => {
-  const { GITHUB_SHA, RELEASE_TAG } = process.env
-  const { data } = await github.rest.search.commits({
-    q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
-    per_page: 2,
-    sort: 'committer-date'
-  })
+  let { GITHUB_SHA, DRY_RUN } = process.env
 
-  if (data.items.length < 2) {
-    core.error(`No previous release commits found`)
+  if (Boolean(DRY_RUN)) {
+    core.info('Running in dry-run mode')
   }
 
-  const newPublish = data.items[0]
-  const previousPublish = data.items[1]
+  // Get the last two commits that have the word "Publish" in the commit message along with the date
+  const [newPublish, previousPublish] = await getPreviousNCommits(core, exec, GITHUB_SHA, 2)
   const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
 
-  const newReleaseTag = RELEASE_TAG
+  // Get tag for the current release
+  const newReleaseTag = await getReleaseTag(core, exec)
 
   // Fetch the latest github release
   const latestRelease = await github.rest.repos
@@ -34,22 +30,56 @@ module.exports = async ({ github, context, core, exec }) => {
   const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
   const changeLog = formatChangeLog(prs, tagsContext, context)
 
-  await github.rest.repos
-    .createRelease({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      tag_name: newReleaseTag,
-      name: newReleaseTag,
-      body: changeLog
-    })
-    .then(() => {
-      core.info(`Release ${newReleaseTag} created successfully`)
-    })
-    .catch((e) => {
-      core.error(`Failed to create release: ${e.message}`)
-    })
-
+  if (!Boolean(DRY_RUN)) {
+    await github.rest.repos
+      .createRelease({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        tag_name: newReleaseTag,
+        name: newReleaseTag,
+        body: changeLog
+      })
+      .then(() => {
+        core.info(`Release ${newReleaseTag} created successfully`)
+      })
+      .catch((e) => {
+        core.error(`Failed to create release: ${e.message}`)
+      })
+  } else {
+    core.info(`DRY_RUN: Release ${newReleaseTag} will be created with the following changelog: \n${changeLog}`)
+  }
   return
+}
+
+async function getPreviousNCommits(core, exec, sha, n = 2) {
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'log',
+    '--grep=Publish',
+    '-n',
+    `${n}`,
+    '--format="%H|%ai"'
+  ])
+
+  if (exitCode !== 0) {
+    core.error(`Failed to extract package tags: ${stderr}`)
+  }
+  return stdout.split('\n').map((commit) => {
+    const [sha, date] = commit.split('|')
+    return { sha, date }
+  })
+}
+
+async function getReleaseTag(core, exec) {
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'describe',
+    '--abbrev=0',
+    '--tags',
+    '--match=release-*'
+  ])
+  if (exitCode !== 0) {
+    core.error(`Failed to get release tag. Unable to proceed further: ${stderr}`)
+  }
+  return stdout.trim()
 }
 
 async function extractPackageTags(sha, exec, core) {
@@ -65,8 +95,8 @@ async function extractPackageTags(sha, exec, core) {
 }
 
 async function getPRsBetweenCommits(github, context, core, lastCommit, currentCommit) {
-  const lastCommitDate = new Date(lastCommit.commit.committer.date)
-  const currentCommitDate = new Date(currentCommit.commit.committer.date)
+  const lastCommitDate = new Date(lastCommit.date)
+  const currentCommitDate = new Date(currentCommit.date)
   const owner = context.repo.owner
   const repo = context.repo.repo
   // GraphQL query to get PRs between two commits. Assumption is the PR might not have more than 100 files and 10 labels.
@@ -166,20 +196,22 @@ function formatChangeLog(prs, tagsContext, context) {
 
     ${formattedPackageTags || 'No packages published'}
 
-    ## Internal PRs
-    
-    |${tableConfig.map((config) => config.label).join('|')}|
-    |${tableConfig.map(() => '---').join('|')}|
-    ${internalPRS.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    ${internalPRS.length > 0 ? formatTable(internalPRS, tableConfig, '## Internal PRs') : ''}
         
-    ## External PRs
-    
-    |${tableConfig.map((config) => config.label).join('|')}|
-    |${tableConfig.map(() => '---').join('|')}|
-    ${externalPRs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    ${externalPRs.length > 0 ? formatTable(externalPRs, tableConfig, '## External PRs') : ''}
     `
   // trim double spaces and return the changelog
   return changelog.replace(/  +/g, '')
+}
+
+function formatTable(prs, tableConfig, title = '') {
+  return `
+    ${title}
+
+    |${tableConfig.map((config) => config.label).join('|')}|
+    |${tableConfig.map(() => '---').join('|')}|
+    ${prs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    `
 }
 
 function mapPRWithAffectedDestinations(pr) {
@@ -198,7 +230,7 @@ function mapPRWithAffectedDestinations(pr) {
     pr.files
       .filter((file) => file.includes('packages/browser-destinations/destinations'))
       .forEach((file) => {
-        const match = file.match(/packages\/browser-destinations\/([^\/]+)\/*/)
+        const match = file.match(/packages\/browser-destinations\/destinations\/([^\/]+)\/*/)
         if (match && !affectedDestinations.includes(match[1])) {
           affectedDestinations.push(match[1])
         }
