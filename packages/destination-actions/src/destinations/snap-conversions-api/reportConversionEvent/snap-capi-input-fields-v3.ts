@@ -17,7 +17,7 @@ const action_source: InputField = {
 }
 
 const app_data: InputField = {
-  label: 'App Events Fields',
+  label: 'App Data',
   description: `These fields support sending app events to Snapchat through the Conversions API.`,
   type: 'object',
   defaultObjectUI: 'keyvalue',

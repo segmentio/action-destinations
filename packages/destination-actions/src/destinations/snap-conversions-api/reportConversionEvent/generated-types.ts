@@ -328,19 +328,19 @@ export interface Payload {
     brand?: string
   }[]
   /**
-   * [Deprecated] Use products
+   * [Deprecated] Use Products field.
    */
   brands?: string[]
   /**
-   * Deprecated. Use user_data.sc_click_id
+   * Deprecated. Use User Data sc_click_id field.
    */
   click_id?: string
   /**
-   * Deprecated. Use event_id
+   * Deprecated. Use Event ID field.
    */
   client_dedup_id?: string
   /**
-   * Deprecated. Use custom_data.currency
+   * Deprecated. Use Custom Data currency field.
    */
   currency?: string
   /**
@@ -348,15 +348,15 @@ export interface Payload {
    */
   description?: string
   /**
-   * Deprecated. Use app_data.deviceName
+   * Deprecated. Use App Data deviceName field.
    */
   device_model?: string
   /**
-   * Deprecated. Use user_data.email
+   * Deprecated. Use User Data email field.
    */
   email?: string
   /**
-   * Deprecated. Use action_source.
+   * Deprecated. Use Action Source field.
    */
   event_conversion_type?: string
   /**
@@ -364,23 +364,23 @@ export interface Payload {
    */
   event_tag?: string
   /**
-   * Deprecated. Use event_name
+   * Deprecated. Use Event Name field.
    */
   event_type?: string
   /**
-   * Deprecated. Use user_data.idfv
+   * Deprecated. Use User Data idfv field.
    */
   idfv?: string
   /**
-   * Deprecated. Use user_data.client_ip_address
+   * Deprecated. Use User Data client_ip_address field.
    */
   ip_address?: string
   /**
-   * Deprecated. Use products
+   * Deprecated. Use products field.
    */
   item_category?: string
   /**
-   * Deprecated. Use products.
+   * Deprecated. Use products field.
    */
   item_ids?: string
   /**
@@ -388,51 +388,51 @@ export interface Payload {
    */
   level?: string
   /**
-   * Deprecated. Use user_data.madid
+   * Deprecated. Use User Data madid field.
    */
   mobile_ad_id?: string
   /**
-   * Deprecated. Use custom_data.num_items.
+   * Deprecated. Use Custom Data num_items field.
    */
   number_items?: string
   /**
-   * Deprecated. Use app_data.version
+   * Deprecated. Use App Data version field.
    */
   os_version?: string
   /**
-   * Deprecated. Use event_source_url
+   * Deprecated. Use Event Source URL field.
    */
   page_url?: string
   /**
-   * Deprecated. Use user_data.phone
+   * Deprecated. Use User Data phone field.
    */
   phone_number?: string
   /**
-   * Deprecated. Use custom_data.value
+   * Deprecated. Use Custom Data value field.
    */
   price?: number
   /**
-   * Deprecated. Use custom_data.search_string
+   * Deprecated. Use Custom Data search_string field.
    */
   search_string?: string
   /**
-   * Deprecated. Use custom_data.sign_up_method
+   * Deprecated. Use Custom Data sign_up_method field.
    */
   sign_up_method?: string
   /**
-   * Deprecated. Use event_time
+   * Deprecated. Use Event Timestamp field.
    */
   timestamp?: string
   /**
-   * Deprecated. Use custom_data.order_id
+   * Deprecated. Use Custom Data order_id field.
    */
   transaction_id?: string
   /**
-   * Deprecated. Use user_data.client_user_agent
+   * Deprecated. Use User Data client_user_agent field.
    */
   user_agent?: string
   /**
-   * Deprecated. Use user_data.sc_cookie1
+   * Deprecated. Use User Data sc_cookie1 field.
    */
   uuid_c1?: string
 }
