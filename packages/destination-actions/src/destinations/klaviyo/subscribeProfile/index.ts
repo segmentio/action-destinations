@@ -70,7 +70,8 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    if (!subscribe_email && !subscribe_sms) {
+    // Ensure the properties for at least one marketing channel subscription (Email or SMS) are available
+    if ((!email || subscribe_email !== true) && (!phone_number || subscribe_sms !== true)) {
       throw new PayloadValidationError('At least one marketing channel (Email or SMS) needs to be subscribed to.')
     }
 
@@ -82,6 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
       subscribe_sms,
       subscribe_email
     )
+
     const eventData: SubscribeEventData = {
       data: {
         type: 'profile-subscription-bulk-create-job',
@@ -105,7 +107,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // console.log(JSON.stringify(eventData, null, 2))
     // subscribe requires use of 2024-02-15 api version
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
