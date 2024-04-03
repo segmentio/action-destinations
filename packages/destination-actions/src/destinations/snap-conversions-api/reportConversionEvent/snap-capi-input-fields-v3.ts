@@ -20,6 +20,7 @@ const app_data: InputField = {
   label: 'App Events Fields',
   description: `These fields support sending app events to Snapchat through the Conversions API.`,
   type: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     advertiser_tracking_enabled: {
       label: 'Advertiser Tracking Enabled',
@@ -272,6 +273,7 @@ const custom_data: InputField = {
   label: 'Custom Data',
   description: 'The custom data object can be used to pass custom properties.',
   type: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     currency: {
       label: 'Currency',
@@ -335,6 +337,7 @@ const user_data: InputField = {
   description:
     'These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.',
   type: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     externalId: {
       label: 'External ID',
