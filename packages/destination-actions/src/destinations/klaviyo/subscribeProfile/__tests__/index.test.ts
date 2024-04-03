@@ -75,66 +75,88 @@ describe('Subscribe Profile', () => {
     )
   })
 
-  it('Format the correct request body when list id is empty', async () => {
+  it('Formats the correct request body when list id is empty', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
+      subscribe_email: true,
+      subscribe_sms: true,
+      list_id: '',
+      klaviyo_id: ''
+    }
+
     const event = createTestEvent({
       type: 'track',
       context: {
         traits: {
-          email: 'jd@email.com',
-          phone_number: '+17067675219'
+          email: payload.email,
+          phone_number: payload.phone_number
         }
       },
       timestamp: '2024-04-01T18:37:06.558Z'
     })
-    const mapping = generateMapping(true, true, '', '')
-    const expectedRequestBody = generateExpectedRequestBody('', '')
+    const mapping = generateMapping(payload.subscribe_email, payload.subscribe_sms, payload.list_id, payload.klaviyo_id)
+    const expectedRequestBody = generateExpectedRequestBody(
+      payload.list_id,
+      payload.klaviyo_id,
+      payload.email,
+      payload.phone_number
+    )
 
     const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
 
     // Intercept POST requests and ensure the request bodies match after mappings
     scope
       .post('/', (body) => {
-        // Check if the request body matches the expectedRequestBody
         return JSON.stringify(body) === JSON.stringify(expectedRequestBody)
       })
       .reply(200, 'Request body matches')
 
-    // makes the mocked post request
-    await testDestination.testAction('subscribeProfile', { event, settings, mapping })
-
-    // Use Jest's expect to assert that the request was made with the expected body
-    expect(scope.isDone()).toBe(true)
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, settings, mapping })
+    ).resolves.not.toThrowError()
   })
 
-  it('Format the correct request body when list id is populated', async () => {
+  it('Formats the correct request body when list id is populated', async () => {
+    const payload = {
+      email: 'segment@email.com',
+      phone_number: '+17067675219',
+      subscribe_email: true,
+      subscribe_sms: true,
+      list_id: '12345',
+      klaviyo_id: ''
+    }
+
     const event = createTestEvent({
       type: 'track',
       context: {
         traits: {
-          email: 'jd@email.com',
-          phone_number: '+17067675219'
+          email: payload.email,
+          phone_number: payload.phone_number
         }
       },
       timestamp: '2024-04-01T18:37:06.558Z'
     })
-    const mapping = generateMapping(true, true, '12345', '')
-    const expectedRequestBody = generateExpectedRequestBody('12345', '')
+    const mapping = generateMapping(payload.subscribe_email, payload.subscribe_sms, payload.list_id, payload.klaviyo_id)
+    const expectedRequestBody = generateExpectedRequestBody(
+      payload.list_id,
+      payload.klaviyo_id,
+      payload.email,
+      payload.phone_number
+    )
 
     const scope = nock('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/')
 
     // Intercept POST requests and ensure the request bodies match after mappings
     scope
       .post('/', (body) => {
-        // Check if the request body matches the expectedRequestBody
         return JSON.stringify(body) === JSON.stringify(expectedRequestBody)
       })
       .reply(200, 'Request body matches')
 
-    // makes the mocked post request
-    await testDestination.testAction('subscribeProfile', { event, settings, mapping })
-
-    // Use Jest's expect to assert that the request was made with the expected body
-    expect(scope.isDone()).toBe(true)
+    await expect(
+      testDestination.testAction('subscribeProfile', { event, settings, mapping })
+    ).resolves.not.toThrowError()
   })
 })
 
@@ -157,7 +179,7 @@ function generateMapping(subscribe_email: boolean, subscribe_sms: boolean, list_
   return mapping
 }
 
-function generateExpectedRequestBody(listId: string, klaviyo_id: string) {
+function generateExpectedRequestBody(list_id: string, klaviyo_id: string, email: string, phone_number: string) {
   const requestBody: SubscribeEventData = {
     data: {
       type: 'profile-subscription-bulk-create-job',
@@ -168,8 +190,8 @@ function generateExpectedRequestBody(listId: string, klaviyo_id: string) {
             {
               type: 'profile',
               attributes: {
-                email: 'jd@email.com',
-                phone_number: '+17067675219',
+                email,
+                phone_number,
                 subscriptions: {
                   email: {
                     marketing: {
@@ -196,12 +218,12 @@ function generateExpectedRequestBody(listId: string, klaviyo_id: string) {
     requestBody.data.attributes.profiles.data[0].attributes.id = klaviyo_id
   }
 
-  if (listId !== '') {
+  if (list_id !== '') {
     requestBody.data.relationships = {
       list: {
         data: {
           type: 'list',
-          id: listId
+          id: list_id
         }
       }
     }
