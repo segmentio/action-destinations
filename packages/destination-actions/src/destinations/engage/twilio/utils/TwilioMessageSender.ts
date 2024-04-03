@@ -12,6 +12,7 @@ const Liquid = new LiquidJs()
 
 export interface TwilioPayloadBase extends MessagePayloadBase {
   contentSid?: string
+  eventOccurredTS?: string
 }
 
 export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> extends MessageSendPerformer<
@@ -121,7 +122,7 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     const customArgs: Record<string, string | undefined> = {
       ...this.payload.customArgs,
       space_id: this.settings.spaceId,
-      event_occurred_ts: (this.payload as any)?.eventOccurredTS,
+      event_occurred_ts: this.payload?.eventOccurredTS,
       __segment_internal_external_id_key__: externalIdType,
       __segment_internal_external_id_value__: externalIdValue
     }
