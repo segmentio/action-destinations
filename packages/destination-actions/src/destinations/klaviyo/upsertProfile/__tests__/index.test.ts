@@ -14,7 +14,8 @@ export const settings = {
 
 jest.mock('../../functions', () => ({
   ...jest.requireActual('../../functions'),
-  addProfileToList: jest.fn(() => Promise.resolve())
+  addProfileToList: jest.fn(() => Promise.resolve()),
+  subscribeProfiles: jest.fn(() => Promise.resolve())
 }))
 
 describe('Upsert Profile', () => {
@@ -149,7 +150,7 @@ describe('Upsert Profile', () => {
     ).rejects.toThrowError('Internal Server Error')
   })
 
-  it('should add a profile to a list if list_id is provided', async () => {
+  it('should add a profile to a list and subscribe it if list_id is provided', async () => {
     const listId = 'abc123'
     const profileId = '123'
     const mapping = { list_id: 'abc123' }
@@ -178,7 +179,7 @@ describe('Upsert Profile', () => {
         })
       )
 
-    nock(`${API_URL}`).post(`/lists/${listId}/relationships/profiles/`).reply(200)
+    nock(`${API_URL}`).post(`/profile-subscription-bulk-create-jobs/`).reply(200)
 
     const event = createTestEvent({
       type: 'track',
@@ -191,14 +192,16 @@ describe('Upsert Profile', () => {
       }
     })
 
+    const subProfile = { email: 'test@example.com', list_id: listId, phone_number: undefined }
+
     await expect(
       testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
 
-    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
+    expect(Functions.subscribeProfiles).toHaveBeenCalledWith(expect.anything(), subProfile)
   })
 
-  it('should add an existing profile to a list if list_id is provided', async () => {
+  it('should add an existing profile to a list and subscribe it if list_id is provided', async () => {
     const listId = 'abc123'
     const profileId = '123'
     const mapping = { list_id: 'abc123' }
@@ -243,7 +246,9 @@ describe('Upsert Profile', () => {
     }
     nock(`${API_URL}`).patch(`/profiles/${profileId}`, updateRequestBody).reply(200, {})
 
-    nock(`${API_URL}`).post(`/lists/${listId}/relationships/profiles/`).reply(200)
+    nock(`${API_URL}`).post(`/profile-subscription-bulk-create-jobs/`).reply(200)
+
+    const subProfile = { email: 'test@example.com', list_id: listId, phone_number: undefined }
 
     const event = createTestEvent({
       type: 'track',
@@ -260,7 +265,7 @@ describe('Upsert Profile', () => {
       testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
 
-    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
+    expect(Functions.subscribeProfiles).toHaveBeenCalledWith(expect.anything(), subProfile)
   })
 })
 
@@ -273,47 +278,13 @@ describe('Upsert Profile Batch', () => {
   it('should discard profiles without email, phone_number, or external_id', async () => {
     const events = [createTestEvent({ traits: { first_name: 'John', last_name: 'Doe' } })]
 
-    const response = await testDestination.testBatchAction('upsertProfile', {
-      settings,
-      events,
-      useDefaultMappings: true
-    })
-
-    expect(response).toEqual([])
-  })
-
-  it('should process profiles with and without list_ids separately', async () => {
-    const eventWithListId = createTestEvent({
-      traits: { first_name: 'John', last_name: 'Doe', email: 'withlist@example.com', list_id: 'abc123' }
-    })
-    const eventWithoutListId = createTestEvent({
-      traits: { first_name: 'Jane', last_name: 'Smith', email: 'withoutlist@example.com' }
-    })
-
-    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withList: true })
-    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true, withoutList: true })
-
-    const responseWithList = await testDestination.testBatchAction('upsertProfile', {
-      settings,
-      events: [eventWithListId],
-      mapping: { list_id: 'abc123' },
-      useDefaultMappings: true
-    })
-
-    const responseWithoutList = await testDestination.testBatchAction('upsertProfile', {
-      settings,
-      events: [eventWithoutListId],
-      mapping: {},
-      useDefaultMappings: true
-    })
-
-    expect(responseWithList[0]).toMatchObject({
-      data: { success: true, withList: true }
-    })
-
-    expect(responseWithoutList[0]).toMatchObject({
-      data: { success: true, withoutList: true }
-    })
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError(IntegrationError)
   })
 
   it('should process profiles with list_ids only', async () => {
@@ -366,5 +337,33 @@ describe('Upsert Profile Batch', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrow()
+  })
+
+  it('should subscribe profiles to a list if list_id is provided', async () => {
+    const listId = 'abc123'
+    const events = [
+      createTestEvent({ traits: { email: 'test1@example.com', list_id: listId } }),
+      createTestEvent({ traits: { email: 'test2@example.com', list_id: listId } })
+    ]
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { id: 'fake_job_id' })
+    nock(API_URL)
+      .get(`/profile-bulk-import-jobs/fake_job_id/`)
+      .reply(200, { attributes: { status: 'complete' } })
+
+    await testDestination.testBatchAction('upsertProfile', {
+      settings,
+      events,
+      mapping: { list_id: 'abc123' },
+      useDefaultMappings: true
+    })
+
+    const subProfile = [
+      { email: 'test1@example.com', list_id: listId, location: {}, properties: {}, batch_size: 10000 },
+      { email: 'test2@example.com', list_id: listId, location: {}, properties: {}, batch_size: 10000 }
+    ]
+
+    // Check that subscribeProfiles is called with correct arguments
+    expect(Functions.subscribeProfiles).toHaveBeenCalledWith(expect.anything(), subProfile)
   })
 })

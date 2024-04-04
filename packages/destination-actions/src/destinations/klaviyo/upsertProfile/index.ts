@@ -3,9 +3,15 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
-import { PayloadValidationError } from '@segment/actions-core'
-import { KlaviyoAPIError, ProfileData } from '../types'
-import { addProfileToList, createImportJobPayload, getListIdDynamicData, sendImportJobRequest } from '../functions'
+import { PayloadValidationError, APIError } from '@segment/actions-core'
+import { KlaviyoAPIError, ProfileData, SubProfile } from '../types'
+import {
+  createImportJobPayload,
+  getListIdDynamicData,
+  pollKlaviyoJobStatus,
+  sendImportJobRequest,
+  subscribeProfiles
+} from '../functions'
 import { batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -165,11 +171,16 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'POST',
         json: profileData
       })
+
       if (list_id) {
-        const content = JSON.parse(profile?.content)
-        const id = content.data.id
-        await addProfileToList(request, id, list_id)
+        const subscriptionProfile = {
+          email: profileData.data.attributes.email,
+          phone_number: profileData.data.attributes.phone_number,
+          list_id
+        }
+        await subscribeProfiles(request, subscriptionProfile)
       }
+
       return profile
     } catch (error) {
       const { response } = error as KlaviyoAPIError
@@ -187,7 +198,12 @@ const action: ActionDefinition<Settings, Payload> = {
           })
 
           if (list_id) {
-            await addProfileToList(request, id, list_id)
+            const subscriptionProfile = {
+              email: profileData.data.attributes.email,
+              phone_number: profileData.data.attributes.phone_number,
+              list_id
+            }
+            await subscribeProfiles(request, subscriptionProfile)
           }
           return profile
         }
@@ -199,27 +215,31 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
-    const profilesWithList = payload.filter((profile) => profile.list_id)
-    const profilesWithoutList = payload.filter((profile) => !profile.list_id)
+    if (payload.length === 0) {
+      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+    }
+    const profilesForImport = payload.map(({ list_id, ...profile }) => profile)
+    const importJobResponse = await sendImportJobRequest(request, createImportJobPayload(profilesForImport))
+    const parsedData = JSON.parse(importJobResponse.data as unknown as string)
+    const jobId = parsedData.data.id
 
-    let importResponseWithList
-    let importResponseWithoutList
+    if (jobId) {
+      // Poll the import job status until it is complete or times out
+      const jobStatusResponse = await pollKlaviyoJobStatus(request, jobId)
 
-    if (profilesWithList.length > 0) {
-      const listId = profilesWithList[0].list_id
-      const importJobPayload = createImportJobPayload(profilesWithList, listId)
-      importResponseWithList = await sendImportJobRequest(request, importJobPayload)
+      if (jobStatusResponse.data.attributes.status !== 'complete') {
+        throw new APIError('Import job did not complete successfully.', 401)
+      }
+
+      // Process profiles with a list_id in batches of 100 for subscription
+      const profilesWithListId = payload.filter((profile): profile is SubProfile => !!profile.list_id)
+      for (let i = 0; i < profilesWithListId.length; i += 100) {
+        const batch = profilesWithListId.slice(i, i + 100)
+        await subscribeProfiles(request, batch)
+      }
     }
 
-    if (profilesWithoutList.length > 0) {
-      const importJobPayload = createImportJobPayload(profilesWithoutList)
-      importResponseWithoutList = await sendImportJobRequest(request, importJobPayload)
-    }
-
-    return {
-      withList: importResponseWithList,
-      withoutList: importResponseWithoutList
-    }
+    return importJobResponse
   }
 }
 

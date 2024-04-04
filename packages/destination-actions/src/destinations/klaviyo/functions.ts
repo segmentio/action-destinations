@@ -7,9 +7,15 @@ import {
   listData,
   ImportJobPayload,
   Profile,
-  GetProfileResponse
+  GetProfileResponse,
+  SubscriptionData,
+  SubProfile,
+  KlaviyoJobStatusResponse,
+  KlaviyoImportJobData,
+  SubProfilePayload
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { ModifiedResponse } from '@segment/actions-core/*'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -126,7 +132,10 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
   }
 })
 
-export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
+export const sendImportJobRequest = async (
+  request: RequestClient,
+  importJobPayload: { data: ImportJobPayload }
+): Promise<ModifiedResponse<KlaviyoImportJobData>> => {
   return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
     headers: {
@@ -162,4 +171,98 @@ export async function getProfiles(
   }
 
   return Array.from(new Set(profileIds))
+}
+
+export async function pollKlaviyoJobStatus(
+  request: RequestClient,
+  jobId: string,
+  interval = 10000, // Poll every 10 seconds by default
+  timeout = 300000 // Timeout after 5 minutes by default
+): Promise<KlaviyoJobStatusResponse> {
+  const startTime = Date.now()
+  return new Promise((resolve, reject) => {
+    const checkStatus = async () => {
+      try {
+        const response: KlaviyoJobStatusResponse = await request(`${API_URL}/profile-bulk-import-jobs/${jobId}/`, {
+          method: 'GET',
+          headers: {
+            revision: '2023-10-15.pre'
+          }
+        })
+        const parsedData = JSON.parse(response.data as unknown as string)
+        const jobStatus = parsedData.data.attributes.status
+
+        if (jobStatus === 'complete') {
+          resolve(parsedData)
+        } else if (Date.now() - startTime > timeout) {
+          reject(new Error('Polling timed out'))
+        } else {
+          setTimeout(checkStatusWrapper, interval)
+        }
+      } catch (error) {
+        reject(error)
+      }
+    }
+    const checkStatusWrapper = () => {
+      checkStatus().catch(reject)
+    }
+
+    checkStatusWrapper()
+  })
+}
+
+export async function subscribeProfiles(
+  request: RequestClient,
+  profiles: SubProfile | SubProfile[],
+  customSource = 'Marketing Event'
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  const profileSubscriptions = profiles.map((profile) => {
+    const profileData: SubProfilePayload = {
+      type: 'profile',
+      attributes: {}
+    }
+
+    if (profile.email) {
+      profileData.attributes.email = profile?.email
+    }
+
+    if (profile.phone_number) {
+      profileData.attributes.phone_number = profile?.phone_number
+    }
+
+    return profileData
+  })
+
+  const subData: SubscriptionData = {
+    data: {
+      type: 'profile-subscription-bulk-create-job',
+      attributes: {
+        custom_source: customSource,
+        profiles: {
+          data: profileSubscriptions
+        }
+      }
+    }
+  }
+
+  const listId = profiles[0].list_id
+  if (listId) {
+    subData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: listId
+        }
+      }
+    }
+  }
+
+  await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+    method: 'POST',
+    json: subData
+  })
 }
