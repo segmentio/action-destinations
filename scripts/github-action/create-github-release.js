@@ -31,24 +31,27 @@ module.exports = async ({ github, context, core, exec }) => {
   const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
   const changeLog = formatChangeLog(prs, tagsContext, context)
 
-  if (!Boolean(DRY_RUN)) {
-    await github.rest.repos
-      .createRelease({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        tag_name: newReleaseTag,
-        name: newReleaseTag,
-        body: changeLog
-      })
-      .then(() => {
-        core.info(`Release ${newReleaseTag} created successfully`)
-      })
-      .catch((e) => {
-        core.error(`Failed to create release: ${e.message}`)
-      })
-  } else {
+  // If DRY_RUN is set, then log the changelog and return
+  if (Boolean(DRY_RUN)) {
     core.info(`DRY_RUN: Release ${newReleaseTag} will be created with the following changelog: \n${changeLog}`)
+    return
   }
+
+  // Create a new release
+  await github.rest.repos
+    .createRelease({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      tag_name: newReleaseTag,
+      name: newReleaseTag,
+      body: changeLog
+    })
+    .then(() => {
+      core.info(`Release ${newReleaseTag} created successfully`)
+    })
+    .catch((e) => {
+      core.error(`Failed to create release: ${e.message}`)
+    })
   return
 }
 
@@ -63,6 +66,7 @@ async function getPreviousTwoPublishCommits(core, exec) {
   ])
 
   if (exitCode !== 0) {
+    // if the publish commits are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
   }
   return stdout.split('\n').map((commit) => {
@@ -80,6 +84,7 @@ async function getReleaseTag(core, exec) {
     '--match=release-*'
   ])
   if (exitCode !== 0) {
+    // if the release tag is not found, then we cannot proceed further
     core.error(`Failed to get release tag. Unable to proceed further: ${stderr}`)
   }
   return stdout.trim()
@@ -89,6 +94,7 @@ async function getReleaseTag(core, exec) {
 async function extractPackageTags(sha, exec, core) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
   if (exitCode !== 0) {
+    // if the package tags are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
   }
   // filter out only the tags that are related to segment packages
@@ -146,6 +152,7 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
       requiresRegistration: pr.labels.nodes.some((label) => label.name === 'deploy:registration') ? 'Yes' : 'No'
     }))
   } catch (e) {
+    // if the PRs are not found, then we cannot proceed further
     core.error(`Unable to fetch PRs between commits: ${e.message}`)
   }
 }
