@@ -1,7 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-// import { getListIdDynamicData } from '../functions'
+import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
@@ -9,7 +9,7 @@ import { SubscribeProfile, SubscribeEventData } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
-  description: 'Subscribe one or more profiles to email marketing, SMS marketing, or both.',
+  description: 'Subscribe profiles to Email marketing, SMS marketing, or both.',
   defaultSubscription: 'type = "track"',
   fields: {
     klaviyo_id: {
@@ -47,23 +47,23 @@ const action: ActionDefinition<Settings, Payload> = {
     list_id: {
       label: 'List Id',
       description: `The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.`,
-      type: 'string'
+      type: 'string',
+      dynamic: true
     },
     consented_at: {
       label: 'Consented At',
-      description: `The timestamp of when the profile's consent was gathered.
-      `,
+      description: `The timestamp of when the profile's consent was gathered.`,
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
       }
     }
   },
-  // dynamicFields: {
-  //   list_id: async (request): Promise<DynamicFieldResponse> => {
-  //     return getListIdDynamicData(request)
-  //   }
-  // },
+  dynamicFields: {
+    list_id: async (request): Promise<DynamicFieldResponse> => {
+      return getListIdDynamicData(request)
+    }
+  },
   perform: async (request, { payload }) => {
     const { email, klaviyo_id, phone_number, consented_at, list_id, subscribe_email, subscribe_sms } = payload
     if (!email && !phone_number) {

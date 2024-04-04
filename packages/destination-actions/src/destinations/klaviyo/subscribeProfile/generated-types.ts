@@ -27,7 +27,6 @@ export interface Payload {
   list_id?: string
   /**
    * The timestamp of when the profile's consent was gathered.
-   *
    */
   consented_at?: string | number
 }
