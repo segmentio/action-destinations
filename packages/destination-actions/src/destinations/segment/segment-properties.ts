@@ -357,5 +357,6 @@ export const message_id: InputField = {
   type: 'string',
   label: 'MessageId',
   description: 'The Segment messageId.',
+  unsafe_hidden: true,
   default: { '@path': '$.messageId' }
 }
