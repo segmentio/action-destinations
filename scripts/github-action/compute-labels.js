@@ -136,9 +136,6 @@ async function computeFileBasedLabels(github, context, core) {
   // Remove the existing custom labels if they are not required anymore
   const labelsToRemove = labels.filter((label) => allLabels.includes(label) && !newLabels.includes(label))
 
-  core.debug(`Labels to remove: ${labelsToRemove.join(',')}`)
-  core.debug(`Labels to add: ${newLabels.join(',')}`)
-
   return {
     add: newLabels,
     remove: labelsToRemove
