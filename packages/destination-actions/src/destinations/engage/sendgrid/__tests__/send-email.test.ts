@@ -804,9 +804,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -887,9 +891,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -970,9 +978,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
       }
 
@@ -1076,6 +1088,175 @@ describe.each([
               isSubscribed: true,
               unsubscribeLink: '',
               preferencesLink: '',
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Adds list-unsubscribe headers with subscription tracking turned off', async () => {
+      const bodyHtml =
+        '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
+      const replacedHtmlWithLink =
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: false,
+            substitution_tag: '[unsubscribe]'
+          }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://global_unsubscribe_link>'
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              unsubscribeLink: 'http://global_unsubscribe_link',
+              preferencesLink: 'http://preferences_link',
+              type: 'email'
+            }
+          ]
+        }),
+        settings,
+        mapping: getDefaultMapping({
+          body: undefined,
+          bodyHtml: bodyHtml,
+          bodyType: 'html'
+        })
+      })
+
+      expect(responses.length).toBeGreaterThan(0)
+      expect(sendGridRequest.isDone()).toEqual(true)
+    })
+
+    it('Do not add list-unsubscribe headers when sendgrid substitution tag is used', async () => {
+      const bodyHtml = '<p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a>'
+      const replacedHtmlWithLink =
+        '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a></body></html>'
+      const expectedSendGridRequest = {
+        personalizations: [
+          {
+            to: [
+              {
+                email: userData.email
+              }
+            ],
+            bcc: [
+              {
+                email: 'test@test.com'
+              }
+            ],
+            custom_args: {
+              source_id: 'sourceId',
+              space_id: 'spaceId',
+              user_id: userData.userId,
+              __segment_internal_external_id_key__: 'email',
+              __segment_internal_external_id_value__: userData.email
+            }
+          }
+        ],
+        from: {
+          email: 'from@example.com',
+          name: 'From Name'
+        },
+        reply_to: {
+          email: 'replyto@example.com',
+          name: 'Test user'
+        },
+        subject: `Hello ${userData.lastName} ${userData.firstName}.`,
+        content: [
+          {
+            type: 'text/html',
+            value: replacedHtmlWithLink
+          }
+        ],
+        tracking_settings: {
+          subscription_tracking: {
+            enable: true,
+            substitution_tag: '[unsubscribe]'
+          }
+        }
+      }
+
+      const sendGridRequest = nock('https://api.sendgrid.com')
+        .post('/v3/mail/send', expectedSendGridRequest)
+        .reply(200, {})
+
+      const responses = await sendgrid.testAction('sendEmail', {
+        event: createMessagingTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          userId: userData.userId,
+          external_ids: [
+            {
+              collection: 'users',
+              encoding: 'none',
+              id: userData.email,
+              isSubscribed: true,
+              unsubscribeLink: 'http://global_unsubscribe_link',
+              preferencesLink: 'http://preferences_link',
               type: 'email'
             }
           ]
@@ -2106,9 +2287,13 @@ describe.each([
         ],
         tracking_settings: {
           subscription_tracking: {
-            enable: true,
+            enable: false,
             substitution_tag: '[unsubscribe]'
           }
+        },
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<http://group_unsubscribe_link>'
         }
       }
 

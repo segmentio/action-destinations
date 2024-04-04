@@ -1,21 +1,28 @@
-import { Kafka, SASLOptions, ProducerRecord, Partitioners } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError } from 'kafkajs'
+import { DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 
 export const DEFAULT_PARTITIONER = 'DefaultPartitioner'
-export const LEGACY_PARTITIONER = 'LegacyPartitioner'
 
 interface Message {
   value: string
   key?: string
   headers?: { [key: string]: string }
   partition?: number
-  partitionerType?: typeof LEGACY_PARTITIONER | typeof DEFAULT_PARTITIONER
+  partitionerType?: typeof DEFAULT_PARTITIONER
 }
+
 interface TopicMessages {
   topic: string
   messages: Message[]
+}
+
+interface SSLConfig {
+  ca: string[]
+  rejectUnauthorized: boolean
+  key?: string
+  cert?: string
 }
 
 export const getTopics = async (settings: Settings): Promise<DynamicFieldResponse> => {
@@ -28,41 +35,98 @@ export const getTopics = async (settings: Settings): Promise<DynamicFieldRespons
 }
 
 const getKafka = (settings: Settings) => {
-  return new Kafka({
+  const kafkaConfig = {
     clientId: settings.clientId,
     brokers: settings.brokers
       .trim()
       .split(',')
       .map((broker) => broker.trim()),
-    ssl: settings.ssl === 'none' ? false : true,
-    sasl: {
-      mechanism: settings.mechanism,
-      ...(settings.mechanism === 'aws'
-        ? {
-            accessKeyId: settings.username,
-            secretAccessKey: settings.password,
-            authorizationIdentity: settings.authorizationIdentity
-          }
-        : { username: settings.username, password: settings.password })
-    } as SASLOptions
-  })
+    sasl: ((): SASLOptions | undefined => {
+      switch (settings.mechanism) {
+        case 'plain':
+          return {
+            username: settings?.username,
+            password: settings?.password,
+            mechanism: settings.mechanism
+          } as SASLOptions
+        case 'scram-sha-256':
+        case 'scram-sha-512':
+          return {
+            username: settings.username,
+            password: settings.password,
+            mechanism: settings.mechanism
+          } as SASLOptions
+        case 'aws':
+          return {
+            accessKeyId: settings.accessKeyId,
+            secretAccessKey: settings.secretAccessKey,
+            authorizationIdentity: settings.authorizationIdentity,
+            mechanism: settings.mechanism
+          } as SASLOptions
+        default:
+          return undefined
+      }
+    })(),
+    ssl: (() => {
+      if (settings?.ssl_ca) {
+        const ssl: SSLConfig = {
+          ca: [`-----BEGIN CERTIFICATE-----\n${settings.ssl_ca.trim()}\n-----END CERTIFICATE-----`],
+          rejectUnauthorized: settings.ssl_reject_unauthorized_ca
+        }
+        if (settings.mechanism === 'client-cert-auth') {
+          ;(ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`),
+            (ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`)
+        }
+        return ssl
+      } else if (settings.ssl_enabled) {
+        return settings.ssl_enabled
+      }
+      return undefined
+    })()
+  } as unknown as KafkaConfig
+
+  try {
+    return new Kafka(kafkaConfig)
+  } catch (error) {
+    throw new IntegrationError(
+      `Kafka Connection Error: ${(error as KafkaJSError).message}`,
+      'KAFKA_CONNECTION_ERROR',
+      400
+    )
+  }
+}
+
+export const validate = (settings: Settings) => {
+  if (
+    ['plain', 'scram-sha-256', 'scram-sha-512'].includes(settings.mechanism) &&
+    (!settings.username || !settings.password)
+  ) {
+    throw new IntegrationError(
+      'Username and Password are required for PLAIN and SCRAM authentication mechanisms',
+      'SASL_PARAMS_MISSING',
+      400
+    )
+  }
+  if (['aws'].includes(settings.mechanism) && (!settings.accessKeyId || !settings.secretAccessKey)) {
+    throw new IntegrationError(
+      'AWS Access Key ID and AWS Secret Key are required for AWS authentication mechanism',
+      'SASL_AWS_PARAMS_MISSING',
+      400
+    )
+  }
+  if (['client-cert-auth'].includes(settings.mechanism) && (!settings.ssl_key || !settings.ssl_cert)) {
+    throw new IntegrationError(
+      'SSL Client Key and SSL Client Certificate are required for Client Certificate authentication mechanism',
+      'SSL_CLIENT_CERT_AUTH_PARAMS_MISSING',
+      400
+    )
+  }
 }
 
 const getProducer = (settings: Settings) => {
   return getKafka(settings).producer({
-    createPartitioner:
-      settings.partitionerType === LEGACY_PARTITIONER ? Partitioners.LegacyPartitioner : Partitioners.DefaultPartitioner
+    createPartitioner: Partitioners.DefaultPartitioner
   })
-}
-
-export const validate = (settings: Settings) => {
-  if (settings.mechanism === 'aws' && ['', undefined].includes(settings.authorizationIdentity)) {
-    throw new IntegrationError(
-      'AWS mechanism requires an authorization identity',
-      ErrorCodes.INVALID_AUTHENTICATION,
-      400
-    )
-  }
 }
 
 export const sendData = async (settings: Settings, payload: Payload[]) => {
@@ -87,7 +151,7 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
           key: payload.key,
           headers: payload?.headers ?? undefined,
           partition: payload?.partition ?? payload?.default_partition ?? undefined,
-          partitionerType: settings.partitionerType
+          partitionerType: DEFAULT_PARTITIONER
         } as Message)
     )
   }))
@@ -97,7 +161,15 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
   await producer.connect()
 
   for (const data of topicMessages) {
-    await producer.send(data as ProducerRecord)
+    try {
+      await producer.send(data as ProducerRecord)
+    } catch (error) {
+      throw new IntegrationError(
+        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
+        'KAFKA_PRODUCER_ERROR',
+        400
+      )
+    }
   }
 
   await producer.disconnect()

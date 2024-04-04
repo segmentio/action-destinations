@@ -12,14 +12,7 @@ const expectedExternalID = `products/DISPLAY_VIDEO_ADVERTISER/customers/${advert
 const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 
 const createAudienceInput = {
-  settings: {
-    oauth: {
-      refresh_token: 'freshy',
-      access_token: 'tok3n',
-      clientId: '123',
-      clientSecret: '123'
-    }
-  },
+  settings: {},
   audienceName: '',
   audienceSettings: {
     advertiserId: advertiserId,
@@ -28,14 +21,7 @@ const createAudienceInput = {
 }
 
 const getAudienceInput = {
-  settings: {
-    oauth: {
-      refresh_token: 'freshy',
-      access_token: 'tok3n',
-      client_id: '123',
-      client_secret: '123'
-    }
-  },
+  settings: {},
   audienceSettings: {
     advertiserId: advertiserId,
     accountType: accountType
@@ -62,6 +48,12 @@ const getAudienceResponse = [
 ]
 
 describe('Display Video 360', () => {
+  beforeEach(() => {
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID = 'Clientz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET = 'Scretz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN = 'Freshy'
+  })
+
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
@@ -166,17 +158,20 @@ describe('Display Video 360', () => {
     })
 
     it('should succeed when the destination instance is flagged as a migration instance', async () => {
+      // Migrations are now using the OAUTH flow since the credentials belong to Segment and are kept in chamber.
+      // This test is pretty much the same as the previous one, but I'm leaving it here for clarity.
+
       const migrationGetAudienceInput = {
         ...getAudienceInput,
-        settings: {}, // Settings for migration instances are set as {} in the migration script.
-        externalId: 'iWasHereInTheBeforeTimes'
+        externalId: expectedExternalID
       }
 
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
       nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
 
       const r = await testDestination.getAudience(migrationGetAudienceInput)
       expect(r).toEqual({
-        externalId: 'iWasHereInTheBeforeTimes'
+        externalId: expectedExternalID
       })
     })
   })

@@ -55,6 +55,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    retry: {
+      label: 'Retry',
+      description: 'If true, a delay of 30 seconds will be added before retrying a failed request.',
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
 
@@ -66,7 +73,8 @@ const action: ActionDefinition<Settings, Payload> = {
     validateCustomTraits({
       profileExtensionTable: settings.profileExtensionTable,
       timestamp: payload.timestamp,
-      statsContext: statsContext
+      statsContext: statsContext,
+      retry: payload.retry
     })
 
     validateListMemberPayload(payload.userData)
@@ -82,7 +90,8 @@ const action: ActionDefinition<Settings, Payload> = {
     validateCustomTraits({
       profileExtensionTable: settings.profileExtensionTable,
       timestamp: payload[0].timestamp,
-      statsContext: statsContext
+      statsContext: statsContext,
+      retry: payload[0].retry
     })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
