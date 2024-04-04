@@ -18,6 +18,6 @@ export function formatPhone(phone: string | undefined): string | undefined {
 }
 
 export function handleArrayInput(array: string[] | undefined): string {
-  if (!array) return ''
+  if (!array || array.length == 0) return ''
   return array[0]
 }

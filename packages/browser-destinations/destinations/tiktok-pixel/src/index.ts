@@ -220,7 +220,7 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     },
     useExistingPixel: {
       // TODO: HOW TO DELETE (reusing will not include Segment Partner name)
-      label: '[Deprecated]Use Existing Pixel',
+      label: '[Deprecated] Use Existing Pixel',
       type: 'boolean',
       default: false,
       required: false,
