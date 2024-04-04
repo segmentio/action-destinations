@@ -27,6 +27,7 @@ jobs:
           script: |
             const script = require('./scripts/github-action/compute-labels.js')
             await script({github, context, core})
+      # Separating apply labels to separate step to avoid using PAT token auth.
       - name: Apply Labels
         uses: actions/github-script@v7
         env:
