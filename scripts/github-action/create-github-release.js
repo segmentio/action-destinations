@@ -7,10 +7,10 @@ module.exports = async ({ github, context, core, exec }) => {
   }
 
   // Get the last two commits that have the word "Publish" in the commit message along with the date
-  const [newPublish, previousPublish] = await getPreviousNCommits(core, exec, GITHUB_SHA, 2)
+  const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
   const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
 
-  // Get tag for the current release
+  // Get tag for the current release from the git repository
   const newReleaseTag = await getReleaseTag(core, exec)
 
   // Fetch the latest github release
@@ -52,12 +52,13 @@ module.exports = async ({ github, context, core, exec }) => {
   return
 }
 
-async function getPreviousNCommits(core, exec, sha, n = 2) {
+// Get the last two commits that have the word "Publish" in the commit message along with the date
+async function getPreviousTwoPublishCommits(core, exec) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
     'log',
     '--grep=Publish',
     '-n',
-    `${n}`,
+    `2`,
     '--format="%H|%ai"'
   ])
 
@@ -70,6 +71,7 @@ async function getPreviousNCommits(core, exec, sha, n = 2) {
   })
 }
 
+// Get the latest release tag
 async function getReleaseTag(core, exec) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
     'describe',
@@ -83,6 +85,7 @@ async function getReleaseTag(core, exec) {
   return stdout.trim()
 }
 
+// Extract package tags that are published in the current release by lerna version
 async function extractPackageTags(sha, exec, core) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
   if (exitCode !== 0) {
@@ -209,6 +212,7 @@ function formatChangeLog(prs, tagsContext, context) {
   return changelog.replace(/  +/g, '')
 }
 
+// Format the PRs in a table
 function formatTable(prs, tableConfig, title = '') {
   return `
     ${title}
@@ -219,6 +223,7 @@ function formatTable(prs, tableConfig, title = '') {
     `
 }
 
+// Map PRs with affected destinations based on the files changed
 function mapPRWithAffectedDestinations(pr) {
   let affectedDestinations = []
   if (pr.labels.includes('mode:cloud')) {
