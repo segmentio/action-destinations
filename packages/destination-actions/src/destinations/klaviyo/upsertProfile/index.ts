@@ -216,7 +216,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
     if (payload.length === 0) {
-      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+      throw new PayloadValidationError(`'One of External ID, Phone Number and Email is required.'`)
     }
     const profilesForImport = payload.map(({ list_id, ...profile }) => profile)
     const importJobResponse = await sendImportJobRequest(request, createImportJobPayload(profilesForImport))
