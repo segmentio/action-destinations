@@ -18,12 +18,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   hooks: {
     retlOnMappingSave: {
-      label: 'Create a new static list in Marketo',
+      label: 'Connect to a static list in Marketo',
       description: 'When saving this mapping, we will create a static list in Marketo using the fields you provided.',
       inputFields: {
         list_id: {
           type: 'string',
-          label: 'List ID',
+          label: 'Existing List ID',
           description:
             'The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.',
           required: false
@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
           const listId = await createList(request, input, statsContext)
 
           return {
-            successMessage: `List ${listId} created successfully!`,
+            successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
             savedData: {
               id: listId,
               name: hookInputs.list_name
