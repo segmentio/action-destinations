@@ -15,7 +15,6 @@ import {
   SubProfilePayload
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
-import { format } from 'date-fns'
 import { ModifiedResponse } from '@segment/actions-core/*'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
@@ -190,10 +189,11 @@ export async function pollKlaviyoJobStatus(
             revision: '2023-10-15.pre'
           }
         })
-        const jobStatus = response.data.attributes.status
+        const parsedData = JSON.parse(response.data as unknown as string)
+        const jobStatus = parsedData.data.attributes.status
 
         if (jobStatus === 'complete') {
-          resolve(response)
+          resolve(parsedData)
         } else if (Date.now() - startTime > timeout) {
           reject(new Error('Polling timed out'))
         } else {
@@ -220,53 +220,38 @@ export async function subscribeProfiles(
     profiles = [profiles]
   }
 
-  // Generate the current timestamp in the required format
-  const consented_at = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX")
-
   const profileSubscriptions = profiles.map((profile) => {
     const profileData: SubProfilePayload = {
       type: 'profile',
-      attributes: {
-        subscriptions: {}
-      }
+      attributes: {}
     }
 
     if (profile.email) {
       profileData.attributes.email = profile?.email
-      profileData.attributes.subscriptions.email = {
-        marketing: {
-          consent: 'SUBSCRIBED',
-          consented_at: consented_at
-        }
-      }
     }
 
     if (profile.phone_number) {
       profileData.attributes.phone_number = profile?.phone_number
-      profileData.attributes.subscriptions.sms = {
-        marketing: {
-          consent: 'SUBSCRIBED',
-          consented_at: consented_at
-        }
-      }
     }
 
     return profileData
   })
 
   const subData: SubscriptionData = {
-    type: 'profile-subscription-bulk-create-job',
-    attributes: {
-      custom_source: customSource,
-      profiles: {
-        data: profileSubscriptions
+    data: {
+      type: 'profile-subscription-bulk-create-job',
+      attributes: {
+        custom_source: customSource,
+        profiles: {
+          data: profileSubscriptions
+        }
       }
     }
   }
 
   const listId = profiles[0].list_id
   if (listId) {
-    subData.relationships = {
+    subData.data.relationships = {
       list: {
         data: {
           type: 'list',

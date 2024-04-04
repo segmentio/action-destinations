@@ -140,22 +140,24 @@ export interface GetProfileResponse {
 
 export interface SubProfilePayload {
   type: string
-  attributes: { email?: string; phone_number?: string; subscriptions: { email?: {}; sms?: {} } }
+  attributes: { email?: string; phone_number?: string; subscriptions?: { email?: {}; sms?: {} } }
 }
 
 export interface SubscriptionData {
-  type: string
-  attributes: {
-    custom_source: string
-    profiles: {
-      data: Array<SubProfilePayload>
+  data: {
+    type: string
+    attributes: {
+      custom_source: string
+      profiles: {
+        data: Array<SubProfilePayload>
+      }
     }
-  }
-  relationships?: {
-    list: {
-      data: {
-        type: 'list'
-        id: string
+    relationships?: {
+      list: {
+        data: {
+          type: 'list'
+          id: string
+        }
       }
     }
   }
@@ -188,42 +190,44 @@ export interface KlaviyoJobStatusResponse {
 }
 
 export interface KlaviyoImportJobData {
-  type: string
-  id: string
-  attributes: {
-    status: string
-    created_at: string
-    total_count: number
-    completed_count: number
-    failed_count: number
-    completed_at: string | null
-    expires_at: string
-    started_at: string | null
-  }
-  relationships: {
-    lists: {
-      data: Array<{
-        type: string
-        id: string
-      }>
-      links: {
-        self: string
-        related: string
+  data: {
+    type: string
+    id: string
+    attributes: {
+      status: string
+      created_at: string
+      total_count: number
+      completed_count: number
+      failed_count: number
+      completed_at: string | null
+      expires_at: string
+      started_at: string | null
+    }
+    relationships: {
+      lists: {
+        data: Array<{
+          type: string
+          id: string
+        }>
+        links: {
+          self: string
+          related: string
+        }
+      }
+      profiles: {
+        links: {
+          self: string
+          related: string
+        }
+      }
+      import_errors: {
+        links: {
+          related: string
+        }
       }
     }
-    profiles: {
-      links: {
-        self: string
-        related: string
-      }
+    links: {
+      self: string
     }
-    import_errors: {
-      links: {
-        related: string
-      }
-    }
-  }
-  links: {
-    self: string
   }
 }
