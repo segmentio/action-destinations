@@ -10,15 +10,21 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'basic',
     fields: {
-      username: {
+      org_id: {
         label: 'Organization ID',
         description: 'Spiffy Org ID',
         type: 'string',
         required: true
       },
-      password: {
+      api_key: {
         label: 'API Key',
         description: 'Spiffy Org API Key',
+        type: 'string',
+        required: true
+      },
+      environment: {
+        label: 'Spiffy Environment',
+        description: 'Spiffy Org Environment',
         type: 'string',
         required: true
       }
@@ -34,8 +40,8 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      username: settings.username,
-      password: settings.password
+      username: settings.org_id,
+      password: settings.api_key
     }
   },
 

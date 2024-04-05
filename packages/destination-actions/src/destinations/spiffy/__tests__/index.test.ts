@@ -7,11 +7,12 @@ const testDestination = createTestIntegration(Definition)
 describe('Spiffy', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock('https://segment-intake.dev.spiffy.ai').get('*').reply(200, {})
 
       const settings = {
-        username: '<test username>',
-        password: '<test password>'
+        org_id: '<test username>',
+        api_key: '<test password>',
+        environment: 'dev'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()

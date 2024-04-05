@@ -2,21 +2,34 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+// @ts-ignore - typescript doesnt like we are operating on an any request object
+async function sendData(request, settings: Settings, payloads: Payload[]) {
+  const environment = settings.environment
+  const url =
+    environment == 'prod'
+      ? 'https://segment-intake.spiffy.ai/v1/intake'
+      : 'https://segment-intake.dev.spiffy.ai/v1/intake'
+  console.info(`send to ${url}`)
+  return request(url, {
+    method: 'put',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${settings.org_id}:${settings.api_key}`
+    },
+    json: {
+      payload: payloads
+    }
+  })
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
-  description: 'Send data to a Kafka topic',
+  description: 'Send data to Spiffy.AI',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    // topic: {
-    //   label: 'Topic',
-    //   description: 'The Kafka topic to send messages to. This field auto-populates from your Kafka instance.',
-    //   type: 'string',
-    //   required: true,
-    //   dynamic: true
-    // },
     payload: {
       label: 'Payload',
-      description: 'The data to send to Kafka',
+      description: 'The data to send to Spiffy.AI',
       type: 'object',
       required: true,
       default: { '@path': '$.' }
@@ -27,35 +40,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     }
-    // partition: {
-    //   label: 'Partition',
-    //   description: 'The partition to send the message to (optional)',
-    //   type: 'integer'
-    // },
-    // default_partition: {
-    //   label: 'Default Partition',
-    //   description: 'The default partition to send the message to (optional)',
-    //   type: 'integer'
-    // },
-    // key: {
-    //   label: 'Message Key',
-    //   description: 'The key for the message (optional)',
-    //   type: 'string'
-    // }
   },
-  dynamicFields: {
-    // topic: async (_, { settings }) => {
-    //   return getTopics(settings)
-    // }
-  },
-  perform: async (_request, { settings, payload }) => {
+  dynamicFields: {},
+  perform: async (request, { settings, payload }) => {
     console.info('send (perform) action', payload, settings)
-    //await sendData(settings, [payload])
+    await sendData(request, settings, [payload])
     return [payload]
   },
-  performBatch: async (_request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload }) => {
     console.info('send (performBatch) action', payload, settings)
-    //await sendData(settings, payload)
+    await sendData(request, settings, payload)
     return payload
   }
 }

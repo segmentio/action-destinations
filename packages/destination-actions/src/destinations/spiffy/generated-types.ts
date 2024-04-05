@@ -4,9 +4,13 @@ export interface Settings {
   /**
    * Spiffy Org ID
    */
-  username: string
+  org_id: string
   /**
    * Spiffy Org API Key
    */
-  password: string
+  api_key: string
+  /**
+   * Spiffy Org Environment
+   */
+  environment: string
 }

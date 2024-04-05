@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The data to send to Kafka
+   * The data to send to Spiffy.AI
    */
   payload: {
     [k: string]: unknown
