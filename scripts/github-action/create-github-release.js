@@ -1,21 +1,17 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core, exec }) => {
-  const { GITHUB_SHA, RELEASE_TAG } = process.env
-  const { data } = await github.rest.search.commits({
-    q: `Publish repo:${context.repo.owner}/${context.repo.repo}`,
-    per_page: 2,
-    sort: 'committer-date'
-  })
+  let { GITHUB_SHA, DRY_RUN } = process.env
 
-  if (data.items.length < 2) {
-    core.error(`No previous release commits found`)
+  if (Boolean(DRY_RUN)) {
+    core.info('Running in dry-run mode')
   }
 
-  const newPublish = data.items[0]
-  const previousPublish = data.items[1]
+  // Get the last two commits that have the word "Publish" in the commit message along with the date
+  const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
   const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
 
-  const newReleaseTag = RELEASE_TAG
+  // Get tag for the current release from the git repository
+  const newReleaseTag = await getReleaseTag(core, exec)
 
   // Fetch the latest github release
   const latestRelease = await github.rest.repos
@@ -30,10 +26,18 @@ module.exports = async ({ github, context, core, exec }) => {
 
   const latestReleaseTag = latestRelease ? latestRelease.data.tag_name : null
 
+  // Extract package tags that are published in the current release by lerna version
   const packageTags = await extractPackageTags(GITHUB_SHA, exec, core)
   const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
   const changeLog = formatChangeLog(prs, tagsContext, context)
 
+  // If DRY_RUN is set, then log the changelog and return
+  if (Boolean(DRY_RUN)) {
+    core.info(`DRY_RUN: Release ${newReleaseTag} will be created with the following changelog: \n${changeLog}`)
+    return
+  }
+
+  // Create a new release
   await github.rest.repos
     .createRelease({
       owner: context.repo.owner,
@@ -48,13 +52,49 @@ module.exports = async ({ github, context, core, exec }) => {
     .catch((e) => {
       core.error(`Failed to create release: ${e.message}`)
     })
-
   return
 }
 
+// Get the last two commits that have the word "Publish" in the commit message along with the date
+async function getPreviousTwoPublishCommits(core, exec) {
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'log',
+    '--grep=Publish',
+    '-n',
+    `2`,
+    '--format="%H|%ai"'
+  ])
+
+  if (exitCode !== 0) {
+    // if the publish commits are not found, then we cannot proceed further
+    core.error(`Failed to extract package tags: ${stderr}`)
+  }
+  return stdout.split('\n').map((commit) => {
+    const [sha, date] = commit.split('|')
+    return { sha, date }
+  })
+}
+
+// Get the latest release tag
+async function getReleaseTag(core, exec) {
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'describe',
+    '--abbrev=0',
+    '--tags',
+    '--match=release-*'
+  ])
+  if (exitCode !== 0) {
+    // if the release tag is not found, then we cannot proceed further
+    core.error(`Failed to get release tag. Unable to proceed further: ${stderr}`)
+  }
+  return stdout.trim()
+}
+
+// Extract package tags that are published in the current release by lerna version
 async function extractPackageTags(sha, exec, core) {
   const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
   if (exitCode !== 0) {
+    // if the package tags are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
   }
   // filter out only the tags that are related to segment packages
@@ -64,9 +104,10 @@ async function extractPackageTags(sha, exec, core) {
     .filter((tag) => tag.includes('@segment/') && !tag.includes('staging'))
 }
 
+// Get PRs between two commits
 async function getPRsBetweenCommits(github, context, core, lastCommit, currentCommit) {
-  const lastCommitDate = new Date(lastCommit.commit.committer.date)
-  const currentCommitDate = new Date(currentCommit.commit.committer.date)
+  const lastCommitDate = new Date(lastCommit.date)
+  const currentCommitDate = new Date(currentCommit.date)
   const owner = context.repo.owner
   const repo = context.repo.repo
   // GraphQL query to get PRs between two commits. Assumption is the PR might not have more than 100 files and 10 labels.
@@ -111,10 +152,12 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
       requiresRegistration: pr.labels.nodes.some((label) => label.name === 'deploy:registration') ? 'Yes' : 'No'
     }))
   } catch (e) {
+    // if the PRs are not found, then we cannot proceed further
     core.error(`Unable to fetch PRs between commits: ${e.message}`)
   }
 }
 
+// Format the changelog
 function formatChangeLog(prs, tagsContext, context) {
   const { currentRelease, prevRelease, packageTags } = tagsContext
   const prsWithAffectedDestinations = prs.map(mapPRWithAffectedDestinations)
@@ -166,22 +209,26 @@ function formatChangeLog(prs, tagsContext, context) {
 
     ${formattedPackageTags || 'No packages published'}
 
-    ## Internal PRs
-    
-    |${tableConfig.map((config) => config.label).join('|')}|
-    |${tableConfig.map(() => '---').join('|')}|
-    ${internalPRS.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    ${internalPRS.length > 0 ? formatTable(internalPRS, tableConfig, '## Internal PRs') : ''}
         
-    ## External PRs
-    
-    |${tableConfig.map((config) => config.label).join('|')}|
-    |${tableConfig.map(() => '---').join('|')}|
-    ${externalPRs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    ${externalPRs.length > 0 ? formatTable(externalPRs, tableConfig, '## External PRs') : ''}
     `
   // trim double spaces and return the changelog
   return changelog.replace(/  +/g, '')
 }
 
+// Format the PRs in a table
+function formatTable(prs, tableConfig, title = '') {
+  return `
+    ${title}
+
+    |${tableConfig.map((config) => config.label).join('|')}|
+    |${tableConfig.map(() => '---').join('|')}|
+    ${prs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    `
+}
+
+// Map PRs with affected destinations based on the files changed
 function mapPRWithAffectedDestinations(pr) {
   let affectedDestinations = []
   if (pr.labels.includes('mode:cloud')) {
@@ -198,7 +245,7 @@ function mapPRWithAffectedDestinations(pr) {
     pr.files
       .filter((file) => file.includes('packages/browser-destinations/destinations'))
       .forEach((file) => {
-        const match = file.match(/packages\/browser-destinations\/([^\/]+)\/*/)
+        const match = file.match(/packages\/browser-destinations\/destinations\/([^\/]+)\/*/)
         if (match && !affectedDestinations.includes(match[1])) {
           affectedDestinations.push(match[1])
         }
@@ -210,6 +257,7 @@ function mapPRWithAffectedDestinations(pr) {
   }
 }
 
+// Format the npm package URL
 function formatNPMPackageURL(tag) {
   const [name, version] = tag.split(/@(\d.*)/)
   return `[${tag}](https://www.npmjs.com/package/${name}/v/${version})`
