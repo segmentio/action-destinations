@@ -59,4 +59,6 @@ export interface Payload {
    * If true, Segment will batch events before sending to HubSpot’s API endpoint. HubSpot accepts batches of up to 100 events. Note: Contacts created with batch endpoint can’t be associated to a Company from the UpsertCompany Action.
    */
   enable_batching?: boolean
+
+  identifier_type?: string
 }

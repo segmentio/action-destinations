@@ -43,11 +43,11 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.data?.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest() {
     return {
       skipResponseCloning: true,
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer CKGNuPXqMRIVAAEBQAAA4QIAAAC4AAAAAAAQAAACGJr1gwsgosxAKJf4QTIUl76GwAeEVkZ9KQXnwq5QouXzJVU6QAAAAEEAAAAAwAcAAAAAAAAAgAAAAAAAAAAMACAAjgA-AOABAAAAAAAA_GcAAADwAwAAAAAAAABAAAAAAAAEAAxCFFLHTDwH8cnie-ybt--94iYj8abRSgNuYTFSAFoAYAA`
       }
     }
   },

@@ -1,5 +1,5 @@
 import { HTTPError } from '@segment/actions-core'
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
@@ -36,6 +36,11 @@ interface ContactSuccessResponse {
   properties: Record<string, string | null>
 }
 
+interface ContactIdentifierRequestBody {
+  id: string
+  properties: Record<string, string | null>
+}
+
 interface ContactErrorResponse {
   status: string
   category: string
@@ -63,22 +68,47 @@ interface ContactsUpsertMapItem {
     properties: ContactProperties
   }
 }
+interface ContactField {
+  label: string;
+  name: string;
+  hasUniqueValue: boolean;
+}
+
+interface ContactsFieldsResponse {
+  data: {
+    results: ContactField[];
+  };
+  // Add other properties as needed
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
   description: 'Create or update a contact in HubSpot.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    /* 
+      Ideally this field shouldn't be named email as it allows for any identify value to be provided. 
+      The ability to provide Hubspot with any identifier type was added after this field was defined.
+      It was decided that the email fiels would remain in place, rather than needing to run a DB migration  
+    */ 
     email: {
-      label: 'Email',
+      label: 'Identifier Value',
       type: 'string',
       description:
-        'The contact’s email. Email is used to uniquely identify contact records in HubSpot. If an existing contact is found with this email, we will update the contact. If a contact is not found, we will create a new contact.',
+        "An Identifier for the Contact. This can be the Contact's email address or the value of any other Contact property which is set to be unique. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.",
       required: true,
-      format: 'email',
       default: {
         '@path': '$.traits.email'
       }
+    },
+    identifier_type: {
+      label: 'Identifier Type',
+      type: 'string',
+      description:
+        'The type of identifier used to uniquely identify the Contact. This defaults to email, but can be set to be any unique Contact property.',
+      dynamic: true,
+      required: false,
+      default: 'email'
     },
     company: {
       label: 'Company Name',
@@ -193,6 +223,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     }
   },
+  dynamicFields: {
+    identifier_type: async (request) => {
+      return getContactIdentifierTypes(request)
+    }
+  },
+
   perform: async (request, { payload, transactionContext }) => {
     const contactProperties = {
       company: payload.company,
@@ -216,7 +252,7 @@ const action: ActionDefinition<Settings, Payload> = {
      */
 
     try {
-      const response = await updateContact(request, payload.email, contactProperties)
+      const response = await updateContact(request, payload, contactProperties)
 
       // cache contact_id for it to be available for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
@@ -231,9 +267,9 @@ const action: ActionDefinition<Settings, Payload> = {
         const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecyclestage: '' })
+        await updateContact(request, payload, { lifecyclestage: '' })
         // update contact again with new lifecycle stage
-        return updateContact(request, payload.email, contactProperties)
+        return updateContact(request, payload, contactProperties)
       }
       return response
     } catch (ex) {
@@ -287,6 +323,29 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
+export const getContactIdentifierTypes = async (request: RequestClient): Promise<DynamicFieldResponse> => {
+
+  const contactFields: ContactsFieldsResponse = await request(`${HUBSPOT_BASE_URL}/crm/v3/properties/contacts`, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+
+  return {
+    choices: [
+      {
+        label: 'email',
+        value: 'email'
+      },
+      ...contactFields.data.results.filter((field: ContactField) => field.hasUniqueValue).map((field: ContactField) => {
+        return {
+          label: field.label,
+          value: field.name
+        }
+      })
+    ]
+  }
+}
+
 async function createContact(request: RequestClient, contactProperties: ContactProperties) {
   return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
     method: 'POST',
@@ -296,8 +355,10 @@ async function createContact(request: RequestClient, contactProperties: ContactP
   })
 }
 
-async function updateContact(request: RequestClient, email: string, properties: ContactProperties) {
-  return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
+async function updateContact(request: RequestClient, payload: Payload, properties: ContactProperties) {
+  const { email: identifierValue, identifier_type } = payload
+  
+  return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${identifierValue}?idProperty=${identifier_type}`, {
     method: 'PATCH',
     json: {
       properties: properties
