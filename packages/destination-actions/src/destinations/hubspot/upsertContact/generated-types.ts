@@ -2,9 +2,13 @@
 
 export interface Payload {
   /**
-   * The contact’s email. Email is used to uniquely identify contact records in HubSpot. If an existing contact is found with this email, we will update the contact. If a contact is not found, we will create a new contact.
+   * An Identifier for the Contact. This can be the Contact's email address or the value of any other Contact property which is set to be unique. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.
    */
   email: string
+  /**
+   * The type of identifier used to uniquely identify the Contact. This defaults to email, but can be set to be any unique Contact property.
+   */
+  identifier_type?: string
   /**
    * The contact’s company.
    */
@@ -59,6 +63,4 @@ export interface Payload {
    * If true, Segment will batch events before sending to HubSpot’s API endpoint. HubSpot accepts batches of up to 100 events. Note: Contacts created with batch endpoint can’t be associated to a Company from the UpsertCompany Action.
    */
   enable_batching?: boolean
-
-  identifier_type?: string
 }

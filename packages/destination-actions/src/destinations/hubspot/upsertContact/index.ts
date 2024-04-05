@@ -95,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Identifier Value',
       type: 'string',
       description:
-        "An Identifier for the Contact. This can be the Contact's email address or the value of any other Contact property which is set to be unique. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.",
+        "An Identifier for the Contact. This can be the Contact's email address or the value of any other unique Contact property. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.",
       required: true,
       default: {
         '@path': '$.traits.email'
@@ -240,11 +240,11 @@ const action: ActionDefinition<Settings, Payload> = {
       state: payload.state,
       country: payload.country,
       zip: payload.zip,
-      email: payload.email,
+      [payload.identifier_type as string ?? 'email']: payload.email,
       website: payload.website,
       lifecyclestage: payload.lifecyclestage?.toLowerCase(),
       ...flattenObject(payload.properties)
-    }
+    } as ContactProperties
 
     /**
      * An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
@@ -275,7 +275,6 @@ const action: ActionDefinition<Settings, Payload> = {
     } catch (ex) {
       if ((ex as HTTPError)?.response?.status == 404) {
         const result = await createContact(request, contactProperties)
-
         // cache contact_id for it to be available for company action
         transactionContext?.setTransaction('contact_id', result.data.id)
         return result
@@ -346,7 +345,7 @@ export const getContactIdentifierTypes = async (request: RequestClient): Promise
   }
 }
 
-async function createContact(request: RequestClient, contactProperties: ContactProperties) {
+async function createContact(request: RequestClient, contactProperties: ContactProperties) {  
   return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
     method: 'POST',
     json: {
@@ -357,7 +356,6 @@ async function createContact(request: RequestClient, contactProperties: ContactP
 
 async function updateContact(request: RequestClient, payload: Payload, properties: ContactProperties) {
   const { email: identifierValue, identifier_type } = payload
-  
   return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${identifierValue}?idProperty=${identifier_type}`, {
     method: 'PATCH',
     json: {
