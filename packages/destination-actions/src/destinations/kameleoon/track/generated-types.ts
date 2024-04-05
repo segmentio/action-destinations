@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
+   * Anonymous id
+   */
+  anonymousId?: string
+  /**
+   * The ID associated with the user
+   */
+  userId?: string
+  /**
    * The event name
    */
-  event?: string
+  event: string
   /**
    * The type of the event
    */

@@ -2,36 +2,40 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import logEvent from './logEvent'
+import track from './track'
+import identify from './identify'
+import group from './group'
+import page from './page'
+
 import { BASE_URL } from './properties'
 
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    partnerAction: 'track',
+    mapping: defaultValues(track.fields),
     type: 'automatic'
   },
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    partnerAction: 'page',
+    mapping: defaultValues(page.fields),
     type: 'automatic'
   },
   {
-    name: 'Screen Calls',
-    subscribe: 'type = "screen"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    name: 'Group Calls',
+    subscribe: 'type = "group"',
+    partnerAction: 'group',
+    mapping: defaultValues(group.fields),
     type: 'automatic'
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    partnerAction: 'identify',
+    mapping: defaultValues(identify.fields),
     type: 'automatic'
   }
 ]
@@ -75,7 +79,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    logEvent
+    track,
+    identify,
+    group,
+    page
   }
 }
 
