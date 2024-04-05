@@ -335,7 +335,7 @@ export const getContactIdentifierTypes = async (request: RequestClient): Promise
         label: 'email',
         value: 'email'
       },
-      ...contactFields.data.results.filter((field: ContactField) => field.hasUniqueValue).map((field: ContactField) => {
+      ...contactFields.data.results.filter((field: ContactField) => field.hasUniqueValue && field.name !='hs_unique_creation_key').map((field: ContactField) => {
         return {
           label: field.label,
           value: field.name
