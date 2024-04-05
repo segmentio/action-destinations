@@ -11,12 +11,8 @@ async function sendData(request, settings: Settings, payloads: Payload[]) {
       : 'https://segment-intake.dev.spiffy.ai/v1/intake'
   return request(url, {
     method: 'put',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: `Bearer ${settings.org_id}:${settings.api_key}`
-    },
     json: {
-      payload: payloads
+      payload: JSON.stringify(payloads)
     }
   })
 }

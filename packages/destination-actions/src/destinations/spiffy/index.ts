@@ -8,7 +8,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'basic',
+    scheme: 'custom',
     fields: {
       org_id: {
         label: 'Organization ID',
@@ -40,8 +40,8 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      username: settings.org_id,
-      password: settings.api_key
+      headers: { Authorization: `Bearer ${settings.org_id}:${settings.api_key}` },
+      responseType: 'json'
     }
   },
 
