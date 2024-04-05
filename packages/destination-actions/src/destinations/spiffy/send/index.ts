@@ -9,7 +9,6 @@ async function sendData(request, settings: Settings, payloads: Payload[]) {
     environment == 'prod'
       ? 'https://segment-intake.spiffy.ai/v1/intake'
       : 'https://segment-intake.dev.spiffy.ai/v1/intake'
-  console.info(`send to ${url}`)
   return request(url, {
     method: 'put',
     headers: {
@@ -43,12 +42,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {},
   perform: async (request, { settings, payload }) => {
-    console.info('send (perform) action', payload, settings)
     await sendData(request, settings, [payload])
     return [payload]
   },
   performBatch: async (request, { settings, payload }) => {
-    console.info('send (performBatch) action', payload, settings)
     await sendData(request, settings, payload)
     return payload
   }
