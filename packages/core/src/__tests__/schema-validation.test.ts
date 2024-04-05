@@ -74,14 +74,98 @@ const schema = fieldsToJsonSchema({
 
 describe('validateSchema', () => {
   describe('conditional fields', () => {
-    it('should validate conditional fields', () => {
+    it.only('should validate a conditionally required field when the if statement is true', () => {
       const payload = {
         operation: 'create',
       }
 
-      const validated = validateSchema(payload, schema, { schemaKey: `testSchema` })
+      console.log('schema', schema)
+      const validated = validateSchema(payload, schema, { throwIfInvalid: false })
 
       expect(validated).toBe(false)
+    })
+
+    it.only('should validate a conditionally required field when the if statement is false', () => {
+      const payload = {
+        operation: 'update',
+      }
+
+      console.log('schema', schema)
+      const validated = validateSchema(payload, schema, { throwIfInvalid: false })
+
+      expect(validated).toBe(true)
+    })
+
+    it.only('should validate a one_of conditional when no fields are present', () => {
+      const oneOfSchema = fieldsToJsonSchema({
+        email: {
+          label: 'Email',
+          type: 'string',
+          required: // either this or phone or userId is required. what is the best syntax to express this?
+          {
+            match: 'one_of',
+            conditions: [{fieldKey: 'phone'}, {fieldKey: 'userId'}]
+          }
+        },
+        phone: {
+          label: 'Phone Number',
+          type: 'string',
+          required: {
+            match: 'one_of',
+            conditions: [{fieldKey: 'email'}, {fieldKey: 'userId'}]
+          }
+        },
+        userId: {
+          label: 'User ID',
+          type: 'string',
+          required: {
+            match: 'one_of',
+            conditions: [{fieldKey: 'email'}, {fieldKey: 'phone'}]
+          }
+        },
+      })
+      const payload = {}
+
+      const validated = validateSchema(payload, oneOfSchema, { throwIfInvalid: false })
+
+      expect(validated).toBe(false)
+    })
+
+    it.only('should validate a one_of conditional when one field is present', () => {
+      const oneOfSchema = fieldsToJsonSchema({
+        email: {
+          label: 'Email',
+          type: 'string',
+          required: // either this or phone or userId is required. what is the best syntax to express this?
+          {
+            match: 'one_of',
+            conditions: [{fieldKey: 'phone'}, {fieldKey: 'userId'}]
+          }
+        },
+        phone: {
+          label: 'Phone Number',
+          type: 'string',
+          required: {
+            match: 'one_of',
+            conditions: [{fieldKey: 'email'}, {fieldKey: 'userId'}]
+          }
+        },
+        userId: {
+          label: 'User ID',
+          type: 'string',
+          required: {
+            match: 'one_of',
+            conditions: [{fieldKey: 'email'}, {fieldKey: 'phone'}]
+          }
+        },
+      })
+      const payload = {
+        email: 'nick@email.com'
+      }
+
+      const validated = validateSchema(payload, oneOfSchema, { throwIfInvalid: false })
+
+      expect(validated).toBe(true)
     })
   })
 

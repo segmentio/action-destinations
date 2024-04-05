@@ -198,8 +198,8 @@ export interface InputField extends InputFieldJSONSchema {
  */
 export interface Condition {
   fieldKey: string
-  operator: 'is' | 'is_not'
-  value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
+  operator?: 'is' | 'is_not'
+  value?: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
 }
 
 /**
@@ -208,7 +208,7 @@ export interface Condition {
  * If match = 'all', then meeting all of the conditions defined will result in the field being shown.
  */
 export interface DependsOnConditions {
-  match?: 'any' | 'all'
+  match?: 'any' | 'all' | 'one_of'
   conditions: Condition[]
 }
 

@@ -108,9 +108,28 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     }
 
     if (field.required && typeof field.required === 'object') {
-      schema.dependencies = { 'stuff'
+      return {
+        $schema: 'http://json-schema.org/schema#',
+        type: 'object',
+        additionalProperties: options?.additionalProperties || false,
+        properties,
+        required,
+        if: {
+          properties: {
+            operation: {const: 'create'}
+          }
+        },
+        then: {
+          required: ['last_name']
+        },
+        oneOf: [
+          {properties: {
+            email: {type: 'string'},
+            phone: {type: 'string'},
+            userId: {type: 'string'}
+          }}
+        ]
       }
-
     }
   }
 
@@ -120,6 +139,5 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     additionalProperties: options?.additionalProperties || false,
     properties,
     required,
-    dependencies: {}
   }
 }

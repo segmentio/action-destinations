@@ -60,6 +60,7 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
     validate = ajv.compile(schema)
   }
 
+  console.log('validate', validate)
   // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
   arrifyFields(obj, schema)
   const isValid = validate(obj)
