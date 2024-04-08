@@ -111,4 +111,33 @@ describe('.getConversionActionId', () => {
       { value: '1055694122', label: 'Add to cart' }
     ])
   })
+
+  it('should return error message and code if dynamic fetch fails', async () => {
+    const settings = {
+      customerId: '1234567890'
+    }
+    const features: Features = { 'google-enhanced-canary-version': true }
+
+    const errorResponse = {
+      response: {
+        status: '401',
+        statusText: 'Unauthorized'
+      }
+    }
+    nock(`https://googleads.googleapis.com`)
+      .post(`/v15/customers/${settings.customerId}/googleAds:searchStream`)
+      .reply(401, errorResponse)
+
+    const payload = {}
+    const responses = (await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
+      settings,
+      payload,
+      auth,
+      features
+    })) as DynamicFieldResponse
+
+    expect(responses.choices.length).toBe(0)
+    expect(responses.error?.message).toEqual(errorResponse.response.statusText)
+    expect(responses.error?.code).toEqual(errorResponse.response.status)
+  })
 })
