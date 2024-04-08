@@ -43,12 +43,12 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
     const tags = {
       audience_id: this.payload.customArgs && this.payload.customArgs['audience_id'],
       correlation_id: this.payload.customArgs && this.payload.customArgs['correlation_id'],
-      journey_name: this.payload.customArgs && this.payload.customArgs['journey_name'],
       step_name: this.payload.customArgs && this.payload.customArgs['step_name'],
       campaign_name: this.payload.customArgs && this.payload.customArgs['campaign_name'],
       campaign_key: this.payload.customArgs && this.payload.customArgs['campaign_key'],
       user_id: this.payload.customArgs && this.payload.customArgs['user_id'],
       message_id: this.payload.customArgs && this.payload.customArgs['message_id'],
+      event_occurred_ts: this.payload && this.payload?.eventOccurredTS,
       external_id_type: recepient.type,
       external_id_value: phone
     }

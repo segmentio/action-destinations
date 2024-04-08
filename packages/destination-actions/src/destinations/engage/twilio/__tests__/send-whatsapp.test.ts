@@ -5,6 +5,7 @@ const defaultTemplateSid = 'my_template'
 const phoneNumber = '+1234567891'
 const defaultTo = `whatsapp:${phoneNumber}`
 const defaultTags = JSON.stringify({
+  event_occurred_ts: '2024-03-23T23:02:40.563Z',
   external_id_type: 'phone',
   external_id_value: phoneNumber
 })
@@ -107,6 +108,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:+${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone // expect external id to stay the same.. without "+"
         })
@@ -138,6 +140,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -168,6 +171,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:+${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -195,6 +199,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -222,6 +227,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -384,6 +390,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: from,
         To: 'whatsapp:+19195551234',
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: '(919) 555 1234'
         })
