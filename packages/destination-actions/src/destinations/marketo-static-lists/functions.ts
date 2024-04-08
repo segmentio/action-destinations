@@ -206,7 +206,7 @@ export async function getList(request: RequestClient, settings: Settings, id: st
   }
 
   return {
-    successMessage: `Using existing list ${id}.`,
+    successMessage: `Using existing list '${getListResponse.data.result[0].name}' (id: ${id})`,
     savedData: {
       id: id,
       name: getListResponse.data.result[0].name
