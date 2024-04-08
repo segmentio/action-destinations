@@ -12,6 +12,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited } from './operationTracking'
 import truncate from 'lodash/truncate'
+import { RetryableError } from '@segment/actions-core/*'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -78,6 +79,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
           respError.code = errorCode
           errorDetails.code = errorCode
+          // throw new RetryableError('Timeout error, retrying...', 408)
         }
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
@@ -88,6 +90,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           } catch (e) {
             op.logs.push(`Error in onResponse: ${e}`)
           }
+        if (isTimeoutError) {
+          throw new RetryableError('Timeout error, retrying...', 408)
+        }
       } else {
         const resp: Awaited<ReturnType<RequestClient>> = op?.result
         if (resp && resp.status) op.tags.push(`response_status:${resp.status}`)
