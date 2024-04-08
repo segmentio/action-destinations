@@ -16,7 +16,7 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
-import { HTTPError } from '@segment/actions-core/*'
+import { HTTPError } from '@segment/actions-core'
 
 export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
