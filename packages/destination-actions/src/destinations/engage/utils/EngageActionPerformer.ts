@@ -12,7 +12,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited } from './operationTracking'
 import truncate from 'lodash/truncate'
-import { RetryableError } from '@segment/actions-core/*'
+import { RetryableError } from '@segment/actions-core'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
