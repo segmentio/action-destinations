@@ -138,7 +138,6 @@ describe('Order Completed', () => {
           body.data.attributes &&
           body.data.attributes.properties &&
           typeof body.data.attributes.unique_id === `string` &&
-          body.data.attributes.unique_id.length === 10 &&
           body.data.attributes.metric &&
           body.data.attributes.metric.data &&
           body.data.attributes.metric.data.type === `metric` &&

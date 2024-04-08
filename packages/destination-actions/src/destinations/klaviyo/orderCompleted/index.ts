@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
-import cryptoRandomString from 'crypto-random-string'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -39,14 +39,14 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
     return
   }
 
+  delete orderEventData.data.attributes.properties?.products
   const productPromises = payload.products.map((product) => {
-    delete orderEventData.data.attributes.properties?.products
     const productEventData = {
       data: {
         type: 'event',
         attributes: {
           properties: { ...product, ...orderEventData.data.attributes.properties },
-          unique_id: cryptoRandomString(10),
+          unique_id: uuidv4(),
           metric: {
             data: {
               type: 'metric',
