@@ -79,7 +79,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
           respError.code = errorCode
           errorDetails.code = errorCode
-          // throw new RetryableError('Timeout error, retrying...', 408)
         }
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
