@@ -38,6 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    eventProperties: {
+      label: 'Event Properties',
+      description: 'Attributes maintained by your team.',
+      type: 'object',
+      required: false,
+      default: { '@path': '$.traits' }
     }
   },
   perform: (request, { payload }) => {
@@ -46,7 +53,8 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         email: payload.email,
         eventName: payload.eventName,
-        userId: payload.userId
+        userId: payload.userId,
+        eventProperties: payload.eventProperties
       }
     })
   }

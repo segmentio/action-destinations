@@ -13,4 +13,10 @@ export interface Payload {
    * User ID for the contact.
    */
   userId: string
+  /**
+   * Attributes maintained by your team.
+   */
+  eventProperties?: {
+    [k: string]: unknown
+  }
 }
