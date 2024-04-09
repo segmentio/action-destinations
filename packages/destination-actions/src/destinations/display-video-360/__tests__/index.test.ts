@@ -86,6 +86,26 @@ describe('Display Video 360', () => {
       })
     })
 
+    it('should work when advertiserId starts or ends with a space', async () => {
+      createAudienceInput.audienceName = audienceName
+      createAudienceInput.audienceSettings.advertiserId = '                424242'
+
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
+      nock(advertiserCreateAudienceUrl)
+        .post(/.*/)
+        .reply(200, {
+          results: [
+            {
+              resourceName: `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}/userLists/8460733279`
+            }
+          ]
+        })
+      const r = await testDestination.createAudience(createAudienceInput)
+      expect(r).toEqual({
+        externalId: `products/DISPLAY_VIDEO_ADVERTISER/customers/424242/userLists/8460733279`
+      })
+    })
+
     it('errors out when audience with same name already exists', async () => {
       nock(advertiserCreateAudienceUrl)
         .post(/.*/)
@@ -151,6 +171,17 @@ describe('Display Video 360', () => {
       nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
       nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
 
+      const r = await testDestination.getAudience(getAudienceInput)
+      expect(r).toEqual({
+        externalId: expectedExternalID
+      })
+    })
+
+    it('should work when advertiserId starts or ends with a space', async () => {
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      getAudienceInput.audienceSettings.advertiserId = '                424242  '
       const r = await testDestination.getAudience(getAudienceInput)
       expect(r).toEqual({
         externalId: expectedExternalID
