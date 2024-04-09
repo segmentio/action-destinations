@@ -35,9 +35,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   @track()
   async perform() {
-    // throw new RetryableError('Timeout error in on Catch, retrying...', 408)
-    await this.beforePerform?.()
-    return this.doPerform()
+    throw new RetryableError('Timeout error in engage action performer, retrying...', 408)
+    // await this.beforePerform?.()
+    // return this.doPerform()
   }
 
   abstract doPerform(): MaybePromise<TReturn>
