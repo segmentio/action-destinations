@@ -39,18 +39,16 @@ const destination: DestinationDefinition<Settings> = {
         ]
       }
     },
-    testAuthentication: (request) => {
+    testAuthentication: (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
       // you can remove the `testAuthentication` function, though discouraged.
-      console.debug(`testAuthentication ${request}`)
-      // TODO: how do we get the environment from the request?
-      // const environment = "dev"
-      // const url =
-      //   environment == 'prod'
-      //     ? 'https://segment-intake.spiffy.ai/v1/auth'
-      //     : 'https://segment-intake.dev.spiffy.ai/v1/auth'
-      return request('https://segment-intake.spiffy.ai/v1/auth')
+      const environment = settings.environment
+      const url =
+        environment == 'prod'
+          ? 'https://segment-intake.spiffy.ai/v1/auth'
+          : 'https://segment-intake.dev.spiffy.ai/v1/auth'
+      return request(url)
     }
   },
 
