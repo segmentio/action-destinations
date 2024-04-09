@@ -394,7 +394,7 @@ const buildAppData = (payload: Payload, settings: Settings) => {
   const application_tracking_enabled = app_data != null ? appDataApplicationTrackingEnabled : undefined
 
   const appDataExtInfoVersion = app_data?.version
-  const appIDExtInfoVersion = iosAppIDRegex.test((app_id ?? '').trim()) ? 'i2' : 'a2'
+  const appIDExtInfoVersion = iosAppIDRegex.test(app_id ?? '') ? 'i2' : 'a2'
   const extInfoVersion = appDataExtInfoVersion ?? appIDExtInfoVersion
 
   // extinfo needs to be defined whenever app_data is included in the data payload
