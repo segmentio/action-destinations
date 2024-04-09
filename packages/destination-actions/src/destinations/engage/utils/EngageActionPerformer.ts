@@ -52,11 +52,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   @track({
     onTry: addUrlToLog,
-    onFinally: addUrlToLog
+    onFinally: addUrlToLog,
+    onCatch: addUrlToLog
   })
   async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
-    let isTimeoutError = false
     op?.onFinally.push(() => {
       // log response from error or success
       const respError = op?.error as ResponseError
@@ -65,7 +65,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         const msgLowercare = errorDetails?.message?.toLowerCase()
 
         // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
-        isTimeoutError =
+        const isTimeoutError =
           msgLowercare?.includes('timeout') ||
           msgLowercare?.includes('timedout') ||
           msgLowercare?.includes('exceeded the deadline') ||
@@ -102,8 +102,21 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     })
     op?.onCatch.push(() => {
-      if (isTimeoutError) {
-        op.error = new RetryableError('Timeout error, retrying...', 408)
+      // log response from error or success
+      const respError = op?.error as ResponseError
+      if (respError) {
+        const errorDetails = getErrorDetails(respError)
+        const msgLowercare = errorDetails?.message?.toLowerCase()
+
+        // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
+        const isTimeoutErrorInOnCatch =
+          msgLowercare?.includes('timeout') ||
+          msgLowercare?.includes('timedout') ||
+          msgLowercare?.includes('exceeded the deadline') ||
+          errorDetails.code?.toLowerCase().includes('etimedout')
+        if (isTimeoutErrorInOnCatch) {
+          op.error = new RetryableError('Timeout error in on Catch, retrying...', 408)
+        }
       }
     })
 
