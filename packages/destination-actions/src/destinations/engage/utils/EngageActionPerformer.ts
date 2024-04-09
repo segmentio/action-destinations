@@ -56,6 +56,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   })
   async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
+    let isTimeoutError = false
     op?.onFinally.push(() => {
       // log response from error or success
       const respError = op?.error as ResponseError
@@ -64,7 +65,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         const msgLowercare = errorDetails?.message?.toLowerCase()
 
         // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
-        const isTimeoutError =
+        isTimeoutError =
           msgLowercare?.includes('timeout') ||
           msgLowercare?.includes('timedout') ||
           msgLowercare?.includes('exceeded the deadline') ||
@@ -89,9 +90,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           } catch (e) {
             op.logs.push(`Error in onResponse: ${e}`)
           }
-        if (isTimeoutError) {
-          throw new RetryableError('Timeout error, retrying...', 408)
-        }
       } else {
         const resp: Awaited<ReturnType<RequestClient>> = op?.result
         if (resp && resp.status) op.tags.push(`response_status:${resp.status}`)
@@ -103,6 +101,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
+    op?.onCatch.push(() => {
+      if (isTimeoutError) {
+        op.error = new RetryableError('Timeout error, retrying...', 408)
+      }
+    })
+
     return await this.requestClient<Data>(url, options)
   }
 

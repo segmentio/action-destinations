@@ -4,9 +4,11 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinal
 export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
     onFinally: (() => void)[]
+    onCatch: (() => void)[]
     decoratorArgs?: {
       onTry?: (ctx: TContext) => void
       onFinally?: (ctx: TContext) => void
+      onCatch?: (ctx: TContext) => void
     }
   }
 
