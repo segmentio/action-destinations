@@ -36,7 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  dynamicFields: {},
   perform: async (request, { settings, payload }) => {
     await sendData(request, settings, [payload])
     return [payload]
