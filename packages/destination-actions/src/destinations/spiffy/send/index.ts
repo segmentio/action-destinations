@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     headers: {
       label: 'Headers',
-      description: 'Header data to send to Kafka. Format is Header key, Header value (optional).',
+      description: 'Header data to send to Spiffy. Format is Header key, Header value (optional).',
       type: 'object',
       defaultObjectUI: 'keyvalue:only'
     }

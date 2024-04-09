@@ -8,7 +8,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Header data to send to Kafka. Format is Header key, Header value (optional).
+   * Header data to send to Spiffy. Format is Header key, Header value (optional).
    */
   headers?: {
     [k: string]: unknown
