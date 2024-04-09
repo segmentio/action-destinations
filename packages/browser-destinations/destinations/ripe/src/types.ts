@@ -11,6 +11,7 @@ export interface RipeSDK {
     userId?: string | null
     groupId: string | null
     traits?: Record<string, unknown>
+    context?: Record<string, unknown>
   }) => Promise<void>
   identify: ({
     messageId,
@@ -24,6 +25,7 @@ export interface RipeSDK {
     userId?: string | null
     groupId?: string | null
     traits?: Record<string, unknown>
+    context?: Record<string, unknown>
   }) => Promise<void>
   init: (apiKey: string) => Promise<void>
   page: ({
@@ -42,6 +44,7 @@ export interface RipeSDK {
     category?: string
     name?: string
     properties?: Record<string, unknown>
+    context?: Record<string, unknown>
   }) => Promise<void>
   track: ({
     messageId,
@@ -57,5 +60,6 @@ export interface RipeSDK {
     groupId?: string | null
     event: string
     properties?: Record<string, unknown>
+    context?: Record<string, unknown>
   }) => Promise<void>
 }
