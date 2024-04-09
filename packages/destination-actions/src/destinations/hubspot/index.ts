@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       skipResponseCloning: true,
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer CPitgpnsMRIVAAEBQAAA4QIAAAC4AAAAAAAQAAACGJr1gwsgosxAKJf4QTIUPEU6yWg--9KlqQuR36KXuyQHEyE6QAAAAEEAAAAAwAcAAAAAAAAAgAAAAAAAAAAMACAAjgA-AOABAAAAAAAA_GcAAADwAwAAAAAAAABAAAAAAAAEAAxCFMxl4K6dt3o49AV2tnZel4NzrvfoSgNuYTFSAFoAYAA`
       }
     }
   },
