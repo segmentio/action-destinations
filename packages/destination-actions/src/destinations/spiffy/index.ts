@@ -44,7 +44,13 @@ const destination: DestinationDefinition<Settings> = {
       // If you do not have a way to validate the authentication fields safely,
       // you can remove the `testAuthentication` function, though discouraged.
       console.debug(`testAuthentication ${request}`)
-      return request('https://track.customer.io/auth')
+      // TODO: how do we get the environment from the request?
+      // const environment = "dev"
+      // const url =
+      //   environment == 'prod'
+      //     ? 'https://segment-intake.spiffy.ai/v1/auth'
+      //     : 'https://segment-intake.dev.spiffy.ai/v1/auth'
+      return request('https://segment-intake.spiffy.ai/v1/auth')
     }
   },
 
