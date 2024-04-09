@@ -31,6 +31,9 @@ const subscriptions: Subscription[] = [
       },
       traits: {
         '@path': '$.traits'
+      },
+      context: {
+        '@path': '$.context'
       }
     }
   }
@@ -61,6 +64,9 @@ describe('Ripe.group', () => {
         groupId: 'groupId1',
         traits: {
           is_new_group: true
+        },
+        context: {
+          ip: '1.2.3.4'
         }
       })
     )
@@ -75,6 +81,9 @@ describe('Ripe.group', () => {
           groupId: 'groupId1',
           traits: {
             is_new_group: true
+          },
+          context: {
+            ip: '1.2.3.4'
           }
         }
       })
@@ -85,7 +94,10 @@ describe('Ripe.group', () => {
       anonymousId: 'anonId1',
       userId: undefined,
       groupId: 'groupId1',
-      traits: expect.objectContaining({ is_new_group: true })
+      traits: expect.objectContaining({ is_new_group: true }),
+      context: {
+        ip: '1.2.3.4'
+      }
     })
   })
 })

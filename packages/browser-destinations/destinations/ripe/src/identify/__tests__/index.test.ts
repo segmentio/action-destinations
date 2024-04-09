@@ -31,6 +31,9 @@ const subscriptions: Subscription[] = [
       },
       traits: {
         '@path': '$.traits'
+      },
+      context: {
+        '@path': '$.context'
       }
     }
   }
@@ -61,6 +64,9 @@ describe('Ripe.identify', () => {
         userId: 'userId',
         traits: {
           name: 'Simon'
+        },
+        context: {
+          ip: '1.2.3.4'
         }
       })
     )
@@ -75,6 +81,9 @@ describe('Ripe.identify', () => {
           groupId: undefined,
           traits: {
             name: 'Simon'
+          },
+          context: {
+            ip: '1.2.3.4'
           }
         }
       })
@@ -85,7 +94,10 @@ describe('Ripe.identify', () => {
       userId: expect.stringMatching('userId'),
       anonymousId: 'anonymousId',
       groupId: undefined,
-      traits: expect.objectContaining({ name: 'Simon' })
+      traits: expect.objectContaining({ name: 'Simon' }),
+      context: {
+        ip: '1.2.3.4'
+      }
     })
   })
 })
