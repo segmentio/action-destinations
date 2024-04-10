@@ -15,6 +15,8 @@ import {
 } from '../lib/control-plane-client'
 import { build, webBundles } from '@segment/actions-cli/lib/web-bundles'
 import deprecationWarning from '../lib/warning'
+import { execSync } from 'child_process'
+import path from 'path'
 
 export default class PushBrowserDestinations extends Command {
   private spinner: ora.Ora = ora()
@@ -49,7 +51,7 @@ export default class PushBrowserDestinations extends Command {
       }))
     })
 
-    const path = assetPath(flags.env)
+    const libPath = assetPath(flags.env)
 
     if (!destinationIds.length) {
       this.warn(`You must select at least one destination. Exiting...`)
@@ -102,7 +104,7 @@ export default class PushBrowserDestinations extends Command {
         // This MUST match the way webpack exports the libraryName in the umd bundle
         // TODO make this more automatic for consistency
         libraryName: `${entry.directory}Destination`,
-        url: `${path}/${entry.directory}/${webBundles()[entry.directory]}`
+        url: `${libPath}/${entry.directory}/${webBundles()[entry.directory]}`
       }
 
       // We expect that each definition produces a single Remote Plugin bundle
@@ -164,6 +166,19 @@ export default class PushBrowserDestinations extends Command {
         pluginsToUpdate.map((p) => updateRemotePlugin(p)),
         pluginsToCreate.map((p) => createRemotePlugin(p))
       ])
+    } catch (e) {
+      this.error(e)
+    } finally {
+      this.spinner.stop()
+    }
+
+    try {
+      this.spinner.start(`Creating analytics.js-vesions branch (click the generated link to create PR)\n`)
+      const script = path.join(__dirname, '../../../browser-destinations/scripts/', 'update-ajs-versions.sh')
+      console.log(script)
+      const sha = execSync('git rev-parse --short HEAD').toString().trim()
+      execSync(`bash ${script} ${sha} ${flags.env !== 'production' ? 'staging' : 'production'}`)
+      this.spinner.stop()
     } catch (e) {
       this.error(e)
     } finally {
