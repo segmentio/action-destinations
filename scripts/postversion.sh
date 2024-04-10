@@ -6,9 +6,9 @@ set -e
 sha=$(git rev-parse HEAD);
 branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD);
 
-if [[ $branch != "main" ]];
+if [[ $branch != "main" && $branch != "release" ]];
 then
-  echo "Skipping release tag generation for non-main branch"
+  echo "Skipping release tag generation as branch is not main or release"
   exit 0
 fi;
 
