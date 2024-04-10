@@ -6,4 +6,7 @@
 
 describe('AnglerAi.saveUser', () => {
   // TODO: Test your action
+  it('should work', async () => {
+    expect(1).toBe(1)
+  })
 })

@@ -1,17 +1,24 @@
 import nock from 'nock'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { baseURL } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('Angler Ai', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      const authResponse = {
+        sub: 'test_workspace_id',
+        scopes: 'DATA_ADMIN'
+      }
 
-      // This should match your authentication.fields
-      const authData = {}
+      nock(baseURL).get('/v1/me').reply(200, authResponse)
+
+      const authData = {
+        accessToken: 'test_token',
+        workspaceId: 'test_workspace_id'
+      }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })

@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-angler-ai destination: saveEvent action - all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "custom_event_name": "3mG!HxRA*^ARn)qHBi",
+      "event_id": "3mG!HxRA*^ARn)qHBi",
+      "event_name": "3mG!HxRA*^ARn)qHBi",
+      "ip": "3mG!HxRA*^ARn)qHBi",
+      "products": Array [
+        Object {
+          "price": 56515583855820.8,
+          "productId": "3mG!HxRA*^ARn)qHBi",
+          "quantity": 5651558385582080,
+          "revenue": 56515583855820.8,
+          "revenueType": "3mG!HxRA*^ARn)qHBi",
+        },
+      ],
+      "referrer": "3mG!HxRA*^ARn)qHBi",
+      "userAgent": "3mG!HxRA*^ARn)qHBi",
+      "utm_properties": Object {
+        "utm_campaign": "3mG!HxRA*^ARn)qHBi",
+        "utm_content": "3mG!HxRA*^ARn)qHBi",
+        "utm_medium": "3mG!HxRA*^ARn)qHBi",
+        "utm_source": "3mG!HxRA*^ARn)qHBi",
+        "utm_term": "3mG!HxRA*^ARn)qHBi",
+      },
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-angler-ai destination: saveEvent action - required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "custom_event_name": "3mG!HxRA*^ARn)qHBi",
+      "event_id": "3mG!HxRA*^ARn)qHBi",
+      "event_name": "3mG!HxRA*^ARn)qHBi",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-angler-ai destination: saveOrder action - all fields 1`] = `
+Object {
+  "data": Array [
+    Object {},
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-angler-ai destination: saveOrder action - required fields 1`] = `
+Object {
+  "data": Array [
+    Object {},
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-angler-ai destination: saveUser action - all fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-angler-ai destination: saveUser action - required fields 1`] = `Object {}`;

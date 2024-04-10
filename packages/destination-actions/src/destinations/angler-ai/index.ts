@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { AuthRepsponseType } from './utils'
-import { testEnpoint, privacyEndpoint } from './utils'
+import type { AuthResponseType } from './utils'
+import { testEndpoint, privacyEndpoint } from './utils'
 import { presets } from './presets'
 import saveEvent from './saveEvent'
 import saveOrder from './saveOrder'
@@ -22,14 +22,14 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       workspaceId: {
-        label: 'Authentication Token',
+        label: 'Workspace ID',
         description: 'Your Angler AI Workspace ID',
         type: 'string',
         required: true
       }
     },
     testAuthentication: async (request, options) => {
-      const me = await request<AuthRepsponseType>(testEnpoint(), {
+      const me = await request<AuthResponseType>(testEndpoint(), {
         method: 'get'
       })
 

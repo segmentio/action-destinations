@@ -1,4 +1,4 @@
-export type AuthRepsponseType = {
+export type AuthResponseType = {
   iat: number
   exp: number
   sub: string
@@ -9,7 +9,7 @@ export type AuthRepsponseType = {
 
 export const baseURL = 'https://data.getangler.ai'
 
-export const testEnpoint = () => {
+export const testEndpoint = () => {
   return `${baseURL}/v1/me`
 }
 
