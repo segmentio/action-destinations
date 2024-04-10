@@ -196,9 +196,7 @@ function formatChangeLog(prs, tagsContext, context) {
   // if there is no previous release, we simply print the current release
   const releaseDiff = prevRelease ? `${prevRelease}...${currentRelease}` : currentRelease
 
-  const formattedPackageTags = packageTags
-    .map((tag) => `- [${tag}](https://www.npmjs.com/package/${formatNPMPackageURL(tag)})`)
-    .join('\n')
+  const formattedPackageTags = packageTags.map((tag) => `- ${formatNPMPackageURL(tag)}`).join('\n')
 
   const changelog = `
     # What's New

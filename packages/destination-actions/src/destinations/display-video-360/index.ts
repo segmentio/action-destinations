@@ -40,7 +40,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { audienceName, audienceSettings, statsContext } = createAudienceInput
-      const { advertiserId, accountType } = audienceSettings || {}
+      const { accountType } = audienceSettings || {}
+      const advertiserId = audienceSettings?.advertiserId.trim()
       const { statsClient, tags: statsTags } = statsContext || {}
       const statsName = 'createAudience'
       statsTags?.push(`slug:${destination.slug}`)
@@ -105,7 +106,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       const { statsContext, audienceSettings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
-      const { advertiserId, accountType } = audienceSettings || {}
+      const { accountType } = audienceSettings || {}
+      const advertiserId = audienceSettings?.advertiserId.trim()
       const statsName = 'getAudience'
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
