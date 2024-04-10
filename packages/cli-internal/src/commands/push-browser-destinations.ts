@@ -175,7 +175,6 @@ export default class PushBrowserDestinations extends Command {
     try {
       this.spinner.start(`Creating analytics.js-vesions branch (click the generated link to create PR)\n`)
       const script = path.join(__dirname, '../../../browser-destinations/scripts/', 'update-ajs-versions.sh')
-      console.log(script)
       const sha = execSync('git rev-parse --short HEAD').toString().trim()
       execSync(`bash ${script} ${sha} ${flags.env !== 'production' ? 'staging' : 'production'}`)
       this.spinner.stop()
