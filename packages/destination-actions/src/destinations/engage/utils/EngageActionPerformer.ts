@@ -12,7 +12,6 @@ import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited } from './operationTracking'
 import truncate from 'lodash/truncate'
-import { RetryableError } from '@segment/actions-core'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -35,9 +34,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   @track()
   async perform() {
-    throw new RetryableError('Timeout error in engage action performer, retrying...', 408)
-    // await this.beforePerform?.()
-    // return this.doPerform()
+    await this.beforePerform?.()
+    return this.doPerform()
   }
 
   abstract doPerform(): MaybePromise<TReturn>
@@ -53,8 +51,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   @track({
     onTry: addUrlToLog,
-    onFinally: addUrlToLog,
-    onCatch: addUrlToLog
+    onFinally: addUrlToLog
   })
   async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
@@ -102,25 +99,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
-    op?.onCatch.push(() => {
-      // log response from error or success
-      const respError = op?.error as ResponseError
-      if (respError) {
-        const errorDetails = getErrorDetails(respError)
-        const msgLowercare = errorDetails?.message?.toLowerCase()
-
-        // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
-        const isTimeoutErrorInOnCatch =
-          msgLowercare?.includes('timeout') ||
-          msgLowercare?.includes('timedout') ||
-          msgLowercare?.includes('exceeded the deadline') ||
-          errorDetails.code?.toLowerCase().includes('etimedout')
-        if (isTimeoutErrorInOnCatch) {
-          op.error = new RetryableError('Timeout error in on Catch, retrying...', 408)
-        }
-      }
-    })
-
     return await this.requestClient<Data>(url, options)
   }
 
