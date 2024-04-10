@@ -49,11 +49,11 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 }
 
-type HookValueTypes = string | boolean | number
+type HookValueTypes = string | boolean | number | Array<string | boolean | number>
 type GenericActionHookValues = Record<string, HookValueTypes>
 
 type GenericActionHookBundle = {
-  [K in ActionHookType]: {
+  [K in ActionHookType]?: {
     inputs?: GenericActionHookValues
     outputs?: GenericActionHookValues
   }
@@ -85,17 +85,17 @@ export interface ActionDefinition<
    * in the mapping for later use in the action.
    */
   hooks?: {
-    [K in ActionHookType]: ActionHookDefinition<
+    [K in ActionHookType]?: ActionHookDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      GeneratedActionHookBundle[K]['outputs'],
-      GeneratedActionHookBundle[K]['inputs']
+      NonNullable<GeneratedActionHookBundle[K]>['outputs'],
+      NonNullable<GeneratedActionHookBundle[K]>['inputs']
     >
   }
 }
 
-export const hookTypeStrings = ['onMappingSave'] as const
+export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
 /**
  * The supported actions hooks.
  * on-mapping-save: Called when a mapping is saved by the user. The return from this method is then stored in the mapping.
@@ -152,6 +152,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  hookInputs?: GenericActionHookValues
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
@@ -206,7 +207,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     if (definition.hooks) {
       for (const hookName in definition.hooks) {
         const hook = definition.hooks[hookName as ActionHookType]
-        if (hook.inputFields) {
+        if (hook?.inputFields) {
           if (!this.hookSchemas) {
             this.hookSchemas = {}
           }
@@ -312,6 +313,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         .filter((payload) => validateSchema(payload, schema, validationOptions))
     }
 
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
     if (payloads.length === 0) {
       return results
     }
@@ -329,7 +341,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         logger: bundle.logger,
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
-        stateContext: bundle.stateContext
+        stateContext: bundle.stateContext,
+        hookOutputs
       }
       const output = await this.performRequest(this.definition.performBatch, data)
       results[0].data = output as JSONObject

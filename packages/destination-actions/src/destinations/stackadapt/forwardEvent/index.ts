@@ -252,9 +252,15 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function getAvailableData(payload: Payload, settings: Settings) {
-  const ecommerceData = {
+  const conversionArgs = {
     ...payload.ecommerce_data,
-    ...(!isEmpty(payload.ecommerce_products) && { products: payload.ecommerce_products })
+    ...(!isEmpty(payload.ecommerce_products) && { products: payload.ecommerce_products }),
+    utm_source: payload.utm_source ?? '',
+    user_id: payload.user_id,
+    first_name: payload.first_name,
+    last_name: payload.last_name,
+    email: payload.email,
+    phone: payload.phone
   }
   return {
     segment_ss: '1',
@@ -263,14 +269,9 @@ function getAvailableData(payload: Payload, settings: Settings) {
     url: payload.url ?? '',
     ref: payload.referrer ?? '',
     ip_fwd: payload.ip_fwd ?? '',
-    utm_source: payload.utm_source ?? '',
-    user_id: payload.user_id,
+    ua_fwd: payload.user_agent ?? '',
     uid: settings.pixelId,
-    first_name: payload.first_name ?? '',
-    last_name: payload.last_name ?? '',
-    email: payload.email ?? '',
-    phone: payload.phone ?? '',
-    ...(!isEmpty(ecommerceData) && { args: JSON.stringify(ecommerceData) })
+    ...(!isEmpty(conversionArgs) && { args: JSON.stringify(conversionArgs) })
   }
 }
 

@@ -2,12 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared_properties'
-import {
-  sendCustomTraits,
-  getUserDataFieldNames,
-  validateCustomTraitsSettings,
-  validateListMemberPayload
-} from '../utils'
+import { sendCustomTraits, getUserDataFieldNames, validateCustomTraits, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -16,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     userData: {
-      label: 'Recepient Data',
+      label: 'Recipient Data',
       description: 'Record data that represents field names and corresponding values for each profile.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
@@ -81,22 +76,56 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [{ label: 'Audience', value: 'audience' }]
     },
     enable_batching: enable_batching,
-    batch_size: batch_size
+    batch_size: batch_size,
+    stringify: {
+      label: 'Stringify Recipient Data',
+      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'The timestamp of when the event occurred.',
+      type: 'datetime',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    retry: {
+      label: 'Retry',
+      description: 'If true, a delay of 30 seconds will be added before retrying a failed request.',
+      type: 'boolean',
+      required: false,
+      default: false
+    }
   },
 
   perform: async (request, data) => {
+    const { payload, settings, statsContext } = data
     const userDataFieldNames: string[] = getUserDataFieldNames(data as unknown as Data)
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload.timestamp,
+      statsContext: statsContext,
+      retry: payload.retry
+    })
+    validateListMemberPayload(payload.userData)
 
-    validateCustomTraitsSettings(data.settings)
-    validateListMemberPayload(data.payload.userData)
-
-    return sendCustomTraits(request, [data.payload], data.settings, userDataFieldNames, true)
+    return sendCustomTraits(request, [payload], data.settings, userDataFieldNames, true)
   },
 
   performBatch: async (request, data) => {
+    const { payload, settings, statsContext } = data
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-
-    validateCustomTraitsSettings(data.settings)
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload[0].timestamp,
+      statsContext: statsContext,
+      retry: payload[0].retry
+    })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames, true)
   }

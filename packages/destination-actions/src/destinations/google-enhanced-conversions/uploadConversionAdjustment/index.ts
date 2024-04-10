@@ -75,13 +75,31 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Restatement Value',
       description:
         'The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.',
-      type: 'number'
+      type: 'number',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     restatement_currency_code: {
       label: 'Restatement Currency Code',
       description:
         'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code, e.g. USD or EUR.',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     email_address: {
       label: 'Email Address',

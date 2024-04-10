@@ -6,11 +6,13 @@ const testDestination = createTestIntegration(Destination)
 
 const SCHEMATIC_API_KEY = 'test'
 
-const identify_mapping = {
-  user_keys: {
-    email: 'example@example.com'
-  }
+const mapping = {
+  user_keys: { email: 'test@test.com' },
+  company_keys: { org_id: '1234' },
+  timestamp: { '@path': '$.timestamp' }
 }
+
+const ts = '2023-01-01T00:00:00.000Z'
 
 const auth = {
   refreshToken: 'xyz321',
@@ -19,44 +21,22 @@ const auth = {
 }
 
 const settings = {
-  instanceUrl: 'https://api.schematichq.com',
+  instanceUrl: 'https://c.schematichq.com',
   apiKey: SCHEMATIC_API_KEY
 }
 
 describe('POST identify call', () => {
   beforeEach(() => {
-    nock(`${settings.instanceUrl}`)
-      .post('/events')
-      .reply(201, {
-        data: {
-          api_key: '<string>',
-          body: {},
-          captured_at: '2023-11-07T05:31:56Z',
-          company_id: '<string>',
-          enriched_at: '2023-11-07T05:31:56Z',
-          environment_id: '<string>',
-          feature_id: '<string>',
-          id: '<string>',
-          loaded_at: '2023-11-07T05:31:56Z',
-          processed_at: '2023-11-07T05:31:56Z',
-          processing_status: '<string>',
-          sent_at: '2023-11-07T05:31:56Z',
-          subtype: '<string>',
-          type: '<string>',
-          updated_at: '2023-11-07T05:31:56Z',
-          user_id: '<string>'
-        },
-        params: {}
-      })
-    nock(`${settings.instanceUrl}`).post('/events').reply(400, { error: '<string>' })
+    nock(`${settings.instanceUrl}`).post('/e').reply(200, {
+      ok: true
+    })
   })
 
   it('should update a user', async () => {
     const event = createTestEvent({
       type: 'identify',
-      userId: '3456',
+      timestamp: new Date(ts).toISOString(),
       traits: {
-        email: 'homer@simpsons.com',
         name: 'simpson',
         age: 42,
         source: 'facebook'
@@ -67,9 +47,9 @@ describe('POST identify call', () => {
       event,
       settings,
       auth,
-      mapping: identify_mapping
+      mapping
     })
 
-    expect(responses[0].status).toBe(201)
+    expect(responses[0].status).toBe(200)
   })
 })

@@ -18,7 +18,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
-        properties: eventData
+        properties: { ...eventData, timestamp: '2023-01-01T00:00:00.000Z' }
       })
 
       const responses = await testDestination.testAction(actionSlug, {
@@ -52,7 +52,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
-        properties: eventData
+        properties: { ...eventData, timestamp: '2023-01-01T00:00:00.000Z' }
       })
 
       const responses = await testDestination.testAction(actionSlug, {

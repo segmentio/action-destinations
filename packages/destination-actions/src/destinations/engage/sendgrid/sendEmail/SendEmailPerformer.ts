@@ -195,9 +195,33 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       }
     }
     let mailContent
-    if (this.payload.byPassSubscription) {
+    let unsubscribeLink
+    if (this.payload.groupId) {
+      const group = emailProfile.groups?.find((grp) => grp.id === this.payload.groupId)
+      unsubscribeLink = group?.groupUnsubscribeLink ?? ''
+    } else {
+      unsubscribeLink = emailProfile?.unsubscribeLink
+    }
+
+    if (unsubscribeLink) {
+      // Add list-unsubscribe headers for one click unsubscribe compliance if we have unsubscribe links in the emailProfile
       mailContent = {
         ...mailContentSubscriptionHonored,
+        headers: {
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'List-Unsubscribe': '<' + unsubscribeLink + '>'
+        }
+      }
+      // Turn off subscription tracking (If this is enabled sendgrid will not honor list unsubscribe headers)
+      mailContent.tracking_settings.subscription_tracking.enable = false
+      this.statsClient?.incr('request.list_unsubscribe__header_added', 1)
+    } else {
+      mailContent = mailContentSubscriptionHonored
+    }
+
+    if (this.payload.byPassSubscription) {
+      mailContent = {
+        ...mailContent,
         mail_settings: {
           bypass_list_management: {
             enable: true
@@ -206,9 +230,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       }
       this.statsClient?.incr('request.by_pass_subscription', 1)
     } else {
-      mailContent = mailContentSubscriptionHonored
       this.statsClient?.incr('request.dont_pass_subscription', 1)
     }
+
     // Check if ip pool name is provided and sends the email with the ip pool name if it is
     if (this.payload.ipPool) {
       mailContent = {
@@ -219,6 +243,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     } else {
       this.statsClient?.incr('request.ip_pool_name_not_provided', 1)
     }
+
     const req: RequestOptions = {
       method: 'post',
       headers: {
@@ -381,10 +406,28 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const preferencesLink = emailProfile?.preferencesLink
     const unsubscribeLinkRef = 'a[href*="[upa_unsubscribe_link]"]'
     const preferencesLinkRef = 'a[href*="[upa_preferences_link]"]'
+    const sendgridUnsubscribeLinkRef = 'a[href*="[unsubscribe]"]'
     const sendgridUnsubscribeLinkTag = '[unsubscribe]'
     const $ = cheerio.load(html)
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this
+    let hasSendgridSubstitutionTag = false
+    $(sendgridUnsubscribeLinkRef).each(function () {
+      emailProfile.unsubscribeLink = ''
+      emailProfile.preferencesLink = ''
+      if (groupId) {
+        const group = emailProfile.groups?.find((grp) => grp.id === groupId)
+        if (group) {
+          group.groupUnsubscribeLink = ''
+        }
+      }
+      hasSendgridSubstitutionTag = true
+    })
+
+    if (hasSendgridSubstitutionTag) {
+      return $.html()
+    }
+
     if (groupId) {
       const group = emailProfile.groups?.find((grp) => grp.id === groupId)
       const groupUnsubscribeLink = group?.groupUnsubscribeLink

@@ -11,21 +11,7 @@ export const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const transformProperty = (
-  property: string,
-  items: Array<Record<string, string | number | undefined>>
-): string =>
-  items
-    .map((i) =>
-      i[property] === undefined || i[property] === null
-        ? ''
-        : typeof i[property] === 'number'
-        ? (i[property] as number).toString()
-        : (i[property] as string).toString().replace(/;/g, '')
-    )
-    .join(';')
+const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
 export const hashEmailSafe = (email: string | undefined): string | undefined =>
   isHashedEmail(String(email)) ? email : hash(email)
@@ -77,5 +63,17 @@ export const splitListValueToArray = (input: string): readonly string[] | undefi
   return result.length > 0 ? result : undefined
 }
 
-export const emptyStringToUndefined = (v: string | undefined): string | undefined =>
-  (v ?? '').length > 0 ? v : undefined
+export const emptyStringToUndefined = (v: string | undefined): string | undefined => {
+  const trimmed = v?.trim()
+  return (trimmed ?? '').length > 0 ? trimmed : undefined
+}
+
+export const parseNumberSafe = (v: string | number | undefined): number | undefined => {
+  if (Number.isSafeInteger(v)) {
+    return v as number
+  } else if (v != null) {
+    const parsed = Number.parseInt(String(v) ?? '')
+    return Number.isSafeInteger(parsed) ? parsed : undefined
+  }
+  return undefined
+}

@@ -1,5 +1,5 @@
 import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
-import { BASE_URL } from '../constants'
+import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
   ProfileAPIResponse,
   GetAdAccountsAPIResponse,
@@ -13,19 +13,30 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
+import { createHash } from 'crypto'
 
 interface ConversionRuleUpdateValues {
   name?: string
   type?: string
   attributionType?: string
+  postClickAttributionWindowSize?: number
+  viewThroughAttributionWindowSize?: number
+}
+
+interface UserID {
+  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
+  idValue: string
 }
 
 export class LinkedInConversions {
   request: RequestClient
   conversionRuleId?: string
 
-  constructor(request: RequestClient, conversionRuleId?: string) {
+  constructor(request: RequestClient) {
     this.request = request
+  }
+
+  setConversionRuleId(conversionRuleId: string): void {
     this.conversionRuleId = conversionRuleId
   }
 
@@ -53,7 +64,10 @@ export class LinkedInConversions {
           id: conversionRuleId,
           name: data.name || `No name returned for rule: ${conversionRuleId}`,
           conversionType: data.type || `No type returned for rule: ${conversionRuleId}`,
-          attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`
+          attribution_type: data.attributionType || `No attribution type returned for rule: ${conversionRuleId}`,
+          post_click_attribution_window_size: data.postClickAttributionWindowSize || DEFAULT_POST_CLICK_LOOKBACK_WINDOW,
+          view_through_attribution_window_size:
+            data.viewThroughAttributionWindowSize || DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW
         }
       }
     } catch (e) {
@@ -67,11 +81,19 @@ export class LinkedInConversions {
   }
 
   createConversionRule = async (
-    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    if (!hookInputs?.adAccountId) {
+      return {
+        error: {
+          message: `Failed to create conversion rule: No Ad Account selected.`,
+          code: 'CONVERSION_RULE_CREATION_FAILURE'
+        }
+      }
+    }
+
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
+      return this.getConversionRule(hookInputs.adAccountId, hookInputs?.conversionRuleId)
     }
 
     try {
@@ -79,10 +101,12 @@ export class LinkedInConversions {
         method: 'post',
         json: {
           name: hookInputs?.name,
-          account: adAccount,
+          account: hookInputs.adAccountId,
           conversionMethod: 'CONVERSIONS_API',
-          postClickAttributionWindowSize: 30,
-          viewThroughAttributionWindowSize: 7,
+          postClickAttributionWindowSize:
+            hookInputs?.post_click_attribution_window_size || DEFAULT_POST_CLICK_LOOKBACK_WINDOW,
+          viewThroughAttributionWindowSize:
+            hookInputs?.view_through_attribution_window_size || DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW,
           attributionType: hookInputs?.attribution_type,
           type: hookInputs?.conversionType
         }
@@ -94,7 +118,9 @@ export class LinkedInConversions {
           id: data.id,
           name: data.name,
           conversionType: data.type,
-          attribution_type: hookInputs?.attribution_type || 'UNKNOWN'
+          attribution_type: data.attributionType || 'UNKNOWN',
+          post_click_attribution_window_size: data.postClickAttributionWindowSize,
+          view_through_attribution_window_size: data.viewThroughAttributionWindowSize
         }
       }
     } catch (e) {
@@ -108,7 +134,6 @@ export class LinkedInConversions {
   }
 
   updateConversionRule = async (
-    adAccount: string,
     hookInputs: HookBundle['onMappingSave']['inputs'],
     hookOutputs: HookBundle['onMappingSave']['outputs']
   ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
@@ -121,8 +146,17 @@ export class LinkedInConversions {
       }
     }
 
+    if (!hookInputs?.adAccountId) {
+      return {
+        error: {
+          message: `Failed to update conversion rule: No Ad Account selected.`,
+          code: 'CONVERSION_RULE_UPDATE_FAILURE'
+        }
+      }
+    }
+
     if (hookInputs?.conversionRuleId) {
-      return this.getConversionRule(adAccount, hookInputs?.conversionRuleId)
+      return this.getConversionRule(hookInputs.adAccountId, hookInputs?.conversionRuleId)
     }
 
     const valuesChanged = this.conversionRuleValuesUpdated(hookInputs, hookOutputs)
@@ -142,7 +176,9 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: hookOutputs.name,
           conversionType: hookOutputs.conversionType,
-          attribution_type: hookOutputs.attribution_type
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         }
       }
     }
@@ -151,7 +187,7 @@ export class LinkedInConversions {
       await this.request<ConversionRuleUpdateResponse>(`${BASE_URL}/conversions/${hookOutputs.id}`, {
         method: 'post',
         searchParams: {
-          account: adAccount
+          account: hookInputs.adAccountId
         },
         headers: {
           'X-RestLi-Method': 'PARTIAL_UPDATE',
@@ -170,7 +206,11 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: valuesChanged?.name || hookOutputs.name,
           conversionType: valuesChanged?.type || hookOutputs.conversionType,
-          attribution_type: valuesChanged?.attributionType || hookOutputs.attribution_type
+          attribution_type: valuesChanged?.attributionType || hookOutputs.attribution_type,
+          post_click_attribution_window_size:
+            valuesChanged?.postClickAttributionWindowSize || hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size:
+            valuesChanged?.viewThroughAttributionWindowSize || hookOutputs.view_through_attribution_window_size
         }
       }
     } catch (e) {
@@ -179,7 +219,9 @@ export class LinkedInConversions {
           id: hookOutputs.id,
           name: hookOutputs.name,
           conversionType: hookOutputs.conversionType,
-          attribution_type: hookOutputs.attribution_type
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
         },
         error: {
           message: `Failed to update conversion rule: ${(e as { message: string })?.message ?? JSON.stringify(e)}`,
@@ -220,7 +262,7 @@ export class LinkedInConversions {
     }
   }
 
-  getConversionRulesList = async (adAccountId: string): Promise<DynamicFieldResponse> => {
+  getConversionRulesList = async (adAccountId?: string): Promise<DynamicFieldResponse> => {
     if (!adAccountId || !adAccountId.length) {
       return {
         choices: [],
@@ -272,11 +314,24 @@ export class LinkedInConversions {
     }
   }
 
-  getCampaignsList = async (adAccountUrn: string): Promise<DynamicFieldResponse> => {
-    const parts = adAccountUrn.split(':')
-    const adAccountId = parts.pop()
+  private parseIdFromUrn = (urn?: string): string | undefined => {
+    if (!urn) {
+      return
+    }
 
-    if (!adAccountId || !adAccountId.length) {
+    const parts = urn.split(':')
+    const id = parts.pop()
+    if (!id) {
+      return
+    }
+
+    return id
+  }
+
+  getCampaignsList = async (adAccountUrn?: string): Promise<DynamicFieldResponse> => {
+    const adAccountId = this.parseIdFromUrn(adAccountUrn)
+
+    if (!adAccountId) {
       return {
         choices: [],
         error: {
@@ -321,7 +376,49 @@ export class LinkedInConversions {
     }
   }
 
+  private hashValue = (val: string): string => {
+    const hash = createHash('sha256')
+    hash.update(val)
+    return hash.digest('hex')
+  }
+
+  private buildUserIdsArray = (payload: Payload): UserID[] => {
+    const userIds: UserID[] = []
+
+    if (payload.email) {
+      const hashedEmail = this.hashValue(payload.email)
+      userIds.push({
+        idType: 'SHA256_EMAIL',
+        idValue: hashedEmail
+      })
+    }
+
+    if (payload.linkedInUUID) {
+      userIds.push({
+        idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+        idValue: payload.linkedInUUID
+      })
+    }
+
+    if (payload.acxiomID) {
+      userIds.push({
+        idType: 'AXCIOM_ID',
+        idValue: payload.acxiomID
+      })
+    }
+
+    if (payload.oracleID) {
+      userIds.push({
+        idType: 'ORACLE_MOAT_ID',
+        idValue: payload.oracleID
+      })
+    }
+
+    return userIds
+  }
+
   async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -330,14 +427,19 @@ export class LinkedInConversions {
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
         user: {
-          userIds: payload.userIds,
+          userIds,
           userInfo: payload.userInfo
         }
       }
     })
   }
 
-  async bulkAssociateCampaignToConversion(campaignIds: string[]): Promise<ModifiedResponse> {
+  async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
+    // Associating campaigns is not required to create or update a conversion rule, or to stream a conversion event
+    if (!campaignIds || campaignIds.length === 0) {
+      return
+    }
+
     if (campaignIds.length === 1) {
       return this.associateCampignToConversion(campaignIds[0])
     }
@@ -419,6 +521,20 @@ export class LinkedInConversions {
 
     if (hookInputs?.attribution_type && hookInputs?.attribution_type !== hookOutputs?.attribution_type) {
       valuesChanged.attributionType = hookInputs?.attribution_type
+    }
+
+    if (
+      hookInputs?.post_click_attribution_window_size &&
+      hookInputs?.post_click_attribution_window_size !== hookOutputs?.post_click_attribution_window_size
+    ) {
+      valuesChanged.postClickAttributionWindowSize = hookInputs?.post_click_attribution_window_size
+    }
+
+    if (
+      hookInputs?.view_through_attribution_window_size &&
+      hookInputs?.view_through_attribution_window_size !== hookOutputs?.view_through_attribution_window_size
+    ) {
+      valuesChanged.viewThroughAttributionWindowSize = hookInputs?.view_through_attribution_window_size
     }
 
     return valuesChanged
