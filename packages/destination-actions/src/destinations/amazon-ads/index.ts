@@ -1,7 +1,8 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { InvalidAuthenticationError, IntegrationError, ErrorCodes, APIError } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings } from './generated-types'
+import { AmazonAdsError } from './utils'
 
 import syncAudiences from './syncAudiences'
 
@@ -22,8 +23,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
           { label: 'Europe (EU)', value: 'https://advertising-api-eu.amazon.com' },
           { label: 'Far East (FE)', value: 'https://advertising-api-fe.amazon.com' }
         ],
-        default: 'North America (NA)',
+        default: 'https://advertising-api.amazon.com',
         type: 'string',
+        required: true
+      },
+      advertiserId: {
+        label: 'Advertiser ID',
+        description: 'Advertiser Id',
+        type: 'number',
         required: true
       }
     },
@@ -79,31 +86,155 @@ const destination: AudienceDestinationDefinition<Settings> = {
       return { accessToken: res?.data?.access_token }
     }
   },
+
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID,
+        'Content-Type': 'application/vnd.amcaudiences.v1+json'
       }
     }
   },
 
-  audienceFields: {},
+  audienceFields: {
+    description: {
+      type: 'string',
+      label: 'Description',
+      required: true,
+      description:
+        'The audience description. Must be an alphanumeric, non-null string between 0 to 1000 characters in length.'
+    },
+    countryCode: {
+      type: 'string',
+      label: 'Country Code',
+      required: false,
+      description: 'A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.'
+    },
+    externalAudienceId: {
+      type: 'string',
+      label: 'External Audience Id.',
+      required: true,
+      description: 'The user-defined audience identifier.'
+    },
+    cpmCents: {
+      label: 'CPM Cents',
+      type: 'number',
+      description: `Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.`
+    },
+    currency: {
+      label: 'Currency',
+      type: 'string',
+      description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2)`
+    },
+    ttl: {
+      type: 'number',
+      label: 'Time-to-live',
+      required: false,
+      description: 'Time-to-live in seconds. The amount of time the record is associated with the audience.'
+    }
+  },
 
   audienceConfig: {
     mode: {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(request, createAudienceInput) {
+      const { audienceName, statsContext } = createAudienceInput
+      const { statsClient, tags: statsTags } = statsContext || {}
+      const endpoint = createAudienceInput.settings.region
+      const payload = {
+        name: audienceName,
+        description: createAudienceInput.audienceSettings?.description,
+        countryCode: createAudienceInput.audienceSettings?.countryCode || '',
+        targetResource: {
+          advertiserId: createAudienceInput.settings.advertiserId
+        },
+        metadata: {
+          externalAudienceId: createAudienceInput.audienceSettings?.externalAudienceId,
+          ttl: createAudienceInput.audienceSettings?.ttl || '',
+          audienceFees: [
+            {
+              cpmCents: createAudienceInput.audienceSettings?.cpmCents || '',
+              currency: createAudienceInput.audienceSettings?.currency || ''
+            }
+          ]
+        }
+      }
+
+      const statsName = 'createAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.call`, 1, statsTags)
+
+      try {
+        const response = await request(`${endpoint}/amc/audiences/metadata`, {
+          method: 'POST',
+          json: payload
+        })
+
+        const r = await response.json()
+
+        const externalId = r.data.audienceId
+
+        if (!externalId) {
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
+        }
+
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return {
+          externalId
+        }
+      } catch (e) {
+        const error = e as AmazonAdsError
+        const { message } = JSON.parse(error.response.data)
+        throw new APIError(message, error.response.status)
+      }
+    },
+    async getAudience(request, getAudienceInput) {
+      // getAudienceInput.externalId represents audience ID that was created in createAudience
+      const { statsContext } = getAudienceInput
+      const audience_id = getAudienceInput.externalId
+      const endpoint = getAudienceInput.settings.region
+      const { statsClient, tags: statsTags } = statsContext || {}
+
+      const statsName = 'getAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.call`, 1, statsTags)
+
+      if (!audience_id) {
+        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      try {
+        const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
+          method: 'GET'
+        })
+
+        const r = await response.json()
+
+        const externalId = r.data.audienceId
+
+        if (externalId !== getAudienceInput.externalId) {
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          throw new IntegrationError(
+            "Unable to verify ownership over audience. Segment Audience ID doesn't match Amazon Ads ID.",
+            'INVALID_REQUEST_DATA',
+            400
+          )
+        }
+
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return {
+          externalId
+        }
+      } catch (e) {
+        const error = e as AmazonAdsError
+        const { message } = JSON.parse(error.response.data)
+        throw new APIError(message, error.response.status)
+      }
     }
-
-    // Get/Create are optional and only needed if you need to create an audience before sending events/users.
-    // createAudience: async (request, createAudienceInput) => {
-
-    // },
-
-    // getAudience: async (request, getAudienceInput) => {
-    //   // Right now, `getAudience` will mostly serve as a check to ensure the audience still exists in the destination
-    //   return {externalId: ''}
-    // }
   },
   actions: {
     syncAudiences
