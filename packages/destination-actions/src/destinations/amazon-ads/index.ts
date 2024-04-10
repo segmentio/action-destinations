@@ -35,6 +35,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { auth }) => {
+      if (!process.env.ACTIONS_AMAZON_ADS_CLIENT_ID) {
+        throw new IntegrationError('Missing amazon API client ID', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       if (!auth?.accessToken) {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
@@ -90,9 +94,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
+        'Content-Type': 'application/vnd.amcaudiences.v1+json',
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID,
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || ''
       }
     }
   },
