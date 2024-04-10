@@ -1,13 +1,13 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes, APIError } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
-import type { Settings } from './generated-types'
+import type { Settings, AudienceSettings } from './generated-types'
 import { AmazonAdsError } from './utils'
 
 import syncAudiences from './syncAudiences'
 
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
-const destination: AudienceDestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Amazon Ads',
   slug: 'actions-amazon-ads',
   mode: 'cloud',
