@@ -115,7 +115,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           msgLowercare?.includes('exceeded the deadline') ||
           errorDetails.code?.toLowerCase().includes('etimedout')
         if (isTimeoutErrorInOnCatch) {
-          op.error = new RetryableError('Timeout error in on Catch, retrying...', 408)
+          op.error = new RetryableError('Timeout error throwing Retryable, retrying...')
         }
       }
     })

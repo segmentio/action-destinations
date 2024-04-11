@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { apiLookupActionFields } from '../../utils/apiLookups'
@@ -252,17 +252,6 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, executeInput) => {
-    // retry integration error comment comment comment
-    if (executeInput.statsContext?.tags) {
-      for (const item of executeInput.statsContext?.tags) {
-        if (item.includes('delivery_attempt')) {
-          const delivery_attempt = Number(item.split(':')[1])
-          if (delivery_attempt < 3) {
-            throw new IntegrationError('Retrying with Integration error', 'TIMEOUT_ERROR', 408)
-          }
-        }
-      }
-    }
     const performer = new SendEmailPerformer(request, executeInput)
     return performer.perform()
   }
