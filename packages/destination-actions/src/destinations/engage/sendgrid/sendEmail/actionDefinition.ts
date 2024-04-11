@@ -252,7 +252,7 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, executeInput) => {
-    // retry integration error
+    // retry integration error comment
     if (executeInput.statsContext?.tags) {
       for (const item of executeInput.statsContext?.tags) {
         if (item.includes('delivery_attempt')) {
