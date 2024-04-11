@@ -161,6 +161,7 @@ register('65f9885371de48a7a3f6b4bf', './yotpo')
 register('65f98869b73d65a27152e088', './mantle')
 register('65f9888628c310646331738a', './chartmogul')
 
+
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const definition = require(destinationPath).default

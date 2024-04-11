@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track"', 
   perform: (request, data) => {
     return request(`https://developers.yotpo.com/v2/${data.settings.store_id}/info`, {
       method: 'get'
