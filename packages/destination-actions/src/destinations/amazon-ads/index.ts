@@ -2,11 +2,10 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes, APIError } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
-import { AmazonAdsError } from './utils'
+import { AmazonAdsError, AudiencePayload } from './utils'
 
 import syncAudiences from './syncAudiences'
 
-// For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Amazon Ads',
   slug: 'actions-amazon-ads',
@@ -30,7 +29,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       advertiserId: {
         label: 'Advertiser ID',
         description: 'Advertiser Id',
-        type: 'number',
+        type: 'string',
         required: true
       }
     },
@@ -113,7 +112,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     externalAudienceId: {
       type: 'string',
-      label: 'External Audience Id.',
+      label: 'External Audience Id',
       required: true,
       description: 'The user-defined audience identifier.'
     },
@@ -142,25 +141,54 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { audienceName, statsContext } = createAudienceInput
-      const { statsClient, tags: statsTags } = statsContext || {}
       const endpoint = createAudienceInput.settings.region
-      const payload = {
+      const description = createAudienceInput.audienceSettings?.description
+      const advertiser_id = createAudienceInput.settings.advertiserId
+      const external_audience_id = createAudienceInput.audienceSettings?.externalAudienceId
+      const country_code = createAudienceInput.audienceSettings?.countryCode
+      const ttl = createAudienceInput.audienceSettings?.ttl
+      const currency = createAudienceInput.audienceSettings?.currency
+      const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
+
+      const { statsClient, tags: statsTags } = statsContext || {}
+
+      if (!description) {
+        throw new IntegrationError('Missing Description value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!external_audience_id) {
+        throw new IntegrationError('Missing External Audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!audienceName) {
+        throw new IntegrationError('Missing Audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const payload: AudiencePayload = {
         name: audienceName,
-        description: createAudienceInput.audienceSettings?.description,
-        countryCode: createAudienceInput.audienceSettings?.countryCode || '',
+        description: description,
         targetResource: {
-          advertiserId: createAudienceInput.settings.advertiserId
+          advertiserId: advertiser_id
         },
         metadata: {
-          externalAudienceId: createAudienceInput.audienceSettings?.externalAudienceId,
-          ttl: createAudienceInput.audienceSettings?.ttl || '',
-          audienceFees: [
-            {
-              cpmCents: createAudienceInput.audienceSettings?.cpmCents || '',
-              currency: createAudienceInput.audienceSettings?.currency || ''
-            }
-          ]
+          externalAudienceId: external_audience_id
         }
+      }
+
+      if (country_code) {
+        payload.countryCode = country_code
+      }
+
+      if (ttl) {
+        payload.metadata.ttl = ttl
+      }
+
+      if (cpm_cents && currency) {
+        payload.metadata.audienceFees = []
+        payload.metadata?.audienceFees.push({
+          currency,
+          cpmCents: cpm_cents
+        })
       }
 
       const statsName = 'createAudience'
@@ -168,14 +196,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       try {
+        let payloadString = JSON.stringify(payload)
+
+        // Regular expression to find a numeric string that should be a number
+        const regex = /"advertiserId":"(\d+)"/
+        // Replace the string with an unquoted number
+        payloadString = payloadString.replace(regex, '"advertiserId":$1')
+
         const response = await request(`${endpoint}/amc/audiences/metadata`, {
           method: 'POST',
-          json: payload
+          body: payloadString
         })
 
         const r = await response.json()
-
-        const externalId = r.data.audienceId
+        const externalId = r?.audienceId
 
         if (!externalId) {
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
@@ -187,9 +221,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId
         }
       } catch (e) {
-        const error = e as AmazonAdsError
-        const { message } = JSON.parse(error.response.data)
-        throw new APIError(message, error.response.status)
+        if (e instanceof AmazonAdsError) {
+          const message = JSON.parse(e.response?.data?.message || '')
+          throw new APIError(message, e.response?.status)
+        } else if (e instanceof IntegrationError) {
+          throw new APIError(e.message, 400)
+        } else {
+          throw e
+        }
       }
     },
     async getAudience(request, getAudienceInput) {
@@ -213,8 +252,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
 
         const r = await response.json()
-
-        const externalId = r.data.audienceId
+        const externalId = r?.audienceId
 
         if (externalId !== getAudienceInput.externalId) {
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
@@ -230,9 +268,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId
         }
       } catch (e) {
-        const error = e as AmazonAdsError
-        const { message } = JSON.parse(error.response.data)
-        throw new APIError(message, error.response.status)
+        if (e instanceof AmazonAdsError) {
+          const message = JSON.parse(e.response?.data?.message || '')
+          throw new APIError(message, e.response?.status)
+        } else if (e instanceof IntegrationError) {
+          throw new APIError(e.message, 400)
+        } else {
+          throw e
+        }
       }
     }
   },
