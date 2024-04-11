@@ -15,12 +15,12 @@ describe('XtremepushActionsDestination.identify', () => {
       nock('https://api.xtremepush.com').post('/api/integration/segment/handle').reply(200, {})
 
       const event = createTestEvent({
-        type: 'identify',
-        userId: 'TestUserID'
+        type: 'identify'
       })
 
       const responses = await testDestination.testAction('identify', {
         event,
+        useDefaultMappings: true,
         settings: {
           ...auth
         }

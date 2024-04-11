@@ -14,13 +14,11 @@ describe('Xtremepush Actions Destination', () => {
     it('should validate authentication inputs', async () => {
       nock('https://api.xtremepush.com').post('/api/integration/segment/handle').reply(200, {})
 
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'TestUserID'
-      })
+      const event = createTestEvent()
 
       const responses = await testDestination.testAction('identify', {
-        event,
+        event: event,
+        useDefaultMappings: true,
         settings: {
           ...auth
         }
@@ -54,8 +52,7 @@ describe('Xtremepush Actions Destination', () => {
       expect(testDestination.onDelete).toBeDefined()
       if (testDestination.onDelete) {
         const event = createTestEvent({
-          type: 'delete',
-          userId: 'userForDeleting'
+          type: 'delete'
         })
 
         await expect(testDestination.onDelete(event, auth)).resolves.not.toThrowError()

@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import identify from './identify'
@@ -27,19 +27,32 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   extendRequest: ({ settings }) => {
     return {
       headers: { Authorization: 'Basic ' + Buffer.from(settings.apiKey + ':').toString('base64') },
       responseType: 'json'
     }
   },
-
+  presets: [
+    {
+      name: 'Send Analytics Events',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Send User Profile Data',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     identify,
     track
   },
-
   onDelete: async (request, { settings, payload }) => {
     const host = settings.url.endsWith('/') ? settings.url.slice(0, -1) : settings.url;
 

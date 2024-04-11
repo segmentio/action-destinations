@@ -14,13 +14,11 @@ describe('XtremepushActionsDestination.track', () => {
     it('should work', async () => {
       nock('https://api.xtremepush.com').post('/api/integration/segment/handle').reply(200, {})
 
-      const event = createTestEvent({
-        type: 'track',
-        userId: 'TestUserID'
-      })
+      const event = createTestEvent()
 
       const responses = await testDestination.testAction('track', {
         event,
+        useDefaultMappings: true,
         settings: {
           ...auth
         }

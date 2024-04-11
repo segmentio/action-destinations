@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Xtremepush integration URL. You can find it at Xtremepush integration overview page
+   * Xtremepush integration URL can be found on the Xtremepush integration overview page
    */
   url: string
   /**
-   * Auth token for API. You can find it at Xtremepush integration overview page
+   * Auth token for API can be found on the Xtremepush integration overview page
    */
   apiKey: string
 }
