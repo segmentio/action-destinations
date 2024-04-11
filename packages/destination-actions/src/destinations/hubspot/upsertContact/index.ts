@@ -236,7 +236,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
- /* perform: async (request, { payload, transactionContext }) => {
+ perform: async (request, { payload, transactionContext }) => {
     const contactProperties = {
       company: payload.company,
       firstname: payload.firstname,
@@ -286,22 +286,13 @@ const action: ActionDefinition<Settings, Payload> = {
       throw ex
     }
   },
-*/
 
-  perform: async (request, { payload: p }) => {
+  performBatch: async (request, { payload: p }) => {
 
-/*     const p1 = {...p, email: 'external_id_type_1__1', identifier_type: 'external_id_type_1' }
-    const p2 = {...p, email: 'External ID Type 2  1', identifier_type: 'External ID Type 2' }
-    const p3 = {...p}  */
-
-    const p1 = {...p, email: 'main_email_1@gmail.com'}
-    //const p2 = {...p} 
-    const p2 = {...p, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1'}   
-
-    const p3 = {...p, email: 'monkeyman@example.org'}
-    
-
-    const payload = [p1,p2,p3]
+    //const p1 = {...p, email: 'main_email_1@gmail.com', lifecyclestage:'lead'}
+    //const p2 = {...p, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1', lifecyclestage:'Opportunity'}   
+    //const p3 = {...p, email: 'monkeyman@example.org', lifecyclestage:'lead'}
+    //const payload = [p1,p2,p3]
   
     const payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]> = new Map()
 
@@ -409,7 +400,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
 
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, payloadsByIdTypes)
+      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
     }
       
   }
@@ -495,48 +486,45 @@ async function updateContactsBatch(request: RequestClient, contactUpdatePayload:
 
 async function checkAndRetryUpdatingLifecycleStage(
   request: RequestClient,
-  updateContactResponse: BatchContactResponse,
-  payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]>
+  updateContactResponse: BatchContactResponse
 ) {
-  // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-  const resetLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
-  const retryLifeCycleStagePayload: ContactUpdateRequestPayload[] = []
+  
+  const results = updateContactResponse.data.results
+  const requests = JSON.parse(updateContactResponse.options.body).inputs
 
-  console.log(payloadsByIdTypes)
+  const differences: { id: string, properties: { lifecyclestage: string }}[] = [];
+  const differences_reset: { id: string, properties: { lifecyclestage: string }}[] = [];
+  
 
-  //console.log(JSON.stringify(payloadsByIdTypes, null, 2))
-
-  for (const result of updateContactResponse.data.results) {
-    //console.log(result)
-    const key = Object.keys(contactsUpsertMap).find((key) => contactsUpsertMap[key].payload.id == result.id)
-    const desiredLifeCycleStage = key ? contactsUpsertMap[key]?.payload?.properties?.lifecyclestage : null
-    
-    const currentLifeCycleStage = result.properties.lifecyclestage
-
-    if (desiredLifeCycleStage && desiredLifeCycleStage !== currentLifeCycleStage) {
-      resetLifeCycleStagePayload.push({
-        id: result.id,
-        properties: {
-          lifecyclestage: ''
+  results.forEach((result) => {
+    // Find corresponding item in the second array
+    const request = requests.find((req) => req.id === result.id);
+    if (request) {
+        // Compare lifecyclestage properties
+        if (result.properties.lifecyclestage !== request.properties.lifecyclestage) {
+            differences_reset.push({ 
+              id: request.id, 
+              properties: { 
+                lifecyclestage: ''
+              } 
+            });
+            differences.push({ 
+              id: request.id, 
+              properties: { 
+                lifecyclestage: request.properties.lifecyclestage
+              } 
+            });
         }
-      })
-
-      retryLifeCycleStagePayload.push({
-        id: result.id,
-        properties: {
-          lifecyclestage: desiredLifeCycleStage
-        }
-      })
     }
-  }
-  // Retry Life Cycle Stage Updates
- /*  if (retryLifeCycleStagePayload.length > 0) {
+  })
+
+  if (differences.length > 0) {
     // Reset Life Cycle Stage
-    await updateContactsBatch(request, resetLifeCycleStagePayload)
+    await updateContactsBatch(request, differences_reset as ContactUpdateRequestPayload[])
 
     // Set the new Life Cycle Stage
-    await updateContactsBatch(request, retryLifeCycleStagePayload)
-  } */
+    await updateContactsBatch(request, differences as ContactUpdateRequestPayload[])
+  }
 }
 
 export default action
