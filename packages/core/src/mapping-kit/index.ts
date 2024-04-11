@@ -6,6 +6,7 @@ import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
+import { flattenObject } from './flatten'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -223,6 +224,25 @@ registerDirective('@literal', (value, payload) => {
   return resolve(value, payload)
 })
 
+registerDirective('@flatten', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@flatten requires an object with a "separator" key')
+  }
+
+  if (!opts.separator) {
+    throw new Error('@flatten requires a "separator" key')
+  }
+
+  const separator = resolve(opts.separator, payload)
+  if (typeof separator !== 'string') {
+    throw new Error('@flatten requires a string separator')
+  }
+
+  const value = resolve(opts.value, payload)
+
+  return flattenObject(value, '', separator)
+})
+
 registerDirective('@json', (opts, payload) => {
   if (!isObject(opts)) {
     throw new Error('@json requires an object with a "value" key')
@@ -245,6 +265,29 @@ registerDirective('@json', (opts, payload) => {
     }
     return value
   }
+})
+
+registerDirective('@merge', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@merge requires an object with an "objects" key and a "direction" key')
+  }
+
+  if (!opts.direction) {
+    throw new Error('@merge requires a "direction" key')
+  }
+  const direction = resolve(opts.direction, payload)
+
+  if (!opts.objects) {
+    throw new Error('@merge requires a "objects" key')
+  }
+  if (!Array.isArray(opts.objects)) throw new Error(`@merge: expected opts.array, got ${typeof opts.objects}`)
+
+  const objects = opts.objects.map((v) => resolve(v, payload))
+  if (direction === 'left') {
+    objects.reverse()
+  }
+
+  return Object.assign({}, ...objects)
 })
 
 /**

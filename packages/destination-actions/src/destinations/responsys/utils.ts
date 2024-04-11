@@ -2,21 +2,29 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
-import { RequestClient, IntegrationError, PayloadValidationError, RetryableError, StatsContext } from '@segment/actions-core'
+import {
+  RequestClient,
+  IntegrationError,
+  PayloadValidationError,
+  RetryableError,
+  StatsContext
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 export const validateCustomTraits = ({
   profileExtensionTable,
-  timestamp, 
-  statsContext
+  timestamp,
+  statsContext,
+  retry
 }: {
   profileExtensionTable?: string
-  timestamp: string | number,
+  timestamp: string | number
   statsContext: StatsContext | undefined
+  retry?: boolean
 }): void => {
   const statsClient = statsContext?.statsClient
   const statsTag = statsContext?.tags
-  if (shouldRetry(timestamp)) {
+  if (retry && shouldRetry(timestamp)) {
     if (statsClient && statsTag) {
       statsClient?.incr('responsysShouldRetryTRUE', 1, statsTag)
     }
@@ -41,10 +49,8 @@ export const validateCustomTraits = ({
   }
 }
 
-const RETRY_MINUTES = 2
-
 export const shouldRetry = (timestamp: string | number): boolean => {
-  return (new Date().getTime() - new Date(timestamp).getTime()) / (1000 * 60) < RETRY_MINUTES
+  return (new Date().getTime() - new Date(timestamp).getTime()) / 1000 < 30
 }
 
 export const validateListMemberPayload = ({
@@ -89,9 +95,9 @@ export const sendCustomTraits = async (
       const traitValue = obj.computation_key
         ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
         : {}
-
-      userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
-
+      if (!userDataFieldNames.includes(obj.computation_key.toUpperCase() as unknown as string)) {
+        userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+      }
       return {
         ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
         ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
@@ -123,7 +129,6 @@ export const sendCustomTraits = async (
     matchColumnName1: settings.matchColumnName1,
     matchColumnName2: settings.matchColumnName2 || ''
   }
-
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
@@ -149,7 +154,7 @@ export const sendCustomTraits = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            properties: body,
+            properties: { body, responsysRequest: requestBody },
             anonymousId: '__responsys__API__response__'
           })
         }
@@ -227,7 +232,7 @@ export const upsertListMembers = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            properties: body,
+            properties: { body, responsysRequest: requestBody },
             anonymousId: '__responsys__API__response__'
           })
         }

@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
   description: 'Send data to Yotpo',
 
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       store_id: {
         label: 'Store ID',

@@ -75,7 +75,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName1: {
         label: 'First Column Match',
-        description: 'First match column for determining whether an insert or update should occur.',
+        description: `First match column for determining whether an insert or update should occur.
+                      An underscore (_) is implicitly appended to the match column name for the upsertListMember action.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },
@@ -90,7 +91,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName2: {
         label: 'Second Column Match',
-        description: 'Second match column for determining whether an insert or update should occur.',
+        description: `Second match column for determining whether an insert or update should occur.
+                      An underscore (_) is implicitly appended to the match column name for the upsertListMember action.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },

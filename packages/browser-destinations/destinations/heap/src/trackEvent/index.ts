@@ -78,6 +78,8 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
 
     if (browserArrayLimitSet) {
       eventProperties = heapTrackArrays(heap, eventName, eventProperties, browserArrayLimit)
+    } else {
+      eventProperties = flattenProperties(eventProperties)
     }
 
     heapTrack(heap, eventName, eventProperties)
