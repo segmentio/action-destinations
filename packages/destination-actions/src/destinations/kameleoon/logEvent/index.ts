@@ -6,8 +6,8 @@ import omit from 'lodash/omit'
 import { BASE_URL } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Send an event to Kameleoon',
+  title: 'Log Event',
+  description: 'Send a track event to Kameleoon',
   defaultSubscription: 'type = "track"',
   fields: {
     anonymousId: {
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The event name',
       label: 'Event Name',
       default: {

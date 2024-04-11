@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The event name
    */
-  event: string
+  event?: string
   /**
    * The type of the event
    */

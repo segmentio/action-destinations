@@ -29,7 +29,7 @@ describe('Kameleoon.identify', () => {
       id: CLIENT_ID,
       secret: CLIENT_SECRET
     }
-    const responses = await testDestination.testAction('track', {
+    const responses = await testDestination.testAction('identify', {
       event,
       settings: {
         apiKey: Buffer.from(JSON.stringify(apiKey)).toString('base64'),

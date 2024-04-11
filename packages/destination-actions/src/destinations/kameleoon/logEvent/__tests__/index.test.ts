@@ -10,7 +10,7 @@ const CLIENT_SECRET = 'CLIENT_SECRET'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Kameleoon.track', () => {
+describe('Kameleoon.logEvent', () => {
   it('should work', async () => {
     nock(BASE_URL).post('').reply(200, {})
 
@@ -91,7 +91,7 @@ describe('Kameleoon.track', () => {
       id: CLIENT_ID,
       secret: CLIENT_SECRET
     }
-    const responses = await testDestination.testAction('track', {
+    const responses = await testDestination.testAction('logEvent', {
       event,
       settings: {
         apiKey: Buffer.from(JSON.stringify(apiKey)).toString('base64'),

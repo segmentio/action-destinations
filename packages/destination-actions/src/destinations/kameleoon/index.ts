@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import track from './track'
+import logEvent from './logEvent'
 import identify from './identify'
 import group from './group'
 import page from './page'
@@ -13,8 +13,8 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
     subscribe: 'type = "track"',
-    partnerAction: 'track',
-    mapping: defaultValues(track.fields),
+    partnerAction: 'logEvent',
+    mapping: defaultValues(logEvent.fields),
     type: 'automatic'
   },
   {
@@ -79,7 +79,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    track,
+    logEvent,
     identify,
     group,
     page
