@@ -17,7 +17,9 @@ export interface Payload {
      * A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.
      */
     country_code?: string
-    measurements?: string
+    measurements?: {
+      [k: string]: unknown
+    }
     /**
      * List of hashed personally-identifiable information records to be matched with Amazon identities for future use. All inputs must be properly normalized and SHA-256 hashed.
      */

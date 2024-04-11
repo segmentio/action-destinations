@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         measurements: {
           label: 'Measurements',
-          type: 'string'
+          type: 'object'
         },
         hashedPII: {
           label: `hashed PII`,
@@ -101,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
-  if (payload.audienceId) {
+  if (!payload.audienceId) {
     throw new PayloadValidationError('Audience ID is required.')
   }
 
@@ -113,7 +113,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
     const r = await response.json()
 
-    const jobRequestId = r.data.jobRequestId
+    const jobRequestId = r?.jobRequestId
 
     if (!jobRequestId) {
       throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
@@ -123,9 +123,14 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
       jobRequestId
     }
   } catch (e) {
-    const error = e as AmazonAdsError
-    const { message } = JSON.parse(error.response.data)
-    throw new APIError(message, error.response.status)
+    if (e instanceof AmazonAdsError) {
+      const message = JSON.parse(e.response?.data?.message || '')
+      throw new APIError(message, e.response?.status)
+    } else if (e instanceof IntegrationError) {
+      throw new APIError(e.message, 400)
+    } else {
+      throw e
+    }
   }
 }
 
