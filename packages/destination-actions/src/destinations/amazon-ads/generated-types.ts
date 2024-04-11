@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * Advertiser Id
    */
-  advertiserId: number
+  advertiserId: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
