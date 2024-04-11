@@ -37,8 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    await sendData(request, settings, [payload])
-    return [payload]
+    return sendData(request, settings, [payload])
   },
   performBatch: async (request, { settings, payload }) => {
     await sendData(request, settings, payload)
