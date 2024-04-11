@@ -41,6 +41,7 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'US-06	(https://dashboard-06.braze.com)', value: 'https://rest.iad-06.braze.com' },
           { label: 'US-07	(https://dashboard-07.braze.com)', value: 'https://rest.iad-07.braze.com' },
           { label: 'US-08	(https://dashboard-08.braze.com)', value: 'https://rest.iad-08.braze.com' },
+          { label: 'US-09	(https://dashboard-09.braze.com)', value: 'https://rest.iad-09.braze.com' },
           { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
           { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' }
         ],

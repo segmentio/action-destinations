@@ -267,6 +267,29 @@ registerDirective('@json', (opts, payload) => {
   }
 })
 
+registerDirective('@merge', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@merge requires an object with an "objects" key and a "direction" key')
+  }
+
+  if (!opts.direction) {
+    throw new Error('@merge requires a "direction" key')
+  }
+  const direction = resolve(opts.direction, payload)
+
+  if (!opts.objects) {
+    throw new Error('@merge requires a "objects" key')
+  }
+  if (!Array.isArray(opts.objects)) throw new Error(`@merge: expected opts.array, got ${typeof opts.objects}`)
+
+  const objects = opts.objects.map((v) => resolve(v, payload))
+  if (direction === 'left') {
+    objects.reverse()
+  }
+
+  return Object.assign({}, ...objects)
+})
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
