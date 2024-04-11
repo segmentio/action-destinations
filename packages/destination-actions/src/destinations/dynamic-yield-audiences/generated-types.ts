@@ -22,11 +22,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Provide a name for your Audience which will display in Dynamic Yield. If left empty Segment will send the snake_cased Engage Audience name.
+   * Required: Provide a name for your Audience to be displayed in Dynamic Yield.
    */
   audience_name: string
-  /**
-   * Required: Provide a random unique ID for your Audience which will display in Dynamic Yield.
-   */
-  audience_id: string
 }

@@ -1,7 +1,7 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getCreateAudienceURL } from './helpers'
+import { getCreateAudienceURL, hashAndEncode } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import { IDENTIFIER_TYPES } from './constants'
 
@@ -15,14 +15,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Audience Name',
       required: true,
-      description:
-        'Provide a name for your Audience which will display in Dynamic Yield. If left empty Segment will send the snake_cased Engage Audience name.'
-    },
-    audience_id: {
-      type: 'string',
-      label: 'Audience ID',
-      required: true,
-      description: 'Required: Provide a random unique ID for your Audience which will display in Dynamic Yield.'
+      description: 'Required: Provide a name for your Audience to be displayed in Dynamic Yield.'
     }
   },
   authentication: {
@@ -83,7 +76,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const { settings , audienceName } = createAudienceInput
       const audienceSettings = createAudienceInput.audienceSettings as AudienceSettings
-      const { audience_id , audience_name} = audienceSettings
+      const { audience_name } = audienceSettings
        
       try {
         const response = await request(getCreateAudienceURL(settings.dataCenter), {
@@ -98,7 +91,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
                 api_key : settings.accessKey
               }
             },
-            audience_id : audience_id,
+            audience_id : hashAndEncode(audience_name),
             audience_name :  audience_name ?? audienceName,
             action : "add"
           }
@@ -111,7 +104,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       catch (e) {
         throw new IntegrationError("Failed to create Audience in Dynamic Yield", 'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED', 400)
       }
-    }
+    },
+    async getAudience(_, getAudienceInput) {
+      return {
+        // retrieves the value set by the createAudience() function call
+        externalId: getAudienceInput.externalId
+      }
+    },
   },
   actions: {
     syncAudience

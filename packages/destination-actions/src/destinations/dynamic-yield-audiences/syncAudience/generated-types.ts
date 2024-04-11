@@ -10,6 +10,10 @@ export interface Payload {
    */
   timestamp: string | number
   /**
+   * Unique Audience Identifier taken from the Segment Audience payload. This gets by the value returned from the createAudience() function call.
+   */
+  audience_id: string
+  /**
    * Segment Audience key / name
    */
   segment_audience_key: string

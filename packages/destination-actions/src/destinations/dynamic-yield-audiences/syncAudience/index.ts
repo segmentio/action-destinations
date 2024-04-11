@@ -30,6 +30,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@path': '$.timestamp'
       }
     },
+    audience_id: {
+      type: 'string',
+      label: 'Audience ID',
+      description: 'Unique Audience Identifier returned by the createAudience() function call.',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     segment_audience_key: {
       label: 'Audience Key',
       description: 'Segment Audience key / name',
@@ -101,9 +111,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
   perform: async (request, data) => {
     const { audienceSettings, payload, settings } = data  
-    const audienceName = audienceSettings?.audience_name ?? payload.segment_audience_key
-    
+    const audienceName = audienceSettings?.audience_name
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
+    const { audience_id } = payload
 
     let primaryIdentifier
 
@@ -145,7 +155,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
             value : hashAndEncode(primaryIdentifier)
           }],
           audiences : [ {
-            audience_id : audienceSettings?.audience_id,
+            audience_id : audience_id,
             audience_name : audienceName, 
             action : audienceValue ? "add" : "delete" 
           }]
