@@ -78,7 +78,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
           respError.code = errorCode
           errorDetails.code = errorCode
-          // retry if timeout error, needed for integrations
+          // needed for integrations to retry
           respError.retry = true
         }
 
