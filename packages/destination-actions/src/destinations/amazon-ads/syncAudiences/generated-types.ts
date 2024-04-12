@@ -8,15 +8,15 @@ export interface Payload {
     /**
      * This is an external user identifier defined by data providers.
      */
-    external_user_id: string
+    externalUserId: string
     /**
      * A specific key used to define action type.
      */
-    user_action: string
+    action: string
     /**
      * A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.
      */
-    country_code?: string
+    countryCode?: string
     measurements?: {
       [k: string]: unknown
     }
