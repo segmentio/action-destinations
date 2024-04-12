@@ -100,7 +100,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
-
     return await this.requestClient<Data>(url, options)
   }
 

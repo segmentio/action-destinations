@@ -4,7 +4,6 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinal
 export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
     onFinally: (() => void)[]
-    onCatch: (() => void)[]
     decoratorArgs?: {
       onTry?: (ctx: TContext) => void
       onFinally?: (ctx: TContext) => void
@@ -24,7 +23,6 @@ export class OperationFinallyHooks {
 
   static onTry<TContext extends TryCatchFinallyContext>(ctx: OperationFinallyHooksContext<TContext>) {
     ctx.onFinally = []
-    ctx.onCatch = []
     ctx.decoratorArgs?.onTry?.(ctx)
   }
 
