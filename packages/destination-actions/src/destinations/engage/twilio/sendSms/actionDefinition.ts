@@ -3,7 +3,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SmsMessageSender } from './SmsMessageSender'
-import { RetryableError } from '@segment/actions-core/*'
+import { RetryableError } from '@segment/actions-core'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
