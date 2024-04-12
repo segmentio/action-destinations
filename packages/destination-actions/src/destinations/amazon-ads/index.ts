@@ -205,7 +205,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
         const response = await request(`${endpoint}/amc/audiences/metadata`, {
           method: 'POST',
-          body: payloadString
+          body: payloadString,
+          headers: {
+            'Content-Type': 'application/vnd.amcaudiences.v1+json'
+          }
         })
 
         const r = await response.json()
@@ -254,7 +257,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const r = await response.json()
         const externalId = r?.audienceId
 
-        if (externalId !== getAudienceInput.externalId) {
+        if (externalId != getAudienceInput.externalId) {
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw new IntegrationError(
             "Unable to verify ownership over audience. Segment Audience ID doesn't match Amazon Ads ID.",

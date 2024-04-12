@@ -3,6 +3,7 @@ import { PayloadValidationError, IntegrationError, APIError } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AmazonAdsError } from '../utils'
+import * as crypto from 'crypto'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -16,13 +17,13 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       required: true,
       properties: {
-        external_user_id: {
+        externalUserId: {
           label: 'External User ID',
           description: 'This is an external user identifier defined by data providers.',
           type: 'string',
           required: true
         },
-        user_action: {
+        action: {
           label: 'User Action',
           description: 'A specific key used to define action type.',
           type: 'string',
@@ -34,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
           ],
           default: 'AUTO'
         },
-        country_code: {
+        countryCode: {
           label: 'Country Code',
           description: 'A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.',
           type: 'string'
@@ -106,21 +107,32 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   }
 
   try {
+    for (const data of payload.records) {
+      for (const obj of data.hashedPII) {
+        for (const key in obj) {
+          obj[key] = await normalizeAndHash(obj[key])
+          console.log(`Key: ${key}, Value: ${obj[key]}`)
+        }
+      }
+    }
+
     const response = await request(`${settings.region}/amc/audiences/records`, {
       method: 'POST',
-      json: payload
+      json: payload,
+      headers: {
+        'Content-Type': 'application/vnd.amcaudiences.v1+json'
+      }
     })
 
-    const r = await response.json()
-
-    const jobRequestId = r?.jobRequestId
+    const result = await response.json()
+    const jobRequestId = result?.jobRequestId
 
     if (!jobRequestId) {
       throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
     }
 
     return {
-      jobRequestId
+      result
     }
   } catch (e) {
     if (e instanceof AmazonAdsError) {
@@ -132,6 +144,15 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
       throw e
     }
   }
+}
+
+async function normalizeAndHash(data: string) {
+  // Normalize the data
+  const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
+  // Hash the normalized data using SHA-256
+  const sha256Hash = crypto.createHash('sha256').update(normalizedData).digest('hex')
+
+  return sha256Hash
 }
 
 export default action
