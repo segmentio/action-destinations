@@ -16,6 +16,7 @@ export interface ResponseError extends HTTPError {
   }
   code?: string
   status?: number
+  retry?: boolean
 }
 
 export interface ErrorDetails {
@@ -37,7 +38,7 @@ export function getErrorDetails(error: any): ErrorDetails {
 
   const code = respError.code || respError.response?.data?.code
   // || respError.response?.statusText // e.g. 'Not Found' for 404
-  
+
   const message = [
     respError.name || respError.constructor?.name,
     respError.message,
