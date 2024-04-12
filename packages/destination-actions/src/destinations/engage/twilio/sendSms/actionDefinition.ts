@@ -3,7 +3,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SmsMessageSender } from './SmsMessageSender'
-import { RetryableError } from '@segment/actions-core/*'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
@@ -160,9 +159,6 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (data) {
-      throw new RetryableError('test', 408)
-    }
     return new SmsMessageSender(request, data).perform()
   }
 }
