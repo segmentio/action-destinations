@@ -110,8 +110,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     for (const data of payload.records) {
       for (const obj of data.hashedPII) {
         for (const key in obj) {
-          obj[key] = await normalizeAndHash(obj[key])
-          console.log(`Key: ${key}, Value: ${obj[key]}`)
+          obj[key as keyof typeof obj] = await normalizeAndHash(obj[key as keyof typeof obj] ?? '')
         }
       }
     }
