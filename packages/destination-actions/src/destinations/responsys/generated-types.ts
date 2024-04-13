@@ -35,10 +35,12 @@ export interface Settings {
   insertOnNoMatch: boolean
   /**
    * First match column for determining whether an insert or update should occur.
+   *                       An underscore (_) is implicitly appended to the match column name for the upsertListMember action.
    */
   matchColumnName1: string
   /**
    * Second match column for determining whether an insert or update should occur.
+   *                       An underscore (_) is implicitly appended to the match column name for the upsertListMember action.
    */
   matchColumnName2?: string
   /**

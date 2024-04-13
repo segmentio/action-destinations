@@ -71,6 +71,13 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }
+    },
+    context: {
+      type: 'object',
+      label: 'Context',
+      description: 'Device context',
+      required: false,
+      default: { '@path': '$.context' }
     }
   },
   perform: async (ripe, { payload }) => {
@@ -81,7 +88,8 @@ const action: BrowserActionDefinition<Settings, RipeSDK, Payload> = {
       groupId: payload.groupId,
       category: payload.category,
       name: payload.name,
-      properties: payload.properties
+      properties: payload.properties,
+      context: payload.context
     })
   }
 }

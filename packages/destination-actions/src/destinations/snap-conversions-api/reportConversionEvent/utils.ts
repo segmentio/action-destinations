@@ -11,21 +11,7 @@ export const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const transformProperty = (
-  property: string,
-  items: Array<Record<string, string | number | undefined>>
-): string =>
-  items
-    .map((i) =>
-      i[property] === undefined || i[property] === null
-        ? ''
-        : typeof i[property] === 'number'
-        ? (i[property] as number).toString()
-        : (i[property] as string).toString().replace(/;/g, '')
-    )
-    .join(';')
+const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
 export const hashEmailSafe = (email: string | undefined): string | undefined =>
   isHashedEmail(String(email)) ? email : hash(email)
