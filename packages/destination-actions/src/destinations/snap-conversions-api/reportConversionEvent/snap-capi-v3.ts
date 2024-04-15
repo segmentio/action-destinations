@@ -628,7 +628,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   const user_data = buildUserData(payload)
   const custom_data = buildCustomData(payload)
 
-  const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : []
+  const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : undefined
 
   return {
     integration: 'segment',
