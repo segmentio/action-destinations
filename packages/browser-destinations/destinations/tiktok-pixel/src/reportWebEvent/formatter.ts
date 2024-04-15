@@ -16,3 +16,8 @@ export function formatPhone(phone: string | undefined): string | undefined {
   formattedPhone = formattedPhone.substring(0, 15)
   return formattedPhone
 }
+
+export function handleArrayInput(array: string[] | undefined): string {
+  if (!array || array.length == 0) return ''
+  return array[0]
+}
