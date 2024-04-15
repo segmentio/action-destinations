@@ -156,6 +156,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const { statsClient, tags: statsTags } = statsContext || {}
 
+      if (!advertiser_id) {
+        throw new IntegrationError('Missing advertiserId value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       if (!description) {
         throw new IntegrationError('Missing Description value', 'MISSING_REQUIRED_FIELD', 400)
       }
