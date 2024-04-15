@@ -14,7 +14,7 @@ export interface AudiencePayload {
   description: string
   countryCode?: string
   targetResource: {
-    advertiserId: number
+    advertiserId: string
   }
   metadata: {
     externalAudienceId: string

@@ -25,12 +25,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         default: 'https://advertising-api.amazon.com',
         type: 'string',
         required: true
-      },
-      advertiserId: {
-        label: 'Advertiser ID',
-        description: 'Advertiser Id',
-        type: 'string',
-        required: true
       }
     },
     testAuthentication: async (request, { auth }) => {
@@ -131,6 +125,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Time-to-live',
       required: false,
       description: 'Time-to-live in seconds. The amount of time the record is associated with the audience.'
+    },
+    //As per the discussion, for now taking `advertiserId` in `audienceFields` as user can create multiple audiences within a single instance of destination.
+    advertiserId: {
+      label: 'Advertiser ID',
+      description: 'Advertiser Id',
+      type: 'string',
+      required: true
     }
   },
 
@@ -143,7 +144,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, statsContext } = createAudienceInput
       const endpoint = createAudienceInput.settings.region
       const description = createAudienceInput.audienceSettings?.description
-      const advertiser_id = createAudienceInput.settings.advertiserId
+      const advertiser_id = createAudienceInput.audienceSettings?.advertiserId
       const external_audience_id = createAudienceInput.audienceSettings?.externalAudienceId
       const country_code = createAudienceInput.audienceSettings?.countryCode
       const ttl = createAudienceInput.audienceSettings?.ttl
