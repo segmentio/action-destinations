@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, IntegrationError, DynamicFieldResponse } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, DynamicFieldResponse, HTTPError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
@@ -34,11 +34,6 @@ interface ContactSuccessResponse {
   properties: Record<string, string | null>
 }
 
-interface ContactIdentifierRequestBody {
-  id: string
-  properties: Record<string, string | null>
-}
-
 interface ContactErrorResponse {
   status: string
   category: string
@@ -54,10 +49,18 @@ export interface ContactBatchResponse {
   results: ContactSuccessResponse[]
   numErrors?: number
   errors?: ContactErrorResponse[]
+  options: {
+    body: string,
+    [key: string]: unknown
+  }
 }
 
 export interface BatchContactResponse {
-  data: ContactBatchResponse
+  data: ContactBatchResponse,
+  options: {
+    body: string,
+    [key: string]: unknown
+  }
 }
 export interface BatchContactResponseWithIdProperty {
   data: ContactBatchResponse,
@@ -68,12 +71,8 @@ export interface BatchContactResponseWithIdProperty {
   }
 }
 interface ContactsUpsertMapItem {
-  action: 'create' | 'update' | 'undefined'
-  payload: {
-    id?: string,
-    identifier_type?: string | undefined,
-    properties: ContactProperties
-  }
+  id?: string,
+  properties: ContactProperties
 }
 interface ContactField {
   label: string;
@@ -94,9 +93,9 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     /* 
-      Ideally this field shouldn't be named email as it allows for any identify value to be provided. 
+      Ideally the email field shouldn't be named email as it allows for any identify value to be provided. 
       The ability to provide Hubspot with any identifier type was added after this field was defined.
-      It was decided that the email fiels would remain in place, rather than needing to run a DB migration  
+      It was decided that the email field would remain in place, rather than needing to run a DB migration  
     */ 
     email: {
       label: 'Identifier Value',
@@ -235,8 +234,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return getContactIdentifierTypes(request)
     }
   },
-
- perform: async (request, { payload, transactionContext }) => {
+  perform: async (request, { payload, transactionContext }) => {
     const contactProperties = {
       company: payload.company,
       firstname: payload.firstname,
@@ -286,82 +284,56 @@ const action: ActionDefinition<Settings, Payload> = {
       throw ex
     }
   },
-
-  performBatch: async (request, { payload: p }) => {
+  performBatch: async (request, { payload }) => {
 
     //const p1 = {...p, email: 'main_email_1@gmail.com', lifecyclestage:'lead'}
     //const p2 = {...p, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1', lifecyclestage:'Opportunity'}   
     //const p3 = {...p, email: 'monkeyman@example.org', lifecyclestage:'lead'}
     //const payload = [p1,p2,p3]
   
-    const payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]> = new Map()
+    const payloadsByIdTypes = chunkPayloadsByIdType(payload)
+    const readResponses = await getCanonicalIdentifiers(request, payloadsByIdTypes)
+    const { createList, updateList } = buildUpsertPayloadLists(readResponses, payloadsByIdTypes)
 
-    payload.map(p => {
-      const identifierType = p.identifier_type ?? 'email'
-      const contactsUpsertMapItem = {
-        action: 'undefined',
-        payload: {
-          id: identifierType == 'email' ? p.email.toLowerCase(): p.email,
-          identifier_type: identifierType,
-          properties: {
-            company: p.company,
-            firstname: p.firstname,
-            lastname: p.lastname,
-            phone: p.phone,
-            address: p.address,
-            city: p.city,
-            state: p.state,
-            country: p.country,
-            zip: p.zip,
-            [identifierType]: p.email ?? undefined,
-            website: p.website,
-            lifecyclestage: p.lifecyclestage?.toLowerCase(),
-            ...flattenObject(p.properties)
-          } as ContactProperties
-        }
-      } as ContactsUpsertMapItem
+    // Create contacts that don't exist in HubSpot
+    if (createList.length > 0) {
+      await createContactsBatch(request, createList)
+    }
 
-      const items = payloadsByIdTypes.get(identifierType);
+    if (updateList.length > 0) {
+      // Update contacts that already exist in HubSpot
+      const updateContactResponse = await updateContactsBatch(request, updateList)
 
-      if (items) {
-        items.push(contactsUpsertMapItem)
-      } else {
-        payloadsByIdTypes.set(identifierType, [contactsUpsertMapItem])
-      }
-    })
+      // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
+      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
+    }
+  }
+}
 
-    const requests: any[] = []
-
-    payloadsByIdTypes.forEach((contactsUpsertMapItem, identifierType) => {
-      requests.push(readContactsBatch(request, contactsUpsertMapItem.map(item => item.payload.id as string), identifierType))
-    })
-
-    const readResponses = await Promise.all(requests) as BatchContactResponseWithIdProperty[];
-
+function buildUpsertPayloadLists(
+  readResponses: ModifiedResponse<BatchContactResponseWithIdProperty>[] , 
+  payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]>){
 
     const createList: ContactCreateRequestPayload[] = []
     const updateList: ContactUpdateRequestPayload[] = []
 
-    // iterate through responses by id type
     readResponses.forEach((response) => {
-      
-      const identifierType = response.options.json.idProperty
-      const results = response.data.results ?? [] 
-      const errors = response.data.errors ?? [] 
+      const identifierType = response.data.options.json.idProperty
+      const results = response.data.data.results ?? [] 
+      const errors = response.data.data.errors ?? [] 
       const payloadsByIdType = payloadsByIdTypes.get(identifierType)
 
       // Iterate through Contacts which were found in Hubspot. These will be updated.
       results.forEach((result) => {
-        const contactsUpsertMapItem: ContactsUpsertMapItem | undefined = payloadsByIdType?.find((c) => {
-          return c.payload.id == result.properties[identifierType]
+        const contactsUpsertMapItem: ContactsUpsertMapItem | undefined = payloadsByIdType?.find((payload) => {
+          return payload.id == result.properties[identifierType]
         })
         if(contactsUpsertMapItem){
-          delete contactsUpsertMapItem.payload.properties['email']
+          delete contactsUpsertMapItem.properties['email']
           updateList.push({
             id: result.id,
-            properties: contactsUpsertMapItem.payload.properties
+            properties: contactsUpsertMapItem.properties
           })
-          contactsUpsertMapItem.id_from_hubspot = result.id
         } else {
           throw new IntegrationError(`Problem with Contact search respond data from Hubspot for Contact with identifier ${result.id} of type ${identifierType}.`, 'HUBSPOT_DATA_MISMATCH', 400)
         }
@@ -371,12 +343,12 @@ const action: ActionDefinition<Settings, Payload> = {
       errors.forEach((error) => {
         if(error.category === 'OBJECT_NOT_FOUND' && error.status === 'error'){
           error.context.ids.forEach((id) => {
-            const contactsUpsertMapItem: ContactsUpsertMapItem | undefined = payloadsByIdType?.find((c) => {
-              return c.payload.id == id
+            const contactsUpsertMapItem: ContactsUpsertMapItem | undefined = payloadsByIdType?.find((payload) => {
+              return payload.id == id
             })
             if(contactsUpsertMapItem){
               createList.push({
-                properties: contactsUpsertMapItem.payload.properties
+                properties: contactsUpsertMapItem.properties
               })
             } else {
               throw new IntegrationError(`Problem with Contact search respond data from Hubspot for Contact with identifier ${id} of type ${identifierType}.`, 'HUBSPOT_DATA_MISMATCH', 400)
@@ -387,27 +359,61 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     })
-
-    // Create contacts that don't exist in HubSpot
-    if (createList.length > 0) {
-      await createContactsBatch(request, createList)
-    }
-
-    if (updateList.length > 0) {
-      // Update contacts that already exist in HubSpot
-      const updateContactResponse = await updateContactsBatch(request, updateList)
-      //console.log(JSON.stringify(updateContactResponse, null, 2))
-
-
-      // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
-    }
-      
-  }
-
+    return { createList, updateList }
 }
 
-export const getContactIdentifierTypes = async (request: RequestClient): Promise<DynamicFieldResponse> => {
+async function getCanonicalIdentifiers(request: RequestClient, payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]>){
+  
+  const requests: Promise<ModifiedResponse<BatchContactResponseWithIdProperty>>[] = [];
+
+  payloadsByIdTypes.forEach((contactsUpsertMapItem, identifierType) => {
+    requests.push(readContactsBatch(request, contactsUpsertMapItem.map(payload => payload.id as string), identifierType))
+  })
+
+  const responses: ModifiedResponse<BatchContactResponseWithIdProperty>[] = await Promise.all(requests);
+  return responses
+} 
+
+function chunkPayloadsByIdType(payloads: Payload[]): Map<string, ContactsUpsertMapItem[]> {
+  
+  const payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]> = new Map()
+
+  payloads.map(payload => {
+    const { company, firstname, lastname, phone, address, city, state, country, zip, email, website, identifier_type, lifecyclestage, properties } = payload
+    const identifierType = identifier_type ?? 'email'
+    const contactsUpsertMapItem = {
+        // p.email is used as the identifier value. It may not be an email address if the user selects a different identifier type
+        id: identifierType == 'email' ? email.toLowerCase(): email,
+        properties: {
+          company,
+          firstname,
+          lastname,
+          phone,
+          address,
+          city,
+          state,
+          country,
+          zip,
+          [identifierType]: email ?? undefined,
+          website,
+          lifecyclestage: lifecyclestage?.toLowerCase() ?? undefined,
+          ...flattenObject(properties)
+        } as ContactProperties
+      } as ContactsUpsertMapItem
+
+    const items = payloadsByIdTypes.get(identifierType);
+
+    if (items) {
+      items.push(contactsUpsertMapItem)
+    } else {
+      payloadsByIdTypes.set(identifierType, [contactsUpsertMapItem])
+    }
+  })
+
+  return payloadsByIdTypes
+}
+
+async function getContactIdentifierTypes(request: RequestClient): Promise<DynamicFieldResponse> {
 
   const contactFields: ContactsFieldsResponse = await request(`${HUBSPOT_BASE_URL}/crm/v3/properties/contacts`, {
     method: 'GET',
@@ -450,7 +456,7 @@ async function updateContact(request: RequestClient, payload: Payload, propertie
   })
 }
 
-async function readContactsBatch(request: RequestClient, identifiers: string[], identifierType: string) {
+async function readContactsBatch(request: RequestClient, identifiers: string[], identifierType: string): Promise<ModifiedResponse<BatchContactResponseWithIdProperty>> {
   const requestPayload = {
     // ensure we request email and any other identifier type property
     properties: [...new Set([...['email', 'lifecyclestage'], ...[identifierType]])],
@@ -460,7 +466,7 @@ async function readContactsBatch(request: RequestClient, identifiers: string[], 
     }))
   }
 
-  return request<ContactBatchResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/read`, {
+  return request<BatchContactResponseWithIdProperty>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/read`, {
     method: 'POST',
     json: requestPayload
   })
@@ -484,24 +490,20 @@ async function updateContactsBatch(request: RequestClient, contactUpdatePayload:
   })
 }
 
-async function checkAndRetryUpdatingLifecycleStage(
-  request: RequestClient,
-  updateContactResponse: BatchContactResponse
-) {
+async function checkAndRetryUpdatingLifecycleStage(request: RequestClient, updateContactResponse: ModifiedResponse<ContactBatchResponse>){
   
   const results = updateContactResponse.data.results
-  const requests = JSON.parse(updateContactResponse.options.body).inputs
+  const requests: ContactUpdateRequestPayload[] = JSON.parse(updateContactResponse.options.body).inputs
 
   const differences: { id: string, properties: { lifecyclestage: string }}[] = [];
   const differences_reset: { id: string, properties: { lifecyclestage: string }}[] = [];
   
-
   results.forEach((result) => {
     // Find corresponding item in the second array
     const request = requests.find((req) => req.id === result.id);
     if (request) {
         // Compare lifecyclestage properties
-        if (result.properties.lifecyclestage !== request.properties.lifecyclestage) {
+        if (!Object.is(result.properties.lifecyclestage,request.properties.lifecyclestage)) {
             differences_reset.push({ 
               id: request.id, 
               properties: { 
@@ -511,7 +513,7 @@ async function checkAndRetryUpdatingLifecycleStage(
             differences.push({ 
               id: request.id, 
               properties: { 
-                lifecyclestage: request.properties.lifecyclestage
+                lifecyclestage: request.properties.lifecyclestage as string
               } 
             });
         }
