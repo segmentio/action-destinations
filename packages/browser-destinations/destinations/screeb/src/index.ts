@@ -1,6 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
+import { ID } from '@segment/analytics-next'
 import { Screeb } from './types'
 import { defaultValues } from '@segment/actions-core'
 import identify from './identify'
@@ -59,7 +60,7 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     }
   ],
 
-  initialize: async ({ settings }, deps) => {
+  initialize: async ({ settings, analytics }, deps) => {
     const preloadFunction = function (...args: unknown[]) {
       if (window.$screeb.q) {
         window.$screeb.q.push(args)
@@ -71,7 +72,12 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     await deps.loadScript('https://t.screeb.app/tag.js')
     await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
 
-    window.$screeb('init', settings.websiteId)
+    let visitorId: ID = null
+    if (analytics.user().id()) {
+      visitorId = analytics.user().id()
+    }
+
+    window.$screeb('init', settings.websiteId, { identity: { id: visitorId } })
 
     return window.$screeb
   },
