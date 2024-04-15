@@ -4,9 +4,11 @@ import { TryCatchFinallyContext, TryCatchFinallyHook } from './wrapTryCatchFinal
 export type OperationFinallyHooksContext<TContext extends TryCatchFinallyContext = TryCatchFinallyContext> =
   TContext & {
     onFinally: (() => void)[]
+    onCatch: (() => void)[]
     decoratorArgs?: {
       onTry?: (ctx: TContext) => void
       onFinally?: (ctx: TContext) => void
+      onCatch?: (ctx: TContext) => void
     }
   }
 
@@ -23,6 +25,7 @@ export class OperationFinallyHooks {
 
   static onTry<TContext extends TryCatchFinallyContext>(ctx: OperationFinallyHooksContext<TContext>) {
     ctx.onFinally = []
+    ctx.onCatch = []
     ctx.decoratorArgs?.onTry?.(ctx)
   }
 
@@ -35,6 +38,19 @@ export class OperationFinallyHooks {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const loggerCtx = ctx as Partial<OperationLoggerContext>
         if (loggerCtx.logs) loggerCtx.logs.push(`Error in onFinally hook: ${error?.message || error.toString()}`)
+      }
+    }
+    ctx.decoratorArgs?.onFinally?.(ctx)
+  }
+  static onCatch<TContext extends TryCatchFinallyContext>(ctx: OperationFinallyHooksContext<TContext>) {
+    for (const hook of ctx.onCatch) {
+      try {
+        hook()
+      } catch (e) {
+        const error = e as Error
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const loggerCtx = ctx as Partial<OperationLoggerContext>
+        if (loggerCtx.logs) loggerCtx.logs.push(`Error in onCatch hook: ${error?.message || error.toString()}`)
       }
     }
     ctx.decoratorArgs?.onFinally?.(ctx)

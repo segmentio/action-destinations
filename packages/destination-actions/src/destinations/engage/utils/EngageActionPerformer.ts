@@ -12,6 +12,7 @@ import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited } from './operationTracking'
 import truncate from 'lodash/truncate'
+import { RetryableError } from '@segment/actions-core'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -51,7 +52,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   @track({
     onTry: addUrlToLog,
-    onFinally: addUrlToLog
+    onFinally: addUrlToLog,
+    onCatch: addUrlToLog
   })
   async request<Data = unknown>(url: string, options?: RequestOptions) {
     const op = this.currentOperation
@@ -78,7 +80,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
           respError.code = errorCode
           errorDetails.code = errorCode
-          respError.retry = true
         }
 
         if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
@@ -100,6 +101,25 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
+    op?.onCatch.push(() => {
+      // log response from error or success
+      const respError = op?.error as ResponseError
+      if (respError) {
+        const errorDetails = getErrorDetails(respError)
+        const msgLowercare = errorDetails?.message?.toLowerCase()
+
+        // some Timeout errors are coming as FetchError-s somehow (https://segment.atlassian.net/browse/CHANNELS-819)
+        const isTimeoutErrorInOnCatch =
+          msgLowercare?.includes('timeout') ||
+          msgLowercare?.includes('timedout') ||
+          msgLowercare?.includes('exceeded the deadline') ||
+          errorDetails.code?.toLowerCase().includes('etimedout')
+        if (isTimeoutErrorInOnCatch) {
+          op.error = new RetryableError('Timeout error in onCatch')
+        }
+      }
+    })
+
     return await this.requestClient<Data>(url, options)
   }
 
