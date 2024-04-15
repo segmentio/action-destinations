@@ -17,7 +17,11 @@ export function formatPhone(phone: string | undefined): string | undefined {
   return formattedPhone
 }
 
-export function handleArrayInput(array: string[] | undefined): string {
-  if (!array || array.length == 0) return ''
-  return array[0]
+export function handleArrayInput(mightBeArray: string[] | string | undefined): string {
+  if(typeof mightBeArray === 'string') return mightBeArray
+  if(typeof mightBeArray === 'undefined') return ''
+  if(Array.isArray(mightBeArray)){
+    return mightBeArray.length>0 ? mightBeArray[0]: ''
+  }
+  return ''
 }
