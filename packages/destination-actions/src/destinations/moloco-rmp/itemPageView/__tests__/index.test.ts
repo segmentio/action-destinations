@@ -16,7 +16,7 @@ describe('MolocoMCM.itemPageView', () => {
           price: 100,
           currency: 'USD',
           quantity: 1,
-          sellerId: 'seller123'
+          sellerId: 'seller123',
         }
       }
     })
@@ -26,7 +26,7 @@ describe('MolocoMCM.itemPageView', () => {
       settings: {
         platformId: 'foo',
         apiKey: 'bar',
-        channel_type: 'SITE'
+        channel_type: 'SITE',
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
@@ -51,7 +51,7 @@ describe('MolocoMCM.itemPageView', () => {
           }
         ]
       },
-      useDefaultMappings: true
+      useDefaultMappings: true,
     })
 
     expect(responses.length).toBe(1)
@@ -73,37 +73,36 @@ describe('MolocoMCM.itemPageView', () => {
       }
     })
 
-    await expect(
-      testDestination.testAction('itemPageView', {
-        event,
-        settings: {
-          platformId: 'foo',
-          apiKey: 'bar',
-          channel_type: 'SITE'
-        },
-        mapping: {
-          // items: [
-          //   {
-          //     id: {
-          //       '@path': '$.properties.item.id'
-          //     },
-          //     price: {
-          //       '@path': '$.properties.item.price'
-          //     },
-          //     currency: {
-          //       '@path': '$.properties.item.currency'
-          //     },
-          //     quantity: {
-          //       '@path': '$.properties.item.quantity'
-          //     },
-          //     sellerId: {
-          //       '@path': '$.properties.item.sellerId'
-          //     }
-          //   }
-          // ] -- missing required field
-        },
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(AggregateAjvError)
+    await expect(testDestination.testAction('itemPageView', {
+      event,
+      settings: {
+        platformId: 'foo',
+        apiKey: 'bar',
+        channel_type: 'SITE',
+      },
+      mapping: {
+        // items: [
+        //   {
+        //     id: {
+        //       '@path': '$.properties.item.id'
+        //     },
+        //     price: {
+        //       '@path': '$.properties.item.price'
+        //     },
+        //     currency: {
+        //       '@path': '$.properties.item.currency'
+        //     },
+        //     quantity: {
+        //       '@path': '$.properties.item.quantity'
+        //     },
+        //     sellerId: {
+        //       '@path': '$.properties.item.sellerId'
+        //     }
+        //   }
+        // ] -- missing required field
+      },
+      useDefaultMappings: true,
+    })).rejects.toThrowError(AggregateAjvError)
   })
+
 })

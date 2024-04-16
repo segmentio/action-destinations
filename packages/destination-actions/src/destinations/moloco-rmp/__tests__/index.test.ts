@@ -18,6 +18,7 @@ const AUTH = {
   channel_type: 'SITE'
 }
 
+
 describe('Moloco MCM', () => {
   // TEST 1: Test the default mappings. The input event data are automatically collected fields
   // Custom mapping options are not provided so the default mappings are used
@@ -55,9 +56,9 @@ describe('Moloco MCM', () => {
             url: 'https://segment.com/academy/'
           },
           userAgent:
-            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -67,19 +68,19 @@ describe('Moloco MCM', () => {
         user_id: webEvent.userId,
         device: {
           ua: webEvent.context.userAgent,
-          ip: webEvent.context.ip
+          ip: webEvent.context.ip,
         },
         session_id: webEvent.anonymousId,
-        page_id: webEvent.context.page.path
+        page_id: webEvent.context.page.path,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: webEvent,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          channel_type: 'SITE'
-        }
+          channel_type: 'SITE',
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -108,7 +109,7 @@ describe('Moloco MCM', () => {
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'ios',
@@ -117,7 +118,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Apple',
             model: 'iPhone',
-            name: 'iPhone'
+            name: 'iPhone',
           },
           library: {
             name: 'analytics.iOS',
@@ -139,9 +140,9 @@ describe('Moloco MCM', () => {
             width: 750
           },
           traits: {},
-          timezone: 'America/Los_Angeles'
+          timezone: 'America/Los_Angeles',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -155,18 +156,18 @@ describe('Moloco MCM', () => {
           model: iosEvent.context.device.model,
           os: iosEvent.context.os.name.toUpperCase(),
           os_version: iosEvent.context.os.version,
-          unique_device_id: iosEvent.context.device.id
+          unique_device_id: iosEvent.context.device.id,
         },
-        session_id: iosEvent.anonymousId
+        session_id: iosEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: iosEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
-          channel_type: 'APP'
-        }
+          channel_type: 'APP',
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -195,7 +196,7 @@ describe('Moloco MCM', () => {
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -204,7 +205,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -216,7 +217,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -228,11 +229,10 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
-          timezone: 'America/Los_Angeles'
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -247,18 +247,18 @@ describe('Moloco MCM', () => {
           os: androidEvent.context.os.name.toUpperCase(),
           os_version: androidEvent.context.os.version,
           ua: androidEvent.context.userAgent,
-          unique_device_id: androidEvent.context.device.id
+          unique_device_id: androidEvent.context.device.id,
         },
-        session_id: androidEvent.anonymousId
+        session_id: androidEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: androidEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
-          channel_type: 'APP'
-        }
+          channel_type: 'APP',
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -295,9 +295,9 @@ describe('Moloco MCM', () => {
             url: 'https://segment.com/academy/'
           },
           userAgent:
-            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -306,27 +306,29 @@ describe('Moloco MCM', () => {
         channel_type: 'SITE',
         user_id: event.userId,
         device: {
-          ua: event.context.userAgent
+          ua: event.context.userAgent,
           // ip: event.context.ip, -- absent even though there is a default mapping for it
         },
         session_id: event.anonymousId,
-        page_id: event.context.page.path
+        page_id: event.context.page.path,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: event,
         settings: AUTH,
         useDefaultMappings: true,
         mapping: {
-          channel_type: 'SITE'
-        }
+          channel_type: 'SITE',
+        },
       })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
+
   })
+
 
   // TEST 2: Test the custom mappings. The input event data are automatically collected fields
   // Custom mapping options are provided so the default mappings are not used
@@ -364,9 +366,9 @@ describe('Moloco MCM', () => {
             url: 'https://segment.com/academy/'
           },
           userAgent:
-            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -376,12 +378,12 @@ describe('Moloco MCM', () => {
         user_id: event.userId,
         device: {
           ua: event.context.userAgent,
-          ip: event.context.ip
+          ip: event.context.ip,
         },
         session_id: event.anonymousId,
-        page_id: event.context.page.path
+        page_id: event.context.page.path,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: event,
         settings: AUTH,
@@ -389,7 +391,7 @@ describe('Moloco MCM', () => {
         mapping: {
           channel_type: 'SITE',
           event_id: { '@path': '$.eventId' }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -427,9 +429,9 @@ describe('Moloco MCM', () => {
             url: 'https://segment.com/academy/'
           },
           userAgent:
-            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            'Mozilla/5.0 (Chrome; intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -439,12 +441,12 @@ describe('Moloco MCM', () => {
         user_id: event.userId,
         device: {
           ua: event.context.userAgent,
-          ip: event.context.ip
+          ip: event.context.ip,
         },
         session_id: event.anonymousId,
-        page_id: event.context.page.path
+        page_id: event.context.page.path,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: event,
         settings: AUTH,
@@ -453,7 +455,7 @@ describe('Moloco MCM', () => {
           timestamp: { '@path': '$.timestamp' },
           channel_type: 'SITE',
           event_id: { '@path': '$.eventId' }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -461,7 +463,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate custom mappings for an object array mapping(items). The input IS NOT an array.', async () => {
+    it('should validate custom mappings for an object array mapping(items). The input IS NOT an array.' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -484,12 +486,12 @@ describe('Moloco MCM', () => {
             name: 'Monopoly: 3rd Edition',
             price: 19.99,
             brand: 'Hasbro',
-            currency: 'USD'
+            currency: 'USD',
           },
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -498,7 +500,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -510,7 +512,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -522,11 +524,10 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
-          timezone: 'America/Los_Angeles'
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -541,23 +542,23 @@ describe('Moloco MCM', () => {
           os: androidEvent.context.os.name.toUpperCase(),
           os_version: androidEvent.context.os.version,
           ua: androidEvent.context.userAgent,
-          unique_device_id: androidEvent.context.device.id
+          unique_device_id: androidEvent.context.device.id,
         },
         items: [
           {
             id: androidEvent.context.product.id,
             price: {
               amount: androidEvent.context.product.price,
-              currency: androidEvent.context.product.currency
+              currency: androidEvent.context.product.currency,
             }
           }
         ],
-        session_id: androidEvent.anonymousId
+        session_id: androidEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: androidEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           channel_type: 'APP',
@@ -566,9 +567,9 @@ describe('Moloco MCM', () => {
               id: { '@path': '$.context.product.id' },
               price: { '@path': '$.context.product.price' },
               currency: { '@path': '$.context.product.currency' }
-            }
+            },
           ]
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -576,7 +577,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate custom mappings for an object array mapping(items). The input IS an array.', async () => {
+    it('should validate custom mappings for an object array mapping(items). The input IS an array.' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -600,20 +601,20 @@ describe('Moloco MCM', () => {
               name: 'Monopoly: 3rd Edition',
               price: 19.99,
               brand: 'Hasbro',
-              currency: 'USD'
+              currency: 'USD',
             },
             {
               id: 'nae2d1',
               name: 'Hogwarts: 3rd Edition',
               price: 29.99,
               brand: 'Hasbro',
-              currency: 'USD'
+              currency: 'USD',
             }
           ],
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -622,7 +623,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -634,7 +635,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -646,11 +647,10 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
-          timezone: 'America/Los_Angeles'
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
         }
-      } as const
+      } as const;
 
       const expectedPayload: EventPayload = {
         event_type: TEST_EVENT_TYPE,
@@ -665,30 +665,30 @@ describe('Moloco MCM', () => {
           os: androidEvent.context.os.name.toUpperCase(),
           os_version: androidEvent.context.os.version,
           ua: androidEvent.context.userAgent,
-          unique_device_id: androidEvent.context.device.id
+          unique_device_id: androidEvent.context.device.id,
         },
         items: [
           {
             id: androidEvent.context.product[0].id,
             price: {
               amount: androidEvent.context.product[0].price,
-              currency: androidEvent.context.product[0].currency
+              currency: androidEvent.context.product[0].currency,
             }
           },
           {
             id: androidEvent.context.product[1].id,
             price: {
               amount: androidEvent.context.product[1].price,
-              currency: androidEvent.context.product[0].currency
+              currency: androidEvent.context.product[0].currency,
             }
           }
         ],
-        session_id: androidEvent.anonymousId
+        session_id: androidEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: androidEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           channel_type: 'APP',
@@ -702,7 +702,7 @@ describe('Moloco MCM', () => {
               }
             ]
           }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -710,7 +710,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate items mapping with currency / when both default currency and currency for each item are given, it should use the latter.', async () => {
+    it('should validate items mapping with currency / when both default currency and currency for each item are given, it should use the latter.' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -735,20 +735,20 @@ describe('Moloco MCM', () => {
               name: 'Monopoly: 3rd Edition',
               price: 19.99,
               brand: 'Hasbro',
-              currency: 'USD'
+              currency: 'USD',
             },
             {
               id: 'nae2d1',
               name: 'Hogwarts: 3rd Edition',
               price: 29.99,
               brand: 'Hasbro',
-              currency: 'USD'
+              currency: 'USD',
             }
           ],
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -757,7 +757,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -769,7 +769,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -781,9 +781,8 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
-          timezone: 'America/Los_Angeles'
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
         }
       }
 
@@ -800,30 +799,30 @@ describe('Moloco MCM', () => {
           os: androidEvent.context.os.name.toUpperCase(),
           os_version: androidEvent.context.os.version,
           ua: androidEvent.context.userAgent,
-          unique_device_id: androidEvent.context.device.id
+          unique_device_id: androidEvent.context.device.id,
         },
         items: [
           {
             id: androidEvent.context.product[0].id,
             price: {
               amount: androidEvent.context.product[0].price,
-              currency: androidEvent.context.product[0].currency
+              currency: androidEvent.context.product[0].currency,
             }
           },
           {
             id: androidEvent.context.product[1].id,
             price: {
               amount: androidEvent.context.product[1].price,
-              currency: androidEvent.context.product[0].currency
+              currency: androidEvent.context.product[0].currency,
             }
           }
         ],
-        session_id: androidEvent.anonymousId
+        session_id: androidEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: androidEvent as SegmentEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
@@ -839,7 +838,7 @@ describe('Moloco MCM', () => {
               }
             ]
           }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -847,7 +846,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate items mapping with currency / only default currency is given and it is used for each item.', async () => {
+    it('should validate items mapping with currency / only default currency is given and it is used for each item.' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -883,7 +882,7 @@ describe('Moloco MCM', () => {
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -892,7 +891,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -904,7 +903,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -916,9 +915,8 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
-          timezone: 'America/Los_Angeles'
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          timezone: 'America/Los_Angeles',
         }
       }
 
@@ -935,30 +933,30 @@ describe('Moloco MCM', () => {
           os: androidEvent.context.os.name.toUpperCase(),
           os_version: androidEvent.context.os.version,
           ua: androidEvent.context.userAgent,
-          unique_device_id: androidEvent.context.device.id
+          unique_device_id: androidEvent.context.device.id,
         },
         items: [
           {
             id: androidEvent.context.product[0].id,
             price: {
               amount: androidEvent.context.product[0].price,
-              currency: androidEvent.context.defaultCurrency
+              currency: androidEvent.context.defaultCurrency,
             }
           },
           {
             id: androidEvent.context.product[1].id,
             price: {
               amount: androidEvent.context.product[1].price,
-              currency: androidEvent.context.defaultCurrency
+              currency: androidEvent.context.defaultCurrency,
             }
           }
         ],
-        session_id: androidEvent.anonymousId
+        session_id: androidEvent.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: androidEvent as SegmentEvent,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
@@ -974,7 +972,7 @@ describe('Moloco MCM', () => {
               }
             ]
           }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -982,7 +980,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate the page_id conversion when both "page_id" and "page_identifier_tokens" are given ("page_id" should be used).', async () => {
+    it('should validate the page_id conversion when both "page_id" and "page_identifier_tokens" are given ("page_id" should be used).' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -1004,7 +1002,7 @@ describe('Moloco MCM', () => {
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -1013,7 +1011,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -1025,7 +1023,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -1037,8 +1035,7 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
           timezone: 'America/Los_Angeles',
           event: 'Product List Viewed',
           vertical: 'fruit'
@@ -1058,15 +1055,15 @@ describe('Moloco MCM', () => {
           os: event.context.os.name.toUpperCase(),
           os_version: event.context.os.version,
           ua: event.context.userAgent,
-          unique_device_id: event.context.device.id
+          unique_device_id: event.context.device.id,
         },
         page_id: event.pageId, // -- still uses the pageId
-        session_id: event.anonymousId
+        session_id: event.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: event,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
@@ -1076,7 +1073,7 @@ describe('Moloco MCM', () => {
             event: { '@path': '$.context.event' },
             vertical: { '@path': '$.context.vertical' }
           }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)
@@ -1084,7 +1081,7 @@ describe('Moloco MCM', () => {
       expect(responses[0].options.json).toEqual(expectedPayload)
     })
 
-    it('should validate the page_id conversion when only "page_identifier_tokens" is given.', async () => {
+    it('should validate the page_id conversion when only "page_identifier_tokens" is given.' , async () => {
       nock(/.*/).persist().post(/.*/).reply(200)
 
       // A test event case with automatically collected fields
@@ -1106,7 +1103,7 @@ describe('Moloco MCM', () => {
           app: {
             name: 'AppName',
             version: '1.0.0',
-            build: '1'
+            build: '1',
           },
           device: {
             type: 'android',
@@ -1115,7 +1112,7 @@ describe('Moloco MCM', () => {
             adTrackingEnabled: true,
             manufacturer: 'Samsung',
             model: 'Galaxy S10',
-            name: 'galaxy'
+            name: 'galaxy',
           },
           library: {
             name: 'analytics.ANDROID',
@@ -1127,7 +1124,7 @@ describe('Moloco MCM', () => {
             carrier: 'T-Mobile US',
             cellular: true,
             wifi: false,
-            bluetooth: false
+            bluetooth: false,
           },
           os: {
             name: 'Google Android',
@@ -1139,8 +1136,7 @@ describe('Moloco MCM', () => {
             density: 2.0
           },
           traits: {},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
+          userAgent: 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Mobile Safari/537.36',
           timezone: 'America/Los_Angeles',
           event: 'Product List Viewed',
           vertical: 'fruit'
@@ -1160,15 +1156,15 @@ describe('Moloco MCM', () => {
           os: event.context.os.name.toUpperCase(),
           os_version: event.context.os.version,
           ua: event.context.userAgent,
-          unique_device_id: event.context.device.id
+          unique_device_id: event.context.device.id,
         },
-        page_id: 'event:Product List Viewed;vertical:fruit', // stringified from pageIdentifierTokens
-        session_id: event.anonymousId
+        page_id: "event:Product List Viewed;vertical:fruit", // stringified from pageIdentifierTokens
+        session_id: event.anonymousId,
       }
-
+        
       const responses = await testDestination.testAction(TEST_ACTION_SLUG, {
         event: event,
-        settings: { ...AUTH, channel_type: 'APP' },
+        settings: { ...AUTH, channel_type: 'APP'},
         useDefaultMappings: true,
         mapping: {
           timestamp: { '@path': '$.timestamp' },
@@ -1178,7 +1174,7 @@ describe('Moloco MCM', () => {
             event: { '@path': '$.context.event' },
             vertical: { '@path': '$.context.vertical' }
           }
-        }
+        },
       })
 
       expect(responses.length).toBe(1)

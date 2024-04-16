@@ -27,7 +27,7 @@ describe('MolocoMCM.purchase', () => {
       settings: {
         platformId: 'foo',
         apiKey: 'bar',
-        channel_type: 'SITE'
+        channel_type: 'SITE',
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
@@ -59,7 +59,7 @@ describe('MolocoMCM.purchase', () => {
           }
         }
       },
-      useDefaultMappings: true
+      useDefaultMappings: true,
     })
 
     expect(responses.length).toBe(1)
@@ -82,27 +82,26 @@ describe('MolocoMCM.purchase', () => {
       }
     })
 
-    await expect(
-      testDestination.testAction('purchase', {
-        event,
-        settings: {
-          platformId: 'foo',
-          apiKey: 'bar',
-          channel_type: 'SITE'
-        },
-        mapping: {
-          // items: -- missing mapping for a required field
-          revenue: {
-            price: {
-              '@path': '$.properties.revenue'
-            },
-            currency: {
-              '@path': '$.properties.currency'
-            }
+    await expect(testDestination.testAction('purchase', {
+      event,
+      settings: {
+        platformId: 'foo',
+        apiKey: 'bar',
+        channel_type: 'SITE'
+      },
+      mapping: {
+        // items: -- missing mapping for a required field
+        revenue: {
+          price: {
+            '@path': '$.properties.revenue'
+          },
+          currency: {
+            '@path': '$.properties.currency'
           }
-        },
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(AggregateAjvError)
+        }
+      },
+      useDefaultMappings: true,
+    })).rejects.toThrowError(AggregateAjvError)
   })
+
 })
