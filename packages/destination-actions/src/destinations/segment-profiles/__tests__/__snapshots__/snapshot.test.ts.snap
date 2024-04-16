@@ -202,6 +202,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "[2uovRzxThJj",
         "properties": Object {
           "testType": "[2uovRzxThJj",
         },
@@ -225,6 +226,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "[2uovRzxThJj",
         "properties": Object {},
         "timestamp": undefined,
         "type": "track",
