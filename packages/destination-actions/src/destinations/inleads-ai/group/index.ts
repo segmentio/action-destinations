@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
       headers: {
         Authorization: `Basic ${data.settings.apiKey}`
       },
-      json: {} // validateInput(data.settings, data.payload, 'track')
+      json: { ...data.payload, apiKey: data.settings.apiKey }
     })
   }
 }

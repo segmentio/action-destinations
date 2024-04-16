@@ -15,17 +15,11 @@ afterAll(() => {
 })
 
 const inleadsData = {
-  event_name: {
+  eventName: {
     '@path': '$.event'
-  },
-  properties: {
-    '@path': '$.properties'
   },
   user_id: {
     '@path': '$.userId'
-  },
-  account_id: {
-    '@path': '$.groupId'
   }
 }
 
@@ -68,16 +62,6 @@ describe('InleadsAI.track', () => {
   })
 
   test('Should send an track event to InleadsAI', async () => {
-    // Mock: Segment track Call
-    nock("https://server.inleads.ai")
-      .post('/events/track', {
-        apiKey: API_KEY,
-        eventName: "VISIT",
-        email: "test@inleads.ai",
-        name: "Tester",
-        options: {},
-      })
-      .reply(200, { success: true })
 
     const event = createTestEvent({
       type: 'track',
@@ -86,6 +70,18 @@ describe('InleadsAI.track', () => {
       },
       event: 'VISIT'
     })
+    // Mock: Segment track Call
+    nock("https://server.inleads.ai")
+      .post('/events/track', {
+        apiKey: API_KEY,
+        eventName: event.event,
+        user_id: event.userId
+      }, {
+        reqheaders: {
+          Authorization: `Basic ${API_KEY}`
+        }
+      })
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('track', {
       event,

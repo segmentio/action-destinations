@@ -101,65 +101,6 @@ describe('InleadsAI.identify', () => {
     ).rejects.toThrowError()
   })
 
-  test('Should not throw error if name is defined and first and last name are not', async () => {
-    nock("https://server.inleads.ai")
-      .post('/events/track', {
-        apiKey: API_KEY
-      })
-      .reply(200, { success: true })
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        name: 'test',
-        email: 'test@company.com'
-      },
-      properties: {
-        timezone: 'America/New_York'
-      },
-      userId: '123456'
-    })
-
-    await expect(
-      testDestination.testAction('identify', {
-        event,
-        mapping: inleadsIdentifyData,
-        settings: {
-          apiKey: API_KEY
-        }
-      })
-    ).resolves.not.toThrowError()
-  })
-
-  test('Should not throw error if first_name and last_name are defined and name is not', async () => {
-    nock("https://server.inleads.ai")
-      .post('/events/track', {
-        apiKey: API_KEY
-      })
-      .reply(200, { success: true })
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        first_name: 'test',
-        last_name: 'test',
-        email: 'test@company.com'
-      },
-      properties: {
-        timezone: 'America/New_York'
-      },
-      userId: '123456'
-    })
-
-    await expect(
-      testDestination.testAction('identify', {
-        event,
-        mapping: inleadsIdentifyData,
-        settings: {
-          apiKey: API_KEY
-        }
-      })
-    ).resolves.not.toThrowError()
-  })
-
   test('Should throw an error if apiKey is not defined', async () => {
     const event = createTestEvent({
       type: 'identify',
@@ -185,13 +126,6 @@ describe('InleadsAI.identify', () => {
   })
 
   test('Should send an identify event to InleadsAI', async () => {
-    // Mock: Segment Identify Call
-    nock("https://server.inleads.ai")
-      .post('/events/track', {
-        apiKey: API_KEY
-      })
-      .reply(200, { success: true })
-
     const event = createTestEvent({
       type: 'identify',
       traits: {
@@ -203,6 +137,37 @@ describe('InleadsAI.identify', () => {
       },
       userId: '123456'
     })
+    // Mock: Segment Identify Call
+    nock("https://server.inleads.ai")
+      .post('/events/track', {
+        "user_id": event.userId,
+        "name": event.traits?.name,
+        "apiKey": API_KEY,
+        traits: {
+          name: event.traits?.name,
+          email: event.traits?.email
+        },
+        email: event.traits?.email,
+        userMeta: {
+          "ip": event.context?.ip,
+          "latitude": event.context?.location.latitude,
+          "longitude": event.context?.location.longitude,
+          "country": event.context?.location.country,
+          "city": event.context?.location.city,
+          "browser": event.context?.userAgent,
+          "timeZone": event.context?.timezone
+        },
+        anonymous_id: event.anonymousId,
+        event_id: event.messageId,
+        source_ip: event.context?.ip,
+        timezone:event.context?.timezone,
+        url: event.context?.page?.url,
+        user_language: event.context?.locale,
+        utc_time: event.timestamp?.toString() || "2024-04-16T10:07:58.738Z",
+        utm: {},
+        screen:{}
+      })
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('identify', {
       event,

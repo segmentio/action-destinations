@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_KEY } from '../../__tests__/index.test'
+import { IntegrationBaseUrl } from '../../contants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -81,12 +82,6 @@ describe('InleadsAI.group', () => {
   })
 
   test('Should send an group event to InleadsAI', async () => {
-    // Mock: Segment group Call
-    nock("https://server.inleads.ai")
-      .post('/events/track', {
-        apiKey: API_KEY
-      })
-      .reply(200, { success: true })
 
     const event = createTestEvent({
       type: 'group',
@@ -95,6 +90,18 @@ describe('InleadsAI.group', () => {
       },
       groupId: '123456'
     })
+
+    // Mock: Segment group Call
+    nock(`${IntegrationBaseUrl}`)
+      .post('/events/track', {
+        account_id: event.groupId,
+        name: event.traits?.name,
+        traits: {
+          name: event.traits?.name
+        },
+        apiKey: API_KEY,
+      })
+      .reply(200, { success: true })
 
     const responses = await testDestination.testAction('group', {
       event,
