@@ -1,7 +1,6 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import googleAnalytics4Web, { destination } from '../index'
-import { GA } from '../types'
 
 const subscriptions: Subscription[] = [
   {
@@ -12,6 +11,9 @@ const subscriptions: Subscription[] = [
     mapping: {
       search_term: {
         '@path': '$.properties.search_term'
+      },
+      send_to: {
+        '@path': '$.properties.send_to'
       }
     }
   }
@@ -22,7 +24,7 @@ describe('GoogleAnalytics4Web.search', () => {
     measurementID: 'test123'
   }
 
-  let mockGA4: GA
+  let mockGA4: typeof gtag
   let searchEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
@@ -34,15 +36,55 @@ describe('GoogleAnalytics4Web.search', () => {
     searchEvent = trackEventPlugin
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-      mockGA4 = {
-        gtag: jest.fn()
-      }
-      return Promise.resolve(mockGA4.gtag)
+      mockGA4 = jest.fn()
+      return Promise.resolve(mockGA4)
     })
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 search Event', async () => {
+  test('GA4 search Event when send to is false', async () => {
+    const context = new Context({
+      event: 'search',
+      type: 'track',
+      properties: {
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: false
+      }
+    })
+
+    await searchEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('search'),
+      expect.objectContaining({
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 search Event when send to is true', async () => {
+    const context = new Context({
+      event: 'search',
+      type: 'track',
+      properties: {
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: true
+      }
+    })
+
+    await searchEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('search'),
+      expect.objectContaining({
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: settings.measurementID
+      })
+    )
+  })
+  test('GA4 search Event when send to is undefined', async () => {
     const context = new Context({
       event: 'search',
       type: 'track',
@@ -53,11 +95,12 @@ describe('GoogleAnalytics4Web.search', () => {
 
     await searchEvent.track?.(context)
 
-    expect(mockGA4.gtag).toHaveBeenCalledWith(
+    expect(mockGA4).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining('search'),
       expect.objectContaining({
-        search_term: 'Monopoly: 3rd Edition'
+        search_term: 'Monopoly: 3rd Edition',
+        send_to: 'default'
       })
     )
   })

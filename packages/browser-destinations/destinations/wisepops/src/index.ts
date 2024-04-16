@@ -27,7 +27,8 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
       name: 'Set User Traits as Custom Properties',
       subscribe: setCustomProperties.defaultSubscription!,
       partnerAction: 'setCustomProperties',
-      mapping: defaultValues(setCustomProperties.fields)
+      mapping: defaultValues(setCustomProperties.fields),
+      type: 'automatic'
     },
     {
       name: 'Set Group Traits as Custom Properties',
@@ -37,26 +38,30 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
         traits: { '@path': '$.traits' },
         id: { '@path': '$.groupId' },
         idProperty: 'groupId',
-        prefix: 'group',
-      }
+        prefix: 'group'
+      },
+      type: 'automatic'
     },
     {
       name: trackEvent.title,
       subscribe: trackEvent.defaultSubscription!,
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: trackGoal.title,
       subscribe: trackGoal.defaultSubscription!,
       partnerAction: 'trackGoal',
-      mapping: defaultValues(trackGoal.fields)
+      mapping: defaultValues(trackGoal.fields),
+      type: 'automatic'
     },
     {
       name: trackPage.title,
       subscribe: trackPage.defaultSubscription!,
       partnerAction: 'trackPage',
-      mapping: defaultValues(trackPage.fields)
+      mapping: defaultValues(trackPage.fields),
+      type: 'automatic'
     }
   ],
 
@@ -74,7 +79,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
     window.wisepops =
       window.wisepops ||
       function (...args) {
-        (window.wisepops.q = window.wisepops.q || []).push(args)
+        ;(window.wisepops.q = window.wisepops.q || []).push(args)
       }
     window.wisepops.l = Date.now()
     window.wisepops('options', { autoPageview: false })
@@ -87,7 +92,7 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
     setCustomProperties,
     trackEvent,
     trackGoal,
-    trackPage,
+    trackPage
   }
 }
 

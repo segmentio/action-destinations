@@ -8,7 +8,7 @@ const destination: DestinationDefinition<Settings> = {
   name: '1plusX',
   slug: 'actions-1plusx',
   mode: 'cloud',
-  //No authentication required for 1plusX Data Collection API
+  // There is no authentication required for 1plusX Data Collection API
   authentication: {
     scheme: 'custom',
     fields: {

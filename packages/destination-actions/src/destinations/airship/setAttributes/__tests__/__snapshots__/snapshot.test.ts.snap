@@ -61,7 +61,7 @@ Object {
       "action": "set",
       "key": "birthdate",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",
@@ -73,19 +73,19 @@ Object {
       "action": "set",
       "key": "mobile_phone",
       "timestamp": false,
-      "value": -7931935682723840,
+      "value": 4,
     },
     Object {
       "action": "set",
       "key": "home_phone",
       "timestamp": false,
-      "value": -7931935682723840,
+      "value": 4,
     },
     Object {
       "action": "set",
       "key": "work_phone",
       "timestamp": false,
-      "value": -7931935682723840,
+      "value": 4,
     },
     Object {
       "action": "set",
@@ -109,7 +109,7 @@ Object {
       "action": "set",
       "key": "account_creation",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",

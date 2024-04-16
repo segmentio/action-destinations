@@ -33,25 +33,29 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
       name: 'Identify',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Track',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     },
     {
       name: 'Group',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     },
     {
       name: 'Alias',
       subscribe: 'type = "alias"',
       partnerAction: 'alias',
-      mapping: defaultValues(alias.fields)
+      mapping: defaultValues(alias.fields),
+      type: 'automatic'
     }
   ],
 

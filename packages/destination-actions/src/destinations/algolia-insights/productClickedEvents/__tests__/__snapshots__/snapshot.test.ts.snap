@@ -4,18 +4,17 @@ exports[`Testing snapshot for AlgoliaInsights's productClickedEvents destination
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Clicked",
-      "eventType": "click",
+      "eventName": "tTO6#",
+      "eventType": "view",
       "index": "tTO6#",
-      "objectID": "tTO6#",
       "objectIDs": Array [
         "tTO6#",
       ],
-      "position": -8127732168785920,
       "positions": Array [
         -8127732168785920,
       ],
       "queryID": "tTO6#",
+      "testType": "tTO6#",
       "timestamp": null,
       "userToken": "tTO6#",
     },

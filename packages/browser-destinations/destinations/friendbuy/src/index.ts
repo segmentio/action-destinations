@@ -25,25 +25,29 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Customer',
     subscribe: trackCustomerDefaultSubscription,
     partnerAction: 'trackCustomer',
-    mapping: defaultValues(trackCustomerFields)
+    mapping: defaultValues(trackCustomerFields),
+    type: 'automatic'
   },
   {
     name: 'Track Purchase',
     subscribe: trackPurchaseDefaultSubscription,
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(browserTrackPurchaseFields)
+    mapping: defaultValues(browserTrackPurchaseFields),
+    type: 'automatic'
   },
   {
     name: 'Track Sign Up',
     subscribe: trackSignUpDefaultSubscription,
     partnerAction: 'trackSignUp',
-    mapping: defaultValues(browserTrackSignUpFields)
+    mapping: defaultValues(browserTrackSignUpFields),
+    type: 'automatic'
   },
   {
     name: 'Track Page',
     subscribe: trackPageDefaultSubscription,
     partnerAction: 'trackPage',
-    mapping: defaultValues(trackPageFields)
+    mapping: defaultValues(trackPageFields),
+    type: 'automatic'
   }
 ]
 

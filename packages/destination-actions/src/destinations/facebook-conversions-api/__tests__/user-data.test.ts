@@ -1,4 +1,4 @@
-import { normalize_user_data } from '../fb-capi-user-data'
+import { normalize_user_data, hash_user_data } from '../fb-capi-user-data'
 
 describe('FacebookConversionsApi', () => {
   describe('UserData', () => {
@@ -15,11 +15,10 @@ describe('FacebookConversionsApi', () => {
             state: 'CA ',
             zip: '12345 9876',
             country: 'U S ',
-            externalId: ' ABC12345 '
+            externalId: [' ABC12345 ', ' Xyz123 ']
           }
         }
         normalize_user_data(test_payload)
-
         expect(test_payload.user_data.email).toEqual('nick@test.com')
         expect(test_payload.user_data.phone).toEqual('5105550011')
         expect(test_payload.user_data.city).toEqual('sanfrancisco')
@@ -29,7 +28,7 @@ describe('FacebookConversionsApi', () => {
         expect(test_payload.user_data.state).toEqual('ca')
         expect(test_payload.user_data.zip).toEqual('123459876')
         expect(test_payload.user_data.country).toEqual('us')
-        expect(test_payload.user_data.externalId).toEqual('abc12345')
+        expect(test_payload.user_data.externalId).toEqual(['abc12345', 'xyz123'])
       })
 
       it('fields by converting state names to state codes', async () => {
@@ -94,6 +93,31 @@ describe('FacebookConversionsApi', () => {
         test_payload.user_data.gender = 'FEMALE   '
         normalize_user_data(test_payload)
         expect(test_payload.user_data.gender).toEqual('f')
+      })
+    })
+
+    describe('hash_user_data', () => {
+      it('if value is undefined or empty string set as undefined otherwise convert into hash value', async () => {
+        const test_payload = {
+          user_data: {
+            email: '',
+            phone: '510 555 0011',
+            city: 'San Francisco',
+            gender: 'm',
+            lastName: 'Doe ',
+            firstName: 'John',
+            state: 'CA',
+            zip: '123459876',
+            country: 'US',
+            externalId: ['ABC12345']
+          }
+        }
+        const hashed_data = <Record<string, string>>hash_user_data(test_payload)
+
+        expect(hashed_data.em).toEqual(undefined)
+        expect(hashed_data.ph).toEqual('cf9b0227ee02d8f8f9dbb6060fa2941bb667efc71f6ee2e6ee17b40121a5f4a6')
+        expect(hashed_data.ge).toEqual('62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a')
+        expect(hashed_data.db).toEqual(undefined)
       })
     })
   })

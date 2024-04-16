@@ -46,6 +46,7 @@ Object {
 
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 3`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "address": undefined,
     "city": undefined,
@@ -80,6 +81,7 @@ Object {
 
 exports[`HubSpot.upsertCompany should create SEGMENT_UNIQUE_IDENTIFIER and create a company if SEGMENT_UNIQUE_IDENTIFIER property is not found 5`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "address": undefined,
     "city": undefined,
@@ -244,6 +246,7 @@ Object {
 
 exports[`HubSpot.upsertCompany should create a company with and associate a contact 3`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "address": undefined,
     "city": undefined,

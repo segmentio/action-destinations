@@ -15,14 +15,16 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       access_key_id: {
         label: 'm3ter Access Key Id',
-        description: 'Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under "Settings" -> "Access" -> "Service Users" -> "Create Service User".' +
+        description:
+          'Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under "Settings" -> "Access" -> "Service Users" -> "Create Service User".' +
           ' Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)',
         type: 'string',
         required: true
       },
       api_secret: {
         label: 'm3ter Api Secret',
-        description: 'Your service user Api Secret. You can generate the service user and its Api Secret in your m3ter console under "Settings" -> "Access" -> "Service Users" -> "Create Service User".' +
+        description:
+          'Your service user Api Secret. You can generate the service user and its Api Secret in your m3ter console under "Settings" -> "Access" -> "Service Users" -> "Create Service User".' +
           ' Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)',
         type: 'password',
         required: true
@@ -46,7 +48,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        'Authorization': `Bearer ${auth?.accessToken}`,
+        Authorization: `Bearer ${auth?.accessToken}`,
         'User-Agent': USER_AGENT_HEADER
       }
     }
@@ -59,7 +61,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Submit usage data to m3ter',
       subscribe: submitMeasurements.defaultSubscription as string,
       partnerAction: 'submitMeasurements',
-      mapping: defaultValues(submitMeasurements.fields)
+      mapping: defaultValues(submitMeasurements.fields),
+      type: 'automatic'
     }
   ]
 }

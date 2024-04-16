@@ -1,6 +1,6 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import { Subscription, defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent } from '../algolia-insight-api'
+import type { ActionDefinition, Preset } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
+import { AlgoliaBehaviourURL, AlgoliaProductClickedEvent, AlgoliaEventType } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -10,7 +10,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
   fields: {
     objectID: {
       label: 'Product ID',
-      description: 'Product ID of the clicked item.',
+      description: 'Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.',
       type: 'string',
       required: true,
       default: {
@@ -32,7 +32,11 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.query_id'
+        '@if': {
+          exists: { '@path': '$.properties.query_id' },
+          then: { '@path': '$.properties.query_id' },
+          else: { '@path': '$.integrations.Algolia Insights (Actions).query_id' }
+        }
       }
     },
     position: {
@@ -48,7 +52,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       description: 'The ID associated with the user.',
-      label: 'userToken',
+      label: 'User Token',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -61,16 +65,47 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The timestamp of the event.',
-      label: 'timestamp',
+      label: 'Timestamp',
       default: { '@path': '$.timestamp' }
+    },
+    extraProperties: {
+      label: 'Extra Properties',
+      required: false,
+      description:
+        'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: "The name of the event to be send to Algolia. Defaults to 'Product Clicked'",
+      type: 'string',
+      required: false,
+      default: 'Product Clicked'
+    },
+    eventType: {
+      label: 'Event Type',
+      description: "The type of event to send to Algolia. Defaults to 'click'",
+      type: 'string',
+      required: false,
+      default: 'click',
+      choices: [
+        { label: 'view', value: 'view' },
+        { label: 'conversion', value: 'conversion' },
+        { label: 'click', value: 'click' }
+      ]
     }
   },
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
   perform: (request, data) => {
     const insightEvent: AlgoliaProductClickedEvent = {
-      ...data.payload,
-      eventName: 'Product Clicked',
-      eventType: 'click',
+      ...data.payload.extraProperties,
+      eventName: data.payload.eventName ?? 'Product Clicked',
+      eventType: (data.payload.eventType as AlgoliaEventType) ?? ('click' as AlgoliaEventType),
+      index: data.payload.index,
+      queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
       positions: data.payload.position ? [data.payload.position] : undefined,
@@ -86,9 +121,10 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const productClickPresets: Subscription = {
+export const productClickPresets: Preset = {
   name: 'Send product clicked events to Algolia',
   subscribe: productClickedEvents.defaultSubscription as string,
   partnerAction: 'productClickedEvents',
-  mapping: defaultValues(productClickedEvents.fields)
+  mapping: defaultValues(productClickedEvents.fields),
+  type: 'automatic'
 }

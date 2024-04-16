@@ -42,6 +42,8 @@ The default port is set to `3000`. To use a different port, you can specify the 
 
 After running the `serve` command, select the destination you want to test locally. Once a destination is selected the server should start up.
 
+You can also run the serve command for a specific Destination without the Web UI being started up. For example `./bin/run serve --destination=criteo-audiences -n` will start the process for the criteo-audiences Destination, but will not start the Actions Tester web user interface.
+
 ### Testing an Action's perform() or performBatch() function
 
 To test a specific destination action's perform() or performBatch() function you can send a Postman or cURL request with the following URL format: `https://localhost:<PORT>/<ACTION>`. A list of eligible URLs will also be provided by the CLI command when the server is spun up.
@@ -179,6 +181,9 @@ curl --location 'http://localhost:3000/createAudience' \
     "settings": {
         "createAudienceUrl": "http://localhost:4242"
     },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
     "audienceName": "The Super Mario Brothers Super Audience"
 }'
 ```
@@ -191,6 +196,9 @@ curl --location 'http://localhost:3000/getAudience' \
 --data '{
     "settings": {
         "getAudienceUrl": "http://localhost:4242/getAudience"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
     },
     "externalId": 21
 }'
@@ -319,7 +327,7 @@ export NODE_ENV=test
 
 ## Code Coverage
 
-Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
+Code coverage is collected upon completion of `yarn test --coverage`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
 
 ## Post Deployment Change Testing
 

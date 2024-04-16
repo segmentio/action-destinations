@@ -76,14 +76,13 @@ Object {
     },
   ],
   "properties": Array [],
-  "sorts": Array [
-    "name",
-  ],
+  "sorts": Array [],
 }
 `;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCustomObjectRecord action - required fields 1`] = `
 Object {
+  "associations": Array [],
   "properties": Object {
     "testType": "jf(2@y*W9WT2r)SLk(*",
   },

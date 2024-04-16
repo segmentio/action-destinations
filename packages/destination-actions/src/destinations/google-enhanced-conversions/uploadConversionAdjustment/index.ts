@@ -1,5 +1,12 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getApiVersion, commonHashedEmailValidation } from '../functions'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  hash,
+  handleGoogleErrors,
+  convertTimestamp,
+  getApiVersion,
+  commonHashedEmailValidation,
+  getConversionActionDynamicData
+} from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse } from '../types'
@@ -11,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     adjustment_type: {
       label: 'Adjustment Type',
@@ -22,6 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
+        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' },
+        { label: `UNKNOWN`, value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -66,13 +75,31 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Restatement Value',
       description:
         'The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.',
-      type: 'number'
+      type: 'number',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     restatement_currency_code: {
       label: 'Restatement Currency Code',
       description:
         'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code, e.g. USD or EUR.',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     email_address: {
       label: 'Email Address',
@@ -195,6 +222,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.userAgent'
       }
+    }
+  },
+  dynamicFields: {
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
     }
   },
   perform: async (request, { settings, payload, features, statsContext }) => {

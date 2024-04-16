@@ -4,13 +4,16 @@ exports[`Testing snapshot for Devrev's streamEvent destination action: all field
 Object {
   "events_list": Array [
     Object {
+      "event_id": "sZcTM%n(kDC3tsz4iK5h",
       "event_time": "2021-02-01T00:00:00.000Z",
       "name": "sZcTM%n(kDC3tsz4iK5h",
       "payload": Object {
+        "accountRef": "sZcTM%n(kDC3tsz4iK5h",
         "anonymousId": "sZcTM%n(kDC3tsz4iK5h",
         "context": Object {
           "testType": "sZcTM%n(kDC3tsz4iK5h",
         },
+        "devrev_source_identifier": "segment",
         "email": "opemal@ner.kr",
         "eventName": "sZcTM%n(kDC3tsz4iK5h",
         "messageId": "sZcTM%n(kDC3tsz4iK5h",
@@ -19,6 +22,8 @@ Object {
         },
         "timestamp": "2021-02-01T00:00:00.000Z",
         "userId": "sZcTM%n(kDC3tsz4iK5h",
+        "userRef": "sZcTM%n(kDC3tsz4iK5h",
+        "workspaceRef": "sZcTM%n(kDC3tsz4iK5h",
       },
     },
   ],
@@ -29,9 +34,11 @@ exports[`Testing snapshot for Devrev's streamEvent destination action: required 
 Object {
   "events_list": Array [
     Object {
+      "event_id": "test-event-id",
       "event_time": "2021-02-01T00:00:00.000Z",
       "name": "sZcTM%n(kDC3tsz4iK5h",
       "payload": Object {
+        "devrev_source_identifier": "segment",
         "eventName": "sZcTM%n(kDC3tsz4iK5h",
         "timestamp": "2021-02-01T00:00:00.000Z",
       },

@@ -24,13 +24,15 @@ export const destination: BrowserDestinationDefinition<Settings, UpolloClient> =
       name: 'Identify',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Enrich',
       subscribe: 'type = "identify"',
       partnerAction: 'enrichUser',
-      mapping: defaultValues(enrichUser.fields)
+      mapping: defaultValues(enrichUser.fields),
+      type: 'automatic'
     }
   ],
 

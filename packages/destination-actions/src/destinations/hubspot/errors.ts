@@ -50,6 +50,18 @@ export const MultipleCustomRecordsInSearchResultThrowableError = new Integration
   400
 )
 
+export const CustomSearchToAssociateThrowableError = new IntegrationError(
+  "HubSpot returned 400 error while performing a custom object record search to associate. Please check if 'Search Fields to Associate custom Object' contains valid properties defined in HubSpot.",
+  'Custom Search To Associate Failed',
+  400
+)
+
+export const MultipleCustomRecordsInSearchResultToAssociateThrowableError = new IntegrationError(
+  `Upsert Custom Object operation was completed but the association failed as the search association object returned more than one items. Ensure that you use an unique identifier to lookup an association object.`,
+  'Associate Search Criteria Not Unique',
+  400
+)
+
 export function isSegmentUniqueIdentifierPropertyError(
   error: HubSpotError,
   segmentUniqueIdentifierProperty: string

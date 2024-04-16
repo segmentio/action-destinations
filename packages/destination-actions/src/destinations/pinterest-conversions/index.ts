@@ -73,7 +73,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'add_to_cart'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Checkout',
@@ -82,7 +83,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'checkout'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Lead',
@@ -91,7 +93,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'lead'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Page Visit',
@@ -100,7 +103,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'page_visit'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Search',
@@ -109,7 +113,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'search'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Sign Up',
@@ -118,7 +123,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'signup'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'View Category',
@@ -127,7 +133,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'view_category'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Watch Video',
@@ -136,7 +143,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'watch_video'
-      }
+      },
+      type: 'automatic'
     }
   ],
   actions: {

@@ -285,6 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
           searchCompanyResponse = await hubspotApiClient.search(
             { ...payload.companysearchfields },
+            'companies',
             responseProperties,
             responseSortBy
           )

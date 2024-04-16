@@ -3,7 +3,7 @@ import * as types from '../utils/types'
 
 interface revUserCreateBody {
   email: string
-  full_name: string
+  display_name: string
   org_id: string
 }
 
@@ -17,6 +17,9 @@ export const email = 'test-user@test.com'
 export const domain = email.split('@')[1]
 
 export const testUserId = 'test-user-id'
+export const testUserRef = 'test-user-ref'
+export const testAccountRef = 'test-account-ref'
+export const testWorkspaceRef = 'test-workspace-ref'
 export const testUserFullName = 'test-user-full-name'
 export const testDescription = 'test-description'
 export const testEventName = 'test-event-name'
@@ -121,7 +124,7 @@ export const revUsersCreateResponse = async (_: never, body: revUserCreateBody) 
     rev_user: {
       id: testRevUserNewer.id,
       created_date: newerCreateDate,
-      display_name: body.full_name,
+      display_name: body.display_name,
       email: body.email,
       rev_org: {
         id: body.org_id,

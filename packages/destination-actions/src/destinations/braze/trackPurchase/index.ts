@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendTrackPurchase } from '../utils'
+import { sendTrackPurchase, sendBatchedTrackPurchase } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -30,6 +30,14 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Alias Label',
           type: 'string'
         }
+      }
+    },
+    email: {
+      label: 'Email',
+      description: 'The user email',
+      type: 'string',
+      default: {
+        '@path': '$.traits.email'
       }
     },
     braze_id: {
@@ -95,10 +103,20 @@ const action: ActionDefinition<Settings, Payload> = {
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
       default: false
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Braze',
+      description:
+        'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
+      default: true
     }
   },
   perform: (request, { settings, payload }) => {
     return sendTrackPurchase(request, settings, payload)
+  },
+  performBatch: (request, { settings, payload }) => {
+    return sendBatchedTrackPurchase(request, settings, payload)
   }
 }
 

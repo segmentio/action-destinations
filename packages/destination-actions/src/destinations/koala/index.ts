@@ -14,13 +14,15 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Calls',
     subscribe: 'type = "track"',
     partnerAction: 'track',
-    mapping: defaultValues(track.fields)
+    mapping: defaultValues(track.fields),
+    type: 'automatic'
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
     partnerAction: 'identify',
-    mapping: defaultValues(identify.fields)
+    mapping: defaultValues(identify.fields),
+    type: 'automatic'
   }
 ]
 
