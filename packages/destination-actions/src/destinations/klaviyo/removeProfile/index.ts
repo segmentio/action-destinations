@@ -37,7 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    console.log('Remove perform')
     const { email, list_id, external_id } = payload
     if (!email && !external_id) {
       throw new PayloadValidationError('Missing Email or External Id')
@@ -46,7 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {
-    console.log('Remove perform Batch')
     // Filtering out profiles that do not contain either an email or external_id.
     const filteredPayload = payload.filter((profile) => profile.email || profile.external_id)
     const listId = filteredPayload[0]?.list_id

@@ -46,6 +46,7 @@ describe('Remove Profile', () => {
   })
 
   it('should remove profile from list if successful with email address only', async () => {
+    const mapping = { list_id: listId, email: 'test@example.com' }
     const requestBody = {
       data: [
         {
@@ -86,7 +87,7 @@ describe('Remove Profile', () => {
     })
 
     await expect(
-      testDestination.testAction('removeProfile', { event, settings, useDefaultMappings: true })
+      testDestination.testAction('removeProfile', { event, settings, mapping, useDefaultMappings: true })
     ).resolves.not.toThrowError()
   })
 
