@@ -18,10 +18,10 @@ export function formatPhone(phone: string | undefined): string | undefined {
 }
 
 export function handleArrayInput(mightBeArray: string[] | string | undefined): string {
-  if (typeof mightBeArray === 'string') return mightBeArray
-  if (typeof mightBeArray === 'undefined') return ''
-  if (Array.isArray(mightBeArray)) {
-    return mightBeArray.length > 0 ? mightBeArray[0] : ''
+  if(typeof mightBeArray === 'string') return mightBeArray
+  if(typeof mightBeArray === 'undefined') return ''
+  if(Array.isArray(mightBeArray)){
+    return mightBeArray.length>0 ? mightBeArray[0]: ''
   }
   return ''
 }
