@@ -1,8 +1,8 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getProfiles, removeProfileFromList } from '../functions'
+import { getListIdDynamicData, getProfiles, removeProfileFromList } from '../functions'
 import { enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email: {
       label: 'Email',
-      description: `Individual's email address. One of External ID, Phone Number and Email required.`,
+      description: `Individual's email address. One of External ID, or Email required.`,
       type: 'string',
       format: 'email',
       default: { '@path': '$.traits.email' }
@@ -26,9 +26,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List',
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      required: true
     },
     enable_batching: { ...enable_batching }
+  },
+  dynamicFields: {
+    list_id: async (request): Promise<DynamicFieldResponse> => {
+      return getListIdDynamicData(request)
+    }
   },
   perform: async (request, { payload }) => {
     console.log('Remove perform')
