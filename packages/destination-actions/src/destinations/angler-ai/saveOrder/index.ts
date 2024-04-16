@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ordersEndpoint } from '../utils'
+import { baseURL, ordersEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Order',
@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       src: 'SEGMENT',
       data: [data.payload]
     }
-    return request(ordersEndpoint(data.settings.workspaceId), {
+    return request(baseURL + ordersEndpoint(data.settings.workspaceId), {
       method: 'post',
       json: payload
     })

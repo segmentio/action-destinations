@@ -24,23 +24,6 @@ export const presets: DestinationDefinition['presets'] = [
     type: 'automatic'
   },
   {
-    name: 'Save Order',
-    subscribe: 'event = "Purchase" or event = "Order Completed"',
-    partnerAction: 'saveOrder',
-    mapping: defaultValues(saveOrder.fields),
-    type: 'automatic'
-  },
-  {
-    name: 'Save Page',
-    subscribe: 'type = "page"',
-    partnerAction: 'saveEvent',
-    mapping: {
-      ...defaultValues(saveEvent.fields),
-      event_name: 'page_viewed'
-    },
-    type: 'automatic'
-  },
-  {
     name: 'Save Event - Page Viewed',
     subscribe: 'type = "page"',
     partnerAction: 'saveEvent',

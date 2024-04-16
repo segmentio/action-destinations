@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { AuthResponseType } from './utils'
-import { testEndpoint, privacyEndpoint } from './utils'
+import { testEndpoint, privacyEndpoint, baseURL } from './utils'
 import { presets } from './presets'
 import saveEvent from './saveEvent'
 import saveOrder from './saveOrder'
@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, options) => {
-      const me = await request<AuthResponseType>(testEndpoint(), {
+      const me = await request<AuthResponseType>(baseURL + testEndpoint(), {
         method: 'get'
       })
 

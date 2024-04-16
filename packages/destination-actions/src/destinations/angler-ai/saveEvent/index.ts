@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { eventsEndpoint } from '../utils'
+import { baseURL, eventsEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Event',
@@ -161,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
       src: 'SEGMENT',
       data: [data.payload]
     }
-    return request(eventsEndpoint(data.settings.workspaceId), {
+    return request(baseURL + eventsEndpoint(data.settings.workspaceId), {
       method: 'post',
       json: payload
     })
