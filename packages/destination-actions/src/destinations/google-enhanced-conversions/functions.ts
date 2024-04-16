@@ -11,16 +11,22 @@ import {
   RequestClient,
   IntegrationError,
   PayloadValidationError,
-  DynamicFieldResponse,
-  APIError
+  DynamicFieldResponse
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
-
+import { HTTPError } from '@segment/actions-core'
 export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+
+export class GoogleAdsError extends HTTPError {
+  response: Response & {
+    status: string
+    statusText: string
+  }
+}
 
 export function formatCustomVariables(
   customVariables: object,
@@ -131,8 +137,8 @@ export async function getConversionActionDynamicData(
       choices: [],
       nextPage: '',
       error: {
-        message: (err as APIError).message ?? 'Unknown error',
-        code: (err as APIError).status + '' ?? 'Unknown error'
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
       }
     }
   }

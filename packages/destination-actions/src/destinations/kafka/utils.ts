@@ -2,8 +2,48 @@ import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSE
 import { DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
+import { DependsOnConditions } from '@segment/actions-core/destination-kittypes'
 
 export const DEFAULT_PARTITIONER = 'DefaultPartitioner'
+
+export const DEPENDS_ON_PLAIN_OR_SCRAM: DependsOnConditions = {
+  match: 'any',
+  conditions: [
+    {
+      fieldKey: 'mechanism',
+      operator: 'is',
+      value: 'plain'
+    },
+    {
+      fieldKey: 'mechanism',
+      operator: 'is',
+      value: 'scram-sha-256'
+    },
+    {
+      fieldKey: 'mechanism',
+      operator: 'is',
+      value: 'scram-sha-512'
+    }
+  ]
+}
+export const DEPEONDS_ON_AWS: DependsOnConditions = {
+  conditions: [
+    {
+      fieldKey: 'mechanism',
+      operator: 'is',
+      value: 'aws'
+    }
+  ]
+}
+export const DEPENDS_ON_CLIENT_CERT: DependsOnConditions = {
+  conditions: [
+    {
+      fieldKey: 'mechanism',
+      operator: 'is',
+      value: 'client-cert-auth'
+    }
+  ]
+}
 
 interface Message {
   value: string

@@ -1,46 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for MolocoRmp's home destination action: all fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's home destination action: all fields 1`] = `
 Object {
-  "channel_type": "M7i8t#AejMHF0ojzM0NV",
+  "channel_type": "oX6@7nLc*bK2e**e6t",
   "device": Object {
-    "advertising_id": "M7i8t#AejMHF0ojzM0NV",
-    "ip": "M7i8t#AejMHF0ojzM0NV",
-    "language": "M7i8t#AejMHF0ojzM0NV",
-    "model": "M7i8t#AejMHF0ojzM0NV",
-    "os": "M7I8T#AEJMHF0OJZM0NV",
-    "os_version": "M7i8t#AejMHF0ojzM0NV",
-    "ua": "M7i8t#AejMHF0ojzM0NV",
-    "unique_device_id": "M7i8t#AejMHF0ojzM0NV",
+    "advertising_id": "oX6@7nLc*bK2e**e6t",
+    "ip": "oX6@7nLc*bK2e**e6t",
+    "language": "oX6@7nLc*bK2e**e6t",
+    "model": "oX6@7nLc*bK2e**e6t",
+    "os": "OX6@7NLC*BK2E**E6T",
+    "os_version": "oX6@7nLc*bK2e**e6t",
+    "ua": "oX6@7nLc*bK2e**e6t",
+    "unique_device_id": "oX6@7nLc*bK2e**e6t",
   },
   "event_type": "HOME",
-  "id": "M7i8t#AejMHF0ojzM0NV",
+  "id": "oX6@7nLc*bK2e**e6t",
   "items": Array [
     Object {
-      "id": "M7i8t#AejMHF0ojzM0NV",
+      "id": "oX6@7nLc*bK2e**e6t",
       "price": Object {
-        "amount": 84218396593356.8,
-        "currency": "VEF",
+        "amount": 64501251361996.8,
+        "currency": "MYR",
       },
-      "quantity": 8421839659335680,
-      "seller_id": "M7i8t#AejMHF0ojzM0NV",
+      "quantity": 6450125136199680,
+      "seller_id": "oX6@7nLc*bK2e**e6t",
     },
   ],
-  "page_id": "M7i8t#AejMHF0ojzM0NV",
-  "session_id": "M7i8t#AejMHF0ojzM0NV",
+  "page_id": "oX6@7nLc*bK2e**e6t",
+  "session_id": "oX6@7nLc*bK2e**e6t",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "M7i8t#AejMHF0ojzM0NV",
+  "user_id": "oX6@7nLc*bK2e**e6t",
 }
 `;
 
-exports[`Testing snapshot for MolocoRmp's home destination action: required fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's home destination action: required fields 1`] = `
 Object {
-  "channel_type": "M7i8t#AejMHF0ojzM0NV",
+  "channel_type": "oX6@7nLc*bK2e**e6t",
   "event_type": "HOME",
-  "id": "M7i8t#AejMHF0ojzM0NV",
-  "page_id": "M7i8t#AejMHF0ojzM0NV",
-  "session_id": "M7i8t#AejMHF0ojzM0NV",
+  "id": "oX6@7nLc*bK2e**e6t",
+  "page_id": "oX6@7nLc*bK2e**e6t",
+  "session_id": "oX6@7nLc*bK2e**e6t",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "M7i8t#AejMHF0ojzM0NV",
+  "user_id": "oX6@7nLc*bK2e**e6t",
 }
 `;
