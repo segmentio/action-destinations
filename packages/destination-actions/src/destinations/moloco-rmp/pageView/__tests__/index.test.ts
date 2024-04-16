@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('MolocoRmp.pageView', () => {
+describe('MolocoMCM.pageView', () => {
   it('should successfully build an event and send', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
@@ -44,10 +44,9 @@ describe('MolocoRmp.pageView', () => {
         channel_type: 'SITE'
       },
       mapping: {
-
         // page_id is default to context.page.path
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)

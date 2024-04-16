@@ -219,7 +219,7 @@ async function getCustomObjects(
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: (err as HubSpotError)?.response?.status + '' ?? '500'
       }
     }
   }
@@ -248,7 +248,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: (err as HubSpotError)?.response?.status + '' ?? '500'
       }
     }
   }

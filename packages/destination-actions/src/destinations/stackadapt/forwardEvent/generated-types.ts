@@ -4,15 +4,19 @@ export interface Payload {
   /**
    * The ID of the user in Segment
    */
-  user_id: string
+  user_id?: string
   /**
    * The Segment event type (page, track, etc.)
    */
   event_type?: string
   /**
+   * The event name (e.g. Order Completed)
+   */
+  action?: string
+  /**
    * IP address of the user
    */
-  ip_fwd?: string
+  ip_fwd: string
   /**
    * The title of the page where the event occurred.
    */
@@ -32,7 +36,7 @@ export interface Payload {
   /**
    * User-Agent of the user
    */
-  user_agent?: string
+  user_agent: string
   /**
    * Email address of the individual who triggered the event.
    */
@@ -53,10 +57,6 @@ export interface Payload {
    * Additional ecommerce fields that are included in the pixel payload.
    */
   ecommerce_data?: {
-    /**
-     * The event name (e.g. Order Completed)
-     */
-    action?: string
     /**
      * The revenue generated from the event.
      */

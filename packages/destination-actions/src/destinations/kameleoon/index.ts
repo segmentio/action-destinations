@@ -3,6 +3,10 @@ import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import logEvent from './logEvent'
+import identify from './identify'
+import group from './group'
+import page from './page'
+
 import { BASE_URL } from './properties'
 
 const presets: DestinationDefinition['presets'] = [
@@ -16,22 +20,22 @@ const presets: DestinationDefinition['presets'] = [
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    partnerAction: 'page',
+    mapping: defaultValues(page.fields),
     type: 'automatic'
   },
   {
-    name: 'Screen Calls',
-    subscribe: 'type = "screen"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    name: 'Group Calls',
+    subscribe: 'type = "group"',
+    partnerAction: 'group',
+    mapping: defaultValues(group.fields),
     type: 'automatic'
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
-    partnerAction: 'logEvent',
-    mapping: defaultValues(logEvent.fields),
+    partnerAction: 'identify',
+    mapping: defaultValues(identify.fields),
     type: 'automatic'
   }
 ]
@@ -75,7 +79,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    logEvent
+    logEvent,
+    identify,
+    group,
+    page
   }
 }
 

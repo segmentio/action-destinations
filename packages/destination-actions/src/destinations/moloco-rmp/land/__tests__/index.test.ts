@@ -5,7 +5,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('MolocoRmp.land', () => {
+describe('MolocoMCM.land', () => {
   it('should successfully build an event and send', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
@@ -45,11 +45,11 @@ describe('MolocoRmp.land', () => {
         channel_type: 'SITE'
       },
       mapping: {
-        timestamp: { '@path': '$.timestamp' },
+        timestamp: { '@path': '$.timestamp' }
 
         // referrer_page_id is default to context.page.referrer
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
@@ -87,17 +87,17 @@ describe('MolocoRmp.land', () => {
       }
     })
 
-    await expect(testDestination.testAction('land', {
-      event,
-      settings: {
-        platformId: 'foo',
-        apiKey: 'bar',
-        channel_type: 'SITE'
-      },
-      mapping: {
-
-      },
-      useDefaultMappings: true,
-    })).rejects.toThrowError(AggregateAjvError)
+    await expect(
+      testDestination.testAction('land', {
+        event,
+        settings: {
+          platformId: 'foo',
+          apiKey: 'bar',
+          channel_type: 'SITE'
+        },
+        mapping: {},
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 })
