@@ -106,6 +106,21 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
   }
 }
 
+function validateDirectiveOrObject(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  switch (type) {
+    case 'directive':
+      return validateDirective(v, stack)
+    case 'object':
+      return validateObject(v, stack)
+    default:
+      throw new ValidationError(
+        `should be a object or a mapping directive but it is ${indefiniteArticle(type)} ${type}`,
+        stack
+      )
+  }
+}
+
 type validator = (v: unknown, stack: string[]) => void
 function chain(...validators: validator[]) {
   return (v: unknown, stack: string[] = []) => {
@@ -176,7 +191,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
-      errors.push(e)
+      errors.push(e as Error)
     }
   })
 
@@ -211,7 +226,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
-      errors.push(error)
+      errors.push(error as Error)
     }
   })
 
@@ -237,11 +252,12 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
       try {
         fn(v, [...stack, name])
       } catch (e) {
+        const err: Error = e as Error
         if (e instanceof ValidationError || e instanceof AggregateError) {
           throw e
         }
 
-        throw new ValidationError(e.message, stack)
+        throw new ValidationError(err.message, stack)
       }
     }
   })
@@ -304,6 +320,32 @@ directive('@json', (v, stack) => {
     },
     stack
   )
+})
+
+directive('@flatten', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      separator: { optional: validateString },
+      value: { required: validateDirectiveOrRaw }
+    },
+    stack
+  )
+})
+
+directive('@merge', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      direction: { optional: validateAllowedStrings('left', 'right') },
+      objects: { required: validateArray }
+    },
+    stack
+  )
+  const data = (v as Record<string, unknown>).objects as unknown[]
+  data.forEach((obj) => {
+    validateDirectiveOrObject(obj)
+  })
 })
 
 directive('@template', (v, stack) => {

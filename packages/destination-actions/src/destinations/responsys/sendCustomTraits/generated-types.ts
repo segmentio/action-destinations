@@ -23,4 +23,16 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * If true, all Recipient data will be converted to strings before being sent to Responsys.
+   */
+  stringify: boolean
+  /**
+   * The timestamp of when the event occurred.
+   */
+  timestamp: string | number
+  /**
+   * If true, a delay of 30 seconds will be added before retrying a failed request.
+   */
+  retry?: boolean
 }

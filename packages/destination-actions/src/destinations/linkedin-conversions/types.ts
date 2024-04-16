@@ -98,6 +98,9 @@ export interface ConversionRuleCreationResponse {
   id: string
   name: string
   type: string
+  attributionType: string
+  postClickAttributionWindowSize: number
+  viewThroughAttributionWindowSize: number
 }
 
 /** This request returns 204 no content */
@@ -115,4 +118,6 @@ export interface GetConversionRuleResponse {
   id?: string
   attributionType?: string
   account?: string
+  postClickAttributionWindowSize?: number
+  viewThroughAttributionWindowSize?: number
 }

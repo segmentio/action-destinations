@@ -33,12 +33,20 @@ export const handleRequestError = (error: unknown, statsName: string, statsConte
 
   const gError = error as GoogleAPIError
   const code = gError.response?.status
-  const message = gError.response?.data?.error?.message
+
+  // @ts-ignore - Errors can be objects or arrays of objects. This will work for both.
+  const message = gError.response?.data?.error?.message || gError.response?.data?.[0]?.error?.message
 
   if (code === 401) {
     statsTags?.push('error:invalid-authentication')
     statsClient?.incr(`${statsName}.error`, 1, statsTags)
     return new InvalidAuthenticationError(message, ErrorCodes.INVALID_AUTHENTICATION)
+  }
+
+  if (code === 403) {
+    statsTags?.push('error:forbidden')
+    statsClient?.incr(`${statsName}.error`, 1, statsTags)
+    return new IntegrationError(message, 'FORBIDDEN', 403)
   }
 
   if (code === 501) {

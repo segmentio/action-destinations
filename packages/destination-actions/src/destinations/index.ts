@@ -153,9 +153,13 @@ register('65b8e89cd96df17201b04a49', './surveysparrow')
 register('65c2465d0d7d550aa8e7e5c6', './avo')
 register('65c36c1e127fb2c8188a414c', './stackadapt')
 register('65cb48feaca9d46bf269ac4a', './accoil-analytics')
-register('6578a19fbd1201d21f035156', './responsys')
 register('65dde5755698cb0dab09b489', './kafka')
 register('65e71d50e1191c6273d1df1d', './kevel-audience')
+register('65f05e455b125cddd886b793', './moloco-rmp')
+register('6578a19fbd1201d21f035156', './responsys')
+register('65f9885371de48a7a3f6b4bf', './yotpo')
+register('65f98869b73d65a27152e088', './mantle')
+register('65f9888628c310646331738a', './chartmogul')
 
 
 function register(id: MetadataId, destinationPath: string) {

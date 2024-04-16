@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
@@ -75,7 +75,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName1: {
         label: 'First Column Match',
-        description: 'First match column for determining whether an insert or update should occur.',
+        description: `First match column for determining whether an insert or update should occur.
+                      An underscore (_) is implicitly appended to the match column name for the upsertListMember action.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },
@@ -90,7 +91,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName2: {
         label: 'Second Column Match',
-        description: 'Second match column for determining whether an insert or update should occur.',
+        description: `Second match column for determining whether an insert or update should occur.
+                      An underscore (_) is implicitly appended to the match column name for the upsertListMember action.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },
@@ -165,14 +167,10 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_, { settings }) => {
-      if (settings.profileListName.toUpperCase() !== settings.profileListName) {
-        return Promise.reject('List Name must be in Uppercase')
-      }
-
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
       } else {
-        return Promise.reject('Responsys endpoint URL must start with https://')
+        throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
     },
     refreshAccessToken: async (request, { settings }) => {

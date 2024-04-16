@@ -6,6 +6,7 @@ import { realTypeOf, isObject, isArray } from '../real-type-of'
 import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
+import { flattenObject } from './flatten'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -102,6 +103,23 @@ registerDirective('@case', (opts, payload) => {
 
 export const MAX_PATTERN_LENGTH = 10
 export const MAX_REPLACEMENT_LENGTH = 10
+
+function performReplace(value: string, pattern: string, replacement: string, flags: string) {
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    throw new Error(`@replace requires a "pattern" less than ${MAX_PATTERN_LENGTH} characters`)
+  }
+
+  if (replacement.length > MAX_REPLACEMENT_LENGTH) {
+    throw new Error(`@replace requires a "replacement" less than ${MAX_REPLACEMENT_LENGTH} characters`)
+  }
+
+  // We don't want users providing regular expressions for the pattern (for now)
+  // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
+  pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+
+  return value.replace(new RegExp(pattern, flags), replacement)
+}
+
 registerDirective('@replace', (opts, payload) => {
   if (!isObject(opts)) {
     throw new Error('@replace requires an object with a "pattern" key')
@@ -117,6 +135,12 @@ registerDirective('@replace', (opts, payload) => {
     opts.replacement = ''
   }
 
+  // Assume null/missing replacement means empty for pattern2 if exists
+  if (opts.pattern2 && opts.replacement2 == null) {
+    // Empty replacement string is ok
+    opts.replacement2 = ''
+  }
+
   // case sensitive by default if this key is missing
   if (opts.ignorecase == null) {
     opts.ignorecase = false
@@ -127,12 +151,19 @@ registerDirective('@replace', (opts, payload) => {
     opts.global = true
   }
 
-  let pattern = opts.pattern
+  const pattern = opts.pattern
   const replacement = opts.replacement
   const ignorecase = opts.ignorecase
   const isGlobal = opts.global
   if (opts.value) {
-    const value = resolve(opts.value, payload)
+    let value = resolve(opts.value, payload)
+    let new_value = ''
+
+    // We want to be able to replace values that are boolean or numbers
+    if (typeof value === 'boolean' || typeof value === 'number') {
+      value = String(value)
+    }
+
     if (
       typeof value === 'string' &&
       typeof pattern === 'string' &&
@@ -140,17 +171,6 @@ registerDirective('@replace', (opts, payload) => {
       typeof ignorecase === 'boolean' &&
       typeof isGlobal === 'boolean'
     ) {
-      if (pattern.length > MAX_PATTERN_LENGTH) {
-        throw new Error(`@replace requires a "pattern" less than ${MAX_PATTERN_LENGTH} characters`)
-      }
-
-      if (replacement.length > MAX_REPLACEMENT_LENGTH) {
-        throw new Error(`@replace requires a "replacement" less than ${MAX_REPLACEMENT_LENGTH} characters`)
-      }
-
-      // We don't want users providing regular expressions for the pattern (for now)
-      // https://stackoverflow.com/questions/F3115150/how-to-escape-regular-expression-special-characters-using-javascript
-      pattern = pattern.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
       let flags = ''
       if (isGlobal) {
         flags += 'g'
@@ -158,8 +178,16 @@ registerDirective('@replace', (opts, payload) => {
       if (ignorecase) {
         flags += 'i'
       }
-      return value.replace(new RegExp(pattern, flags), replacement)
+
+      new_value = performReplace(value, pattern, replacement, flags)
+
+      // If pattern2 exists, replace the new_value with replacement2
+      if (opts.pattern2 && typeof opts.pattern2 === 'string' && typeof opts.replacement2 === 'string') {
+        new_value = performReplace(new_value, opts.pattern2, opts.replacement2, flags)
+      }
     }
+
+    return new_value
   }
 })
 
@@ -196,6 +224,25 @@ registerDirective('@literal', (value, payload) => {
   return resolve(value, payload)
 })
 
+registerDirective('@flatten', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@flatten requires an object with a "separator" key')
+  }
+
+  if (!opts.separator) {
+    throw new Error('@flatten requires a "separator" key')
+  }
+
+  const separator = resolve(opts.separator, payload)
+  if (typeof separator !== 'string') {
+    throw new Error('@flatten requires a string separator')
+  }
+
+  const value = resolve(opts.value, payload)
+
+  return flattenObject(value, '', separator)
+})
+
 registerDirective('@json', (opts, payload) => {
   if (!isObject(opts)) {
     throw new Error('@json requires an object with a "value" key')
@@ -218,6 +265,29 @@ registerDirective('@json', (opts, payload) => {
     }
     return value
   }
+})
+
+registerDirective('@merge', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@merge requires an object with an "objects" key and a "direction" key')
+  }
+
+  if (!opts.direction) {
+    throw new Error('@merge requires a "direction" key')
+  }
+  const direction = resolve(opts.direction, payload)
+
+  if (!opts.objects) {
+    throw new Error('@merge requires a "objects" key')
+  }
+  if (!Array.isArray(opts.objects)) throw new Error(`@merge: expected opts.array, got ${typeof opts.objects}`)
+
+  const objects = opts.objects.map((v) => resolve(v, payload))
+  if (direction === 'left') {
+    objects.reverse()
+  }
+
+  return Object.assign({}, ...objects)
 })
 
 /**
