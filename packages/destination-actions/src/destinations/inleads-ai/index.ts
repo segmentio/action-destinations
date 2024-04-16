@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
         headers: {
           Authorization: `Basic ${AUTH_KEY}`
         },
-        json: {}
+        json: {apiKey: AUTH_KEY}
       })
     }
   },
