@@ -10,15 +10,7 @@ export interface Payload {
    */
   userId?: string
   /**
-   * The event name
-   */
-  event?: string
-  /**
-   * The type of the event
-   */
-  type: string
-  /**
-   * Additional event Properties or user Traits to send with the event
+   * Page properties
    */
   properties?: {
     [k: string]: unknown
@@ -28,9 +20,9 @@ export interface Payload {
    */
   kameleoonVisitorCode?: string
   /**
-   * The timestamp of the event
+   * The name of the page
    */
-  timestamp: string
+  name?: string
   /**
    * Context properties to send with the event
    */
@@ -38,7 +30,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The timestamp of the event
+   */
+  timestamp: string
+  /**
    * The Segment messageId
    */
-  messageId: string
+  messageId?: string
 }

@@ -6,9 +6,9 @@ import omit from 'lodash/omit'
 import { BASE_URL } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Log Event',
-  description: 'Send a track event to Kameleoon',
-  defaultSubscription: 'type = "track"',
+  title: 'Group Event',
+  description: 'Send group traits to Kameleoon',
+  defaultSubscription: 'type = "group"',
   fields: {
     anonymousId: {
       type: 'string',
@@ -22,39 +22,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
-    event: {
+    groupId: {
       type: 'string',
-      required: false,
-      description: 'The event name',
-      label: 'Event Name',
-      default: {
-        '@if': {
-          exists: { '@path': '$.event' },
-          then: { '@path': '$.event' },
-          else: { '@path': '$.name' }
-        }
-      }
-    },
-    type: {
-      label: 'Type',
-      type: 'string',
+      description: 'The group id',
+      label: 'Group ID',
       required: true,
-      description: 'The type of the event',
-      default: {
-        '@path': '$.type'
-      }
+      default: { '@path': '$.groupId' }
     },
     properties: {
       type: 'object',
       required: false,
-      description: 'Additional event Properties or user Traits to send with the event',
-      label: 'Event properties or user traits',
+      description: 'Traits to send with the event',
+      label: 'User Traits',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.traits' }
-        }
+        '@path': '$.traits'
       }
     },
     kameleoonVisitorCode: {
@@ -63,11 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Kameleoon Visitor Code - a unique identifier for the user',
       label: 'Kameleoon Visitor Code',
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.kameleoonVisitorCode' },
-          then: { '@path': '$.properties.kameleoonVisitorCode' },
-          else: { '@path': '$.traits.kameleoonVisitorCode' }
-        }
+        '@path': '$.traits.kameleoonVisitorCode'
       }
     },
     timestamp: {
@@ -77,13 +54,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
-    },
-    context: {
-      type: 'object',
-      required: false,
-      description: 'Context properties to send with the event',
-      label: 'Context properties',
-      default: { '@path': '$.context' }
     },
     messageId: {
       type: 'string',

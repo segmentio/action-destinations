@@ -10,15 +10,7 @@ export interface Payload {
    */
   userId?: string
   /**
-   * The event name
-   */
-  event?: string
-  /**
-   * The type of the event
-   */
-  type: string
-  /**
-   * Additional event Properties or user Traits to send with the event
+   * Traits to send with the event
    */
   properties?: {
     [k: string]: unknown
@@ -31,12 +23,6 @@ export interface Payload {
    * The timestamp of the event
    */
   timestamp: string
-  /**
-   * Context properties to send with the event
-   */
-  context?: {
-    [k: string]: unknown
-  }
   /**
    * The Segment messageId
    */
