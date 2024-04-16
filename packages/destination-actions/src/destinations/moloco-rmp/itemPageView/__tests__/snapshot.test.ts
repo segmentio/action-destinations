@@ -5,7 +5,7 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'itemPageView'
-const destinationSlug = 'MolocoRmp'
+const destinationSlug = 'MolocoMCM'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
