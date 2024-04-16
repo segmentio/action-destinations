@@ -8,7 +8,7 @@ Object {
     "kameleoonVisitorCode": "RdhEeD",
     "testType": "RdhEeD",
   },
-  "timestamp": "2083-02-02T02:25:03.398Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
   "userId": "RdhEeD",
 }
 `;
@@ -17,6 +17,6 @@ exports[`Testing snapshot for Kameleoon's identify destination action: required 
 Object {
   "messageId": "RdhEeD",
   "properties": Object {},
-  "timestamp": "2083-02-02T02:25:03.398Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
 }
 `;
