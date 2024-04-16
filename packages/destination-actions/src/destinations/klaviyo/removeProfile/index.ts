@@ -3,16 +3,31 @@ import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
 import { getProfiles, removeProfileFromList } from '../functions'
-import { email, list_id, external_id, enable_batching } from '../properties'
+import { enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
   description: 'Remove profile from list',
   defaultSubscription: 'event = "Identify"',
   fields: {
-    email: { ...email },
-    external_id: { ...external_id },
-    list_id: { ...list_id },
+    email: {
+      label: 'Email',
+      description: `Individual's email address. One of External ID, Phone Number and Email required.`,
+      type: 'string',
+      format: 'email',
+      default: { '@path': '$.traits.email' }
+    },
+    external_id: {
+      label: 'External ID',
+      description: `A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Phone Number and Email required.`,
+      type: 'string'
+    },
+    list_id: {
+      label: 'List',
+      description: `The Klaviyo list to add the profile to.`,
+      type: 'string',
+      dynamic: true
+    },
     enable_batching: { ...enable_batching }
   },
   perform: async (request, { payload }) => {
