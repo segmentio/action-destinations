@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * An Identifier for the Contact. This can be the Contact's email address or the value of any other Contact property which is set to be unique. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.
+   * An Identifier for the Contact. This can be the Contact's email address or the value of any other unique Contact property. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.
    */
   email: string
   /**
