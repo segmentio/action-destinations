@@ -1,6 +1,6 @@
-import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import type { Settings } from './generated-types'
 import { RipeSDK } from './types'
 
 import group from './group'
@@ -83,25 +83,29 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
       name: 'Group user',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify user',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Page view',
       subscribe: 'type = "page"',
       partnerAction: 'page',
-      mapping: defaultValues(page.fields)
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
     },
     {
       name: 'Track event',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     }
   ]
 }

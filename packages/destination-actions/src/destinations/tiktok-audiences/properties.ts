@@ -42,15 +42,39 @@ export const custom_audience_name: InputField = {
 export const email: InputField = {
   label: 'User Email',
   description: "The user's email address to send to TikTok.",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
+  type: 'string',
   default: {
-    '@path': '$.context.traits.email'
+    '@if': {
+      exists: { '@path': '$.context.traits.email' },
+      then: { '@path': '$.context.traits.email' },
+      else: { '@path': '$.properties.email' }
+    }
   }
 }
 
 export const send_email: InputField = {
-  label: 'Send Email',
+  label: 'Send Email?',
   description: 'Send email to TikTok. Segment will hash this value before sending',
+  type: 'boolean',
+  default: true
+}
+
+export const phone: InputField = {
+  label: 'User Phone Number',
+  description: "The user's phone number to send to TikTok.",
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.context.traits.phone' },
+      then: { '@path': '$.context.traits.phone' },
+      else: { '@path': '$.properties.phone' }
+    }
+  }
+}
+
+export const send_phone: InputField = {
+  label: 'Send Phone Number?',
+  description: 'Send phone number to TikTok. Segment will hash this value before sending',
   type: 'boolean',
   default: true
 }
@@ -58,14 +82,14 @@ export const send_email: InputField = {
 export const advertising_id: InputField = {
   label: 'User Advertising ID',
   description: "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID",
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+  type: 'string',
   default: {
     '@path': '$.context.device.advertisingId'
   }
 }
 
 export const send_advertising_id: InputField = {
-  label: 'Send Mobile Advertising ID',
+  label: 'Send Mobile Advertising ID?',
   description:
     'Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.',
   type: 'boolean',
@@ -75,7 +99,8 @@ export const send_advertising_id: InputField = {
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'The name of the current Segment event.',
-  type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+  type: 'string',
+  unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
   default: {
     '@path': '$.event'
   }
@@ -85,5 +110,16 @@ export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching of requests to the TikTok Audiences.',
   type: 'boolean',
-  default: true
+  default: true,
+  unsafe_hidden: true
+}
+
+export const external_audience_id: InputField = {
+  label: 'External Audience ID',
+  description: "The Audience ID in TikTok's DB.",
+  type: 'string',
+  unsafe_hidden: true,
+  default: {
+    '@path': '$.context.personas.external_audience_id'
+  }
 }

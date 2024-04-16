@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AggregationsIo's send destination action: all fields 1`] = `
+Array [
+  Object {
+    "testType": "#^vP0",
+  },
+]
+`;
+
+exports[`Testing snapshot for AggregationsIo's send destination action: required fields 1`] = `
+Array [
+  null,
+]
+`;

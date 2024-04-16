@@ -30,7 +30,7 @@ describe('ActionsMoengage.identifyUser', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toBe(
-      `{"type":"track","user_id":"user1234","traits":{"name":"abc"},"context":{"app":{},"os":{},"library":{"version":"2.11.1"}},"anonymous_id":"${event.anonymousId}","timestamp":"${event.timestamp}"}`
+      `{"type":"track","user_id":"user1234","traits":{"name":"abc"},"context":{"app":{},"os":{},"library":{"version":"2.11.1"}},"anonymous_id":"${event.anonymousId}","timestamp":"${event.timestamp}","update_existing_only":false}`
     )
   })
 

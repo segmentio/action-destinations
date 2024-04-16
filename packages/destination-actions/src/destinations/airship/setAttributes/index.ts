@@ -92,17 +92,17 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         mobile_phone: {
           label: 'Mobile Phone Number',
-          type: 'integer',
+          type: 'string',
           description: "The user's mobile phone number."
         },
         home_phone: {
           label: 'Home Phone Number',
-          type: 'integer',
+          type: 'string',
           description: "The user's home phone number."
         },
         work_phone: {
           label: 'Work Phone Number',
-          type: 'integer',
+          type: 'string',
           description: "The user's work phone number."
         },
         loyalty_tier: {

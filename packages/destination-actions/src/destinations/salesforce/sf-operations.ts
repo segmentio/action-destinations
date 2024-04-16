@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
@@ -151,6 +151,8 @@ export default class Salesforce {
       return await this.bulkUpsert(payloads, sobject)
     } else if (payloads[0].operation === 'update') {
       return await this.bulkUpdate(payloads, sobject)
+    } else if (payloads[0].operation === 'create') {
+      return await this.bulkInsert(payloads, sobject)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -160,12 +162,6 @@ export default class Salesforce {
         400
       )
     }
-
-    throw new IntegrationError(
-      `Unsupported operation: Bulk API does not support the create operation`,
-      'Unsupported operation',
-      400
-    )
   }
 
   customObjectName = async (): Promise<DynamicFieldResponse> => {
@@ -202,6 +198,11 @@ export default class Salesforce {
     }
   }
 
+  private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
+    // The idField is purposely passed as an empty string since the field is not required.
+    return this.handleBulkJob(payloads, sobject, '', 'insert')
+  }
+
   private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
@@ -215,13 +216,7 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-
-    const jobId = await this.createBulkJob(sobject, externalIdFieldName, 'upsert')
-
-    const csv = buildCSVData(payloads, externalIdFieldName)
-
-    await this.uploadBulkCSV(jobId, csv)
-    return await this.closeBulkJob(jobId)
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
   }
 
   private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
@@ -233,24 +228,50 @@ export default class Salesforce {
       )
     }
 
-    const jobId = await this.createBulkJob(sobject, 'Id', 'update')
-    const csv = buildCSVData(payloads, 'Id')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+  }
 
-    await this.uploadBulkCSV(jobId, csv)
+  private async handleBulkJob(
+    payloads: GenericPayload[],
+    sobject: string,
+    idField: string,
+    operation: string
+  ): Promise<ModifiedResponse<unknown>> {
+    // construct the CSV data to catch errors before creating a bulk job
+    const csv = buildCSVData(payloads, idField)
+    const jobId = await this.createBulkJob(sobject, idField, operation)
+    try {
+      await this.uploadBulkCSV(jobId, csv)
+    } catch (err) {
+      // always close the "bulk job" otherwise it will get
+      // stuck in "pending".
+      //
+      // run in background to ensure this service has time to respond
+      // with useful information before the connection closes.
+      this.closeBulkJob(jobId).catch((_) => {
+        // ignore close error to avoid masking the root error
+      })
+      throw err
+    }
     return await this.closeBulkJob(jobId)
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+    const jsonData: { object: string; contentType: 'CSV'; operation: string; externalIdFieldName?: string } = {
+      object: sobject,
+      contentType: 'CSV',
+      operation: operation
+    }
+
+    if (operation === 'update' || operation === 'upsert') {
+      jsonData.externalIdFieldName = externalIdFieldName
+    }
+
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
         method: 'post',
-        json: {
-          object: sobject,
-          externalIdFieldName: externalIdFieldName,
-          contentType: 'CSV',
-          operation: operation
-        }
+        json: jsonData
       }
     )
 

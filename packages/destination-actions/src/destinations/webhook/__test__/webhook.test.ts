@@ -116,7 +116,6 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         ]
 
         const payload = JSON.stringify(events.map(({ properties }) => properties))
-        console.log(payload)
         const sharedSecret = 'abc123'
         nock(url)
           .post('/', payload)

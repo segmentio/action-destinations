@@ -17,11 +17,11 @@ describe('Ripe', () => {
     })
 
     it('should work', async () => {
-      nock('https://api.getripe.com/core-backend').post('/identify').reply(200, {})
+      nock('https://api.getripe.com/event').post('/identify').reply(200, {})
 
       const responses = await testDestination.testAction('identify', {
         mapping: { anonymousId: 'my-id', traits: {} },
-        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
+        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/event' }
       })
 
       expect(responses.length).toBe(1)

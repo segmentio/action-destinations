@@ -1,221 +1,199 @@
-import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import CustomerIO from '../index'
+import { createTestEvent } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
-import { AccountRegion } from '../utils'
-
-const testDestination = createTestIntegration(CustomerIO)
-const trackService = nock('https://track.customer.io/api/v1')
+import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
   describe('createUpdateDevice', () => {
-    it('should work with default mappings when userId is supplied', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const deviceId = 'device_123'
-      const deviceType = 'ios'
-      const timestamp = dayjs.utc().toISOString()
-      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        timestamp,
-        context: {
-          device: {
-            token: deviceId,
-            type: deviceType
+    testRunner((settings: Settings, action: Function) => {
+      it('should work with default mappings when userId is supplied', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
           }
-        }
-      })
-      const responses = await testDestination.testAction('createUpdateDevice', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
+        })
+        const response = await action('createUpdateDevice', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        device: {
-          id: deviceId,
-          platform: deviceType,
-          last_used: dayjs.utc(timestamp).unix()
-        }
-      })
-    })
-
-    it("should not convert last_used if it's invalid", async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const deviceId = 'device_123'
-      const deviceType = 'ios'
-      const timestamp = '2018-03-04T12:08:56.235 PDT'
-      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US' })
-      const event = createTestEvent({
-        userId,
-        timestamp,
-        context: {
+        expect(response).toEqual({
+          action: 'add_device',
           device: {
+            attributes: {},
             token: deviceId,
-            type: deviceType
+            platform: deviceType,
+            last_used: dayjs.utc(timestamp).unix()
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
+      it('should work if `attributes` is unmapped', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
           }
-        }
-      })
-      const responses = await testDestination.testAction('createUpdateDevice', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toMatchObject({
-        device: {
-          id: deviceId,
-          platform: deviceType,
-          last_used: timestamp
-        }
-      })
-    })
+        const mapping = getDefaultMappings('createUpdateDevice')
 
-    it('should not convert last_used to a unix timestamp when convert_timestamp is false', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.US
-      }
-      const userId = 'abc123'
-      const deviceId = 'device_123'
-      const deviceType = 'ios'
-      const timestamp = dayjs.utc().toISOString()
-      trackService.put(`/customers/${userId}/devices`).reply(200, {})
-      const event = createTestEvent({
-        userId,
-        timestamp,
-        context: {
+        // Ensure attributes is not mapped, such as for previous customers who have not updated their mappings.
+        delete mapping.attributes
+
+        const response = await action('createUpdateDevice', { event, mapping, settings })
+
+        expect(response).toStrictEqual({
+          action: 'add_device',
           device: {
+            attributes: {},
             token: deviceId,
-            type: deviceType
+            platform: deviceType,
+            last_used: dayjs.utc(timestamp).unix()
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
+      it('should include app_version', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            app: {
+              version: '1.23'
+            },
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
           }
-        }
-      })
-      const responses = await testDestination.testAction('createUpdateDevice', {
-        event,
-        settings,
-        mapping: {
-          convert_timestamp: false
-        },
-        useDefaultMappings: true
-      })
+        })
+        const response = await action('createUpdateDevice', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        device: {
-          id: deviceId,
-          platform: deviceType,
-          last_used: timestamp
-        }
-      })
-    })
-
-    it('should work with the EU account region', async () => {
-      const trackEUService = nock('https://track-eu.customer.io/api/v1')
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde',
-        accountRegion: AccountRegion.EU
-      }
-      const userId = 'abc123'
-      const deviceId = 'device_123'
-      const deviceType = 'ios'
-      const timestamp = dayjs.utc().toISOString()
-      trackEUService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'EU' })
-      const event = createTestEvent({
-        userId,
-        timestamp,
-        context: {
+        expect(response).toEqual({
+          action: 'add_device',
           device: {
+            attributes: {
+              app_version: '1.23'
+            },
             token: deviceId,
-            type: deviceType
+            platform: deviceType,
+            last_used: dayjs.utc(timestamp).unix()
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+      })
+
+      it("should not convert last_used if it's invalid", async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = '2018-03-04T12:08:56.235 PDT'
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
           }
-        }
-      })
-      const responses = await testDestination.testAction('createUpdateDevice', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
+        })
+        const response = await action('createUpdateDevice', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'EU',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        device: {
-          id: deviceId,
-          platform: deviceType,
-          last_used: dayjs.utc(timestamp).unix()
-        }
-      })
-    })
-
-    it('should fall back to the US account region', async () => {
-      const settings: Settings = {
-        siteId: '12345',
-        apiKey: 'abcde'
-      }
-      const userId = 'abc123'
-      const deviceId = 'device_123'
-      const deviceType = 'ios'
-      const timestamp = dayjs.utc().toISOString()
-      trackService.put(`/customers/${userId}/devices`).reply(200, {}, { 'x-customerio-region': 'US-fallback' })
-      const event = createTestEvent({
-        userId,
-        timestamp,
-        context: {
+        expect(response).toEqual({
+          action: 'add_device',
           device: {
+            attributes: {},
             token: deviceId,
-            type: deviceType
-          }
-        }
-      })
-      const responses = await testDestination.testAction('createUpdateDevice', {
-        event,
-        settings,
-        useDefaultMappings: true
+            platform: deviceType,
+            last_used: timestamp
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].headers.toJSON()).toMatchObject({
-        'x-customerio-region': 'US-fallback',
-        'content-type': 'application/json'
-      })
-      expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.json).toMatchObject({
-        device: {
-          id: deviceId,
-          platform: deviceType,
-          last_used: dayjs.utc(timestamp).unix()
-        }
+      it('should not convert last_used to a unix timestamp when convert_timestamp is false', async () => {
+        const userId = 'abc123'
+        const deviceId = 'device_123'
+        const deviceType = 'ios'
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          context: {
+            device: {
+              token: deviceId,
+              type: deviceType
+            }
+          }
+        })
+        const response = await action('createUpdateDevice', {
+          event,
+          settings,
+          mapping: {
+            convert_timestamp: false
+          },
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          action: 'add_device',
+          device: {
+            attributes: {},
+            token: deviceId,
+            platform: deviceType,
+            last_used: timestamp
+          },
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
       })
     })
   })

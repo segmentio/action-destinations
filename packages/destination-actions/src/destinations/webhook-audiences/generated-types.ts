@@ -14,3 +14,11 @@ export interface Settings {
    */
   getAudienceUrl?: string
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
+  /**
+   * Extra json fields to pass on to every request. Note: "externalId" and "audienceName" are reserved.
+   */
+  extras?: string
+}

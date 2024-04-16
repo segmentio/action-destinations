@@ -57,13 +57,15 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send an event to GWEN',
       subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultValues(sendEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify a user',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     }
   ]
 }

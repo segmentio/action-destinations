@@ -57,15 +57,14 @@ export default class Serve extends Command {
       })
 
       const { selectedDestination } = await autoPrompt<{ selectedDestination: { name: string } }>(flags, {
-        type: 'select',
+        type: 'autocomplete',
         name: 'selectedDestination',
         message: 'Which destination?',
         choices: integrationDirs.map((integrationPath) => {
           const [name] = integrationPath.split(path.sep).reverse()
-          const destinationPath = isBrowser ? path.join(name, 'src') : name
           return {
             title: name,
-            value: { name: destinationPath }
+            value: { name: name }
           }
         })
       })
@@ -108,7 +107,8 @@ export default class Serve extends Command {
           ...process.env,
           DESTINATION: destinationName,
           DIRECTORY: flags.directory,
-          TS_NODE_PROJECT: require.resolve('../../tsconfig.json')
+          TS_NODE_PROJECT: require.resolve('../../tsconfig.json'),
+          ENTRY: isBrowser ? path.join('src', 'index.ts') : 'index.ts'
         },
         execArgv: [
           '-r',

@@ -1,7 +1,6 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
-import { DEFAULT_SEGMENT_ENDPOINT } from '../properties'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
@@ -14,33 +13,33 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
-      nock(/.*/).persist().put(/.*/).reply(200)
+      let event
+      if (actionSlug === 'sendSubscription') {
+        event = createTestEvent({
+          properties: {
+            email: 'tester11@seg.com',
+            email_subscription_status: true,
+            phone: '+12135618345',
+            sms_subscription_status: true,
+            engage_space: 'engage-space-writekey',
+            user_id: 'user12'
+          }
+        })
+      } else {
+        event = createTestEvent({
+          properties: eventData
+        })
+      }
 
-      const event = createTestEvent({
-        properties: eventData
-      })
-
-      const responses = await testDestination.testAction(actionSlug, {
+      await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
+        settings: { ...settingsData },
         auth: undefined
       })
 
-      const request = responses[0].request
-      const rawBody = await request.text()
-
-      try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
-
-      expect(request.headers).toMatchSnapshot()
+      const results = testDestination.results
+      expect(results[results.length - 1]).toMatchSnapshot()
     })
 
     it(`${actionSlug} action - all fields`, async () => {
@@ -52,27 +51,33 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().post(/.*/).reply(200)
       nock(/.*/).persist().put(/.*/).reply(200)
 
-      const event = createTestEvent({
-        properties: eventData
-      })
+      let event
+      if (actionSlug === 'sendSubscription') {
+        event = createTestEvent({
+          properties: {
+            email: 'tester11@seg.com',
+            email_subscription_status: true,
+            phone: '+12135618345',
+            sms_subscription_status: true,
+            engage_space: 'engage-space-writekey',
+            user_id: 'user12'
+          }
+        })
+      } else {
+        event = createTestEvent({
+          properties: eventData
+        })
+      }
 
-      const responses = await testDestination.testAction(actionSlug, {
+      await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: { ...settingsData, endpoint: DEFAULT_SEGMENT_ENDPOINT },
+        settings: { ...settingsData },
         auth: undefined
       })
 
-      const request = responses[0].request
-      const rawBody = await request.text()
-
-      try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
+      const results = testDestination.results
+      expect(results[results.length - 1]).toMatchSnapshot()
     })
   }
 })

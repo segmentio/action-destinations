@@ -18,10 +18,10 @@ import {
   screen,
   locale,
   location,
-  traits
+  traits,
+  enable_batching
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Identify',
@@ -45,47 +45,55 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    traits
+    traits,
+    enable_batching
   },
-  perform: (request, { payload, settings }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const identifyPayload = {
-      userId: payload?.user_id,
-      anonymousId: payload?.anonymous_id,
-      timestamp: payload?.timestamp,
-      context: {
-        app: payload?.application,
-        campaign: payload?.campaign_parameters,
-        device: payload?.device,
-        ip: payload?.ip_address,
-        locale: payload?.locale,
-        location: payload?.location,
-        network: payload?.network,
-        os: payload?.operating_system,
-        page: payload?.page,
-        screen: payload?.screen,
-        userAgent: payload?.user_agent,
-        timezone: payload?.timezone,
-        groupId: payload?.group_id
-      },
-      traits: {
-        ...payload?.traits
+    const identifyPayload = convertPayload(payload)
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendIdentify'])
+    return { batch: [identifyPayload] }
+  },
+  performBatch: (_request, { payload, statsContext }) => {
+    const identifyPayload = payload.map((data) => {
+      if (!data.anonymous_id && !data.user_id) {
+        throw MissingUserOrAnonymousIdThrowableError
       }
-    }
-
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
-    return request(`${selectedSegmentEndpoint}/identify`, {
-      method: 'POST',
-      json: identifyPayload
+      return convertPayload(data)
     })
+
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:identifyBatchPayload'])
+    return { batch: identifyPayload }
+  }
+}
+
+function convertPayload(data: Payload) {
+  return {
+    userId: data?.user_id,
+    anonymousId: data?.anonymous_id,
+    timestamp: data?.timestamp,
+    context: {
+      app: data?.application,
+      campaign: data?.campaign_parameters,
+      device: data?.device,
+      ip: data?.ip_address,
+      locale: data?.locale,
+      location: data?.location,
+      network: data?.network,
+      os: data?.operating_system,
+      page: data?.page,
+      screen: data?.screen,
+      userAgent: data?.user_agent,
+      timezone: data?.timezone,
+      groupId: data?.group_id
+    },
+    traits: {
+      ...data?.traits
+    },
+    type: 'identify'
   }
 }
 

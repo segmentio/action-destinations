@@ -2,7 +2,7 @@ import { createHash } from 'crypto'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 
-const BASE_API_URL = 'https://api.criteo.com/2023-01'
+const BASE_API_URL = 'https://api.criteo.com/2023-10'
 
 export const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) return
@@ -23,7 +23,7 @@ class CriteoAPIError extends IntegrationError {
 
 export type Operation = {
   operation_type: string
-  audience_id: string
+  contactlist_id: string
   user_list: string[]
 }
 
@@ -78,15 +78,19 @@ export const criteoAuthenticate = async (
   return credentials
 }
 
-export const patchAudience = async (
+export const patchContactList = async (
   request: RequestClient,
   operation: Operation,
   credentials: ClientCredentials
 ): Promise<Response> => {
-  if (isNaN(+operation.audience_id))
-    throw new IntegrationError(`The Audience ID should be a number (${operation.audience_id})`, 'Invalid input', 400)
+  if (isNaN(+operation.contactlist_id))
+    throw new IntegrationError(
+      `The Audience Segment ID should be a number (${operation.contactlist_id})`,
+      'Invalid input',
+      400
+    )
 
-  const endpoint = `${BASE_API_URL}/audiences/${operation.audience_id}/contactlist`
+  const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/${operation.contactlist_id}/contact-list`
   const headers = await getRequestHeaders(request, credentials)
   const payload = {
     data: {
@@ -105,95 +109,125 @@ export const patchAudience = async (
   })
 }
 
-export const getAdvertiserAudiences = async (
+export const getContactListIdByName = async (
   request: RequestClient,
   advertiser_id: string,
-  credentials: ClientCredentials
-): Promise<Array<Record<string, any>>> => {
-  if (isNaN(+advertiser_id)) throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
-
-  const endpoint = `${BASE_API_URL}/audiences?advertiser-id=${advertiser_id}`
-  const headers = await getRequestHeaders(request, credentials)
-  const response = await request(endpoint, { method: 'GET', headers: headers })
-
-  const body = await response.json()
-
-  if (response.status !== 200)
-    // Centrifuge will automatically retry the batch if there's
-    // an issue fetching the Advertiser's audiences from Criteo.
-    throw new RetryableError("Error while fetching the Advertiser's audiences")
-
-  return body.data
-}
-
-export const getAudienceIdByName = async (
-  request: RequestClient,
-  advertiser_id: string,
-  audience_name: string,
+  audience_segment_name: string,
   credentials: ClientCredentials
 ): Promise<string | undefined> => {
-  const advertiser_audiences = await getAdvertiserAudiences(request, advertiser_id, credentials)
-  for (const audience of advertiser_audiences) {
-    if (audience.attributes.name === audience_name) return audience.id
+  if (isNaN(+advertiser_id)) throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
+
+  const LIMIT = 100
+  const headers = await getRequestHeaders(request, credentials)
+  const payload = {
+    data: {
+      attributes: {
+        audienceSegmentTypes: ['ContactList'],
+        advertiserIds: [advertiser_id]
+      }
+    }
   }
+
+  let continue_search = true
+  let offset = 0
+  interface AudienceSegment {
+    attributes: {
+      [key: string]: unknown
+    }
+    id: string
+    type: string
+  }
+
+  interface ApiResponse {
+    data: AudienceSegment[]
+    meta: {
+      totalItems: number
+    }
+  }
+
+  let body: ApiResponse
+
+  do {
+    const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/search?limit=${LIMIT}&offset=${offset}`
+
+    const response = await request(endpoint, {
+      method: 'POST',
+      skipResponseCloning: true,
+      headers: headers,
+      json: payload
+    })
+
+    body = response.data as ApiResponse
+
+    if (response.status !== 200)
+      // Centrifuge will automatically retry the batch if there's
+      // an issue fetching the Advertiser's audiences from Criteo.
+      throw new RetryableError("Error while fetching the Advertiser's audiences")
+
+    // If the contact list is found, return the corresponding ID
+    for (const contactlist of body.data) {
+      if (contactlist.attributes.name === audience_segment_name) return contactlist.id
+    }
+
+    // Else, continue searching
+    offset += LIMIT
+    continue_search = body.meta.totalItems > offset
+  } while (continue_search)
 }
 
-export const getAudienceId = async (
+export const getContactListId = async (
   request: RequestClient,
   advertiser_id: string,
-  audience_name: string,
+  name: string,
   credentials: ClientCredentials
 ): Promise<string> => {
-  let audience_id = undefined
+  let contactlist_id = undefined
 
-  if (!audience_name) throw new IntegrationError(`Invalid Audience Name: ${audience_name}`, 'Invalid input', 400)
+  if (!name) throw new IntegrationError(`Invalid Audience Segment Name: ${name}`, 'Invalid input', 400)
 
-  // Loop through the advertiser's audiences. If the audience name is found, return the corresponding ID.
-  audience_id = await getAudienceIdByName(request, advertiser_id, audience_name, credentials)
-  if (audience_id) return audience_id
+  contactlist_id = await getContactListIdByName(request, advertiser_id, name, credentials)
+  if (contactlist_id && !isNaN(+contactlist_id)) return contactlist_id
 
-  // If the audience is not found, create it
+  // If the contact list is not found, create it
   try {
-    return await createAudience(request, advertiser_id, audience_name, credentials)
+    return await createContactList(request, advertiser_id, name, credentials)
   } catch (e) {
     if (e instanceof CriteoAPIError) {
       // If the audience was created in the meantime
-      if (e.error && e.error.code === 'invalid-audience-name-duplicated') {
-        // Return the audience ID from the error message
-        audience_id = e.error.detail.split(' ').pop()
-        if (audience_id && !isNaN(+audience_id)) return audience_id
-
-        // If no audience ID found in the error message, loop through the advertiser's audiences
-        audience_id = await getAudienceIdByName(request, advertiser_id, audience_name, credentials)
-        if (audience_id && !isNaN(+audience_id)) return audience_id
+      if (e.error && e.error.code === 'name-must-be-unique') {
+        // Loop through the advertiser's contact lists to find the contact list ID
+        contactlist_id = await getContactListIdByName(request, advertiser_id, name, credentials)
+        if (contactlist_id && !isNaN(+contactlist_id)) return contactlist_id
       }
     }
-    // If no audience ID was found, throw the error. Because the status code is 400,
+    // If no contact list ID was found, throw the error. Because the status code is 400,
     // Centrifuge will not automatically retry the batch, hence the batch has failed permanently.
     throw e
   }
 }
 
-export const createAudience = async (
+export const createContactList = async (
   request: RequestClient,
   advertiser_id: string,
-  audience_name: string,
+  name: string,
   credentials: ClientCredentials
 ): Promise<string> => {
-  if (!audience_name) throw new IntegrationError(`Invalid Audience Name: ${audience_name}`, 'Invalid audience', 400)
+  if (!name) throw new IntegrationError(`Invalid Contact List Name: ${name}`, 'Invalid audience', 400)
   if (isNaN(+advertiser_id)) throw new IntegrationError('The Advertiser ID should be a number', 'Invalid input', 400)
 
-  const endpoint = `${BASE_API_URL}/audiences`
+  const endpoint = `${BASE_API_URL}/marketing-solutions/audience-segments/create`
   const headers = await getRequestHeaders(request, credentials)
   const payload = {
-    data: {
-      attributes: {
-        advertiserId: advertiser_id,
-        name: audience_name,
-        description: audience_name
-      },
-      type: 'Audience'
-    }
+    data: [
+      {
+        attributes: {
+          advertiserId: advertiser_id,
+          name: name,
+          description: name,
+          contactList: {}
+        }
+      }
+    ]
   }
 
   const response = await request(endpoint, { method: 'POST', headers: headers, json: payload, throwHttpErrors: false })
@@ -201,8 +235,32 @@ export const createAudience = async (
 
   if (response.status !== 200) {
     const err = body.errors && body.errors[0] ? body.errors[0] : undefined
-    throw new CriteoAPIError(`Error while creating the Audience`, 'Criteo audience creation error', 400, err)
+    throw new CriteoAPIError(`Error while creating the Contact List`, 'Criteo contact list creation error', 400, err)
   }
 
-  return body.data.id
+  if (!Array.isArray(body.data)) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] not returned`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
+  if (body.data.length === 0) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[] is empty`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
+  if (body.data[0].id === undefined) {
+    throw new CriteoAPIError(
+      `Error while creating the Contact List. data[0].id is undefined`,
+      'Criteo contact list creation error',
+      403
+    )
+  }
+
+  return body.data[0].id
 }

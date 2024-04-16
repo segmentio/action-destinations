@@ -473,6 +473,81 @@ describe('@arrayPath', () => {
   })
 })
 
+describe('@json', () => {
+  test('encode', () => {
+    const output = transform({ neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    expect(output).toStrictEqual({ neat: '"bar"' })
+  })
+
+  test('encode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ neat: '{"bar":"baz"}' })
+  })
+
+  test('encode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.foo' } } } },
+      { foo: ['bar', 'baz'] }
+    )
+    expect(output).toStrictEqual({ neat: '["bar","baz"]' })
+  })
+
+  test('decode', () => {
+    const output = transform({ neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } }, { foo: '"bar"' })
+    expect(output).toStrictEqual({ neat: 'bar' })
+  })
+
+  test('decode_object', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '{"bar":"baz"}' }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz' } })
+  })
+
+  test('decode_array', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: '["bar","baz"]' }
+    )
+    expect(output).toStrictEqual({ neat: ['bar', 'baz'] })
+  })
+
+  test('invalid mode', () => {
+    expect(() => {
+      transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })
+    }).toThrowError()
+  })
+
+  test('invalid value', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'encode', value: { '@path': '$.bad' } } } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({})
+  })
+})
+
+describe('@flatten', () => {
+  test('simple', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: { bar: 'baz', aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', 'aces.a': 1, 'aces.b': 2 } })
+  })
+  test('array value first', () => {
+    const output = transform(
+      { result: { '@flatten': { value: { '@path': '$.foo' }, separator: '.' } } },
+      { foo: [{ fazz: 'bar', fizz: 'baz' }] }
+    )
+    expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
+  })
+})
+
 describe('@path', () => {
   test('simple', () => {
     const output = transform({ neat: { '@path': '$.foo' } }, { foo: 'bar' })
@@ -713,6 +788,74 @@ describe('@replace', () => {
     )
     expect(output).toStrictEqual('different+things')
   })
+  test('replace boolean', () => {
+    const payload = {
+      a: true
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
+  test('replace number', () => {
+    const payload = {
+      a: 1
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '1',
+          replacement: 'granted',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('granted')
+  })
+  test('replace 2 values', () => {
+    const payload = {
+      a: 'something-great!'
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '-',
+          replacement: ' ',
+          pattern2: 'great',
+          replacement2: 'awesome',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('something awesome!')
+  })
+  test('replace with 2 values but only second one exists', () => {
+    const payload = {
+      a: false
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: 'true',
+          replacement: 'granted',
+          pattern2: 'false',
+          replacement2: 'denied',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('denied')
+  })
 })
 
 describe('remove undefined values in objects', () => {
@@ -734,5 +877,81 @@ describe('remove undefined values in objects', () => {
       x: { y: {} },
       foo: 1
     })
+  })
+})
+
+describe('@merge', () => {
+  // simple test cases that have the same output regardless of direction
+  ;['left', 'right'].forEach((direction) => {
+    test('empty', () => {
+      const output = transform({ '@merge': { direction, objects: [] } }, {})
+      expect(output).toStrictEqual({})
+    })
+
+    test('one object', () => {
+      const output = transform({ '@merge': { direction, objects: [{ cool: true }] } }, {})
+      expect(output).toStrictEqual({ cool: true })
+    })
+
+    test('invalid type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: { oops: true } } })
+      }).toThrowError()
+    })
+
+    test('invalid nested type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: [{}, 1] } })
+      }).toThrowError()
+    })
+  })
+
+  test('invalid direction specified', () => {
+    expect(() => {
+      transform({ '@merge': { direction: 'up', objects: [{ oh: 'yeah' }, {}] } })
+    }).toThrowError()
+  })
+
+  // expect a different output based on direction
+  test('simple overwrite default direction', () => {
+    const output = transform({ '@merge': { direction: 'right', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: 'you bet' })
+  })
+
+  test('nested directive default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'you' })
+  })
+
+  test('simple overwrite left direction', () => {
+    const output = transform({ '@merge': { direction: 'left', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: true })
+  })
+
+  test('nested directive left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'there' })
   })
 })

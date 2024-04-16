@@ -15,5 +15,3 @@ export const devrevApiPaths = {
   timelineEntriesCreate: '/timeline-entries.create',
   trackEventsPublish: '/internal/track-events.publish'
 }
-
-export const devrevApiRoot = 'https://api.devrev.ai'

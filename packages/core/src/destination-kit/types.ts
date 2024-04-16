@@ -1,4 +1,4 @@
-import { StateContext, Logger, StatsContext, TransactionContext } from './index'
+import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -12,15 +12,29 @@ export type MaybePromise<T> = T | Promise<T>
 export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
+  // Data to be returned from action
+  data?: JSONObject | null
 }
 
-export interface ExecuteInput<Settings, Payload> {
+export interface ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings = unknown,
+  ActionHookInputs = any,
+  ActionHookOutputs = any
+> {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
   readonly settings: Settings
+  /** The audience-specific destination settings */
+  readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
+  /** Inputs into an actions hook performHook method */
+  hookInputs?: ActionHookInputs
+  /** Stored outputs from an invokation of an actions hook */
+  hookOutputs?: Partial<Record<ActionHookType, ActionHookOutputs>>
   /** The page used in dynamic field requests */
   page?: string
   /** The data needed in OAuth requests */
@@ -32,6 +46,7 @@ export interface ExecuteInput<Settings, Payload> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -76,22 +91,14 @@ export interface GlobalSetting {
   default?: string | number | boolean
   properties?: InputField['properties']
   format?: InputField['format']
+  depends_on?: InputField['depends_on']
 }
 
 /** The supported field type names */
-export type FieldTypeName =
-  | 'string'
-  | 'text'
-  | 'number'
-  | 'integer'
-  | 'datetime'
-  | 'boolean'
-  | 'password'
-  | 'object'
-  | 'hidden'
+export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
-/** The shape of an input field definition */
-export interface InputField {
+/** Properties of an InputField which are involved in creating the generated-types.ts file */
+export interface InputFieldJSONSchema {
   /** A short, human-friendly label for the field */
   label: string
   /** A human-friendly description of the field */
@@ -106,10 +113,6 @@ export interface InputField {
   additionalProperties?: boolean
   /** An optional default value for the field */
   default?: FieldValue
-  /** A placeholder display value that suggests what to input */
-  placeholder?: string
-  /** Whether or not the field supports dynamically fetching options */
-  dynamic?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -150,7 +153,13 @@ export interface InputField {
     | 'uuid' // Universally Unique IDentifier according to RFC4122.
     | 'password' // hint to the UI to hide/obfuscate input strings
     | 'text' // longer strings
+}
 
+export interface InputField extends InputFieldJSONSchema {
+  /** A placeholder display value that suggests what to input */
+  placeholder?: string
+  /** Whether or not the field supports dynamically fetching options */
+  dynamic?: boolean
   /**
    * Determines the UI representation of the object field. Only applies to object types.
    * Key Value Editor: Users can specify individual object keys and their mappings, ideal for custom objects.
@@ -161,6 +170,47 @@ export interface InputField {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+
+  /**
+   * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
+   * some kind of hardcoded internal "setting". For example the `enable_batching` field which is hardcoded to true for some destinations.
+   */
+  unsafe_hidden?: boolean
+
+  /**
+   * Determines whether this field should be read only in the UI. Best used for fields where the default path of the
+   * value is always known. This should always be used in combination with some `default` value. Otherwise users will be
+   * locked out from editing an empty field.
+   */
+  readOnly?: boolean
+
+  /**
+   * Determines whether this field will be shown in the UI. This is useful for when some field becomes irrelevant based on
+   * the value of another field.
+   */
+  depends_on?: DependsOnConditions
+}
+
+/**
+ * A single condition defining whether a field should be shown.
+ * fieldKey: The field key in the fields object to look at
+ * operator: The operator to use when comparing the field value
+ * value: The value we expect that field to have, if undefined, we will match based on whether the field contains a value or not
+ */
+export interface Condition {
+  fieldKey: string
+  operator: 'is' | 'is_not'
+  value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
+}
+
+/**
+ * If match is not set, it will default to 'all'
+ * If match = 'any', then meeting any of the conditions defined will result in the field being shown.
+ * If match = 'all', then meeting all of the conditions defined will result in the field being shown.
+ */
+export interface DependsOnConditions {
+  match?: 'any' | 'all'
+  conditions: Condition[]
 }
 
 export type FieldValue = string | number | boolean | object | Directive

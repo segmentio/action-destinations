@@ -20,6 +20,14 @@ export interface Payload {
    */
   analytics_storage_consent_state?: string
   /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_user_data_consent_state?: string
+  /**
+   * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
+   */
+  ad_personalization_consent_state?: string
+  /**
    * Use campaign content to differentiate ads or links that point to the same URL. Setting this value will override the utm_content query parameter.
    */
   campaign_content?: string
@@ -67,4 +75,14 @@ export interface Payload {
    * The resolution of the screen. Format should be two positive integers separated by an x (i.e. 800x600). If not set, calculated from the user's window.screen value.
    */
   screen_resolution?: string
+  /**
+   * Selection overrides toggled value set within Settings
+   */
+  send_page_view?: boolean
+  /**
+   * The event parameters to send to Google Analytics 4.
+   */
+  params?: {
+    [k: string]: unknown
+  }
 }

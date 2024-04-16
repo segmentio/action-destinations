@@ -2,8 +2,16 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { params, coupon, currency, value, items_multi_products, user_id, user_properties } from '../ga4-properties'
-import { updateUser } from '../ga4-functions'
+import {
+  params,
+  coupon,
+  currency,
+  value,
+  items_multi_products,
+  user_id,
+  user_properties,
+  send_to
+} from '../ga4-properties'
 
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Begin Checkout',
@@ -20,16 +28,18 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     },
     value: value,
     params: params,
-    user_properties: user_properties
+    user_properties: user_properties,
+    send_to: send_to
   },
-  perform: (gtag, { payload }) => {
-    updateUser(payload.user_id, payload.user_properties, gtag)
-
+  perform: (gtag, { payload, settings }) => {
     gtag('event', 'begin_checkout', {
       currency: payload.currency,
       value: payload.value,
       coupon: payload.coupon,
       items: payload.items,
+      user_id: payload.user_id ?? undefined,
+      user_properties: payload.user_properties,
+      send_to: payload.send_to == true ? settings.measurementID : 'default',
       ...payload.params
     })
   }

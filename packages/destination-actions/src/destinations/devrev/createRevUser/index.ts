@@ -12,8 +12,9 @@ import {
   getDomain,
   devrevApiPaths,
   CreateAccountBody,
-  devrevApiRoot,
-  getName
+  getName,
+  getBaseUrl,
+  CreateRevUserBody
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -91,9 +92,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    tag: async (request): Promise<DynamicFieldResponse> => {
+    tag: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const result: TagsResponse = await request(`${devrevApiRoot}${devrevApiPaths.tagsList}`, {
+        const result: TagsResponse = await request(`${getBaseUrl(settings)}${devrevApiPaths.tagsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -121,14 +122,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const domain = getDomain(settings, email)
     const name = getName(payload)
     const existingUsers: RevUserListResponse = await request(
-      `${devrevApiRoot}${devrevApiPaths.revUsersList}?email="${email}"`
+      `${getBaseUrl(settings)}${devrevApiPaths.revUsersList}?email="${email}"`
     )
     let revUserId, accountId, revOrgId
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
       let requestUrl
-      if (domain !== email) requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?domains="${domain}"`
-      else requestUrl = `${devrevApiRoot}${devrevApiPaths.accountsList}?external_refs="${domain}"`
+      if (domain !== email) requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?domains="${domain}"`
+      else requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?external_refs="${domain}"`
       const existingAccount: AccountListResponse = await request(requestUrl)
       if (existingAccount.data.accounts.length == 0) {
         // Create account
@@ -139,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (payload.tag) requestBody.tags = [{ id: payload.tag }]
         if (domain != email) requestBody.domains = [domain]
 
-        const createAccount: AccountGet = await request(`${devrevApiRoot}${devrevApiPaths.accountCreate}`, {
+        const createAccount: AccountGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.accountCreate}`, {
           method: 'post',
           json: requestBody
         })
@@ -149,20 +150,22 @@ const action: ActionDefinition<Settings, Payload> = {
         accountId = existingAccount.data.accounts[0].id
       }
       const accountRevorgs: RevOrgListResponse = await request(
-        `${devrevApiRoot}${devrevApiPaths.revOrgsList}?account=${accountId}`
+        `${getBaseUrl(settings)}${devrevApiPaths.revOrgsList}?account=${accountId}`
       )
       const filtered = accountRevorgs.data.rev_orgs.filter(
         (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
       )
       revOrgId = filtered[0].id
-      const createRevUser: RevUserGet = await request(`${devrevApiRoot}${devrevApiPaths.revUsersCreate}`, {
+      const createUserPayload: CreateRevUserBody = {
+        email,
+        display_name: name,
+        external_ref: email,
+        org_id: revOrgId
+      }
+      if (payload.tag) createUserPayload.tags = [{ id: payload.tag }]
+      const createRevUser: RevUserGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.revUsersCreate}`, {
         method: 'post',
-        json: {
-          email,
-          full_name: name,
-          external_ref: email,
-          org_id: revOrgId
-        }
+        json: createUserPayload
       })
       revUserId = createRevUser.data.rev_user.id
     } else if (existingUsers.data.rev_users.length == 1) {
@@ -176,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
       revUserId = sorted[0].id
     }
     if (payload.comment) {
-      await request(`${devrevApiRoot}${devrevApiPaths.timelineEntriesCreate}`, {
+      await request(`${getBaseUrl(settings)}${devrevApiPaths.timelineEntriesCreate}`, {
         method: 'post',
         json: {
           object: revUserId,

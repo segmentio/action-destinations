@@ -1,8 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { createHash } from 'crypto'
-import { Settings } from '../snap-conversions-api/generated-types'
-import { Payload } from './reportConversionEvent/generated-types'
 
 export const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -67,6 +63,52 @@ export const CURRENCY_ISO_4217_CODES = new Set([
   'XOF'
 ])
 
+export const products: InputField = {
+  label: 'Products',
+  description:
+    "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+  type: 'object',
+  multiple: true,
+  additionalProperties: false,
+  properties: {
+    item_id: {
+      label: 'Item ID',
+      type: 'string',
+      description:
+        'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
+      allowNull: false
+    },
+    item_category: {
+      label: 'Category',
+      type: 'string',
+      description: 'Category of the item. This field accepts a string.',
+      allowNull: false
+    },
+    brand: {
+      label: 'Brand',
+      type: 'string',
+      description: 'Brand associated with the item. This field accepts a string.',
+      allowNull: false
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        item_id: {
+          '@path': 'product_id'
+        },
+        item_category: {
+          '@path': 'category'
+        },
+        brand: {
+          '@path': 'brand'
+        }
+      }
+    ]
+  }
+}
+
 export const event_type: InputField = {
   label: 'Event Type',
   description:
@@ -94,7 +136,7 @@ export const event_tag: InputField = {
 export const timestamp: InputField = {
   label: 'Event Timestamp',
   description:
-    'The Epoch timestamp for when the conversion happened.  The timestamp cannot be more than 28 days in the past.',
+    'The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 28 days in the past.',
   type: 'string',
   default: {
     '@path': '$.timestamp'
@@ -129,7 +171,10 @@ export const uuid_c1: InputField = {
   label: 'uuid_c1 Cookie',
   description:
     'Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.',
-  type: 'string'
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.uuid_c1'
+  }
 }
 
 export const idfv: InputField = {
@@ -177,16 +222,27 @@ export const ip_address: InputField = {
 
 export const item_category: InputField = {
   label: 'Item Category',
-  description: 'Category of the item.',
+  description: 'Category of the item. This field accepts a string.',
   type: 'string',
   default: {
     '@path': '$.properties.category'
   }
 }
 
+export const brands: InputField = {
+  label: 'Brand',
+  description: 'Brand associated with the item. This field accepts a string or a list of strings',
+  type: 'string',
+  multiple: true,
+  default: {
+    '@path': '$.properties.brand'
+  }
+}
+
 export const item_ids: InputField = {
-  label: 'Item IDs',
-  description: 'International Article Number (EAN) when applicable, or other product or category identifier.',
+  label: 'Item ID',
+  description:
+    'Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.',
   type: 'string',
   default: {
     '@path': '$.properties.product_id'
@@ -201,7 +257,7 @@ export const description: InputField = {
 
 export const number_items: InputField = {
   label: 'Number of Items',
-  description: 'Number of items.',
+  description: 'Number of items. This field accepts a string only. e.g. "5"',
   type: 'string',
   default: {
     '@path': '$.properties.quantity'
@@ -210,13 +266,14 @@ export const number_items: InputField = {
 
 export const price: InputField = {
   label: 'Price',
-  description: 'Value of the purchase.This should be a single number.',
+  description:
+    "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
   type: 'number',
   default: {
     '@if': {
-      exists: { '@path': '$.properties.price' },
-      then: { '@path': '$.properties.price' },
-      else: { '@path': '$.properties.value' }
+      exists: { '@path': '$.properties.revenue' },
+      then: { '@path': '$.properties.revenue' },
+      else: { '@path': '$.properties.total' }
     }
   }
 }
@@ -293,87 +350,8 @@ export const click_id: InputField = {
   label: 'Click ID',
   description:
     "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
-  type: 'string'
-}
-
-//Check to see what ids need to be passed depending on the event_conversion_type
-export const conversionType = (settings: Settings, event_conversion_type: String): Settings => {
-  if (event_conversion_type === 'MOBILE_APP') {
-    if (!settings?.snap_app_id || !settings?.app_id) {
-      throw new IntegrationError(
-        'If event conversion type is "MOBILE_APP" then Snap App ID and App ID must be defined',
-        'Misconfigured required field',
-        400
-      )
-    }
-    delete settings?.pixel_id
-  } else {
-    if (!settings?.pixel_id) {
-      throw new IntegrationError(
-        `If event conversion type is "${event_conversion_type}" then Pixel ID must be defined`,
-        'Misconfigured required field',
-        400
-      )
-    }
-    delete settings?.snap_app_id
-    delete settings?.app_id
-  }
-  return settings
-}
-
-export const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const formatPayload = (payload: Payload): Object => {
-  //Normalize fields based on Snapchat Data Hygiene https://marketingapi.snapchat.com/docs/conversion.html#auth-requirements
-  if (payload.email) {
-    //Removes all leading and trailing whitespace and converts all characters to lowercase.
-    payload.email = payload.email.replace(/\s/g, '').toLowerCase()
-  }
-
-  if (payload.phone_number) {
-    //Removes all non-numberic characters and leading zeros.
-    payload.phone_number = payload.phone_number.replace(/\D|^0+/g, '')
-  }
-
-  if (payload.mobile_ad_id) {
-    //Converts all characters to lowercase
-    payload.mobile_ad_id = payload.mobile_ad_id.toLowerCase()
-  }
-
-  return {
-    event_type: payload?.event_type,
-    event_conversion_type: payload?.event_conversion_type,
-    event_tag: payload?.event_tag,
-    timestamp: Date.parse(payload?.timestamp),
-    hashed_email: isHashedEmail(String(payload?.email)) ? payload?.email : hash(payload?.email),
-    hashed_mobile_ad_id: hash(payload?.mobile_ad_id),
-    uuid_c1: payload?.uuid_c1,
-    hashed_idfv: hash(payload?.idfv),
-    hashed_phone_number: hash(payload?.phone_number),
-    user_agent: payload?.user_agent,
-    hashed_ip_address: hash(payload?.ip_address),
-    item_category: payload?.item_category,
-    item_ids: payload?.item_ids,
-    description: payload?.description,
-    number_items: payload?.number_items,
-    price: payload?.price,
-    currency: payload?.currency,
-    transaction_id: payload?.transaction_id,
-    level: payload?.level,
-    client_dedup_id: payload?.client_dedup_id,
-    search_string: payload?.search_string,
-    page_url: payload?.page_url,
-    sign_up_method: payload?.sign_up_method,
-    device_model: payload?.device_model,
-    os_version: payload?.os_version,
-    click_id: payload?.click_id
+  type: 'string',
+  default: {
+    '@path': '$.integrations.Snap Conversions Api.click_id'
   }
 }

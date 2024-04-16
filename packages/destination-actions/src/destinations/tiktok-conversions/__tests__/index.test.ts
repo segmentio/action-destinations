@@ -38,7 +38,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
@@ -106,7 +106,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
@@ -172,7 +172,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
@@ -237,7 +237,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
@@ -303,7 +303,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
@@ -369,7 +369,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.2/pixel/track').post('/').reply(200, {})
+      nock('https://business-api.tiktok.com/open_api/v1.3/pixel/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
