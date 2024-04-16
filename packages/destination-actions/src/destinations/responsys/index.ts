@@ -76,7 +76,8 @@ const destination: DestinationDefinition<Settings> = {
       matchColumnName1: {
         label: 'First Column Match',
         description: `First match column for determining whether an insert or update should occur.
-                      A trailing underscore (_) is added to the match column name at the time of request to Responsys. 
+                      A trailing underscore (_) is added to the match column name at the time of request 
+                      to Responsys. 
                       This aligns with Responsys’ naming conventions for match columns.`,
         type: 'string',
         choices: [
@@ -93,7 +94,8 @@ const destination: DestinationDefinition<Settings> = {
       matchColumnName2: {
         label: 'Second Column Match',
         description: `Second match column for determining whether an insert or update should occur.
-                      A trailing underscore (_) is added to the match column name at the time of request to Responsys. 
+                      A trailing underscore (_) is added to the match column name at the time of request 
+                      to Responsys. 
                       This aligns with Responsys’ naming conventions for match columns.`,
         type: 'string',
         choices: [
