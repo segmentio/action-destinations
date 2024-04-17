@@ -6,12 +6,7 @@ import { IntegrationBaseUrl } from '../../contants'
 
 const testDestination = createTestIntegration(Destination)
 
-beforeAll(() => {
-  nock.disableNetConnect()
-})
-
 afterAll(() => {
-  nock.enableNetConnect()
   nock.cleanAll()
 })
 
@@ -28,6 +23,9 @@ const inleadsGroupData = {
   },
   created_at: {
     '@path': '$.traits.created_at'
+  },
+  utc_time: {
+    '@path': '$.timestamp'
   },
   traits: {
     '@path': '$.traits'
@@ -100,6 +98,7 @@ describe('InleadsAI.group', () => {
           name: event.traits?.name
         },
         apiKey: API_KEY,
+        utc_time: event.timestamp?.toString(),
       })
       .reply(200, { success: true })
 

@@ -13,13 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       description: 'The External ID of the account to send properties for',
       label: 'Account id',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.group_id' },
-          then: { '@path': '$.context.group_id' },
-          else: { '@path': '$.groupId' }
-        }
-      }
+      default: { '@path': '$.groupId' }
     },
     user_id: {
       type: 'string',

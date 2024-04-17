@@ -5,12 +5,7 @@ import { API_KEY } from '../../__tests__/index.test'
 
 const testDestination = createTestIntegration(Destination)
 
-beforeAll(() => {
-  nock.disableNetConnect()
-})
-
 afterAll(() => {
-  nock.enableNetConnect()
   nock.cleanAll()
 })
 
@@ -20,6 +15,9 @@ const inleadsData = {
   },
   user_id: {
     '@path': '$.userId'
+  },
+  utc_time: {
+    '@path': '$.timestamp'
   }
 }
 
@@ -75,7 +73,8 @@ describe('InleadsAI.track', () => {
       .post('/events/track', {
         apiKey: API_KEY,
         eventName: event.event,
-        user_id: event.userId
+        user_id: event.userId,
+        utc_time: event.timestamp?.toString(),
       }, {
         reqheaders: {
           Authorization: `Basic ${API_KEY}`

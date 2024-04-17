@@ -7,12 +7,7 @@ export const API_KEY = 'b95291ac-1bb8-47ed-af7b-c2809ba0e8e2'
 
 const testDestination = createTestIntegration(Definition)
 
-beforeAll(() => {
-  nock.disableNetConnect()
-})
-
 afterAll(() => {
-  nock.enableNetConnect()
   nock.cleanAll()
 })
 

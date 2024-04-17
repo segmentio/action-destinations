@@ -5,12 +5,7 @@ import { API_KEY } from '../../__tests__/index.test'
 
 const testDestination = createTestIntegration(Destination)
 
-beforeAll(() => {
-  nock.disableNetConnect()
-})
-
 afterAll(() => {
-  nock.enableNetConnect()
   nock.cleanAll()
 })
 
@@ -163,7 +158,7 @@ describe('InleadsAI.identify', () => {
         timezone:event.context?.timezone,
         url: event.context?.page?.url,
         user_language: event.context?.locale,
-        utc_time: event.timestamp?.toString() || "2024-04-16T10:07:58.738Z",
+        utc_time: event.timestamp?.toString(),
         utm: {},
         screen:{}
       })

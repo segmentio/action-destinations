@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       description: 'The Traits of the track call',
       label: 'Event Traits',
-      default: { '@path': '$.traits' }
+      default: { '@path': '$.context.traits' }
     },
     ...commonFields
   },
