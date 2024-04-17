@@ -1,12 +1,13 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadS3, validateS3 } from './s3'
-import { generateFile } from '../operations'
-import { sendEventToAWS } from '../awsClient'
-import { DELIVRAI_MIN_RECORD_COUNT, DELIVRAI_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import { validateS3 } from './s3'
+import { DELIVRAI_MIN_RECORD_COUNT } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
+import * as fs from 'fs'
+import path from 'path'
+import AWS from 'aws-sdk'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -111,32 +112,158 @@ async function processData(input: ProcessDataInput<Payload>) {
     )
   }
 
-  validateS3(input.payloads[0])
+  //validateS3(input.payloads[0])
+  
+  const credentials = {
+    accessKeyId: input.payloads[0].s3_aws_access_key,
+    secretAccessKey: input.payloads[0].s3_aws_secret_key,
+    region: input.payloads[0].s3_aws_region // e.g., 'us-east-1'
+  };
 
-  const { filename, fileContents } = generateFile(input.payloads)
 
-  if (input.features && input.features[DELIVRAI_LEGACY_FLOW_FLAG_NAME] === true) {
-    //------------
-    // LEGACY FLOW
-    // -----------
-    return uploadS3(input.payloads[0], filename, fileContents, input.request)
+  const bucketName = input.payloads[0].s3_aws_bucket_name;
+  const objectKey = input.payloads[0].audience_key+'.csv';
+ 
+ AWS.config.update(credentials);
+
+// Write data to CSV
+function convertArrayToCSV() {
+  const inputData = input?.rawData ?  input?.rawData : [];
+
+  const extractedData = inputData.map(obj => ({
+    userId: obj.userId,
+    email: obj.email
+  }));
+
+  const header = Object.keys(extractedData[0]).join(',') + '\n';
+
+  const rows = extractedData.map(obj =>
+      Object.values(obj).map(val => {
+          if (typeof val === 'string') {
+              // If value contains commas, wrap it with double quotes
+              if (val.includes(',')) {
+                  return `"${val}"`;
+              } else {
+                  return val;
+              }
+          } else {
+              return val;
+          }
+      }).join(',')
+  ).join('\n');
+
+  return header + rows;
+}
+
+// Generate CSV content
+const csvContent = convertArrayToCSV();
+const csvFilePath = path.join(__dirname,`./files/${input.payloads[0].audience_key}.csv`);
+console.log('local csvFilePath ', csvFilePath);
+fs.writeFile(csvFilePath, csvContent, err => {
+  if (err) {
+      console.error('Error writing CSV file:', err);
   } else {
-    //------------
-    // AWS FLOW
-    // -----------
-    return sendEventToAWS(input.request, {
-      audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
-      uploadType: 's3',
-      filename,
-      fileContents,
-      s3Info: {
-        s3BucketName: input.payloads[0].s3_aws_bucket_name,
-        s3Region: input.payloads[0].s3_aws_region,
-        s3AccessKeyId: input.payloads[0].s3_aws_access_key,
-        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
-      }
-    })
+     // console.log('CSV file has been successfully created!');
   }
+}); 
+
+
+const s3 = new AWS.S3();
+
+const params = {
+    Bucket: bucketName,
+    Key: objectKey,
+    Body: fs.createReadStream(csvFilePath)
+};
+
+function handleDelete(filePath) {
+  return new Promise((resolve, reject) => {
+      fs.unlink(filePath, (err) => {
+          if (err) {
+              console.error('Error while deleting file:', err);
+              reject(err);
+          } else {
+              console.log('File deleted successfully');
+              resolve('done');
+          }
+      });
+  });
+}
+
+async function uploadToS3(params) {
+  return new Promise((resolve, reject) => {
+      s3.upload(params, (err, data) => {
+          if (err) {
+              console.error('Error uploading to S3:', err);
+              void handleDelete(csvFilePath);
+              reject(err);
+          } else {
+              console.log('CSV file uploaded to S3:', data.Location);
+              void handleDelete(csvFilePath);
+              resolve(data);
+          }
+      });
+  });
+}
+
+try{
+  const data = await uploadToS3(params);
+  return data;
+
+  //  return await s3.upload(params , (err, data) => {
+  //       if (err) { 
+  //           console.error('Error uploading to S3:', err);
+  //           fs.unlink(csvFilePath, (err) => {
+  //             if (err) {
+  //               console.error('Error while deleting file:', err);
+  //               return;
+  //             }
+  //             console.log('File deleted successfully');
+  //           });
+  //           return err;
+  //       } else {
+  //           console.log('CSV file uploaded to S3:', data.Location);
+  //           fs.unlink(csvFilePath, (err) => {
+  //             if (err) {
+  //               console.error('Error while deleting file:', err);
+  //               return;
+  //             }
+  //             console.log('File deleted successfully');
+  //           });
+  //           return data;
+  //       }
+  //   })
+}catch (err) {
+  console.error('Error while uploading file:', err.message);
+  return err;
+} finally {
+  // Disconnect from the SFTP server
+ console.log('Disconnected from SFTP server');
+}
+  // const { filename, fileContents } = generateFile(input.payloads)
+
+  // if (input.features && input.features[DELIVRAI_LEGACY_FLOW_FLAG_NAME] === true) {
+  //   //------------
+  //   // LEGACY FLOW
+  //   // -----------
+  //   return uploadS3(input.payloads[0], filename, fileContents, input.request)
+  // } else {
+  //   //------------
+  //   // AWS FLOW
+  //   // -----------
+  //   return sendEventToAWS(input.request, {
+  //     audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
+  //     uploadType: 's3',
+  //     filename,
+  //     fileContents,
+  //     s3Info: {
+  //       s3BucketName: input.payloads[0].s3_aws_bucket_name,
+  //       s3Region: input.payloads[0].s3_aws_region,
+  //       s3AccessKeyId: input.payloads[0].s3_aws_access_key,
+  //       s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
+  //     }
+  //   })
+  // }
 }
 
 export default action

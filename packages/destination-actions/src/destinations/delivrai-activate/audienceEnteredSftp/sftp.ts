@@ -35,19 +35,23 @@ function validateSFTP(payload: Payload) {
 
 async function uploadSFTP(sftp: Client, payload: Payload, filename: string, fileContent: Buffer) {
   return doSFTP(sftp, payload, async (sftp) => {
-    const targetPath = path.join(payload.sftp_folder_path as string, filename)
+    const targetPath = path.join(payload.sftp_folder_path as string, filename);
+    console.log(targetPath);
     return sftp.put(fileContent, targetPath)
-  })
+  }) 
 }
 
 async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): Promise<unknown> }) {
+
+  console.log('doSFTP called ');
+ 
   await sftp.connect({
     host: DELIVRAI_SFTP_SERVER,
     port: DELIVRAI_SFTP_PORT,
     username: payload.sftp_username,
     password: payload.sftp_password
   })
-
+  console.log('after sftp connect');
   let timeoutError
   const timeout = setTimeout(() => {
     void sftp.end().catch((err) => {

@@ -3,6 +3,7 @@ import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@s
 import { Payload } from './generated-types'
 
 function validateS3(payload: Payload) {
+
   if (!payload.s3_aws_access_key) {
     throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Access Key')
   }

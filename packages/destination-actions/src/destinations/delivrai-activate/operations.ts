@@ -2,6 +2,8 @@ import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
+import * as fs from 'fs'
+import path from 'path'
 
 // Type definitions
 export type RawData = {
@@ -27,10 +29,35 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   AudienceSettings
 > & { rawData?: RawData }
 
+
 /*
-Generates the DelivrAI ingestion file. Expected format:
-DelivrAI_audience_key[1],identifier_data[0..n]
+  Identifiers need to be hashed according to delivr spec's:
+  https://docs.delivr.ai/
 */
+const normalize = (key: string, value: string): string => {
+  switch (key) {
+    case 'phone_number': {
+      // Remove all country extensions, parentheses, and hyphens before hashing.
+      // For example, if the input phone number is "+1 (555) 123-4567", convert that to "5551234567" before hashing.
+
+      // This regex matches the country code in the first group, and captures the remaining digits.
+      // because the captures are optional, the regex works correctly even if some parts of the phone number are missing.
+      const phoneRegex = /(?:\+1)?\s*\(?\s*(\d+)\s*-?\)?\s*(\d+)\s*-?\s*(\d+)/
+      const match = phoneRegex.exec(value)
+      if (!match || match.length < 4) return value
+
+      // Drop the ALL capture. Return the rest of captures joined together.
+      return match.slice(1).join('')
+    }
+
+    case 'email': {
+      return value.toLowerCase().trim()
+    }
+  }
+
+  return value
+}
+
 function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   // Using a Set to keep track of headers
   const headers = new Set<string>()
@@ -74,14 +101,6 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   return { filename, fileContents: rows }
 }
 
-/*
-  To avoid collision with delimeters, we should surround identifiers with quotation marks.
-  https://docs.delivr.ai/
-
-  Examples:
-  LCD TV -> "LCD TV"
-  LCD TV,50" -> "LCD TV,50"""
-*/
 function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
 }
@@ -92,32 +111,5 @@ const hash = (value: string): string => {
   return hash.digest('hex')
 }
 
-/*
-  Identifiers need to be hashed according to delivr spec's:
-  https://docs.delivr.ai/
-*/
-const normalize = (key: string, value: string): string => {
-  switch (key) {
-    case 'phone_number': {
-      // Remove all country extensions, parentheses, and hyphens before hashing.
-      // For example, if the input phone number is "+1 (555) 123-4567", convert that to "5551234567" before hashing.
 
-      // This regex matches the country code in the first group, and captures the remaining digits.
-      // because the captures are optional, the regex works correctly even if some parts of the phone number are missing.
-      const phoneRegex = /(?:\+1)?\s*\(?\s*(\d+)\s*-?\)?\s*(\d+)\s*-?\s*(\d+)/
-      const match = phoneRegex.exec(value)
-      if (!match || match.length < 4) return value
-
-      // Drop the ALL capture. Return the rest of captures joined together.
-      return match.slice(1).join('')
-    }
-
-    case 'email': {
-      return value.toLowerCase().trim()
-    }
-  }
-
-  return value
-}
-
-export { generateFile, enquoteIdentifier, normalize }
+export { normalize ,generateFile,enquoteIdentifier }
