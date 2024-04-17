@@ -29,11 +29,10 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true,
           choices: [
-            { label: `Auto Detect`, value: 'AUTO' },
             { label: `Create`, value: 'CREATE' },
             { label: 'Delete', value: 'DELETE' }
           ],
-          default: 'AUTO'
+          default: 'CREATE'
         },
         countryCode: {
           label: 'Country Code',
