@@ -539,7 +539,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
 
   it('should return error message and code if dynamic fetch fails', async () => {
     const errorResponse = {
-      status: 'error',
+      status: '400',
       message: 'Unable to fetch schemas',
       correlationId: 'da20ed7c-1834-43c8-8d29-c8f65c411bc2',
       category: 'INVALID_AUTHENTICATION'
@@ -553,7 +553,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
 
     expect(responses.choices.length).toBe(0)
     expect(responses.error?.message).toEqual(errorResponse.message)
-    expect(responses.error?.code).toEqual(errorResponse.category)
+    expect(responses.error?.code).toEqual(errorResponse.status)
   })
 
   it('should handle flattening of objects', async () => {
