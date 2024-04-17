@@ -37,7 +37,7 @@ export interface EventData {
   data: {
     type: string
     attributes: {
-      properties?: object
+      properties?: { products?: [] }
       time?: string | number
       value?: number
       metric: {
