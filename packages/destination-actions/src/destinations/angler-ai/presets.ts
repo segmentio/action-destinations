@@ -18,7 +18,7 @@ export const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Save Order',
-    subscribe: 'event = "Purchase" or event = "Order Completed"',
+    subscribe: 'event = "Order Completed"',
     partnerAction: 'saveOrder',
     mapping: defaultValues(saveOrder.fields),
     type: 'automatic'
