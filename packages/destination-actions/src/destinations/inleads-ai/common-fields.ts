@@ -20,6 +20,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       deviceModel: { '@path': '$.context.device.model' },
       timeZone: { '@path': '$.context.timezone' },
     },
+    defaultObjectUI: 'keyvalue',
   },
   anonymous_id: {
     type: 'string',
@@ -59,9 +60,10 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   },
   utc_time: {
     type: 'string',
-    required: false,
+    required: true,
     description: 'The time of the event in UTC.',
     label: 'UTC Time',
+    format: 'date-time',
     default: { '@path': '$.timestamp' }
   },
   utm: {
