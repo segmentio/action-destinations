@@ -10,6 +10,7 @@ Object {
     "testType": "rdEr9f6(H52BC0%(",
   },
   "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
   "userId": "rdEr9f6(H52BC0%(",
 }
 `;
@@ -20,5 +21,6 @@ Object {
   "messageId": "rdEr9f6(H52BC0%(",
   "properties": Object {},
   "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
 }
 `;
