@@ -4,14 +4,17 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'addToCart'
-const destinationSlug = 'MolocoRmp'
+const actionSlug = 'group'
+const destinationSlug = 'Kameleoon'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    let [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+
+    eventData = { ...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString() }
+    settingsData = { ...settingsData }
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -44,7 +47,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    let [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    eventData = { ...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString() }
+    settingsData = { ...settingsData }
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)

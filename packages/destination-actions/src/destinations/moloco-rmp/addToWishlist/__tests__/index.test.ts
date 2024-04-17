@@ -5,13 +5,12 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('MolocoRmp.addToWishlist', () => {
+describe('MolocoMCM.addToWishlist', () => {
   it('should successfully build an event and send', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: {
-        
         id: '123',
         price: 100,
         currency: 'USD',
@@ -25,7 +24,7 @@ describe('MolocoRmp.addToWishlist', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar', 
+        apiKey: 'bar',
         channel_type: 'SITE'
       },
       mapping: {
@@ -46,11 +45,11 @@ describe('MolocoRmp.addToWishlist', () => {
             },
             sellerId: {
               '@path': '$.properties.sellerId'
-            },
+            }
           }
         ]
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
@@ -67,41 +66,42 @@ describe('MolocoRmp.addToWishlist', () => {
           price: 100,
           currency: 'USD',
           quantity: 1,
-          sellerId: 'seller123',
+          sellerId: 'seller123'
         }
       }
     })
 
-    await expect(testDestination.testAction('addToWishlist', {
-      event,
-      settings: {
-        platformId: 'foo',
-        apiKey: 'bar',
-        channel_type: 'SITE'
-      },
-      mapping: {
-
-        // items: [
-        //   {
-        //     id: {
-        //       '@path': '$.properties.item.id'
-        //     },
-        //     price: {
-        //       '@path': '$.properties.item.price'
-        //     },
-        //     currency: {
-        //       '@path': '$.properties.item.currency'
-        //     },
-        //     quantity: {
-        //       '@path': '$.properties.item.quantity'
-        //     },
-        //     sellerId: {
-        //       '@path': '$.properties.item.sellerId'
-        //     },
-        //   }
-        // ] -- missing required field
-      },
-      useDefaultMappings: true,
-    })).rejects.toThrowError(AggregateAjvError)
+    await expect(
+      testDestination.testAction('addToWishlist', {
+        event,
+        settings: {
+          platformId: 'foo',
+          apiKey: 'bar',
+          channel_type: 'SITE'
+        },
+        mapping: {
+          // items: [
+          //   {
+          //     id: {
+          //       '@path': '$.properties.item.id'
+          //     },
+          //     price: {
+          //       '@path': '$.properties.item.price'
+          //     },
+          //     currency: {
+          //       '@path': '$.properties.item.currency'
+          //     },
+          //     quantity: {
+          //       '@path': '$.properties.item.quantity'
+          //     },
+          //     sellerId: {
+          //       '@path': '$.properties.item.sellerId'
+          //     },
+          //   }
+          // ] -- missing required field
+        },
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 })
