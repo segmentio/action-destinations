@@ -14,9 +14,6 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
       label: 'Goal Identifier',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.event'
-      }
     },
     goalRevenue: {
       description: 'The revenue associated with the goal.',
