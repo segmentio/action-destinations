@@ -253,6 +253,10 @@ const action: ActionDefinition<Settings, Payload> = {
     // Record<Email and ID, ContactsUpsertMapItem>
     let contactsUpsertMap = mapUpsertContactPayload(payload)
 
+    for (const [key, _] of Object.entries(contactsUpsertMap)) {
+      Math.ceil(Math.random() * 10) && logger?.info('DV360-DIFN' + key)
+    }
+
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
     contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
@@ -262,7 +266,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const updateList: ContactUpdateRequestPayload[] = []
 
     for (const [_, { action, payload }] of Object.entries(contactsUpsertMap)) {
-      Math.ceil(Math.random() * 10) && logger?.info('DV360-DIFN' + payload['properties']['email'])
       if (action === 'create') {
         createList.push(payload)
       } else if (action === 'update') {
