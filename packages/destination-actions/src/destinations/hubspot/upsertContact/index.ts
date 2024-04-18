@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { flattenObject } from '../utils'
 import split from 'lodash/split'
+import HubspotClient from '../hubspot-client'
 
 interface ContactProperties {
   company?: string | undefined
@@ -69,16 +70,29 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create or update a contact in HubSpot.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    /* 
+      Ideally the email field shouldn't be named email as it allows for any identify value to be provided. 
+      The ability to provide Hubspot with any identifier type was added after this field was defined.
+      It was decided that the email field would remain in place, rather than needing to run a DB migration  
+    */
     email: {
-      label: 'Email',
+      label: 'Identifier Value',
       type: 'string',
       description:
-        'The contact’s email. Email is used to uniquely identify contact records in HubSpot. If an existing contact is found with this email, we will update the contact. If a contact is not found, we will create a new contact.',
+        "An Identifier for the Contact. This can be the Contact's email address or the value of any other unique Contact property. If an existing Contact is found, Segment will update the Contact. If a Contact is not found, Segment will create a new Contact.",
       required: true,
-      format: 'email',
       default: {
         '@path': '$.traits.email'
       }
+    },
+    identifier_type: {
+      label: 'Identifier Type',
+      type: 'string',
+      description:
+        'The type of identifier used to uniquely identify the Contact. This defaults to email, but can be set to be any unique Contact property.',
+      dynamic: true,
+      required: false,
+      default: 'email'
     },
     company: {
       label: 'Company Name',
@@ -193,59 +207,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     }
   },
-  perform: async (request, { payload, transactionContext }) => {
-    const contactProperties = {
-      company: payload.company,
-      firstname: payload.firstname,
-      lastname: payload.lastname,
-      phone: payload.phone,
-      address: payload.address,
-      city: payload.city,
-      state: payload.state,
-      country: payload.country,
-      zip: payload.zip,
-      email: payload.email,
-      website: payload.website,
-      lifecyclestage: payload.lifecyclestage?.toLowerCase(),
-      ...flattenObject(payload.properties)
-    }
-
-    /**
-     * An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
-     * the contact is not found, an attempt will be made to create contact with the given properties
-     */
-
-    try {
-      const response = await updateContact(request, payload.email, contactProperties)
-
-      // cache contact_id for it to be available for company action
-      transactionContext?.setTransaction('contact_id', response.data.id)
-
-      // HubSpot returns the updated lifecylestage(LCS) as part of the response.
-      // If the stage we are trying to set is backward than the current stage, it retains the current stage
-      // and updates the timestamp. For determining if reset is required or not, we can compare
-      // the stage returned in response with the desired stage . If they are not the same, reset
-      // and update. More details - https://knowledge.hubspot.com/contacts/use-lifecycle-stages
-      if (payload.lifecyclestage) {
-        const currentLCS = response.data.properties['lifecyclestage']
-        const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
-        if (hasLCSChanged) return response
-        // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecyclestage: '' })
-        // update contact again with new lifecycle stage
-        return updateContact(request, payload.email, contactProperties)
-      }
-      return response
-    } catch (ex) {
-      if ((ex as HTTPError)?.response?.status == 404) {
-        const result = await createContact(request, contactProperties)
-
-        // cache contact_id for it to be available for company action
-        transactionContext?.setTransaction('contact_id', result.data.id)
-        return result
-      }
-      throw ex
-    }
+  perform: async (request, { payload, transactionContext, settings }) => {
+    const client = new HubspotClient(settings, request) 
+    return client.createOrUpdateSingleContact(payload, transactionContext)
   },
 
   performBatch: async (request, { payload }) => {
@@ -285,24 +249,6 @@ const action: ActionDefinition<Settings, Payload> = {
       await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
     }
   }
-}
-
-async function createContact(request: RequestClient, contactProperties: ContactProperties) {
-  return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
-    method: 'POST',
-    json: {
-      properties: contactProperties
-    }
-  })
-}
-
-async function updateContact(request: RequestClient, email: string, properties: ContactProperties) {
-  return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${email}?idProperty=email`, {
-    method: 'PATCH',
-    json: {
-      properties: properties
-    }
-  })
 }
 
 async function readContactsBatch(request: RequestClient, emails: string[]) {
