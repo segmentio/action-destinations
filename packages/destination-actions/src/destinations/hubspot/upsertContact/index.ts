@@ -213,30 +213,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { payload }) => {
-    // Create a map of email & id to contact upsert payloads
-    // Record<Email and ID, ContactsUpsertMapItem>
-    let contactsUpsertMap = mapUpsertContactPayload(payload)
+    // const p1 = {...p, email: 'main_email_1@gmail.com', lifecyclestage:'lead'}
+    // const p2 = {...p, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1', lifecyclestage:'Opportunity'}
+    // const p3 = {...p, email: 'monkeyman@example.org', lifecyclestage:'lead'}
+    // const payload = [p1,p2,p3]
 
-    // Fetch the list of contacts from HubSpot
-    const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
-    contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
-
-    // Divide Contacts into two maps - one for insert and one for update
-    const createList: ContactCreateRequestPayload[] = []
-    const updateList: ContactUpdateRequestPayload[] = []
-
-    for (const [_, { action, payload }] of Object.entries(contactsUpsertMap)) {
-      if (action === 'create') {
-        createList.push(payload)
-      } else if (action === 'update') {
-        delete payload['properties']['email']
-        updateList.push({
-          id: payload.id as string,
-          properties: payload.properties
-        })
-      }
-    }
-
+    const payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]> = chunkPayloadsByIdType(payload)
+    const readResponses: ModifiedResponse<ContactBatchResponse>[] = await getCanonicalIdentifiers(
+      request,
+      payloadsByIdTypes
+    )
+    const { createList, updateList } = buildUpsertPayloadLists(readResponses, payloadsByIdTypes)
     // Create contacts that don't exist in HubSpot
     if (createList.length > 0) {
       await createContactsBatch(request, createList)
@@ -245,8 +232,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (updateList.length > 0) {
       // Update contacts that already exist in HubSpot
       const updateContactResponse = await updateContactsBatch(request, updateList)
+
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
+      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
     }
   }
 }

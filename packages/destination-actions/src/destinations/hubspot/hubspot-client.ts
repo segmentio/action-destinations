@@ -5,7 +5,7 @@ import { flattenObject } from './utils'
 import { HUBSPOT_BASE_URL } from './properties'
 import { TransactionContext } from '@segment/actions-core/destination-kit'
 
-export interface SingleContactProperties {
+export interface SingleContactRequestBody {
     company?: string | undefined
     firstname?: string | undefined
     lastname?: string | undefined
@@ -21,10 +21,10 @@ export interface SingleContactProperties {
     [key: string]: string | undefined
 }
 
-interface SingleContactSuccessResponse {
-    id: string
-    properties: Record<string, string | null>
-}
+interface BatchContactCreateRequestBody extends Array<{ properties: SingleContactRequestBody }> {}
+
+interface BatchContactUpdateRequestBody extends Array<{ properties: SingleContactRequestBody, id: string }> {}
+
 
 class HubspotClient {
     private settings: Settings
@@ -35,7 +35,10 @@ class HubspotClient {
       this._request = request
     }
 
-    private getSingleContactProperties(payload: ContactPayload): SingleContactProperties {
+
+
+
+    private buildSingleContactRequestBody(payload: ContactPayload): SingleContactRequestBody {
         return {
             company: payload.company,
             firstname: payload.firstname,
@@ -50,12 +53,10 @@ class HubspotClient {
             website: payload.website,
             lifecyclestage: payload.lifecyclestage?.toLowerCase(),
             ...flattenObject(payload.properties)
-          } as SingleContactProperties
+          } as SingleContactRequestBody
     }
 
-    private async updateSingleContact(payload: ContactPayload, properties: SingleContactProperties) {
-        const { email: identifierValue, identifier_type } = payload
-        
+    private async updateSingleContact(properties: SingleContactRequestBody, identifierValue: string, identifier_type: string) {
         return await this._request<SingleContactSuccessResponse>(
           `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${identifierValue}?idProperty=${identifier_type}`,
           {
@@ -67,7 +68,7 @@ class HubspotClient {
         )
     }
 
-    private async createSingleContact(properties: SingleContactProperties) {
+    private async createSingleContact(properties: SingleContactRequestBody) {
         return await this._request<SingleContactSuccessResponse>(
             `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
             method: 'POST',
@@ -78,12 +79,12 @@ class HubspotClient {
     }
 
     async createOrUpdateSingleContact(payload: ContactPayload, transactionContext: TransactionContext | undefined) { 
-
-        const singleContactProperties = this.getSingleContactProperties(payload)
+        const singleContactRequestBody = this.buildSingleContactRequestBody(payload)
         // An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
         // the contact is not found, an attempt will be made to create contact with the given properties
         try {
-            const response = await this.updateSingleContact( payload, singleContactProperties)
+            const { email: identifierValue, identifier_type = 'email' } = payload
+            const response = await this.updateSingleContact(singleContactRequestBody, identifierValue, identifier_type)
     
             // cache contact_id for it to be available for company action
             transactionContext?.setTransaction('contact_id', response.data.id)
@@ -98,14 +99,14 @@ class HubspotClient {
                 const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
                 if (hasLCSChanged) return response
                 // reset lifecycle stage
-                await this.updateSingleContact(payload, { lifecyclestage: '' })
+                await this.updateSingleContact({ ...singleContactRequestBody, lifecyclestage: ''}, identifierValue, identifier_type)
                 // update contact again with new lifecycle stage
-                return this.updateSingleContact(payload, singleContactProperties)
+                return this.updateSingleContact(singleContactRequestBody, identifierValue, identifier_type)
             }
             return response
         } catch (ex) {
             if ((ex as HTTPError)?.response?.status == 404) {
-            const result = await this.createSingleContact(singleContactProperties)
+            const result = await this.createSingleContact(singleContactRequestBody)
             // cache contact_id for it to be available for company action
             transactionContext?.setTransaction('contact_id', result.data.id)
             return result
