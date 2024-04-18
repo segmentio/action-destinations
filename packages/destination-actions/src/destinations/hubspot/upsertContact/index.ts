@@ -248,7 +248,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, logger }) => {
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
     let contactsUpsertMap = mapUpsertContactPayload(payload)
@@ -262,6 +262,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const updateList: ContactUpdateRequestPayload[] = []
 
     for (const [_, { action, payload }] of Object.entries(contactsUpsertMap)) {
+      Math.ceil(Math.random() * 10) && logger?.info('DV360-DIFN' + payload['properties']['email'])
       if (action === 'create') {
         createList.push(payload)
       } else if (action === 'update') {
