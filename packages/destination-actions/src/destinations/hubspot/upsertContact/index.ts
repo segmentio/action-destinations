@@ -248,14 +248,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, logger }) => {
+  performBatch: async (request, { payload }) => {
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
     let contactsUpsertMap = mapUpsertContactPayload(payload)
-
-    for (const [key, _] of Object.entries(contactsUpsertMap)) {
-      Math.ceil(Math.random() * 10) && logger?.info('DV360-DIFN' + key)
-    }
 
     // Fetch the list of contacts from HubSpot
     const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))

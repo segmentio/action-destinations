@@ -29,9 +29,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     await handleUpdate(request, [payload], 'add', statsContext)
     return { success: true }
   },
-  performBatch: async (request, { payload, statsContext }) => {
+  performBatch: async (request, { payload, statsContext, logger }) => {
     statsContext?.tags.push('slug:actions-display-video-360')
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
+    Math.ceil(Math.random() * 10) && logger?.info('DIFN Test -' + payload[0].mobile_advertising_id)
     await handleUpdate(request, payload, 'add', statsContext)
     return { success: true }
   }
