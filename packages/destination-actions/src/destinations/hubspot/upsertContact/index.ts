@@ -94,6 +94,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: 'email'
     },
+    canonical_id: {
+      label: 'Canonical Contact Identifier Value',
+      type: 'string',
+      description: 'Hidden field use to store the canonical identifier for the Contact during processing.',
+      unsafe_hidden: true,
+      required: false,
+      default: undefined
+    },
     company: {
       label: 'Company Name',
       type: 'string',
@@ -207,35 +215,34 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     }
   },
-  perform: async (request, { payload, transactionContext, settings }) => {
+  // perform: async (request, { payload, transactionContext, settings }) => {
+  //   const client = new HubspotClient(settings, request) 
+  //   return client.createOrUpdateSingleContact(payload, transactionContext)
+  // },
+
+  perform: async (request, data) => {
+    const { payload, settings } = data
+    const p1 = {...payload, email: 'main_email_1@gmail.com', lifecyclestage:'lead'}
+    const p2 = {...payload, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1', lifecyclestage:'Opportunity'}
+    const p3 = {...payload, email: 'monkeyman@example.org', lifecyclestage:'lead'}
+    const payloads = [p1,p2,p3]
+
     const client = new HubspotClient(settings, request) 
-    return client.createOrUpdateSingleContact(payload, transactionContext)
-  },
+    return client.getAllBatchContacts(payloads)
 
-  performBatch: async (request, { payload }) => {
-    // const p1 = {...p, email: 'main_email_1@gmail.com', lifecyclestage:'lead'}
-    // const p2 = {...p, email: 'blahblah_oh_no', identifier_type: 'external_id_type_1', lifecyclestage:'Opportunity'}
-    // const p3 = {...p, email: 'monkeyman@example.org', lifecyclestage:'lead'}
-    // const payload = [p1,p2,p3]
+    // const { createList, updateList } = buildUpsertPayloadLists(readResponses, payloadsByIdTypes)
+    // // Create contacts that don't exist in HubSpot
+    // if (createList.length > 0) {
+    //   await createContactsBatch(request, createList)
+    // }
 
-    const payloadsByIdTypes: Map<string, ContactsUpsertMapItem[]> = chunkPayloadsByIdType(payload)
-    const readResponses: ModifiedResponse<ContactBatchResponse>[] = await getCanonicalIdentifiers(
-      request,
-      payloadsByIdTypes
-    )
-    const { createList, updateList } = buildUpsertPayloadLists(readResponses, payloadsByIdTypes)
-    // Create contacts that don't exist in HubSpot
-    if (createList.length > 0) {
-      await createContactsBatch(request, createList)
-    }
+    // if (updateList.length > 0) {
+    //   // Update contacts that already exist in HubSpot
+    //   const updateContactResponse = await updateContactsBatch(request, updateList)
 
-    if (updateList.length > 0) {
-      // Update contacts that already exist in HubSpot
-      const updateContactResponse = await updateContactsBatch(request, updateList)
-
-      // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
-    }
+    //   // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
+    //   await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse)
+    // }
   }
 }
 

@@ -10,6 +10,10 @@ export interface Payload {
    */
   identifier_type?: string
   /**
+   * Hidden field use to store the canonical identifier for the Contact during processing.
+   */
+  canonical_id?: string
+  /**
    * The contact’s company.
    */
   company?: string

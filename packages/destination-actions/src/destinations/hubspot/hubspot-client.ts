@@ -1,6 +1,6 @@
 import { Settings }  from './generated-types'
 import { Payload as ContactPayload } from './upsertContact/generated-types'
-import { RequestClient, HTTPError } from '@segment/actions-core'
+import { RequestClient, HTTPError, ModifiedResponse } from '@segment/actions-core'
 import { flattenObject } from './utils'
 import { HUBSPOT_BASE_URL } from './properties'
 import { TransactionContext } from '@segment/actions-core/destination-kit'
@@ -21,10 +21,41 @@ export interface SingleContactRequestBody {
     [key: string]: string | undefined
 }
 
+interface SingleContactSuccessResponse {
+    id: string
+    properties: Record<string, string | null>
+}
+
 interface BatchContactCreateRequestBody extends Array<{ properties: SingleContactRequestBody }> {}
 
 interface BatchContactUpdateRequestBody extends Array<{ properties: SingleContactRequestBody, id: string }> {}
 
+interface BatchContactReadRequestBody {
+    properties: string[]
+    idProperty: string
+    inputs: Array<{ id: string }>
+}
+
+interface BatchContactReadResponse {
+    status: string
+    results: SingleContactSuccessResponse[]
+    numErrors?: number
+    errors?: SingleContactResponseError[]
+    options: {
+      body: string
+      [key: string]: unknown
+    }
+}
+
+interface SingleContactResponseError {
+    status: string
+    category: string
+    message: string
+    context: {
+      ids: string[]
+      [key: string]: unknown
+    }
+}
 
 class HubspotClient {
     private settings: Settings
@@ -35,8 +66,36 @@ class HubspotClient {
       this._request = request
     }
 
+    async getAllBatchContacts(payloads: ContactPayload[]): Promise<ModifiedResponse<BatchContactReadResponse>[]> {
+        
+        payloads.forEach(payload => payload.identifier_type = payload.identifier_type ?? 'email')
 
+        const unique_identify_types: string[] = Array.from(new Set(payloads.map(payload => payload.identifier_type as string))) ?? [];
 
+        const requestPayloads: BatchContactReadRequestBody[] = []
+        unique_identify_types.forEach(identifier_type => {
+            const requestPayload: BatchContactReadRequestBody = {
+                properties: [...new Set([...['email', 'lifecyclestage'], ...[identifier_type]])],
+                idProperty: identifier_type,
+                inputs: payloads
+                    .filter(payload => payload.identifier_type === identifier_type)
+                    .map(payload => { return {id: payload.email}})             
+            }
+            requestPayloads.push(requestPayload)
+        }) 
+
+        const promises = requestPayloads.map(payload => this.getBatchContacts(payload));
+
+        return await Promise.all(promises);
+    }
+
+    private async getBatchContacts(requestPayload: BatchContactReadRequestBody) {      
+        return await this._request<BatchContactReadResponse>(
+            `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/read`, {
+            method: 'POST',
+            json: requestPayload
+        })
+    }
 
     private buildSingleContactRequestBody(payload: ContactPayload): SingleContactRequestBody {
         return {
