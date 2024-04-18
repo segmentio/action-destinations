@@ -66,7 +66,7 @@ class HubspotClient {
       this._request = request
     }
 
-    async getAllBatchContacts(payloads: ContactPayload[]): Promise<ModifiedResponse<BatchContactReadResponse>[]> {
+    async addCononicalIdToBatchPayloads(payloads: ContactPayload[]): Promise<ContactPayload[]>{
         
         payloads.forEach(payload => payload.identifier_type = payload.identifier_type ?? 'email')
 
@@ -86,7 +86,17 @@ class HubspotClient {
 
         const promises = requestPayloads.map(payload => this.getBatchContacts(payload));
 
-        return await Promise.all(promises);
+        const responses = await Promise.all(promises);
+
+        unique_identify_types.forEach((identifier_type, index) => {
+            
+            responses[index].data.results.forEach((contactResponse) => {
+                const canonical_id = contactResponse.id 
+                const identifier_value = contactResponse.properties[identifier_type] as string
+                payloads.filter(payload => payload.email == identifier_value).forEach(payload => payload.canonical_id = canonical_id);
+            })
+        });        
+        return payloads
     }
 
     private async getBatchContacts(requestPayload: BatchContactReadRequestBody) {      

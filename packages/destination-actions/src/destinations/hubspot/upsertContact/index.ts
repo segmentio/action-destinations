@@ -228,7 +228,11 @@ const action: ActionDefinition<Settings, Payload> = {
     const payloads = [p1,p2,p3]
 
     const client = new HubspotClient(settings, request) 
-    return client.getAllBatchContacts(payloads)
+    await client.addCononicalIdToBatchPayloads(payloads)
+    
+    console.log(payloads)
+    
+   
 
     // const { createList, updateList } = buildUpsertPayloadLists(readResponses, payloadsByIdTypes)
     // // Create contacts that don't exist in HubSpot
