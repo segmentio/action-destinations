@@ -53,7 +53,7 @@ exports[`Testing snapshot for actions-klaviyo destination: subscribeProfile acti
 Object {
   "data": Object {
     "attributes": Object {
-      "custom_source": "Segment Klaviyo (Actions) Destination",
+      "custom_source": "TsKr#",
       "profiles": Object {
         "data": Array [
           Object {

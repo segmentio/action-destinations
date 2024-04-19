@@ -9,8 +9,7 @@ import { SubscribeProfile, SubscribeEventData } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
-  description: 'Subscribe profiles to Email marketing, SMS marketing, or both.',
-  defaultSubscription: 'type = "track"',
+  description: 'Subscribe Klaviyo profiles to Email marketing, SMS marketing, or both.',
   fields: {
     klaviyo_id: {
       label: 'Klaviyo Id',
@@ -19,36 +18,28 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: `The email address to subscribe or to set on the profile if the email channel is omitted.`,
+      description: `The email address to subscribe. If provided, the associated profile will be subscribed to Email marketing.`,
       type: 'string',
       format: 'email',
       default: { '@path': '$.context.traits.email' }
     },
-    subscribe_email: {
-      label: 'Subscribe Profile to Email Marketing',
-      description: `Controls the subscription status for email marketing. If set to "yes", the profile's consent preferences for email marketing are set to "SUBSCRIBED"; otherwise, the email channel is omitted.`,
-      type: 'boolean',
-      required: true,
-      default: true
-    },
     phone_number: {
       label: 'Phone Number',
-      description: `The phone number to subscribe or to set on the profile if SMS channel is omitted. This must be in E.164 format.`,
+      description: `The phone number to subscribe. This must be in E.164 format. If provided, the associated profile will be subscribed to SMS marketing.`,
       type: 'string',
       default: { '@path': '$.context.traits.phone' }
-    },
-    subscribe_sms: {
-      label: 'Subscribe Profile to SMS Marketing',
-      description: `Controls the subscription status for SMS marketing. If set to "yes", the profile's consent preferences for SMS marketing are set to "SUBSCRIBED"; otherwise, the SMS channel is omitted.`,
-      type: 'boolean',
-      required: true,
-      default: true
     },
     list_id: {
       label: 'List Id',
       description: `The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.`,
       type: 'string',
       dynamic: true
+    },
+    custom_source: {
+      label: 'Custom Source',
+      description: 'A custom method or source to detail source of consent preferences (e.g., "Marketing Event").',
+      type: 'string',
+      default: 'Segment Klaviyo (Actions) Destination'
     },
     consented_at: {
       label: 'Consented At',
@@ -65,30 +56,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, klaviyo_id, phone_number, consented_at, list_id, subscribe_email, subscribe_sms } = payload
+    const { email, klaviyo_id, phone_number, consented_at, list_id, custom_source } = payload
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    // Ensure the properties for at least one marketing channel subscription (Email or SMS) are available
-    if ((!email || subscribe_email !== true) && (!phone_number || subscribe_sms !== true)) {
-      throw new PayloadValidationError('At least one marketing channel (Email or SMS) needs to be subscribed to.')
-    }
-
-    const profileToSubscribe = formatSubscribeProfile(
-      email,
-      phone_number,
-      klaviyo_id,
-      consented_at,
-      subscribe_sms,
-      subscribe_email
-    )
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, klaviyo_id, consented_at)
 
     const eventData: SubscribeEventData = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          custom_source: 'Segment Klaviyo (Actions) Destination',
+          custom_source: custom_source || 'Segment Klaviyo (Actions) Destination', // Use custom_source if populated, otherwise fallback to default value
           profiles: {
             data: [profileToSubscribe]
           }
@@ -122,9 +101,7 @@ function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
   klaviyo_id: string | undefined,
-  consented_at: string | number | undefined,
-  subscribe_sms: boolean,
-  subscribe_email: boolean
+  consented_at: string | number | undefined
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -136,7 +113,7 @@ function formatSubscribeProfile(
     }
   }
 
-  if (email && subscribe_email) {
+  if (email) {
     profileToSubscribe.attributes.subscriptions.email = {
       marketing: {
         consent: 'SUBSCRIBED',
@@ -145,7 +122,7 @@ function formatSubscribeProfile(
     }
   }
 
-  if (phone_number && subscribe_sms) {
+  if (phone_number) {
     profileToSubscribe.attributes.subscriptions.sms = {
       marketing: {
         consent: 'SUBSCRIBED',

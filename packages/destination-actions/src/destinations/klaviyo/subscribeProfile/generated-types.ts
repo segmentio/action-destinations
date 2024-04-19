@@ -6,25 +6,21 @@ export interface Payload {
    */
   klaviyo_id?: string
   /**
-   * The email address to subscribe or to set on the profile if the email channel is omitted.
+   * The email address to subscribe. If provided, the associated profile will be subscribed to Email marketing.
    */
   email?: string
   /**
-   * Controls the subscription status for email marketing. If set to "yes", the profile's consent preferences for email marketing are set to "SUBSCRIBED"; otherwise, the email channel is omitted.
-   */
-  subscribe_email: boolean
-  /**
-   * The phone number to subscribe or to set on the profile if SMS channel is omitted. This must be in E.164 format.
+   * The phone number to subscribe. This must be in E.164 format. If provided, the associated profile will be subscribed to SMS marketing.
    */
   phone_number?: string
-  /**
-   * Controls the subscription status for SMS marketing. If set to "yes", the profile's consent preferences for SMS marketing are set to "SUBSCRIBED"; otherwise, the SMS channel is omitted.
-   */
-  subscribe_sms: boolean
   /**
    * The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.
    */
   list_id?: string
+  /**
+   * A custom method or source to detail source of consent preferences (e.g., "Marketing Event").
+   */
+  custom_source?: string
   /**
    * The timestamp of when the profile's consent was gathered.
    */
