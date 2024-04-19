@@ -47,7 +47,7 @@ interface BatchContactReadRequestBody {
     inputs: Array<{ id: string }>
 }
 
-interface BatchContactResponse {
+export interface BatchContactResponse {
     status: string
     results: ContactSuccessResponse[]
 }
@@ -99,10 +99,7 @@ class HubspotContactClient {
         }
     }
 
-    async createOrUpdateBatch(createRequest: BatchContactCreateRequestBody, updateRequest: BatchContactUpdateRequestBody) { 
-        console.log(JSON.stringify(createRequest, null, 2))
-        console.log(JSON.stringify(updateRequest, null, 2))
-        
+    async createOrUpdateBatch(createRequest: BatchContactCreateRequestBody, updateRequest: BatchContactUpdateRequestBody) {         
         if(createRequest.inputs.length>0){
             await this.batchRequest('create', createRequest)
         }
@@ -175,6 +172,7 @@ class HubspotContactClient {
                 } as ContactProperties
             }
             if(requestPayload.id){
+                delete requestPayload?.properties?.email
                 updateRequest.inputs.push(requestPayload as ContactUpdateRequestBody)
             } else {
                 createRequest.inputs.push(requestPayload as ContactCreateRequestBody)
@@ -277,7 +275,7 @@ class HubspotContactClient {
                 const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
                 if (hasLCSChanged) return response
                 // reset lifecycle stage
-                await this.update({ ...singleContactRequestBody, lifecyclestage: ''}, identifierValue, identifier_type)
+                await this.update({ lifecyclestage: ''}, identifierValue, identifier_type)
                 // update contact again with new lifecycle stage
                 return this.update(singleContactRequestBody, identifierValue, identifier_type)
             }

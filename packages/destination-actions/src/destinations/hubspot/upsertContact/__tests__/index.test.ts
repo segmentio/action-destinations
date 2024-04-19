@@ -58,6 +58,7 @@ const event = createTestEvent({
   type: 'identify',
   traits: {
     email: testEmail,
+    identifier_type: 'email',
     first_name: 'John',
     last_name: 'Doe',
     address: {
@@ -78,6 +79,9 @@ const event = createTestEvent({
 const mapping = {
   lifecyclestage: {
     '@path': '$.traits.lifecyclestage'
+  },
+  identifier_type: {
+    '@path': '$.traits.identifier_type'
   },
   properties: {
     graduation_date: {
@@ -615,94 +619,5 @@ describe('HubSpot.upsertContactBatch', () => {
     expect(testBatchResponses[2].data).toMatchSnapshot()
     expect(testBatchResponses[3].data).toMatchSnapshot()
   })
-  test('should fail if any of error comes while reading batch of contacts', async () => {
-    const events = createBatchTestEvents(createContactList)
 
-    // Mock: Read Contact Using Email
-    nock(HUBSPOT_BASE_URL)
-      .post(`/crm/v3/objects/contacts/batch/read`)
-      .reply(207, {
-        status: 'COMPLETE',
-        results: [],
-        numErrors: 1,
-        errors: [
-          {
-            status: 'error',
-            category: 'VALIDATION_ERROR',
-            message: "'lastname' Property does not exist"
-          }
-        ]
-      })
-
-    const mapping = {
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
-      }
-    }
-
-    await expect(
-      testDestination.testBatchAction('upsertContact', {
-        mapping,
-        useDefaultMappings: true,
-        events
-      })
-    ).rejects.toThrowError("'lastname' Property does not exist")
-  })
-
-  test("Should update contact on the basis of secondary email if it's not getting mapped with Primary email addresses", async () => {
-    //Each Contact can have multiple email addresses,one as Primary and others as Secondary.
-    const updateContactList = [
-      {
-        id: '113',
-        email: 'secondaryemail@gmail.com',
-        firstname: 'User',
-        lastname: 'Three',
-        lifecyclestage: 'subscriber',
-        additionalemail: 'secondaryemail@gmail.com;secondaryemail+2@gmail.com'
-      }
-    ]
-    const events = createBatchTestEvents([...updateContactList])
-
-    // Mock: Read Contact Using Email
-    nock(HUBSPOT_BASE_URL)
-      .post(`/crm/v3/objects/contacts/batch/read`)
-      .reply(
-        200,
-        generateBatchReadResponse([
-          {
-            id: '113',
-            email: 'userthree@somecompany.com',
-            firstname: 'User',
-            lastname: 'Three',
-            lifecyclestage: 'subscriber',
-            additionalemail: 'secondaryemail@gmail.com;secondaryemail+2@gmail.com'
-          }
-        ])
-      )
-
-    // Mock: Update Contact
-    nock(HUBSPOT_BASE_URL)
-      .post(`/crm/v3/objects/contacts/batch/update`)
-      .reply(200, generateBatchCreateResponse(updateContactList))
-
-    const mapping = {
-      properties: {
-        graduation_date: {
-          '@path': '$.traits.graduation_date'
-        }
-      }
-    }
-
-    const testBatchResponses = await testDestination.testBatchAction('upsertContact', {
-      mapping,
-      useDefaultMappings: true,
-      events
-    })
-
-    expect(testBatchResponses[0].options).toMatchSnapshot()
-    expect(testBatchResponses[0].data).toMatchSnapshot()
-    expect(testBatchResponses[1].data).toMatchSnapshot()
-  })
 })

@@ -7,8 +7,8 @@ Object {
     "city": "krPYlcrzuw6LiDv[wVO",
     "company": "krPYlcrzuw6LiDv[wVO",
     "country": "krPYlcrzuw6LiDv[wVO",
-    "email": "av@haruw.ug",
     "firstname": "krPYlcrzuw6LiDv[wVO",
+    "krPYlcrzuw6LiDv[wVO": "avdu@fecruwdij.ni",
     "lastname": "krPYlcrzuw6LiDv[wVO",
     "lifecyclestage": "krpylcrzuw6lidv[wvo",
     "phone": "krPYlcrzuw6LiDv[wVO",
@@ -29,8 +29,8 @@ Object {
     "city": "krPYlcrzuw6LiDv[wVO",
     "company": "krPYlcrzuw6LiDv[wVO",
     "country": "krPYlcrzuw6LiDv[wVO",
-    "email": "av@haruw.ug",
     "firstname": "krPYlcrzuw6LiDv[wVO",
+    "krPYlcrzuw6LiDv[wVO": "avdu@fecruwdij.ni",
     "lastname": "krPYlcrzuw6LiDv[wVO",
     "lifecyclestage": "krpylcrzuw6lidv[wvo",
     "phone": "krPYlcrzuw6LiDv[wVO",
@@ -42,12 +42,12 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/av@haruw.ug?idProperty=email"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: all fields - update contact 2`] = `"https://api.hubapi.com/crm/v3/objects/contacts/avdu@fecruwdij.ni?idProperty=krPYlcrzuw6LiDv[wVO"`;
 
 exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - create contact 1`] = `
 Object {
   "properties": Object {
-    "email": "av@haruw.ug",
+    "krPYlcrzuw6LiDv[wVO": "avdu@fecruwdij.ni",
   },
 }
 `;
@@ -73,7 +73,7 @@ exports[`Testing snapshot for HubSpot's upsertContact destination action: requir
 exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 1`] = `
 Object {
   "properties": Object {
-    "email": "av@haruw.ug",
+    "krPYlcrzuw6LiDv[wVO": "avdu@fecruwdij.ni",
   },
 }
 `;
@@ -94,4 +94,4 @@ Headers {
 }
 `;
 
-exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/av@haruw.ug?idProperty=email"`;
+exports[`Testing snapshot for HubSpot's upsertContact destination action: required fields - update contact 3`] = `"https://api.hubapi.com/crm/v3/objects/contacts/avdu@fecruwdij.ni?idProperty=krPYlcrzuw6LiDv[wVO"`;

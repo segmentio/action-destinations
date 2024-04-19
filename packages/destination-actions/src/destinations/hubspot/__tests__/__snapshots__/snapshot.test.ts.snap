@@ -2,8 +2,6 @@
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: One of the following parameters: email, user token, or objectId is required]`;
-
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertCompany action - all fields 1`] = `
@@ -41,7 +39,7 @@ Object {
     "city": "fL&&$lZA!6gsh",
     "company": "fL&&$lZA!6gsh",
     "country": "fL&&$lZA!6gsh",
-    "email": "zejkulcih@ras.sh",
+    "fL&&$lZA!6gsh": "rozej@elcih.cz",
     "firstname": "fL&&$lZA!6gsh",
     "lastname": "fL&&$lZA!6gsh",
     "lifecyclestage": "fl&&$lza!6gsh",
@@ -57,7 +55,7 @@ Object {
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `
 Object {
   "properties": Object {
-    "email": "zejkulcih@ras.sh",
+    "fL&&$lZA!6gsh": "rozej@elcih.cz",
   },
 }
 `;

@@ -1,5 +1,5 @@
 import { createTestEvent } from '@segment/actions-core'
-import { ContactBatchResponse } from '../../../upsertContact'
+import { BatchContactResponse } from '../../hubspot-contact-client'
 
 export type BatchContactListItem = {
   id?: string
@@ -35,11 +35,9 @@ export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) 
   )
 
 export const generateBatchReadResponse = (batchContactList: BatchContactListItem[]) => {
-  const batchReadResponse: ContactBatchResponse = {
+  const batchReadResponse: BatchContactResponse = {
     status: 'COMPLETE',
-    results: [],
-    numErrors: 0,
-    errors: []
+    results: []
   }
 
   const notFoundEmails: string[] = []
@@ -52,7 +50,6 @@ export const generateBatchReadResponse = (batchContactList: BatchContactListItem
         properties: {
           createdate: '2023-07-06T12:47:47.626Z',
           email: contact.email,
-          hs_additional_emails: contact?.additionalemail ?? null,
           hs_object_id: contact.id,
           lastmodifieddate: '2023-07-06T12:48:02.784Z'
         }
@@ -63,26 +60,11 @@ export const generateBatchReadResponse = (batchContactList: BatchContactListItem
     }
   }
 
-  // Set error response
-  if (notFoundEmails.length > 0) {
-    batchReadResponse.numErrors = 1
-    batchReadResponse.errors = [
-      {
-        status: 'error',
-        category: 'OBJECT_NOT_FOUND',
-        message: 'Could not get some CONTACT objects, they may be deleted or not exist. Check that ids are valid.',
-        context: {
-          ids: notFoundEmails
-        }
-      }
-    ]
-  }
-
   return batchReadResponse
 }
 
 export const generateBatchCreateResponse = (batchContactList: BatchContactListItem[]) => {
-  const batchCreateResponse: ContactBatchResponse = {
+  const batchCreateResponse: BatchContactResponse = {
     status: 'COMPLETE',
     results: []
   }
