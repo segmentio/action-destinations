@@ -1,10 +1,10 @@
-import { Payload as ContactPayload } from './upsertContact/generated-types'
+import { Payload as ContactPayload } from './generated-types'
 import { RequestClient, HTTPError, DynamicFieldResponse } from '@segment/actions-core'
-import { flattenObject } from './utils'
-import { HUBSPOT_BASE_URL } from './properties'
+import { flattenObject } from '../utils'
+import { HUBSPOT_BASE_URL } from '../properties'
 import { TransactionContext } from '@segment/actions-core/destination-kit'
 
-interface SingleContactProperties {
+interface ContactProperties {
     company?: string | undefined
     firstname?: string | undefined
     lastname?: string | undefined
@@ -20,22 +20,26 @@ interface SingleContactProperties {
     [key: string]: string | undefined
 }
 
-interface SingleContactCreateRequestBody {
-    properties: SingleContactProperties
+interface ContactCreateRequestBody {
+    properties: ContactProperties
 }
-interface SingleContactUpdateRequestBody {
-    properties: SingleContactProperties
+interface ContactUpdateRequestBody {
+    properties: ContactProperties
     id: string
 }
 
-interface SingleContactSuccessResponse {
+interface ContactSuccessResponse {
     id: string
     properties: Record<string, string | null>
 }
 
-interface BatchContactUpdateRequestBody extends Array<SingleContactUpdateRequestBody> {}
+interface BatchContactUpdateRequestBody {
+    inputs: ContactUpdateRequestBody[]
+}
 
-interface BatchContactCreateRequestBody extends Array<SingleContactCreateRequestBody> {}
+interface BatchContactCreateRequestBody {
+    inputs: ContactCreateRequestBody[]
+}
 
 interface BatchContactReadRequestBody {
     properties: string[]
@@ -45,19 +49,7 @@ interface BatchContactReadRequestBody {
 
 interface BatchContactResponse {
     status: string
-    results: SingleContactSuccessResponse[]
-    numErrors?: number
-    errors?: SingleContactResponseError[]
-}
-
-interface SingleContactResponseError {
-    status: string
-    category: string
-    message: string
-    context: {
-      ids: string[]
-      [key: string]: unknown
-    }
+    results: ContactSuccessResponse[]
 }
 
 interface ContactsFieldsResponse {
@@ -72,15 +64,18 @@ interface ContactField {
     hasUniqueValue: boolean
 }
 
-class HubspotClient {
+const HUBSPOT_OBJECT_CONTACT_URL = `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`
+const HUBSPOT_PROPERTIES_CONTACT_URL = `${HUBSPOT_BASE_URL}/crm/v3/properties/contacts`
+
+class HubspotContactClient {
     private _request: RequestClient
   
     constructor(request: RequestClient) {
       this._request = request
     }
 
-    async getContactIdentifierTypes(): Promise<DynamicFieldResponse> {
-        const contactFields: ContactsFieldsResponse = await this._request(`${HUBSPOT_BASE_URL}/crm/v3/properties/contacts`, {
+    async getIDTypes(): Promise<DynamicFieldResponse> {
+        const contactFields: ContactsFieldsResponse = await this._request(`${HUBSPOT_PROPERTIES_CONTACT_URL}`, {
             method: 'GET',
             skipResponseCloning: true
         })
@@ -104,18 +99,21 @@ class HubspotClient {
         }
     }
 
-    async createOrUpdateBatchContacts(createList: BatchContactCreateRequestBody, updateList: BatchContactUpdateRequestBody) { 
-        if(createList.length>0){
-            await this.createBatchContacts(createList)
+    async createOrUpdateBatch(createRequest: BatchContactCreateRequestBody, updateRequest: BatchContactUpdateRequestBody) { 
+        console.log(JSON.stringify(createRequest, null, 2))
+        console.log(JSON.stringify(updateRequest, null, 2))
+        
+        if(createRequest.inputs.length>0){
+            await this.batchRequest('create', createRequest)
         }
-        if(updateList.length>0){
-            const updateResponse = await this.updateBatchContacts(updateList)
+        if(updateRequest.inputs.length>0){
+            const updateResponse = await this.batchRequest('update', updateRequest)
             const results = updateResponse.data.results            
             const differences: { id: string; properties: { lifecyclestage: string } }[] = []
             const differences_reset: { id: string; properties: { lifecyclestage: string } }[] = []
 
             results.forEach((result) => {
-                const request = updateList.find((req) => req.id === result.id)
+                const request = updateRequest.inputs.find((req) => req.id === result.id)
                 
                 if (request && request.properties.lifecyclestage && (result.properties.lifecyclestage!==request.properties.lifecyclestage)) {
                     differences_reset.push({
@@ -132,39 +130,35 @@ class HubspotClient {
                     })
                 }
             })
-
+            // Hubspot lifecycle stage reset and update. Needed to allow lifecycle stage to be moved backwards
             if (differences.length > 0) {
                 // Reset Life Cycle Stage
-                console.log(differences_reset)
-                await this.updateBatchContacts(differences_reset)
+                await this.batchRequest('update', {inputs: differences_reset})
                 // Set the new Life Cycle Stage
-                console.log(differences)
-                await this.updateBatchContacts(differences)
+                await this.batchRequest('update', {inputs: differences})
             }
         }
     }
 
-    private async updateBatchContacts(updateList: BatchContactUpdateRequestBody) {
-        return await this._request<BatchContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/update`, {
-          method: 'POST',
-          json: {
-            inputs: updateList
-          }
-        })
+    private async batchRequest(
+        endpoint: 'update' | 'create' | 'read', 
+        data: (BatchContactUpdateRequestBody | BatchContactCreateRequestBody | BatchContactReadRequestBody)
+    ) {
+        //console.log(endpoint, JSON.stringify(data, null, 2))
+        
+        const response = await this._request<BatchContactResponse>(`${HUBSPOT_OBJECT_CONTACT_URL}/batch/${endpoint}`, {
+            method: 'POST',
+            json: data
+        });
+
+       //console.log(JSON.stringify(response, null, 2))
+
+        return response
     }
 
-    private async createBatchContacts(createList: BatchContactCreateRequestBody) {
-        return await this._request<BatchContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/create`, {
-          method: 'POST',
-          json: {
-            inputs: createList
-          }
-        })
-    }
-
-    buildBatchContactUpsertPayloads (payloads: ContactPayload[]): { updateList: BatchContactUpdateRequestBody, createList: BatchContactCreateRequestBody }{
-        const updateList: BatchContactUpdateRequestBody = []
-        const createList: BatchContactCreateRequestBody = []
+    buildBatchRequest (payloads: ContactPayload[]): { updateRequest: BatchContactUpdateRequestBody, createRequest: BatchContactCreateRequestBody }{
+        const updateRequest: BatchContactUpdateRequestBody = { inputs: [] }
+        const createRequest: BatchContactCreateRequestBody = { inputs: [] }
 
         payloads.forEach((payload) => {    
             const requestPayload = {
@@ -183,19 +177,19 @@ class HubspotClient {
                   website: payload.website,
                   lifecyclestage: payload.lifecyclestage?.toLowerCase() ?? undefined,
                   ...flattenObject(payload.properties)
-                } as SingleContactProperties
+                } as ContactProperties
             }
             if(requestPayload.id){
-                updateList.push(requestPayload as SingleContactUpdateRequestBody)
+                updateRequest.inputs.push(requestPayload as ContactUpdateRequestBody)
             } else {
-                createList.push(requestPayload as SingleContactCreateRequestBody)
+                createRequest.inputs.push(requestPayload as ContactCreateRequestBody)
             }
         })
 
-        return { updateList, createList }
+        return { updateRequest, createRequest }
     }
 
-    async addCononicalIdToBatchPayloads(payloads: ContactPayload[]): Promise<ContactPayload[]>{
+    async addCononicalIDsToBatchPayloads(payloads: ContactPayload[]): Promise<ContactPayload[]>{
         
         payloads.forEach(payload => payload.identifier_type = payload.identifier_type ?? 'email')
 
@@ -213,7 +207,7 @@ class HubspotClient {
             requestPayloads.push(requestPayload)
         }) 
 
-        const promises = requestPayloads.map(payload => this.getBatchContacts(payload));
+        const promises = requestPayloads.map(payload => this.batchRequest('read', payload));
 
         const responses = await Promise.all(promises);
 
@@ -227,15 +221,7 @@ class HubspotClient {
         return payloads
     }
 
-    private async getBatchContacts(requestPayload: BatchContactReadRequestBody) {      
-        return await this._request<BatchContactResponse>(
-            `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/read`, {
-            method: 'POST',
-            json: requestPayload
-        })
-    }
-
-    private buildSingleContactRequestBody(payload: ContactPayload): SingleContactProperties {
+    private buildSingleContactRequestBody(payload: ContactPayload): ContactProperties {
         return {
             company: payload.company,
             firstname: payload.firstname,
@@ -250,12 +236,12 @@ class HubspotClient {
             website: payload.website,
             lifecyclestage: payload.lifecyclestage?.toLowerCase(),
             ...flattenObject(payload.properties)
-          } as SingleContactProperties
+          } as ContactProperties
     }
 
-    private async updateSingleContact(properties: SingleContactProperties, identifierValue: string, identifier_type: string) {
-        return await this._request<SingleContactSuccessResponse>(
-          `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${identifierValue}?idProperty=${identifier_type}`,
+    private async update(properties: ContactProperties, identifierValue: string, identifier_type: string) {
+        return await this._request<ContactSuccessResponse>(
+          `${HUBSPOT_OBJECT_CONTACT_URL}/${identifierValue}?idProperty=${identifier_type}`,
           {
             method: 'PATCH',
             json: {
@@ -265,9 +251,9 @@ class HubspotClient {
         )
     }
 
-    private async createSingleContact(properties: SingleContactProperties) {
-        return await this._request<SingleContactSuccessResponse>(
-            `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
+    private async create(properties: ContactProperties) {
+        return await this._request<ContactSuccessResponse>(
+            `${HUBSPOT_OBJECT_CONTACT_URL}`, {
             method: 'POST',
             json: {
                 properties
@@ -275,13 +261,13 @@ class HubspotClient {
         })
     }
 
-    async createOrUpdateSingleContact(payload: ContactPayload, transactionContext: TransactionContext | undefined) { 
+    async createOrUpdate(payload: ContactPayload, transactionContext: TransactionContext | undefined) { 
         const singleContactRequestBody = this.buildSingleContactRequestBody(payload)
         // An attempt is made to update contact with given properties. If HubSpot returns 404 indicating
         // the contact is not found, an attempt will be made to create contact with the given properties
         try {
             const { email: identifierValue, identifier_type = 'email' } = payload
-            const response = await this.updateSingleContact(singleContactRequestBody, identifierValue, identifier_type)
+            const response = await this.update(singleContactRequestBody, identifierValue, identifier_type)
     
             // cache contact_id for it to be available for company action
             transactionContext?.setTransaction('contact_id', response.data.id)
@@ -296,14 +282,14 @@ class HubspotClient {
                 const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
                 if (hasLCSChanged) return response
                 // reset lifecycle stage
-                await this.updateSingleContact({ ...singleContactRequestBody, lifecyclestage: ''}, identifierValue, identifier_type)
+                await this.update({ ...singleContactRequestBody, lifecyclestage: ''}, identifierValue, identifier_type)
                 // update contact again with new lifecycle stage
-                return this.updateSingleContact(singleContactRequestBody, identifierValue, identifier_type)
+                return this.update(singleContactRequestBody, identifierValue, identifier_type)
             }
             return response
         } catch (ex) {
             if ((ex as HTTPError)?.response?.status == 404) {
-            const result = await this.createSingleContact(singleContactRequestBody)
+            const result = await this.create(singleContactRequestBody)
             // cache contact_id for it to be available for company action
             transactionContext?.setTransaction('contact_id', result.data.id)
             return result
@@ -313,5 +299,5 @@ class HubspotClient {
     }
 }
   
-export default HubspotClient
+export default HubspotContactClient
   
