@@ -25,4 +25,8 @@ export interface Payload {
    * The timestamp of when the profile's consent was gathered.
    */
   consented_at?: string | number
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
 }

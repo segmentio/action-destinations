@@ -48,6 +48,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Klaviyo',
+      description: 'When enabled, the action will use the klaviyo batch API.'
     }
   },
   dynamicFields: {
@@ -94,6 +99,40 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       json: eventData
     })
+  },
+  performBatch: async (request, { payload }) => {
+    payload = payload.filter((profile) => profile.email || profile.phone_number)
+    if (payload.length === 0) {
+      throw new PayloadValidationError('Phone Number or Email is required.')
+    }
+
+    // Only one list_id can be used per batch request,
+    // need to account for edge case where profiles with different list_ids are present
+    const groupedProfiles = {}
+    const profilesWithoutListId = []
+
+    // Iterate through each profile in the payload
+    payload.forEach((profile) => {
+      const { list_id } = profile
+
+      if (list_id) {
+        // Check if list_id already exists in groupedProfiles
+        if (!groupedProfiles[list_id]) {
+          groupedProfiles[list_id] = [] // Initialize array if not exists
+        }
+
+        // Push the profile into the corresponding list_id array
+        groupedProfiles[list_id].push({ ...profile })
+      } else {
+        // If list_id is empty or not defined, add the profile to profilesWithoutListId array
+        profilesWithoutListId.push({ ...profile })
+      }
+    })
+
+    console.log(groupedProfiles)
+    console.log(profilesWithoutListId)
+
+    return true
   }
 }
 
