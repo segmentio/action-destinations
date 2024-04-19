@@ -129,39 +129,36 @@ export const addressProperties: Record<string, InputField> = {
   }
 }
 
-export const addressDefaultFields: Record<string, PathDirective> = {
-  id: { '@path': 'id' },
-  address1: { '@path': 'address1' },
-  address2: { '@path': 'address2' },
-  city: { '@path': 'city' },
-  company: { '@path': 'company' },
-  country: { '@path': 'country' },
-  country_code: { '@path': 'country_code' },
-  country_name: { '@path': 'country_name' },
-  customer_id: { '@path': 'customer_id' },
-  default: { '@path': 'default' },
-  first_name: { '@path': 'first_name' },
-  last_name: { '@path': 'last_name' },
-  name: { '@path': 'name' },
-  phone: { '@path': 'phone' },
-  province: { '@path': 'province' },
-  province_code: { '@path': 'province_code' },
-  zip: { '@path': 'zip' },
-  hashed_first_name: { '@path': 'hashed_first_name' },
-  hashed_last_name: { '@path': 'hashed_last_name' },
-  hashed_phone: { '@path': 'hashed_phone' },
-  hashed_address1: { '@path': 'hashed_address1' },
-  hashed_address2: { '@path': 'hashed_address2' },
-  hashed_city: { '@path': 'hashed_city' },
-  hashed_zip: { '@path': 'hashed_zip' },
-  hashed_country_code: { '@path': 'hashed_country_code' }
-}
+export function addressDefaultFields(path = ''): Record<string, PathDirective> {
+  if (path && !path.endsWith('.')) {
+    path += '.'
+  }
 
-export function nestedAddressDefaultFields(path: string): typeof addressDefaultFields {
-  return Object.keys(addressDefaultFields).reduce((acc: typeof addressDefaultFields, key) => {
-    acc[key] = {
-      '@path': `${path}.${addressDefaultFields[key]['@path']}`
-    }
-    return acc
-  }, {})
+  return {
+    id: { '@path': `${path}id` },
+    address1: { '@path': `${path}address1` },
+    address2: { '@path': `${path}address2` },
+    city: { '@path': `${path}city` },
+    company: { '@path': `${path}company` },
+    country: { '@path': `${path}country` },
+    country_code: { '@path': `${path}country_code` },
+    country_name: { '@path': `${path}country_name` },
+    customer_id: { '@path': `${path}customer_id` },
+    default: { '@path': `${path}default` },
+    first_name: { '@path': `${path}first_name` },
+    last_name: { '@path': `${path}last_name` },
+    name: { '@path': `${path}name` },
+    phone: { '@path': `${path}phone` },
+    province: { '@path': `${path}province` },
+    province_code: { '@path': `${path}province_code` },
+    zip: { '@path': `${path}zip` },
+    hashed_first_name: { '@path': `${path}hashed_first_name` },
+    hashed_last_name: { '@path': `${path}hashed_last_name` },
+    hashed_phone: { '@path': `${path}hashed_phone` },
+    hashed_address1: { '@path': `${path}hashed_address1` },
+    hashed_address2: { '@path': `${path}hashed_address2` },
+    hashed_city: { '@path': `${path}hashed_city` },
+    hashed_zip: { '@path': `${path}hashed_zip` },
+    hashed_country_code: { '@path': `${path}hashed_country_code` }
+  }
 }

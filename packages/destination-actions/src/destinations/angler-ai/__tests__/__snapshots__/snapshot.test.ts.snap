@@ -4,28 +4,40 @@ exports[`Testing snapshot for actions-angler-ai destination: saveEvent action - 
 Object {
   "data": Array [
     Object {
+      "client_id": "3mG!HxRA*^ARn)qHBi",
       "custom_event_name": "3mG!HxRA*^ARn)qHBi",
+      "data": Object {
+        "cart": Object {},
+        "cartLine": Object {},
+        "checkout": Object {},
+        "collection": Object {},
+        "contacts": Array [
+          Object {},
+        ],
+        "customData": Array [
+          Object {},
+        ],
+        "customer": Object {},
+        "form": Object {},
+        "productVariant": Object {},
+        "searchResult": Object {},
+      },
       "event_id": "3mG!HxRA*^ARn)qHBi",
-      "event_name": "3mG!HxRA*^ARn)qHBi",
-      "ip": "3mG!HxRA*^ARn)qHBi",
-      "products": Array [
+      "event_name": "search_submitted",
+      "fbc": "3mG!HxRA*^ARn)qHBi",
+      "fbp": "3mG!HxRA*^ARn)qHBi",
+      "ga": "3mG!HxRA*^ARn)qHBi",
+      "identifiers": Array [
         Object {
-          "price": 56515583855820.8,
-          "productId": "3mG!HxRA*^ARn)qHBi",
-          "quantity": 5651558385582080,
-          "revenue": 56515583855820.8,
-          "revenueType": "3mG!HxRA*^ARn)qHBi",
+          "name": "3mG!HxRA*^ARn)qHBi",
+          "value": "3mG!HxRA*^ARn)qHBi",
         },
       ],
+      "ip_address": "3mG!HxRA*^ARn)qHBi",
       "referrer": "3mG!HxRA*^ARn)qHBi",
-      "userAgent": "3mG!HxRA*^ARn)qHBi",
-      "utm_properties": Object {
-        "utm_campaign": "3mG!HxRA*^ARn)qHBi",
-        "utm_content": "3mG!HxRA*^ARn)qHBi",
-        "utm_medium": "3mG!HxRA*^ARn)qHBi",
-        "utm_source": "3mG!HxRA*^ARn)qHBi",
-        "utm_term": "3mG!HxRA*^ARn)qHBi",
-      },
+      "timestamp": "3mG!HxRA*^ARn)qHBi",
+      "url": "3mG!HxRA*^ARn)qHBi",
+      "user_agent": "3mG!HxRA*^ARn)qHBi",
     },
   ],
   "src": "SEGMENT",
@@ -36,9 +48,11 @@ exports[`Testing snapshot for actions-angler-ai destination: saveEvent action - 
 Object {
   "data": Array [
     Object {
-      "custom_event_name": "3mG!HxRA*^ARn)qHBi",
+      "client_id": "3mG!HxRA*^ARn)qHBi",
       "event_id": "3mG!HxRA*^ARn)qHBi",
-      "event_name": "3mG!HxRA*^ARn)qHBi",
+      "identifiers": Array [
+        Object {},
+      ],
     },
   ],
   "src": "SEGMENT",

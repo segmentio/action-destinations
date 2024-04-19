@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { baseURL, ordersEndpoint } from '../utils'
-import { addressProperties, nestedAddressDefaultFields } from '../fields'
+import { addressProperties, addressDefaultFields } from '../properties/address'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Order',
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Billing Address',
       description: 'The mailing address associated with the payment method.',
       properties: addressProperties,
-      default: nestedAddressDefaultFields('$.properties.billing_address')
+      default: addressDefaultFields('$.properties.billing_address')
     },
     browser_ip: {
       type: 'string',
@@ -610,7 +610,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Shipping Address',
       description: 'The mailing address associated with the payment method.',
       properties: addressProperties,
-      default: nestedAddressDefaultFields('$.properties.shipping_address')
+      default: addressDefaultFields('$.properties.shipping_address')
     },
     source_identifier: {
       type: 'string',

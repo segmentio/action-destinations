@@ -2,6 +2,16 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { baseURL, eventsEndpoint } from '../utils'
+import { cartDefault, cart } from './data-fields/cart'
+import { cartLineDefault, cartLine } from './data-fields/cart-line'
+import { checkoutDefault, checkout } from './data-fields/checkout'
+import { collectionDefault, collection } from './data-fields/collection'
+import { productVariantDefault, productVariant } from './data-fields/product-variant'
+import { searchResultDefault, searchResult } from './data-fields/search-result'
+import { customerDefault, customer } from './data-fields/customer'
+import { formDefault, form } from './data-fields/form'
+import { contactsDefault, contacts } from './data-fields/contacts'
+import { customDataDefault, customData } from './data-fields/custom-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Event',
@@ -20,90 +30,38 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       type: 'string',
       description: 'The name of your event',
-      required: true,
-      default: {
-        '@path': '$.event'
-      }
+      choices: [
+        'cart_viewed',
+        'checkout_address_info_submitted',
+        'checkout_completed',
+        'checkout_contact_info_submitted',
+        'checkout_shipping_info_submitted',
+        'checkout_started',
+        'collection_viewed',
+        'page_viewed',
+        'payment_info_submitted',
+        'product_added_to_cart',
+        'product_removed_from_cart',
+        'product_viewed',
+        'search_submitted',
+        'custom_event',
+        'form_submitted'
+      ]
     },
     custom_event_name: {
-      label: 'Event Name',
+      label: 'Custom Event Name',
       type: 'string',
-      description: 'The name of your event',
-      required: true,
-      default: {
-        '@path': '$.event'
-      }
+      description: "Additional name for custom events if 'event_name' is 'custom_event'."
     },
-    products: {
-      label: 'Products',
-      description: 'The list of products purchased.',
-      type: 'object',
-      multiple: true,
-      additionalProperties: false,
-      properties: {
-        price: {
-          label: 'Price',
-          type: 'number',
-          description:
-            'The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds.'
-        },
-        quantity: {
-          label: 'Quantity',
-          type: 'integer',
-          description: 'The quantity of the item purchased. Defaults to 1 if not specified.'
-        },
-        revenue: {
-          label: 'Revenue',
-          type: 'number',
-          description:
-            'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.'
-        },
-        productId: {
-          label: 'Product ID',
-          type: 'string',
-          description:
-            'An identifier for the item purchased. You must send a price and quantity or revenue with this field.'
-        },
-        revenueType: {
-          label: 'Revenue Type',
-          type: 'string',
-          description:
-            'The type of revenue for the item purchased. You must send a price and quantity or revenue with this field.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            price: {
-              '@path': 'price'
-            },
-            revenue: {
-              '@path': 'revenue'
-            },
-            quantity: {
-              '@path': 'quantity'
-            },
-            productId: {
-              '@path': 'productId'
-            },
-            revenueType: {
-              '@path': 'revenueType'
-            }
-          }
-        ]
-      }
-    },
-    ip: {
+    ip_address: {
       label: 'IP Address',
       type: 'string',
-      description:
-        'The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user\'s location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers. You can submit a request to Amplitude\'s platform specialist team here to configure this for you.',
+      description: 'The IP address of the user.',
       default: {
         '@path': '$.context.ip'
       }
     },
-    userAgent: {
+    user_agent: {
       label: 'User Agent',
       type: 'string',
       description: 'The user agent of the device sending the event.',
@@ -111,48 +69,121 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.userAgent'
       }
     },
-    utm_properties: {
-      label: 'UTM Properties',
+    timestamp: {
+      label: 'Timestamp',
+      type: 'string',
+      description: 'The timestamp when the event was triggered.',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    fbp: {
+      label: 'Facebook Pixel ID',
+      type: 'string',
+      description: 'Facebook Pixel ID.',
+      default: {
+        '@path': '$.properties.fbp'
+      }
+    },
+    fbc: {
+      label: 'Facebook Click ID',
+      type: 'string',
+      description: 'Facebook Click ID.',
+      default: {
+        '@path': '$.properties.fbc'
+      }
+    },
+    ga: {
+      label: 'Google Analytics ID',
+      type: 'string',
+      description: 'Google Analytics ID.',
+      default: {
+        '@path': '$.properties.ga'
+      }
+    },
+    identifiers: {
+      label: 'Identifiers',
       type: 'object',
-      description: 'UTM Tracking Properties',
-      additionalProperties: false,
+      multiple: true,
+      description: 'Additional identifiers related to the event.',
       properties: {
-        utm_source: {
-          label: 'UTM Source',
-          type: 'string'
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'Name of the identifier.'
         },
-        utm_medium: {
-          label: 'UTM Medium',
-          type: 'string'
-        },
-        utm_campaign: {
-          label: 'UTM Campaign',
-          type: 'string'
-        },
-        utm_term: {
-          label: 'UTM Term',
-          type: 'string'
-        },
-        utm_content: {
-          label: 'UTM Content',
-          type: 'string'
+        value: {
+          type: 'string',
+          label: 'Value',
+          description: 'Value of the identifier.'
         }
       },
       default: {
-        utm_source: { '@path': '$.context.campaign.source' },
-        utm_medium: { '@path': '$.context.campaign.medium' },
-        utm_campaign: { '@path': '$.context.campaign.name' },
-        utm_term: { '@path': '$.context.campaign.term' },
-        utm_content: { '@path': '$.context.campaign.content' }
+        '@arrayPath': [
+          '$.properties.identifiers',
+          {
+            name: { '@path': 'name' },
+            value: { '@path': 'value' }
+          }
+        ]
+      }
+    },
+    url: {
+      label: 'URL',
+      type: 'string',
+      description: 'The URL where the event occurred.',
+      default: {
+        '@path': '$.context.page.url'
+      }
+    },
+    client_id: {
+      label: 'Client ID',
+      type: 'string',
+      description:
+        'A unique client/browser identifier. ga or fbp cookie value will be used if this value is not provided.',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
       }
     },
     referrer: {
       label: 'Referrer',
       type: 'string',
-      description:
-        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
+      description: 'The referring URL if applicable.',
       default: {
         '@path': '$.context.page.referrer'
+      }
+    },
+    data: {
+      label: 'Data',
+      type: 'object',
+      description: 'Structured data related to the event.',
+      properties: {
+        cart,
+        cartLine,
+        checkout,
+        collection,
+        productVariant,
+        searchResult,
+        customer,
+        form,
+        contacts,
+        customData
+      },
+      default: {
+        cart: cartDefault,
+        cartLine: cartLineDefault,
+        checkout: checkoutDefault,
+        collection: collectionDefault,
+        productVariant: productVariantDefault,
+        searchResult: searchResultDefault,
+        customer: customerDefault,
+        form: formDefault,
+        contacts: contactsDefault,
+        customData: customDataDefault
       }
     }
   },

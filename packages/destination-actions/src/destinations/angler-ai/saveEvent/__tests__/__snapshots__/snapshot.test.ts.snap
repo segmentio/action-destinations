@@ -4,28 +4,40 @@ exports[`Testing snapshot for AnglerAi's saveEvent destination action: all field
 Object {
   "data": Array [
     Object {
+      "client_id": "26xBB1k",
       "custom_event_name": "26xBB1k",
+      "data": Object {
+        "cart": Object {},
+        "cartLine": Object {},
+        "checkout": Object {},
+        "collection": Object {},
+        "contacts": Array [
+          Object {},
+        ],
+        "customData": Array [
+          Object {},
+        ],
+        "customer": Object {},
+        "form": Object {},
+        "productVariant": Object {},
+        "searchResult": Object {},
+      },
       "event_id": "26xBB1k",
-      "event_name": "26xBB1k",
-      "ip": "26xBB1k",
-      "products": Array [
+      "event_name": "checkout_completed",
+      "fbc": "26xBB1k",
+      "fbp": "26xBB1k",
+      "ga": "26xBB1k",
+      "identifiers": Array [
         Object {
-          "price": -64278637418905.6,
-          "productId": "26xBB1k",
-          "quantity": -6427863741890560,
-          "revenue": -64278637418905.6,
-          "revenueType": "26xBB1k",
+          "name": "26xBB1k",
+          "value": "26xBB1k",
         },
       ],
+      "ip_address": "26xBB1k",
       "referrer": "26xBB1k",
-      "userAgent": "26xBB1k",
-      "utm_properties": Object {
-        "utm_campaign": "26xBB1k",
-        "utm_content": "26xBB1k",
-        "utm_medium": "26xBB1k",
-        "utm_source": "26xBB1k",
-        "utm_term": "26xBB1k",
-      },
+      "timestamp": "26xBB1k",
+      "url": "26xBB1k",
+      "user_agent": "26xBB1k",
     },
   ],
   "src": "SEGMENT",
@@ -36,9 +48,11 @@ exports[`Testing snapshot for AnglerAi's saveEvent destination action: required 
 Object {
   "data": Array [
     Object {
-      "custom_event_name": "26xBB1k",
+      "client_id": "26xBB1k",
       "event_id": "26xBB1k",
-      "event_name": "26xBB1k",
+      "identifiers": Array [
+        Object {},
+      ],
     },
   ],
   "src": "SEGMENT",
