@@ -11,9 +11,9 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
   description: 'Subscribe Klaviyo profiles to Email marketing, SMS marketing, or both.',
   fields: {
-    klaviyo_id: {
+    id: {
       label: 'Klaviyo Id',
-      description: `The Unique ID of the profile in Klaviyo. If provided, this will be used to perform the profile lookup. One of email or phone number is still required.`,
+      description: `The Unique ID or External ID of the profile in Klaviyo. If provided, this will be used to perform the profile lookup. One of email or phone number is still required.`,
       type: 'string'
     },
     email: {
