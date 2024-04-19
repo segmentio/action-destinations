@@ -26,7 +26,8 @@ export function isDirective(value: FieldValue): value is Directive {
         '@replace',
         '@json',
         '@flatten',
-        '@merge'
+        '@merge',
+        '@root'
       ].includes(key)
     )
   )
@@ -188,6 +189,14 @@ export function isMergeDirective(value: FieldValue): value is MergeDirective {
   )
 }
 
+export interface RootDirective extends DirectiveMetadata {
+  '@root': {}
+}
+
+export function isRootDirective(value: FieldValue): value is RootDirective {
+  return isDirective(value) && '@root' in value
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -199,6 +208,7 @@ type DirectiveKeysToType<T> = {
   ['@json']: (input: JSONDirective) => T
   ['@flatten']: (input: FlattenDirective) => T
   ['@merge']: (input: MergeDirective) => T
+  ['@root']: (input: RootDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -243,6 +253,7 @@ export type Directive =
   | JSONDirective
   | FlattenDirective
   | MergeDirective
+  | RootDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -269,7 +280,8 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
         '@json': (input: JSONDirective) => getRawKeys(input['@json'].value),
         '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value),
-        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects)
+        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects),
+        '@root': (_: RootDirective) => ['']
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

@@ -356,6 +356,10 @@ directive('@literal', (v, stack) => {
   validateDirectiveOrRaw(v, stack)
 })
 
+directive('@root', (v, stack) => {
+  validateDirectiveOrRaw(v, stack)
+})
+
 function indefiniteArticle(s: string): string {
   switch (s.charAt(0)) {
     case 'a':

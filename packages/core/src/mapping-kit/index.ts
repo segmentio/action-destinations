@@ -290,6 +290,8 @@ registerDirective('@merge', (opts, payload) => {
   return Object.assign({}, ...objects)
 })
 
+registerDirective('@root', (_, payload) => payload)
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
