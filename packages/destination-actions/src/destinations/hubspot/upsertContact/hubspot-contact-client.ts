@@ -143,16 +143,11 @@ class HubspotContactClient {
     private async batchRequest(
         endpoint: 'update' | 'create' | 'read', 
         data: (BatchContactUpdateRequestBody | BatchContactCreateRequestBody | BatchContactReadRequestBody)
-    ) {
-        //console.log(endpoint, JSON.stringify(data, null, 2))
-        
+    ) {        
         const response = await this._request<BatchContactResponse>(`${HUBSPOT_OBJECT_CONTACT_URL}/batch/${endpoint}`, {
             method: 'POST',
             json: data
         });
-
-       //console.log(JSON.stringify(response, null, 2))
-
         return response
     }
 
