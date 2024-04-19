@@ -6,7 +6,7 @@ import { addressDefaultFields, addressProperties } from '../properties/address'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save User',
-  description: '',
+  description: 'Send a customer to Angler.',
   fields: {
     accepts_marketing: {
       label: 'Accepts Marketing',
