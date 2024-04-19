@@ -164,12 +164,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return client.createOrUpdate(payload, transactionContext)
   },
 
-  // perform: async (request, {payload}) => {
-  //   const payloads = []
-  //   payloads.push({...payload, email: 'testytester11@gmal.com', identifier_type: 'email', lifecyclestage: 'lead'})
-  //   payloads.push({...payload, email: 'testytester77@gmal.com', identifier_type: 'email'})
-  //   payloads.push({...payload, email: 'testytester99@gmal.com', identifier_type: 'email'})
-
   performBatch: async (request, {payload: payloads}) => {
     const client = new HubspotContactClient(request) 
     await client.addCononicalIDsToBatchPayloads(payloads)
