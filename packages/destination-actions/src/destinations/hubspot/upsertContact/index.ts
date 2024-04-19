@@ -153,6 +153,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     }
   },
+  dynamicFields: {
+    identifier_type: async (request) => {
+      const client = new HubspotClient(request)
+      return await client.getContactIdentifierTypes()
+    }
+  },
   perform: async (request, { payload, transactionContext }) => {
     const client = new HubspotClient(request) 
     return client.createOrUpdateSingleContact(payload, transactionContext)
@@ -164,7 +170,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const { createList, updateList } =  client.buildBatchContactUpsertPayloads(payloads)
     await client.createOrUpdateBatchContacts(createList, updateList)
   }
-
 }
 
 export default action
