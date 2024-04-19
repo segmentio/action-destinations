@@ -4,7 +4,7 @@ import { flattenObject } from './utils'
 import { HUBSPOT_BASE_URL } from './properties'
 import { TransactionContext } from '@segment/actions-core/destination-kit'
 
-export interface SingleContactRequestBody {
+interface SingleContactProperties {
     company?: string | undefined
     firstname?: string | undefined
     lastname?: string | undefined
@@ -20,14 +20,22 @@ export interface SingleContactRequestBody {
     [key: string]: string | undefined
 }
 
+interface SingleContactCreateRequestBody {
+    properties: SingleContactProperties
+}
+interface SingleContactUpdateRequestBody {
+    properties: SingleContactProperties
+    id: string
+}
+
 interface SingleContactSuccessResponse {
     id: string
     properties: Record<string, string | null>
 }
 
-interface BatchContactUpdateRequestBody extends Array<{ properties: SingleContactRequestBody, id: string }> {}
+interface BatchContactUpdateRequestBody extends Array<SingleContactUpdateRequestBody> {}
 
-interface BatchContactCreateRequestBody extends Array<{ properties: SingleContactRequestBody}> {}
+interface BatchContactCreateRequestBody extends Array<SingleContactCreateRequestBody> {}
 
 interface BatchContactReadRequestBody {
     properties: string[]
@@ -35,15 +43,11 @@ interface BatchContactReadRequestBody {
     inputs: Array<{ id: string }>
 }
 
-interface BatchContactReadResponse {
+interface BatchContactResponse {
     status: string
     results: SingleContactSuccessResponse[]
     numErrors?: number
     errors?: SingleContactResponseError[]
-    options: {
-      body: string
-      [key: string]: unknown
-    }
 }
 
 interface SingleContactResponseError {
@@ -104,7 +108,7 @@ class HubspotClient {
     }
 
     private async updateBatchContacts(updateList: BatchContactUpdateRequestBody) {
-        return await this._request<BatchContactReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/update`, {
+        return await this._request<BatchContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/update`, {
           method: 'POST',
           json: {
             inputs: updateList
@@ -113,7 +117,7 @@ class HubspotClient {
     }
 
     private async createBatchContacts(createList: BatchContactCreateRequestBody) {
-        return await this._request<BatchContactReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/create`, {
+        return await this._request<BatchContactResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/create`, {
           method: 'POST',
           json: {
             inputs: createList
@@ -142,12 +146,12 @@ class HubspotClient {
                   website: payload.website,
                   lifecyclestage: payload.lifecyclestage?.toLowerCase() ?? undefined,
                   ...flattenObject(payload.properties)
-                } as SingleContactRequestBody
+                } as SingleContactProperties
             }
             if(requestPayload.id){
-                updateList.push(requestPayload)
+                updateList.push(requestPayload as SingleContactUpdateRequestBody)
             } else {
-                createList.push(requestPayload)
+                createList.push(requestPayload as SingleContactCreateRequestBody)
             }
         })
 
@@ -188,14 +192,14 @@ class HubspotClient {
     }
 
     private async getBatchContacts(requestPayload: BatchContactReadRequestBody) {      
-        return await this._request<BatchContactReadResponse>(
+        return await this._request<BatchContactResponse>(
             `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/batch/read`, {
             method: 'POST',
             json: requestPayload
         })
     }
 
-    private buildSingleContactRequestBody(payload: ContactPayload): SingleContactRequestBody {
+    private buildSingleContactRequestBody(payload: ContactPayload): SingleContactProperties {
         return {
             company: payload.company,
             firstname: payload.firstname,
@@ -210,10 +214,10 @@ class HubspotClient {
             website: payload.website,
             lifecyclestage: payload.lifecyclestage?.toLowerCase(),
             ...flattenObject(payload.properties)
-          } as SingleContactRequestBody
+          } as SingleContactProperties
     }
 
-    private async updateSingleContact(properties: SingleContactRequestBody, identifierValue: string, identifier_type: string) {
+    private async updateSingleContact(properties: SingleContactProperties, identifierValue: string, identifier_type: string) {
         return await this._request<SingleContactSuccessResponse>(
           `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${identifierValue}?idProperty=${identifier_type}`,
           {
@@ -225,7 +229,7 @@ class HubspotClient {
         )
     }
 
-    private async createSingleContact(properties: SingleContactRequestBody) {
+    private async createSingleContact(properties: SingleContactProperties) {
         return await this._request<SingleContactSuccessResponse>(
             `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`, {
             method: 'POST',
