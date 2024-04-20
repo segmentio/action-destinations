@@ -6,6 +6,80 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'User Metadata',
     type: 'object',
     description: 'User metadata including IP, Location, etc.',
+    properties: {
+      ip: {
+        label: 'IP Address',
+        description: "The user's IP address.",
+        type: 'string',
+        required: false
+      },
+      latitude: {
+        label: 'Latitude',
+        description: "The latitude coordinate of the user's location.",
+        type: 'number',
+        required: false
+      },
+      longitude: {
+        label: 'Longitude',
+        description: "The longitude coordinate of the user's location.",
+        type: 'number',
+        required: false
+      },
+      country: {
+        label: 'Country',
+        description: "The country of the user's location.",
+        type: 'string',
+        required: false
+      },
+      city: {
+        label: 'City',
+        description: "The city of the user's location.",
+        type: 'string',
+        required: false
+      },
+      browser: {
+        label: 'Browser',
+        description: "The user's web browser.",
+        type: 'string',
+        required: false
+      },
+      os: {
+        label: 'Operating System',
+        description: "The user's operating system.",
+        type: 'string',
+        required: false
+      },
+      osVersion: {
+        label: 'OS Version',
+        description: "The version of the user's operating system.",
+        type: 'string',
+        required: false
+      },
+      deviceType: {
+        label: 'Device Type',
+        description: 'The type of device the user is using.',
+        type: 'string',
+        required: false
+      },
+      deviceVendor: {
+        label: 'Device Vendor',
+        description: "The vendor or manufacturer of the user's device.",
+        type: 'string',
+        required: false
+      },
+      deviceModel: {
+        label: 'Device Model',
+        description: "The model of the user's device.",
+        type: 'string',
+        required: false
+      },
+      timeZone: {
+        label: 'Time Zone',
+        description: "The time zone of the user's location.",
+        type: 'string',
+        required: false
+      }
+    },
     default: {
       ip: { '@path': '$.context.ip' },
       latitude: { '@path': '$.context.location.latitude' },
@@ -18,9 +92,15 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       deviceType: { '@path': '$.context.device.type' },
       deviceVendor: { '@path': '$.context.device.manufacturer' },
       deviceModel: { '@path': '$.context.device.model' },
-      timeZone: { '@path': '$.context.timezone' },
+      timeZone: {
+        '@if': {
+          exists: { '@path': '$.context.timezone' },
+          then: { '@path': '$.context.timezone' },
+          else: { '@path': '$.properties.timezone' }
+        }
+      }
     },
-    defaultObjectUI: 'keyvalue',
+    defaultObjectUI: 'keyvalue'
   },
   anonymous_id: {
     type: 'string',

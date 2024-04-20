@@ -31,7 +31,54 @@ export interface Payload {
    * User metadata including IP, Location, etc.
    */
   userMeta?: {
-    [k: string]: unknown
+    /**
+     * The user's IP address.
+     */
+    ip?: string
+    /**
+     * The latitude coordinate of the user's location.
+     */
+    latitude?: number
+    /**
+     * The longitude coordinate of the user's location.
+     */
+    longitude?: number
+    /**
+     * The country of the user's location.
+     */
+    country?: string
+    /**
+     * The city of the user's location.
+     */
+    city?: string
+    /**
+     * The user's web browser.
+     */
+    browser?: string
+    /**
+     * The user's operating system.
+     */
+    os?: string
+    /**
+     * The version of the user's operating system.
+     */
+    osVersion?: string
+    /**
+     * The type of device the user is using.
+     */
+    deviceType?: string
+    /**
+     * The vendor or manufacturer of the user's device.
+     */
+    deviceVendor?: string
+    /**
+     * The model of the user's device.
+     */
+    deviceModel?: string
+    /**
+     * The time zone of the user's location.
+     */
+    timeZone?: string
   }
   /**
    * User Anonymous id
