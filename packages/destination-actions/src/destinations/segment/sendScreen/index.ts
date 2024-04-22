@@ -19,8 +19,7 @@ import {
   user_id,
   screen,
   locale,
-  location,
-  enable_batching
+  location
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -46,57 +45,41 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    properties,
-    enable_batching
+    properties
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const screenPayload: Object = convertPayload(payload)
+    const screenPayload: Object = {
+      userId: payload?.user_id,
+      anonymousId: payload?.anonymous_id,
+      timestamp: payload?.timestamp,
+      name: payload?.screen_name,
+      context: {
+        app: payload?.application,
+        campaign: payload?.campaign_parameters,
+        device: payload?.device,
+        ip: payload?.ip_address,
+        locale: payload?.locale,
+        location: payload?.location,
+        network: payload?.network,
+        os: payload?.operating_system,
+        page: payload?.page,
+        screen: payload?.screen,
+        userAgent: payload?.user_agent,
+        groupId: payload?.group_id
+      },
+      properties: {
+        name: payload?.screen_name,
+        ...payload?.properties
+      },
+      type: 'screen'
+    }
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
     return { batch: [screenPayload] }
-  },
-  performBatch: (_request, { payload, statsContext }) => {
-    const screenPayload = payload.map((data) => {
-      if (!data.anonymous_id && !data.user_id) {
-        throw MissingUserOrAnonymousIdThrowableError
-      }
-      return convertPayload(data)
-    })
-
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchScreen'])
-    return { batch: screenPayload }
-  }
-}
-
-function convertPayload(data: Payload) {
-  return {
-    userId: data?.user_id,
-    anonymousId: data?.anonymous_id,
-    timestamp: data?.timestamp,
-    name: data?.screen_name,
-    context: {
-      app: data?.application,
-      campaign: data?.campaign_parameters,
-      device: data?.device,
-      ip: data?.ip_address,
-      locale: data?.locale,
-      location: data?.location,
-      network: data?.network,
-      os: data?.operating_system,
-      page: data?.page,
-      screen: data?.screen,
-      userAgent: data?.user_agent,
-      groupId: data?.group_id
-    },
-    properties: {
-      name: data?.screen_name,
-      ...data?.properties
-    },
-    type: 'screen'
   }
 }
 
