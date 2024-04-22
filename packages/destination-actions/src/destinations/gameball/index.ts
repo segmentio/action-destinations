@@ -10,7 +10,7 @@ import trackOrder from './trackOrder'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Gameball (Actions)',
-  slug: 'gameball-actions',
+  slug: 'actions-gameball',
   mode: 'cloud',
 
   authentication: {
