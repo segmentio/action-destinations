@@ -79,6 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
         identifies: [
           {
             type: 'identify',
+            source: 'segment-cloud',
             ...data.payload
           }
         ]
