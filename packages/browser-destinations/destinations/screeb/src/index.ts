@@ -1,7 +1,6 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { ID } from '@segment/analytics-next'
 import { Screeb } from './types'
 import { defaultValues } from '@segment/actions-core'
 import identify from './identify'
