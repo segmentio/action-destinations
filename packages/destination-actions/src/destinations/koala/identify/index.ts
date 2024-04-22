@@ -63,6 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const traits = data.payload.traits ?? {}
     const email = data.payload.email ?? data.payload.traits?.email ?? traits.email
     const ip = data.payload.traits?.ip ?? data.payload.device_ip
+    const context = data.payload.context ?? {}
 
     if (!profileId && !email) {
       // Skip call if no identifier is found
@@ -79,7 +80,10 @@ const action: ActionDefinition<Settings, Payload> = {
         identifies: [
           {
             type: 'identify',
-            source: 'segment-cloud',
+            context: {
+              ...context,
+              source: 'segment-cloud'
+            },
             ...data.payload
           }
         ]
