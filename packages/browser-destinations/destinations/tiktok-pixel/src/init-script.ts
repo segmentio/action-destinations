@@ -37,7 +37,8 @@ export function initScript(settings) {
           (ttq._t = ttq._t || {}),
           (ttq._t[e] = +new Date()),
           (ttq._o = ttq._o || {}),
-          (ttq._o[e] = n || {})
+          (ttq._o[e] = n || {}),
+          (ttq._partner = ttq._partner || 'Segment')
         var o = document.createElement('script')
         ;(o.type = 'text/javascript'), (o.async = !0), (o.src = i + '?sdkid=' + e + '&lib=' + t)
         var a = document.getElementsByTagName('script')[0]
