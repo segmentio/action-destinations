@@ -72,7 +72,7 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     await deps.loadScript('https://t.screeb.app/tag.js')
     await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
 
-    let visitorId: ID = null
+    let visitorId: string | null | undefined = null
     if (analytics.user().id()) {
       visitorId = analytics.user().id()
     }
