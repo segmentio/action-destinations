@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The name of the goal to send to Wisepops.
+   * This is a 32-character identifier, visible when you create the JS goal in Wisepops.
    */
   goalName?: string
   /**

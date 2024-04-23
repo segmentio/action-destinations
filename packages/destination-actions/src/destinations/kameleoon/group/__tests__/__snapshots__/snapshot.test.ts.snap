@@ -9,7 +9,8 @@ Object {
     "kameleoonVisitorCode": "rdEr9f6(H52BC0%(",
     "testType": "rdEr9f6(H52BC0%(",
   },
-  "timestamp": "2048-09-02T06:14:50.068Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
   "userId": "rdEr9f6(H52BC0%(",
 }
 `;
@@ -19,6 +20,7 @@ Object {
   "groupId": "rdEr9f6(H52BC0%(",
   "messageId": "rdEr9f6(H52BC0%(",
   "properties": Object {},
-  "timestamp": "2048-09-02T06:14:50.068Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
 }
 `;

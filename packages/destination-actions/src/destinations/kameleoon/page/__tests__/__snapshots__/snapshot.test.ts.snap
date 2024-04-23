@@ -12,7 +12,8 @@ Object {
     "kameleoonVisitorCode": "&@D56$Q2hWV0c",
     "testType": "&@D56$Q2hWV0c",
   },
-  "timestamp": "2118-07-27T06:46:47.884Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "&@D56$Q2hWV0c",
   "userId": "&@D56$Q2hWV0c",
 }
 `;
@@ -20,6 +21,7 @@ Object {
 exports[`Testing snapshot for Kameleoon's page destination action: required fields 1`] = `
 Object {
   "properties": Object {},
-  "timestamp": "2118-07-27T06:46:47.884Z",
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "&@D56$Q2hWV0c",
 }
 `;

@@ -7,6 +7,7 @@ import identify from './identify'
 import track from './track'
 import group from './group'
 import alias from './alias'
+import { ID } from '@segment/analytics-next'
 
 declare global {
   interface Window {
@@ -59,7 +60,7 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     }
   ],
 
-  initialize: async ({ settings }, deps) => {
+  initialize: async ({ settings, analytics }, deps) => {
     const preloadFunction = function (...args: unknown[]) {
       if (window.$screeb.q) {
         window.$screeb.q.push(args)
@@ -71,7 +72,13 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     await deps.loadScript('https://t.screeb.app/tag.js')
     await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
 
-    window.$screeb('init', settings.websiteId)
+
+    let visitorId: ID = null
+    if (analytics && typeof analytics.user === 'function' && analytics.user().id) {
+      visitorId = analytics.user().id()
+    }
+
+    window.$screeb('init', settings.websiteId, { identity: { id: visitorId } })
 
     return window.$screeb
   },
