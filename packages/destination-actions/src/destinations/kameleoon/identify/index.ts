@@ -23,6 +23,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
+    type: {
+      label: 'Type',
+      type: 'string',
+      required: true,
+      description: 'The type of the event',
+      default: {
+        '@path': '$.type'
+      }
+    },
     properties: {
       type: 'object',
       required: false,

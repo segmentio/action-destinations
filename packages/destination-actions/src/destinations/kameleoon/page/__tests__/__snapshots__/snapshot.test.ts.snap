@@ -13,6 +13,7 @@ Object {
     "testType": "&@D56$Q2hWV0c",
   },
   "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "&@D56$Q2hWV0c",
   "userId": "&@D56$Q2hWV0c",
 }
 `;
@@ -21,5 +22,6 @@ exports[`Testing snapshot for Kameleoon's page destination action: required fiel
 Object {
   "properties": Object {},
   "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "&@D56$Q2hWV0c",
 }
 `;
