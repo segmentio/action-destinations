@@ -162,6 +162,7 @@ register('65f98869b73d65a27152e088', './mantle')
 register('65f9888628c310646331738a', './chartmogul')
 register('661e9787658d112ba31b59a7', './xtremepush')
 register('661e97a161b54c61eb22ead5', './spiffy')
+register('6627b0208bbe1699ca06eef8', './inleads-ai')
 
 
 function register(id: MetadataId, destinationPath: string) {

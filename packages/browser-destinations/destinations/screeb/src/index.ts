@@ -1,13 +1,13 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { ID } from '@segment/analytics-next'
 import { Screeb } from './types'
 import { defaultValues } from '@segment/actions-core'
 import identify from './identify'
 import track from './track'
 import group from './group'
 import alias from './alias'
+import { ID } from '@segment/analytics-next'
 
 declare global {
   interface Window {
@@ -72,8 +72,9 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
     await deps.loadScript('https://t.screeb.app/tag.js')
     await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
 
-    let visitorId: string | null | undefined = null
-    if (analytics.user().id()) {
+
+    let visitorId: ID = null
+    if (analytics && typeof analytics.user === 'function' && analytics.user().id) {
       visitorId = analytics.user().id()
     }
 

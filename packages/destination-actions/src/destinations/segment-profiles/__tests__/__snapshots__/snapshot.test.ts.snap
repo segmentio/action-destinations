@@ -10,6 +10,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "cZE8HyAL0!BF#)WQb^",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
           "testType": "cZE8HyAL0!BF#)WQb^",
@@ -33,6 +34,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "cZE8HyAL0!BF#)WQb^",
         "timestamp": undefined,
         "traits": Object {},
         "type": "group",
@@ -54,6 +56,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "hIC1OAmWa[Q!&d%o",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
           "testType": "hIC1OAmWa[Q!&d%o",
@@ -77,6 +80,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "hIC1OAmWa[Q!&d%o",
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",
@@ -126,6 +130,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": undefined,
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",
@@ -175,6 +180,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": undefined,
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",
@@ -196,6 +202,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "[2uovRzxThJj",
         "properties": Object {
           "testType": "[2uovRzxThJj",
         },
@@ -219,6 +226,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "[2uovRzxThJj",
         "properties": Object {},
         "timestamp": undefined,
         "type": "track",
