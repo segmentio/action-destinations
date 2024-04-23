@@ -13,6 +13,7 @@ import removeProfileFromList from './removeProfileFromList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
 import { buildHeaders } from './functions'
+import removeProfile from './removeProfile'
 
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
@@ -125,7 +126,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
     addProfileToList,
     removeProfileFromList,
     trackEvent,
-    orderCompleted
+    orderCompleted,
+    removeProfile
   }
 }
 
