@@ -4,12 +4,7 @@ import type { Settings } from './generated-types'
 import track from './track'
 import group from './group'
 import identify from './identify'
-import {
-  IntegrationBaseUrl,
-  IntegrationName,
-  IntegrationWebsite,
-  PartnerActionName
-} from './contants'
+import { IntegrationBaseUrl, IntegrationName, IntegrationWebsite } from './contants'
 
 const destination: DestinationDefinition<Settings> = {
   name: IntegrationName,
@@ -23,18 +18,18 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: `Your ${IntegrationName} API Key. You can find your API Key in your ${IntegrationWebsite} settings.`,
         type: 'string',
-        format: 'password',  
+        format: 'password',
         required: true
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const AUTH_KEY = settings.apiKey;
+      const AUTH_KEY = settings.apiKey
       return await request(`${IntegrationBaseUrl}/events/validate/key`, {
         method: 'post',
         headers: {
           Authorization: `Basic ${AUTH_KEY}`
         },
-        json: {apiKey: AUTH_KEY}
+        json: { apiKey: AUTH_KEY }
       })
     }
   },
