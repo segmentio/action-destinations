@@ -22,7 +22,8 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: `Your ${IntegrationName} API Key. You can find your API Key in your ${IntegrationWebsite} settings.`,
-        type: 'password',
+        type: 'string',
+        format: 'password',  
         required: true
       }
     },
@@ -42,21 +43,21 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
-      partnerAction: PartnerActionName,
+      partnerAction: 'track',
       mapping: defaultValues(track.fields),
       type: 'automatic'
     },
     {
       name: 'Group',
       subscribe: 'type = "group"',
-      partnerAction: PartnerActionName,
+      partnerAction: 'group',
       mapping: defaultValues(group.fields),
       type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
-      partnerAction: PartnerActionName,
+      partnerAction: 'identify',
       mapping: defaultValues(identify.fields),
       type: 'automatic'
     }
