@@ -72,6 +72,7 @@ Array [
             "userAgent": "92N!&JfP",
           },
           "groupId": "92N!&JfP",
+          "messageId": "92N!&JfP",
           "timestamp": "92N!&JfP",
           "traits": Object {
             "testType": "92N!&JfP",
@@ -107,6 +108,7 @@ Object {
           "userAgent": undefined,
         },
         "groupId": "92N!&JfP",
+        "messageId": "92N!&JfP",
         "timestamp": undefined,
         "traits": Object {},
         "type": "group",
