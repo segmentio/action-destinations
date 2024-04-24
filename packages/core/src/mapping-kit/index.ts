@@ -290,6 +290,30 @@ registerDirective('@merge', (opts, payload) => {
   return Object.assign({}, ...objects)
 })
 
+registerDirective('@root', (_, payload) => payload)
+
+registerDirective('@transform', (opts, payload) => {
+  if (!isObject(opts)) {
+    throw new Error('@transform requires an object with an "apply" key and a "mapping" key')
+  }
+
+  if (!opts.mapping) {
+    throw new Error('@transform requires a "mapping" key')
+  }
+
+  if (!opts.apply) {
+    throw new Error('@transform requires a "apply" key')
+  }
+
+  if (!isObject(opts.apply)) {
+    throw new Error('@transform "apply" key should be an object')
+  }
+
+  const newPayload = transform(opts.apply, payload)
+
+  return resolve(opts.mapping, newPayload)
+})
+
 /**
  * Resolves a mapping value/object by applying the input payload based on directives
  * @param mapping - the mapping directives or raw values to resolve
