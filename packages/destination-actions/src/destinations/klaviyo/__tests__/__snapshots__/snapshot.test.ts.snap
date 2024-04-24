@@ -48,6 +48,8 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-klaviyo destination: removeProfile action - all fields 1`] = `""`;
+
 exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - all fields 1`] = `""`;
 
 exports[`Testing snapshot for actions-klaviyo destination: trackEvent action - all fields 1`] = `
