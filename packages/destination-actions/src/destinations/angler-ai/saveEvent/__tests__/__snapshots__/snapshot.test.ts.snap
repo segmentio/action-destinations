@@ -516,7 +516,7 @@ Object {
       "user_agent": "26xBB1k",
     },
   ],
-  "src": "SHOPIFY",
+  "src": "SEGMENT",
 }
 `;
 
@@ -532,6 +532,6 @@ Object {
       ],
     },
   ],
-  "src": "SHOPIFY",
+  "src": "SEGMENT",
 }
 `;

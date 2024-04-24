@@ -516,7 +516,7 @@ Object {
       "user_agent": "3mG!HxRA*^ARn)qHBi",
     },
   ],
-  "src": "SHOPIFY",
+  "src": "SEGMENT",
 }
 `;
 
@@ -532,7 +532,7 @@ Object {
       ],
     },
   ],
-  "src": "SHOPIFY",
+  "src": "SEGMENT",
 }
 `;
 
