@@ -232,11 +232,12 @@ export async function subscribeProfiles(
       }
     }
   }
-
-  console.dir(subData, { depth: null })
-
+  // subscribe requires use of 2024-02-15 api version
   return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
     method: 'POST',
+    headers: {
+      revision: '2024-02-15'
+    },
     json: subData
   })
 }

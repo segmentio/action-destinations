@@ -185,7 +185,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          custom_source: 'Segment Klaviyo (Actions) Destination',
+          custom_source: 'Marketing Event',
           profiles: {
             data: [
               {
@@ -238,7 +238,8 @@ describe('Subscribe Profile', () => {
       },
       phone_number: {
         '@path': '$.context.traits.phone_number'
-      }
+      },
+      custom_source: 'Marketing Event'
     }
 
     await expect(
@@ -315,6 +316,128 @@ describe('Subscribe Profile', () => {
 
     await expect(
       testDestination.testAction('subscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
+  it('formats the correct request body for batch requests', async () => {
+    const mapping = {
+      list_id: '1234',
+      consented_at: {
+        '@path': '$.timestamp'
+      },
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone_number'
+      }
+    }
+
+    const events = [
+      createTestEvent({
+        type: 'track',
+        timestamp: '2024-04-24T12:06:41.897Z',
+        context: {
+          traits: {
+            email: 'test@email.com'
+          }
+        }
+      }),
+      createTestEvent({
+        type: 'track',
+        timestamp: '2024-04-24T12:06:41.897Z',
+        context: {
+          traits: {
+            phone_number: '+17067675129'
+          }
+        }
+      }),
+      createTestEvent({
+        type: 'track',
+        timestamp: '2024-04-24T12:06:41.897Z',
+        context: {
+          traits: {
+            email: 'test2@email.com',
+            phone_number: '+17067665437'
+          }
+        }
+      })
+    ]
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          custom_source: 'Segment Klaviyo (Actions) Destination',
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'test@email.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: '2024-04-24T12:06:41.897Z'
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                type: 'profile',
+                attributes: {
+                  phone_number: '+17067675129',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: '2024-04-24T12:06:41.897Z'
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'test2@email.com',
+                  phone_number: '+17067665437',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: '2024-04-24T12:06:41.897Z'
+                      }
+                    },
+                    sms: {
+                      marketing: {
+                        consent: 'SUBSCRIBED',
+                        consented_at: '2024-04-24T12:06:41.897Z'
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        relationships: {
+          list: {
+            data: {
+              type: 'list',
+              id: '1234'
+            }
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-create-jobs/', requestBody).reply(200, {})
+
+    await expect(
+      testDestination.testBatchAction('subscribeProfile', { events, mapping, settings })
     ).resolves.not.toThrowError()
   })
 })
