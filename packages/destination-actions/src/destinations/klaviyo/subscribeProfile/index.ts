@@ -4,8 +4,7 @@ import type { Payload } from './generated-types'
 import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
-import { API_URL } from '../config'
-import { SubscribeProfile, SubscribeEventData } from '../types'
+import { subscribeProfiles, formatSubscribeProfile } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -61,40 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
-
     const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
-
-    const eventData: SubscribeEventData = {
-      data: {
-        type: 'profile-subscription-bulk-create-job',
-        attributes: {
-          custom_source: custom_source || 'Segment Klaviyo (Actions) Destination', // Use custom_source if populated, otherwise fallback to default value
-          profiles: {
-            data: [profileToSubscribe]
-          }
-        }
-      }
-    }
-
-    if (list_id) {
-      eventData.data.relationships = {
-        list: {
-          data: {
-            type: 'list',
-            id: list_id
-          }
-        }
-      }
-    }
-
-    // subscribe requires use of 2024-02-15 api version
-    return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
-      method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
-      json: eventData
-    })
+    await subscribeProfiles(profileToSubscribe, custom_source, list_id, request)
   },
   performBatch: async (request, { payload }) => {
     const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
@@ -105,74 +72,12 @@ const action: ActionDefinition<Settings, Payload> = {
     const profilesForImport = filteredPayload.map(({ list_id, custom_source, ...profile }) =>
       formatSubscribeProfile(profile.email, profile.phone_number, profile.consented_at)
     )
-
+    // max number of profiles is 100 per request
     for (let i = 0; i < profilesForImport.length; i += 100) {
       const batch = profilesForImport.slice(i, i + 100)
-      const eventData: SubscribeEventData = {
-        data: {
-          type: 'profile-subscription-bulk-create-job',
-          attributes: {
-            custom_source: custom_source || 'Segment Klaviyo (Actions) Destination', // Use custom_source if populated, otherwise fallback to default value
-            profiles: {
-              data: batch
-            }
-          }
-        }
-      }
-      if (list_id) {
-        eventData.data.relationships = {
-          list: {
-            data: {
-              type: 'list',
-              id: list_id
-            }
-          }
-        }
-      }
-      const response = await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
-        method: 'POST',
-        headers: {
-          revision: '2024-02-15'
-        },
-        json: eventData
-      })
-      return response
+      await subscribeProfiles(batch, custom_source, list_id, request)
     }
   }
-}
-
-function formatSubscribeProfile(
-  email: string | undefined,
-  phone_number: string | undefined,
-  consented_at: string | number | undefined
-) {
-  const profileToSubscribe: SubscribeProfile = {
-    type: 'profile',
-    attributes: {
-      email,
-      phone_number,
-      subscriptions: {}
-    }
-  }
-
-  if (email) {
-    profileToSubscribe.attributes.subscriptions.email = {
-      marketing: {
-        consent: 'SUBSCRIBED',
-        consented_at: consented_at
-      }
-    }
-  }
-
-  if (phone_number) {
-    profileToSubscribe.attributes.subscriptions.sms = {
-      marketing: {
-        consent: 'SUBSCRIBED',
-        consented_at: consented_at
-      }
-    }
-  }
-  return profileToSubscribe
 }
 
 export default action

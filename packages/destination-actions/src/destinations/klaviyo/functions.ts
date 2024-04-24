@@ -7,7 +7,9 @@ import {
   listData,
   ImportJobPayload,
   Profile,
-  GetProfileResponse
+  GetProfileResponse,
+  SubscribeProfile,
+  SubscribeEventData
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -162,4 +164,79 @@ export async function getProfiles(
   }
 
   return Array.from(new Set(profileIds))
+}
+
+export function formatSubscribeProfile(
+  email: string | undefined,
+  phone_number: string | undefined,
+  consented_at: string | number | undefined
+) {
+  const profileToSubscribe: SubscribeProfile = {
+    type: 'profile',
+    attributes: {
+      subscriptions: {}
+    }
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+    profileToSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'SUBSCRIBED',
+        consented_at: consented_at
+      }
+    }
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+    profileToSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'SUBSCRIBED',
+        consented_at: consented_at
+      }
+    }
+  }
+  return profileToSubscribe
+}
+
+export async function subscribeProfiles(
+  profiles: SubscribeProfile | SubscribeProfile[],
+  customSource = 'Segment Klaviyo (Actions) Destination',
+  list_id: string | undefined,
+  request: RequestClient
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  const subData: SubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-create-job',
+      attributes: {
+        custom_source: customSource,
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  if (list_id) {
+    subData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  console.dir(subData, { depth: null })
+
+  return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+    method: 'POST',
+    json: subData
+  })
 }
