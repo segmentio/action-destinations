@@ -70,6 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: '600 secs', value: 600 }
       ],
       required: false,
+      unsafe_hidden: true,
       default: 0
     }
   },
