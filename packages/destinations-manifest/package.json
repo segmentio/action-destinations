@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.52.0",
+  "version": "1.53.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -28,7 +28,7 @@
     "@segment/analytics-browser-actions-google-campaign-manager": "^1.28.0",
     "@segment/analytics-browser-actions-heap": "^1.38.0",
     "@segment/analytics-browser-actions-hubspot": "^1.38.0",
-    "@segment/analytics-browser-actions-intercom": "^1.39.0",
+    "@segment/analytics-browser-actions-intercom": "^1.40.0",
     "@segment/analytics-browser-actions-iterate": "^1.38.0",
     "@segment/analytics-browser-actions-jimo": "^1.26.0",
     "@segment/analytics-browser-actions-koala": "^1.38.0",
@@ -38,17 +38,17 @@
     "@segment/analytics-browser-actions-replaybird": "^1.19.0",
     "@segment/analytics-browser-actions-ripe": "^1.38.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
-    "@segment/analytics-browser-actions-screeb": "^1.38.0",
+    "@segment/analytics-browser-actions-screeb": "^1.39.0",
     "@segment/analytics-browser-actions-snap-plugins": "^1.19.0",
     "@segment/analytics-browser-actions-sprig": "^1.38.0",
     "@segment/analytics-browser-actions-stackadapt": "^1.38.0",
     "@segment/analytics-browser-actions-survicate": "^1.14.0",
-    "@segment/analytics-browser-actions-tiktok-pixel": "^1.36.0",
+    "@segment/analytics-browser-actions-tiktok-pixel": "^1.37.0",
     "@segment/analytics-browser-actions-upollo": "^1.38.0",
     "@segment/analytics-browser-actions-userpilot": "^1.38.0",
     "@segment/analytics-browser-actions-utils": "^1.38.0",
     "@segment/analytics-browser-actions-vwo": "^1.39.0",
-    "@segment/analytics-browser-actions-wiseops": "^1.38.0",
+    "@segment/analytics-browser-actions-wiseops": "^1.39.0",
     "@segment/analytics-browser-hubble-web": "^1.24.0",
     "@segment/browser-destination-runtime": "^1.37.0"
   }

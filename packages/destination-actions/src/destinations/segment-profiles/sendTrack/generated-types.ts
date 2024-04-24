@@ -31,4 +31,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId.
+   */
+  message_id?: string
 }

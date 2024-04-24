@@ -1,7 +1,7 @@
 export interface Koala {
   ready: (fn?: () => Promise<unknown> | unknown) => Promise<void>
   track: (event: string, data?: { [key: string]: unknown }) => Promise<void>
-  identify: (traits: Record<string, unknown>) => Promise<void>
+  identify: (traits: Record<string, unknown>, options?: { source?: string }) => Promise<void>
 }
 
 export interface KoalaSDK {

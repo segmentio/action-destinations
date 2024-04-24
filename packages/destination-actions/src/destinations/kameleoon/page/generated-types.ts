@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * The type of the event
+   */
+  type: string
+  /**
    * Page properties
    */
   properties?: {

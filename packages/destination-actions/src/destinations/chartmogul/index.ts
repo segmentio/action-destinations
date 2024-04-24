@@ -7,7 +7,7 @@ import sendContact from './sendContact'
 import sendCustomer from './sendCustomer'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Chart Mogul',
+  name: 'ChartMogul',
   slug: 'actions-chartmogul',
   mode: 'cloud',
   description: 'Send Contacts and Customers to ChartMogul.',
