@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The Unique ID or External ID of the profile in Klaviyo. If provided, this will be used to perform the profile lookup. One of email or phone number is still required.
-   */
-  klaviyo_id?: string
-  /**
    * The email address to subscribe. If provided, the associated profile will be subscribed to Email marketing.
    */
   email?: string
@@ -26,7 +22,7 @@ export interface Payload {
    */
   consented_at?: string | number
   /**
-   * When enabled, the action will use the klaviyo batch API.
+   * When enabled, the action will use the klaviyo batch API. Fields "List Id" and "Custom Source" will need to be static values if batching is enabled.
    */
   enable_batching?: boolean
 }

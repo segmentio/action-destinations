@@ -139,8 +139,8 @@ export interface GetProfileResponse {
 
 export interface SubscribeProfile {
   type: string
+  id?: string
   attributes: {
-    id?: string
     email?: string
     phone_number?: string
     subscriptions: {

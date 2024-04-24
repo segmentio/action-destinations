@@ -11,11 +11,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
   description: 'Subscribe Klaviyo profiles to Email marketing, SMS marketing, or both.',
   fields: {
-    klaviyo_id: {
-      label: 'Klaviyo Id',
-      description: `The Unique ID or External ID of the profile in Klaviyo. If provided, this will be used to perform the profile lookup. One of email or phone number is still required.`,
-      type: 'string'
-    },
     email: {
       label: 'Email',
       description: `The email address to subscribe. If provided, the associated profile will be subscribed to Email marketing.`,
@@ -52,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
-      description: 'When enabled, the action will use the klaviyo batch API.'
+      description:
+        'When enabled, the action will use the klaviyo batch API. Fields "List Id" and "Custom Source" will need to be static values if batching is enabled.'
     }
   },
   dynamicFields: {
@@ -61,12 +57,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, klaviyo_id, phone_number, consented_at, list_id, custom_source } = payload
+    const { email, phone_number, consented_at, list_id, custom_source } = payload
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, klaviyo_id, consented_at)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
 
     const eventData: SubscribeEventData = {
       data: {
@@ -101,51 +97,58 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: async (request, { payload }) => {
-    payload = payload.filter((profile) => profile.email || profile.phone_number)
+    const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
     if (payload.length === 0) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
+    const { list_id, custom_source } = filteredPayload[0]
+    const profilesForImport = filteredPayload.map(({ list_id, custom_source, ...profile }) =>
+      formatSubscribeProfile(profile.email, profile.phone_number, profile.consented_at)
+    )
 
-    // Only one list_id can be used per batch request,
-    // need to account for edge case where profiles with different list_ids are present
-    const groupedProfiles = {}
-    const profilesWithoutListId = []
-
-    // Iterate through each profile in the payload
-    payload.forEach((profile) => {
-      const { list_id } = profile
-
-      if (list_id) {
-        // Check if list_id already exists in groupedProfiles
-        if (!groupedProfiles[list_id]) {
-          groupedProfiles[list_id] = [] // Initialize array if not exists
+    for (let i = 0; i < profilesForImport.length; i += 100) {
+      const batch = profilesForImport.slice(i, i + 100)
+      const eventData: SubscribeEventData = {
+        data: {
+          type: 'profile-subscription-bulk-create-job',
+          attributes: {
+            custom_source: custom_source || 'Segment Klaviyo (Actions) Destination', // Use custom_source if populated, otherwise fallback to default value
+            profiles: {
+              data: batch
+            }
+          }
         }
-
-        // Push the profile into the corresponding list_id array
-        groupedProfiles[list_id].push({ ...profile })
-      } else {
-        // If list_id is empty or not defined, add the profile to profilesWithoutListId array
-        profilesWithoutListId.push({ ...profile })
       }
-    })
-
-    console.log(groupedProfiles)
-    console.log(profilesWithoutListId)
-
-    return true
+      if (list_id) {
+        eventData.data.relationships = {
+          list: {
+            data: {
+              type: 'list',
+              id: list_id
+            }
+          }
+        }
+      }
+      const response = await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+        method: 'POST',
+        headers: {
+          revision: '2024-02-15'
+        },
+        json: eventData
+      })
+      return response
+    }
   }
 }
 
 function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  klaviyo_id: string | undefined,
   consented_at: string | number | undefined
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
     attributes: {
-      id: klaviyo_id || undefined,
       email,
       phone_number,
       subscriptions: {}

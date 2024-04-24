@@ -25,7 +25,6 @@ describe('Subscribe Profile', () => {
       email: 'segment@email.com',
       phone_number: '+17067675219',
       list_id: '',
-      klaviyo_id: '6789',
       timestamp: '2024-04-01T18:37:06.558Z'
     }
 
@@ -39,7 +38,6 @@ describe('Subscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  id: payload.klaviyo_id,
                   email: payload.email,
                   phone_number: payload.phone_number,
                   subscriptions: {
@@ -78,7 +76,6 @@ describe('Subscribe Profile', () => {
     })
 
     const mapping = {
-      klaviyo_id: payload.klaviyo_id,
       list_id: payload.list_id,
       consented_at: {
         '@path': '$.timestamp'
@@ -101,7 +98,6 @@ describe('Subscribe Profile', () => {
       email: 'segment@email.com',
       phone_number: '+17067675219',
       list_id: '12345',
-      klaviyo_id: '6789',
       timestamp: '2024-04-01T18:37:06.558Z'
     }
 
@@ -115,7 +111,6 @@ describe('Subscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  id: payload.klaviyo_id,
                   email: payload.email,
                   phone_number: payload.phone_number,
                   subscriptions: {
@@ -162,7 +157,6 @@ describe('Subscribe Profile', () => {
     })
 
     const mapping = {
-      klaviyo_id: payload.klaviyo_id,
       list_id: payload.list_id,
       consented_at: {
         '@path': '$.timestamp'
@@ -184,7 +178,6 @@ describe('Subscribe Profile', () => {
     const payload = {
       email: 'segment@email.com',
       list_id: '12345',
-      klaviyo_id: '6789',
       timestamp: '2024-04-01T18:37:06.558Z'
     }
 
@@ -198,7 +191,6 @@ describe('Subscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  id: payload.klaviyo_id,
                   email: payload.email,
                   subscriptions: {
                     email: {
@@ -237,7 +229,6 @@ describe('Subscribe Profile', () => {
     })
 
     const mapping = {
-      klaviyo_id: payload.klaviyo_id,
       list_id: payload.list_id,
       consented_at: {
         '@path': '$.timestamp'
@@ -259,7 +250,6 @@ describe('Subscribe Profile', () => {
     const payload = {
       phone_number: '+17067675219',
       list_id: '12345',
-      klaviyo_id: '6789',
       timestamp: '2024-04-01T18:37:06.558Z'
     }
 
@@ -273,7 +263,6 @@ describe('Subscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  id: payload.klaviyo_id,
                   phone_number: payload.phone_number,
                   subscriptions: {
                     sms: {
@@ -312,7 +301,6 @@ describe('Subscribe Profile', () => {
     })
 
     const mapping = {
-      klaviyo_id: payload.klaviyo_id,
       list_id: payload.list_id,
       consented_at: {
         '@path': '$.timestamp'
