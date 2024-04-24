@@ -1,11 +1,19 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { AuthResponseType } from './utils'
-import { testEndpoint, privacyEndpoint, baseURL } from './utils'
+import { testEndpoint, privacyEndpoint, baseURL } from './routes'
 import { presets } from './presets'
 import saveEvent from './saveEvent'
 import saveOrder from './saveOrder'
 import saveUser from './saveUser'
+
+export type AuthResponseType = {
+  iat: number
+  exp: number
+  sub: string
+  scopes: string
+  iss: string
+  jti: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Angler Ai',

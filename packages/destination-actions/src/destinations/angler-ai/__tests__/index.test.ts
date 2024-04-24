@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { baseURL } from '../utils'
+import { baseURL } from '../routes'
 
 const testDestination = createTestIntegration(Definition)
 

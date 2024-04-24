@@ -1,6 +1,6 @@
 import { InputField, PathDirective } from '@segment/actions-core/index'
-import { merchandiseDefaultFields, merchandiseProperties } from './merchandise'
-import { moneyAmountProperties } from './money'
+import { productVariantDefaultFields, productVariantProperties } from './product-variant'
+import addPrefixToProperties, { addPrefixToDefaultFields } from '../../utils'
 
 export const cartLineProperties: Record<string, InputField> = {
   quantity: {
@@ -8,25 +8,17 @@ export const cartLineProperties: Record<string, InputField> = {
     type: 'number',
     description: 'The quantity of the merchandise that the customer intends to purchase.'
   },
-  cost: {
+  itemCost: {
     label: 'Item Cost',
-    type: 'object',
-    description: 'Cost of the merchandise line that the buyer will pay at checkout.',
-    properties: {
-      totalAmount: {
-        label: 'Total Amount',
-        type: 'object',
-        description: 'A monetary value with currency.',
-        properties: moneyAmountProperties
-      }
-    }
+    type: 'number',
+    description: 'The cost of the merchandise line that the buyer will pay at checkout.'
   },
-  merchandise: {
-    label: 'Merchandise',
-    type: 'object',
-    description: 'Product variant of the line item.',
-    properties: merchandiseProperties
-  }
+  itemCurrencyCode: {
+    label: 'Item Currency Code',
+    type: 'string',
+    description: 'Currency of the money.'
+  },
+  ...addPrefixToProperties(productVariantProperties, 'merchandise')
 }
 
 export function cartLineDefaultFields(path = ''): Record<string, object | PathDirective> {
@@ -36,9 +28,8 @@ export function cartLineDefaultFields(path = ''): Record<string, object | PathDi
 
   return {
     quantity: { '@path': `${path}quantity` },
-    cost: {
-      totalAmount: { '@path': `${path}cost.totalAmount` }
-    },
-    merchandise: merchandiseDefaultFields(`${path}merchandise`)
+    itemCost: { '@path': `${path}itemCost` },
+    itemCurrencyCode: { '@path': `${path}itemCurrencyCode` },
+    ...addPrefixToDefaultFields(productVariantDefaultFields(path), 'merchandise')
   }
 }

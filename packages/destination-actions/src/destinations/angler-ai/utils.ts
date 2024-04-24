@@ -1,38 +1,28 @@
-export type AuthResponseType = {
-  iat: number
-  exp: number
-  sub: string
-  scopes: string
-  iss: string
-  jti: string
+import { InputField, PathDirective } from '@segment/actions-core/index'
+
+export default function addPrefixToProperties(
+  properties: Record<string, InputField>,
+  prefix: string
+): Record<string, InputField> {
+  return Object.keys(properties).reduce((acc, key) => {
+    acc[`${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`] = properties[key]
+    return acc
+  }, {} as typeof properties)
 }
 
-export const baseURL = 'https://data.getangler.ai'
+export function addPrefixToDefaultFields(
+  defaultFields: Record<string, object | PathDirective>,
+  prefix: string,
+  path = ''
+): Record<string, object | PathDirective> {
+  if (path && !path.endsWith('.')) {
+    path += '.'
+  }
 
-export const testEndpoint = () => {
-  return `/v1/me`
-}
-
-export const eventsEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/events`
-}
-
-export const ordersEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/data/orders`
-}
-
-export const customersEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/data/orders`
-}
-
-export const lineItemsEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/data/line_items`
-}
-
-export const productsEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/data/products`
-}
-
-export const privacyEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/privacy/redact`
+  return Object.entries(defaultFields).reduce((acc, [key, value]) => {
+    const newKey = `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
+    const newValue = '@path' in value ? { '@path': `${path}${newKey}` } : value
+    acc[newKey] = newValue
+    return acc
+  }, {} as typeof defaultFields)
 }

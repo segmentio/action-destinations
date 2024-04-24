@@ -1,37 +1,27 @@
 import { InputField, PathDirective } from '@segment/actions-core/index'
-import { moneyAmountProperties } from './money'
 import { productDefaultFields, productProperties } from './product'
+import addPrefixToProperties, { addPrefixToDefaultFields } from '../../utils'
 
 export const productVariantProperties: Record<string, InputField> = {
   id: {
-    label: 'ID',
+    label: 'Merchandise Id',
     type: 'string',
     description: 'A globally unique identifier.'
   },
-  image: {
-    label: 'Image',
-    type: 'object',
-    description:
-      'Image associated with the product variant. This field falls back to the product image if no image is available.',
-    properties: {
-      src: {
-        label: 'Source',
-        type: 'string',
-        description: 'The location of the image as a URL.'
-      }
-    }
+  imageSrc: {
+    label: 'Image Source URL',
+    type: 'string',
+    description: 'The location of the image as a URL.'
   },
-  price: {
-    label: 'Price',
-    type: 'object',
-    description: 'A monetary value with currency.',
-    properties: moneyAmountProperties
+  priceAmount: {
+    label: 'Price Amount',
+    type: 'number',
+    description: 'The price of the product variant.'
   },
-  product: {
-    label: 'Product',
-    type: 'object',
-    description: 'The product object that the product variant belongs to.',
-    properties: productProperties
+  priceCurrencyCode: {
+    label: 'Price Currency Code',
+    type: 'string',
+    description: 'The currency code of the price.'
   },
   sku: {
     label: 'SKU',
@@ -47,7 +37,8 @@ export const productVariantProperties: Record<string, InputField> = {
     label: 'Untranslated Title',
     type: 'string',
     description: "The product variant's untranslated title."
-  }
+  },
+  ...addPrefixToProperties(productProperties, 'product')
 }
 
 export function productVariantDefaultFields(path = ''): Record<string, object | PathDirective> {
@@ -57,16 +48,12 @@ export function productVariantDefaultFields(path = ''): Record<string, object | 
 
   return {
     id: { '@path': `${path}id` },
-    image: {
-      src: { '@path': `${path}image.src` }
-    },
-    price: {
-      amount: { '@path': `${path}price.amount` },
-      currencyCode: { '@path': `${path}price.currencyCode` }
-    },
-    product: productDefaultFields(`${path}product`),
+    imageSrc: { '@path': `${path}imageSrc` },
+    priceAmount: { '@path': `${path}priceAmount` },
+    priceCurrencyCode: { '@path': `${path}priceCurrencyCode` },
     sku: { '@path': `${path}sku` },
     title: { '@path': `${path}title` },
-    untranslatedTitle: { '@path': `${path}untranslatedTitle` }
+    untranslatedTitle: { '@path': `${path}untranslatedTitle` },
+    ...addPrefixToDefaultFields(productDefaultFields(path), 'product', path)
   }
 }

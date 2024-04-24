@@ -1,17 +1,30 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import { baseURL, eventsEndpoint } from '../routes'
+import { cart, cartDefault } from './data-fields/cart'
+import { cartLine, cartLineDefault } from './data-fields/cart-line'
+import { cartLines, cartLinesDefault } from './data-fields/cart-lines'
+import { checkout, checkoutDefault } from './data-fields/checkout'
+import { checkoutAttributes, checkoutAttributesDefault } from './data-fields/checkout-attributes'
+import {
+  checkoutDiscountApplications,
+  checkoutDiscountApplicationsDefault
+} from './data-fields/checkout-discount-applications'
+import { checkoutLineItems, checkoutLineItemsDefault } from './data-fields/checkout-line-items'
+import { collection, collectionDefault } from './data-fields/collection'
+import { collectionProductVariantDefault, collectionProductVariants } from './data-fields/collection-product-variants'
+import { contacts, contactsDefault } from './data-fields/contacts'
+import { customData, customDataDefault } from './data-fields/custom-data'
+import { customer, customerDefault } from './data-fields/customer'
+import { form, formDefault } from './data-fields/form'
+import { formElements, formElementsDefault } from './data-fields/form-elements'
+import { productVariant, productVariantDefault } from './data-fields/product-variant'
+import {
+  searchResultProductVariants,
+  searchResultProductVariantsDefault
+} from './data-fields/search-result-product-variants'
 import type { Payload } from './generated-types'
-import { baseURL, eventsEndpoint } from '../utils'
-import { cartDefault, cart } from './data-fields/cart'
-import { cartLineDefault, cartLine } from './data-fields/cart-line'
-import { checkoutDefault, checkout } from './data-fields/checkout'
-import { collectionDefault, collection } from './data-fields/collection'
-import { productVariantDefault, productVariant } from './data-fields/product-variant'
-import { searchResultDefault, searchResult } from './data-fields/search-result'
-import { customerDefault, customer } from './data-fields/customer'
-import { formDefault, form } from './data-fields/form'
-import { contactsDefault, contacts } from './data-fields/contacts'
-import { customDataDefault, customData } from './data-fields/custom-data'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Event',
@@ -157,37 +170,87 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.page.referrer'
       }
     },
-    data: {
-      label: 'Data',
-      type: 'object',
-      description: 'Structured data related to the event.',
-      properties: {
-        cart,
-        cartLine,
-        checkout,
-        collection,
-        productVariant,
-        searchResult,
-        customer,
-        form,
-        contacts,
-        customData
-      },
+    cart: {
+      ...cart,
+      default: cartDefault
+    },
+    cartLines: {
+      ...cartLines,
+      default: cartLinesDefault
+    },
+    cartLine: {
+      ...cartLine,
+      default: cartLineDefault
+    },
+    checkout: {
+      ...checkout,
+      default: checkoutDefault
+    },
+    checkoutDiscountApplications: {
+      ...checkoutDiscountApplications,
+      default: checkoutDiscountApplicationsDefault
+    },
+    checkoutLineItems: {
+      ...checkoutLineItems,
+      default: checkoutLineItemsDefault
+    },
+    checkoutAttributes: {
+      ...checkoutAttributes,
+      default: checkoutAttributesDefault
+    },
+    collection: {
+      ...collection,
+      default: collectionDefault
+    },
+    collectionProductVariants: {
+      ...collectionProductVariants,
+      default: collectionProductVariantDefault
+    },
+    productVariant: {
+      ...productVariant,
+      default: productVariantDefault
+    },
+    searchQuery: {
+      type: 'string',
+      label: 'Search Query',
+      description: 'The search query that was executed.',
       default: {
-        cart: cartDefault,
-        cartLine: cartLineDefault,
-        checkout: checkoutDefault,
-        collection: collectionDefault,
-        productVariant: productVariantDefault,
-        searchResult: searchResultDefault,
-        customer: customerDefault,
-        form: formDefault,
-        contacts: contactsDefault,
-        customData: customDataDefault
+        '@path': '$.properties.searchResult.query'
       }
+    },
+    searchResultProductVariants: {
+      ...searchResultProductVariants,
+      default: searchResultProductVariantsDefault
+    },
+    customer: {
+      ...customer,
+      default: customerDefault
+    },
+    form: {
+      ...form,
+      default: formDefault
+    },
+    formElements: {
+      ...formElements,
+      default: formElementsDefault
+    },
+    contacts: {
+      ...contacts,
+      default: contactsDefault
+    },
+    customData: {
+      ...customData,
+      default: customDataDefault
     }
   },
   perform: (request, data) => {
+    // we need to transform the payload to match the Angler API
+    const transformedPayload = transformPayload(data.payload)
+
+    console.log('============')
+    console.log(JSON.stringify(data.payload, null, 2))
+    console.log(JSON.stringify(transformedPayload, null, 2))
+
     const payload = {
       src: 'SEGMENT',
       data: [data.payload]

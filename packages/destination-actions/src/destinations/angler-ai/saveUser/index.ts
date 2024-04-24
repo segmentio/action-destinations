@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { baseURL, customersEndpoint } from '../utils'
+import { baseURL, customersEndpoint } from '../routes'
 import { addressDefaultFields, addressProperties } from '../properties/address'
 
 const action: ActionDefinition<Settings, Payload> = {

@@ -1,5 +1,4 @@
 import { InputField, PathDirective } from '@segment/actions-core/index'
-import { moneyAmountProperties, moneyAmountDefaultFields } from './money'
 
 export const discountApplicationProperties: Record<string, InputField> = {
   allocationMethod: {
@@ -29,18 +28,20 @@ export const discountApplicationProperties: Record<string, InputField> = {
     type: 'string',
     description: 'The type of discount.'
   },
-  value: {
-    label: 'Value',
-    type: 'object',
-    description: 'The value of the discount application.',
-    properties: {
-      ...moneyAmountProperties,
-      percentage: {
-        label: 'Percentage',
-        type: 'number',
-        description: 'The percentage value of the discount application.'
-      }
-    }
+  amount: {
+    label: 'Amount',
+    type: 'number',
+    description: 'Decimal money amount.'
+  },
+  currencyCode: {
+    label: 'Currency Code',
+    type: 'string',
+    description: 'Currency of the money.'
+  },
+  percentage: {
+    label: 'Percentage',
+    type: 'number',
+    description: 'The percentage value of the discount application.'
   }
 }
 
@@ -55,9 +56,8 @@ export function discountApplicationDefaultFields(path = ''): Record<string, obje
     targetType: { '@path': `${path}targetType` },
     title: { '@path': `${path}title` },
     type: { '@path': `${path}type` },
-    value: {
-      ...moneyAmountDefaultFields(`${path}value`),
-      percentage: { '@path': `${path}value.percentage` }
-    }
+    amount: { '@path': `${path}amount` },
+    currencyCode: { '@path': `${path}currencyCode` },
+    percentage: { '@path': `${path}percentage` }
   }
 }
