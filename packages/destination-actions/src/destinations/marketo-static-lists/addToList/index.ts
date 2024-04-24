@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
@@ -51,7 +51,18 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       performHook: async (request, { settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
-          return getList(request, settings, hookInputs.list_id)
+          try {
+            return getList(request, settings, hookInputs.list_id)
+          } catch (e) {
+            const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
+            const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
+            return {
+              error: {
+                message,
+                code
+              }
+            }
+          }
         }
 
         try {
@@ -69,10 +80,12 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         } catch (e) {
+          const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
+          const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
           return {
             error: {
-              message: 'Failed to create list',
-              code: 'CREATE_LIST_FAILURE'
+              message,
+              code
             }
           }
         }
