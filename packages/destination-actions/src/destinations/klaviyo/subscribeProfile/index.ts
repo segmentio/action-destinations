@@ -1,4 +1,4 @@
-import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getListIdDynamicData } from '../functions'
@@ -74,8 +74,19 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    // sort profiles into batches with same list_id and custom_source pairing
-    const sortedProfilesObject = sortListIdAndCustomSource(filteredPayload)
+    /*  sort profiles into batches with same list_id and custom_source pairing:
+
+      batches: {
+        '1234abcd' {
+          list_id: '1234',
+          custom_source: 'abcd',
+          profiles: [...]
+        },
+        ...
+      }
+
+    */
+    const sortedProfilesObject = sortBatches(filteredPayload)
     const batches = Object.keys(sortedProfilesObject)
 
     // throw error if too many batches
@@ -84,45 +95,48 @@ const action: ActionDefinition<Settings, Payload> = {
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
     }
-    const requests = []
+    const requests: Promise<ModifiedResponse<unknown>>[] = []
     batches.forEach((key) => {
-      const { list_id, custom_source, data } = sortedProfilesObject[key]
+      const { list_id, custom_source, profiles } = sortedProfilesObject[key]
 
-      const subData: SubscribeEventData = {
-        data: {
-          type: 'profile-subscription-bulk-create-job',
-          attributes: {
-            profiles: {
-              data: data
+      // max number of profiles is 100 per request
+      for (let i = 0; i < profiles.length; i += 100) {
+        const profilesSubset = profiles.slice(i, i + 100)
+        const subData: SubscribeEventData = {
+          data: {
+            type: 'profile-subscription-bulk-create-job',
+            attributes: {
+              profiles: {
+                data: profilesSubset
+              }
             }
           }
         }
-      }
-      if (custom_source) {
-        subData.data.attributes.custom_source = custom_source
-      }
-      if (list_id) {
-        subData.data.relationships = {
-          list: {
-            data: {
-              type: 'list',
-              id: list_id
+        if (custom_source) {
+          subData.data.attributes.custom_source = custom_source
+        }
+        if (list_id) {
+          subData.data.relationships = {
+            list: {
+              data: {
+                type: 'list',
+                id: list_id
+              }
             }
           }
         }
+        const response = request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+          method: 'POST',
+          headers: {
+            revision: '2024-02-15'
+          },
+          json: subData
+        })
+
+        requests.push(response)
       }
-
-      const response = request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
-        method: 'POST',
-        headers: {
-          revision: '2024-02-15'
-        },
-        json: subData
-      })
-
-      requests.push(response)
     })
-    return Promise.all(requests)
+    return await Promise.all(requests)
   }
 }
 
@@ -132,11 +146,11 @@ interface SortedBatches {
   [key: string]: {
     list_id?: string
     custom_source?: string
-    data: SubscribeProfile[]
+    profiles: SubscribeProfile[]
   }
 }
 
-function sortListIdAndCustomSource(batchPayload: Payload[]) {
+function sortBatches(batchPayload: Payload[]) {
   const output: SortedBatches = {}
 
   batchPayload.forEach((payload) => {
@@ -149,8 +163,8 @@ function sortListIdAndCustomSource(batchPayload: Payload[]) {
     const key = `${listId}${customSource}`
 
     if (!output[key]) {
-      const outputItem: { list_id?: string; custom_source?: string; data: SubscribeProfile[] } = {
-        data: []
+      const outputItem: { list_id?: string; custom_source?: string; profiles: SubscribeProfile[] } = {
+        profiles: []
       }
 
       if (list_id !== undefined) {
@@ -189,7 +203,7 @@ function sortListIdAndCustomSource(batchPayload: Payload[]) {
         }
       }
     }
-    output[key].data.push(profileToSubscribe)
+    output[key].profiles.push(profileToSubscribe)
   })
 
   return output
