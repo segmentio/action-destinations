@@ -80,11 +80,11 @@ const action: ActionDefinition<Settings, Payload> = {
         identifies: [
           {
             type: 'identify',
+            ...data.payload,
             context: {
               ...context,
               source: 'segment-cloud'
-            },
-            ...data.payload
+            }
           }
         ]
       }
