@@ -9,7 +9,9 @@ import {
   Profile,
   GetProfileResponse,
   SubscribeProfile,
-  SubscribeEventData
+  SubscribeEventData,
+  UnsubscribeProfile,
+  UnsubscribeEventData
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -239,5 +241,63 @@ export async function subscribeProfiles(
       revision: '2024-02-15'
     },
     json: subData
+  })
+}
+
+export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
+  const profileToSubscribe: UnsubscribeProfile = {
+    type: 'profile',
+    attributes: {}
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+  }
+  return profileToSubscribe
+}
+
+export async function unsubscribeProfiles(
+  profiles: UnsubscribeProfile | UnsubscribeProfile[],
+  list_id: string | undefined,
+  request: RequestClient
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  const unsubData: UnsubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-delete-job',
+      attributes: {
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  if (list_id) {
+    unsubData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  console.dir(unsubData, { depth: null })
+  // subscribe requires use of 2024-02-15 api version
+  return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
+    method: 'POST',
+    headers: {
+      revision: '2024-02-15'
+    },
+    json: unsubData
   })
 }

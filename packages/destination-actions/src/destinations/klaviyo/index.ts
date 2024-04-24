@@ -15,6 +15,8 @@ import orderCompleted from './orderCompleted'
 import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
 
+import unsubscribeProfile from './unsubscribeProfile'
+
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
@@ -127,7 +129,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
     removeProfileFromList,
     trackEvent,
     orderCompleted,
-    subscribeProfile
+    subscribeProfile,
+    unsubscribeProfile
   }
 }
 

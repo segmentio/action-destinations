@@ -179,3 +179,30 @@ export interface SubscribeEventData {
     }
   }
 }
+
+export interface UnsubscribeProfile {
+  type: string
+  attributes: {
+    email?: string
+    phone_number?: string
+  }
+}
+
+export interface UnsubscribeEventData {
+  data: {
+    type: string
+    attributes: {
+      profiles: {
+        data: UnsubscribeProfile[]
+      }
+    }
+    relationships?: {
+      list: {
+        data: {
+          type: string
+          id: string
+        }
+      }
+    }
+  }
+}
