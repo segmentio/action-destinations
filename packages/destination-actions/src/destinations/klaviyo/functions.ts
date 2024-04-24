@@ -290,8 +290,6 @@ export async function unsubscribeProfiles(
       }
     }
   }
-
-  console.dir(unsubData, { depth: null })
   // subscribe requires use of 2024-02-15 api version
   return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
     method: 'POST',

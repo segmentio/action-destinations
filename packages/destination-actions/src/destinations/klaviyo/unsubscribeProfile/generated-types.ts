@@ -13,4 +13,8 @@ export interface Payload {
    * The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.
    */
   list_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API. Field "List Id" will need to be static values when batching is enabled.
+   */
+  enable_batching?: boolean
 }

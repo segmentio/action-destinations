@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description:
-        'When enabled, the action will use the klaviyo batch API. Fields "List Id" and "Custom Source" will need to be static values if batching is enabled.'
+        'When enabled, the action will use the klaviyo batch API. Fields "List Id" and "Custom Source" will need to be static values when batching is enabled.'
     }
   },
   dynamicFields: {
