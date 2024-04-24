@@ -1,7 +1,7 @@
 import { Payload } from './generated-types'
 
 export function transformPayload(payload: Payload) {
-  return {
+  const dataObject = {
     ...(payload.cart && payload.cartLines
       ? {
           cart: {
@@ -330,5 +330,28 @@ export function transformPayload(payload: Payload) {
           }))
         }
       : {})
+  }
+
+  delete payload.cartLine,
+    payload.cartLines,
+    payload.cart,
+    payload.checkoutAttributes,
+    payload.checkoutDiscountApplications,
+    payload.checkoutLineItems,
+    payload.checkout,
+    payload.collectionProductVariants,
+    payload.collection,
+    payload.contacts,
+    payload.customData,
+    payload.customer,
+    payload.formElements,
+    payload.form,
+    payload.productVariant,
+    payload.searchQuery,
+    payload.searchResultProductVariants
+
+  return {
+    ...payload,
+    data: dataObject
   }
 }
