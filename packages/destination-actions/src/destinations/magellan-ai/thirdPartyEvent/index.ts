@@ -7,7 +7,7 @@ import { mobileFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom third-party event',
-  description: 'Fire arbitrary, custom third-party events from your mobile app.',
+  description: 'Fire arbitrary, custom third-party events from your mobile app. (Mobile applications only)',
   defaultSubscription: 'type = "track" and event in ["foo", "bar"]',
   fields: {
     evtname: {
