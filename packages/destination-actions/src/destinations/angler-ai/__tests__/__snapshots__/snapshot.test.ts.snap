@@ -10,24 +10,6 @@ Object {
         "totalAmount": 56515583855820.8,
         "totalQuantity": 56515583855820.8,
       },
-      "cartLine": Object {
-        "itemCost": 56515583855820.8,
-        "itemCurrencyCode": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseId": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseImageSrc": "3mG!HxRA*^ARn)qHBi",
-        "merchandisePriceAmount": 56515583855820.8,
-        "merchandisePriceCurrencyCode": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductId": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductTitle": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductType": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductUntranslatedTitle": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductUrl": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseProductVendor": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseSku": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseTitle": "3mG!HxRA*^ARn)qHBi",
-        "merchandiseUntranslatedTitle": "3mG!HxRA*^ARn)qHBi",
-        "quantity": 56515583855820.8,
-      },
       "cartLines": Array [
         Object {
           "itemCost": 56515583855820.8,
@@ -175,6 +157,301 @@ Object {
         "ordersCount": 56515583855820.8,
         "phone": "3mG!HxRA*^ARn)qHBi",
       },
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 56515583855820.8,
+              "currencyCode": "3mG!HxRA*^ARn)qHBi",
+            },
+          },
+          "id": "3mG!HxRA*^ARn)qHBi",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": 56515583855820.8,
+                  "currencyCode": "3mG!HxRA*^ARn)qHBi",
+                },
+              },
+              "merchandise": Object {
+                "id": "3mG!HxRA*^ARn)qHBi",
+                "image": Object {
+                  "src": "3mG!HxRA*^ARn)qHBi",
+                },
+                "price": Object {
+                  "amount": 56515583855820.8,
+                  "currencyCode": "3mG!HxRA*^ARn)qHBi",
+                },
+                "product": Object {
+                  "id": "3mG!HxRA*^ARn)qHBi",
+                  "title": "3mG!HxRA*^ARn)qHBi",
+                  "type": "3mG!HxRA*^ARn)qHBi",
+                  "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+                  "url": "3mG!HxRA*^ARn)qHBi",
+                  "vendor": "3mG!HxRA*^ARn)qHBi",
+                },
+                "sku": "3mG!HxRA*^ARn)qHBi",
+                "title": "3mG!HxRA*^ARn)qHBi",
+                "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+              },
+              "quantity": 56515583855820.8,
+            },
+          ],
+          "totalQuantity": 56515583855820.8,
+        },
+        "cartLine": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 56515583855820.8,
+              "currencyCode": "3mG!HxRA*^ARn)qHBi",
+            },
+          },
+          "merchandise": Object {
+            "id": "3mG!HxRA*^ARn)qHBi",
+            "image": Object {
+              "src": "3mG!HxRA*^ARn)qHBi",
+            },
+            "price": Object {
+              "amount": 56515583855820.8,
+              "currencyCode": "3mG!HxRA*^ARn)qHBi",
+            },
+            "product": Object {
+              "id": "3mG!HxRA*^ARn)qHBi",
+              "title": "3mG!HxRA*^ARn)qHBi",
+              "type": "3mG!HxRA*^ARn)qHBi",
+              "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+              "url": "3mG!HxRA*^ARn)qHBi",
+              "vendor": "3mG!HxRA*^ARn)qHBi",
+            },
+            "sku": "3mG!HxRA*^ARn)qHBi",
+            "title": "3mG!HxRA*^ARn)qHBi",
+            "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+          },
+          "quantity": 56515583855820.8,
+        },
+        "checkout": Object {
+          "attributes": Array [
+            Object {
+              "key": "3mG!HxRA*^ARn)qHBi",
+              "value": "3mG!HxRA*^ARn)qHBi",
+            },
+          ],
+          "billingAddress": Object {
+            "address1": "3mG!HxRA*^ARn)qHBi",
+            "address2": "3mG!HxRA*^ARn)qHBi",
+            "city": "3mG!HxRA*^ARn)qHBi",
+            "country": "3mG!HxRA*^ARn)qHBi",
+            "countryCode": "3mG!HxRA*^ARn)qHBi",
+            "firstName": "3mG!HxRA*^ARn)qHBi",
+            "lastName": "3mG!HxRA*^ARn)qHBi",
+            "phone": "3mG!HxRA*^ARn)qHBi",
+            "province": "3mG!HxRA*^ARn)qHBi",
+            "provinceCode": "3mG!HxRA*^ARn)qHBi",
+            "zip": "3mG!HxRA*^ARn)qHBi",
+          },
+          "currencyCode": "3mG!HxRA*^ARn)qHBi",
+          "discountApplications": Array [
+            Object {
+              "allocationMethod": "3mG!HxRA*^ARn)qHBi",
+              "targetSelection": "3mG!HxRA*^ARn)qHBi",
+              "targetType": "3mG!HxRA*^ARn)qHBi",
+              "title": "3mG!HxRA*^ARn)qHBi",
+              "type": "3mG!HxRA*^ARn)qHBi",
+              "value": Object {
+                "amount": 56515583855820.8,
+                "currencyCode": "3mG!HxRA*^ARn)qHBi",
+                "percentage": 56515583855820.8,
+              },
+            },
+          ],
+          "email": "rimpa@pu.gm",
+          "lineItems": Array [
+            Object {
+              "discountAllocations": Array [
+                Object {
+                  "discountApplication": Object {
+                    "value": Object {},
+                  },
+                },
+              ],
+              "id": "3mG!HxRA*^ARn)qHBi",
+              "quantity": 56515583855820.8,
+              "title": "3mG!HxRA*^ARn)qHBi",
+              "variant": Object {
+                "id": "3mG!HxRA*^ARn)qHBi",
+                "image": Object {
+                  "src": "3mG!HxRA*^ARn)qHBi",
+                },
+                "price": Object {
+                  "amount": 56515583855820.8,
+                  "currencyCode": "3mG!HxRA*^ARn)qHBi",
+                },
+                "product": Object {
+                  "id": "3mG!HxRA*^ARn)qHBi",
+                  "title": "3mG!HxRA*^ARn)qHBi",
+                  "type": "3mG!HxRA*^ARn)qHBi",
+                  "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+                  "url": "3mG!HxRA*^ARn)qHBi",
+                  "vendor": "3mG!HxRA*^ARn)qHBi",
+                },
+                "sku": "3mG!HxRA*^ARn)qHBi",
+                "title": "3mG!HxRA*^ARn)qHBi",
+                "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+              },
+            },
+          ],
+          "order": Object {
+            "id": "3mG!HxRA*^ARn)qHBi",
+          },
+          "phone": "3mG!HxRA*^ARn)qHBi",
+          "shippingAddress": Object {
+            "address1": "3mG!HxRA*^ARn)qHBi",
+            "address2": "3mG!HxRA*^ARn)qHBi",
+            "city": "3mG!HxRA*^ARn)qHBi",
+            "country": "3mG!HxRA*^ARn)qHBi",
+            "countryCode": "3mG!HxRA*^ARn)qHBi",
+            "firstName": "3mG!HxRA*^ARn)qHBi",
+            "lastName": "3mG!HxRA*^ARn)qHBi",
+            "phone": "3mG!HxRA*^ARn)qHBi",
+            "province": "3mG!HxRA*^ARn)qHBi",
+            "provinceCode": "3mG!HxRA*^ARn)qHBi",
+            "zip": "3mG!HxRA*^ARn)qHBi",
+          },
+          "shippingLine": Object {
+            "price": Object {
+              "amount": 56515583855820.8,
+              "currencyCode": "3mG!HxRA*^ARn)qHBi",
+            },
+          },
+          "subtotalPrice": Object {
+            "amount": 56515583855820.8,
+            "currencyCode": "3mG!HxRA*^ARn)qHBi",
+          },
+          "token": "3mG!HxRA*^ARn)qHBi",
+          "totalPrice": Object {
+            "amount": 56515583855820.8,
+            "currencyCode": "3mG!HxRA*^ARn)qHBi",
+          },
+          "totalTax": Object {
+            "amount": 56515583855820.8,
+            "currencyCode": "3mG!HxRA*^ARn)qHBi",
+          },
+        },
+        "collection": Object {
+          "id": "3mG!HxRA*^ARn)qHBi",
+          "productVariants": Array [
+            Object {
+              "id": "3mG!HxRA*^ARn)qHBi",
+              "image": Object {
+                "src": "3mG!HxRA*^ARn)qHBi",
+              },
+              "price": Object {
+                "amount": 56515583855820.8,
+                "currencyCode": "3mG!HxRA*^ARn)qHBi",
+              },
+              "product": Object {
+                "id": "3mG!HxRA*^ARn)qHBi",
+                "title": "3mG!HxRA*^ARn)qHBi",
+                "type": "3mG!HxRA*^ARn)qHBi",
+                "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+                "url": "3mG!HxRA*^ARn)qHBi",
+                "vendor": "3mG!HxRA*^ARn)qHBi",
+              },
+              "sku": "3mG!HxRA*^ARn)qHBi",
+              "title": "3mG!HxRA*^ARn)qHBi",
+              "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+            },
+          ],
+          "title": "3mG!HxRA*^ARn)qHBi",
+        },
+        "contacts": Array [
+          Object {
+            "dob": "3mG!HxRA*^ARn)qHBi",
+            "email": "rimpa@pu.gm",
+            "firstName": "3mG!HxRA*^ARn)qHBi",
+            "id": "3mG!HxRA*^ARn)qHBi",
+            "lastName": "3mG!HxRA*^ARn)qHBi",
+            "ordersCount": 56515583855820.8,
+            "phone": "3mG!HxRA*^ARn)qHBi",
+          },
+        ],
+        "customData": Array [
+          Object {
+            "name": "3mG!HxRA*^ARn)qHBi",
+            "value": "3mG!HxRA*^ARn)qHBi",
+          },
+        ],
+        "customer": Object {
+          "dob": "3mG!HxRA*^ARn)qHBi",
+          "email": "rimpa@pu.gm",
+          "firstName": "3mG!HxRA*^ARn)qHBi",
+          "id": "3mG!HxRA*^ARn)qHBi",
+          "lastName": "3mG!HxRA*^ARn)qHBi",
+          "ordersCount": 56515583855820.8,
+          "phone": "3mG!HxRA*^ARn)qHBi",
+        },
+        "form": Object {
+          "action": "3mG!HxRA*^ARn)qHBi",
+          "elements": Array [
+            Object {
+              "id": "3mG!HxRA*^ARn)qHBi",
+              "name": "3mG!HxRA*^ARn)qHBi",
+              "tagName": "3mG!HxRA*^ARn)qHBi",
+              "type": "3mG!HxRA*^ARn)qHBi",
+              "value": "3mG!HxRA*^ARn)qHBi",
+            },
+          ],
+          "id": "3mG!HxRA*^ARn)qHBi",
+        },
+        "productVariant": Object {
+          "id": "3mG!HxRA*^ARn)qHBi",
+          "image": Object {
+            "src": "3mG!HxRA*^ARn)qHBi",
+          },
+          "price": Object {
+            "amount": 56515583855820.8,
+            "currencyCode": "3mG!HxRA*^ARn)qHBi",
+          },
+          "product": Object {
+            "id": "3mG!HxRA*^ARn)qHBi",
+            "title": "3mG!HxRA*^ARn)qHBi",
+            "type": "3mG!HxRA*^ARn)qHBi",
+            "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+            "url": "3mG!HxRA*^ARn)qHBi",
+            "vendor": "3mG!HxRA*^ARn)qHBi",
+          },
+          "sku": "3mG!HxRA*^ARn)qHBi",
+          "title": "3mG!HxRA*^ARn)qHBi",
+          "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+        },
+        "searchResult": Object {
+          "productVariants": Array [
+            Object {
+              "id": "3mG!HxRA*^ARn)qHBi",
+              "image": Object {
+                "src": "3mG!HxRA*^ARn)qHBi",
+              },
+              "price": Object {
+                "amount": 56515583855820.8,
+                "currencyCode": "3mG!HxRA*^ARn)qHBi",
+              },
+              "product": Object {
+                "id": "3mG!HxRA*^ARn)qHBi",
+                "title": "3mG!HxRA*^ARn)qHBi",
+                "type": "3mG!HxRA*^ARn)qHBi",
+                "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+                "url": "3mG!HxRA*^ARn)qHBi",
+                "vendor": "3mG!HxRA*^ARn)qHBi",
+              },
+              "sku": "3mG!HxRA*^ARn)qHBi",
+              "title": "3mG!HxRA*^ARn)qHBi",
+              "untranslatedTitle": "3mG!HxRA*^ARn)qHBi",
+            },
+          ],
+          "query": "3mG!HxRA*^ARn)qHBi",
+        },
+      },
       "event_id": "3mG!HxRA*^ARn)qHBi",
       "event_name": "search_submitted",
       "fbc": "3mG!HxRA*^ARn)qHBi",
@@ -239,7 +516,7 @@ Object {
       "user_agent": "3mG!HxRA*^ARn)qHBi",
     },
   ],
-  "src": "SEGMENT",
+  "src": "SHOPIFY",
 }
 `;
 
@@ -248,13 +525,14 @@ Object {
   "data": Array [
     Object {
       "client_id": "3mG!HxRA*^ARn)qHBi",
+      "data": Object {},
       "event_id": "3mG!HxRA*^ARn)qHBi",
       "identifiers": Array [
         Object {},
       ],
     },
   ],
-  "src": "SEGMENT",
+  "src": "SHOPIFY",
 }
 `;
 

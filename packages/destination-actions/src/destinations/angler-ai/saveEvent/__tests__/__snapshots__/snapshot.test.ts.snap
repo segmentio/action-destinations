@@ -10,24 +10,6 @@ Object {
         "totalAmount": -64278637418905.6,
         "totalQuantity": -64278637418905.6,
       },
-      "cartLine": Object {
-        "itemCost": -64278637418905.6,
-        "itemCurrencyCode": "26xBB1k",
-        "merchandiseId": "26xBB1k",
-        "merchandiseImageSrc": "26xBB1k",
-        "merchandisePriceAmount": -64278637418905.6,
-        "merchandisePriceCurrencyCode": "26xBB1k",
-        "merchandiseProductId": "26xBB1k",
-        "merchandiseProductTitle": "26xBB1k",
-        "merchandiseProductType": "26xBB1k",
-        "merchandiseProductUntranslatedTitle": "26xBB1k",
-        "merchandiseProductUrl": "26xBB1k",
-        "merchandiseProductVendor": "26xBB1k",
-        "merchandiseSku": "26xBB1k",
-        "merchandiseTitle": "26xBB1k",
-        "merchandiseUntranslatedTitle": "26xBB1k",
-        "quantity": -64278637418905.6,
-      },
       "cartLines": Array [
         Object {
           "itemCost": -64278637418905.6,
@@ -175,6 +157,301 @@ Object {
         "ordersCount": -64278637418905.6,
         "phone": "26xBB1k",
       },
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": -64278637418905.6,
+              "currencyCode": "26xBB1k",
+            },
+          },
+          "id": "26xBB1k",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": -64278637418905.6,
+                  "currencyCode": "26xBB1k",
+                },
+              },
+              "merchandise": Object {
+                "id": "26xBB1k",
+                "image": Object {
+                  "src": "26xBB1k",
+                },
+                "price": Object {
+                  "amount": -64278637418905.6,
+                  "currencyCode": "26xBB1k",
+                },
+                "product": Object {
+                  "id": "26xBB1k",
+                  "title": "26xBB1k",
+                  "type": "26xBB1k",
+                  "untranslatedTitle": "26xBB1k",
+                  "url": "26xBB1k",
+                  "vendor": "26xBB1k",
+                },
+                "sku": "26xBB1k",
+                "title": "26xBB1k",
+                "untranslatedTitle": "26xBB1k",
+              },
+              "quantity": -64278637418905.6,
+            },
+          ],
+          "totalQuantity": -64278637418905.6,
+        },
+        "cartLine": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": -64278637418905.6,
+              "currencyCode": "26xBB1k",
+            },
+          },
+          "merchandise": Object {
+            "id": "26xBB1k",
+            "image": Object {
+              "src": "26xBB1k",
+            },
+            "price": Object {
+              "amount": -64278637418905.6,
+              "currencyCode": "26xBB1k",
+            },
+            "product": Object {
+              "id": "26xBB1k",
+              "title": "26xBB1k",
+              "type": "26xBB1k",
+              "untranslatedTitle": "26xBB1k",
+              "url": "26xBB1k",
+              "vendor": "26xBB1k",
+            },
+            "sku": "26xBB1k",
+            "title": "26xBB1k",
+            "untranslatedTitle": "26xBB1k",
+          },
+          "quantity": -64278637418905.6,
+        },
+        "checkout": Object {
+          "attributes": Array [
+            Object {
+              "key": "26xBB1k",
+              "value": "26xBB1k",
+            },
+          ],
+          "billingAddress": Object {
+            "address1": "26xBB1k",
+            "address2": "26xBB1k",
+            "city": "26xBB1k",
+            "country": "26xBB1k",
+            "countryCode": "26xBB1k",
+            "firstName": "26xBB1k",
+            "lastName": "26xBB1k",
+            "phone": "26xBB1k",
+            "province": "26xBB1k",
+            "provinceCode": "26xBB1k",
+            "zip": "26xBB1k",
+          },
+          "currencyCode": "26xBB1k",
+          "discountApplications": Array [
+            Object {
+              "allocationMethod": "26xBB1k",
+              "targetSelection": "26xBB1k",
+              "targetType": "26xBB1k",
+              "title": "26xBB1k",
+              "type": "26xBB1k",
+              "value": Object {
+                "amount": -64278637418905.6,
+                "currencyCode": "26xBB1k",
+                "percentage": -64278637418905.6,
+              },
+            },
+          ],
+          "email": "gijul@hoer.com",
+          "lineItems": Array [
+            Object {
+              "discountAllocations": Array [
+                Object {
+                  "discountApplication": Object {
+                    "value": Object {},
+                  },
+                },
+              ],
+              "id": "26xBB1k",
+              "quantity": -64278637418905.6,
+              "title": "26xBB1k",
+              "variant": Object {
+                "id": "26xBB1k",
+                "image": Object {
+                  "src": "26xBB1k",
+                },
+                "price": Object {
+                  "amount": -64278637418905.6,
+                  "currencyCode": "26xBB1k",
+                },
+                "product": Object {
+                  "id": "26xBB1k",
+                  "title": "26xBB1k",
+                  "type": "26xBB1k",
+                  "untranslatedTitle": "26xBB1k",
+                  "url": "26xBB1k",
+                  "vendor": "26xBB1k",
+                },
+                "sku": "26xBB1k",
+                "title": "26xBB1k",
+                "untranslatedTitle": "26xBB1k",
+              },
+            },
+          ],
+          "order": Object {
+            "id": "26xBB1k",
+          },
+          "phone": "26xBB1k",
+          "shippingAddress": Object {
+            "address1": "26xBB1k",
+            "address2": "26xBB1k",
+            "city": "26xBB1k",
+            "country": "26xBB1k",
+            "countryCode": "26xBB1k",
+            "firstName": "26xBB1k",
+            "lastName": "26xBB1k",
+            "phone": "26xBB1k",
+            "province": "26xBB1k",
+            "provinceCode": "26xBB1k",
+            "zip": "26xBB1k",
+          },
+          "shippingLine": Object {
+            "price": Object {
+              "amount": -64278637418905.6,
+              "currencyCode": "26xBB1k",
+            },
+          },
+          "subtotalPrice": Object {
+            "amount": -64278637418905.6,
+            "currencyCode": "26xBB1k",
+          },
+          "token": "26xBB1k",
+          "totalPrice": Object {
+            "amount": -64278637418905.6,
+            "currencyCode": "26xBB1k",
+          },
+          "totalTax": Object {
+            "amount": -64278637418905.6,
+            "currencyCode": "26xBB1k",
+          },
+        },
+        "collection": Object {
+          "id": "26xBB1k",
+          "productVariants": Array [
+            Object {
+              "id": "26xBB1k",
+              "image": Object {
+                "src": "26xBB1k",
+              },
+              "price": Object {
+                "amount": -64278637418905.6,
+                "currencyCode": "26xBB1k",
+              },
+              "product": Object {
+                "id": "26xBB1k",
+                "title": "26xBB1k",
+                "type": "26xBB1k",
+                "untranslatedTitle": "26xBB1k",
+                "url": "26xBB1k",
+                "vendor": "26xBB1k",
+              },
+              "sku": "26xBB1k",
+              "title": "26xBB1k",
+              "untranslatedTitle": "26xBB1k",
+            },
+          ],
+          "title": "26xBB1k",
+        },
+        "contacts": Array [
+          Object {
+            "dob": "26xBB1k",
+            "email": "gijul@hoer.com",
+            "firstName": "26xBB1k",
+            "id": "26xBB1k",
+            "lastName": "26xBB1k",
+            "ordersCount": -64278637418905.6,
+            "phone": "26xBB1k",
+          },
+        ],
+        "customData": Array [
+          Object {
+            "name": "26xBB1k",
+            "value": "26xBB1k",
+          },
+        ],
+        "customer": Object {
+          "dob": "26xBB1k",
+          "email": "gijul@hoer.com",
+          "firstName": "26xBB1k",
+          "id": "26xBB1k",
+          "lastName": "26xBB1k",
+          "ordersCount": -64278637418905.6,
+          "phone": "26xBB1k",
+        },
+        "form": Object {
+          "action": "26xBB1k",
+          "elements": Array [
+            Object {
+              "id": "26xBB1k",
+              "name": "26xBB1k",
+              "tagName": "26xBB1k",
+              "type": "26xBB1k",
+              "value": "26xBB1k",
+            },
+          ],
+          "id": "26xBB1k",
+        },
+        "productVariant": Object {
+          "id": "26xBB1k",
+          "image": Object {
+            "src": "26xBB1k",
+          },
+          "price": Object {
+            "amount": -64278637418905.6,
+            "currencyCode": "26xBB1k",
+          },
+          "product": Object {
+            "id": "26xBB1k",
+            "title": "26xBB1k",
+            "type": "26xBB1k",
+            "untranslatedTitle": "26xBB1k",
+            "url": "26xBB1k",
+            "vendor": "26xBB1k",
+          },
+          "sku": "26xBB1k",
+          "title": "26xBB1k",
+          "untranslatedTitle": "26xBB1k",
+        },
+        "searchResult": Object {
+          "productVariants": Array [
+            Object {
+              "id": "26xBB1k",
+              "image": Object {
+                "src": "26xBB1k",
+              },
+              "price": Object {
+                "amount": -64278637418905.6,
+                "currencyCode": "26xBB1k",
+              },
+              "product": Object {
+                "id": "26xBB1k",
+                "title": "26xBB1k",
+                "type": "26xBB1k",
+                "untranslatedTitle": "26xBB1k",
+                "url": "26xBB1k",
+                "vendor": "26xBB1k",
+              },
+              "sku": "26xBB1k",
+              "title": "26xBB1k",
+              "untranslatedTitle": "26xBB1k",
+            },
+          ],
+          "query": "26xBB1k",
+        },
+      },
       "event_id": "26xBB1k",
       "event_name": "checkout_completed",
       "fbc": "26xBB1k",
@@ -239,7 +516,7 @@ Object {
       "user_agent": "26xBB1k",
     },
   ],
-  "src": "SEGMENT",
+  "src": "SHOPIFY",
 }
 `;
 
@@ -248,12 +525,13 @@ Object {
   "data": Array [
     Object {
       "client_id": "26xBB1k",
+      "data": Object {},
       "event_id": "26xBB1k",
       "identifiers": Array [
         Object {},
       ],
     },
   ],
-  "src": "SEGMENT",
+  "src": "SHOPIFY",
 }
 `;
