@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import identify from './identify'
@@ -11,7 +11,6 @@ import code from './code'
 import purchase from './purchase'
 import install from './install'
 import thirdPartyEvent from './thirdPartyEvent'
-import { RequestClient } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Magellan AI',
@@ -41,7 +40,8 @@ const destination: DestinationDefinition<Settings> = {
 
     return request('https://app.magellan.ai/api/v2/gdpr/delete', {
       method: 'post',
-      json: payload
+      headers: { Authorization: `Bearer ${settings.apiToken}` },
+      json: { ...payload, pixelToken: settings.pixelToken }
     })
   },
 
