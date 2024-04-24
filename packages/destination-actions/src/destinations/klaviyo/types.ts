@@ -139,7 +139,6 @@ export interface GetProfileResponse {
 
 export interface SubscribeProfile {
   type: string
-  id?: string
   attributes: {
     email?: string
     phone_number?: string
@@ -164,7 +163,7 @@ export interface SubscribeEventData {
   data: {
     type: string
     attributes: {
-      custom_source: string
+      custom_source?: string
       profiles: {
         data: SubscribeProfile[]
       }

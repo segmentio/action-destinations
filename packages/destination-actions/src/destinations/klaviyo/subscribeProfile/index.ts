@@ -5,6 +5,8 @@ import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { subscribeProfiles, formatSubscribeProfile } from '../functions'
+import { SubscribeProfile, SubscribeEventData } from '../types'
+import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -64,20 +66,131 @@ const action: ActionDefinition<Settings, Payload> = {
     await subscribeProfiles(profileToSubscribe, custom_source, list_id, request)
   },
   performBatch: async (request, { payload }) => {
+    // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
-    if (payload.length === 0) {
+
+    // if there are no payloads with phone or email throw error
+    if (filteredPayload.length === 0) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
-    const { list_id, custom_source } = filteredPayload[0]
-    const profilesForImport = filteredPayload.map(({ list_id, custom_source, ...profile }) =>
-      formatSubscribeProfile(profile.email, profile.phone_number, profile.consented_at)
-    )
-    // max number of profiles is 100 per request
-    for (let i = 0; i < profilesForImport.length; i += 100) {
-      const batch = profilesForImport.slice(i, i + 100)
-      await subscribeProfiles(batch, custom_source, list_id, request)
+
+    // sort profiles into batches with same list_id and custom_source pairing
+    const sortedProfilesObject = sortListIdAndCustomSource(filteredPayload)
+    const batches = Object.keys(sortedProfilesObject)
+
+    // throw error if too many batches
+    if (batches.length > 9) {
+      throw new PayloadValidationError(
+        'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
+      )
     }
+    const requests = []
+    batches.forEach((key) => {
+      const { list_id, custom_source, data } = sortedProfilesObject[key]
+
+      const subData: SubscribeEventData = {
+        data: {
+          type: 'profile-subscription-bulk-create-job',
+          attributes: {
+            profiles: {
+              data: data
+            }
+          }
+        }
+      }
+      if (custom_source) {
+        subData.data.attributes.custom_source = custom_source
+      }
+      if (list_id) {
+        subData.data.relationships = {
+          list: {
+            data: {
+              type: 'list',
+              id: list_id
+            }
+          }
+        }
+      }
+
+      const response = request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+        method: 'POST',
+        headers: {
+          revision: '2024-02-15'
+        },
+        json: subData
+      })
+
+      requests.push(response)
+    })
+    return Promise.all(requests)
   }
 }
 
 export default action
+
+interface SortedBatches {
+  [key: string]: {
+    list_id?: string
+    custom_source?: string
+    data: SubscribeProfile[]
+  }
+}
+
+function sortListIdAndCustomSource(batchPayload: Payload[]) {
+  const output: SortedBatches = {}
+
+  batchPayload.forEach((payload) => {
+    const { email, phone_number, custom_source, consented_at, list_id } = payload
+
+    const listId = list_id || 'noListId'
+    const customSource = custom_source || 'noCustomSource'
+
+    // combine list_id and custom_source to get unique key for batch
+    const key = `${listId}${customSource}`
+
+    if (!output[key]) {
+      const outputItem: { list_id?: string; custom_source?: string; data: SubscribeProfile[] } = {
+        data: []
+      }
+
+      if (list_id !== undefined) {
+        outputItem.list_id = list_id
+      }
+
+      if (custom_source !== undefined) {
+        outputItem.custom_source = custom_source
+      }
+
+      output[key] = outputItem
+    }
+
+    // format profile data in each batch
+    const profileToSubscribe: SubscribeProfile = {
+      type: 'profile',
+      attributes: {
+        subscriptions: {}
+      }
+    }
+    if (email) {
+      profileToSubscribe.attributes.email = email
+      profileToSubscribe.attributes.subscriptions.email = {
+        marketing: {
+          consent: 'SUBSCRIBED',
+          consented_at: consented_at
+        }
+      }
+    }
+    if (phone_number) {
+      profileToSubscribe.attributes.phone_number = phone_number
+      profileToSubscribe.attributes.subscriptions.sms = {
+        marketing: {
+          consent: 'SUBSCRIBED',
+          consented_at: consented_at
+        }
+      }
+    }
+    output[key].data.push(profileToSubscribe)
+  })
+
+  return output
+}
