@@ -247,13 +247,9 @@ const action: ActionDefinition<Settings, Payload> = {
     // we need to transform the payload to match the Angler API
     const transformedPayload = transformPayload(data.payload)
 
-    console.log('============')
-    console.log(JSON.stringify(data.payload, null, 2))
-    console.log(JSON.stringify(transformedPayload, null, 2))
-
     const payload = {
       src: 'SEGMENT',
-      data: [data.payload]
+      data: [transformedPayload]
     }
     return request(baseURL + eventsEndpoint(data.settings.workspaceId), {
       method: 'post',
