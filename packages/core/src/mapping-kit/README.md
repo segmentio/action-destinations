@@ -65,6 +65,9 @@ Output:
   - [@arrayPath](#array-path)
   - [@case](#case)
   - [@replace](#replace)
+  - [@merge](#merge)
+  - [@root](#root)
+  - [@transform](#transform)
 
 <!-- tocstop -->
 
@@ -652,5 +655,81 @@ Output:
 {
   "name": "Mr. Rogers",
   "neighborhood": "Missing neighborhood"
+}
+```
+
+### @root
+
+The @root directive resolves to the root of the input JSON object. The value of the "@root" key is
+ignored.
+
+```json
+Input:
+
+{
+  "cool": true
+}
+
+Mappings:
+
+{ "@root": true } => { "cool": true }
+{ "@root": {} } => { "cool": true }
+{ "@root": "" } => { "cool": true }
+```
+
+The @root directive is useful for adding or overriding keys to the root input JSON object:
+
+```json
+Input:
+
+{
+  "a": 1,
+  "b": 2
+}
+
+Mappings:
+
+{
+  "@merge": [
+    { "@root": {} },
+    { "b": 22, "c": 33 }
+  ]
+}
+=>
+{
+  "a": 1,
+  "b": 22,
+  "c": 33
+}
+```
+
+### @transform
+
+The @transform directive allows you to operate on the result of a mapping-kit transformation. It accepts an `apply` parameter, which is the mapping to apply to the original payload, and a `mapping` parameter, which will be run on the resulting payload. The @transform directive is useful when you need to run mappings in sequence.
+
+```json
+Input:
+
+{
+  "a": 1,
+  "b": 2
+}
+
+Mappings:
+{
+  "@transform": {
+    "apply": {
+      "foo": {
+        "@path": "$.a"
+      }
+    },
+    "mapping": {
+      "newValue": { "@path": "$.foo" }
+    }
+  }
+}
+=>
+{
+  "newValue": 1
 }
 ```
