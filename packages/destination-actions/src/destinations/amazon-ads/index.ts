@@ -155,6 +155,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
 
       const { statsClient, tags: statsTags } = statsContext || {}
+      const statsName = 'createAmazonAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId value', 'MISSING_REQUIRED_FIELD', 400)
@@ -198,8 +201,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           cpmCents: cpm_cents
         })
       }
-
-      const statsName = 'createAudience'
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
