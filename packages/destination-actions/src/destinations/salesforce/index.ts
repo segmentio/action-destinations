@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { InvalidAuthenticationError, DestinationDefinition, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
         default: false
       }
     },
-    refreshAccessToken: async (request, { auth, settings }) => {
+    refreshAccessToken: async (request, { auth, settings }): Promise<RefreshAccessTokenResult> => {
       const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
       const sfClient = new Salesforce(baseUrl, request)
 
@@ -53,6 +53,7 @@ const destination: DestinationDefinition<Settings> = {
           return await sfClient.authenticateWithPassword(auth, settings.username, settings.auth_password)
         }
       }
+      throw new InvalidAuthenticationError('Failed to refresh access token')
     }
   },
   extendRequest({ auth }) {
