@@ -4,8 +4,8 @@ import type { Payload } from './generated-types'
 import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
-import { subscribeProfiles, formatSubscribeProfile } from '../functions'
-import { SubscribeProfile, SubscribeEventData } from '../types'
+import { formatSubscribeProfile, formatSubscribeRequestBody } from '../functions'
+import { SubscribeProfile } from '../types'
 import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -62,8 +62,18 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
+
     const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
-    await subscribeProfiles(profileToSubscribe, custom_source, list_id, request)
+    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source)
+
+    // subscribe requires use of 2024-02-15 api version
+    return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+      method: 'POST',
+      headers: {
+        revision: '2024-02-15'
+      },
+      json: subData
+    })
   },
   performBatch: async (request, { payload }) => {
     // remove payloads that have niether email or phone_number
@@ -74,6 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
+    const sortedProfilesObject = sortBatches(filteredPayload)
     /*  sort profiles into batches with same list_id and custom_source pairing:
 
       batches: {
@@ -86,10 +97,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
     */
-    const sortedProfilesObject = sortBatches(filteredPayload)
-    const batches = Object.keys(sortedProfilesObject)
 
     // throw error if too many batches
+    const batches = Object.keys(sortedProfilesObject)
     if (batches.length > 9) {
       throw new PayloadValidationError(
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
@@ -102,29 +112,8 @@ const action: ActionDefinition<Settings, Payload> = {
       // max number of profiles is 100 per request
       for (let i = 0; i < profiles.length; i += 100) {
         const profilesSubset = profiles.slice(i, i + 100)
-        const subData: SubscribeEventData = {
-          data: {
-            type: 'profile-subscription-bulk-create-job',
-            attributes: {
-              profiles: {
-                data: profilesSubset
-              }
-            }
-          }
-        }
-        if (custom_source) {
-          subData.data.attributes.custom_source = custom_source
-        }
-        if (list_id) {
-          subData.data.relationships = {
-            list: {
-              data: {
-                type: 'list',
-                id: list_id
-              }
-            }
-          }
-        }
+        const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source)
+
         const response = request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
           headers: {
@@ -162,47 +151,27 @@ function sortBatches(batchPayload: Payload[]) {
     // combine list_id and custom_source to get unique key for batch
     const key = `${listId}${customSource}`
 
+    // if a batch with this key does not exist, create it
     if (!output[key]) {
-      const outputItem: { list_id?: string; custom_source?: string; profiles: SubscribeProfile[] } = {
+      const batch: { list_id?: string; custom_source?: string; profiles: SubscribeProfile[] } = {
         profiles: []
       }
 
       if (list_id !== undefined) {
-        outputItem.list_id = list_id
+        batch.list_id = list_id
       }
 
       if (custom_source !== undefined) {
-        outputItem.custom_source = custom_source
+        batch.custom_source = custom_source
       }
 
-      output[key] = outputItem
+      output[key] = batch
     }
 
-    // format profile data in each batch
-    const profileToSubscribe: SubscribeProfile = {
-      type: 'profile',
-      attributes: {
-        subscriptions: {}
-      }
-    }
-    if (email) {
-      profileToSubscribe.attributes.email = email
-      profileToSubscribe.attributes.subscriptions.email = {
-        marketing: {
-          consent: 'SUBSCRIBED',
-          consented_at: consented_at
-        }
-      }
-    }
-    if (phone_number) {
-      profileToSubscribe.attributes.phone_number = phone_number
-      profileToSubscribe.attributes.subscriptions.sms = {
-        marketing: {
-          consent: 'SUBSCRIBED',
-          consented_at: consented_at
-        }
-      }
-    }
+    // format profile data klaviyo api spec
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
+
+    // add profile to batch
     output[key].profiles.push(profileToSubscribe)
   })
 

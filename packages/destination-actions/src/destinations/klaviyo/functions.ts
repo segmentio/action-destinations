@@ -184,39 +184,42 @@ export function formatSubscribeProfile(
     profileToSubscribe.attributes.email = email
     profileToSubscribe.attributes.subscriptions.email = {
       marketing: {
-        consent: 'SUBSCRIBED',
-        consented_at: consented_at
+        consent: 'SUBSCRIBED'
       }
     }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
+    }
   }
-
   if (phone_number) {
     profileToSubscribe.attributes.phone_number = phone_number
     profileToSubscribe.attributes.subscriptions.sms = {
       marketing: {
-        consent: 'SUBSCRIBED',
-        consented_at: consented_at
+        consent: 'SUBSCRIBED'
       }
     }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
+    }
   }
+
   return profileToSubscribe
 }
 
-export async function subscribeProfiles(
+export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
-  customSource = 'Segment Klaviyo (Actions) Destination',
   list_id: string | undefined,
-  request: RequestClient
+  custom_source: string | undefined
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
   }
 
+  // format request body per klaviyo api spec
   const subData: SubscribeEventData = {
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
-        custom_source: customSource,
         profiles: {
           data: profiles
         }
@@ -224,6 +227,9 @@ export async function subscribeProfiles(
     }
   }
 
+  if (custom_source) {
+    subData.data.attributes.custom_source = custom_source
+  }
   if (list_id) {
     subData.data.relationships = {
       list: {
@@ -234,14 +240,8 @@ export async function subscribeProfiles(
       }
     }
   }
-  // subscribe requires use of 2024-02-15 api version
-  return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
-    method: 'POST',
-    headers: {
-      revision: '2024-02-15'
-    },
-    json: subData
-  })
+
+  return subData
 }
 
 export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
