@@ -17,13 +17,25 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The email address to subscribe. If provided, the associated profile will be subscribed to Email marketing.`,
       type: 'string',
       format: 'email',
-      default: { '@path': '$.context.traits.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
     },
     phone_number: {
       label: 'Phone Number',
       description: `The phone number to subscribe. This must be in E.164 format. If provided, the associated profile will be subscribed to SMS marketing.`,
       type: 'string',
-      default: { '@path': '$.context.traits.phone' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.context.traits.phone' }
+        }
+      }
     },
     list_id: {
       label: 'List Id',
