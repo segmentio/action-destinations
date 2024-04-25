@@ -356,10 +356,6 @@ directive('@literal', (v, stack) => {
   validateDirectiveOrRaw(v, stack)
 })
 
-directive('@root', (v, stack) => {
-  validateDirectiveOrRaw(v, stack)
-})
-
 directive('@transform', (v, stack) => {
   validateObjectWithFields(
     v,

@@ -66,7 +66,6 @@ Output:
   - [@case](#case)
   - [@replace](#replace)
   - [@merge](#merge)
-  - [@root](#root)
   - [@transform](#transform)
 
 <!-- tocstop -->
@@ -655,51 +654,6 @@ Output:
 {
   "name": "Mr. Rogers",
   "neighborhood": "Missing neighborhood"
-}
-```
-
-### @root
-
-The @root directive resolves to the root of the input JSON object. The value of the "@root" key is
-ignored.
-
-```json
-Input:
-
-{
-  "cool": true
-}
-
-Mappings:
-
-{ "@root": true } => { "cool": true }
-{ "@root": {} } => { "cool": true }
-{ "@root": "" } => { "cool": true }
-```
-
-The @root directive is useful for adding or overriding keys to the root input JSON object:
-
-```json
-Input:
-
-{
-  "a": 1,
-  "b": 2
-}
-
-Mappings:
-
-{
-  "@merge": [
-    { "@root": {} },
-    { "b": 22, "c": 33 }
-  ]
-}
-=>
-{
-  "a": 1,
-  "b": 22,
-  "c": 33
 }
 ```
 

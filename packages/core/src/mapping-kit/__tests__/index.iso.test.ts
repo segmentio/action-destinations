@@ -956,36 +956,6 @@ describe('@merge', () => {
   })
 })
 
-describe('@root', () => {
-  test('simple', () => {
-    const output = transform({ '@root': true }, { cool: true })
-    expect(output).toStrictEqual({ cool: true })
-  })
-
-  test('invalid key type', () => {
-    expect(() => {
-      transform({ '@root': { '@path': {} } }, { foo: 'bar' })
-    }).toThrowError()
-  })
-
-  test('with @merge directive', () => {
-    const output = transform(
-      {
-        '@merge': {
-          objects: [{ '@root': {} }, { b: 22, c: 33 }],
-          direction: 'right'
-        }
-      },
-      {
-        a: 1,
-        b: 2
-      }
-    )
-
-    expect(output).toStrictEqual({ a: 1, b: 22, c: 33 })
-  })
-})
-
 describe('@transform', () => {
   test('invalid key type', () => {
     expect(() => {
