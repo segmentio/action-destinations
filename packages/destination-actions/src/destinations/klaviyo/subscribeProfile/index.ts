@@ -11,6 +11,7 @@ import { API_URL } from '../config'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
   description: 'Subscribe Klaviyo profiles to Email marketing, SMS marketing, or both.',
+  defaultSubscription: 'type = "track" and event = "User Subscribed"',
   fields: {
     email: {
       label: 'Email',
