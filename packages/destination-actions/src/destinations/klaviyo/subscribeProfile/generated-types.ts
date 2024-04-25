@@ -14,9 +14,9 @@ export interface Payload {
    */
   list_id?: string
   /**
-   * A custom method or source to detail source of consent preferences (e.g., "Marketing Event").
+   * A custom method or source to detail source of consent preferences (e.g., "Marketing Event"). The default is set to -59, as this is [the $source value associated with Segment](https://help.klaviyo.com/hc/en-us/articles/1260804673530#h_01HDKHG9AM4BSSM009BM6XBF1H).
    */
-  custom_source?: string
+  custom_source?: number & string
   /**
    * The timestamp of when the profile's consent was gathered.
    */

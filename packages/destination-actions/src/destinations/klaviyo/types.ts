@@ -163,7 +163,7 @@ export interface SubscribeEventData {
   data: {
     type: string
     attributes: {
-      custom_source?: string
+      custom_source?: string | number
       profiles: {
         data: SubscribeProfile[]
       }

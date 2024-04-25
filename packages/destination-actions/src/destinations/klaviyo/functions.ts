@@ -227,9 +227,8 @@ export function formatSubscribeRequestBody(
     }
   }
 
-  if (custom_source) {
-    subData.data.attributes.custom_source = custom_source
-  }
+  subData.data.attributes.custom_source = custom_source || -59
+
   if (list_id) {
     subData.data.relationships = {
       list: {
