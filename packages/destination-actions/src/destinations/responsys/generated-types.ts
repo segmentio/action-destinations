@@ -35,12 +35,16 @@ export interface Settings {
   insertOnNoMatch: boolean
   /**
    * First match column for determining whether an insert or update should occur.
-   *                       An underscore (_) is implicitly appended to the match column name for the upsertListMember action.
+   *                       A trailing underscore (_) is added to the match column name at the time of request
+   *                       to Responsys.
+   *                       This aligns with Responsys’ naming conventions for match columns.
    */
   matchColumnName1: string
   /**
    * Second match column for determining whether an insert or update should occur.
-   *                       An underscore (_) is implicitly appended to the match column name for the upsertListMember action.
+   *                       A trailing underscore (_) is added to the match column name at the time of request
+   *                       to Responsys.
+   *                       This aligns with Responsys’ naming conventions for match columns.
    */
   matchColumnName2?: string
   /**
