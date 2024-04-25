@@ -332,23 +332,23 @@ export function transformPayload(payload: Payload) {
       : {})
   }
 
-  delete payload.cartLine,
-    payload.cartLines,
-    payload.cart,
-    payload.checkoutAttributes,
-    payload.checkoutDiscountApplications,
-    payload.checkoutLineItems,
-    payload.checkout,
-    payload.collectionProductVariants,
-    payload.collection,
-    payload.contacts,
-    payload.customData,
-    payload.customer,
-    payload.formElements,
-    payload.form,
-    payload.productVariant,
-    payload.searchQuery,
-    payload.searchResultProductVariants
+  delete payload.cartLine
+  delete payload.cartLines
+  delete payload.cart
+  delete payload.checkoutAttributes
+  delete payload.checkoutDiscountApplications
+  delete payload.checkoutLineItems
+  delete payload.checkout
+  delete payload.collectionProductVariants
+  delete payload.collection
+  delete payload.contacts
+  delete payload.customData
+  delete payload.customer
+  delete payload.formElements
+  delete payload.form
+  delete payload.productVariant
+  delete payload.searchQuery
+  delete payload.searchResultProductVariants
 
   return {
     ...payload,
