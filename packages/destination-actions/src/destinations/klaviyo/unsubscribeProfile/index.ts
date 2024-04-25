@@ -7,20 +7,33 @@ import { unsubscribeProfiles, formatUnsubscribeProfile } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
+  defaultSubscription: 'type = "track" and event = "User Unsubscribed"',
   description: 'Unsubscribe Klaviyo profiles from Email marketing, SMS marketing, or both.',
   fields: {
     email: {
       label: 'Email',
-      description: `The email address to subscribe. If provided, the associated profile will be unsubscribed to Email marketing.`,
+      description: `The email address to unsubscribe. If provided, the associated profile will be unsubscribed to Email marketing.`,
       type: 'string',
       format: 'email',
-      default: { '@path': '$.context.traits.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
     },
     phone_number: {
       label: 'Phone Number',
-      description: `The phone number to subscribe. This must be in E.164 format. If provided, the associated profile will be unsubscribed to SMS marketing.`,
+      description: `The phone number to unsubscribe. This must be in E.164 format. If provided, the associated profile will be unsubscribed to SMS marketing.`,
       type: 'string',
-      default: { '@path': '$.context.traits.phone' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.context.traits.phone' }
+        }
+      }
     },
     list_id: {
       label: 'List Id',

@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The email address to subscribe. If provided, the associated profile will be unsubscribed to Email marketing.
+   * The email address to unsubscribe. If provided, the associated profile will be unsubscribed to Email marketing.
    */
   email?: string
   /**
-   * The phone number to subscribe. This must be in E.164 format. If provided, the associated profile will be unsubscribed to SMS marketing.
+   * The phone number to unsubscribe. This must be in E.164 format. If provided, the associated profile will be unsubscribed to SMS marketing.
    */
   phone_number?: string
   /**
