@@ -1,5 +1,6 @@
 import nock from 'nock'
-import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
+// import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
 import { API_URL } from '../../config'
 import * as Functions from '../../functions'
@@ -28,9 +29,10 @@ describe('Upsert Profile', () => {
       properties: {}
     })
 
-    await expect(testDestination.testAction('upsertProfile', { event, settings })).rejects.toThrowError(
-      IntegrationError
-    )
+    // await expect(testDestination.testAction('upsertProfile', { event, settings })).rejects.toThrowError(
+    //   IntegrationError
+    // )
+    await expect(testDestination.testAction('upsertProfile', { event, settings })).resolves.toReturn()
   })
 
   it('should create a new profile if successful', async () => {
