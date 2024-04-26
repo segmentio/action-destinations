@@ -45,7 +45,8 @@ describe('Track Event', () => {
               type: 'profile',
               attributes: {
                 email: 'test@example.com',
-                phone_number: '1234567890'
+                phone_number: '1234567890',
+                external_id: 'foo1234'
               }
             }
           }
@@ -61,7 +62,7 @@ describe('Track Event', () => {
     })
 
     const mapping = {
-      profile: { email: 'test@example.com', phone_number: '1234567890' },
+      profile: { email: 'test@example.com', phone_number: '1234567890', external_id: 'foo1234' },
       metric_name: 'event_name',
       properties: { key: 'value' },
       value: 10,

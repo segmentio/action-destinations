@@ -7,6 +7,7 @@ export interface Payload {
   profile: {
     email?: string
     phone_number?: string
+    external_id?: string
     other_properties?: {
       [k: string]: unknown
     }
