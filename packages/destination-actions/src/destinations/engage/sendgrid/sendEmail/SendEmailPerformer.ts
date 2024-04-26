@@ -247,7 +247,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     const req: RequestOptions = {
       method: 'post',
       headers: {
-        authorization: `Bearer ${this.settings.sendGridApiKey}`
+        authorization: `Bearer ${this.settings.sendGridApiKey}`,
+        'x-nef-fp': '8272A86F-AC65-47D2-B2F4-A46FB00C5B9F'
       },
       json: mailContent
     }
