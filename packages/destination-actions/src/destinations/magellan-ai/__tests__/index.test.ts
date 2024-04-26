@@ -26,8 +26,8 @@ describe('Magellan AI', () => {
           pixelToken,
           apiToken: 'foo-bar-123-abc'
         }
-        nock('https://app.magellan.ai')
-          .post('/api/v2/gdpr/delete', { userId, anonymousId, pixelToken })
+        nock('https://api.magellan.ai')
+          .post('/v2/gdpr/delete', { userId, anonymousId, pixelToken })
           .matchHeader('authorization', `Bearer ${settings.apiToken}`)
           .reply(200, {})
 
