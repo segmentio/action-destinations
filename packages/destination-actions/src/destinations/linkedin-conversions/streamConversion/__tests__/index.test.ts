@@ -8,6 +8,7 @@ const testDestination = createTestIntegration(Destination)
 const currentTimestamp = Date.now()
 
 const event = createTestEvent({
+  messageId: 'this-is-an-event-id12345',
   event: 'Example Event',
   type: 'track',
   timestamp: currentTimestamp.toString(),
@@ -21,6 +22,13 @@ const event = createTestEvent({
       countryCode: 'US',
       value: 100
     }
+  },
+  traits: {
+    email: 'testing@testing.com'
+  },
+  properties: {
+    currency: 'USD',
+    revenue: 200
   }
 })
 
@@ -115,6 +123,44 @@ describe('LinkedinConversions.streamConversion', () => {
             companyName: { '@path': '$.context.traits.companyName' },
             countryCode: { '@path': '$.context.traits.countryCode' }
           },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successully send the event using default mappings', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        eventId: 'this-is-an-event-id12345',
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '200'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
           onMappingSave: {
             inputs: {},
             outputs: {

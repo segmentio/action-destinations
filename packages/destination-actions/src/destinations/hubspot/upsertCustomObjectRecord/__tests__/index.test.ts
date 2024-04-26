@@ -539,7 +539,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
 
   it('should return error message and code if dynamic fetch fails', async () => {
     const errorResponse = {
-      status: 'error',
+      status: '400',
       message: 'Unable to fetch schemas',
       correlationId: 'da20ed7c-1834-43c8-8d29-c8f65c411bc2',
       category: 'INVALID_AUTHENTICATION'
@@ -553,7 +553,7 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
 
     expect(responses.choices.length).toBe(0)
     expect(responses.error?.message).toEqual(errorResponse.message)
-    expect(responses.error?.code).toEqual(errorResponse.category)
+    expect(responses.error?.code).toEqual(errorResponse.status)
   })
 
   it('should handle flattening of objects', async () => {
@@ -606,6 +606,118 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
         custom_property_1: '1;2;3;4;5',
         custom_property_2: '{"a":1,"b":2,"c":3}',
         custom_property_3: '1;two;true;{"four":4}'
+      }
+    })
+  })
+
+  it('Should handle flattening of array while updating a custom object record', async () => {
+    // Mock: Search Custom Object Record with custom Search Fields
+    nock(HUBSPOT_BASE_URL)
+      .post(`/crm/v3/objects/${objectType}/search`)
+      .reply(200, {
+        total: 1,
+        results: [
+          {
+            id: hubspotGeneratedCustomObjectRecordId,
+            properties: {
+              createdate: '2023-06-01T19:56:33.914Z',
+              hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+              hs_object_id: hubspotGeneratedCustomObjectRecordId,
+              test: 'new_test_value',
+              test_custom_object_type: 'new_test_custom_object_type',
+              couponCode: 'TEST1234',
+              discountPercentage: '10%',
+              customPropertyOne: [1, 2, 3, 4, 5],
+              customPropertyTwo: {
+                a: 1,
+                b: 2,
+                c: 3
+              },
+              customPropertyThree: [1, 'two', true, { four: 4 }]
+            },
+            createdAt: '2023-06-01T19:56:33.914Z',
+            updatedAt: '2023-06-01T13:19:08.067Z',
+            archived: false
+          }
+        ]
+      })
+
+    nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/${objectType}/${hubspotGeneratedCustomObjectRecordId}`)
+      .reply(200, {
+        id: hubspotGeneratedCustomObjectRecordId,
+        properties: {
+          createdate: '2023-06-01T19:56:33.914Z',
+          hs_lastmodifieddate: '2023-06-01T13:19:08.067Z',
+          hs_object_id: hubspotGeneratedCustomObjectRecordId,
+          test: 'new_test_value',
+          test_custom_object_type: 'new_test_custom_object_type',
+          couponCode: 'TEST1234',
+          discountPercentage: '10%',
+          customPropertyOne: [1, 2, 3, 4, 5],
+          customPropertyTwo: {
+            a: 1,
+            b: 2,
+            c: 3
+          },
+          customPropertyThree: [1, 'two', true, { four: 4 }]
+        },
+        createdAt: '2022-09-25T19:56:33.914Z',
+        updatedAt: '2022-10-14T13:19:08.067Z',
+        archived: false
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: 'TEST1234',
+        discountPercentage: '10%',
+        customPropertyOne: [1, 3, 4, 5],
+        customPropertyTwo: {
+          a: 1,
+          b: 2,
+          c: 3
+        },
+        customPropertyThree: [1, 'two', 3, true, { four: 4 }]
+      }
+    })
+
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: 'p11223344_discount',
+        createNewCustomRecord: true,
+        customObjectSearchFields: {
+          test_custom_object_type: 'new_test_custom_object_type'
+        },
+        properties: {
+          coupon_code: {
+            '@path': '$.properties.couponCode'
+          },
+          discount_percent: {
+            '@path': '$.properties.couponCode'
+          },
+          custom_property_1: {
+            '@path': '$.properties.customPropertyOne'
+          },
+          custom_property_2: {
+            '@path': '$.properties.customPropertyTwo'
+          },
+          custom_property_3: {
+            '@path': '$.properties.customPropertyThree'
+          }
+        }
+      }
+    })
+    expect(responses).toHaveLength(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
+    expect(responses[1].options.json).toMatchObject({
+      properties: {
+        custom_property_1: '1;3;4;5',
+        custom_property_2: '{"a":1,"b":2,"c":3}',
+        custom_property_3: '1;two;3;true;{"four":4}'
       }
     })
   })

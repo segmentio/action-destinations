@@ -352,3 +352,11 @@ export const enable_batching: InputField = {
   default: false,
   unsafe_hidden: true
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.',
+  default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}

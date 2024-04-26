@@ -73,6 +73,39 @@ describe('Responsys.sendAudience', () => {
   })
 
   describe('Failure cases', () => {
+    it('should throw an error if event does not include email / riid / customer_id', async () => {
+      const errorMessage = 'At least one of the following fields is required: Email Address, RIID, or Customer ID'
+      nock('https://njp1q7u-api.responsys.ocs.oraclecloud.com')
+        .post(
+          `/rest/asyncApi/v1.3/lists/${testSettings.profileListName}/listExtensions/${testSettings.profileExtensionTable}/members`
+        )
+        .replyWithError({
+          message: errorMessage,
+          statusCode: 400
+        })
+      const bad_event = createTestEvent({
+        context: {
+          personas: {
+            computation_id: AUDIENCE_ID,
+            computation_key: AUDIENCE_KEY,
+            computation_class: 'audience'
+          }
+        },
+        timestamp: '2024-02-09T20:01:47.853Z',
+        traits: {
+          test_key: false
+        },
+        type: 'identify'
+      })
+      await expect(
+        testDestination.testAction('sendAudience', {
+          event: bad_event,
+          useDefaultMappings: true,
+          settings: testSettings
+        })
+      ).rejects.toThrow(errorMessage)
+    })
+
     it('should throw an error if audience event missing mandatory "computation_class" field', async () => {
       nock('https://njp1q7u-api.responsys.ocs.oraclecloud.com')
         .post(
@@ -130,39 +163,6 @@ describe('Responsys.sendAudience', () => {
           useDefaultMappings: true
         })
       ).rejects.toThrow()
-    })
-
-    it('should throw an error if event does not include email / riid / customer_id', async () => {
-      const errorMessage = 'At least one of the following fields is required: Email Address, RIID, or Customer ID'
-      nock('https://njp1q7u-api.responsys.ocs.oraclecloud.com')
-        .post(
-          `/rest/asyncApi/v1.3/lists/${testSettings.profileListName}/listExtensions/${testSettings.profileExtensionTable}/members`
-        )
-        .replyWithError({
-          message: errorMessage,
-          statusCode: 400
-        })
-      const bad_event = createTestEvent({
-        context: {
-          personas: {
-            computation_id: AUDIENCE_ID,
-            computation_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
-        },
-        timestamp: '2024-02-09T20:01:47.853Z',
-        traits: {
-          test_key: false
-        },
-        type: 'identify'
-      })
-      await expect(
-        testDestination.testAction('sendAudience', {
-          event: bad_event,
-          useDefaultMappings: true,
-          settings: testSettings
-        })
-      ).rejects.toThrow(errorMessage)
     })
   })
 })

@@ -1,48 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for MolocoRmp's land destination action: all fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's land destination action: all fields 1`] = `
 Object {
-  "channel_type": "ziisL0MJUd6S",
+  "channel_type": "9Z&a&C9Tb&",
   "device": Object {
-    "advertising_id": "ziisL0MJUd6S",
-    "ip": "ziisL0MJUd6S",
-    "language": "ziisL0MJUd6S",
-    "model": "ziisL0MJUd6S",
-    "os": "ZIISL0MJUD6S",
-    "os_version": "ziisL0MJUd6S",
-    "ua": "ziisL0MJUd6S",
-    "unique_device_id": "ziisL0MJUd6S",
+    "advertising_id": "9Z&a&C9Tb&",
+    "ip": "9Z&a&C9Tb&",
+    "language": "9Z&a&C9Tb&",
+    "model": "9Z&a&C9Tb&",
+    "os": "9Z&A&C9TB&",
+    "os_version": "9Z&a&C9Tb&",
+    "ua": "9Z&a&C9Tb&",
+    "unique_device_id": "9Z&a&C9Tb&",
   },
   "event_type": "LAND",
-  "id": "ziisL0MJUd6S",
+  "id": "9Z&a&C9Tb&",
   "items": Array [
     Object {
-      "id": "ziisL0MJUd6S",
+      "id": "9Z&a&C9Tb&",
       "price": Object {
-        "amount": -7208881776230.4,
-        "currency": "CAD",
+        "amount": -29405557806858.24,
+        "currency": "THB",
       },
-      "quantity": -720888177623040,
-      "seller_id": "ziisL0MJUd6S",
+      "quantity": -2940555780685824,
+      "seller_id": "9Z&a&C9Tb&",
     },
   ],
-  "page_id": "ziisL0MJUd6S",
-  "referrer_page_id": "ziisL0MJUd6S",
-  "session_id": "ziisL0MJUd6S",
+  "page_id": "9Z&a&C9Tb&",
+  "referrer_page_id": "9Z&a&C9Tb&",
+  "session_id": "9Z&a&C9Tb&",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "ziisL0MJUd6S",
+  "user_id": "9Z&a&C9Tb&",
 }
 `;
 
-exports[`Testing snapshot for MolocoRmp's land destination action: required fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's land destination action: required fields 1`] = `
 Object {
-  "channel_type": "ziisL0MJUd6S",
+  "channel_type": "9Z&a&C9Tb&",
   "event_type": "LAND",
-  "id": "ziisL0MJUd6S",
-  "page_id": "ziisL0MJUd6S",
-  "referrer_page_id": "ziisL0MJUd6S",
-  "session_id": "ziisL0MJUd6S",
+  "id": "9Z&a&C9Tb&",
+  "page_id": "9Z&a&C9Tb&",
+  "referrer_page_id": "9Z&a&C9Tb&",
+  "session_id": "9Z&a&C9Tb&",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "ziisL0MJUd6S",
+  "user_id": "9Z&a&C9Tb&",
 }
 `;

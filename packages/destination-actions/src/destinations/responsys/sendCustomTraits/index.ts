@@ -55,6 +55,23 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    retry: {
+      label: 'Delay (seconds)',
+      description: `A delay of the selected seconds will be added before retrying a failed request.
+                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.`,
+      type: 'number',
+      choices: [
+        { label: '0 secs', value: 0 },
+        { label: '30 secs', value: 30 },
+        { label: '120 secs', value: 120 },
+        { label: '300 secs', value: 300 },
+        { label: '480 secs', value: 480 },
+        { label: '600 secs', value: 600 }
+      ],
+      required: false,
+      unsafe_hidden: true,
+      default: 0
     }
   },
 
@@ -63,7 +80,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload.timestamp, statsContext: statsContext })
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload.timestamp,
+      statsContext: statsContext,
+      retry: payload.retry
+    })
 
     validateListMemberPayload(payload.userData)
 
@@ -75,7 +97,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({ profileExtensionTable: settings.profileExtensionTable, timestamp: payload[0].timestamp, statsContext: statsContext })
+    validateCustomTraits({
+      profileExtensionTable: settings.profileExtensionTable,
+      timestamp: payload[0].timestamp,
+      statsContext: statsContext,
+      retry: payload[0].retry
+    })
 
     return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
   }

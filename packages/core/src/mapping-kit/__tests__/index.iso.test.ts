@@ -879,3 +879,79 @@ describe('remove undefined values in objects', () => {
     })
   })
 })
+
+describe('@merge', () => {
+  // simple test cases that have the same output regardless of direction
+  ;['left', 'right'].forEach((direction) => {
+    test('empty', () => {
+      const output = transform({ '@merge': { direction, objects: [] } }, {})
+      expect(output).toStrictEqual({})
+    })
+
+    test('one object', () => {
+      const output = transform({ '@merge': { direction, objects: [{ cool: true }] } }, {})
+      expect(output).toStrictEqual({ cool: true })
+    })
+
+    test('invalid type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: { oops: true } } })
+      }).toThrowError()
+    })
+
+    test('invalid nested type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: [{}, 1] } })
+      }).toThrowError()
+    })
+  })
+
+  test('invalid direction specified', () => {
+    expect(() => {
+      transform({ '@merge': { direction: 'up', objects: [{ oh: 'yeah' }, {}] } })
+    }).toThrowError()
+  })
+
+  // expect a different output based on direction
+  test('simple overwrite default direction', () => {
+    const output = transform({ '@merge': { direction: 'right', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: 'you bet' })
+  })
+
+  test('nested directive default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'you' })
+  })
+
+  test('simple overwrite left direction', () => {
+    const output = transform({ '@merge': { direction: 'left', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: true })
+  })
+
+  test('nested directive left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'there' })
+  })
+})
