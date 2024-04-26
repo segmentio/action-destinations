@@ -118,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
     }
-    const requests: Promise<ModifiedResponse<unknown>>[] = []
+    const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
       const { list_id, custom_source, profiles } = sortedProfilesObject[key]
 
@@ -127,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const profilesSubset = profiles.slice(i, i + 100)
         const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source)
 
-        const response = request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+        const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
           headers: {
             revision: '2024-02-15'

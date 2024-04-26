@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (batches.length > 9) {
       throw new PayloadValidationError('Exceeded maximum allowed batches due to too many unique list_ids')
     }
-    const requests: Promise<ModifiedResponse<unknown>>[] = []
+    const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
       const { list_id, profiles } = sortedProfilesObject[key]
 
@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const profilesSubset = profiles.slice(i, i + 100)
         const unSubData = formatUnsubscribeRequestBody(profilesSubset, list_id)
 
-        const response = request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
+        const response = request<Response>(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
           method: 'POST',
           headers: {
             revision: '2024-02-15'
