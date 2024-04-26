@@ -1,8 +1,15 @@
 import { Payload } from './generated-types'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isNotEmpty(obj: Record<string, any> | undefined): obj is Record<string, any> {
+  if (typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0) return true
+
+  return false
+}
+
 export function transformPayload(payload: Payload) {
   const dataObject = {
-    ...(payload.cart && payload.cartLines
+    ...(isNotEmpty(payload.cart)
       ? {
           cart: {
             cost: {
@@ -12,41 +19,45 @@ export function transformPayload(payload: Payload) {
               }
             },
             id: payload.cart.id,
-            lines: payload.cartLines.map((cartLine) => ({
-              cost: {
-                totalAmount: {
-                  amount: cartLine.itemCost,
-                  currencyCode: cartLine.itemCurrencyCode
+            ...(payload.cartLines
+              ? {
+                  lines: payload.cartLines.map((cartLine) => ({
+                    cost: {
+                      totalAmount: {
+                        amount: cartLine.itemCost,
+                        currencyCode: cartLine.itemCurrencyCode
+                      }
+                    },
+                    merchandise: {
+                      id: cartLine.merchandiseId,
+                      image: {
+                        src: cartLine.merchandiseImageSrc
+                      },
+                      price: {
+                        amount: cartLine.merchandisePriceAmount,
+                        currencyCode: cartLine.merchandisePriceCurrencyCode
+                      },
+                      product: {
+                        id: cartLine.merchandiseProductId,
+                        title: cartLine.merchandiseProductTitle,
+                        untranslatedTitle: cartLine.merchandiseProductUntranslatedTitle,
+                        vendor: cartLine.merchandiseProductVendor,
+                        type: cartLine.merchandiseProductType,
+                        url: cartLine.merchandiseProductUrl
+                      },
+                      sku: cartLine.merchandiseSku,
+                      title: cartLine.merchandiseTitle,
+                      untranslatedTitle: cartLine.merchandiseUntranslatedTitle
+                    },
+                    quantity: cartLine.quantity
+                  }))
                 }
-              },
-              merchandise: {
-                id: cartLine.merchandiseId,
-                image: {
-                  src: cartLine.merchandiseImageSrc
-                },
-                price: {
-                  amount: cartLine.merchandisePriceAmount,
-                  currencyCode: cartLine.merchandisePriceCurrencyCode
-                },
-                product: {
-                  id: cartLine.merchandiseProductId,
-                  title: cartLine.merchandiseProductTitle,
-                  untranslatedTitle: cartLine.merchandiseProductUntranslatedTitle,
-                  vendor: cartLine.merchandiseProductVendor,
-                  type: cartLine.merchandiseProductType,
-                  url: cartLine.merchandiseProductUrl
-                },
-                sku: cartLine.merchandiseSku,
-                title: cartLine.merchandiseTitle,
-                untranslatedTitle: cartLine.merchandiseUntranslatedTitle
-              },
-              quantity: cartLine.quantity
-            })),
+              : {}),
             totalQuantity: payload.cart.totalQuantity
           }
         }
       : {}),
-    ...(payload.cartLine
+    ...(isNotEmpty(payload.cartLine)
       ? {
           cartLine: {
             cost: {
@@ -80,10 +91,7 @@ export function transformPayload(payload: Payload) {
           }
         }
       : {}),
-    ...(payload.checkout &&
-    payload.checkoutAttributes &&
-    payload.checkoutDiscountApplications &&
-    payload.checkoutLineItems
+    ...(isNotEmpty(payload.checkout)
       ? {
           checkout: {
             attributes: payload.checkoutAttributes,
@@ -101,65 +109,73 @@ export function transformPayload(payload: Payload) {
               zip: payload.checkout.billingZip
             },
             currencyCode: payload.checkout.currencyCode,
-            discountApplications: payload.checkoutDiscountApplications.map((discountApplication) => ({
-              allocationMethod: discountApplication.allocationMethod,
-              targetSelection: discountApplication.targetSelection,
-              targetType: discountApplication.targetType,
-              title: discountApplication.title,
-              type: discountApplication.type,
-              value: {
-                amount: discountApplication.amount,
-                currencyCode: discountApplication.currencyCode,
-                percentage: discountApplication.percentage
-              }
-            })),
+            ...(payload.checkoutDiscountApplications
+              ? {
+                  discountApplications: payload.checkoutDiscountApplications.map((discountApplication) => ({
+                    allocationMethod: discountApplication.allocationMethod,
+                    targetSelection: discountApplication.targetSelection,
+                    targetType: discountApplication.targetType,
+                    title: discountApplication.title,
+                    type: discountApplication.type,
+                    value: {
+                      amount: discountApplication.amount,
+                      currencyCode: discountApplication.currencyCode,
+                      percentage: discountApplication.percentage
+                    }
+                  }))
+                }
+              : {}),
             email: payload.checkout.email,
-            lineItems: payload.checkoutLineItems.map((lineItem) => ({
-              ...(lineItem.discountAllocations
-                ? {
-                    discountAllocations: lineItem.discountAllocations.map((discountAllocation) => ({
-                      amount: discountAllocation.amount,
-                      currencyCode: discountAllocation.currencyCode,
-                      discountApplication: {
-                        allocationMethod: discountAllocation.allocationMethod,
-                        targetSelection: discountAllocation.targetSelection,
-                        targetType: discountAllocation.targetType,
-                        title: discountAllocation.title,
-                        type: discountAllocation.type,
-                        value: {
-                          amount: discountAllocation.amount,
-                          currencyCode: discountAllocation.currencyCode,
-                          percentage: discountAllocation.percentage
+            ...(payload.checkoutLineItems
+              ? {
+                  lineItems: payload.checkoutLineItems.map((lineItem) => ({
+                    ...(lineItem.discountAllocations
+                      ? {
+                          discountAllocations: lineItem.discountAllocations.map((discountAllocation) => ({
+                            amount: discountAllocation.amount,
+                            currencyCode: discountAllocation.currencyCode,
+                            discountApplication: {
+                              allocationMethod: discountAllocation.allocationMethod,
+                              targetSelection: discountAllocation.targetSelection,
+                              targetType: discountAllocation.targetType,
+                              title: discountAllocation.title,
+                              type: discountAllocation.type,
+                              value: {
+                                amount: discountAllocation.amount,
+                                currencyCode: discountAllocation.currencyCode,
+                                percentage: discountAllocation.percentage
+                              }
+                            }
+                          }))
                         }
-                      }
-                    }))
-                  }
-                : {}),
-              id: lineItem.id,
-              quantity: lineItem.quantity,
-              title: lineItem.title,
-              variant: {
-                id: lineItem.productVariantId,
-                image: {
-                  src: lineItem.productVariantImageSrc
-                },
-                price: {
-                  amount: lineItem.productVariantPriceAmount,
-                  currencyCode: lineItem.productVariantPriceCurrencyCode
-                },
-                product: {
-                  id: lineItem.productVariantProductId,
-                  title: lineItem.productVariantProductTitle,
-                  untranslatedTitle: lineItem.productVariantUntranslatedTitle,
-                  vendor: lineItem.productVariantProductVendor,
-                  type: lineItem.productVariantProductType,
-                  url: lineItem.productVariantProductUrl
-                },
-                sku: lineItem.productVariantSku,
-                title: lineItem.productVariantTitle,
-                untranslatedTitle: lineItem.productVariantUntranslatedTitle
-              }
-            })),
+                      : {}),
+                    id: lineItem.id,
+                    quantity: lineItem.quantity,
+                    title: lineItem.title,
+                    variant: {
+                      id: lineItem.productVariantId,
+                      image: {
+                        src: lineItem.productVariantImageSrc
+                      },
+                      price: {
+                        amount: lineItem.productVariantPriceAmount,
+                        currencyCode: lineItem.productVariantPriceCurrencyCode
+                      },
+                      product: {
+                        id: lineItem.productVariantProductId,
+                        title: lineItem.productVariantProductTitle,
+                        untranslatedTitle: lineItem.productVariantUntranslatedTitle,
+                        vendor: lineItem.productVariantProductVendor,
+                        type: lineItem.productVariantProductType,
+                        url: lineItem.productVariantProductUrl
+                      },
+                      sku: lineItem.productVariantSku,
+                      title: lineItem.productVariantTitle,
+                      untranslatedTitle: lineItem.productVariantUntranslatedTitle
+                    }
+                  }))
+                }
+              : {}),
             order: {
               id: payload.checkout.orderId
             },
@@ -199,36 +215,40 @@ export function transformPayload(payload: Payload) {
           }
         }
       : {}),
-    ...(payload.collection && payload.collectionProductVariants
+    ...(isNotEmpty(payload.collection)
       ? {
           collection: {
             id: payload.collection.id,
             title: payload.collection.title,
-            productVariants: payload.collectionProductVariants.map((productVariant) => ({
-              id: productVariant.id,
-              image: {
-                src: productVariant.imageSrc
-              },
-              price: {
-                amount: productVariant.priceAmount,
-                currencyCode: productVariant.priceCurrencyCode
-              },
-              product: {
-                id: productVariant.productId,
-                title: productVariant.productTitle,
-                untranslatedTitle: productVariant.productUntranslatedTitle,
-                vendor: productVariant.productVendor,
-                type: productVariant.productType,
-                url: productVariant.productUrl
-              },
-              sku: productVariant.sku,
-              title: productVariant.title,
-              untranslatedTitle: productVariant.untranslatedTitle
-            }))
+            ...(payload.collectionProductVariants
+              ? {
+                  productVariants: payload.collectionProductVariants.map((productVariant) => ({
+                    id: productVariant.id,
+                    image: {
+                      src: productVariant.imageSrc
+                    },
+                    price: {
+                      amount: productVariant.priceAmount,
+                      currencyCode: productVariant.priceCurrencyCode
+                    },
+                    product: {
+                      id: productVariant.productId,
+                      title: productVariant.productTitle,
+                      untranslatedTitle: productVariant.productUntranslatedTitle,
+                      vendor: productVariant.productVendor,
+                      type: productVariant.productType,
+                      url: productVariant.productUrl
+                    },
+                    sku: productVariant.sku,
+                    title: productVariant.title,
+                    untranslatedTitle: productVariant.untranslatedTitle
+                  }))
+                }
+              : {})
           }
         }
       : {}),
-    ...(payload.productVariant
+    ...(isNotEmpty(payload.productVariant)
       ? {
           productVariant: {
             id: payload.productVariant.id,
@@ -281,7 +301,7 @@ export function transformPayload(payload: Payload) {
           }
         }
       : {}),
-    ...(payload.customer
+    ...(isNotEmpty(payload.customer)
       ? {
           customer: {
             id: payload.customer.id,
@@ -294,22 +314,26 @@ export function transformPayload(payload: Payload) {
           }
         }
       : {}),
-    ...(payload.form && payload.formElements
+    ...(isNotEmpty(payload.form)
       ? {
           form: {
             id: payload.form.id,
             action: payload.form.action,
-            elements: payload.formElements.map((element) => ({
-              id: element.id,
-              name: element.name,
-              tagName: element.tagName,
-              type: element.type,
-              value: element.value
-            }))
+            ...(payload.formElements
+              ? {
+                  elements: payload.formElements.map((element) => ({
+                    id: element.id,
+                    name: element.name,
+                    tagName: element.tagName,
+                    type: element.type,
+                    value: element.value
+                  }))
+                }
+              : {})
           }
         }
       : {}),
-    ...(payload.contacts
+    ...(isNotEmpty(payload.contacts)
       ? {
           contacts: payload.contacts.map((contact) => ({
             id: contact.id,
@@ -322,7 +346,7 @@ export function transformPayload(payload: Payload) {
           }))
         }
       : {}),
-    ...(payload.customData
+    ...(isNotEmpty(payload.customData)
       ? {
           customData: payload.customData.map((customData) => ({
             name: customData.name,
@@ -332,23 +356,29 @@ export function transformPayload(payload: Payload) {
       : {})
   }
 
-  delete payload.cartLine
-  delete payload.cartLines
-  delete payload.cart
-  delete payload.checkoutAttributes
-  delete payload.checkoutDiscountApplications
-  delete payload.checkoutLineItems
-  delete payload.checkout
-  delete payload.collectionProductVariants
-  delete payload.collection
-  delete payload.contacts
-  delete payload.customData
-  delete payload.customer
-  delete payload.formElements
-  delete payload.form
-  delete payload.productVariant
-  delete payload.searchQuery
-  delete payload.searchResultProductVariants
+  // delete all the properties that were used to create the data object
+  const propertiesToDelete: Array<keyof Payload> = [
+    'cartLine',
+    'cartLines',
+    'cart',
+    'checkoutAttributes',
+    'checkoutDiscountApplications',
+    'checkoutLineItems',
+    'checkout',
+    'collectionProductVariants',
+    'collection',
+    'contacts',
+    'customData',
+    'customer',
+    'formElements',
+    'form',
+    'productVariant',
+    'searchQuery',
+    'searchResultProductVariants'
+  ]
+  propertiesToDelete.forEach((property) => {
+    delete payload[property]
+  })
 
   return {
     ...payload,
