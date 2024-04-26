@@ -1,9 +1,11 @@
-import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getListIdDynamicData } from '../functions'
 import { PayloadValidationError } from '@segment/actions-core'
-import { unsubscribeProfiles, formatUnsubscribeProfile } from '../functions'
+import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
+import { UnsubscribeProfile } from '../types'
+import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
@@ -44,8 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
-      description:
-        'When enabled, the action will use the klaviyo batch API. Field "List Id" will need to be static values when batching is enabled.'
+      description: 'When enabled, the action will use the Klaviyo batch API.'
     }
   },
   dynamicFields: {
@@ -59,24 +60,104 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profile = formatUnsubscribeProfile(email, phone_number)
-    await unsubscribeProfiles(profile, list_id, request)
+    const profileToUnSubscribe = formatUnsubscribeProfile(email, phone_number)
+    const unSubData = formatUnsubscribeRequestBody(profileToUnSubscribe, list_id)
+
+    return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
+      method: 'POST',
+      headers: {
+        revision: '2024-02-15'
+      },
+      json: unSubData
+    })
   },
   performBatch: async (request, { payload }) => {
+    // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
+
+    // if there are no payloads with phone or email throw error
     if (payload.length === 0) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
-    const { list_id } = filteredPayload[0]
-    const profilesForImport = filteredPayload.map(({ list_id, ...profile }) =>
-      formatUnsubscribeProfile(profile.email, profile.phone_number)
-    )
-    // max number of profiles is 100 per request
-    for (let i = 0; i < profilesForImport.length; i += 100) {
-      const batch = profilesForImport.slice(i, i + 100)
-      await unsubscribeProfiles(batch, list_id, request)
+
+    const sortedProfilesObject = sortBatches(filteredPayload)
+    /*  sort profiles into batches with same list_id:
+
+      batches: {
+        '1234' {
+          list_id: '1234',
+          profiles: [...]
+        },
+        ...
+      }
+
+    */
+
+    // throw error if too many batches
+    const batches = Object.keys(sortedProfilesObject)
+    if (batches.length > 9) {
+      throw new PayloadValidationError('Exceeded maximum allowed batches due to too many unique list_ids')
     }
+    const requests: Promise<ModifiedResponse<unknown>>[] = []
+    batches.forEach((key) => {
+      const { list_id, profiles } = sortedProfilesObject[key]
+
+      // max number of profiles is 100 per request
+      for (let i = 0; i < profiles.length; i += 100) {
+        const profilesSubset = profiles.slice(i, i + 100)
+        const unSubData = formatUnsubscribeRequestBody(profilesSubset, list_id)
+
+        const response = request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
+          method: 'POST',
+          headers: {
+            revision: '2024-02-15'
+          },
+          json: unSubData
+        })
+
+        requests.push(response)
+      }
+    })
+    return await Promise.all(requests)
   }
 }
 
 export default action
+
+interface SortedBatches {
+  [key: string]: {
+    list_id?: string
+    profiles: UnsubscribeProfile[]
+  }
+}
+
+function sortBatches(batchPayload: Payload[]) {
+  const output: SortedBatches = {}
+
+  batchPayload.forEach((payload) => {
+    const { email, phone_number, list_id } = payload
+
+    const key = list_id || 'noListId'
+
+    // if a batch with this key does not exist, create it
+    if (!output[key]) {
+      const batch: { list_id?: string; profiles: UnsubscribeProfile[] } = {
+        profiles: []
+      }
+
+      if (list_id !== undefined) {
+        batch.list_id = list_id
+      }
+
+      output[key] = batch
+    }
+
+    // format profile data klaviyo api spec
+    const profileToUnSubscribe = formatUnsubscribeProfile(email, phone_number)
+
+    // add profile to batch
+    output[key].profiles.push(profileToUnSubscribe)
+  })
+
+  return output
+}

@@ -243,31 +243,15 @@ export function formatSubscribeRequestBody(
   return subData
 }
 
-export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
-  const profileToSubscribe: UnsubscribeProfile = {
-    type: 'profile',
-    attributes: {}
-  }
-
-  if (email) {
-    profileToSubscribe.attributes.email = email
-  }
-
-  if (phone_number) {
-    profileToSubscribe.attributes.phone_number = phone_number
-  }
-  return profileToSubscribe
-}
-
-export async function unsubscribeProfiles(
+export function formatUnsubscribeRequestBody(
   profiles: UnsubscribeProfile | UnsubscribeProfile[],
-  list_id: string | undefined,
-  request: RequestClient
+  list_id: string | undefined
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
   }
 
+  // format request body per klaviyo api spec
   const unsubData: UnsubscribeEventData = {
     data: {
       type: 'profile-subscription-bulk-delete-job',
@@ -289,12 +273,22 @@ export async function unsubscribeProfiles(
       }
     }
   }
-  // subscribe requires use of 2024-02-15 api version
-  return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
-    method: 'POST',
-    headers: {
-      revision: '2024-02-15'
-    },
-    json: unsubData
-  })
+
+  return unsubData
+}
+
+export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
+  const profileToSubscribe: UnsubscribeProfile = {
+    type: 'profile',
+    attributes: {}
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+  }
+  return profileToSubscribe
 }

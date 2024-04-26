@@ -22,7 +22,7 @@ export interface Payload {
    */
   consented_at?: string | number
   /**
-   * When enabled, the action will use the klaviyo batch API. Fields "List Id" and "Custom Source" will need to be static values when batching is enabled.
+   * When enabled, the action will use the Klaviyo batch API.
    */
   enable_batching?: boolean
 }

@@ -14,7 +14,7 @@ export interface Payload {
    */
   list_id?: string
   /**
-   * When enabled, the action will use the klaviyo batch API. Field "List Id" will need to be static values when batching is enabled.
+   * When enabled, the action will use the Klaviyo batch API.
    */
   enable_batching?: boolean
 }
