@@ -13,23 +13,31 @@ export interface TikTokPixel {
     event: string,
     {
       contents,
+      content_type,
       currency,
       value,
       description,
-      query
+      query,
+      order_id,
+      shop_id
     }: {
       contents:
         | {
-            price?: number
-            quantity?: number
-            content_type?: string
-            content_id?: string
+            price?: number | undefined
+            quantity?: number | undefined
+            content_category?: string | undefined
+            content_id?: string | undefined
+            content_name?: string | undefined
+            brand?: string | undefined
           }[]
         | []
-      currency: string
-      value: number
+      content_type: string | undefined
+      currency: string | undefined
+      value: number | undefined
       description: string | undefined
       query: string | undefined
+      order_id: string | undefined
+      shop_id: string | undefined
     },
     {
       event_id

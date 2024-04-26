@@ -34,7 +34,7 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
 export const box = (v: string | undefined): readonly string[] | undefined =>
   (v ?? '').length > 0 ? [v as string] : undefined
 
-export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
+export const emptyObjectToUndefined = <T extends { [k in string]?: unknown }>(v: T) => {
   const properties = Object.getOwnPropertyNames(v)
 
   if (properties.length === 0) {
@@ -76,4 +76,9 @@ export const parseNumberSafe = (v: string | number | undefined): number | undefi
     return Number.isSafeInteger(parsed) ? parsed : undefined
   }
   return undefined
+}
+
+export const parseDateSafe = (v: string | undefined): number | undefined => {
+  const parsed = Date.parse(v ?? '')
+  return Number.isSafeInteger(parsed) ? parsed : undefined
 }

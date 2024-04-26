@@ -188,6 +188,10 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue:only',
+      default: {
+        currencyCode: { '@path': '$.properties.currency' },
+        amount: { '@path': '$.properties.revenue' }
+      },
       properties: {
         currencyCode: {
           label: 'Currency Code',
@@ -217,7 +221,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description:
         'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
       type: 'string',
-      required: false
+      required: false,
+      default: { '@path': '$.traits.email' }
     },
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',

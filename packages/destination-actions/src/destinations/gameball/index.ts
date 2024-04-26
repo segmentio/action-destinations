@@ -9,7 +9,7 @@ import identifyPlayer from './identifyPlayer'
 import trackOrder from './trackOrder'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'gameball',
+  name: 'Gameball (Actions)',
   slug: 'actions-gameball',
   mode: 'cloud',
 

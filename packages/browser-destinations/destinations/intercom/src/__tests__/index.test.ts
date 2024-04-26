@@ -39,6 +39,10 @@ describe('Intercom (actions)', () => {
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
 
+    expect(window.intercomSettings).toBeDefined()
+    expect(window.intercomSettings.app_id).toEqual('topSecretKey')
+    expect(window.intercomSettings.installation_type).toEqual('s')
+
     const scripts = window.document.querySelectorAll('script')
     expect(scripts).toMatchInlineSnapshot(`
       NodeList [

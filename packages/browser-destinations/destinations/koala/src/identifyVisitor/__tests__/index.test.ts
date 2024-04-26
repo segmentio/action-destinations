@@ -64,6 +64,9 @@ describe('Koala.identifyVisitor', () => {
     expect(window.ko.identify).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Matt'
+      }),
+      expect.objectContaining({
+        source: 'segment-browser'
       })
     )
   })

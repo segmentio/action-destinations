@@ -31,4 +31,9 @@ export interface Payload {
    * The timestamp of when the event occurred.
    */
   timestamp: string | number
+  /**
+   * A delay of the selected seconds will be added before retrying a failed request.
+   *                     Max delay allowed is 600 secs (10 mins). The default is 0 seconds.
+   */
+  retry?: number
 }
