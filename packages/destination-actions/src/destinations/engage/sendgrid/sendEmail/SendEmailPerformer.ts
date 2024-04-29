@@ -248,7 +248,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       method: 'post',
       headers: {
         authorization: `Bearer ${this.settings.sendGridApiKey}`,
-        'x-nef-fp': '8272A86F-AC65-47D2-B2F4-A46FB00C5B9F'
+        // SendGrid may block the IP we are calling the mail send API from as it's from a shared AWS pool.
+        // This header is recognized by SendGrid to be us and thus bypasses any IP block.
+        'x-nef-fp': process.env.SENDGRID_BYPASS_IP_BLOCK_HEADER_SECRET ?? ''
       },
       json: mailContent
     }
