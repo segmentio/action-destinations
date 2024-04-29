@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.53.0",
+  "version": "1.54.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -31,7 +31,7 @@
     "@segment/analytics-browser-actions-intercom": "^1.40.0",
     "@segment/analytics-browser-actions-iterate": "^1.38.0",
     "@segment/analytics-browser-actions-jimo": "^1.26.0",
-    "@segment/analytics-browser-actions-koala": "^1.38.0",
+    "@segment/analytics-browser-actions-koala": "^1.39.0",
     "@segment/analytics-browser-actions-logrocket": "^1.38.0",
     "@segment/analytics-browser-actions-pendo-web-actions": "^1.27.0",
     "@segment/analytics-browser-actions-playerzero": "^1.38.0",
