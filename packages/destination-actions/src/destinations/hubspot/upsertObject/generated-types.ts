@@ -2,25 +2,33 @@
 
 export interface Payload {
   /**
-   * Specify whether to create, update or upsert a record.
+   * Specify if Segment should create a new Object Type automatically on HubSpot if it does not already exist.
    */
-  recordCreation?: string
+  createObject: boolean
+  /**
+   * Specify if Segment should create new Properties automatically on HubSpot if they do not already exist.
+   */
+  createProperties: boolean
+  /**
+   * Specify if Segment should create a new Identifier 'Unique Field' automatically on HubSpot if it does not already exist.
+   */
+  createIdentifier: boolean
   /**
    * The type of Hubspot Object to create, update or upsert the record to.
    */
   objectType: string
   /**
-   * Specify if Segment should create the 'Object Identifier Field' automatically on the Object if it does not already exist in Hubspot.
+   * Specify if Segment should create, update or upsert a record.
    */
-  idCreation?: string
+  insertType: string
   /**
-   * The unique field Segment will use as an identifier when creating, updating or upserting a record of 'Object Type'.
+   * The name of the unique field Segment will use as an identifier when creating, updating or upserting a record of 'Object Type'.
    */
-  idField: string
+  idFieldName: string
   /**
-   * Specify if Segment should create a Property automatically on the Object if it does not already exist in Hubspot.
+   * The value of the identifier to send to Hubspot.
    */
-  propertyCreation?: string
+  idFieldValue: string
   /**
    * String Properties to send to HubSpot.
    */
@@ -46,9 +54,13 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The unique field Segment will use as an identifier when associating the record to another record.
+   * The name of the unique field Segment will use as an identifier when associating the record to another record.
    */
-  toIdField: string
+  toIdFieldName: string
+  /**
+   * The value of the identifier for the record to be associated with
+   */
+  toIdFieldValue: string
   /**
    * The type of Hubspot Object to associate the record to.
    */
