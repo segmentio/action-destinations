@@ -16,6 +16,20 @@ export interface Result {
   data?: JSONObject | null
 }
 
+type RawMapping<Payload> = Record<keyof Payload, FieldValue>
+export interface ExecuteHookInput<
+  Settings,
+  Payload,
+  AudienceSettings = unknown,
+  ActionHookInputs = any,
+  ActionHookOutputs = any
+> extends Omit<
+    ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, ActionHookOutputs>,
+    'payload' | 'mapping'
+  > {
+  readonly mapping?: RawMapping<Payload>
+}
+
 export interface ExecuteInput<
   Settings,
   Payload,
