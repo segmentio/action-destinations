@@ -235,10 +235,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       } catch (e) {
         if (e instanceof AmazonAdsError) {
           const message = JSON.parse(e.response?.data?.message || '')
+          statsTags?.push(`error:${message}`)
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw new APIError(message, e.response?.status)
         } else if (e instanceof IntegrationError) {
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          statsTags?.push(`error:${e.message}`)
           throw new APIError(e.message, 400)
         } else {
+          statsTags?.push(`error:${e}`)
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw e
         }
       }

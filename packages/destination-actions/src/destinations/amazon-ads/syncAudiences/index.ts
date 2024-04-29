@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
 import { PayloadValidationError, IntegrationError, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -95,15 +95,23 @@ const action: ActionDefinition<Settings, Payload> = {
         'An number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.'
     }
   },
-  perform: (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  perform: (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, payload, statsContext)
   }
 }
 
-async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
+async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payload: Payload,
+  statsContext: StatsContext | undefined
+) {
   if (!payload.audienceId) {
     throw new PayloadValidationError('Audience ID is required.')
   }
+  const { statsClient, tags: statsTags } = statsContext || {}
+  const statsName = 'syncAmazonAudience'
+  statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
   try {
     for (const record of payload.records) {
@@ -127,6 +135,9 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     const result = await response.json()
     const jobRequestId = result?.jobRequestId
 
+    statsTags?.push(`jobRequestId:${jobRequestId}`)
+    statsClient?.incr(`${statsName}.success`, 1, statsTags)
+
     if (!jobRequestId) {
       throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
     }
@@ -137,10 +148,16 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   } catch (e) {
     if (e instanceof AmazonAdsError) {
       const message = JSON.parse(e.response?.data?.message || '')
+      statsTags?.push(`error:${message}`)
+      statsClient?.incr(`${statsName}.error`, 1, statsTags)
       throw new APIError(message, e.response?.status)
     } else if (e instanceof IntegrationError) {
+      statsTags?.push(`error:${e.message}`)
+      statsClient?.incr(`${statsName}.error`, 1, statsTags)
       throw new APIError(e.message, 400)
     } else {
+      statsTags?.push(`error:${e}`)
+      statsClient?.incr(`${statsName}.error`, 1, statsTags)
       throw e
     }
   }
