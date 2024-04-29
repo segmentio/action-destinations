@@ -164,7 +164,6 @@ register('661e9787658d112ba31b59a7', './xtremepush')
 register('661e97a161b54c61eb22ead5', './spiffy')
 register('6627b0208bbe1699ca06eef8', './inleads-ai')
 
-
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const definition = require(destinationPath).default
