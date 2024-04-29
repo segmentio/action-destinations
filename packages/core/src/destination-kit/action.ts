@@ -420,7 +420,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     requestFn: HookRequestFn<Settings, T, any, AudienceSettings>,
     data: ExecuteHookInput<Settings, T, AudienceSettings>
   ): Promise<unknown> {
-    const requestClient = this.createHookRequestClient(data)
+    const requestClient = this.createRequestClient(data as ExecuteInput<Settings, T>)
     const response = await requestFn(requestClient, data)
     return this.parseResponse(response)
   }
@@ -436,14 +436,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)
     return this.parseResponse(response)
-  }
-
-  private createHookRequestClient(data: ExecuteHookInput<Settings, Payload>): RequestClient {
-    const options = this.extendRequest?.(data as ExecuteInput<Settings, Payload>) ?? {}
-    return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext
-    })
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
