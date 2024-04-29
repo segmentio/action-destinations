@@ -88,6 +88,10 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
+        external_id: {
+          label: 'External ID',
+          type: 'string'
+        },
         other_properties: {
           label: 'Other Properties',
           type: 'object'
