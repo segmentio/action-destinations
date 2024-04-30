@@ -9,6 +9,8 @@ import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { Settings } from './generated-types'
+import createRequestClient from '@segment/actions-core/create-request-client'
 
 export const API_VERSION = 'v53.0'
 
@@ -31,6 +33,48 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
   }
 
   return operator
+}
+
+export const generateSalesforceRequest = async (
+  settings: Settings,
+  auth: OAuth2ClientCredentials,
+  request: RequestClient
+) => {
+  if (!settings.auth_password || !settings.username) {
+    return request
+  }
+
+  const { accessToken } = await authenticateWithPassword(auth, settings as Required<Settings>, request)
+
+  const passwordRequestClient = createRequestClient({
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  return passwordRequestClient
+}
+
+const authenticateWithPassword = async (
+  auth: OAuth2ClientCredentials,
+  settings: Required<Settings>,
+  request: RequestClient
+): Promise<RefreshAccessTokenResult> => {
+  const clientId = (settings as any)['oauth']['clientId']
+  const clientSecret = (settings as any)['oauth']['clientSecret']
+
+  const res = await request<SalesforceRefreshTokenResponse>(`${settings.instanceUrl}services/oauth2/token`, {
+    method: 'post',
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: clientId,
+      client_secret: clientSecret,
+      username: settings.username,
+      password: settings.auth_password
+    })
+  })
+
+  return { accessToken: res.data.access_token }
 }
 
 interface Records {
