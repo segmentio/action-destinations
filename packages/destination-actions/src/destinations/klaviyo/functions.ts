@@ -7,7 +7,11 @@ import {
   listData,
   ImportJobPayload,
   Profile,
-  GetProfileResponse
+  GetProfileResponse,
+  SubscribeProfile,
+  SubscribeEventData,
+  UnsubscribeProfile,
+  UnsubscribeEventData
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -162,4 +166,129 @@ export async function getProfiles(
   }
 
   return Array.from(new Set(profileIds))
+}
+
+export function formatSubscribeProfile(
+  email: string | undefined,
+  phone_number: string | undefined,
+  consented_at: string | number | undefined
+) {
+  const profileToSubscribe: SubscribeProfile = {
+    type: 'profile',
+    attributes: {
+      subscriptions: {}
+    }
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+    profileToSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'SUBSCRIBED'
+      }
+    }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
+    }
+  }
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+    profileToSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'SUBSCRIBED'
+      }
+    }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
+    }
+  }
+
+  return profileToSubscribe
+}
+
+export function formatSubscribeRequestBody(
+  profiles: SubscribeProfile | SubscribeProfile[],
+  list_id: string | undefined,
+  custom_source: string | undefined
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  // format request body per klaviyo api spec
+  const subData: SubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-create-job',
+      attributes: {
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  subData.data.attributes.custom_source = custom_source || -59
+
+  if (list_id) {
+    subData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  return subData
+}
+
+export function formatUnsubscribeRequestBody(
+  profiles: UnsubscribeProfile | UnsubscribeProfile[],
+  list_id: string | undefined
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  // format request body per klaviyo api spec
+  const unsubData: UnsubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-delete-job',
+      attributes: {
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  if (list_id) {
+    unsubData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  return unsubData
+}
+
+export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
+  const profileToSubscribe: UnsubscribeProfile = {
+    type: 'profile',
+    attributes: {}
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+  }
+  return profileToSubscribe
 }
