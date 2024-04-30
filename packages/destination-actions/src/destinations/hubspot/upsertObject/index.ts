@@ -4,11 +4,13 @@ import type { Payload } from './generated-types'
 import { HubspotClient } from './hubspot-api'
 import { RequestClient } from '@segment/actions-core'
 import { flattenObject } from '../utils'
+import { BatchReadRequestBody } from './hubspot-api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Object',
   description: 'Upsert a record of any Object type to HubSpot and optionally assocate it with another record of any Object type.',
   fields: {
+    // onMappingSave Hook Field
     createObject: {
         label: 'Create Object',
         description: "Specify if Segment should create a new Object Type automatically on HubSpot if it does not already exist.",
@@ -16,6 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
         required: true,
         default: false
     },
+    // onMappingSave Hook Field
     createProperties: {
         label: 'Create Properties',
         description: "Specify if Segment should create new Properties automatically on HubSpot if they do not already exist.",
@@ -23,6 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         required: true,
         default: false
     },
+    // onMappingSave Hook Field
     createIdentifier: {
         label: 'Create Identifier',
         description: "Specify if Segment should create a new Identifier 'Unique Field' automatically on HubSpot if it does not already exist.",
@@ -30,6 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
         required: true,
         default: false
     },
+    // onMappingSave Hook Field
     objectType: {
       label: 'Object Type',
       description:'The type of Hubspot Object to create, update or upsert the record to.',
@@ -37,6 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true
     },
+    // onMappingSave Hook Field
     insertType: {
       label: 'Insert Type',
       description: 'Specify if Segment should create, update or upsert a record.',
@@ -49,6 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: 'upsert'
     },
+    // onMappingSave Hook Field
     idFieldName: {
       label: 'Object ID Field Name',
       description: "The name of the unique field Segment will use as an identifier when creating, updating or upserting a record of 'Object Type'.",
@@ -56,6 +63,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true
     },
+    // onMappingSave Hook Field
+    associationLabel: {
+      label: 'Association Label',
+      description: 'The type of Association between the two records. The Association must already exist in Hubspot.',
+      type: 'string',
+      dynamic: true
+    },
+
     idFieldValue: {
       label: 'Object ID Field Value',
       description: "The value of the identifier to send to Hubspot.",
@@ -66,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'String Properties',
       description: 'String Properties to send to HubSpot.',
       type: 'object',
-      required: true,
+      required: false,
       defaultObjectUI: 'keyvalue:only',
       allowNull: false
     },
@@ -74,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Number Properties',
       description: 'Number Properties to send to HubSpot.',
       type: 'object',
-      required: true,
+      required: false,
       defaultObjectUI: 'keyvalue:only',
       allowNull: false
     },
@@ -82,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Boolean Properties',
       description: 'Boolean Properties to send to HubSpot.',
       type: 'object',
-      required: true,
+      required: false,
       defaultObjectUI: 'keyvalue:only',
       allowNull: false
     },
@@ -90,40 +105,32 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Datetime Properties',
       description: 'Datetime Properties to send to HubSpot.',
       type: 'object',
-      required: true,
+      required: false,
       defaultObjectUI: 'keyvalue:only',
       allowNull: false
     },
     toIdFieldName: {
       label: 'To Object ID Field Name',
-      description: "The name of the unique field Segment will use as an identifier when associating the record to another record.",
+      description: "The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.",
       type: 'string',
-      required: true,
       dynamic: true
     },
     toIdFieldValue: {
       label: 'To Object ID Field Value',
       description: "The value of the identifier for the record to be associated with",
       type: 'string',
-      required: true,
       dynamic: true
     },
     toObjectType: {
       label: 'To Object Type',
-      description:'The type of Hubspot Object to associate the record to.',
-      type: 'string',
-      dynamic: true
-    },
-    associationLabel: {
-      label: 'Association Label',
-      description: 'The type of Association between the two records',
+      description:'The type of Hubspot Object to associate the record to. This Object Type must already exist in Hubspot.',
       type: 'string',
       dynamic: true
     },
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Hubspot by default',
-      description: 'By defaut Segment batches events to Hubspot.',
+      description: 'By default Segment batches events to Hubspot.',
       default: true
     }
   },
@@ -171,41 +178,58 @@ const action: ActionDefinition<Settings, Payload> = {
       return await client.getAssociationLabel(objectType, toObjectType) 
     }
   },
-  perform: async (request, { payload }) => {
+  // perform: async (request, { payload }) => {
     
-    const { objectType, toObjectType, insertType, idFieldName, idFieldValue, toIdFieldName, toIdFieldValue, stringProperties, numericProperties, booleanProperties, dateProperties, associationLabel } = payload
+  //   const { objectType, toObjectType, insertType, idFieldName, idFieldValue, toIdFieldName, toIdFieldValue, stringProperties, numericProperties, booleanProperties, dateProperties, associationLabel } = payload
 
-    const client = new HubspotClient(request)
+  //   const client = new HubspotClient(request)
 
-    const toRecordId = associationLabel ? await client.getRecordID(toObjectType, toIdFieldName, toIdFieldValue) : undefined; 
+  //   const toRecordId = associationLabel ? await client.getRecordID(toObjectType, toIdFieldName, toIdFieldValue) : undefined; 
 
-    if(['update', 'upsert'].includes(insertType)){
+  //   if(['update', 'upsert'].includes(insertType)){
       
-      const recordId = await client.getRecordID(objectType, idFieldName, idFieldValue)
+  //     const recordId = await client.getRecordID(objectType, idFieldName, idFieldValue)
       
-      if(recordId){
-        const updateResponse = await client.update(idFieldName, recordId, objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties}) })
+  //     if(recordId){
+  //       const updateResponse = await client.update(idFieldName, recordId, objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties}) })
         
-        if(toRecordId){
-          await client.associate(recordId, toRecordId, associationLabel as string, objectType, toObjectType as string)
-        }
+  //       if(toRecordId){
+  //         await client.associate(recordId, toRecordId, associationLabel as string, objectType, toObjectType as string)
+  //       }
         
-        return updateResponse
-      }      
-    }
+  //       return updateResponse
+  //     }      
+  //   }
 
-    if(['create', 'upsert'].includes(payload.insertType)){
-      return await client.create(objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties})}, associationLabel, toRecordId)
-    }
-  },
+  //   if(['create', 'upsert'].includes(payload.insertType)){
+  //     return await client.create(objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties})}, associationLabel, toRecordId)
+  //   }
+  // },
 
-  performBatch: async (request, { payload: payloads }) => {
+  perform: async (request, { payload }) => {
    
-    const cohorts = [...new Set(payloads.map(payload => `${payload.objectType}-${payload.idFieldName}`))]
-    console.log(cohorts)
+    const payloads = [{...payload, objectType: 'company', idFieldName: 'domain', idFieldValue: 'expedia.com'},{...payload, objectType: 'company', idFieldName: 'domain', idFieldValue: 'doodz.com'}]
 
-    // 
-    // 
+    const hubspotClient = new HubspotClient(request)
+
+    const idFieldName = payloads[0].idFieldName
+    const batchSize = 100
+    const requests = []
+
+    for (let i = 0; i < payloads.length; i += batchSize) {
+      console.log('1')
+      const batch = payloads.slice(i, i + batchSize);
+      console.log('X')
+      requests.push(
+        hubspotClient.batchRequest('read', idFieldName, {
+          properties: [idFieldName],
+          idProperty: idFieldName,
+          inputs: batch.map(p => { return {id: p.idFieldValue}})             
+        } as BatchReadRequestBody))
+    }
+    console.log(requests.length, null, 2)
+    const responses = await Promise.all(requests);
+    console.log(JSON.stringify(responses, null, 2))
   }
 }
 

@@ -32,35 +32,35 @@ export interface Payload {
   /**
    * String Properties to send to HubSpot.
    */
-  stringProperties: {
+  stringProperties?: {
     [k: string]: unknown
   }
   /**
    * Number Properties to send to HubSpot.
    */
-  numericProperties: {
+  numericProperties?: {
     [k: string]: unknown
   }
   /**
    * Boolean Properties to send to HubSpot.
    */
-  booleanProperties: {
+  booleanProperties?: {
     [k: string]: unknown
   }
   /**
    * Datetime Properties to send to HubSpot.
    */
-  dateProperties: {
+  dateProperties?: {
     [k: string]: unknown
   }
   /**
    * The name of the unique field Segment will use as an identifier when associating the record to another record.
    */
-  toIdFieldName: string
+  toIdFieldName?: string
   /**
    * The value of the identifier for the record to be associated with
    */
-  toIdFieldValue: string
+  toIdFieldValue?: string
   /**
    * The type of Hubspot Object to associate the record to.
    */

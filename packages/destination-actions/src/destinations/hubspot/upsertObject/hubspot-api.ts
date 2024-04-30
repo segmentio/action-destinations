@@ -16,6 +16,24 @@ enum AssociationCategory {
     USER_DEFINED = 'USER_DEFINED',
     INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
 }
+
+export interface BatchReadRequestBody {
+    properties: string[]
+    idProperty: string
+    inputs: Array<{ id: string }>
+}
+
+export interface BatchReadResponse {
+    status: string
+    results: BatchReadResponseItem[]
+}
+
+interface BatchReadResponseItem {
+    id: string
+    properties: Record<string, string | null>
+}
+
+
 export interface AssociationType {
     associationCategory: AssociationCategory
     associationTypeId: number
@@ -272,35 +290,16 @@ export class HubspotClient {
         }] as AssociationType[]
     }
 
-    // async addCononicalIDsToBatchPayloads(payloads: ContactPayload[]): Promise<ContactPayload[]>{
-        
-    //     payloads.forEach(payload => payload.identifier_type = payload.identifier_type ?? 'email')
+    async batchRequest(
+        action: 'update' | 'create' | 'read', 
+        objectType: string,
+        data: BatchReadRequestBody
+    ) {        
+        const response = await this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+            method: 'POST',
+            json: data
+        });
 
-    //     const unique_identifier_types: string[] = Array.from(new Set(payloads.map(payload => payload.identifier_type as string))) ?? [];
-
-    //     const requestPayloads: BatchContactReadRequestBody[] = []
-    //     unique_identifier_types.forEach(identifier_type => {
-    //         const requestPayload: BatchContactReadRequestBody = {
-    //             properties: [...new Set([...['email', 'lifecyclestage'], ...[identifier_type]])],
-    //             idProperty: identifier_type,
-    //             inputs: payloads
-    //                 .filter(payload => payload.identifier_type === identifier_type)
-    //                 .map(payload => { return {id: payload.email}})             
-    //         }
-    //         requestPayloads.push(requestPayload)
-    //     }) 
-
-    //     const promises = requestPayloads.map(payload => this.batchRequest('read', payload));
-
-    //     const responses = await Promise.all(promises);
-
-    //     unique_identifier_types.forEach((identifier_type, index) => {
-    //         responses[index].data.results.forEach((contactResponse) => {
-    //             const canonical_id = contactResponse.id 
-    //             const identifier_value = contactResponse.properties[identifier_type] as string
-    //             payloads.filter(payload => payload.email == identifier_value).forEach(payload => payload.canonical_id = canonical_id);
-    //         })
-    //     });        
-    //     return payloads
-    // }
+        return response
+    }
 }
