@@ -1,9 +1,8 @@
-import { ActionDefinition,IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getUpsertURL, hashAndEncode } from '../helpers'
 import { IDENTIFIER_TYPES } from '../constants'
-
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -80,7 +79,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Email',
       description: "User's email address",
       type: 'string',
-      format:'email',
+      format: 'email',
       required: false,
       unsafe_hidden: true,
       default: {
@@ -97,7 +96,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'string',
       required: false,
       unsafe_hidden: true,
-      default: {'@path': '$.anonymousId' }
+      default: { '@path': '$.anonymousId' }
     },
     userId: {
       label: 'Segment User Id',
@@ -105,21 +104,21 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'string',
       required: false,
       unsafe_hidden: true,
-      default: {'@path': '$.userId' }
+      default: { '@path': '$.userId' }
     }
   },
 
   perform: async (request, data) => {
-    const { audienceSettings, payload, settings } = data  
+    const { audienceSettings, payload, settings } = data
     const audienceName = audienceSettings?.audience_name
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
     const { audience_id } = payload
 
     let primaryIdentifier
 
-    switch(settings.identifier_type){
+    switch (settings.identifier_type) {
       case IDENTIFIER_TYPES.EMAIL:
-        primaryIdentifier= payload.email ?? undefined
+        primaryIdentifier = payload.email ?? undefined
         break
       case IDENTIFIER_TYPES.SEGMENT_USER_ID:
         primaryIdentifier = payload.userId ?? undefined
@@ -129,7 +128,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         break
     }
 
-    if(!primaryIdentifier){
+    if (!primaryIdentifier) {
       throw new IntegrationError('Primary Identifier not found', 'MISSING_REQUIRED_FIELD', 400)
     }
 
@@ -138,28 +137,34 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return request(URL, {
       method: 'post',
       json: {
-        type : "audience_membership_change_request",
-        id : payload.message_id,
-        timestamp_ms : new Date(payload.timestamp).getTime(), 
-        account : {
-          account_settings : {        
-            section_id : settings.sectionId,
+        type: 'audience_membership_change_request',
+        id: payload.message_id,
+        timestamp_ms: new Date(payload.timestamp).getTime(),
+        account: {
+          account_settings: {
+            section_id: settings.sectionId,
             identifier_type: settings.identifier_type,
             accessKey: settings.accessKey
           }
         },
-        user_profiles : [ {  
-          user_identities : [ {   
-            type : settings.identifier_type,
-            encoding : "sha-256",
-            value : hashAndEncode(primaryIdentifier)
-          }],
-          audiences : [ {
-            audience_id : audience_id,
-            audience_name : audienceName, 
-            action : audienceValue ? "add" : "delete" 
-          }]
-        }]
+        user_profiles: [
+          {
+            user_identities: [
+              {
+                type: settings.identifier_type,
+                encoding: settings.identifier_type === 'email' ? '"sha-256"' : 'raw',
+                value: settings.identifier_type === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+              }
+            ],
+            audiences: [
+              {
+                audience_id: audience_id,
+                audience_name: audienceName,
+                action: audienceValue ? 'add' : 'delete'
+              }
+            ]
+          }
+        ]
       }
     })
   }
