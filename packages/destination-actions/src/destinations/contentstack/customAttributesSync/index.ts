@@ -17,19 +17,19 @@ const action: ActionDefinition<Settings, Payload> = {
     const customTraitsOfSegment = Object.keys(rawData?.traits || {})
 
     const personalizeAttributesData = (
-      await fetchAllAttributes(request, settings.orgId, settings.personalizeProjectId, auth?.accessToken || '')
-    ).map((attribute: personalizeAttributes) => attribute.key)
+      await fetchAllAttributes(request, settings?.orgId, settings?.personalizeProjectId, auth?.accessToken || '')
+    ).map((attribute: personalizeAttributes) => attribute?.key)
 
     const attributesToCreate = customTraitsOfSegment.filter(
       (trait: string) => !personalizeAttributesData.includes(trait)
     )
 
-    if (attributesToCreate.length) {
+    if (attributesToCreate?.length) {
       const firstAttributeRes = await createCustomAttrbute(
         request,
         attributesToCreate[0],
-        settings.orgId,
-        settings.personalizeProjectId,
+        settings?.orgId,
+        settings?.personalizeProjectId,
         auth?.accessToken || ''
       )
       if (firstAttributeRes.status === 401) return firstAttributeRes
@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       await Promise.allSettled(
         otherAttributes.map((trait: string) =>
-          createCustomAttrbute(request, trait, settings.orgId, settings.personalizeProjectId, auth?.accessToken || '')
+          createCustomAttrbute(request, trait, settings?.orgId, settings?.personalizeProjectId, auth?.accessToken || '')
         )
       )
 
@@ -46,10 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'patch',
         json: rawData?.traits,
         headers: {
-          'x-project-uid': settings.personalizeProjectId,
+          'x-project-uid': settings?.personalizeProjectId,
           'x-cs-eclipse-user-uid': rawData?.userId || '',
           Authorization: `Bearer ${auth?.accessToken}`,
-          organization_uid: settings.orgId
+          organization_uid: settings?.orgId
         }
       })
     }

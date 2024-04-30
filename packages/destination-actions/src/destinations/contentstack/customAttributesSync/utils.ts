@@ -12,7 +12,7 @@ export const createCustomAttrbute = async (
   request(`${PERSONALIZE_API_BASE_URL}/attributes`, {
     method: 'post',
     json: {
-      name: name,
+      name,
       key: name,
       description: `Segment ${name}`
     },

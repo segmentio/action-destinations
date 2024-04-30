@@ -2,19 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { ACCESS_TOKEN_URL } from './constants'
 import customAttributesSync from './customAttributesSync'
-
-interface RefreshTokenResponse {
-  access_token: string
-  refresh_token: string
-  token_type?: string
-  expires_in?: number
-  location?: string
-  region?: string
-  organization_uid?: string
-  authorization_type?: string
-  user_uid?: string
-  stack_api_key?: string
-}
+import { RefreshTokenResponse } from './types'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Contentstack',
@@ -48,11 +36,10 @@ const destination: DestinationDefinition<Settings> = {
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           refresh_token: auth.refreshToken
-          // redirect_uri: "redirect_uri"
         })
       })
 
-      return { accessToken: res.data.access_token, refreshToken: res.data.refresh_token }
+      return { accessToken: res?.data?.access_token, refreshToken: res?.data?.refresh_token }
     }
   },
   actions: {
