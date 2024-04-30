@@ -119,6 +119,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The type of Association between the two records',
       type: 'string',
       dynamic: true
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Hubspot by default',
+      description: 'By defaut Segment batches events to Hubspot.',
+      default: true
     }
   },
   dynamicFields: {
@@ -191,6 +197,15 @@ const action: ActionDefinition<Settings, Payload> = {
     if(['create', 'upsert'].includes(payload.insertType)){
       return await client.create(objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties})}, associationLabel, toRecordId)
     }
+  },
+
+  performBatch: async (request, { payload: payloads }) => {
+   
+    const cohorts = [...new Set(payloads.map(payload => `${payload.objectType}-${payload.idFieldName}`))]
+    console.log(cohorts)
+
+    // 
+    // 
   }
 }
 
