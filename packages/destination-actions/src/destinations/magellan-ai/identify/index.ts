@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'Your internal, unique identifier for the user',
       type: 'string',
-      default: { '@path': '$.traits.id' },
+      default: { '@path': '$.userId' },
       required: true
     }
   },
