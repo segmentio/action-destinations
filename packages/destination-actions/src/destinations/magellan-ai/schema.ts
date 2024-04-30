@@ -205,7 +205,7 @@ export const mobileFields: Record<string, InputField> = {
     label: 'Timestamp',
     description: 'When the event occurred, in ISO 8601 format',
     type: 'string',
-    default: { '@path': '$.receivedAt' },
+    default: { '@path': '$.timestamp' },
     required: true
   },
   plat: {
