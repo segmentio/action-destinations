@@ -65,6 +65,8 @@ Output:
   - [@arrayPath](#array-path)
   - [@case](#case)
   - [@replace](#replace)
+  - [@merge](#merge)
+  - [@transform](#transform)
 
 <!-- tocstop -->
 
@@ -652,5 +654,36 @@ Output:
 {
   "name": "Mr. Rogers",
   "neighborhood": "Missing neighborhood"
+}
+```
+
+### @transform
+
+The @transform directive allows you to operate on the result of a mapping-kit transformation. It accepts an `apply` parameter, which is the mapping to apply to the original payload, and a `mapping` parameter, which will be run on the resulting payload. The @transform directive is useful when you need to run mappings in sequence.
+
+```json
+Input:
+
+{
+  "a": 1,
+  "b": 2
+}
+
+Mappings:
+{
+  "@transform": {
+    "apply": {
+      "foo": {
+        "@path": "$.a"
+      }
+    },
+    "mapping": {
+      "newValue": { "@path": "$.foo" }
+    }
+  }
+}
+=>
+{
+  "newValue": 1
 }
 ```
