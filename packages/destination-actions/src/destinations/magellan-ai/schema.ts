@@ -103,7 +103,7 @@ export const orderInfoFields: Record<string, InputField> = {
         required: false
       },
       value: {
-        label: 'Quantity',
+        label: 'Price',
         description: 'The price per unit of this product',
         type: 'number',
         required: false
