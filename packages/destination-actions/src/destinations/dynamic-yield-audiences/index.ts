@@ -33,7 +33,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         type: 'string',
         required: true,
         choices: [
-          { label: 'DEV', value: 'DEV' },
+          { label: 'DEV', value: 'DEV' }, // To be hidden by feature flag later
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' }
         ],
@@ -47,23 +47,42 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       identifier_type: {
         label: 'Identifier Type',
-        description: "The type of identifier being used to identify the user in Dynamic Yield. Segment hashes the identifier before sending to Dynamic Yield.",
+        description:
+          'The type of identifier being used to identify the user in Dynamic Yield. Segment hashes the identifier before sending to Dynamic Yield.',
         type: 'string',
         required: true,
         choices: [
-          {label: IDENTIFIER_TYPES.EMAIL, value: IDENTIFIER_TYPES.EMAIL},
-          {label: IDENTIFIER_TYPES.SEGMENT_USER_ID, value: IDENTIFIER_TYPES.SEGMENT_USER_ID},
-          {label: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID, value: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID}
+          { label: IDENTIFIER_TYPES.EMAIL, value: IDENTIFIER_TYPES.EMAIL },
+          { label: IDENTIFIER_TYPES.SEGMENT_USER_ID, value: IDENTIFIER_TYPES.SEGMENT_USER_ID },
+          { label: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID, value: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID }
         ],
         default: 'Email'
       }
     }
   },
   extendRequest({ settings }) {
+    let secret = undefined
+
+    switch (settings.dataCenter) {
+      case 'US':
+        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_US_CLIENT_SECRET
+        break
+      case 'EU':
+        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_EU_CLIENT_SECRET
+        break
+      case 'DEV':
+        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_DEV_CLIENT_SECRET
+        break
+    }
+
+    if (secret === undefined) {
+      throw new IntegrationError('Missing Dynamic Yield Audiences Client Secret', 'MISSING_REQUIRED_FIELD', 400)
+    }
+
     return {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `${settings.accessKey}`
+        Authorization: secret
       }
     }
   },
@@ -74,35 +93,38 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const { settings , audienceName } = createAudienceInput
+      const { settings, audienceName } = createAudienceInput
       const audienceSettings = createAudienceInput.audienceSettings as AudienceSettings
       const { audience_name } = audienceSettings
-       
+
       try {
         const response = await request(getCreateAudienceURL(settings.dataCenter), {
           method: 'POST',
           json: {
-            type : "audience_subscription_request",
+            type: 'audience_subscription_request',
             id: uuidv4(),
-            timestamp_ms : new Date().getTime(),
-            account : {
-              account_settings : {
-                section_id : settings.sectionId,
-                api_key : settings.accessKey
+            timestamp_ms: new Date().getTime(),
+            account: {
+              account_settings: {
+                section_id: settings.sectionId,
+                api_key: settings.accessKey
               }
             },
-            audience_id : hashAndEncode(audience_name),
-            audience_name :  audience_name ?? audienceName,
-            action : "add"
+            audience_id: hashAndEncode(audience_name),
+            audience_name: audience_name ?? audienceName,
+            action: 'add'
           }
         })
         const responseData = await response.json()
         return {
           externalId: responseData.id
         }
-      } 
-      catch (e) {
-        throw new IntegrationError("Failed to create Audience in Dynamic Yield", 'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED', 400)
+      } catch (e) {
+        throw new IntegrationError(
+          'Failed to create Audience in Dynamic Yield',
+          'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
+          400
+        )
       }
     },
     async getAudience(_, getAudienceInput) {
@@ -110,7 +132,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         // retrieves the value set by the createAudience() function call
         externalId: getAudienceInput.externalId
       }
-    },
+    }
   },
   actions: {
     syncAudience
