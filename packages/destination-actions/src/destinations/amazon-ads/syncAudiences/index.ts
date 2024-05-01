@@ -107,6 +107,7 @@ async function processPayload(
   statsContext: StatsContext | undefined
 ) {
   const { statsClient, tags: statsTags } = statsContext || {}
+  // Added StatsContext
   const statsName = 'syncAmazonAudience'
   statsTags?.push(`payload:${payload}`)
   statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
