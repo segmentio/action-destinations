@@ -100,7 +100,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          custom_source: -59,
+          custom_source: '-59',
           profiles: {
             data: [
               {
@@ -241,7 +241,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          custom_source: -59,
+          custom_source: '-59',
           profiles: {
             data: [
               {
@@ -467,7 +467,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          custom_source: -59,
+          custom_source: '-59',
           profiles: {
             data: [
               {

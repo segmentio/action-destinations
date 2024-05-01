@@ -227,7 +227,7 @@ export function formatSubscribeRequestBody(
     }
   }
 
-  subData.data.attributes.custom_source = custom_source || -59
+  subData.data.attributes.custom_source = custom_source || '-59'
 
   if (list_id) {
     subData.data.relationships = {
