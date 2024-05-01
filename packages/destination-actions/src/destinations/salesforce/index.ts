@@ -41,16 +41,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         default: false
       },
-      username: {
-        label: 'Username',
-        description: 'The username of the Salesforce account you want to connect to.',
-        type: 'string'
-      },
-      auth_password: {
-        label: 'Password',
-        description: 'The password of the Salesforce account you want to connect to.',
-        type: 'string'
-      },
       security_token: {
         label: 'Security Token',
         description: 'The security token of the Salesforce account you want to connect to.',

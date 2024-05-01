@@ -6,11 +6,11 @@ export interface Settings {
    */
   instanceUrl: string
   /**
-   * The username of the Salesforce account you want to connect to.
+   * Your Salesforce username
    */
   username?: string
   /**
-   * The password of the Salesforce account you want to connect to.
+   * Your Salesforce password
    */
   auth_password?: string
   /**
