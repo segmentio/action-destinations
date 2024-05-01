@@ -8,9 +8,8 @@ import {
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import createRequestClient from '@segment/actions-core/create-request-client'
 
 export const API_VERSION = 'v53.0'
 
@@ -56,7 +55,7 @@ export const generateSalesforceRequest = async (
 }
 
 const authenticateWithPassword = async (
-  auth: OAuth2ClientCredentials,
+  _auth: OAuth2ClientCredentials,
   settings: Required<Settings>,
   request: RequestClient
 ): Promise<RefreshAccessTokenResult> => {
@@ -70,7 +69,7 @@ const authenticateWithPassword = async (
       client_id: clientId,
       client_secret: clientSecret,
       username: settings.username,
-      password: settings.auth_password
+      password: settings.auth_password + settings.security_token
     })
   })
 

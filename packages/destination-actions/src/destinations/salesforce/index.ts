@@ -33,6 +33,21 @@ const destination: DestinationDefinition<Settings> = {
           'Enable to authenticate into a sandbox instance. You can log in to a sandbox by appending the sandbox name to your Salesforce username. For example, if a username for a production org is user@acme.com and the sandbox is named test, the username to log in to the sandbox is user@acme.com.test. If you are already authenticated, please disconnect and reconnect with your sandbox username.',
         type: 'boolean',
         default: false
+      },
+      username: {
+        label: 'Username',
+        description: 'The username of the Salesforce account you want to connect to.',
+        type: 'string'
+      },
+      auth_password: {
+        label: 'Password',
+        description: 'The password of the Salesforce account you want to connect to.',
+        type: 'string'
+      },
+      security_token: {
+        label: 'Security Token',
+        description: 'The security token of the Salesforce account you want to connect to.',
+        type: 'string'
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
