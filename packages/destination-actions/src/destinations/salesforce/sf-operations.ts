@@ -57,22 +57,26 @@ export const generateSalesforceRequest = async (
 const authenticateWithPassword = async (
   _auth: OAuth2ClientCredentials,
   settings: Required<Settings>,
-  request: RequestClient
+  _request: RequestClient
 ): Promise<RefreshAccessTokenResult> => {
   const clientId = (settings as any)['oauth']['clientId']
   const clientSecret = (settings as any)['oauth']['clientSecret']
+  const newRequest = createRequestClient()
 
-  const res = await request<SalesforceRefreshTokenResponse>(`${settings.instanceUrl}services/oauth2/token`, {
+  const loginUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+
+  const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {
     method: 'post',
     body: new URLSearchParams({
       grant_type: 'password',
       client_id: clientId,
       client_secret: clientSecret,
       username: settings.username,
-      password: settings.auth_password + settings.security_token
+      password: settings.auth_password
     })
   })
 
+  console.log('generated access token', res.data.access_token)
   return { accessToken: res.data.access_token }
 }
 
