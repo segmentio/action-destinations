@@ -13,7 +13,7 @@ import install from './install'
 import thirdPartyEvent from './thirdPartyEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Magellan AI',
+  name: 'Magellan AI (Actions)',
   slug: 'actions-magellan-ai',
   mode: 'cloud',
 
