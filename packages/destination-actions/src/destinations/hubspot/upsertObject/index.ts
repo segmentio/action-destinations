@@ -3,8 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient } from './hubspot-api'
 import { RequestClient } from '@segment/actions-core'
-import { flattenObject } from '../utils'
-import { BatchReadRequestBody } from './hubspot-api'
+import { BatchReadRequestBody, BatchRequestBodyItem, BatchRequestBody } from './hubspot-api'
+import { BATCH_SIZE } from './constants'
+import { result } from 'lodash'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Object',
@@ -132,6 +133,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Hubspot by default',
       description: 'By default Segment batches events to Hubspot.',
       default: true
+    },
+    recordID: {
+      label: 'Record ID',
+      description: "Hubspot internal unique identifier for the Record.",
+      type: 'string',
+      unsafe_hidden: true, 
+      default: undefined
+    },
+    toRecordID: {
+      label: 'To Record ID',
+      description: "Hubspot internal unique identifier for the To Record.",
+      type: 'string',
+      unsafe_hidden: true, 
+      default: undefined
     }
   },
   dynamicFields: {
@@ -208,28 +223,60 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload }) => {
    
-    const payloads = [{...payload, objectType: 'company', idFieldName: 'domain', idFieldValue: 'expedia.com'},{...payload, objectType: 'company', idFieldName: 'domain', idFieldValue: 'doodz.com'}]
+      const payloads = [
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1', toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2', toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
+      ]
 
-    const hubspotClient = new HubspotClient(request)
+      const hubspotClient = new HubspotClient(request)
+      
+      const [{ idFieldName, objectType }] = payloads;
+      const requests = []
 
-    const idFieldName = payloads[0].idFieldName
-    const batchSize = 100
-    const requests = []
+      for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
+        const batch = payloads.slice(i, i + BATCH_SIZE);
+        requests.push(
+          hubspotClient.batchRequest('read', objectType, {
+            properties: [idFieldName],
+            idProperty: idFieldName,
+            inputs: batch.map(p => { return {id: p.idFieldValue}})             
+          } as BatchReadRequestBody)
+        )
+      }
+      
+      const responses = await Promise.all(requests);
+      
+      responses.forEach((response) => {      
+          response.data.results.forEach(result => {
+            const recordId = result.id
+            const idFieldValue = result.properties[idFieldName] as string
+            payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
+          })
+      })
 
-    for (let i = 0; i < payloads.length; i += batchSize) {
-      console.log('1')
-      const batch = payloads.slice(i, i + batchSize);
-      console.log('X')
-      requests.push(
-        hubspotClient.batchRequest('read', idFieldName, {
-          properties: [idFieldName],
-          idProperty: idFieldName,
-          inputs: batch.map(p => { return {id: p.idFieldValue}})             
-        } as BatchReadRequestBody))
-    }
-    console.log(requests.length, null, 2)
-    const responses = await Promise.all(requests);
-    console.log(JSON.stringify(responses, null, 2))
+      const updateRequest: BatchRequestBody = { inputs: [] }
+      const createRequest: BatchRequestBody = { inputs: [] }
+
+      payloads.forEach((payload) => {    
+          const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
+          const itemPayload: { id: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
+              id: payload.recordID ?? undefined,
+              properties: {
+                ...stringProperties, 
+                ...numericProperties, 
+                ...booleanProperties, 
+                ...dateProperties,
+                [payload.idFieldName]: payload.idFieldValue
+              } as BatchRequestBodyItem['properties']
+          }
+          itemPayload.id ? updateRequest.inputs.push(itemPayload) : createRequest.inputs.push(itemPayload)
+      })
+
+      // if(createRequest.inputs.length>0){
+      //   await hubspotClient.batchRequest('create', objectType, createRequest)
+      // }
+
+      
   }
 }
 

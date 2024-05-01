@@ -33,6 +33,15 @@ interface BatchReadResponseItem {
     properties: Record<string, string | null>
 }
 
+export interface BatchRequestBody {
+    inputs: BatchRequestBodyItem[];
+}
+export interface BatchRequestBodyItem {
+    properties: {
+        [key: string]: string | number | boolean | undefined;
+    };
+    id?: string;
+}
 
 export interface AssociationType {
     associationCategory: AssociationCategory
@@ -293,8 +302,9 @@ export class HubspotClient {
     async batchRequest(
         action: 'update' | 'create' | 'read', 
         objectType: string,
-        data: BatchReadRequestBody
+        data: BatchReadRequestBody | BatchRequestBody
     ) {        
+        console.log(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`)
         const response = await this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
             method: 'POST',
             json: data

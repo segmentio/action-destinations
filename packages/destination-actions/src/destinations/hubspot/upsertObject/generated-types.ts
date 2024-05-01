@@ -26,6 +26,10 @@ export interface Payload {
    */
   idFieldName: string
   /**
+   * The type of Association between the two records. The Association must already exist in Hubspot.
+   */
+  associationLabel?: string
+  /**
    * The value of the identifier to send to Hubspot.
    */
   idFieldValue: string
@@ -54,7 +58,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the unique field Segment will use as an identifier when associating the record to another record.
+   * The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.
    */
   toIdFieldName?: string
   /**
@@ -62,11 +66,19 @@ export interface Payload {
    */
   toIdFieldValue?: string
   /**
-   * The type of Hubspot Object to associate the record to.
+   * The type of Hubspot Object to associate the record to. This Object Type must already exist in Hubspot.
    */
   toObjectType?: string
   /**
-   * The type of Association between the two records
+   * By default Segment batches events to Hubspot.
    */
-  associationLabel?: string
+  enable_batching?: boolean
+  /**
+   * Hubspot internal unique identifier for the Record.
+   */
+  recordID?: string
+  /**
+   * Hubspot internal unique identifier for the To Record.
+   */
+  toRecordID?: string
 }
