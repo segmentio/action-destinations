@@ -106,12 +106,14 @@ async function processPayload(
   payload: Payload,
   statsContext: StatsContext | undefined
 ) {
+  const { statsClient, tags: statsTags } = statsContext || {}
+  const statsName = 'syncAmazonAudience'
+  statsTags?.push(`payload:${payload}`)
+  statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+
   if (!payload.audienceId) {
     throw new PayloadValidationError('Audience ID is required.')
   }
-  const { statsClient, tags: statsTags } = statsContext || {}
-  const statsName = 'syncAmazonAudience'
-  statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
   try {
     for (const record of payload.records) {
