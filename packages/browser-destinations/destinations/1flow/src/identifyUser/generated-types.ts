@@ -5,10 +5,7 @@ export interface Payload {
    * A unique identifier for the user.
    */
   userId?: string
-  /**
-   * An anonymous identifier for the user.
-   */
-  anonymousId?: string
+
   /**
    * The user's custom attributes.
    */
