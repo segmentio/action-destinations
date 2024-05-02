@@ -1,4 +1,4 @@
-import { InvalidAuthenticationError, DestinationDefinition, RefreshAccessTokenResult } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -7,7 +7,10 @@ import opportunity from './opportunity'
 import customObject from './customObject'
 import contact from './contact'
 import account from './account'
-import Salesforce from './sf-operations'
+
+interface RefreshTokenResponse {
+  access_token: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
@@ -24,16 +27,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      username: {
-        label: 'Username',
-        description: 'Your Salesforce username',
-        type: 'string'
-      },
-      auth_password: {
-        label: 'Password',
-        description: 'Your Salesforce password',
-        type: 'password'
-      },
       isSandbox: {
         label: 'Sandbox Instance',
         description:
@@ -41,24 +34,35 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         default: false
       },
+      username: {
+        label: 'Username',
+        description: 'The username of the Salesforce account you want to connect to.',
+        type: 'string'
+      },
+      auth_password: {
+        label: 'Password',
+        description: 'The password of the Salesforce account you want to connect to.',
+        type: 'string'
+      },
       security_token: {
         label: 'Security Token',
         description: 'The security token of the Salesforce account you want to connect to.',
         type: 'string'
       }
     },
-    refreshAccessToken: async (request, { auth, settings }): Promise<RefreshAccessTokenResult> => {
+    refreshAccessToken: async (request, { auth, settings }) => {
+      // Return a request that refreshes the access_token if the API supports it
       const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
-      const sfClient = new Salesforce(baseUrl, request)
-
-      try {
-        return await sfClient.authenticateWithRefreshToken(auth)
-      } catch (error) {
-        if (settings?.username && settings?.auth_password) {
-          return await sfClient.authenticateWithPassword(auth, settings.username, settings.auth_password)
-        }
-      }
-      throw new InvalidAuthenticationError('Failed to refresh access token')
+      const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
+        method: 'POST',
+        body: new URLSearchParams({
+          refresh_token: auth.refreshToken,
+          client_id: auth.clientId,
+          client_secret: auth.clientSecret,
+          grant_type: 'refresh_token'
+        })
+      })
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {
