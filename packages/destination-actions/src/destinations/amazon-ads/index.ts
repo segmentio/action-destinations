@@ -155,7 +155,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
 
       const { statsClient, tags: statsTags } = statsContext || {}
-      const statsName = 'createAmazonAudience'
+      const statsName = 'createAmazonAdsAudience'
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
