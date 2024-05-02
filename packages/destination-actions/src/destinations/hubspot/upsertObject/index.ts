@@ -65,7 +65,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       dynamic: true
     },
-
     idFieldValue: {
       label: 'Object ID Field Value',
       description: "The value of the identifier to send to Hubspot.",
@@ -104,6 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only',
       allowNull: false
     },
+     // onMappingSave Hook Field
     toIdFieldName: {
       label: 'To Object ID Field Name',
       description: "The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.",
@@ -116,6 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       dynamic: true
     },
+    // onMappingSave Hook Field
     toObjectType: {
       label: 'To Object Type',
       description:'The type of Hubspot Object to associate the record to. This Object Type must already exist in Hubspot.',

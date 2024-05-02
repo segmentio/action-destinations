@@ -1,8 +1,17 @@
 import { RequestClient, ModifiedResponse, IntegrationError } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { BATCH_SIZE } from './constants'
+import { BATCH_SIZE, SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
 import type { Payload } from './generated-types'
+
+interface ObjectSchema {
+    labels: { singular: string; plural: string }
+    fullyQualifiedName: string
+}
+
+interface GetSchemasResponse {
+    results: ObjectSchema[]
+}
 
 enum AssociationCategory {
     HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -52,8 +61,6 @@ interface BatchAssociationsRequestBody {
         };
     }[];
 }
-
-
 export class HubspotClient {
     request: RequestClient
 
@@ -100,55 +107,29 @@ export class HubspotClient {
     }
 
     async getObjectTypes() {
-        interface ObjectSchema {
-            labels: { singular: string; plural: string }
-            fullyQualifiedName: string
-        }
-        
-        interface GetSchemasResponse {
-            results: ObjectSchema[]
-        }
-
-        const defaultChoices = [
-        {
-            label: 'Contact',
-            value: 'contact'
-        },
-        {
-            label: 'Company',
-            value: 'company'
-        },
-        {
-            label: 'Deal',
-            value: 'deal'
-        },
-        {
-            label: 'Ticket',
-            value: 'ticket'
-        }
-        ]
-        // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
+        const defaultChoices = SUPPORTED_HUBSPOT_OBJECT_TYPES
+       
         try {
-        const response = await this.request<GetSchemasResponse>(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
-            method: 'GET',
-            skipResponseCloning: true
-        })
-        const choices = response.data.results
-            .map((schema) => ({
-            label: `${schema.labels.plural} (Custom)`,
-            value: schema.fullyQualifiedName
-            }))
-        return {
-            choices: [...choices, ...defaultChoices]
-        }
-        } catch (err) {
-        return {
-            choices: [],
-            error: {
-            message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-            code: (err as HubSpotError)?.response?.status + '' ?? '500'
+            const response = await this.request<GetSchemasResponse>(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
+                method: 'GET',
+                skipResponseCloning: true
+            })
+            const choices = response.data.results
+                .map((schema) => ({
+                    label: `${schema.labels.plural} (Custom)`,
+                    value: schema.fullyQualifiedName
+                }))
+            return {
+                choices: [...choices, ...defaultChoices]
             }
-        }
+        } catch (err) {
+            return {
+                choices: [],
+                error: {
+                    message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+                    code: (err as HubSpotError)?.response?.status + '' ?? '500'
+                }
+            }
         }
     }
 
@@ -164,27 +145,27 @@ export class HubspotClient {
         
         try {
             const response = await this.request<GetAssociationLabelResponse>(
-                `${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/labels`,
-                {
-                method: 'GET',
-                skipResponseCloning: true
+                `${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/labels`, {
+                    method: 'GET',
+                    skipResponseCloning: true
                 }
-        )
-        const choices = response?.data?.results?.map((res) => ({
-            label: !res.label ? `${objectType} to ${toObjectType} (Type ${res.typeId})` : `${objectType} to ${toObjectType} ${res.label}`,
-            value: `${res.category}:${res.typeId}`
-        }))
-        return {
-            choices
-        }
-        } catch (err) {
-        return {
-            choices: [],
-            error: {
-            message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-            code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+            )
+            const choices = response?.data?.results?.map((res) => ({
+                label: !res.label ? `${objectType} to ${toObjectType} (Type ${res.typeId})` : `${objectType} to ${toObjectType} ${res.label}`,
+                value: `${res.category}:${res.typeId}`
+            }))
+
+            return {
+                choices
             }
-        }
+        } catch (err) {
+            return {
+                choices: [],
+                error: {
+                    message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+                    code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+                }
+            }
         }
     }
 
@@ -204,7 +185,14 @@ export class HubspotClient {
         });
     }
 
-    async ensureAssociations(payloads: Payload[]){
+    async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
+        return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
+            method: 'POST',
+            json: body
+        })
+    }
+
+    async ensureAssociations(payloads: Payload[]) {
         const [{objectType, toObjectType, associationLabel}] = payloads
         
         if(!objectType || !toObjectType || !associationLabel){
@@ -213,44 +201,64 @@ export class HubspotClient {
         
         const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
 
-        const data: BatchAssociationsRequestBody = {
-            inputs: payloads
-                .filter(p => p.recordID && p.toRecordID)
-                .map(p => { 
-                    return {
-                        types: [
-                            {
-                                associationCategory,
-                                associationTypeId
-                            }
-                        ],
-                        from: {
-                            id: p.recordID as string
-                        },
-                        to: {
-                            id: p.toRecordID as string
+        const bodies: BatchAssociationsRequestBody[] = this.chunkArray(payloads
+            .filter(p => p.recordID && p.toRecordID)
+            .map(p => { 
+                return {
+                    types: [
+                        {
+                            associationCategory,
+                            associationTypeId
                         }
+                    ],
+                    from: {
+                        id: p.recordID as string
+                    },
+                    to: {
+                        id: p.toRecordID as string
                     }
-                })
-        }
-
-        return data?.inputs?.length>0 ? 
-            this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
-                method: 'POST',
-                json: data
-            }) : null 
+                }
+            }))
+            .map(chunk => {
+                return {
+                    inputs: chunk
+                }
+            })
+    
+        const requests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
+             
+        bodies.forEach((body) => {
+            requests.push(this.batchAssociationsRequest(body, objectType, toObjectType))
+        })
+        console.log(`Associations: ${requests.length}`)
+        return requests.length>0 ? await Promise.all(requests) : null
     }
+
+    chunkArray<T>(array: T[]): T[][]{
+        return Array.from({ length: Math.ceil(array.length / BATCH_SIZE) }, (_, index) =>
+            array.slice(index * BATCH_SIZE, index * BATCH_SIZE + BATCH_SIZE)
+        )
+    }
+
+    populateChunks(requestBodies: BatchRequestBody[], itemPayload: BatchRequestBodyItem) {
+        const currenRequestBody = requestBodies[requestBodies.length - 1]?.inputs;
+        if (!currenRequestBody || currenRequestBody.length === BATCH_SIZE) {
+            requestBodies.push({ inputs: [itemPayload] });
+        } else {
+            currenRequestBody.push(itemPayload);
+        }
+    };
 
     async ensureObjects(payloads: Payload[], isAssociationObject = false) {
 
-        const [{insertType}] = payloads
+        const [{insertType, associationLabel }] = payloads
         const idFieldName = isAssociationObject ? payloads[0].toIdFieldName : payloads[0].idFieldName
         const objectType = isAssociationObject ? payloads[0].toObjectType : payloads[0].objectType
         const idFieldValueFieldName = isAssociationObject ? 'toIdFieldValue' : 'idFieldValue'
         const recordIdFieldName = isAssociationObject ? 'toRecordID' : 'recordID'
 
-        if(!objectType || !idFieldName){
-            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type" and "To ID Field Name" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
+        if( isAssociationObject && (!objectType || !idFieldName || !associationLabel) || (!objectType || !idFieldName) ){
+            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
         }
 
         const requests = []
@@ -281,15 +289,6 @@ export class HubspotClient {
         const createRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
         const updateRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
 
-        const populate = (requestBodies: BatchRequestBody[], itemPayload: BatchRequestBodyItem) => {
-            const currenRequestBody = requestBodies[requestBodies.length - 1]?.inputs;
-            if (!currenRequestBody || currenRequestBody.length === BATCH_SIZE) {
-                requestBodies.push({ inputs: [itemPayload] });
-            } else {
-                currenRequestBody.push(itemPayload);
-            }
-        };
-
         payloads.forEach((payload) => {
             const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
             const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
@@ -303,10 +302,10 @@ export class HubspotClient {
                 } as BatchRequestBodyItem['properties']
             } as BatchRequestBodyItem
             if(['update', 'upsert'].includes(insertType) && itemPayload.id){
-                populate(updateRequestBodies, itemPayload)
+                this.populateChunks(updateRequestBodies, itemPayload)
             }
             if(['create', 'upsert'].includes(insertType) && !itemPayload.id){
-                populate(createRequestBodies, itemPayload)
+                this.populateChunks(createRequestBodies, itemPayload)
             }
         })
         
@@ -318,7 +317,8 @@ export class HubspotClient {
             createRequests.push(this.batchObjectRequest('create', objectType, createRequestBody))
         })
         const writeRequests = [...updateRequests, ...createRequests]
-        
+        console.log(`${isAssociationObject} . Number of createRequests requests: ${createRequests.length}`)
+        console.log(`${isAssociationObject} . Number of updateRequests requests: ${updateRequests.length}`)
         return writeRequests.length>0 ? await Promise.all([...updateRequests, ...createRequests]) : null
     }
 }
