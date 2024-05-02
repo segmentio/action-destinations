@@ -1,4 +1,4 @@
-import { DestinationDefinition, RefreshAccessTokenResult } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -7,6 +7,10 @@ import opportunity from './opportunity'
 import customObject from './customObject'
 import contact from './contact'
 import account from './account'
+
+interface RefreshTokenResponse {
+  access_token: string
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce (Actions)',
@@ -49,7 +53,7 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { auth, settings }) => {
       // Return a request that refreshes the access_token if the API supports it
       const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
-      const res = await request<RefreshAccessTokenResult>(`${baseUrl}/services/oauth2/token`, {
+      const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
@@ -58,7 +62,7 @@ const destination: DestinationDefinition<Settings> = {
           grant_type: 'refresh_token'
         })
       })
-      return { accessToken: res.data.accessToken }
+      return { accessToken: res.data.access_token }
     }
   },
   extendRequest({ auth }) {
