@@ -1,6 +1,8 @@
 import { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
+import { INSERT_TYPES, BATCH_SIZE } from './constants'
+import type { Payload } from './generated-types'
 
 interface ResponseInfo {
     id: string
@@ -311,5 +313,79 @@ export class HubspotClient {
         });
 
         return response
+    }
+
+    async ensureObjects(insertType: typeof INSERT_TYPES[number]['value'], idFieldName: string, objectType: string, payloads: Payload[]) {
+
+        const requests = []
+
+        for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
+            const batch = payloads.slice(i, i + BATCH_SIZE);
+            requests.push(
+            this.batchRequest('read', objectType, {
+                properties: [idFieldName],
+                idProperty: idFieldName,
+                inputs: batch.map(p => { return {id: p.idFieldValue}})             
+            } as BatchReadRequestBody)
+            )
+        }
+        
+        const readResponses = await Promise.all(requests);
+        
+        readResponses.forEach((response) => {      
+            response.data.results.forEach(result => {
+            const recordId = result.id
+            const idFieldValue = result.properties[idFieldName] as string
+            payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
+            })
+        })
+
+        const updateRequestBodies: BatchRequestBody[] = []
+        const createRequestBodies: BatchRequestBody[] = []
+        const createRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
+        const updateRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
+
+        const populate = (requestBodies: BatchRequestBody[], itemPayload: BatchRequestBodyItem) => {
+            const currenRequestBody = requestBodies[requestBodies.length - 1]?.inputs;
+            if (!currenRequestBody || currenRequestBody.length === BATCH_SIZE) {
+                requestBodies.push({ inputs: [itemPayload] });
+            } else {
+                currenRequestBody.push(itemPayload);
+            }
+        };
+
+        payloads.forEach((payload) => {
+            const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
+            const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
+                id: payload.recordID ?? undefined,
+                properties: {
+                    ...stringProperties, 
+                    ...numericProperties, 
+                    ...booleanProperties, 
+                    ...dateProperties,
+                    [payload.idFieldName]: payload.idFieldValue
+                } as BatchRequestBodyItem['properties']
+            } as BatchRequestBodyItem
+            if(['update', 'upsert'].includes(insertType) && itemPayload.id){
+                populate(updateRequestBodies, itemPayload)
+            }
+            if(['create', 'upsert'].includes(insertType) && !itemPayload.id){
+                populate(createRequestBodies, itemPayload)
+            }
+        })
+        
+        updateRequestBodies.forEach((updateRequestBody) => {
+            updateRequests.push(this.batchRequest('update', objectType, updateRequestBody))
+        })
+
+        createRequestBodies.forEach((createRequestBody) => {
+            createRequests.push(this.batchRequest('create', objectType, createRequestBody))
+        })
+        console.log(updateRequests.length)
+        console.log(createRequests.length)
+        
+        const writeResponses = await Promise.all([...updateRequests, ...createRequests])
+        
+        console.log(writeResponses)
     }
 }

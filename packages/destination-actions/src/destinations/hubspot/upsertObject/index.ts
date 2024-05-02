@@ -1,11 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient, BatchReadResponse } from './hubspot-api'
-import { RequestClient, ModifiedResponse } from '@segment/actions-core'
-import { BatchReadRequestBody, BatchRequestBodyItem, BatchRequestBody } from './hubspot-api'
-import { BATCH_SIZE } from './constants'
-import { result } from 'lodash'
+import { HubspotClient } from './hubspot-api'
+import { RequestClient} from '@segment/actions-core'
+import { INSERT_TYPES } from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Object',
@@ -48,11 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Insert Type',
       description: 'Specify if Segment should create, update or upsert a record.',
       type: 'string',
-      choices: [
-        {label: 'Create', value: 'create'},
-        {label: 'Update', value: 'update'},
-        {label: 'Upsert', value: 'upsert'}
-      ],
+      choices: INSERT_TYPES,
       required: true,
       default: 'upsert'
     },
@@ -227,74 +221,16 @@ const action: ActionDefinition<Settings, Payload> = {
         {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1', toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
         {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2', toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
         {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_3', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
+        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "London"}, idFieldValue: 'company_5', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_6', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
       ]
 
+      const [{insertType, idFieldName, objectType}] = payloads
+
       const hubspotClient = new HubspotClient(request)
-      
-      const [{ idFieldName, objectType }] = payloads;
-      const requests = []
 
-      for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
-        const batch = payloads.slice(i, i + BATCH_SIZE);
-        requests.push(
-          hubspotClient.batchRequest('read', objectType, {
-            properties: [idFieldName],
-            idProperty: idFieldName,
-            inputs: batch.map(p => { return {id: p.idFieldValue}})             
-          } as BatchReadRequestBody)
-        )
-      }
-      
-      const readResponses = await Promise.all(requests);
-      
-      readResponses.forEach((response) => {      
-        response.data.results.forEach(result => {
-          const recordId = result.id
-          const idFieldValue = result.properties[idFieldName] as string
-          payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
-        })
-      })
-
-      const updateRequestBodies: BatchRequestBody[] = []
-      const createRequestBodies: BatchRequestBody[] = []
-      const createRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
-      const updateRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
-
-      payloads.forEach((payload) => {
-        const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
-        const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
-          id: payload.recordID ?? undefined,
-          properties: {
-            ...stringProperties, 
-            ...numericProperties, 
-            ...booleanProperties, 
-            ...dateProperties,
-            [payload.idFieldName]: payload.idFieldValue
-          } as BatchRequestBodyItem['properties']
-        }
-        const request = itemPayload.id ? updateRequestBodies : createRequestBodies;
-        const currentBatch = request[request.length - 1]?.inputs;
-        if (!currentBatch || currentBatch.length === BATCH_SIZE) {
-            request.push({ inputs: [itemPayload] });
-        } else {
-            currentBatch.push(itemPayload);
-        }
-      })
-    
-      updateRequestBodies.forEach((updateRequestBody) => {
-        updateRequests.push(hubspotClient.batchRequest('update', objectType, updateRequestBody))
-      })
-
-      createRequestBodies.forEach((createRequestBody) => {
-        createRequests.push(hubspotClient.batchRequest('create', objectType, createRequestBody))
-      })
-      console.log(updateRequests.length)
-      console.log(createRequests.length)
-      
-      const writeResponses = await Promise.all([...updateRequests, ...createRequests])
-      
-      console.log(writeResponses)
+      await hubspotClient.ensureObjects(insertType, idFieldName, objectType, payloads)
 
   }
 }
