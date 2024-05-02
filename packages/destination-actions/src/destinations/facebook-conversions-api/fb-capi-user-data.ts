@@ -196,7 +196,7 @@ export const normalize_user_data = (payload: UserData) => {
     payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
   }
 
-  if (payload.user_data.phone) {
+  if (payload.user_data.phone && !isHashedInformation(payload.user_data.phone)) {
     // Regex removes all non-numeric characters from the string.
     payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
   }
