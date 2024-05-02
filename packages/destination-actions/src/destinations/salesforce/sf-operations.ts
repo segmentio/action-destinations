@@ -1,10 +1,4 @@
-import {
-  IntegrationError,
-  ModifiedResponse,
-  OAuth2ClientCredentials,
-  RequestClient,
-  RefreshAccessTokenResult
-} from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
@@ -130,38 +124,6 @@ export default class Salesforce {
     // This ensures that all request urls are constructed properly
     this.instanceUrl = this.instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
-  }
-
-  authenticateWithPassword = async (
-    auth: OAuth2ClientCredentials,
-    username: string,
-    auth_password: string
-  ): Promise<RefreshAccessTokenResult> => {
-    const res = await this.request<SalesforceRefreshTokenResponse>(`${this.instanceUrl}services/oauth2/token`, {
-      method: 'post',
-      body: new URLSearchParams({
-        grant_type: 'password',
-        client_id: auth.clientId,
-        client_secret: auth.clientSecret,
-        username: username,
-        password: auth_password
-      })
-    })
-
-    return { accessToken: res.data.access_token }
-  }
-
-  authenticateWithRefreshToken = async (auth: OAuth2ClientCredentials): Promise<RefreshAccessTokenResult> => {
-    const res = await this.request<SalesforceRefreshTokenResponse>(`${this.instanceUrl}/services/oauth2/token`, {
-      method: 'post',
-      body: new URLSearchParams({
-        refresh_token: auth.refreshToken,
-        client_id: auth.clientId,
-        client_secret: auth.clientSecret,
-        grant_type: 'refresh_token'
-      })
-    })
-    return { accessToken: res.data.access_token }
   }
 
   createRecord = async (payload: GenericPayload, sobject: string) => {
