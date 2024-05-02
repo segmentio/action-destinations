@@ -109,13 +109,17 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     })
     if (settings.enableConsentMode) {
       const consent: {
-        ad_storage: ConsentParamsArg
-        analytics_storage: ConsentParamsArg
+        ad_storage?: ConsentParamsArg
+        analytics_storage?: ConsentParamsArg
         ad_user_data?: ConsentParamsArg
         ad_personalization?: ConsentParamsArg
-      } = {
-        ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
-        analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg
+      } = {}
+
+      if (settings.defaultAnalyticsStorageConsentState) {
+        consent.analytics_storage = settings.defaultAnalyticsStorageConsentState as ConsentParamsArg
+      }
+      if (settings.defaultAdsStorageConsentState) {
+        consent.ad_storage = settings.defaultAdsStorageConsentState as ConsentParamsArg
       }
       if (settings.adUserDataConsentState) {
         consent.ad_user_data = settings.adUserDataConsentState as ConsentParamsArg
