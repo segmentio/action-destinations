@@ -305,7 +305,7 @@ export class HubspotClient {
         data: BatchReadRequestBody | BatchRequestBody
     ) {        
         console.log(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`)
-        const response = await this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+        const response = this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
             method: 'POST',
             json: data
         });

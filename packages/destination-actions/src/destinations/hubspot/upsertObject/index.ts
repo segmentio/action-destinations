@@ -1,8 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient } from './hubspot-api'
-import { RequestClient } from '@segment/actions-core'
+import { HubspotClient, BatchReadResponse } from './hubspot-api'
+import { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { BatchReadRequestBody, BatchRequestBodyItem, BatchRequestBody } from './hubspot-api'
 import { BATCH_SIZE } from './constants'
 import { result } from 'lodash'
@@ -225,7 +225,9 @@ const action: ActionDefinition<Settings, Payload> = {
    
       const payloads = [
         {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1', toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2', toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2', toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_3', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
       ]
 
       const hubspotClient = new HubspotClient(request)
@@ -244,39 +246,56 @@ const action: ActionDefinition<Settings, Payload> = {
         )
       }
       
-      const responses = await Promise.all(requests);
+      const readResponses = await Promise.all(requests);
       
-      responses.forEach((response) => {      
-          response.data.results.forEach(result => {
-            const recordId = result.id
-            const idFieldValue = result.properties[idFieldName] as string
-            payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
-          })
+      readResponses.forEach((response) => {      
+        response.data.results.forEach(result => {
+          const recordId = result.id
+          const idFieldValue = result.properties[idFieldName] as string
+          payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
+        })
       })
 
-      const updateRequest: BatchRequestBody = { inputs: [] }
-      const createRequest: BatchRequestBody = { inputs: [] }
+      const updateRequestBodies: BatchRequestBody[] = []
+      const createRequestBodies: BatchRequestBody[] = []
+      const createRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
+      const updateRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
 
-      payloads.forEach((payload) => {    
-          const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
-          const itemPayload: { id: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
-              id: payload.recordID ?? undefined,
-              properties: {
-                ...stringProperties, 
-                ...numericProperties, 
-                ...booleanProperties, 
-                ...dateProperties,
-                [payload.idFieldName]: payload.idFieldValue
-              } as BatchRequestBodyItem['properties']
-          }
-          itemPayload.id ? updateRequest.inputs.push(itemPayload) : createRequest.inputs.push(itemPayload)
+      payloads.forEach((payload) => {
+        const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
+        const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
+          id: payload.recordID ?? undefined,
+          properties: {
+            ...stringProperties, 
+            ...numericProperties, 
+            ...booleanProperties, 
+            ...dateProperties,
+            [payload.idFieldName]: payload.idFieldValue
+          } as BatchRequestBodyItem['properties']
+        }
+        const request = itemPayload.id ? updateRequestBodies : createRequestBodies;
+        const currentBatch = request[request.length - 1]?.inputs;
+        if (!currentBatch || currentBatch.length === BATCH_SIZE) {
+            request.push({ inputs: [itemPayload] });
+        } else {
+            currentBatch.push(itemPayload);
+        }
+      })
+    
+      updateRequestBodies.forEach((updateRequestBody) => {
+        updateRequests.push(hubspotClient.batchRequest('update', objectType, updateRequestBody))
       })
 
-      // if(createRequest.inputs.length>0){
-      //   await hubspotClient.batchRequest('create', objectType, createRequest)
-      // }
-
+      createRequestBodies.forEach((createRequestBody) => {
+        createRequests.push(hubspotClient.batchRequest('create', objectType, createRequestBody))
+      })
+      console.log(updateRequests.length)
+      console.log(createRequests.length)
       
+      const writeResponses = await Promise.all([...updateRequests, ...createRequests])
+      
+      console.log(writeResponses)
+
   }
 }
 
