@@ -220,8 +220,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         })
 
-        const r = await response.json()
-        const externalId = r?.audienceId
+        const res = await response.text()
+        //Replace the Big Int number with quoted String
+        const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
+        const externalId = JSON.parse(resString)['audienceId']
 
         if (!externalId) {
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
@@ -268,9 +270,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
           method: 'GET'
         })
-
-        const r = await response.json()
-        const externalId = r?.audienceId
+        const res = await response.text()
+        //Replace the Big Int number with quoted String
+        const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
+        const externalId = JSON.parse(resString)['audienceId']
 
         if (externalId != getAudienceInput.externalId) {
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
