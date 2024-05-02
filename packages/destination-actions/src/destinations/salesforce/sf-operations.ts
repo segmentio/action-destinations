@@ -59,8 +59,8 @@ const authenticateWithPassword = async (
   settings: Required<Settings>,
   _request: RequestClient
 ): Promise<RefreshAccessTokenResult> => {
-  const clientId = process.env.ACTIONS_SALESFORCE_CLIENT_ID
-  const clientSecret = process.env.ACTIONS_SALESFORCE_CLIENT_SECRET
+  const clientId = process.env.SALESFORCE_CLIENT_ID
+  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
 
   if (!clientId || !clientSecret) {
     throw new IntegrationError('Missing Salesforce client ID or client secret', 'Missing Credentials', 400)
