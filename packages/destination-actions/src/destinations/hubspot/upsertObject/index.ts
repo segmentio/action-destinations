@@ -226,11 +226,12 @@ const action: ActionDefinition<Settings, Payload> = {
         {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_6', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
       ]
 
-      const [{insertType, idFieldName, objectType}] = payloads
+      const [{insertType, idFieldName, objectType, toIdFieldName, toObjectType}] = payloads
 
       const hubspotClient = new HubspotClient(request)
 
       await hubspotClient.ensureObjects(insertType, idFieldName, objectType, payloads)
+      await hubspotClient.ensureObjects(insertType, toIdFieldName, toObjectType, payloads)
 
   }
 }
