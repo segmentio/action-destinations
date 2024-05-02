@@ -196,7 +196,8 @@ export const sendUpdateRequest = async (
     })
 
     await bulkUploaderResponseHandler(response, statsName, statsContext)
-  } catch (error) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error:any) {
     if (error.response?.status === 500) {
       throw new IntegrationError(error.response.message, 'INTERNAL_SERVER_ERROR', 500)
     }

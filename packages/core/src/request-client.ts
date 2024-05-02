@@ -270,7 +270,8 @@ class RequestClient {
     }
 
     // Use our internal abort controller for fetch
-    this.options.signal = this.abortController.signal
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.options.signal = this.abortController.signal as any
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)

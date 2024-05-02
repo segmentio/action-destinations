@@ -63,7 +63,8 @@ export async function getEventKeys(request: RequestClient, settings: Settings) {
     return {
       choices: [...choices]
     }
-  } catch (err) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err:any) {
     return {
       choices: [],
       error: {

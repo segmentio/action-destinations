@@ -482,7 +482,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     try {
       await this.authentication.testAuthentication(requestClient, data)
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error:any) {
       const statusCode = error?.response?.status ?? ''
       throw new Error(`Credentials are invalid: ${statusCode} ${error.message}`)
     }

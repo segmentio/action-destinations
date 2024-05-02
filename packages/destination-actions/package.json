@@ -54,6 +54,7 @@
     "google-libphonenumber": "^3.2.31",
     "kafkajs": "^2.2.4",
     "liquidjs": "^9.37.0",
+    "try-catch-finally-hooks": "0.0.2",
     "lodash": "^4.17.21",
     "ssh2-sftp-client": "^9.1.0"
   },
