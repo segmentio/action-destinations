@@ -2,40 +2,53 @@
 
 export interface Payload {
   /**
-   * Records to create and upload audiences to Amazon DSP.
+   * This is an external user identifier defined by data providers.
    */
-  records: {
-    /**
-     * This is an external user identifier defined by data providers.
-     */
-    externalUserId: string
-    /**
-     * A specific key used to define action type.
-     */
-    action: string
-    /**
-     * A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.
-     */
-    countryCode?: string
-    measurements?: {
-      [k: string]: unknown
-    }
-    /**
-     * List of hashed personally-identifiable information records to be matched with Amazon identities for future use. All inputs must be properly normalized and SHA-256 hashed.
-     */
-    hashedPII: {
-      firstname?: string
-      address?: string
-      phone?: string
-      city?: string
-      state?: string
-      email?: string
-      lastname?: string
-      postal?: string
-    }[]
-  }[]
+  externalUserId: string
+  /**
+   * Traits or properties object from the payload
+   */
+  traits_or_props: {
+    [k: string]: unknown
+  }
+  /**
+   * Audience name AKA Audience Key
+   */
+  computation_key: string
+  /**
+   * User email address. Vaule will be hashed before sending to Amazon.
+   */
+  email?: string
+  /**
+   * User first name. Vaue will be hashed before sending to Amazon.
+   */
+  firstname?: string
+  /**
+   * User Last name. Vaue will be hashed before sending to Amazon.
+   */
+  lastname?: string
+  /**
+   * Phone Number. Vaue will be hashed before sending to Amazon.
+   */
+  phone?: string
+  /**
+   * POstal Code. Vaue will be hashed before sending to Amazon.
+   */
+  postal?: string
+  /**
+   * State Code. Vaue will be hashed before sending to Amazon.
+   */
+  state?: string
+  /**
+   * City name. Vaue will be hashed before sending to Amazon.
+   */
+  city?: string
+  /**
+   * Address Code. Value will be hashed before sending to Amazon.
+   */
+  address?: string
   /**
    * An number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.
    */
-  audienceId: number
+  audienceId: string
 }
