@@ -41,10 +41,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     eventProperties: {
       label: 'Event Properties',
-      description: 'Attributes maintained by your team.',
+      description: 'Properties tied to this event, which can be included in emails triggered by this event.',
       type: 'object',
       required: false,
-      default: { '@path': '$.traits' }
+      default: { '@path': '$.properties' }
     }
   },
   perform: (request, { payload }) => {
