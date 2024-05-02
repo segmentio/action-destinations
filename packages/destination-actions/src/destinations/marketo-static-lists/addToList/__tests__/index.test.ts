@@ -172,8 +172,8 @@ describe('MarketoStaticLists.addToList', () => {
         errors: [{ code: 1013, message: 'Static list not found' }]
       })
 
-    const r = await testDestination.actions.addToList.executeHook('retlOnMappingSave', hookInputExisting)
-
-    expect(r).toMatchObject({ error: { code: 'LIST_ID_VERIFICATION_FAILURE', message: 'Static list not found' } })
+    await expect(testDestination.actions.addToList.executeHook('retlOnMappingSave', hookInputExisting)).rejects.toThrow(
+      'Static list not found'
+    )
   })
 })

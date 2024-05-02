@@ -955,3 +955,76 @@ describe('@merge', () => {
     expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'there' })
   })
 })
+
+describe('@transform', () => {
+  test('invalid key type', () => {
+    expect(() => {
+      transform({ '@transform': { '@path': {} } }, { foo: 'bar' })
+    }).toThrowError()
+  })
+  test('simple', () => {
+    const output = transform(
+      {
+        '@transform': {
+          apply: {
+            foo: {
+              '@path': '$.a'
+            }
+          },
+          mapping: {
+            cool: { '@path': '$.foo' }
+          }
+        }
+      },
+      {
+        a: 1,
+        b: 2
+      }
+    )
+
+    expect(output).toStrictEqual({ cool: 1 })
+  })
+
+  test('composed with other directives', () => {
+    const output = transform(
+      {
+        '@transform': {
+          apply: {
+            properties: {
+              '@flatten': {
+                value: { '@path': '$.properties' },
+                separator: '_'
+              }
+            }
+          },
+          mapping: {
+            properties: { '@path': '$.properties' },
+            topLevel: { '@path': '$.properties.nested_a' }
+          }
+        }
+      },
+      {
+        properties: {
+          test: 'value',
+          another: 'thing',
+          nested: {
+            a: 'special',
+            b: 2
+          }
+        },
+        otherStuff: 'foo',
+        more: 'bar'
+      }
+    )
+
+    expect(output).toStrictEqual({
+      properties: {
+        test: 'value',
+        another: 'thing',
+        nested_a: 'special',
+        nested_b: 2
+      },
+      topLevel: 'special'
+    })
+  })
+})

@@ -197,12 +197,11 @@ export async function getList(request: RequestClient, settings: Settings, id: st
   })
 
   if (!getListResponse.data.success && getListResponse.data.errors) {
-    return {
-      error: {
-        message: getListResponse.data.errors[0].message,
-        code: 'LIST_ID_VERIFICATION_FAILURE'
-      }
-    }
+    throw new IntegrationError(`${getListResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
+  }
+
+  if (!getListResponse.data.result) {
+    throw new IntegrationError(`List with ID ${id} not found`, 'INVALID_REQUEST_DATA', 400)
   }
 
   return {

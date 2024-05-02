@@ -26,7 +26,8 @@ export function isDirective(value: FieldValue): value is Directive {
         '@replace',
         '@json',
         '@flatten',
-        '@merge'
+        '@merge',
+        '@transform'
       ].includes(key)
     )
   )
@@ -188,6 +189,24 @@ export function isMergeDirective(value: FieldValue): value is MergeDirective {
   )
 }
 
+export interface TransformDirective extends DirectiveMetadata {
+  '@transform': {
+    apply: FieldValue
+    mapping: FieldValue
+  }
+}
+
+export function isTransformDirective(value: FieldValue): value is TransformDirective {
+  return (
+    isDirective(value) &&
+    '@transform' in value &&
+    value['@transform'] !== null &&
+    typeof value['@transform'] === 'object' &&
+    'apply' in value['@transform'] &&
+    'mapping' in value['@transform']
+  )
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -199,6 +218,7 @@ type DirectiveKeysToType<T> = {
   ['@json']: (input: JSONDirective) => T
   ['@flatten']: (input: FlattenDirective) => T
   ['@merge']: (input: MergeDirective) => T
+  ['@transform']: (input: TransformDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -243,6 +263,7 @@ export type Directive =
   | JSONDirective
   | FlattenDirective
   | MergeDirective
+  | TransformDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -269,7 +290,11 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
         '@json': (input: JSONDirective) => getRawKeys(input['@json'].value),
         '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value),
-        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects)
+        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects),
+        '@transform': (input: TransformDirective) => [
+          ...getRawKeys(input['@transform'].apply),
+          ...getRawKeys(input['@transform'].mapping)
+        ]
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

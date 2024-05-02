@@ -356,6 +356,17 @@ directive('@literal', (v, stack) => {
   validateDirectiveOrRaw(v, stack)
 })
 
+directive('@transform', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      apply: { required: validateDirectiveOrObject },
+      mapping: { required: validateDirectiveOrObject }
+    },
+    stack
+  )
+})
+
 function indefiniteArticle(s: string): string {
   switch (s.charAt(0)) {
     case 'a':
