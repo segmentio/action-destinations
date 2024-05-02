@@ -172,7 +172,9 @@ const action: ActionDefinition<Settings, Payload> = {
       return await client.getIdFields(toObjectType) 
     },
     associationLabel: async (request: RequestClient, { payload }) => {
-      const { objectType, toObjectType }  = payload 
+      let { objectType, toObjectType }  = payload 
+      objectType = 'companies'
+      toObjectType = 'contacts'
       if(!objectType || !toObjectType) {
           return {
               choices: [],
@@ -187,50 +189,17 @@ const action: ActionDefinition<Settings, Payload> = {
       return await client.getAssociationLabel(objectType, toObjectType) 
     }
   },
-  // perform: async (request, { payload }) => {
-    
-  //   const { objectType, toObjectType, insertType, idFieldName, idFieldValue, toIdFieldName, toIdFieldValue, stringProperties, numericProperties, booleanProperties, dateProperties, associationLabel } = payload
-
-  //   const client = new HubspotClient(request)
-
-  //   const toRecordId = associationLabel ? await client.getRecordID(toObjectType, toIdFieldName, toIdFieldValue) : undefined; 
-
-  //   if(['update', 'upsert'].includes(insertType)){
-      
-  //     const recordId = await client.getRecordID(objectType, idFieldName, idFieldValue)
-      
-  //     if(recordId){
-  //       const updateResponse = await client.update(idFieldName, recordId, objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties}) })
-        
-  //       if(toRecordId){
-  //         await client.associate(recordId, toRecordId, associationLabel as string, objectType, toObjectType as string)
-  //       }
-        
-  //       return updateResponse
-  //     }      
-  //   }
-
-  //   if(['create', 'upsert'].includes(payload.insertType)){
-  //     return await client.create(objectType, { ...flattenObject({...stringProperties, ...numericProperties, ...booleanProperties, ...dateProperties})}, associationLabel, toRecordId)
-  //   }
-  // },
-
   perform: async (request, { payload }) => {
-   
-      const payloads = [
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1',                                            toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2',                                            toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_3',                                            toIdFieldValue: 'mumble11@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4',        toIdFieldValue: 'mumble22@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "London"}, idFieldValue: 'company_5',        toIdFieldValue: 'mumble33@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_6',                                            toIdFieldValue: 'mumble44@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'}
-      ]
-
-      const hubspotClient = new HubspotClient(request)
-
-      await hubspotClient.ensureObjects(payloads)
-      await hubspotClient.ensureObjects(payloads, true)
-
+    const hubspotClient = new HubspotClient(request)
+    await hubspotClient.ensureObjects([payload])
+    await hubspotClient.ensureObjects([payload], true)
+    await hubspotClient.ensureAssociations([payload])
+  },
+  performBatch: async (request, { payload: payloads }) => {
+    const hubspotClient = new HubspotClient(request)
+    await hubspotClient.ensureObjects(payloads)
+    await hubspotClient.ensureObjects(payloads, true)
+    await hubspotClient.ensureAssociations(payloads)
   }
 }
 

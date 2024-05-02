@@ -1,17 +1,8 @@
 import { RequestClient, ModifiedResponse, IntegrationError } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { INSERT_TYPES, BATCH_SIZE } from './constants'
+import { BATCH_SIZE } from './constants'
 import type { Payload } from './generated-types'
-
-interface ResponseInfo {
-    id: string
-    properties: Record<string, string>
-}
-interface SearchResponse {
-    total: number
-    results: ResponseInfo[]
-}
 
 enum AssociationCategory {
     HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -19,13 +10,13 @@ enum AssociationCategory {
     INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
 }
 
-export interface BatchReadRequestBody {
+interface BatchReadRequestBody {
     properties: string[]
     idProperty: string
     inputs: Array<{ id: string }>
 }
 
-export interface BatchReadResponse {
+interface BatchReadResponse {
     status: string
     results: BatchReadResponseItem[]
 }
@@ -35,22 +26,33 @@ interface BatchReadResponseItem {
     properties: Record<string, string | null>
 }
 
-export interface BatchRequestBody {
+interface BatchRequestBody {
     inputs: BatchRequestBodyItem[];
 }
-export interface BatchRequestBodyItem {
+interface BatchRequestBodyItem {
     properties: {
         [key: string]: string | number | boolean | undefined;
     };
     id?: string;
 }
 
-export interface AssociationType {
+interface AssociationType {
     associationCategory: AssociationCategory
-    associationTypeId: number
+    associationTypeId: string
 }
 
-interface UpsertRecordResponse extends ResponseInfo {}
+interface BatchAssociationsRequestBody {
+    inputs: {
+        types: AssociationType[];
+        from: {
+            id: string;
+        };
+        to: {
+            id: string;
+        };
+    }[];
+}
+
 
 export class HubspotClient {
     request: RequestClient
@@ -151,7 +153,6 @@ export class HubspotClient {
     }
 
     async getAssociationLabel(objectType: string, toObjectType: string) {
-        
         interface AssociationLabel {
             category: AssociationCategory
             typeId: number
@@ -187,132 +188,57 @@ export class HubspotClient {
         }
     }
 
-    async search( idFieldName: string, idFieldValue: string, objectType: string, responseProperties: string[], responseSortBy: string[]) {
-        enum SearchFilterOperator {
-            EQ = 'EQ'
-        }
-        interface SearchPayload {
-            filterGroups: SearchFilterGroup[]
-            properties?: string[]
-            sorts?: string[]
-            limit?: number
-            after?: number
-        }
-        interface SearchFilterGroup {
-            filters: SearchFilter[]
-        }
-        interface SearchFilter {
-            propertyName: string
-            operator: SearchFilterOperator
-            value: unknown
-        }
-
-        const searchPayload: SearchPayload = {
-            filterGroups: [{
-                filters: [{
-                    propertyName: idFieldName,
-                    operator: SearchFilterOperator.EQ,
-                    value: idFieldValue
-                }]
-            }],
-            properties: [...responseProperties],
-            sorts: [...responseSortBy]
-        }
-
-        return this.request<SearchResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/search`, {
-            method: 'POST',
-            json: {
-                ...searchPayload
-            }
-        })
+    getAssociationType(associationLabel: string): AssociationType {
+        const [associationCategory, associationTypeId] = associationLabel.split(':');
+        return { associationCategory, associationTypeId } as AssociationType
     }
 
-    async update(idFieldName: string, recordId: string,  objectType: string, properties: { [key: string]: unknown }, ) {
-        const updateURL = `${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/${recordId}?idProperty=${idFieldName}`
-        return this.request<UpsertRecordResponse>(updateURL, {
-            method: 'PATCH',
-            json: {
-                properties: properties
-            }
-        })
-    }
-
-    async create(objectType: string, properties: { [key: string]: unknown }, associationLabel?: string, toRecordId?: string) {
-        interface CreateAssociation {
-            to: {
-              id: string
-            }
-            types: AssociationType[]
-        }
-        
-        let associationObject = null
-
-        if(toRecordId && associationLabel){
-            associationObject = {
-                to: {
-                  id: toRecordId
-                },
-                types: this.getAssociationType(associationLabel)
-            } as CreateAssociation
-        }
-
-        return this.request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}`, {
-          method: 'POST',
-          json: {
-            properties: properties,
-            associations: associationObject
-          }
-        })
-      }
-
-    async getRecordID( idFieldName?: string, idFieldValue?: string, objectType?: string): Promise<string | undefined> {
-        
-        if(!idFieldName || !idFieldValue || !objectType) return undefined
-
-        if(idFieldName === 'hs_object_id') return idFieldValue 
-        
-        let searchResponse: ModifiedResponse<SearchResponse> | null = null
-        searchResponse = await this.search(idFieldName, idFieldValue, objectType, [], [])   
-        if (!searchResponse?.data || searchResponse?.data?.total != 1) {
-            return undefined
-        }
-        return searchResponse.data.results[0].id
-    }
-
-    async associate(recordId: string, toRecordId: string, associationLabel: string, objectType: string, toObjectType: string) {
-        const association = this.getAssociationType(associationLabel)
-        const associateURL = `${HUBSPOT_BASE_URL}/crm/v4/objects/${objectType}/${recordId}/associations/${toObjectType}/${toRecordId}`
-        return this.request<UpsertRecordResponse>(associateURL, {
-          method: 'PUT',
-          json: association
-        })
-    }
-
-    getAssociationType(associationLabel?: string): AssociationType[]{
-        if(!associationLabel){
-            return []
-        }
-
-        const associationType = associationLabel.split(':')
-        
-        return [{
-          associationCategory: associationType[0] as AssociationCategory,
-          associationTypeId: Number(associationType[1])
-        }] as AssociationType[]
-    }
-
-    async batchRequest(
+    async batchObjectRequest(
         action: 'update' | 'create' | 'read', 
         objectType: string,
         data: BatchReadRequestBody | BatchRequestBody
     ) {        
-        console.log(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`)
-        const response = this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+        return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
             method: 'POST',
             json: data
         });
+    }
 
-        return response
+    async ensureAssociations(payloads: Payload[]){
+        const [{objectType, toObjectType, associationLabel}] = payloads
+        
+        if(!objectType || !toObjectType || !associationLabel){
+            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
+        }
+        
+        const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
+
+        const data: BatchAssociationsRequestBody = {
+            inputs: payloads
+                .filter(p => p.recordID && p.toRecordID)
+                .map(p => { 
+                    return {
+                        types: [
+                            {
+                                associationCategory,
+                                associationTypeId
+                            }
+                        ],
+                        from: {
+                            id: p.recordID as string
+                        },
+                        to: {
+                            id: p.toRecordID as string
+                        }
+                    }
+                })
+        }
+
+        return data?.inputs?.length>0 ? 
+            this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
+                method: 'POST',
+                json: data
+            }) : null 
     }
 
     async ensureObjects(payloads: Payload[], isAssociationObject = false) {
@@ -332,7 +258,7 @@ export class HubspotClient {
         for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
             const batch = payloads.slice(i, i + BATCH_SIZE);
             requests.push(
-            this.batchRequest('read', objectType, {
+            this.batchObjectRequest('read', objectType, {
                 properties: [idFieldName],
                 idProperty: idFieldName,
                 inputs: batch.map(p => { return {id: p[idFieldValueFieldName]}})             
@@ -385,17 +311,14 @@ export class HubspotClient {
         })
         
         updateRequestBodies.forEach((updateRequestBody) => {
-            updateRequests.push(this.batchRequest('update', objectType, updateRequestBody))
+            updateRequests.push(this.batchObjectRequest('update', objectType, updateRequestBody))
         })
 
         createRequestBodies.forEach((createRequestBody) => {
-            createRequests.push(this.batchRequest('create', objectType, createRequestBody))
+            createRequests.push(this.batchObjectRequest('create', objectType, createRequestBody))
         })
-        console.log(updateRequests.length)
-        console.log(createRequests.length)
+        const writeRequests = [...updateRequests, ...createRequests]
         
-        const writeResponses = await Promise.all([...updateRequests, ...createRequests])
-        
-        console.log(writeResponses)
+        return writeRequests.length>0 ? await Promise.all([...updateRequests, ...createRequests]) : null
     }
 }
