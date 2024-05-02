@@ -10,6 +10,7 @@ Object {
     "testType": "dqhK[",
   },
   "timestamp": Any<String>,
+  "type": "dqhK[",
   "userId": "dqhK[",
 }
 `;
@@ -20,6 +21,7 @@ Object {
   "messageId": "dqhK[",
   "properties": Object {},
   "timestamp": Any<String>,
+  "type": "dqhK[",
 }
 `;
 
@@ -32,6 +34,7 @@ Object {
     "testType": ")%Z*B@",
   },
   "timestamp": Any<String>,
+  "type": ")%Z*B@",
   "userId": ")%Z*B@",
 }
 `;
@@ -41,6 +44,7 @@ Object {
   "messageId": ")%Z*B@",
   "properties": Object {},
   "timestamp": Any<String>,
+  "type": ")%Z*B@",
 }
 `;
 
@@ -84,6 +88,7 @@ Object {
     "testType": "w3ly#Sw)El8",
   },
   "timestamp": Any<String>,
+  "type": "w3ly#Sw)El8",
   "userId": "w3ly#Sw)El8",
 }
 `;
@@ -92,5 +97,6 @@ exports[`Testing snapshot for actions-kameleoon destination: page action - requi
 Object {
   "properties": Object {},
   "timestamp": Any<String>,
+  "type": "w3ly#Sw)El8",
 }
 `;

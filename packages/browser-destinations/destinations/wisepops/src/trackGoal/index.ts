@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Wisepops } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
   title: 'Track Goal',
   description: '[Track goals and revenue](https://support.wisepops.com/article/mx3z8na6yb-set-up-goal-tracking) to know which campaigns are generating the most value.',
@@ -11,13 +10,10 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
   platform: 'web',
   fields: {
     goalName: {
-      description: 'The name of the goal to send to Wisepops.',
-      label: 'Goal Name',
+      description: 'This is a 32-character identifier, visible when you create the JS goal in Wisepops.',
+      label: 'Goal Identifier',
       type: 'string',
       required: false,
-      default: {
-        '@path': '$.event'
-      }
     },
     goalRevenue: {
       description: 'The revenue associated with the goal.',
@@ -30,7 +26,14 @@ const action: BrowserActionDefinition<Settings, Wisepops, Payload> = {
     },
   },
   perform: (wisepops, event) => {
-    wisepops('goal', event.payload.goalName, event.payload.goalRevenue);
+    let revenue = null;
+    if (['string', 'number'].includes(typeof event.payload.goalRevenue) && !Number.isNaN(Number(event.payload.goalRevenue))) {
+      revenue = Number(event.payload.goalRevenue);
+    }
+    if (typeof event.payload.goalName === 'string' && /^[a-zA-Z0-9]{32}$/.test(event.payload.goalName)) {
+      revenue = {revenue};
+    }
+    wisepops('goal', event.payload.goalName, revenue);
   }
 }
 
