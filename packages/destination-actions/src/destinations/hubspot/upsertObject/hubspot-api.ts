@@ -1,4 +1,4 @@
-import { RequestClient, ModifiedResponse } from '@segment/actions-core'
+import { RequestClient, ModifiedResponse, IntegrationError } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { INSERT_TYPES, BATCH_SIZE } from './constants'
@@ -315,7 +315,17 @@ export class HubspotClient {
         return response
     }
 
-    async ensureObjects(insertType: typeof INSERT_TYPES[number]['value'], idFieldName: string, objectType: string, payloads: Payload[]) {
+    async ensureObjects(payloads: Payload[], isAssociationObject = false) {
+
+        const [{insertType}] = payloads
+        const idFieldName = isAssociationObject ? payloads[0].toIdFieldName : payloads[0].idFieldName
+        const objectType = isAssociationObject ? payloads[0].toObjectType : payloads[0].objectType
+        const idFieldValueFieldName = isAssociationObject ? 'toIdFieldValue' : 'idFieldValue'
+        const recordIdFieldName = isAssociationObject ? 'toRecordID' : 'recordID'
+
+        if(!objectType || !idFieldName){
+            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type" and "To ID Field Name" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
+        }
 
         const requests = []
 
@@ -325,7 +335,7 @@ export class HubspotClient {
             this.batchRequest('read', objectType, {
                 properties: [idFieldName],
                 idProperty: idFieldName,
-                inputs: batch.map(p => { return {id: p.idFieldValue}})             
+                inputs: batch.map(p => { return {id: p[idFieldValueFieldName]}})             
             } as BatchReadRequestBody)
             )
         }
@@ -334,9 +344,9 @@ export class HubspotClient {
         
         readResponses.forEach((response) => {      
             response.data.results.forEach(result => {
-            const recordId = result.id
-            const idFieldValue = result.properties[idFieldName] as string
-            payloads.filter(payload => payload.idFieldValue == idFieldValue).forEach(payload => payload.recordID = recordId)
+                payloads
+                    .filter(payload => payload[idFieldValueFieldName] == result.properties[idFieldName] as string)
+                    .forEach(payload => payload[recordIdFieldName] = result.id )
             })
         })
 
@@ -357,13 +367,13 @@ export class HubspotClient {
         payloads.forEach((payload) => {
             const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
             const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
-                id: payload.recordID ?? undefined,
+                id: payload[recordIdFieldName] ?? undefined,
                 properties: {
                     ...stringProperties, 
                     ...numericProperties, 
                     ...booleanProperties, 
                     ...dateProperties,
-                    [payload.idFieldName]: payload.idFieldValue
+                    [idFieldName]: payload[idFieldValueFieldName]
                 } as BatchRequestBodyItem['properties']
             } as BatchRequestBodyItem
             if(['update', 'upsert'].includes(insertType) && itemPayload.id){

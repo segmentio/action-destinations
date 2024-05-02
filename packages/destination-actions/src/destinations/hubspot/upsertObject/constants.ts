@@ -1,4 +1,4 @@
-export const BATCH_SIZE = 2
+export const BATCH_SIZE = 100
 
 export const INSERT_TYPES = [    
     {label: 'Create', value: 'create'},

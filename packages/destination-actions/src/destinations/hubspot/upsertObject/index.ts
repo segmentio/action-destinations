@@ -218,20 +218,18 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
    
       const payloads = [
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1', toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2', toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_3', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "London"}, idFieldValue: 'company_5', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'},
-        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_6', toIdFieldValue: 'mumble@gmail.com', toIdFieldName: 'email', toObjectType: 'contacts'}
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_1',                                            toIdFieldValue: 'id555555@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_2',                                            toIdFieldValue: 'id444@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_3',                                            toIdFieldValue: 'mumble11@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "Dublin"}, idFieldValue: 'company_4',        toIdFieldValue: 'mumble22@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', stringProperties: {city: "London"}, idFieldValue: 'company_5',        toIdFieldValue: 'mumble33@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'},
+        {...payload, objectType: 'companies', idFieldName: 'co_id', idFieldValue: 'company_6',                                            toIdFieldValue: 'mumble44@gmail.com', toIdFieldName: 'contact_id', toObjectType: 'contacts'}
       ]
-
-      const [{insertType, idFieldName, objectType, toIdFieldName, toObjectType}] = payloads
 
       const hubspotClient = new HubspotClient(request)
 
-      await hubspotClient.ensureObjects(insertType, idFieldName, objectType, payloads)
-      await hubspotClient.ensureObjects(insertType, toIdFieldName, toObjectType, payloads)
+      await hubspotClient.ensureObjects(payloads)
+      await hubspotClient.ensureObjects(payloads, true)
 
   }
 }
