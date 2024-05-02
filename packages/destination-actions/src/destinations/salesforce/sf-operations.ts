@@ -1,8 +1,15 @@
-import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ModifiedResponse,
+  OAuth2ClientCredentials,
+  RequestClient,
+  RefreshAccessTokenResult
+} from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
+import { Settings } from './generated-types'
 
 export const API_VERSION = 'v53.0'
 
@@ -25,6 +32,52 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
   }
 
   return operator
+}
+
+export const generateSalesforceRequest = async (
+  settings: Settings,
+  auth: OAuth2ClientCredentials,
+  request: RequestClient
+) => {
+  if (!settings.auth_password || !settings.username) {
+    return request
+  }
+
+  const { accessToken } = await authenticateWithPassword(auth, settings as Required<Settings>, request)
+
+  const passwordRequestClient = createRequestClient({
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  return passwordRequestClient
+}
+
+const authenticateWithPassword = async (
+  _auth: OAuth2ClientCredentials,
+  settings: Required<Settings>,
+  _request: RequestClient
+): Promise<RefreshAccessTokenResult> => {
+  const clientId = (settings as any)['oauth']['clientId']
+  const clientSecret = (settings as any)['oauth']['clientSecret']
+  const newRequest = createRequestClient()
+
+  const loginUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+
+  const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {
+    method: 'post',
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: clientId,
+      client_secret: clientSecret,
+      username: settings.username,
+      password: settings.auth_password
+    })
+  })
+
+  console.log('generated access token', res.data.access_token)
+  return { accessToken: res.data.access_token }
 }
 
 interface Records {
@@ -63,6 +116,10 @@ interface SalesforceError {
   }
 }
 
+interface SalesforceRefreshTokenResponse {
+  access_token: string
+}
+
 type SOQLOperator = 'OR' | 'AND'
 
 export default class Salesforce {
@@ -76,6 +133,38 @@ export default class Salesforce {
     // This ensures that all request urls are constructed properly
     this.instanceUrl = this.instanceUrl.concat(instanceUrl.slice(-1) === '/' ? '' : '/')
     this.request = request
+  }
+
+  authenticateWithPassword = async (
+    auth: OAuth2ClientCredentials,
+    username: string,
+    auth_password: string
+  ): Promise<RefreshAccessTokenResult> => {
+    const res = await this.request<SalesforceRefreshTokenResponse>(`${this.instanceUrl}services/oauth2/token`, {
+      method: 'post',
+      body: new URLSearchParams({
+        grant_type: 'password',
+        client_id: auth.clientId,
+        client_secret: auth.clientSecret,
+        username: username,
+        password: auth_password
+      })
+    })
+
+    return { accessToken: res.data.access_token }
+  }
+
+  authenticateWithRefreshToken = async (auth: OAuth2ClientCredentials): Promise<RefreshAccessTokenResult> => {
+    const res = await this.request<SalesforceRefreshTokenResponse>(`${this.instanceUrl}/services/oauth2/token`, {
+      method: 'post',
+      body: new URLSearchParams({
+        refresh_token: auth.refreshToken,
+        client_id: auth.clientId,
+        client_secret: auth.clientSecret,
+        grant_type: 'refresh_token'
+      })
+    })
+    return { accessToken: res.data.access_token }
   }
 
   createRecord = async (payload: GenericPayload, sobject: string) => {

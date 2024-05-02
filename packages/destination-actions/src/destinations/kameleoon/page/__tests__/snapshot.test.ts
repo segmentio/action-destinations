@@ -13,8 +13,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     let [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-    eventData = {...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString()}
-    settingsData = {...settingsData}
+    eventData = { ...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString() }
+    settingsData = { ...settingsData }
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
@@ -49,8 +49,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     let [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    eventData = {...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString()}
-    settingsData = {...settingsData}
+    eventData = { ...eventData, timestamp: new Date(Date.UTC(2024, 0, 3, 0, 0, 0)).toISOString() }
+    settingsData = { ...settingsData }
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)

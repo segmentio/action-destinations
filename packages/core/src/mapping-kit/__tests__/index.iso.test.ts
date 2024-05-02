@@ -955,7 +955,6 @@ describe('@merge', () => {
     expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'there' })
   })
 })
-
 describe('@transform', () => {
   test('invalid key type', () => {
     expect(() => {

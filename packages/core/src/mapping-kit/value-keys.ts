@@ -188,7 +188,6 @@ export function isMergeDirective(value: FieldValue): value is MergeDirective {
     'objects' in value['@merge']
   )
 }
-
 export interface TransformDirective extends DirectiveMetadata {
   '@transform': {
     apply: FieldValue

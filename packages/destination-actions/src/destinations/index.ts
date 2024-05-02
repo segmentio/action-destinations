@@ -165,7 +165,6 @@ register('661e97a161b54c61eb22ead5', './spiffy')
 register('6627b0208bbe1699ca06eef8', './inleads-ai')
 register('663235c8575a8ec65ccadf42', './magellan-ai')
 
-
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const definition = require(destinationPath).default

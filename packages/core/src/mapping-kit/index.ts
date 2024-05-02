@@ -289,7 +289,6 @@ registerDirective('@merge', (opts, payload) => {
 
   return Object.assign({}, ...objects)
 })
-
 registerDirective('@transform', (opts, payload) => {
   if (!isObject(opts)) {
     throw new Error('@transform requires an object with an "apply" key and a "mapping" key')
