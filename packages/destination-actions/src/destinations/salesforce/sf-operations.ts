@@ -59,8 +59,13 @@ const authenticateWithPassword = async (
   settings: Required<Settings>,
   _request: RequestClient
 ): Promise<RefreshAccessTokenResult> => {
-  const clientId = (settings as any)['oauth']['clientId']
-  const clientSecret = (settings as any)['oauth']['clientSecret']
+  const clientId = process.env.ACTIONS_SALESFORCE_CLIENT_ID
+  const clientSecret = process.env.ACTIONS_SALESFORCE_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new IntegrationError('Missing Salesforce client ID or client secret', 'Missing Credentials', 400)
+  }
+
   const newRequest = createRequestClient()
 
   const loginUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
