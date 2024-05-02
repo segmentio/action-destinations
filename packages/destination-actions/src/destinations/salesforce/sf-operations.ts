@@ -34,16 +34,12 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
   return operator
 }
 
-export const generateSalesforceRequest = async (
-  settings: Settings,
-  auth: OAuth2ClientCredentials,
-  request: RequestClient
-) => {
+export const generateSalesforceRequest = async (settings: Settings, request: RequestClient) => {
   if (!settings.auth_password || !settings.username) {
     return request
   }
 
-  const { accessToken } = await authenticateWithPassword(auth, settings as Required<Settings>, request)
+  const { accessToken } = await authenticateWithPassword(settings as Required<Settings>)
 
   const passwordRequestClient = createRequestClient({
     headers: {
@@ -54,11 +50,7 @@ export const generateSalesforceRequest = async (
   return passwordRequestClient
 }
 
-const authenticateWithPassword = async (
-  _auth: OAuth2ClientCredentials,
-  settings: Required<Settings>,
-  _request: RequestClient
-): Promise<RefreshAccessTokenResult> => {
+const authenticateWithPassword = async (settings: Required<Settings>): Promise<RefreshAccessTokenResult> => {
   const clientId = process.env.SALESFORCE_CLIENT_ID
   const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
 
