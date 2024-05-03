@@ -2,19 +2,13 @@
 
 export interface Payload {
   /**
+   * The name of the current Segment event.
+   */
+  event_name?: string
+  /**
    * This is an external user identifier defined by data providers.
    */
   externalUserId: string
-  /**
-   * Traits or properties object from the payload
-   */
-  traits_or_props: {
-    [k: string]: unknown
-  }
-  /**
-   * Audience name AKA Audience Key
-   */
-  computation_key: string
   /**
    * User email address. Vaule will be hashed before sending to Amazon.
    */
@@ -22,11 +16,11 @@ export interface Payload {
   /**
    * User first name. Vaue will be hashed before sending to Amazon.
    */
-  firstname?: string
+  firstName?: string
   /**
    * User Last name. Vaue will be hashed before sending to Amazon.
    */
-  lastname?: string
+  lastName?: string
   /**
    * Phone Number. Vaue will be hashed before sending to Amazon.
    */
