@@ -66,11 +66,11 @@ export const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) =>
 
 export const getCachedResponse = async (
   { responseType }: ApiLookupConfig,
-  key: string,
+  requestId: string,
   engageDestinationCache: EngageDestinationCache,
   datafeedTags: string[]
 ) => {
-  const cachedResponse = await engageDestinationCache.getByKey(key)
+  const cachedResponse = await engageDestinationCache.getByKey(requestId)
   if (!cachedResponse) {
     datafeedTags.push('cache_hit:false')
     return
