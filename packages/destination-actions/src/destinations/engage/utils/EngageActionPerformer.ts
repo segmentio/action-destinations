@@ -19,7 +19,7 @@ import truncate from 'lodash/truncate'
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
   readonly logger: EngageLogger = new EngageLogger(this)
   readonly statsClient: EngageStats = new EngageStats(this)
-  readonly dataFeedCache = this.executeInput.dataFeedCache
+  readonly engageDestinationCache = this.executeInput.engageDestinationCache
   readonly currentOperation: OperationContext | undefined
 
   readonly payload: TPayload

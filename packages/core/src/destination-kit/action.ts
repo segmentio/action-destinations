@@ -12,7 +12,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext, EngageDestinationCache } from './index'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -166,7 +166,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
-  dataFeedCache?: DataFeedCache | undefined
+  engageDestinationCache?: EngageDestinationCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
 }
@@ -274,7 +274,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      dataFeedCache: bundle.dataFeedCache,
+      engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
@@ -339,7 +339,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        dataFeedCache: bundle.dataFeedCache,
+        engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         hookOutputs
