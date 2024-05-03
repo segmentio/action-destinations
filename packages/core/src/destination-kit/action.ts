@@ -5,7 +5,14 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  ExecuteHookInput,
+  Result
+} from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -21,6 +28,11 @@ type RequestClient = ReturnType<typeof createRequestClient>
 export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
+) => MaybePromise<Return>
+
+export type HookRequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
+  request: RequestClient,
+  data: ExecuteHookInput<Settings, Payload, AudienceSettings, ActionHookInputs>
 ) => MaybePromise<Return>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -134,7 +146,7 @@ export interface ActionHookDefinition<
   /** The shape of the return from performHook. These values will be available in the generated-types: Payload for use in perform() */
   outputTypes?: Record<string, { label: string; description: string; type: string; required: boolean }>
   /** The operation to perform when this hook is triggered. */
-  performHook: RequestFn<
+  performHook: HookRequestFn<
     Settings,
     Payload,
     ActionHookResponse<GeneratedActionHookOutputs>,
@@ -385,7 +397,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
   async executeHook(
     hookType: ActionHookType,
-    data: ExecuteInput<Settings, Payload, AudienceSettings>
+    data: ExecuteHookInput<Settings, Payload, AudienceSettings>
   ): Promise<ActionHookResponse<any>> {
     if (!this.hasHookSupport) {
       throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
@@ -401,9 +413,17 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       validateSchema(data.hookInputs, schema)
     }
 
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
+    return (await this.performHookRequest(hookFn, data)) as ActionHookResponse<any>
   }
 
+  private async performHookRequest<T extends Payload>(
+    requestFn: HookRequestFn<Settings, T, any, AudienceSettings>,
+    data: ExecuteHookInput<Settings, T, AudienceSettings>
+  ): Promise<unknown> {
+    const requestClient = this.createRequestClient(data as ExecuteInput<Settings, T>)
+    const response = await requestFn(requestClient, data)
+    return this.parseResponse(response)
+  }
   /**
    * Perform a request using the definition's request client
    * the given request function

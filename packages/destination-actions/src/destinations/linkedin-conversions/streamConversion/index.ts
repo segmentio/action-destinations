@@ -136,8 +136,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: true
         }
       },
-      performHook: async (request, { hookInputs, hookOutputs }) => {
+      performHook: async (request, { hookInputs, hookOutputs, mapping }) => {
         const linkedIn = new LinkedInConversions(request)
+        const test = mapping?.acxiomID
+
+        if (test) {
+          console.log('test', test)
+        }
 
         let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
         if (hookOutputs?.onMappingSave?.outputs) {
