@@ -101,7 +101,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     countryCode: {
       type: 'string',
       label: 'Country Code',
-      required: false,
+      required: true,
       description: 'A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.'
     },
     externalAudienceId: {
@@ -177,11 +177,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         },
         metadata: {
           externalAudienceId: external_audience_id
-        }
-      }
-
-      if (country_code) {
-        payload.countryCode = country_code
+        },
+        countryCode: country_code
       }
 
       if (ttl) {

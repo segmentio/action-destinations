@@ -16,7 +16,7 @@ export interface AudienceSettings {
   /**
    * A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.
    */
-  countryCode?: string
+  countryCode: string
   /**
    * The user-defined audience identifier.
    */
