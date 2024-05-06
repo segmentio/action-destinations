@@ -774,35 +774,65 @@ describe('Salesforce', () => {
   })
 
   describe('Username & Password flow', () => {
-    const flowEnabledSettings: Required<Settings> = {
+    const usernamePasswordOnly: Settings = {
       username: 'spongebob@seamail.com',
       auth_password: 'gary1997',
-      security_token: '1234ABC',
       instanceUrl: 'https://spongebob.salesforce.com/',
       isSandbox: false
+    }
+
+    const usernamePasswordAndToken: Settings = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false,
+      security_token: 'abc123'
     }
 
     process.env['SALESFORCE_CLIENT_ID'] = 'id'
     process.env['SALESFORCE_CLIENT_SECRET'] = 'secret'
 
-    it('should authenticate using the username and password flow when the username and password are provided', async () => {
+    it('should authenticate using the username and password flow when only the username and password are provided', async () => {
       nock('https://login.salesforce.com/services/oauth2/token')
         .post('', {
           grant_type: 'password',
           client_id: 'id',
           client_secret: 'secret',
-          username: flowEnabledSettings.username,
-          password: `${flowEnabledSettings.auth_password}${flowEnabledSettings.security_token}`
+          username: usernamePasswordOnly.username,
+          password: usernamePasswordOnly.auth_password
         })
         .reply(201, {
           access_token: 'abc'
         })
 
       const res = await authenticateWithPassword(
-        flowEnabledSettings.username,
-        flowEnabledSettings.auth_password,
-        flowEnabledSettings.security_token,
-        flowEnabledSettings.isSandbox
+        usernamePasswordOnly.username as string, // tells typescript that these are defined
+        usernamePasswordOnly.auth_password as string,
+        usernamePasswordOnly.security_token,
+        usernamePasswordOnly.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
+    })
+
+    it('should authenticate using the username and password flow when the username, password and security token are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: usernamePasswordAndToken.username,
+          password: `${usernamePasswordAndToken.auth_password}${usernamePasswordAndToken.security_token}`
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        usernamePasswordAndToken.username as string, // tells typescript that these are defined
+        usernamePasswordAndToken.auth_password as string,
+        usernamePasswordAndToken.security_token,
+        usernamePasswordAndToken.isSandbox
       )
 
       expect(res.accessToken).toEqual('abc')
