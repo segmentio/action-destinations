@@ -148,7 +148,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { statsClient, tags: statsTags } = statsContext || {}
       const statsName = 'createAmazonAdsAudience'
       statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+      statsClient?.incr(`${statsName}.initialise`, 1, statsTags)
 
       const endpoint = createAudienceInput.settings.region
       const description = createAudienceInput.audienceSettings?.description

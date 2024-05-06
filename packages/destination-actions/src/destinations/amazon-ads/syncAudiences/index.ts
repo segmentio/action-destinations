@@ -159,7 +159,7 @@ async function processPayload(
 ) {
   const { statsClient, tags: statsTags } = statsContext || {}
   const statsName = 'syncAmazonAdsAudience'
-  statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+  statsClient?.incr(`${statsName}.initialise`, 1, statsTags)
 
   if (payload.length && !payload[0].audienceId) {
     throw new PayloadValidationError('Audience ID is required.')
