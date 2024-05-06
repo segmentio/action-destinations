@@ -145,6 +145,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { audienceName, statsContext } = createAudienceInput
+      const { statsClient, tags: statsTags } = statsContext || {}
+      const statsName = 'createAmazonAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+
       const endpoint = createAudienceInput.settings.region
       const description = createAudienceInput.audienceSettings?.description
       const advertiser_id = createAudienceInput.audienceSettings?.advertiserId
@@ -154,10 +159,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const currency = createAudienceInput.audienceSettings?.currency
       const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
 
-      const { statsClient, tags: statsTags } = statsContext || {}
-      const statsName = 'createAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+      // const { statsClient, tags: statsTags } = statsContext || {}
+      // const statsName = 'createAmazonAudience'
+      // statsTags?.push(`slug:${destination.slug}`)
+      // statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId value', 'MISSING_REQUIRED_FIELD', 400)

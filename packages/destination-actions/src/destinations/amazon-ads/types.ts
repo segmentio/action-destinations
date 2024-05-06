@@ -39,7 +39,7 @@ export interface HashedPIIObject {
   address?: string
 }
 export interface AudienceRecord {
-  hashedPII: HashedPIIObject[]
+  hashedPII?: HashedPIIObject[]
   externalUserId: string
   countryCode: string
   action: string
