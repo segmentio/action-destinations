@@ -1,8 +1,9 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
-import Salesforce from '../sf-operations'
+import Salesforce, { authenticateWithPassword } from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
 import type { GenericPayload } from '../sf-types'
+import { Settings } from '../generated-types'
 
 const settings = {
   instanceUrl: 'https://test.salesforce.com/'
@@ -769,6 +770,42 @@ describe('Salesforce', () => {
       await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
         'Bulk operation triggered where enable_batching is false.'
       )
+    })
+  })
+
+  describe('Username & Password flow', () => {
+    const flowEnabledSettings: Required<Settings> = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      security_token: '1234ABC',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false
+    }
+
+    process.env['SALESFORCE_CLIENT_ID'] = 'id'
+    process.env['SALESFORCE_CLIENT_SECRET'] = 'secret'
+
+    it('should authenticate using the username and password flow when the username and password are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: flowEnabledSettings.username,
+          password: `${flowEnabledSettings.auth_password}${flowEnabledSettings.security_token}`
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        flowEnabledSettings.username,
+        flowEnabledSettings.auth_password,
+        flowEnabledSettings.security_token,
+        flowEnabledSettings.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
     })
   })
 })
