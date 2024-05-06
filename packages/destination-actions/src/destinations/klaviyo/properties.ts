@@ -13,7 +13,7 @@ export const list_id: InputField = {
 
 export const email: InputField = {
   label: 'Email',
-  description: "The user's email to send to Klavio.",
+  description: `The user's email to send to Klavio.`,
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
