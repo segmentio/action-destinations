@@ -54,7 +54,7 @@ const destination: DestinationDefinition<Settings> = {
     track
   },
   onDelete: async (request, { settings, payload }) => {
-    const host = settings.url.endsWith('/') ? settings.url.slice(0, -1) : settings.url;
+    const host = settings.url.endsWith('/') ? settings.url.slice(0, -1) : settings.url
 
     return request(host + '/api/integration/segment/delete', {
       method: 'post',
