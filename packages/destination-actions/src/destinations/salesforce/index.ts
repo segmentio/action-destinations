@@ -7,6 +7,7 @@ import opportunity from './opportunity'
 import customObject from './customObject'
 import contact from './contact'
 import account from './account'
+import { authenticateWithPassword } from './sf-operations'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -36,21 +37,36 @@ const destination: DestinationDefinition<Settings> = {
       },
       username: {
         label: 'Username',
-        description: 'The username of the Salesforce account you want to connect to.',
+        description:
+          'The username of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.',
         type: 'string'
       },
       auth_password: {
+        // auth_ prefix is used because password is a reserved word
         label: 'Password',
-        description: 'The password of the Salesforce account you want to connect to.',
+        description:
+          'The password of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.',
         type: 'string'
       },
       security_token: {
         label: 'Security Token',
-        description: 'The security token of the Salesforce account you want to connect to.',
+        description:
+          'The security token of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This value will be appended to the password field to construct the credential used for authentication. This field is hidden to all users except those who have opted in to the username+password flow.',
         type: 'string'
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
+      if (settings.username && settings.auth_password) {
+        const { accessToken } = await authenticateWithPassword(
+          settings.username,
+          settings.auth_password,
+          settings.security_token,
+          settings.isSandbox
+        )
+
+        return { accessToken }
+      }
+
       // Return a request that refreshes the access_token if the API supports it
       const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
       const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {

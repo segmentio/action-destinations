@@ -33,7 +33,12 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
     return request
   }
 
-  const { accessToken } = await authenticateWithPassword(settings as Required<Settings>)
+  const { accessToken } = await authenticateWithPassword(
+    settings.username,
+    settings.auth_password,
+    settings.security_token,
+    settings.isSandbox
+  )
 
   const passwordRequestClient = createRequestClient({
     headers: {
@@ -44,7 +49,25 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
   return passwordRequestClient
 }
 
-const authenticateWithPassword = async (settings: Required<Settings>): Promise<RefreshAccessTokenResult> => {
+const constructPassword = (password: string, securityToken?: string): string => {
+  let combined = ''
+  if (password) {
+    combined = password
+  }
+
+  if (securityToken) {
+    combined = password + securityToken
+  }
+
+  return combined
+}
+
+export const authenticateWithPassword = async (
+  username: string,
+  auth_password: string,
+  security_token?: string,
+  isSandbox?: boolean
+): Promise<RefreshAccessTokenResult> => {
   const clientId = process.env.SALESFORCE_CLIENT_ID
   const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
 
@@ -54,7 +77,8 @@ const authenticateWithPassword = async (settings: Required<Settings>): Promise<R
 
   const newRequest = createRequestClient()
 
-  const loginUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  const loginUrl = isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  const password = constructPassword(auth_password, security_token)
 
   const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {
     method: 'post',
@@ -62,12 +86,11 @@ const authenticateWithPassword = async (settings: Required<Settings>): Promise<R
       grant_type: 'password',
       client_id: clientId,
       client_secret: clientSecret,
-      username: settings.username,
-      password: settings.auth_password
+      username: username,
+      password
     })
   })
 
-  console.log('generated access token', res.data.access_token)
   return { accessToken: res.data.access_token }
 }
 

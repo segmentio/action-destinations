@@ -10,15 +10,15 @@ export interface Settings {
    */
   isSandbox?: boolean
   /**
-   * The username of the Salesforce account you want to connect to.
+   * The username of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.
    */
   username?: string
   /**
-   * The password of the Salesforce account you want to connect to.
+   * The password of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.
    */
   auth_password?: string
   /**
-   * The security token of the Salesforce account you want to connect to.
+   * The security token of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This value will be appended to the password field to construct the credential used for authentication. This field is hidden to all users except those who have opted in to the username+password flow.
    */
   security_token?: string
 }
