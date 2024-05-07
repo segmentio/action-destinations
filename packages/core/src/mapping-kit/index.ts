@@ -17,6 +17,8 @@ interface Directives {
   [directive: string]: Directive | undefined
 }
 
+const ROOT_MAPPING_FIELD_KEY = '__segment_internal_directive'
+
 const directives: Directives = {}
 const directiveRegExp = /^@[a-z][a-zA-Z0-9]+$/
 
@@ -240,7 +242,7 @@ registerDirective('@flatten', (opts, payload) => {
 
   const value = resolve(opts.value, payload)
 
-  return flattenObject(value, '', separator)
+  return flattenObject(value, '', separator, Boolean(opts.omitArrays))
 })
 
 registerDirective('@json', (opts, payload) => {
@@ -352,10 +354,32 @@ function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): J
     throw new Error(`data must be an object, got ${realType}`)
   }
 
-  // throws if the mapping config is invalid
-  validate(mapping)
+  let mappingToProcess = mapping
+  // If we have a root mapping, inject all other mappings into the `mapping` object on that root directive
+  if (Object.keys(mapping).includes(ROOT_MAPPING_FIELD_KEY)) {
+    const customerMappings: JSONLikeObject = {}
+    for (const key in mapping) {
+      if (key !== ROOT_MAPPING_FIELD_KEY) {
+        customerMappings[key] = mapping[key]
+      }
+    }
+    // we expect the value of the root mapping field key to be a single object with a directive as the key
+    mappingToProcess = mapping[ROOT_MAPPING_FIELD_KEY] as JSONLikeObject
+    // there should only ever be a single directive in the root mapping object
+    if (Object.keys(mappingToProcess).length > 1) {
+      throw new Error('The root mapping must only have a single directive object')
+    }
+    const rootDirective = mappingToProcess[Object.keys(mappingToProcess)[0]] as JSONLikeObject
+    if (!rootDirective || typeof rootDirective !== 'object') {
+      throw new Error('The root directive must be an object')
+    }
+    rootDirective.mapping = customerMappings
+  }
 
-  const resolved = resolve(mapping, data as JSONObject)
+  // throws if the mapping config is invalid
+  validate(mappingToProcess)
+
+  const resolved = resolve(mappingToProcess, data as JSONObject)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore
