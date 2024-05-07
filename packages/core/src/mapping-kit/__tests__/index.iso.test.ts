@@ -1030,7 +1030,7 @@ describe('@transform', () => {
 })
 
 describe('when a root level directive is used', () => {
-  test('WIP', () => {
+  test('Complex with multiple directives', () => {
     const output = transform(
       {
         __segment_internal_directive: {
