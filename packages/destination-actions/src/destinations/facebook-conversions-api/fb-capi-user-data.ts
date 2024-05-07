@@ -167,14 +167,17 @@ export const user_data_field: InputField = {
 
 type UserData = Pick<Payload, 'user_data'>
 
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+
 const hash = (value: string | string[] | undefined): string | string[] | undefined => {
   if (value === undefined || !value.length) return
 
   if (typeof value == 'string') {
+    if (isHashedInformation(value)) return value
     return hashValue(value)
-  } else {
-    return value.map((el: string) => hashValue(el))
   }
+
+  return value.map((el: string) => (isHashedInformation(el) ? el : hashValue(el)))
 }
 const hashValue = (val: string): string => {
   const hash = createHash('sha256')
@@ -182,15 +185,18 @@ const hashValue = (val: string): string => {
   return hash.digest('hex')
 }
 
-// Normalization of user data properties according to Facebooks specifications.
-// https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+/**
+ * Normalization of user data properties according to Facebooks specifications.
+ * @param payload
+ * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+ */
 export const normalize_user_data = (payload: UserData) => {
   if (payload.user_data.email) {
     // Regex removes all whitespace in the string.
     payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
   }
 
-  if (payload.user_data.phone) {
+  if (payload.user_data.phone && !isHashedInformation(payload.user_data.phone)) {
     // Regex removes all non-numeric characters from the string.
     payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
   }
