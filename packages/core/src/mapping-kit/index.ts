@@ -242,7 +242,7 @@ registerDirective('@flatten', (opts, payload) => {
 
   const value = resolve(opts.value, payload)
 
-  return flattenObject(value, '', separator, opts.omitArrays)
+  return flattenObject(value, '', separator, Boolean(opts.omitArrays))
 })
 
 registerDirective('@json', (opts, payload) => {
