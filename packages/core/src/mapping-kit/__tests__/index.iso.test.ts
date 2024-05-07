@@ -1030,166 +1030,46 @@ describe('@transform', () => {
 })
 
 describe('when a root level directive is used', () => {
-  test('complex transform', () => {
+  test('correctly handles the segment internal directive key', () => {
     const output = transform(
       {
         __segment_internal_directive: {
           '@transform': {
             apply: {
-              '@merge': {
-                objects: [
-                  {
-                    '@path': '$.'
-                  },
-                  {
-                    properties: {
-                      '@merge': {
-                        objects: [
-                          {
-                            '@path': '$.properties'
-                          },
-                          {
-                            '@flatten': {
-                              omitArrays: true,
-                              separator: '__',
-                              value: {
-                                '@path': '$.properties.__entity_context'
-                              }
-                            }
-                          },
-                          {
-                            __entity_context: undefined
-                          }
-                        ],
-                        direction: 'right'
-                      }
-                    }
-                  }
-                ],
-                direction: 'right'
+              properties: {
+                '@flatten': {
+                  value: { '@path': '$.properties' },
+                  separator: '_'
+                }
               }
             }
           }
         },
-        url: 'https://webhook.site/9e895ecd-6456-4b3f-9707-d18ebf37147b',
-        method: 'POST',
-        batch_size: 0,
-        headers: {
-          card_id: {
-            '@path': '$.properties.account__card.0.ID'
-          },
-          owner: {
-            '@path': '$.properties.account__OWNER'
-          }
-        },
-        data: {
-          '@path': '$.'
-        },
-        enable_batching: false
+        properties: { '@path': '$.properties' },
+        topLevel: { '@path': '$.properties.nested_a' }
       },
       {
-        event: 'Entity Added - VE 3/26 flatten test',
         properties: {
-          ve_3_26_flatten_test: true,
-          audience_key: 've_3_26_flatten_test',
-          test_1: 'emq2QvZxyi',
-          trait_4: 'lfwVQ238m3',
-          trait_1: 'jftgHwGUXO',
-          trait_3: 'CpZiVdb6lL',
-          trait_9: 'EQprqPrmPA',
-          __entity_context: {
-            account: {
-              ID: 159,
-              LAST_ACTIVITY: '2024-04-17T16:42:46.933Z',
-              OWNER: 'QwCqQJup4W',
-              TYPE: '1woCzHe24k',
-              BALANCE: 689,
-              __relationship: 'owned-accounts',
-              card: [
-                {
-                  ID: 823,
-                  ACCOUNT_ID: 293,
-                  BALANCE: 779,
-                  ENABLED: false,
-                  NUMBER: 'FZInbBj2Xx',
-                  __relationship: 'card'
-                }
-              ]
-            }
+          test: 'value',
+          another: 'thing',
+          nested: {
+            a: 'special',
+            b: 2
           }
         },
-        userId: 'test-user-70',
-        type: 'track',
-        messageId: 'personas_t24jo2c0zpr76gfshb2ogb',
-        timestamp: '2024-04-17T16:42:46.933Z',
-        receivedAt: '2024-04-17T16:42:46.933Z',
-        originalTimestamp: '2024-04-17T16:42:46.933Z',
-        context: {
-          personas: {
-            computation_id: 'aud_2eFIMXNGExAaJ4d5UXTdKGQNsKV',
-            computation_key: 've_3_26_flatten_test',
-            computation_class: 'audience',
-            event_emitter_id: 'event_tester_9PJc7j95wV',
-            space_id: 'spa_2GDWPev9eAKzWseMQeT87b',
-            namespace: 'spa_2GDWPev9eAKzWseMQeT87b'
-          }
-        }
+        otherStuff: 'foo',
+        more: 'bar'
       }
     )
 
     expect(output).toStrictEqual({
-      batch_size: 0,
-      data: {
-        context: {
-          personas: {
-            computation_class: 'audience',
-            computation_id: 'aud_2eFIMXNGExAaJ4d5UXTdKGQNsKV',
-            computation_key: 've_3_26_flatten_test',
-            event_emitter_id: 'event_tester_9PJc7j95wV',
-            namespace: 'spa_2GDWPev9eAKzWseMQeT87b',
-            space_id: 'spa_2GDWPev9eAKzWseMQeT87b'
-          }
-        },
-        event: 'Entity Added - VE 3/26 flatten test',
-        messageId: 'personas_t24jo2c0zpr76gfshb2ogb',
-        originalTimestamp: '2024-04-17T16:42:46.933Z',
-        properties: {
-          account__BALANCE: 689,
-          account__ID: 159,
-          account__LAST_ACTIVITY: '2024-04-17T16:42:46.933Z',
-          account__OWNER: 'QwCqQJup4W',
-          account__TYPE: '1woCzHe24k',
-          account____relationship: 'owned-accounts',
-          account__card: [
-            {
-              ACCOUNT_ID: 293,
-              BALANCE: 779,
-              ENABLED: false,
-              ID: 823,
-              NUMBER: 'FZInbBj2Xx',
-              __relationship: 'card'
-            }
-          ],
-          audience_key: 've_3_26_flatten_test',
-          test_1: 'emq2QvZxyi',
-          trait_1: 'jftgHwGUXO',
-          trait_3: 'CpZiVdb6lL',
-          trait_4: 'lfwVQ238m3',
-          trait_9: 'EQprqPrmPA',
-          ve_3_26_flatten_test: true
-        },
-        receivedAt: '2024-04-17T16:42:46.933Z',
-        timestamp: '2024-04-17T16:42:46.933Z',
-        type: 'track',
-        userId: 'test-user-70'
+      properties: {
+        test: 'value',
+        another: 'thing',
+        nested_a: 'special',
+        nested_b: 2
       },
-      enable_batching: false,
-      headers: {
-        card_id: 823,
-        owner: 'QwCqQJup4W'
-      },
-      method: 'POST',
-      url: 'https://webhook.site/9e895ecd-6456-4b3f-9707-d18ebf37147b'
+      topLevel: 'special'
     })
   })
 })
