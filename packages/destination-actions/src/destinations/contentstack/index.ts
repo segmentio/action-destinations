@@ -10,7 +10,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       orgId: {
         label: 'Organization ID',
