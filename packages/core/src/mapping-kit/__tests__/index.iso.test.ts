@@ -546,6 +546,14 @@ describe('@flatten', () => {
     )
     expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
   })
+
+  test('omitArrays passed', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.', omitArrays: true } } },
+      { foo: { bar: 'baz', aces: [1, 2] } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', aces: [1, 2] } })
+  })
 })
 
 describe('@path', () => {
