@@ -59,11 +59,13 @@ type GenericActionHookBundle = {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Payload = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookBundle extends GenericActionHookBundle = any
 > extends BaseActionDefinition {
   /**
