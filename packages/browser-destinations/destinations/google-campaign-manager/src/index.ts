@@ -101,8 +101,6 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       // eslint-disable-next-line prefer-rest-params
       window.dataLayer.push(arguments)
     }
-
-    window.gtag('set', 'allow_ad_personalization_signals', settings.allowAdPersonalizationSignals)
     window.gtag('js', new Date())
     window.gtag('config', settings.advertiserId, {
       conversion_linker: settings.conversionLinker
@@ -113,6 +111,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         analytics_storage?: ConsentParamsArg
         ad_user_data?: ConsentParamsArg
         ad_personalization?: ConsentParamsArg
+        allow_ad_personalization_signals?: Boolean
       } = {}
 
       if (settings.defaultAnalyticsStorageConsentState) {
@@ -126,8 +125,9 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       }
       if (settings.adPersonalizationConsentState) {
         consent.ad_personalization = settings.adPersonalizationConsentState as ConsentParamsArg
+        consent.allow_ad_personalization_signals = settings.allowAdPersonalizationSignals
       }
-      window.gtag('consent', 'default', consent)
+      window.gtag('consent', settings.advertiserId, consent)
     }
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.advertiserId}`
     await deps.loadScript(script)
