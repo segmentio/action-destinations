@@ -91,9 +91,86 @@ export abstract class MessageSendPerformer<
   TSettings extends MessageSettingsBase,
   TPayload extends MessagePayloadBase
 > extends EngageActionPerformer<TSettings, TPayload> {
+  /**
+   * Cache the response from the server based on messageId and recipientId.
+   * Only messages with valid messageIds, recipientIds, and successful or non
+   * retryable errors are cacheable. All other errors will be ignored.
+   *
+   * @param response The response from the server.
+   * @param messageId The messageId of the message.
+   * @param recipientId The recipientId of the message.
+   * @returns The response from the cache.
+   */
+  @track()
+  async cacheResponse(response: Response, messageId?: string, recipientId?: string) {
+    if (!messageId || !recipientId || !this.engageDestinationCache) {
+      return
+    }
+    // Check if the response is successful.
+    if (response.ok) {
+      const body = await response.text()
+      await this.engageDestinationCache.setByKey(messageId + recipientId, body)
+      // If the response is not retryable, cache the error.
+    } else if (!isRetryableError(response)) {
+      const error = await response.text()
+      await this.engageDestinationCache.setByKey(messageId + recipientId, error)
+    }
+  }
+
+  /**
+   * Read the response from the cache based on messageId and recipientId.
+   *
+   * @param messageId The messageId of the message.
+   * @param recipientId The recipientId of the message.
+   * @returns The response from the cache.
+   */
+  @track()
+  async readCache(messageId?: string, recipientId?: string) {
+    if (!messageId || !recipientId || !this.engageDestinationCache) {
+      return
+    }
+    return this.engageDestinationCache.getByKey(messageId + recipientId)
+  }
+
+  @track()
   async doPerform() {
+    /**
+     * Internal function to process a recepient.
+     *
+     * If a cache exists, it will check to see if the messageId, and recipientId
+     * has already been attempted. The response will be stored if the error
+     * returned from the server is a non retryable error or if the response is
+     * successful.
+     *
+     * @param recepient The recepient to process.
+     * @returns The response from the server.
+     */
+    const processRecipient = async (recepient: ExtId<TPayload>) => {
+      const messageId = (this.executeInput as any)['rawData']?.messageId
+      const recipientId = recepient.id
+      let cachedResponse
+      try {
+        cachedResponse = await this.readCache(messageId, recipientId)
+        if (cachedResponse) {
+          return cachedResponse
+        }
+      } catch (error) {
+        this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
+      }
+
+      const response: Response = await this.sendToRecepient(recepient)
+
+      // This is a non blocking promise.
+      // Let the cacheResponse throw errors if it fails.
+      this.cacheResponse(response, messageId, recipientId).catch((error) => {
+        this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, error)
+      })
+
+      return response
+    }
+
     // sending messages and collecting results, including exceptions
-    const res = this.forAllRecepients((recepient) => this.sendToRecepient(recepient))
+    const res = this.forAllRecepients(processRecipient)
 
     if (this.executeInput.features) {
       this.logInfo('Feature flags:' + JSON.stringify(this.executeInput.features))
@@ -238,6 +315,12 @@ export abstract class MessageSendPerformer<
       : []
   }
 
+  /**
+   * Send message to recipient.
+   *
+   * @param recepient The recipient to send the message to.
+   * @returns The response from the server.
+   */
   abstract sendToRecepient(recepient: ExtId<TPayload>): any
 
   /**
