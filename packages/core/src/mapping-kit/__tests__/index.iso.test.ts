@@ -546,6 +546,14 @@ describe('@flatten', () => {
     )
     expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
   })
+
+  test('omitArrays passed', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.', omitArrays: true } } },
+      { foo: { bar: 'baz', aces: [1, 2] } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', aces: [1, 2] } })
+  })
 })
 
 describe('@path', () => {
@@ -1002,6 +1010,51 @@ describe('@transform', () => {
             topLevel: { '@path': '$.properties.nested_a' }
           }
         }
+      },
+      {
+        properties: {
+          test: 'value',
+          another: 'thing',
+          nested: {
+            a: 'special',
+            b: 2
+          }
+        },
+        otherStuff: 'foo',
+        more: 'bar'
+      }
+    )
+
+    expect(output).toStrictEqual({
+      properties: {
+        test: 'value',
+        another: 'thing',
+        nested_a: 'special',
+        nested_b: 2
+      },
+      topLevel: 'special'
+    })
+  })
+})
+
+describe('when a root level directive is used', () => {
+  test('correctly handles the segment internal directive key', () => {
+    const output = transform(
+      {
+        __segment_internal_directive: {
+          '@transform': {
+            apply: {
+              properties: {
+                '@flatten': {
+                  value: { '@path': '$.properties' },
+                  separator: '_'
+                }
+              }
+            }
+          }
+        },
+        properties: { '@path': '$.properties' },
+        topLevel: { '@path': '$.properties.nested_a' }
       },
       {
         properties: {
