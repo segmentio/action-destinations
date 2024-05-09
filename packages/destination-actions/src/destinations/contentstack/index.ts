@@ -42,6 +42,15 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res?.data?.access_token, refreshToken: res?.data?.refresh_token }
     }
   },
+  extendRequest({ auth, settings }) {
+    return {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+        organization_uid: settings.orgId,
+        'x-project-uid': settings.personalizeProjectId
+      }
+    }
+  },
   actions: {
     customAttributesSync
   }
