@@ -28,9 +28,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: async (request, { auth }) => {
-      if (!process.env.ACTIONS_AMAZON_ADS_CLIENT_ID) {
-        throw new IntegrationError('Missing amazon API client ID', 'MISSING_REQUIRED_FIELD', 400)
-      }
+      // if (!process.env.ACTIONS_AMAZON_ADS_CLIENT_ID) {
+      //   throw new IntegrationError('Missing amazon API client ID', 'MISSING_REQUIRED_FIELD', 400)
+      // }
 
       if (!auth?.accessToken) {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
@@ -159,25 +159,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const currency = createAudienceInput.audienceSettings?.currency
       const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
 
-      // const { statsClient, tags: statsTags } = statsContext || {}
-      // const statsName = 'createAmazonAudience'
-      // statsTags?.push(`slug:${destination.slug}`)
-      // statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
       if (!advertiser_id) {
-        throw new IntegrationError('Missing advertiserId value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!description) {
-        throw new IntegrationError('Missing Description value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing description Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!external_audience_id) {
-        throw new IntegrationError('Missing External Audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing externalAudienceId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!audienceName) {
-        throw new IntegrationError('Missing Audience name value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing audienceName Value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!country_code) {
+        throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const payload: AudiencePayload = {
@@ -265,7 +263,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
-        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       try {
@@ -276,15 +274,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         //Replace the Big Int number with quoted String
         const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
         const externalId = JSON.parse(resString)['audienceId']
-
-        if (externalId != getAudienceInput.externalId) {
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError(
-            "Unable to verify ownership over audience. Segment Audience ID doesn't match Amazon Ads ID.",
-            'INVALID_REQUEST_DATA',
-            400
-          )
-        }
 
         statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
