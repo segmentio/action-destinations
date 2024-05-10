@@ -29,6 +29,46 @@ test('should handle valid ast', () => {
   expect(generateFql(ast)).toEqual('properties.value = "x"')
 })
 
+test('should numeric equal (==) ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: '==',
+        value: '123'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value = 123')
+})
+
+test('should string equal (=) ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: '==',
+        value: '123'
+      },
+      {
+        type: 'event-property',
+        name: 'label',
+        operator: '=',
+        value: '456'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value = 123 and properties.label = "456"')
+})
+
 test('should handle ast with multiple childs (or condition)', () => {
   const ast: Subscription = {
     type: 'group',
