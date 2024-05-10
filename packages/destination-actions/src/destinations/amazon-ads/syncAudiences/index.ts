@@ -147,15 +147,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: true,
       default: true
-    },
-    batch_size: {
-      label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
-      type: 'number',
-      unsafe_hidden: true,
-      required: false,
-      default: 10000
     }
+    // batch_size: {
+    //   label: 'Batch Size',
+    //   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    //   type: 'number',
+    //   unsafe_hidden: true,
+    //   required: false,
+    //   default: 10000
+    // }
   },
   perform: (request, { settings, payload, statsContext, audienceSettings }) => {
     return processPayload(request, settings, [payload], statsContext, audienceSettings)
@@ -173,7 +173,7 @@ async function processPayload(
   audienceSettings: AudienceSettings
 ) {
   const { statsClient, tags: statsTags } = statsContext || {}
-  const statsName = 'syncAmazonAdsAudience'
+  const statsName = 'syncAmazonAdsAudiences'
   statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
   try {

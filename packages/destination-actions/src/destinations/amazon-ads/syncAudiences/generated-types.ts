@@ -49,8 +49,4 @@ export interface Payload {
    * When enabled,segment will send data in batching
    */
   enable_batching: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }
