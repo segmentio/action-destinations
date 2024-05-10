@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('MolocoMCM.home', () => {  
+describe('MolocoMCM.home', () => {
   it('should successfully build an event and send', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
@@ -19,7 +19,7 @@ describe('MolocoMCM.home', () => {
       mapping: {
         timestamp: { '@path': '$.timestamp' }
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)

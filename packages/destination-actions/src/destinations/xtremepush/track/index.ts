@@ -23,12 +23,12 @@ const action: ActionDefinition<Settings, Payload> = {
         userId: {
           label: 'User ID',
           type: 'string',
-          required: false,
+          required: false
         },
         anonymousId: {
           label: 'Anonymous ID',
           type: 'string',
-          required: false,
+          required: false
         },
         phone: {
           label: 'Phone',
@@ -61,25 +61,25 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The properties of the Segment track() event.',
       type: 'object',
       required: false,
-      default: {'@path': '$.properties'}
+      default: { '@path': '$.properties' }
     },
     timestamp: {
       label: 'Timestamp',
       description: 'The timestamp of the event.',
       type: 'string',
       required: true,
-      default: {'@path': '$.timestamp'}
+      default: { '@path': '$.timestamp' }
     },
     messageId: {
       label: 'Message ID',
       description: 'The message ID of the event.',
       type: 'string',
       required: true,
-      default: {'@path': '$.messageId'}
+      default: { '@path': '$.messageId' }
     }
   },
-  perform: (request, {settings, payload}) => {
-    const host = settings.url.endsWith('/') ? settings.url.slice(0, -1) : settings.url;
+  perform: (request, { settings, payload }) => {
+    const host = settings.url.endsWith('/') ? settings.url.slice(0, -1) : settings.url
 
     return request(host + '/api/integration/segment/handle', {
       method: 'post',
