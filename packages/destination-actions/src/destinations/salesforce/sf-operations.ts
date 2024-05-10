@@ -49,6 +49,11 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
   return passwordRequestClient
 }
 
+/**
+ * Salesforce requires that the password provided for authentication be a concatenation of the
+ * user password + the user security token.
+ * For more info see: https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_username_password_flow.htm&type=5
+ */
 const constructPassword = (password: string, securityToken?: string): string => {
   let combined = ''
   if (password) {
