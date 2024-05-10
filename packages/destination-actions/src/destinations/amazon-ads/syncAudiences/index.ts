@@ -1,5 +1,5 @@
 import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
-import { PayloadValidationError, IntegrationError, APIError } from '@segment/actions-core'
+import { IntegrationError, APIError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AmazonAdsError } from '../utils'
@@ -140,6 +140,21 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled,segment will send data in batching',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 10000
     }
   },
   perform: (request, { settings, payload, statsContext, audienceSettings }) => {
@@ -160,10 +175,6 @@ async function processPayload(
   const { statsClient, tags: statsTags } = statsContext || {}
   const statsName = 'syncAmazonAdsAudience'
   statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
-  if (payload.length && !payload[0].audienceId) {
-    throw new PayloadValidationError('Audience ID is required.')
-  }
 
   try {
     const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
@@ -187,7 +198,6 @@ async function processPayload(
     if (!jobRequestId) {
       throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
     }
-
     return {
       result
     }
