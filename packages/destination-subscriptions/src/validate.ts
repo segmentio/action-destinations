@@ -72,7 +72,8 @@ const validateCondition = (condition: Condition, data: any): boolean => {
 const validateValue = (actual: unknown, operator: Operator, expected?: string | boolean | number): boolean => {
   switch (operator) {
     case '=':
-      return actual === String(expected)
+    case '==':
+      return typeof actual === 'number' ? Number(actual) === Number(expected) : actual === String(expected)
     case '!=':
       return actual !== String(expected)
     case '<':
