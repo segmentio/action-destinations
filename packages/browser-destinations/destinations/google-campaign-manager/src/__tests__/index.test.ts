@@ -146,13 +146,7 @@ describe('Google Tag for Campaign Manager', () => {
 
     expect(window.dataLayer).toEqual(
       expect.arrayContaining([
-        expect.objectContaining(
-          Object.assign({}, [
-            'consent',
-            'default',
-            { ad_personalization: 'granted', allow_ad_personalization_signals: false }
-          ])
-        )
+        expect.objectContaining(Object.assign({}, ['consent', 'default', { ad_personalization: 'granted' }]))
       ])
     )
   })
@@ -169,13 +163,7 @@ describe('Google Tag for Campaign Manager', () => {
 
     expect(window.dataLayer).toEqual(
       expect.arrayContaining([
-        expect.objectContaining(
-          Object.assign({}, [
-            'consent',
-            'default',
-            { ad_personalization: 'denied', allow_ad_personalization_signals: false }
-          ])
-        )
+        expect.objectContaining(Object.assign({}, ['consent', 'default', { ad_personalization: 'denied' }]))
       ])
     )
   })
