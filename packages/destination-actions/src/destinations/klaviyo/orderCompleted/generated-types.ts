@@ -40,15 +40,6 @@ export interface Payload {
    * List of products purchased in the order.
    */
   products?: {
-    /**
-     * A numeric value to associate with this event. For example, the dollar amount of a purchase.
-     */
-    value?: number
-    /**
-     * Properties of this event.
-     */
-    properties?: {
-      [k: string]: unknown
-    }
+    [k: string]: unknown
   }[]
 }

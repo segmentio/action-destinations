@@ -1,63 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for MolocoRmp's purchase destination action: all fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's purchase destination action: all fields 1`] = `
 Object {
-  "channel_type": "Gxw(AXLlJ#6Uf]*Hp",
+  "channel_type": "WE5OAc",
   "device": Object {
-    "advertising_id": "Gxw(AXLlJ#6Uf]*Hp",
-    "ip": "Gxw(AXLlJ#6Uf]*Hp",
-    "language": "Gxw(AXLlJ#6Uf]*Hp",
-    "model": "Gxw(AXLlJ#6Uf]*Hp",
-    "os": "GXW(AXLLJ#6UF]*HP",
-    "os_version": "Gxw(AXLlJ#6Uf]*Hp",
-    "ua": "Gxw(AXLlJ#6Uf]*Hp",
-    "unique_device_id": "Gxw(AXLlJ#6Uf]*Hp",
+    "advertising_id": "WE5OAc",
+    "ip": "WE5OAc",
+    "language": "WE5OAc",
+    "model": "WE5OAc",
+    "os": "WE5OAC",
+    "os_version": "WE5OAc",
+    "ua": "WE5OAc",
+    "unique_device_id": "WE5OAc",
   },
   "event_type": "PURCHASE",
-  "id": "Gxw(AXLlJ#6Uf]*Hp",
+  "id": "WE5OAc",
   "items": Array [
     Object {
-      "id": "Gxw(AXLlJ#6Uf]*Hp",
+      "id": "WE5OAc",
       "price": Object {
-        "amount": 52157945353338.88,
-        "currency": "DKK",
+        "amount": -77696571172454.4,
+        "currency": "USD",
       },
-      "quantity": 5215794535333888,
-      "seller_id": "Gxw(AXLlJ#6Uf]*Hp",
+      "quantity": -7769657117245440,
+      "seller_id": "WE5OAc",
     },
   ],
-  "page_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "page_id": "WE5OAc",
   "revenue": Object {
-    "amount": 52157945353338.88,
-    "currency": "DKK",
+    "amount": -77696571172454.4,
+    "currency": "USD",
   },
-  "session_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "session_id": "WE5OAc",
   "shipping_charge": Object {
-    "amount": 52157945353338.88,
-    "currency": "DKK",
+    "amount": -77696571172454.4,
+    "currency": "USD",
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "user_id": "WE5OAc",
 }
 `;
 
-exports[`Testing snapshot for MolocoRmp's purchase destination action: required fields 1`] = `
+exports[`Testing snapshot for MolocoMCM's purchase destination action: required fields 1`] = `
 Object {
-  "channel_type": "Gxw(AXLlJ#6Uf]*Hp",
+  "channel_type": "WE5OAc",
   "event_type": "PURCHASE",
-  "id": "Gxw(AXLlJ#6Uf]*Hp",
+  "id": "WE5OAc",
   "items": Array [
     Object {
-      "id": "Gxw(AXLlJ#6Uf]*Hp",
+      "id": "WE5OAc",
     },
   ],
-  "page_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "page_id": "WE5OAc",
   "revenue": Object {
-    "amount": 52157945353338.88,
-    "currency": "DKK",
+    "amount": -77696571172454.4,
+    "currency": "USD",
   },
-  "session_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "session_id": "WE5OAc",
   "timestamp": "2021-02-01T00:00:00.000Z",
-  "user_id": "Gxw(AXLlJ#6Uf]*Hp",
+  "user_id": "WE5OAc",
 }
 `;

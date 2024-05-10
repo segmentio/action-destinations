@@ -6,7 +6,7 @@ import { getProfiles, removeProfileFromList } from '../functions'
 import { email, list_id, external_id, enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Remove profile from list',
+  title: 'Remove Profile from List (Engage)',
   description: 'Remove profile from list',
   defaultSubscription: 'event = "Audience Exited"',
   fields: {

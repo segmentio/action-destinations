@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * 7 digit number ... description to be added
+   * Dynamic Yield Section ID
    */
   sectionId: string
   /**
-   * description to be added
+   * Dynamic Yield Data Center
    */
   dataCenter: string
   /**
@@ -14,11 +14,15 @@ export interface Settings {
    */
   accessKey: string
   /**
-   * This setting will be removed
+   * The type of identifier being used to identify the user in Dynamic Yield. Segment hashes the identifier before sending to Dynamic Yield.
    */
-  fullUpsertURL?: string
+  identifier_type: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
   /**
-   * This setting will be removed
+   * Required: Provide a name for your Audience to be displayed in Dynamic Yield.
    */
-  fullVerifyURL?: string
+  audience_name: string
 }

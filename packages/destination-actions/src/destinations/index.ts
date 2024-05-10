@@ -160,6 +160,10 @@ register('6578a19fbd1201d21f035156', './responsys')
 register('65f9885371de48a7a3f6b4bf', './yotpo')
 register('65f98869b73d65a27152e088', './mantle')
 register('65f9888628c310646331738a', './chartmogul')
+register('661e9787658d112ba31b59a7', './xtremepush')
+register('661e97a161b54c61eb22ead5', './spiffy')
+register('6627b0208bbe1699ca06eef8', './inleads-ai')
+register('663235c8575a8ec65ccadf42', './magellan-ai')
 
 
 function register(id: MetadataId, destinationPath: string) {

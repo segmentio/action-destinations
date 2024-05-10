@@ -95,11 +95,21 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     retry: {
-      label: 'Retry',
-      description: 'If true, a delay of 30 seconds will be added before retrying a failed request.',
-      type: 'boolean',
+      label: 'Delay (seconds)',
+      description: `A delay of the selected seconds will be added before retrying a failed request.
+                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.`,
+      type: 'number',
+      choices: [
+        { label: '0 secs', value: 0 },
+        { label: '30 secs', value: 30 },
+        { label: '120 secs', value: 120 },
+        { label: '300 secs', value: 300 },
+        { label: '480 secs', value: 480 },
+        { label: '600 secs', value: 600 }
+      ],
       required: false,
-      default: false
+      unsafe_hidden: true,
+      default: 0
     }
   },
 

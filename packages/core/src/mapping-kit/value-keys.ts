@@ -16,7 +16,19 @@ export function isDirective(value: FieldValue): value is Directive {
     value !== null &&
     typeof value === 'object' &&
     Object.keys(value).some((key) =>
-      ['@if', '@path', '@template', '@literal', '@arrayPath', '@case', '@replace', '@json', '@flatten'].includes(key)
+      [
+        '@if',
+        '@path',
+        '@template',
+        '@literal',
+        '@arrayPath',
+        '@case',
+        '@replace',
+        '@json',
+        '@flatten',
+        '@merge',
+        '@transform'
+      ].includes(key)
     )
   )
 }
@@ -160,6 +172,41 @@ export function isFlattenDirective(value: FieldValue): value is FlattenDirective
   )
 }
 
+export interface MergeDirective extends DirectiveMetadata {
+  '@merge': {
+    objects: { [key: string]: FieldValue }[]
+    direction: 'left' | 'right'
+  }
+}
+
+export function isMergeDirective(value: FieldValue): value is MergeDirective {
+  return (
+    isDirective(value) &&
+    '@merge' in value &&
+    value['@merge'] !== null &&
+    typeof value['@merge'] === 'object' &&
+    'objects' in value['@merge']
+  )
+}
+
+export interface TransformDirective extends DirectiveMetadata {
+  '@transform': {
+    apply: FieldValue
+    mapping: FieldValue
+  }
+}
+
+export function isTransformDirective(value: FieldValue): value is TransformDirective {
+  return (
+    isDirective(value) &&
+    '@transform' in value &&
+    value['@transform'] !== null &&
+    typeof value['@transform'] === 'object' &&
+    'apply' in value['@transform'] &&
+    'mapping' in value['@transform']
+  )
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -170,6 +217,8 @@ type DirectiveKeysToType<T> = {
   ['@template']: (input: TemplateDirective) => T
   ['@json']: (input: JSONDirective) => T
   ['@flatten']: (input: FlattenDirective) => T
+  ['@merge']: (input: MergeDirective) => T
+  ['@transform']: (input: TransformDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -213,6 +262,8 @@ export type Directive =
   | TemplateDirective
   | JSONDirective
   | FlattenDirective
+  | MergeDirective
+  | TransformDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -238,7 +289,12 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@replace': (input: ReplaceDirective) => getRawKeys(input['@replace'].value),
         '@template': (input: TemplateDirective) => getTemplateKeys(input['@template']),
         '@json': (input: JSONDirective) => getRawKeys(input['@json'].value),
-        '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value)
+        '@flatten': (input: FlattenDirective) => getRawKeys(input['@flatten'].value),
+        '@merge': (input: MergeDirective) => getRawKeys(input['@merge'].objects),
+        '@transform': (input: TransformDirective) => [
+          ...getRawKeys(input['@transform'].apply),
+          ...getRawKeys(input['@transform'].mapping)
+        ]
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

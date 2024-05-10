@@ -19,7 +19,7 @@ const AUTH = {
 }
 
 
-describe('Moloco Rmp', () => {
+describe('Moloco MCM', () => {
   // TEST 1: Test the default mappings. The input event data are automatically collected fields
   // Custom mapping options are not provided so the default mappings are used
   // This tests whether the default mappings are working as expected

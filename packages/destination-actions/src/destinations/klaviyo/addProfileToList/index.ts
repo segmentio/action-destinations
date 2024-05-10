@@ -5,7 +5,7 @@ import { createProfile, addProfileToList, createImportJobPayload, sendImportJobR
 import { email, external_id, list_id, enable_batching, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add Profile To List',
+  title: 'Add Profile to List (Engage)',
   description: 'Add Profile To List',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {

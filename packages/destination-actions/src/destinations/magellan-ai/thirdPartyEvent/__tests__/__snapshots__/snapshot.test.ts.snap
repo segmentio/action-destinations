@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MagellanAI's thirdPartyEvent destination action: all fields 1`] = `
+Object {
+  "aifa": "eow1m",
+  "andi": "eow1m",
+  "app": "eow1m",
+  "evtattrs": Object {
+    "testType": "eow1m",
+  },
+  "evtname": "eow1m",
+  "host": "eow1m",
+  "idfa": "eow1m",
+  "idfv": "eow1m",
+  "ip": "14.15.48.77",
+  "plat": "eow1m",
+  "token": "eow1m",
+  "ts": "eow1m",
+  "ua": "eow1m",
+}
+`;
+
+exports[`Testing snapshot for MagellanAI's thirdPartyEvent destination action: required fields 1`] = `
+Object {
+  "app": "eow1m",
+  "evtname": "eow1m",
+  "host": "eow1m",
+  "idfa": "eow1m",
+  "idfv": "eow1m",
+  "ip": "14.15.48.77",
+  "plat": "eow1m",
+  "token": "eow1m",
+  "ts": "eow1m",
+  "ua": "eow1m",
+}
+`;
