@@ -127,7 +127,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         consent.ad_personalization = settings.adPersonalizationConsentState as ConsentParamsArg
         consent.allow_ad_personalization_signals = settings.allowAdPersonalizationSignals
       }
-      window.gtag('consent', settings.advertiserId, consent)
+
+      window.gtag('consent', 'default', consent)
     }
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.advertiserId}`
     await deps.loadScript(script)
