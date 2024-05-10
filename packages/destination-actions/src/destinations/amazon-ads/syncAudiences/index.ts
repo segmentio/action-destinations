@@ -193,10 +193,12 @@ async function processPayload(
     //   }
     // }
     const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
+    // Replace the string with an unquoted number
+    const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
     const response = await request(`${settings.region}/amc/audiences/records`, {
       method: 'POST',
-      json: payloadRecord,
+      body: payloadString,
       headers: {
         'Content-Type': 'application/vnd.amcaudiences.v1+json'
       }

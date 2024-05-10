@@ -141,7 +141,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, statsContext } = createAudienceInput
+      const { audienceName } = createAudienceInput
       const endpoint = createAudienceInput.settings.region
       const description = createAudienceInput.audienceSettings?.description
       const advertiser_id = createAudienceInput.audienceSettings?.advertiserId
@@ -151,22 +151,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const currency = createAudienceInput.audienceSettings?.currency
       const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
 
-      const { statsClient, tags: statsTags } = statsContext || {}
-
       if (!advertiser_id) {
-        throw new IntegrationError('Missing advertiserId value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!description) {
-        throw new IntegrationError('Missing Description value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing description Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!external_audience_id) {
-        throw new IntegrationError('Missing External Audience Id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing externalAudienceId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       if (!audienceName) {
-        throw new IntegrationError('Missing Audience name value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing audienceName Value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!country_code) {
+        throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       const payload: AudiencePayload = {
@@ -193,10 +194,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
-      const statsName = 'createAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
-
       try {
         let payloadString = JSON.stringify(payload)
 
@@ -219,11 +216,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const externalId = JSON.parse(resString)['audienceId']
 
         if (!externalId) {
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
         }
 
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
           externalId
         }
@@ -250,7 +245,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
-        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
       try {
@@ -261,15 +256,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         //Replace the Big Int number with quoted String
         const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
         const externalId = JSON.parse(resString)['audienceId']
-
-        if (externalId != getAudienceInput.externalId) {
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError(
-            "Unable to verify ownership over audience. Segment Audience ID doesn't match Amazon Ads ID.",
-            'INVALID_REQUEST_DATA',
-            400
-          )
-        }
 
         statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
