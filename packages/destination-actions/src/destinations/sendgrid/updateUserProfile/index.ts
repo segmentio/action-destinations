@@ -201,13 +201,55 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email Address',
       description: `The contact's email address.`,
       type: 'string',
-      allowNull: false,
-      required: true,
+      allowNull: true,
+      required: false,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
+        }
+      }
+    },
+    phone_number_id: {
+      label: 'Phone Number ID',
+      description: `The contact's Phone Number ID. This must be a valid phone number.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone_number_id' },
+          then: { '@path': '$.traits.phone_number_id' },
+          else: { '@path': '$.properties.phone_number_id' }
+        }
+      }
+    },
+    external_id: {
+      label: 'External ID',
+      description: `The contact's External ID.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.external_id' },
+          then: { '@path': '$.traits.external_id' },
+          else: { '@path': '$.properties.external_id' }
+        }
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID ',
+      description: `The contact's Anonymous ID.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.anonymous_id' },
+          then: { '@path': '$.traits.anonymous_id' },
+          else: { '@path': '$.properties.anonymous_id' }
         }
       }
     },
