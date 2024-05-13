@@ -2,7 +2,7 @@ import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError, APIError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { AmazonAdsError } from '../utils'
+import { AmazonAdsError, CONSTANTS } from '../utils'
 import { createHash } from 'crypto'
 import { AudienceRecord, HashedPIIObject } from '../types'
 
@@ -54,109 +54,62 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User email address. Vaule will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.email' },
-          then: { '@path': '$.context.properties.email' },
-          else: { '@path': '$.properties.email' }
-        }
-      }
+      default: { '@path': '$.properties.email' }
     },
     firstName: {
       label: 'First name',
       description: 'User first name. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.first_name' },
-          then: { '@path': '$.context.properties.first_name' },
-          else: { '@path': '$.properties.first_name' }
-        }
-      }
+      default: { '@path': '$.properties.first_name' }
     },
     lastName: {
       label: 'Last name',
       description: 'User Last name. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.last_name' },
-          then: { '@path': '$.context.properties.last_name' },
-          else: { '@path': '$.properties.last_name' }
-        }
-      }
+      default: { '@path': '$.properties.last_name' }
     },
     phone: {
       label: 'Phone',
       description: 'Phone Number. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.phone' },
-          then: { '@path': '$.context.properties.phone' },
-          else: { '@path': '$.properties.phone' }
-        }
-      }
+      default: { '@path': '$.properties.phone' }
     },
     postal: {
       label: 'Postal',
       description: 'POstal Code. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.postal' },
-          then: { '@path': '$.context.properties.postal' },
-          else: { '@path': '$.properties.postal' }
-        }
-      }
+      default: { '@path': '$.properties.postal' }
     },
     state: {
       label: 'Postal',
       description: 'State Code. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.state' },
-          then: { '@path': '$.context.properties.state' },
-          else: { '@path': '$.properties.state' }
-        }
-      }
+      default: { '@path': '$.properties.state' }
     },
     city: {
       label: 'City',
       description: 'City name. Vaue will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.city' },
-          then: { '@path': '$.context.properties.city' },
-          else: { '@path': '$.properties.city' }
-        }
-      }
+      default: { '@path': '$.properties.city' }
     },
     address: {
       label: 'Address',
       description: 'Address Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.properties.address' },
-          then: { '@path': '$.context.properties.address' },
-          else: { '@path': '$.properties.address' }
-        }
-      }
+      default: { '@path': '$.properties.address' }
     },
     audienceId: {
       label: 'Audience ID',
       type: 'string',
       required: true,
+      unsafe_hidden: true,
       description:
         'An number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.',
       default: {
@@ -269,7 +222,7 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: payload.event_name == 'Audience Entered' ? 'CREATE' : 'DELETE',
+      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII]
     }
     records.push(payloadRecord)
