@@ -50,7 +50,7 @@ const fqlExpression = (name: string, operator: Operator, value: string | boolean
     case '==':
       return `${name} = ${Number(value)}`
     default:
-      return `${name} ${operator} ${stringifyValue(value)}`
+      return `${name} ${operator} "${value}"`
   }
 }
 
