@@ -89,7 +89,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID,
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || '',
         'Content-Type': 'application/vnd.amcaudiences.v1+json'
       }
     }
@@ -146,12 +146,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, statsContext, audienceSettings } = createAudienceInput
-      const { statsClient, tags: statsTags } = statsContext || {}
-      const statsName = 'createAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
+      const { audienceName, audienceSettings } = createAudienceInput
       const endpoint = createAudienceInput.settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
@@ -207,67 +202,47 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
-      try {
-        let payloadString = JSON.stringify(payload)
+      let payloadString = JSON.stringify(payload)
 
-        // Regular expression to find a numeric string that should be a number
-        const regex = /"advertiserId":"(\d+)"/
-        // Replace the string with an unquoted number
-        payloadString = payloadString.replace(regex, '"advertiserId":$1')
+      // Regular expression to find a numeric string that should be a number
+      const regex = /"advertiserId":"(\d+)"/
+      // Replace the string with an unquoted number
+      payloadString = payloadString.replace(regex, '"advertiserId":$1')
 
-        const response = await request(`${endpoint}/amc/audiences/metadata`, {
-          method: 'POST',
-          body: payloadString,
-          headers: {
-            'Content-Type': 'application/vnd.amcaudiences.v1+json'
-          }
-        })
-
-        const res = await response.text()
-        //Replace the Big Int number with quoted String
-        const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
-
-        const externalId = JSON.parse(resString)['audienceId']
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return {
-          externalId
+      const response = await request(`${endpoint}/amc/audiences/metadata`, {
+        method: 'POST',
+        body: payloadString,
+        headers: {
+          'Content-Type': 'application/vnd.amcaudiences.v1+json'
         }
-      } catch (e) {
-        statsTags?.push(`error:${e}`)
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw e
+      })
+
+      const res = await response.text()
+      //Replace the Big Int number with quoted String
+      const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
+
+      const externalId = JSON.parse(resString)['audienceId']
+      return {
+        externalId
       }
     },
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
-      const { statsContext } = getAudienceInput
       const audience_id = getAudienceInput.externalId
       const endpoint = getAudienceInput.settings.region
-      const { statsClient, tags: statsTags } = statsContext || {}
-
-      const statsName = 'getAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      try {
-        const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-          method: 'GET'
-        })
-        const res = await response.text()
-        //Replace the Big Int number with quoted String
-        const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
-        const externalId = JSON.parse(resString)['audienceId']
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return {
-          externalId
-        }
-      } catch (e) {
-        statsTags?.push(`error:${e}`)
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw e
+      const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
+        method: 'GET'
+      })
+      const res = await response.text()
+      //Replace the Big Int number with quoted String
+      const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
+      const externalId = JSON.parse(resString)['audienceId']
+      return {
+        externalId
       }
     }
   },

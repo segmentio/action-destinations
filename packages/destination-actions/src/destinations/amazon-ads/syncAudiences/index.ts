@@ -27,28 +27,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.userId' }
     },
-    // traits_or_props: {
-    //   label: 'Traits or Properties',
-    //   description: 'Traits or properties object from the payload',
-    //   type: 'object',
-    //   required: true,
-    //   unsafe_hidden: true,
-    //   default: {
-    //     '@if': {
-    //       exists: { '@path': '$.properties' },
-    //       then: { '@path': '$.properties' },
-    //       else: { '@path': '$.traits' }
-    //     }
-    //   }
-    // },
-    // computation_key: {
-    //   label: 'Computation Key',
-    //   description: 'Audience name AKA Audience Key',
-    //   type: 'string',
-    //   required: true,
-    //   unsafe_hidden: true,
-    //   default: { '@path': '$.context.personas.computation_key' }
-    // },
     email: {
       label: 'Email',
       description: 'User email address. Vaule will be hashed before sending to Amazon.',
@@ -147,15 +125,6 @@ async function processPayload(
   audienceSettings: AudienceSettings
 ) {
   try {
-    // for (const record of payload.records) {
-    //   for (const pii of record.hashedPII) {
-    //     for (const key in pii) {
-    //       if (pii[key as keyof typeof pii] !== undefined) {
-    //         pii[key as keyof typeof pii] = await normalizeAndHash(pii[key as keyof typeof pii]!)
-    //       }
-    //     }
-    //   }
-    // }
     const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
     // Replace the string with an unquoted number
     const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
