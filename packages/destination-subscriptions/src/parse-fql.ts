@@ -165,6 +165,9 @@ const parseFqlFunction = (
   }
 }
 
+const parseOperator = (valueToken: Token, operatorToken: Token) =>
+  valueToken.type === 'number' && operatorToken.value === '=' ? '==' : (operatorToken.value as Operator)
+
 const parse = (tokens: Token[]): Condition => {
   const nodes: Condition[] = []
   let operator = 'and'
@@ -277,10 +280,11 @@ const parse = (tokens: Token[]): Condition => {
               operator: 'is_false'
             })
           } else {
+            const operator = parseOperator(valueToken, operatorToken)
             nodes.push({
               type: 'event-property',
               name: token.value.replace(/^(properties)\./, ''),
-              operator: operatorToken.value as Operator,
+              operator,
               value: getTokenValue(valueToken)
             })
           }
@@ -310,10 +314,11 @@ const parse = (tokens: Token[]): Condition => {
               operator: 'is_false'
             })
           } else {
+            const operator = parseOperator(valueToken, operatorToken)
             nodes.push({
               type: 'event-trait',
               name: token.value.replace(/^(traits)\./, ''),
-              operator: operatorToken.value as Operator,
+              operator,
               value: getTokenValue(valueToken)
             })
           }
@@ -343,10 +348,11 @@ const parse = (tokens: Token[]): Condition => {
               operator: 'is_false'
             })
           } else {
+            const operator = parseOperator(valueToken, operatorToken)
             nodes.push({
               type: 'event-context',
               name: token.value.replace(/^(context)\./, ''),
-              operator: operatorToken.value as Operator,
+              operator,
               value: getTokenValue(valueToken)
             })
           }
