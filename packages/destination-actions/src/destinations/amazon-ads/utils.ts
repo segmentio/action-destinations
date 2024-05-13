@@ -26,8 +26,13 @@ export interface AudiencePayload {
   }
 }
 
-// export const AUTHORIZATION_URL: any = {
-//   'https://advertising-api.amazon.com': 'https://api.amazon.com/auth/o2/token',
-//   'https://advertising-api-eu.amazon.com': 'https://api.amazon.co.uk/auth/o2/token',
-//   'https://advertising-api-fe.amazon.com': 'https://api.amazon.co.jp/auth/o2/token'
-// }
+export const AUTHORIZATION_URL: any = {
+  'https://advertising-api.amazon.com': 'https://api.amazon.com/auth/o2/token',
+  'https://advertising-api-eu.amazon.com': 'https://api.amazon.co.uk/auth/o2/token',
+  'https://advertising-api-fe.amazon.com': 'https://api.amazon.co.jp/auth/o2/token'
+}
+export const CONSTANTS = {
+  CREATE: 'CREATE',
+  DELETE: 'DELETE'
+}
+export const CURRENCY = ['USD', 'CAD', 'JPY', 'GBP', 'EUR', 'SAR', 'AUD', 'AED', 'CNY', 'MXN', 'INR', 'SEK', 'TRY']

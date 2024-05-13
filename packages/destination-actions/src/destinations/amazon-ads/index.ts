@@ -2,7 +2,7 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
-import { AudiencePayload } from './utils'
+import { AudiencePayload, AUTHORIZATION_URL, CURRENCY } from './utils'
 
 import syncAudiences from './syncAudiences'
 
@@ -46,12 +46,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw e
       }
     },
-    refreshAccessToken: async (request, { auth }) => {
-      // const endpoint: string = AUTHORIZATION_URL[`${settings.region}`]
+    refreshAccessToken: async (request, { auth, settings }) => {
+      const endpoint: string = AUTHORIZATION_URL[`${settings.region}`]
       let res
+      console.log(settings.region, auth, endpoint)
       try {
         res = await request<RefreshTokenResponse>('https://api.amazon.com/auth/o2/token', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
             client_id: auth.clientId,
@@ -60,6 +64,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           })
         })
       } catch (e: any) {
+        console.log(e)
         const error = e as AmazonRefreshTokenError
         if (error.response?.data?.error === 'invalid_grant') {
           throw new IntegrationError(
@@ -117,7 +122,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     currency: {
       label: 'Currency',
       type: 'string',
-      description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2)`
+      description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency`
     },
     ttl: {
       type: 'number',
@@ -191,6 +196,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (cpm_cents && currency) {
+        if (!CURRENCY.includes(currency)) {
+          throw new IntegrationError('Invalid Currency Value', 'INVALID_CURRENCY_VALUE', 400)
+        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
