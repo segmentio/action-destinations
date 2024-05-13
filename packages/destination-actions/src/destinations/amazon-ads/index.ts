@@ -1,8 +1,8 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes, APIError } from '@segment/actions-core'
+import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
-import { AmazonAdsError, AudiencePayload } from './utils'
+import { AudiencePayload } from './utils'
 
 import syncAudiences from './syncAudiences'
 
@@ -27,13 +27,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { auth }) => {
+    testAuthentication: async (request, { auth, settings }) => {
       if (!auth?.accessToken) {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
 
       try {
-        await request<RefreshTokenResponse>('https://advertising-api.amazon.com/v2/profiles', {
+        await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
           method: 'GET'
         })
       } catch (e: any) {
@@ -47,8 +47,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth }) => {
+      // const endpoint: string = AUTHORIZATION_URL[`${settings.region}`]
       let res
-
       try {
         res = await request<RefreshTokenResponse>('https://api.amazon.com/auth/o2/token', {
           method: 'POST',
@@ -141,15 +141,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName } = createAudienceInput
+      const { audienceName, statsContext, audienceSettings } = createAudienceInput
+      const { statsClient, tags: statsTags } = statsContext || {}
+      const statsName = 'createAmazonAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+
       const endpoint = createAudienceInput.settings.region
-      const description = createAudienceInput.audienceSettings?.description
-      const advertiser_id = createAudienceInput.audienceSettings?.advertiserId
-      const external_audience_id = createAudienceInput.audienceSettings?.externalAudienceId
-      const country_code = createAudienceInput.audienceSettings?.countryCode
-      const ttl = createAudienceInput.audienceSettings?.ttl
-      const currency = createAudienceInput.audienceSettings?.currency
-      const cpm_cents = createAudienceInput.audienceSettings?.cpmCents
+      const description = audienceSettings?.description
+      const advertiser_id = audienceSettings?.advertiserId
+      const external_audience_id = audienceSettings?.externalAudienceId
+      const country_code = audienceSettings?.countryCode
+      const ttl = audienceSettings?.ttl
+      const currency = audienceSettings?.currency
+      const cpm_cents = audienceSettings?.cpmCents
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
@@ -213,24 +218,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const res = await response.text()
         //Replace the Big Int number with quoted String
         const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
+
         const externalId = JSON.parse(resString)['audienceId']
-
-        if (!externalId) {
-          throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
-        }
-
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
           externalId
         }
       } catch (e) {
-        if (e instanceof AmazonAdsError) {
-          const message = JSON.parse(e.response?.data?.message || '')
-          throw new APIError(message, e.response?.status)
-        } else if (e instanceof IntegrationError) {
-          throw new APIError(e.message, 400)
-        } else {
-          throw e
-        }
+        statsTags?.push(`error:${e}`)
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw e
       }
     },
     async getAudience(request, getAudienceInput) {
@@ -247,7 +244,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
-
       try {
         const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
           method: 'GET'
@@ -256,20 +252,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         //Replace the Big Int number with quoted String
         const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
         const externalId = JSON.parse(resString)['audienceId']
-
         statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return {
           externalId
         }
       } catch (e) {
-        if (e instanceof AmazonAdsError) {
-          const message = JSON.parse(e.response?.data?.message || '')
-          throw new APIError(message, e.response?.status)
-        } else if (e instanceof IntegrationError) {
-          throw new APIError(e.message, 400)
-        } else {
-          throw e
-        }
+        statsTags?.push(`error:${e}`)
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw e
       }
     }
   },

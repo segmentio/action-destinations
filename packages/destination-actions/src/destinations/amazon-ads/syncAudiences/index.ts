@@ -1,5 +1,5 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { PayloadValidationError, IntegrationError, APIError } from '@segment/actions-core'
+import { IntegrationError, APIError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AmazonAdsError } from '../utils'
@@ -162,13 +162,28 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled,segment will send data in batching',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 10000
     }
   },
-  perform: (request, { settings, payload, statsContext, audienceSettings }) => {
-    return processPayload(request, settings, [payload], statsContext, audienceSettings)
+  perform: (request, { settings, payload, audienceSettings }) => {
+    return processPayload(request, settings, [payload], audienceSettings)
   },
-  performBatch: (request, { settings, payload: payloads, statsContext, audienceSettings }) => {
-    return processPayload(request, settings, payloads, statsContext, audienceSettings)
+  performBatch: (request, { settings, payload: payloads, audienceSettings }) => {
+    return processPayload(request, settings, payloads, audienceSettings)
   }
 }
 
@@ -178,10 +193,6 @@ async function processPayload(
   payload: Payload[],
   audienceSettings: AudienceSettings
 ) {
-  if (payload.length && !payload[0].audienceId) {
-    throw new PayloadValidationError('Audience ID is required.')
-  }
-
   try {
     // for (const record of payload.records) {
     //   for (const pii of record.hashedPII) {
@@ -210,7 +221,6 @@ async function processPayload(
     if (!jobRequestId) {
       throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
     }
-
     return {
       result
     }
