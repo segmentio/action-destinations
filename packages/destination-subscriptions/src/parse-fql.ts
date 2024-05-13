@@ -277,10 +277,12 @@ const parse = (tokens: Token[]): Condition => {
               operator: 'is_false'
             })
           } else {
+            const operator =
+              valueToken.type === 'number' && operatorToken.value === '=' ? '==' : (operatorToken.value as Operator)
             nodes.push({
               type: 'event-property',
               name: token.value.replace(/^(properties)\./, ''),
-              operator: operatorToken.value as Operator,
+              operator,
               value: getTokenValue(valueToken)
             })
           }

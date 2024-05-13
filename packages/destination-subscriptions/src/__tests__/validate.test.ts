@@ -131,7 +131,7 @@ test('operators - equals (numbers)', () => {
       ]
     }
 
-    expect(validate(ast, { properties: { value: 123 } })).toEqual(true)
+    expect(validate(ast, { properties: { value: 123 } })).toEqual(false)
     expect(validate(ast, { properties: { value: '123' } })).toEqual(true)
     expect(validate(ast, { properties: { value: 0 } })).toEqual(false)
   }
