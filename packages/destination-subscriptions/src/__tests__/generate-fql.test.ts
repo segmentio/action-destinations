@@ -135,7 +135,7 @@ test('should handle field paths with non-regular values and escape properly', ()
       {
         type: 'event-trait',
         name: 'property dos',
-        operator: '=',
+        operator: '==',
         value: 2
       }
     ]
