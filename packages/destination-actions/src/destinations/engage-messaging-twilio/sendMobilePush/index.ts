@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PushSender } from './PushSender'
@@ -251,3 +251,5 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     return new PushSender(request, data).perform()
   }
 }
+
+export default actionDefinition

@@ -2,35 +2,48 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { WhatsAppMessageSender } from './WhatsAppMessageSender'
+import { SmsMessageSender } from './SmsMessageSender'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
-  title: 'Send WhatsApp',
-  description: 'Send WhatsApp using Twilio',
+  title: 'Send SMS',
+  description: 'Send SMS using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
   fields: {
-    contentSid: {
-      label: 'WhatsApp template Content Sid',
-      description: 'The template you sending through WhatsApp',
+    userId: {
+      label: 'User ID',
+      description: 'User ID in Segment',
       type: 'string',
-      required: true
-    },
-    contentVariables: {
-      label: 'WhatsApp template variables',
-      description: 'Content personalization variables/merge tags for your WhatsApp message',
-      type: 'object',
-      required: false
+      default: { '@path': '$.userId' }
     },
     toNumber: {
       label: 'Test Number',
-      description: 'Number to send WhatsApp to when testing',
+      description: 'Number to send SMS to when testing',
       type: 'string'
     },
     from: {
       label: 'From',
-      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.',
+      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.',
       type: 'string',
       required: true
+    },
+    body: {
+      label: 'Message',
+      description: 'Message to send',
+      type: 'text',
+      required: false
+    },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -58,6 +71,12 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: false,
       default: true
+    },
+    sendBasedOnOptOut: {
+      label: 'Send OptOut',
+      description: 'Send to any subscription status other than unsubscribed',
+      type: 'boolean',
+      default: false
     },
     segmentComputationId: {
       label: 'Segment Computation ID',
@@ -130,9 +149,18 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
   perform: async (request, data) => {
-    return new WhatsAppMessageSender(request, data).perform()
+    return new SmsMessageSender(request, data).perform()
   }
 }
+
+export default actionDefinition

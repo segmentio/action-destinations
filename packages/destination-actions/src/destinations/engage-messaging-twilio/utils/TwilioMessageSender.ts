@@ -2,11 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
-// import type { Payload as SmsPayload } from '../sendSms/generated-types'
-// import type { Payload as WhatsappPayload } from '../sendWhatsApp/generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { track, MessageSendPerformer, MessagePayloadBase } from '../../utils'
+import { track, MessageSendPerformer, MessagePayloadBase } from '../../engage/utils'
 
 const Liquid = new LiquidJs()
 

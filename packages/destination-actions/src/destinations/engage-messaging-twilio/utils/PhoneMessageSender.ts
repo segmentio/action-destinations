@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { TwilioMessageSender, TwilioPayloadBase } from './TwilioMessageSender'
-import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../../utils'
+import { OperationDecorator, TrackedError, OperationContext, ExtId } from '../../engage/utils'
 
 /**
  * Base class for sending sms/mms
