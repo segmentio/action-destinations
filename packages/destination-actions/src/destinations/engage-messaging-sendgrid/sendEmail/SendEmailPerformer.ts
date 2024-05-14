@@ -9,7 +9,7 @@ import {
   FLAGON_NAME_DATA_FEEDS,
   apiLookupLiquidKey,
   performApiLookup
-} from '../../engage/utils/apiLookups'
+} from '../previewApiLookup/apiLookups'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'

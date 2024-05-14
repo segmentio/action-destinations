@@ -3,10 +3,10 @@ import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, DataFeedCache } from '@segment/actions-core/destination-kit'
-import type { Settings } from '../../engage-messaging-sendgrid/sendEmail/generated-types'
+import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import { Profile } from './Profile'
-import { ResponseError } from './ResponseError'
+import { Profile } from '../../engage/utils/Profile'
+import { ResponseError } from '../../engage/utils/ResponseError'
 
 const Liquid = new LiquidJs()
 

@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { apiLookupActionFields, performApiLookup } from '../../engage/utils/apiLookups'
+import { apiLookupActionFields, performApiLookup } from './apiLookups'
 import { Profile } from '../../engage/utils/Profile'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {

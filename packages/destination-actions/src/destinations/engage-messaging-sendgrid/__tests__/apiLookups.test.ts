@@ -1,7 +1,7 @@
 import nock from 'nock'
-import { ApiLookupConfig, getRequestId, performApiLookup } from '../apiLookups'
-import { DataFeedCache } from '../../../../../../core/src/destination-kit/index'
-import createRequestClient from '../../../../../../core/src/create-request-client'
+import { ApiLookupConfig, getRequestId, performApiLookup } from '../previewApiLookup/apiLookups'
+import { DataFeedCache } from '../../../../../core/src/destination-kit/index'
+import createRequestClient from '../../../../../core/src/create-request-client'
 
 const profile = {
   traits: {

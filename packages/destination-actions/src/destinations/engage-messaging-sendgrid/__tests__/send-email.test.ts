@@ -5,7 +5,7 @@ import Sendgrid from '..'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../engage/utils'
 import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../engage/utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
-import { FLAGON_NAME_DATA_FEEDS } from '../../engage/utils/apiLookups'
+import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup/apiLookups'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()
