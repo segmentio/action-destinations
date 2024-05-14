@@ -1,11 +1,11 @@
 import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
-import { createMessagingTestEvent } from '../../../../lib/engage-test-data/create-messaging-test-event'
+import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../utils'
-import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../utils/testUtils'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../engage/utils'
+import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../engage/utils/testUtils'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
-import { FLAGON_NAME_DATA_FEEDS } from '../../utils/apiLookups'
+import { FLAGON_NAME_DATA_FEEDS } from '../../engage/utils/apiLookups'
 
 const sendgrid = createTestIntegration(Sendgrid)
 const timestamp = new Date().toISOString()

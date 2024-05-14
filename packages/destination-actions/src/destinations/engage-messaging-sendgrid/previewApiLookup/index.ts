@@ -1,8 +1,8 @@
 import { ActionDefinition } from '@segment/actions-core'
-import { Settings } from '../generated-types'
-import { Payload } from './generated-types'
-import { apiLookupActionFields, performApiLookup } from '../../utils/apiLookups'
-import { Profile } from '../../utils/Profile'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { apiLookupActionFields, performApiLookup } from '../../engage/utils/apiLookups'
+import { Profile } from '../../engage/utils/Profile'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Perform a single API lookup',
@@ -27,3 +27,5 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
     }
   }
 }
+
+export default actionDefinition

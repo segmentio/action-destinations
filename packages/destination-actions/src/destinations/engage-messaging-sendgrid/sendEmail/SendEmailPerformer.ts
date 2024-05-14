@@ -1,10 +1,15 @@
-import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../utils'
+import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../engage/utils'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Profile } from '../../utils/Profile'
+import { Profile } from '../../engage/utils/Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
-import { ApiLookupConfig, FLAGON_NAME_DATA_FEEDS, apiLookupLiquidKey, performApiLookup } from '../../utils/apiLookups'
+import {
+  ApiLookupConfig,
+  FLAGON_NAME_DATA_FEEDS,
+  apiLookupLiquidKey,
+  performApiLookup
+} from '../../engage/utils/apiLookups'
 import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
