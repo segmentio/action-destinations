@@ -47,24 +47,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
-      const endpoint: string = AUTHORIZATION_URL[`${settings.region}`]
-      let res
-      console.log(settings.region, auth, endpoint)
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+
       try {
-        res = await request<RefreshTokenResponse>('https://api.amazon.com/auth/o2/token', {
+        const res = await request<RefreshTokenResponse>(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
             client_id: auth.clientId,
             client_secret: auth.clientSecret,
             grant_type: 'refresh_token'
-          })
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         })
+
+        return { accessToken: res.data.access_token }
       } catch (e: any) {
-        console.log(e)
         const error = e as AmazonRefreshTokenError
         if (error.response?.data?.error === 'invalid_grant') {
           throw new IntegrationError(
@@ -80,8 +80,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           401
         )
       }
-
-      return { accessToken: res?.data?.access_token }
     }
   },
 
