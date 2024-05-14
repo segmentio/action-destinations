@@ -5,8 +5,7 @@ import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { Logger, StatsClient, DataFeedCache } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import { Profile } from '../../engage/utils/Profile'
-import { ResponseError } from '../../engage/utils/ResponseError'
+import { Profile, ResponseError } from '@segment/actions-shared'
 
 const Liquid = new LiquidJs()
 

@@ -1,7 +1,6 @@
-import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track } from '../../engage/utils'
+import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track, Profile } from '@segment/actions-shared'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Profile } from '../../engage/utils/Profile'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { IntegrationError, RequestOptions } from '@segment/actions-core'
 import {

@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { apiLookupActionFields, performApiLookup } from './apiLookups'
-import { Profile } from '../../engage/utils/Profile'
+import { Profile } from '@segment/actions-shared'
 
 export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Perform a single API lookup',

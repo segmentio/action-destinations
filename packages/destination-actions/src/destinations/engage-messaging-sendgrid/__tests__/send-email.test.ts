@@ -2,8 +2,14 @@ import nock from 'nock'
 import { createTestIntegration, omit } from '@segment/actions-core'
 import { createMessagingTestEvent } from '../../../lib/engage-test-data/create-messaging-test-event'
 import Sendgrid from '..'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '../../engage/utils'
-import { loggerMock, expectErrorLogged, expectInfoLogged } from '../../engage/utils/testUtils'
+import {
+  FLAGON_NAME_LOG_ERROR,
+  FLAGON_NAME_LOG_INFO,
+  SendabilityStatus,
+  loggerMock,
+  expectErrorLogged,
+  expectInfoLogged
+} from '@segment/actions-shared'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
 import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup/apiLookups'
 
