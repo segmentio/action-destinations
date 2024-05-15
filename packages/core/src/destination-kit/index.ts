@@ -370,7 +370,7 @@ export interface Logger {
 export interface EngageDestinationCache {
   getByKey: (key: string) => Promise<string | null>
   readonly maxExpirySeconds: number
-  readonly maxResponseSizeBytes: number
+  readonly maxValueSizeBytes: number
   setByKey: (key: string, value: string, expiryInSeconds?: number) => Promise<void>
 }
 
