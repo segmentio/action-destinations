@@ -108,12 +108,12 @@ export abstract class MessageSendPerformer<
     }
     // Check if the response is successful.
     if (response.ok) {
-      const body = await response.text()
-      await this.engageDestinationCache.setByKey(messageId + recipientId, body)
+      const status = response.status.toString()
+      await this.engageDestinationCache.setByKey(messageId + recipientId, status)
       // If the response is not retryable, cache the error.
     } else if (!isRetryableError(response)) {
-      const error = await response.text()
-      await this.engageDestinationCache.setByKey(messageId + recipientId, error)
+      const status = response.status.toString()
+      await this.engageDestinationCache.setByKey(messageId + recipientId, status)
     }
   }
 
@@ -132,7 +132,6 @@ export abstract class MessageSendPerformer<
     return this.engageDestinationCache.getByKey(messageId + recipientId)
   }
 
-  @track()
   async doPerform() {
     /**
      * Internal function to process a recepient.
@@ -152,7 +151,7 @@ export abstract class MessageSendPerformer<
       try {
         cachedResponse = await this.readCache(messageId, recipientId)
         if (cachedResponse) {
-          return cachedResponse
+          return new Response('Cached response.', { status: +cachedResponse })
         }
       } catch (error) {
         this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
