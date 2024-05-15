@@ -314,6 +314,15 @@ registerDirective('@transform', (opts, payload) => {
   return resolve(opts.mapping, newPayload)
 })
 
+registerDirective('@excludeWhenNull', (value, payload) => {
+  const resolved = resolve(value, payload)
+  if (resolved === null) {
+    // assign undefined to the key which will get deleted at the end of all mappings
+    return undefined
+  }
+  return resolved
+})
+
 function getMappingToProcess(mapping: JSONLikeObject): JSONLikeObject {
   let mappingToProcess = { ...mapping }
   // If we have a root mapping, inject all other mappings into the `mapping` object on that root directive
