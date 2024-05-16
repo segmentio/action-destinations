@@ -662,7 +662,7 @@ describe('@replace', () => {
       },
       payload
     )
-    expect(output).toStrictEqual(null)
+    expect(output).toStrictEqual('')
   })
   test('replace on case sensitive string', () => {
     const payload = {
