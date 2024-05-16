@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { RetryableError } from "@segment/actions-core";
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { isRetryableError } from './isRetryableError'
 import { AggregateError } from './AggregateError'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
-import { PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { getErrorDetails } from '.'
 
 export enum SendabilityStatus {
   /**
@@ -96,25 +96,18 @@ export abstract class MessageSendPerformer<
    * Only messages with valid messageIds, recipientIds, and successful or non
    * retryable errors are cacheable. All other errors will be ignored.
    *
-   * @param response The response from the server.
+   * @param value The value from the server.
    * @param messageId The messageId of the message.
    * @param recipientId The recipientId of the message.
    * @returns The response from the cache.
    */
   @track()
-  async cacheResponse(response: Response, messageId?: string, recipientId?: string) {
+  async putCache(value: any, messageId?: string, recipientId?: string) {
     if (!messageId || !recipientId || !this.engageDestinationCache) {
       return
     }
-    // Check if the response is successful.
-    if (response.ok) {
-      const status = response.status.toString()
-      await this.engageDestinationCache.setByKey(messageId + recipientId, status)
-      // If the response is not retryable, cache the error.
-    } else if (!isRetryableError(response)) {
-      const status = response.status.toString()
-      await this.engageDestinationCache.setByKey(messageId + recipientId, status)
-    }
+    const status = value
+    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), JSON.stringify(status))
   }
 
   /**
@@ -129,47 +122,73 @@ export abstract class MessageSendPerformer<
     if (!messageId || !recipientId || !this.engageDestinationCache) {
       return
     }
-    return this.engageDestinationCache.getByKey(messageId + recipientId)
+    const cached = await this.engageDestinationCache.getByKey(messageId + recipientId.toLowerCase())
+    if (!cached) {
+      return
+    }
+    return JSON.parse(cached)
+  }
+
+  /**
+   * Internal function to process sending a recepient.
+   *
+   * If a cache exists, it will check to see if the messageId, and recipientId
+   * has already been attempted. The response will be stored if the error
+   * returned from the server is a non retryable error or if the response is
+   * successful.
+   *
+   * @param recepient The recepient to process.
+   * @returns The response from the server.
+   */
+  protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
+    const messageId = (this.executeInput as any)['rawData']?.messageId
+    const recipientId = recepient.id
+    let cachedResponse
+    try {
+      cachedResponse = await this.readCache(messageId, recipientId)
+    } catch (error) {
+      this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
+    }
+
+    if (cachedResponse?.error) {
+      const { message, code, status } = cachedResponse.error
+      const error = new IntegrationError(message, code, status)
+      error.retry = false
+      throw error
+    } else if (cachedResponse) {
+      return
+    }
+
+    let error: undefined | Error = undefined
+    let result: undefined | any
+    try {
+      result = this.sendToRecepient(recepient)
+      return result
+    } catch (e) {
+      error = e
+    } finally {
+      try {
+        if (error && !isRetryableError(error)) {
+          const errorDetails = getErrorDetails(error)
+          await this.putCache(
+            {
+              error: errorDetails
+            },
+            messageId,
+            recipientId
+          )
+        } else if (!error) {
+          await this.putCache({}, messageId, recipientId)
+        }
+      } catch (cacheError) {
+        this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, cacheError)
+      }
+    }
   }
 
   async doPerform() {
-    /**
-     * Internal function to process a recepient.
-     *
-     * If a cache exists, it will check to see if the messageId, and recipientId
-     * has already been attempted. The response will be stored if the error
-     * returned from the server is a non retryable error or if the response is
-     * successful.
-     *
-     * @param recepient The recepient to process.
-     * @returns The response from the server.
-     */
-    const processRecipient = async (recepient: ExtId<TPayload>) => {
-      const messageId = (this.executeInput as any)['rawData']?.messageId
-      const recipientId = recepient.id
-      let cachedResponse
-      try {
-        cachedResponse = await this.readCache(messageId, recipientId)
-        if (cachedResponse) {
-          return new Response('Cached response.', { status: +cachedResponse })
-        }
-      } catch (error) {
-        this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
-      }
-
-      const response: Response = await this.sendToRecepient(recepient)
-
-      // This is a non blocking promise.
-      // Let the cacheResponse throw errors if it fails.
-      this.cacheResponse(response, messageId, recipientId).catch((error) => {
-        this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, error)
-      })
-
-      return response
-    }
-
     // sending messages and collecting results, including exceptions
-    const res = this.forAllRecepients(processRecipient)
+    const res = this.forAllRecepients(this.sendToRecepientCache.bind(this))
 
     if (this.executeInput.features) {
       this.logInfo('Feature flags:' + JSON.stringify(this.executeInput.features))
@@ -365,6 +384,7 @@ export abstract class MessageSendPerformer<
   }
 
   beforeSend?(recepients: ExtId<TPayload>[]): MaybePromise<void>
+
   async forAllRecepients<TResult = any>(
     sendToRecepient: (recepient: ExtId<TPayload>) => TResult
   ): Promise<RecepientSendResult<TPayload, TResult>[]> {
@@ -393,39 +413,33 @@ export abstract class MessageSendPerformer<
 
     // if only one result - return as is or throw as is
     if (sendResults.length === 1) {
-      if (sendResults[0].status === 'rejected') {
-        throw sendResults[0].error
+      const sendResult = sendResults[0]
+      if (sendResult.status === 'rejected') {
+        throw sendResult.error
       } else {
-        return sendResults[0].result
+        return sendResult.result
       }
     }
 
-    const fulfilled = sendResults.filter((sr) => sr.status === 'fulfilled')
-
-    // if at least one succeeded, return array of fullfiled values
-    if (fulfilled.length) {
-      return fulfilled.map((sr) => sr.result)
-    }
-
-    // if we are here, then some failed
+    // if we are here, then all failed.
     const rejected = sendResults.filter((sr) => sr.status === 'rejected')
 
-    // if all retriable, throw aggregated with first code and status
-    if (rejected.every((r) => isRetryableError(r.error))) {
+    /*
+     * Get all of retryable errors and aggregate them.
+     * return
+     */
+    // if some errors are retriable, throw aggregated with first code and status
+    if (rejected.length) {
+      const firstRetryableError = rejected.find((r) => isRetryableError(r.error))?.error
       throw AggregateError.create({
         errors: rejected.map((r) => r.error),
-        message: (msg) => 'Failed to send to all subscribed recepients (retryable):' + msg
+        takeCodeAndStatusFromError: firstRetryableError,
+        message: (msg) =>
+          `Failed to send to all subscribed recepients (${firstRetryableError ? 'retryable' : 'not-retryable'}):` + msg
       })
     }
 
-    //NON RETRYABLE CASE:
-    const firstNonRetryable = rejected.find((r) => !isRetryableError(r.error))?.error
-    throw AggregateError.create({
-      errors: rejected.map((r) => r.error),
-      //code: "UNEXPECTED_ERROR",
-      takeCodeAndStatusFromError: firstNonRetryable,
-      message: (msg) => 'Failed to send to all subscribed recepients (non-retryable):' + msg
-    })
+    return sendResults.map((sr) => sr.result)
   }
 
   @track()
