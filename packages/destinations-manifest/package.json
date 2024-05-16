@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.57.1-staging.1",
+  "version": "1.57.1-staging.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -22,13 +22,13 @@
     "@segment/analytics-browser-actions-cdpresolution": "^1.27.1-staging.0",
     "@segment/analytics-browser-actions-commandbar": "^1.40.1-staging.0",
     "@segment/analytics-browser-actions-devrev": "^1.27.1-staging.0",
-    "@segment/analytics-browser-actions-friendbuy": "^1.41.1-staging.1",
+    "@segment/analytics-browser-actions-friendbuy": "^1.41.1-staging.0",
     "@segment/analytics-browser-actions-fullstory": "^1.42.1-staging.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.46.1-staging.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "^1.30.1-staging.0",
     "@segment/analytics-browser-actions-heap": "^1.40.1-staging.0",
     "@segment/analytics-browser-actions-hubspot": "^1.40.1-staging.0",
-    "@segment/analytics-browser-actions-intercom": "^1.43.1-staging.1",
+    "@segment/analytics-browser-actions-intercom": "^1.43.1-staging.0",
     "@segment/analytics-browser-actions-iterate": "^1.40.1-staging.0",
     "@segment/analytics-browser-actions-jimo": "^1.28.1-staging.0",
     "@segment/analytics-browser-actions-koala": "^1.41.1-staging.0",
