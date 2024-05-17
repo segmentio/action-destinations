@@ -24,7 +24,7 @@ export interface AudienceSettings {
   /**
    * Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.
    */
-  cpmCents?: number
+  cpmCents?: string
   /**
    * The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency
    */
@@ -32,7 +32,7 @@ export interface AudienceSettings {
   /**
    * Time-to-live in seconds. The amount of time the record is associated with the audience.
    */
-  ttl?: number
+  ttl?: string
   /**
    * Advertiser Id
    */

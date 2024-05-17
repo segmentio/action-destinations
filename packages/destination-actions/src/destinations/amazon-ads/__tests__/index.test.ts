@@ -137,6 +137,23 @@ describe('Amazon-Ads (actions)', () => {
       await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError('Bad Request')
     })
 
+    it('Should throw an error when invalid cpmCent is provided', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 12345678,
+          currency: 'USD',
+          cpmCents: 'invalid cpm cents'
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'CPM_CENTS:-String can not be converted to Number'
+      )
+    })
+
     it('creates an audience', async () => {
       nock(`${settings.region}`)
         .post('/amc/audiences/metadata')
