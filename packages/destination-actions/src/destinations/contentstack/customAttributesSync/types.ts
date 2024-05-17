@@ -1,7 +1,4 @@
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-
-export interface personalizeAttributes {
+export interface PersonalizeAttributes {
   _id: string
   name: string
   key: string
@@ -14,16 +11,4 @@ export interface personalizeAttributes {
   uid?: string
   createdByUserName?: string
   updatedByUserName?: string
-}
-
-export interface Data {
-  settings: Settings
-  payload: Payload
-  rawData?: {
-    traits: Record<string, unknown>
-    userId: string
-  }
-  auth: {
-    accessToken: string
-  }
 }

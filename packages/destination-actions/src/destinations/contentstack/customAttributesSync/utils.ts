@@ -1,5 +1,5 @@
 import type { RequestClient } from '@segment/actions-core'
-import { personalizeAttributes } from './types'
+import { PersonalizeAttributes } from './types'
 import { PERSONALIZE_API_BASE_URL } from '../constants'
 
 export const createCustomAttrbute = async (request: RequestClient, name: string) =>
@@ -17,5 +17,5 @@ export const fetchAllAttributes = async (request: RequestClient) => {
     method: 'get'
   })
 
-  return res.data as personalizeAttributes[]
+  return res.data as PersonalizeAttributes[]
 }
