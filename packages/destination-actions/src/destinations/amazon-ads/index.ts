@@ -115,7 +115,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     cpmCents: {
       label: 'CPM Cents',
-      type: 'number',
+      type: 'string',
       description: `Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.`
     },
     currency: {
@@ -124,7 +124,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency`
     },
     ttl: {
-      type: 'number',
+      type: 'string',
       label: 'Time-to-live',
       required: false,
       description: 'Time-to-live in seconds. The amount of time the record is associated with the audience.'
@@ -186,17 +186,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (ttl) {
-        payload.metadata.ttl = ttl
+        const timeToLive = Number(ttl)
+        if (!timeToLive) {
+          throw new IntegrationError('TTL:-String can not be converted to Number', 'INVALID_TTL_VALUE', 400)
+        }
+        payload.metadata.ttl = timeToLive
       }
 
       if (cpm_cents && currency) {
         if (!CURRENCY.includes(currency)) {
           throw new IntegrationError('Invalid Currency Value', 'INVALID_CURRENCY_VALUE', 400)
         }
+        const cpmCents = Number(cpm_cents)
+        if (!cpmCents) {
+          throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)
+        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpm_cents
+          cpmCents: cpmCents
         })
       }
 
