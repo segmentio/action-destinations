@@ -7,6 +7,7 @@ import upsertCompany from './upsertCompany'
 import upsertCustomObjectRecord from './upsertCustomObjectRecord'
 import { HUBSPOT_BASE_URL } from './properties'
 import upsertObject from './upsertObject'
+import upsertContactV2 from './upsertContactV2'
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -58,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     upsertContact,
     upsertCompany,
     upsertCustomObjectRecord,
-    upsertObject
+    upsertObject,
+    upsertContactV2
   }
 }
 

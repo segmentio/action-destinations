@@ -1,7 +1,7 @@
-import { RequestClient, ModifiedResponse, IntegrationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { BATCH_SIZE, SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
 import type { Payload } from './generated-types'
 
 interface ObjectSchema {
@@ -178,7 +178,11 @@ export class HubspotClient {
         action: 'update' | 'create' | 'read', 
         objectType: string,
         data: BatchReadRequestBody | BatchRequestBody
-    ) {        
+    ) {    
+        if(data.inputs.length === 0){
+            return null
+        }
+
         return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
             method: 'POST',
             json: data
@@ -186,6 +190,10 @@ export class HubspotClient {
     }
 
     async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
+        if(body.inputs.length === 0){
+            return null
+        }
+        
         return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
             method: 'POST',
             json: body
@@ -201,9 +209,8 @@ export class HubspotClient {
         
         const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
 
-        const bodies: BatchAssociationsRequestBody[] = this.chunkArray(payloads
-            .filter(p => p.recordID && p.toRecordID)
-            .map(p => { 
+        const requestBody: BatchAssociationsRequestBody = {
+            inputs: payloads.filter(p => p.recordID && p.toRecordID).map(p => { 
                 return {
                     types: [
                         {
@@ -218,36 +225,11 @@ export class HubspotClient {
                         id: p.toRecordID as string
                     }
                 }
-            }))
-            .map(chunk => {
-                return {
-                    inputs: chunk
-                }
-            })
-    
-        const requests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
-             
-        bodies.forEach((body) => {
-            requests.push(this.batchAssociationsRequest(body, objectType, toObjectType))
-        })
-        console.log(`Associations: ${requests.length}`)
-        return requests.length>0 ? await Promise.all(requests) : null
-    }
-
-    chunkArray<T>(array: T[]): T[][]{
-        return Array.from({ length: Math.ceil(array.length / BATCH_SIZE) }, (_, index) =>
-            array.slice(index * BATCH_SIZE, index * BATCH_SIZE + BATCH_SIZE)
-        )
-    }
-
-    populateChunks(requestBodies: BatchRequestBody[], itemPayload: BatchRequestBodyItem) {
-        const currenRequestBody = requestBodies[requestBodies.length - 1]?.inputs;
-        if (!currenRequestBody || currenRequestBody.length === BATCH_SIZE) {
-            requestBodies.push({ inputs: [itemPayload] });
-        } else {
-            currenRequestBody.push(itemPayload);
+            }) ?? []
         }
-    };
+
+        return this.batchAssociationsRequest(requestBody, objectType, toObjectType)
+    }
 
     async ensureObjects(payloads: Payload[], isAssociationObject = false) {
 
@@ -261,33 +243,20 @@ export class HubspotClient {
             throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
         }
 
-        const requests = []
-
-        for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
-            const batch = payloads.slice(i, i + BATCH_SIZE);
-            requests.push(
-            this.batchObjectRequest('read', objectType, {
-                properties: [idFieldName],
-                idProperty: idFieldName,
-                inputs: batch.map(p => { return {id: p[idFieldValueFieldName]}})             
-            } as BatchReadRequestBody)
-            )
-        }
-        
-        const readResponses = await Promise.all(requests);
-        
-        readResponses.forEach((response) => {      
-            response.data.results.forEach(result => {
-                payloads
-                    .filter(payload => payload[idFieldValueFieldName] == result.properties[idFieldName] as string)
-                    .forEach(payload => payload[recordIdFieldName] = result.id )
-            })
+        const readResponse = await this.batchObjectRequest('read', objectType, {
+            properties: [idFieldName],
+            idProperty: idFieldName,
+            inputs: payloads.map(p => { return {id: p[idFieldValueFieldName]}})             
+        } as BatchReadRequestBody)
+       
+        readResponse?.data.results.forEach(result => {
+            payloads
+                .filter(payload => payload[idFieldValueFieldName] == result.properties[idFieldName] as string)
+                .forEach(payload => payload[recordIdFieldName] = result.id )
         })
 
-        const updateRequestBodies: BatchRequestBody[] = []
-        const createRequestBodies: BatchRequestBody[] = []
-        const createRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
-        const updateRequests:Promise<ModifiedResponse<BatchReadResponse>>[] = []
+        const updateRequestBody: BatchRequestBody = {inputs:[]}
+        const createRequestBody: BatchRequestBody = {inputs:[]}
 
         payloads.forEach((payload) => {
             const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
@@ -302,23 +271,17 @@ export class HubspotClient {
                 } as BatchRequestBodyItem['properties']
             } as BatchRequestBodyItem
             if(['update', 'upsert'].includes(insertType) && itemPayload.id){
-                this.populateChunks(updateRequestBodies, itemPayload)
+                updateRequestBody.inputs.push(itemPayload)
             }
             if(['create', 'upsert'].includes(insertType) && !itemPayload.id){
-                this.populateChunks(createRequestBodies, itemPayload)
+                createRequestBody.inputs.push(itemPayload)
             }
         })
         
-        updateRequestBodies.forEach((updateRequestBody) => {
-            updateRequests.push(this.batchObjectRequest('update', objectType, updateRequestBody))
-        })
-
-        createRequestBodies.forEach((createRequestBody) => {
-            createRequests.push(this.batchObjectRequest('create', objectType, createRequestBody))
-        })
-        const writeRequests = [...updateRequests, ...createRequests]
-        console.log(`${isAssociationObject} . Number of createRequests requests: ${createRequests.length}`)
-        console.log(`${isAssociationObject} . Number of updateRequests requests: ${updateRequests.length}`)
-        return writeRequests.length>0 ? await Promise.all([...updateRequests, ...createRequests]) : null
+        return Promise.all([
+            this.batchObjectRequest('update', objectType, updateRequestBody),
+            this.batchObjectRequest('create', objectType, createRequestBody)
+        ].filter(request => request !== null))
+        .then(writeRequests => writeRequests.length > 0 ? writeRequests : null);
     }
 }

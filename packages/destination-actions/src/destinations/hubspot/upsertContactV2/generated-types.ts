@@ -6,11 +6,11 @@ export interface Payload {
    */
   createObject: boolean
   /**
-   * Specify if Segment should create new Properties automatically on HubSpot if they do not already exist.
+   * Specify if Segment should create new Properties on the Contacts Object automatically on HubSpot if they do not already exist.
    */
   createProperties: boolean
   /**
-   * Specify if Segment should create a new Identifier 'Unique Field' automatically on HubSpot if it does not already exist.
+   * Specify if Segment should create a new Identifier 'Unique Field' on the Contacts Object automatically on HubSpot if it does not already exist.
    */
   createIdentifier: boolean
   /**
@@ -18,26 +18,69 @@ export interface Payload {
    */
   objectType: string
   /**
-   * Specify if Segment should create, update or upsert a record.
+   * Specify if Segment should create, update or upsert a Contact Record.
    */
   insertType: string
   /**
-   * The name of the unique field Segment will use as an identifier when creating, updating or upserting a record of 'Object Type'.
+   * The name of the unique field Segment will use as an identifier when creating, updating or upserting a Contact Record.
    */
   idFieldName: string
   /**
-   * The type of Association between the two records. The Association must already exist in Hubspot.
+   * The type of Association between the Contact records and another Record. The Association must already exist in Hubspot.
    */
   associationLabel?: string
   /**
-   * The value of the identifier to send to Hubspot.
+   * The value of the Contact identifier to send to Hubspot.
    */
   idFieldValue: string
   /**
-   * String Properties to send to HubSpot.
+   * The Contact's String Properties to send to HubSpot.
    */
   stringProperties?: {
-    [k: string]: unknown
+    /**
+     * the contact's first name.
+     */
+    first_name?: string
+    /**
+     * the contact's last name.
+     */
+    last_name?: string
+    /**
+     * the Contact's primary phone number.
+     */
+    phone_number?: string
+    /**
+     * the Contact's job title.
+     */
+    job_title?: string
+    /**
+     * the contact's street address, including apartment or unit #.
+     */
+    street_address?: string
+    /**
+     * The Contact's city of residence.
+     */
+    city?: string
+    /**
+     * the Contact's country of residence.
+     */
+    country?: string
+    /**
+     * the Contact's state of residence
+     */
+    state_region?: string
+    /**
+     * the Contact's postal code.
+     */
+    postal_code?: string
+    /**
+     * the name of the Contact's company.
+     */
+    company?: string
+    /**
+     * the contact's company website.
+     */
+    website_url?: string
   }
   /**
    * Number Properties to send to HubSpot.
