@@ -48,7 +48,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     refreshAccessToken: async (request, { auth, settings }) => {
       const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-
       try {
         const res = await request<RefreshTokenResponse>(endpoint, {
           method: 'POST',
@@ -59,7 +58,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             grant_type: 'refresh_token'
           }),
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            // Amazon ads refresh token API throws error with authorization header so explicity overriding Authorization header here.
+            authorization: ''
           }
         })
 
