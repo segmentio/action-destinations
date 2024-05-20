@@ -1,12 +1,22 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type { Payload, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core/'
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
   description: 'Sync a Segment Engage Audience to Taboola.',
   fields: {
+    external_audience_id: {
+      label: 'External Audience ID',
+      description: "The Audience ID in Google's DB.",
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.external_audience_id'
+      }
+    },
     segment_audience_id: {
       label: 'Audience ID',
       description: 'Segment Audience ID to which user identifier should be added or removed',

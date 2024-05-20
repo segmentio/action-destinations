@@ -1,5 +1,6 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import type { IntegrationError } from '@segment/actions-core'
 
 import syncAudience from './syncAudience'
 
@@ -8,12 +9,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
   slug: 'actions-taboola-actions',
   mode: 'cloud',
   audienceFields: {
-    audienceName: {
-      type: 'string',
-      label: 'Audience Name',
-      required: true,
-      description: 'The name of the audience you want to create in Taboola.'
-    },
     accountId: {
       type: 'string',
       label: 'Account ID',
@@ -26,10 +21,41 @@ const destination: AudienceDestinationDefinition<Settings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(request, createAudienceInput) {},
-    async getAudience(request, getAudienceInput) {
+    async createAudience(request, createAudienceInput) {
+      const audienceName = createAudienceInput.audienceName
+      const accountId = createAudienceInput.audienceSettings?.accountId
+
+      if (!audienceName) {
+        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!accountId) {
+        throw new IntegrationError('Missing Account ID value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      // TODO @Eden add code to create the Audience. It needs to return Taboola's ID for the Audience. 
+      // This ID will be used when sending payloads to Taboola when adding or removing a user from an Audience.  
+      // @Eden, do you need the access_token to be able to make this request? If so, I will need to make a platform change for this to work.
+      
+      const response = await request('https://example.com', {
+        method: 'post',
+        json: {
+          name: audienceName,
+          accountId: accountId
+        },
+         headers: {
+           'Content-Type': 'application/json'
+         }
+      })
+
+       return {
+         externalId: response.audienceIDFromTaboola
+       }
+
+    },
+    async getAudience(_, getAudienceInput) {
       return {
-        externalId: externalId
+        externalId: getAudienceInput.externalId
       }
     }
   },
