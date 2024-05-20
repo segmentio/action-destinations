@@ -12,27 +12,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Trubrics reserved properties to send with the event
-   */
-  trubrics_properties?: {
-    /**
-     * The ID associated with the AI assistant
-     */
-    assistant_id?: string
-    /**
-     * The ID associated with the thread
-     */
-    thread_id?: string
-    /**
-     * The text associated with the event
-     */
-    text?: string
-    /**
-     * The anonymous ID associated with the user
-     */
-    anonymous_id?: string
-  }
-  /**
    * user properties to send with the event
    */
   traits?: {
@@ -51,5 +30,5 @@ export interface Payload {
   /**
    * The ID associated with the user
    */
-  user_id?: string
+  user_id: string
 }

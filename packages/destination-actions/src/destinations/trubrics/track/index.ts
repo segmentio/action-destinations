@@ -20,44 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event properties',
       default: { '@path': '$.properties' }
     },
-    trubrics_properties: {
-      type: 'object',
-      required: false,
-      description: 'Trubrics reserved properties to send with the event',
-      label: 'Trubrics Reserved Properties',
-      properties: {
-        assistant_id: {
-          type: 'string',
-          required: false,
-          description: 'The ID associated with the AI assistant',
-          label: 'AI Assistant ID'
-        },
-        thread_id: {
-          type: 'string',
-          required: false,
-          description: 'The ID associated with the thread',
-          label: 'Thread ID'
-        },
-        text: {
-          type: 'string',
-          required: false,
-          description: 'The text associated with the event',
-          label: 'Text'
-        },
-        anonymous_id: {
-          type: 'string',
-          required: false,
-          description: 'The anonymous ID associated with the user',
-          label: 'Anonymous ID'
-        }
-      },
-      default: {
-        assistant_id: { '@path': '$.properties.assistant_id' },
-        thread_id: { '@path': '$.properties.thread_id' },
-        text: { '@path': '$.properties.text' },
-        anonymous_id: { '@path': '$.anonymousId' }
-      }
-    },
     traits: {
       type: 'object',
       required: false,
@@ -82,25 +44,33 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       type: 'string',
-      required: false,
+      required: true,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
     }
   },
   perform: (request, { settings, payload }) => {
-    const { properties = {}, trubrics_properties = {}, ...restPayload } = payload
-    const mergedProperties: Record<string, unknown> = { ...properties }
-    Object.keys(trubrics_properties).forEach((key: string) => {
-      mergedProperties[`$${key}`] = trubrics_properties[key as keyof typeof trubrics_properties]
-      delete mergedProperties[key]
-    })
+    const trubrics_properties = ['assistant_id', 'thread_id', 'text']
+
+    const modifiedProperties = Object.entries(payload.properties).reduce((acc, [key, value]) => {
+      if (trubrics_properties.includes(key)) {
+        acc[`$${key}`] = value
+      } else {
+        acc[key] = value
+      }
+      return acc
+    }, {})
 
     return request(`https://api.trubrics.com/publish_event?project_api_key=${settings.apiKey}`, {
       method: 'post',
       json: {
-        ...restPayload,
-        properties: mergedProperties
+        event: payload.event,
+        properties: modifiedProperties,
+        traits: payload.traits,
+        context: payload.context,
+        timestamp: payload.timestamp,
+        user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires either user_id
       }
     })
   }
