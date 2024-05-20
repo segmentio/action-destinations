@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { OperationLogger, OperationLoggerContext } from './OperationLogger'
-import { OperationStats, OperationStatsContext } from './OperationStats'
-import { OperationDecorator, ContextFromDecorator } from './OperationDecorator'
-import { TryCatchFinallyHook } from './wrapTryCatchFinallyPromisable'
-import { TrackedError } from './TrackedError'
+import { OperationLogger, OperationLoggerContext } from '../utils/operationTracking/OperationLogger'
+import { OperationStats, OperationStatsContext } from '../utils/operationTracking/OperationStats'
+import { OperationDecorator, ContextFromDecorator } from '../utils/operationTracking/OperationDecorator'
+import { TryCatchFinallyHook } from '../utils/operationTracking/wrapTryCatchFinallyPromisable'
+import { TrackedError } from '../utils/operationTracking/TrackedError'
 
 class TestLogger extends OperationLogger {
   logInfo = jest.fn()

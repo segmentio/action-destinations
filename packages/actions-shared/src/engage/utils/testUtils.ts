@@ -1,26 +1,31 @@
 import { Logger } from '@segment/actions-core/destination-kit'
 
-export function createLoggerMock() {
-  return {
+export function getTestLoggerUtils() {
+  const loggerMock = {
     level: 'error',
     name: 'test',
     error: jest.fn() as Logger['error'],
     info: jest.fn() as Logger['info']
   } as Logger
-}
 
-export const loggerMock = createLoggerMock()
+  function expectLogged(logMethod: Function, ...msgs: string[]) {
+    expect(logMethod).toHaveBeenCalledWith(
+      expect.stringMatching(new RegExp(`(.*)${msgs.join('(.*)')}(.*)`)),
+      expect.anything()
+    )
+  }
 
-export function expectLogged(logMethod: Function, ...msgs: string[]) {
-  expect(logMethod).toHaveBeenCalledWith(
-    expect.stringMatching(new RegExp(`(.*)${msgs.join('(.*)')}(.*)`)),
-    expect.anything()
-  )
-}
+  function expectErrorLogged(...msgs: string[]) {
+    expectLogged(loggerMock.error, ...msgs)
+  }
 
-export function expectErrorLogged(...msgs: string[]) {
-  expectLogged(loggerMock.error, ...msgs)
-}
-export function expectInfoLogged(...msgs: string[]) {
-  expectLogged(loggerMock.info, ...msgs)
+  function expectInfoLogged(...msgs: string[]) {
+    expectLogged(loggerMock.info, ...msgs)
+  }
+
+  return {
+    loggerMock,
+    expectErrorLogged,
+    expectInfoLogged
+  }
 }

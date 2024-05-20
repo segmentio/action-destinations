@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { Payload } from '../sendMobilePush/generated-types'
-import { createTestAction } from './__helpers__/test-utils'
-import { SendabilityStatus, expectErrorLogged, expectInfoLogged } from '@segment/actions-shared'
+import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
+import { SendabilityStatus } from '@segment/actions-shared'
 
 const spaceId = 'spaceid'
 const contentSid = 'HX1234'

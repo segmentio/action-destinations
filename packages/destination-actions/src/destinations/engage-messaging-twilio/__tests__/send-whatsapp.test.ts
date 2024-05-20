@@ -1,6 +1,5 @@
 import nock from 'nock'
-import { createTestAction } from './__helpers__/test-utils'
-import { expectErrorLogged, expectInfoLogged } from '@segment/actions-shared'
+import { createTestAction, expectErrorLogged, expectInfoLogged } from './__helpers__/test-utils'
 
 const defaultTemplateSid = 'my_template'
 const phoneNumber = '+1234567891'
