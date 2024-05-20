@@ -44,14 +44,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_id: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
     anonymous_id: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.anonymousId' }
@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     const trubrics_properties = ['assistant_id', 'thread_id', 'text']
 
-    const modifiedProperties = Object.entries(payload.properties).reduce((acc, [key, value]) => {
+    const modifiedProperties = Object.entries(payload.properties || {}).reduce((acc, [key, value]) => {
       if (trubrics_properties.includes(key)) {
         acc[`$${key}`] = value
       } else {
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event: payload.event,
         properties: { ...modifiedProperties, ...payload.context, ...payload.traits },
         timestamp: payload.timestamp,
-        user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires either user_id
+        user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires user_id
       }
     })
   }
