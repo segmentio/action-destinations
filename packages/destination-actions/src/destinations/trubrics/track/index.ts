@@ -69,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return acc
     }, {})
 
-    return request(`${settings.url}/publish_event?project_api_key=${settings.apiKey}`, {
+    return request(`https://${settings.url}/publish_event?project_api_key=${settings.apiKey}`, {
       method: 'post',
       json: {
         event: payload.event,

@@ -8,9 +8,10 @@ describe('Trubrics', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       const authData = {
-        apiKey: 'testId'
+        apiKey: 'testId',
+        url: 'https://api.trubrics.com'
       }
-      nock('https://api.trubrics.com').post(`/publish_event?project_api_key=${authData.apiKey}`).reply(200, {})
+      nock(`https://${authData.url}`).post(`/publish_event?project_api_key=${authData.apiKey}`).reply(200, {})
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
   })

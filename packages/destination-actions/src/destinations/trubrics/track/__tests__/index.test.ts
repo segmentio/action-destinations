@@ -6,9 +6,9 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Trubrics.track', () => {
   it('should work', async () => {
-    const settings = { apiKey: 'api-key' }
+    const settings = { apiKey: 'api-key', url: 'api.trubrics.com' }
     const event = createTestEvent({ timestamp: '2021-08-17T15:21:15.449Z', event: 'Test Event' })
-    nock('https://api.trubrics.com').post(`/publish_event?project_api_key=${settings.apiKey}`).reply(200, {})
+    nock(`https://${settings.url}`).post(`/publish_event?project_api_key=${settings.apiKey}`).reply(200, {})
 
     const responses = await testDestination.testAction('track', {
       event,

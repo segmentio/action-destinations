@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Trubrics API URL. You should use the default value.',
         type: 'string',
         required: true,
-        default: 'https://api.trubrics.com'
+        default: 'api.trubrics.com'
       }
     }
   },
