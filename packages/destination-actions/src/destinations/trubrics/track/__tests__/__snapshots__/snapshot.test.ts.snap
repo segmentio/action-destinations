@@ -7,6 +7,9 @@ Object {
     "testType": "a8sh%]V89rmzO",
   },
   "timestamp": "2024-07-26T04:06:53.998Z",
+  "traits": Object {
+    "testType": "a8sh%]V89rmzO",
+  },
   "user_id": "a8sh%]V89rmzO",
 }
 `;

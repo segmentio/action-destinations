@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
         acc[key] = value
       }
       return acc
-    }, {})
+    }, {} as Record<string, unknown>)
 
     return request(`https://${settings.url}/publish_event?project_api_key=${settings.apiKey}`, {
       method: 'post',

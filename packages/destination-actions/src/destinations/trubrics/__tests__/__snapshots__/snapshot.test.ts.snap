@@ -7,6 +7,9 @@ Object {
     "testType": "In9syz",
   },
   "timestamp": "2070-02-06T19:15:19.338Z",
+  "traits": Object {
+    "testType": "In9syz",
+  },
   "user_id": "In9syz",
 }
 `;
