@@ -3,50 +3,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient } from './hubspot-api'
 import { RequestClient} from '@segment/actions-core'
-import { 
-  createObject, 
-  createProperties, 
-  createIdentifier, 
-  objectType, 
-  insertType, 
-  idFieldName, 
-  associationLabel, 
-  idFieldValue, 
-  stringProperties, 
-  numericProperties, 
-  booleanProperties, 
-  dateProperties, 
-  toIdFieldName, 
-  toIdFieldValue, 
-  toObjectType, 
-  recordID, 
-  toRecordID, 
-  enable_batching, 
-  batch_size} from './common-fields'
+import { commonFields } from './common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Object',
   description: 'Upsert a record of any Object type to HubSpot and optionally assocate it with another record of any Object type.',
   fields: {
-    createObject, 
-    createProperties, 
-    createIdentifier, 
-    objectType, 
-    insertType, 
-    idFieldName,
-    associationLabel, 
-    idFieldValue, 
-    stringProperties, 
-    numericProperties, 
-    booleanProperties, 
-    dateProperties, 
-    toIdFieldName, 
-    toIdFieldValue, 
-    toObjectType, 
-    recordID, 
-    toRecordID, 
-    enable_batching, 
-    batch_size
+    ...commonFields
   },
   dynamicFields: {
     objectType: async (request: RequestClient) => {

@@ -50,25 +50,40 @@ const action: ActionDefinition<Settings, Payload> = {
       ...objectAction.fields.stringProperties,
       description: "The Contact's String Properties to send to HubSpot.",
       properties: {
-        first_name: {
+        lifecyclestage: {
+          label: 'Lifecycle Stage',
+          type: 'string',
+          description: "The lifecycle stage the Contact is in."
+        },
+        firstname: {
           label: 'First Name',
           type: 'string',
           description: "the contact's first name."
         },
-        last_name: {
+        lastname: {
           label: 'Last Name',
           type: 'string',
           description: "the contact's last name."
         },
-        phone_number: {
+        phone: {
           label: 'Phone Number',
           type: 'string',
-          description: "the Contact's primary phone number. "
+          description: "The Contact's primary phone number."
         },
-        job_title: {
+        mobilephone: {
+          label: 'Mobile Phone Number',
+          type: 'string',
+          description: "The A contact's mobile phone number."
+        },
+        jobtitle: {
           label: 'Job Title',
           type: 'string',
           description: "the Contact's job title."
+        },
+        industry: {
+          label: 'Industry',
+          type: 'string',
+          description: "The Industry a Contact is in."
         },
         street_address: {
           label: 'Street Address',
@@ -83,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
         country: {
           label: 'Country / Region',
           type: 'string',
-          description: "the Contact's country of residence."
+          description: "The contact's country/region of residence."
         },
         state_region: {
           label: 'State / Region',
@@ -108,10 +123,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        first_name: { '@path': '$.traits.first_name' },
-        last_name: { '@path': '$.traits.last_name' },
-        phone_number: { '@path': '$.traits.phone' },
-        job_title: { '@path': '$.traits.title' },
+        lifecyclestage: { '@path': '$.traits.lifecycle_stage' },
+        firstname: { '@path': '$.traits.first_name' },
+        lastname: { '@path': '$.traits.last_name' },
+        phone: { '@path': '$.traits.phone' },
+        mobilephone: { '@path': '$.traits.mobile_phone' },
+        jobtitle: { '@path': '$.traits.title' },
+        industry: { '@path': '$.traits.industry'},
         street_address: { '@path': '$.traits.address.street' },
         city: { '@path': '$.traits.address.city' },
         country: { '@path': '$.traits.address.country' },
@@ -120,7 +138,22 @@ const action: ActionDefinition<Settings, Payload> = {
         company: { '@path': '$.traits.company' },
         website_url: { '@path': '$.traits.website' }
       }
-    }
+    },
+    numericProperties: {
+      ...objectAction.fields.numericProperties,
+      description: "The Contact's numberic Properties to send to HubSpot.",
+      properties: {
+        annualrevenue: {
+          label: 'Annual Revenue',
+          type: 'number',
+          description: "Annual company revenue."
+        }
+      },
+      default: {
+        annualrevenue: { '@path': '$.traits.annual_revenue' },
+       
+      }
+    },
   }
 }
 
