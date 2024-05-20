@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../../trubrics_/generated-types'
-import type { Payload } from '../../trubrics_/track/generated-types'
+import type { Payload } from './generated-types'
+import type { Settings } from '../generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -48,6 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The ID associated with the user',
       label: 'User ID',
       default: { '@path': '$.userId' }
+    },
+    anonymous_id: {
+      type: 'string',
+      required: true,
+      description: 'The ID associated with the user',
+      label: 'User ID',
+      default: { '@path': '$.anonymousId' }
     }
   },
   perform: (request, { settings, payload }) => {
@@ -66,9 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         event: payload.event,
-        properties: modifiedProperties,
-        traits: payload.traits,
-        context: payload.context,
+        properties: { ...modifiedProperties, ...payload.context, ...payload.traits },
         timestamp: payload.timestamp,
         user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires either user_id
       }

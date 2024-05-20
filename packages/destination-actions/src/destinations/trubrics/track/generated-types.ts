@@ -31,4 +31,8 @@ export interface Payload {
    * The ID associated with the user
    */
   user_id: string
+  /**
+   * The ID associated with the user
+   */
+  anonymous_id: string
 }
