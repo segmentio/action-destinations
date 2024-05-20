@@ -354,7 +354,7 @@ export async function createList(request: RequestClient, settings: Settings, lis
   const r = await response.json()
 
   return {
-    successMessage: `Using existing list '${r.data.attributes.name}' (id: ${r.data.id})`,
+    successMessage: `List '${r.data.attributes.name}' (id: ${r.data.id}) created successfully!`,
     savedData: {
       id: r.data.id,
       name: r.data.attributes.name

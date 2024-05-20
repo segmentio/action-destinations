@@ -140,6 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
       dynamic: true,
+      default: '',
       unsafe_hidden: true
     },
     batch_size: { ...batch_size }
