@@ -13,13 +13,13 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'Project API Key',
-        description: 'Your Trubrics Project API Key. Can be found in your project settings.',
+        description: 'Your Trubrics Project API Key. This can be found in your project settings.',
         type: 'string',
         required: true
       },
       url: {
         label: 'Project URL',
-        description: 'The Trubrics API URL. You should use the default value.',
+        description: 'The Trubrics API URL. In most cases the default value should be used.',
         type: 'string',
         required: true,
         default: 'api.trubrics.com'

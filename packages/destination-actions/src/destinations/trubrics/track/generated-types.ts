@@ -32,7 +32,7 @@ export interface Payload {
    */
   user_id?: string
   /**
-   * The ID associated with the user
+   * The Anonymous ID associated with the user
    */
   anonymous_id?: string
 }

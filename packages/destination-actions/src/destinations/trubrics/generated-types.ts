@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Your Trubrics Project API Key. Can be found in your project settings.
+   * Your Trubrics Project API Key. This can be found in your project settings.
    */
   apiKey: string
   /**
-   * The Trubrics API URL. You should use the default value.
+   * The Trubrics API URL. In most cases the default value should be used.
    */
   url: string
 }

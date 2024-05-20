@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
   description: 'Track an event in Trubrics.',
+  defaultSubscription: 'type = "track"',
   fields: {
     event: {
       type: 'string',
@@ -52,8 +53,8 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymous_id: {
       type: 'string',
       required: false,
-      description: 'The ID associated with the user',
-      label: 'User ID',
+      description: 'The Anonymous ID associated with the user',
+      label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     }
   },
@@ -73,7 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         event: payload.event,
-        properties: { ...modifiedProperties, ...payload.context, ...payload.traits },
+        properties: { ...modifiedProperties, ...payload.context },
+        traits: payload.traits,
         timestamp: payload.timestamp,
         user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires user_id
       }
