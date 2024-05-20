@@ -1,10 +1,10 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { IntegrationError } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
+import { IntegrationError } from '@segment/actions-core'
 
 import syncAudience from './syncAudience'
 
-const destination: AudienceDestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Taboola (actions)',
   slug: 'actions-taboola-actions',
   mode: 'cloud',
@@ -81,8 +81,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
-          client_id: settings.clientId,
-          client_secret: auth.client_secret,
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
           grant_type: 'refresh_token'
         })
       })
