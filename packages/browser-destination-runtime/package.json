@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.39.1-staging.0",
+  "version": "1.39.1-staging.15+c259f0b3d",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.109.1-staging.0"
+    "@segment/actions-core": "^3.109.1-staging.15+c259f0b3d"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
@@ -86,5 +86,6 @@
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  }
+  },
+  "gitHead": "c259f0b3db91bb1667d15d3cc993372e4cbe7af6"
 }

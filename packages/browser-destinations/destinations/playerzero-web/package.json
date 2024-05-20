@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-playerzero",
-  "version": "1.40.1-staging.0",
+  "version": "1.40.1-staging.15+c259f0b3d",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,10 +15,11 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.109.1-staging.0",
-    "@segment/browser-destination-runtime": "^1.39.1-staging.0"
+    "@segment/actions-core": "^3.109.1-staging.15+c259f0b3d",
+    "@segment/browser-destination-runtime": "^1.39.1-staging.15+c259f0b3d"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
-  }
+  },
+  "gitHead": "c259f0b3db91bb1667d15d3cc993372e4cbe7af6"
 }

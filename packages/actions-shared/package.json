@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-shared",
   "description": "Shared destination action methods and definitions.",
-  "version": "1.91.1-staging.0",
+  "version": "1.91.1-staging.15+c259f0b3d",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
-    "@segment/actions-core": "^3.109.1-staging.0",
+    "@segment/actions-core": "^3.109.1-staging.15+c259f0b3d",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
@@ -63,5 +63,6 @@
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
-  }
+  },
+  "gitHead": "c259f0b3db91bb1667d15d3cc993372e4cbe7af6"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.33.1-staging.222",
+  "version": "3.33.1-staging.222+c259f0b3d",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
@@ -62,5 +62,6 @@
       "path": "dist/cjs/index.js",
       "limit": "29 KB"
     }
-  ]
+  ],
+  "gitHead": "c259f0b3db91bb1667d15d3cc993372e4cbe7af6"
 }
