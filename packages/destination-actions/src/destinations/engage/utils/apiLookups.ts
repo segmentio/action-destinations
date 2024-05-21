@@ -2,7 +2,7 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
-import { Logger, StatsClient, EngageDestinationCache } from '@segment/actions-core/destination-kit'
+import type { Logger, StatsClient, EngageDestinationCache } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../sendgrid/generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile } from './Profile'
@@ -163,7 +163,7 @@ export const performApiLookup = async (
       const dataString = JSON.stringify(data)
       const size = Buffer.byteLength(dataString, 'utf-8')
 
-      if (size > engageDestinationCache.maxResponseSizeBytes) {
+      if (size > engageDestinationCache.maxValueSizeBytes) {
         datafeedTags.push('error:true', 'reason:response_size_too_big')
         logDataFeedError('Data feed response size too big too cache and caching needed, failing send')
         throw new IntegrationError(
