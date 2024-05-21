@@ -14,6 +14,12 @@ export interface Payload {
    */
   groupId: string
   /**
+   * Device context
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
    * Traits to associate with the group
    */
   traits?: {
