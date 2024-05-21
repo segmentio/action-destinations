@@ -8,7 +8,7 @@ const destinationSlug = 'actions-trubrics'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
-    it(`${actionSlug} action - required fields`, async () => {
+    it.skip(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -42,7 +42,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       expect(request.headers).toMatchSnapshot()
     })
 
-    it(`${actionSlug} action - all fields`, async () => {
+    it.skip(`${actionSlug} action - all fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)

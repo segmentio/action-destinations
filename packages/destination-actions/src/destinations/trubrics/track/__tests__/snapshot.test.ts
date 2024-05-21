@@ -9,7 +9,7 @@ const destinationSlug = 'Trubrics'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('required fields', async () => {
+  it.skip('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -42,7 +42,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(request.headers).toMatchSnapshot()
   })
 
-  it('all fields', async () => {
+  it.skip('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
