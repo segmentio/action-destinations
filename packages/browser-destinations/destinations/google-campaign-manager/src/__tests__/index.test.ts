@@ -30,6 +30,21 @@ describe('Google Tag for Campaign Manager', () => {
     await googleCampaignManagerPlugin.load(Context.system(), {} as Analytics)
   })
 
+  it('should not update consent if enable_consent mode is denied', async () => {
+    const settings = {
+      ...defaultSettings,
+      enableConsentMode: false
+    }
+
+    const [event] = await googleCampaignManager({ ...settings, subscriptions })
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    expect(window.dataLayer).toEqual(
+      expect.arrayContaining([expect.not.objectContaining(Object.assign({}, ['consent', 'default', {}]))])
+    )
+  })
+
   it('should update consent if analytics storage is granted', async () => {
     const settings = {
       ...defaultSettings,
