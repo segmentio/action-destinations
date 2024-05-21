@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     userId: {
       type: 'string',
-      required: true,
+      required: false,
       description: 'A identifier for a known user.',
       label: 'User ID',
       default: { '@path': '$.userId' }
@@ -21,19 +21,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       default: { '@path': '$.anonymousId' }
     },
-    email: {
-      type: 'string',
-      required: false,
-      description: 'The email address for the user',
-      label: 'Email address',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.properties.email' }
-        }
-      }
-    },
     eventName: {
       type: 'string',
       required: true,
@@ -43,9 +30,16 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.event' },
           then: { '@path': '$.event' },
-          else: { '@path': '$.name' }
+          else: { '@template': 'pageview' }
         }
       }
+    },
+    context: {
+      type: 'object',
+      required: false,
+      description: 'Context properties to send with the event',
+      label: 'Context properties',
+      default: { '@path': '$.context' }
     },
     properties: {
       type: 'object',
@@ -61,8 +55,10 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         event: payload.eventName,
         userId: payload.userId,
-        email: payload.email,
         anonymousId: payload.anonymousId,
+        context: {
+          ...payload.context
+        },
         properties: {
           ...payload.properties
         }
