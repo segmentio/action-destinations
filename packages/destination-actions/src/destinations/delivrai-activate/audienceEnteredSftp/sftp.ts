@@ -5,10 +5,9 @@ import {
   DEFAULT_REQUEST_TIMEOUT
 } from '@segment/actions-core'
 
+import { Payload } from './generated-types'
 import Client from 'ssh2-sftp-client'
 import path from 'path'
-import { Payload } from './generated-types'
-
 import { DELIVRAI_SFTP_SERVER, DELIVRAI_SFTP_PORT } from '../properties'
 
 enum SFTPErrorCode {
@@ -35,23 +34,19 @@ function validateSFTP(payload: Payload) {
 
 async function uploadSFTP(sftp: Client, payload: Payload, filename: string, fileContent: Buffer) {
   return doSFTP(sftp, payload, async (sftp) => {
-    const targetPath = path.join(payload.sftp_folder_path as string, filename);
-    console.log(targetPath);
+    const targetPath = path.join(payload.sftp_folder_path as string, filename)
     return sftp.put(fileContent, targetPath)
-  }) 
+  })
 }
 
 async function doSFTP(sftp: Client, payload: Payload, action: { (sftp: Client): Promise<unknown> }) {
-
-  console.log('doSFTP called ');
- 
   await sftp.connect({
     host: DELIVRAI_SFTP_SERVER,
     port: DELIVRAI_SFTP_PORT,
     username: payload.sftp_username,
     password: payload.sftp_password
   })
-  console.log('after sftp connect');
+
   let timeoutError
   const timeout = setTimeout(() => {
     void sftp.end().catch((err) => {

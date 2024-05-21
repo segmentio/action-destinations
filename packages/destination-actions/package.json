@@ -47,6 +47,7 @@
     "@segment/actions-shared": "^1.84.0",
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
+    "aws-sdk": "^2.1613.0",
     "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",

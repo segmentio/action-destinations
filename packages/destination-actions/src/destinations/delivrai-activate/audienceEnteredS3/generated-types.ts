@@ -28,7 +28,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply Delivr.AI's specific hashing rules.
+   * Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply DELIVRAI's specific hashing rules.
    */
   unhashed_identifier_data?: {
     [k: string]: unknown
@@ -38,11 +38,11 @@ export interface Payload {
    */
   delimiter: string
   /**
-   * Name of the CSV file to upload for Delivr.AI ingestion.
+   * Name of the CSV file to upload for DELIVRAI ingestion.
    */
   filename: string
   /**
-   * Receive events in a batch payload. This is required for Delivr.AI audiences ingestion.
+   * Receive events in a batch payload. This is required for DELIVRAI audiences ingestion.
    */
   enable_batching: boolean
   /**

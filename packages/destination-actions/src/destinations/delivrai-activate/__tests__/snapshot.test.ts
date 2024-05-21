@@ -8,8 +8,6 @@ import nock from 'nock'
 import { enquoteIdentifier, normalize } from '../operations'
 import { DELIVRAI_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
-jest.setTimeout(15000); 
-
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-delivrai-activate'
 
@@ -22,130 +20,128 @@ jest.mock('ssh2-sftp-client', () => {
   return jest.fn(() => sftpClient)
 })
 
-// describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destination action:`, () => {
-//   const actionSlug = 'audienceEnteredS3'
-//   const seedName = `${destinationSlug}#${actionSlug}`
-//   beforeAll(() => {
-//     const mockDate = new Date(12345)
-//     jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
-//   })
+describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destination action:`, () => {
+  const actionSlug = 'audienceEnteredS3'
+  const seedName = `${destinationSlug}#${actionSlug}`
+  beforeAll(() => {
+    const mockDate = new Date(12345)
+    jest.spyOn(global, 'Date').mockImplementation(() => mockDate as unknown as string)
+  })
 
-//   it('required fields', async () => {
-//     const action = destination.actions[actionSlug]
-//     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-//     eventData.delimiter = ','
-//     eventData.s3_aws_access_key = '12345'
-//     eventData.s3_aws_secret_key = '12345'
-//     eventData.s3_aws_bucket_name = 'bucket'
-//     eventData.s3_aws_region = 'us-west'
-//     eventData.filename = 'myfile'
+  it('required fields', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    eventData.delimiter = ','
+    eventData.s3_aws_access_key = '12345'
+    eventData.s3_aws_secret_key = '12345'
+    eventData.s3_aws_bucket_name = 'bucket'
+    eventData.s3_aws_region = 'us-west'
+    eventData.filename = 'myfile'
 
-//     nock(/.*/).persist().get(/.*/).reply(200)
-//     nock(/.*/).persist().post(/.*/).reply(200)
-//     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
 
-//     const events = new Array(25).fill(0).map(() =>
-//       createTestEvent({
-//         properties: eventData
-//       })
-//     )
+    const events = new Array(25).fill(0).map(() =>
+      createTestEvent({
+        properties: eventData
+      })
+    )
 
-//     const responses = await testDestination.testBatchAction(actionSlug, {
-//       events,
-//       mapping: events[0].properties,
-//       settings: settingsData,
-//       auth: undefined
-//     })
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      mapping: events[0].properties,
+      settings: settingsData,
+      auth: undefined,
+      features: {
+        [DELIVRAI_LEGACY_FLOW_FLAG_NAME]: true
+      }
+    })
 
-//     const request = responses[0].request;
-//     console.log(request);
-//     const rawBody = await request.text()
+    const request = responses[0].request
+    const rawBody = await request.text()
 
-//     try {
-//       const json = JSON.parse(rawBody)
-//       expect(json).toMatchSnapshot()
-//       return
-//     } catch (err) {
-//       expect(rawBody).toMatchSnapshot()
-//     }
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
 
-//     expect(request.headers).toMatchSnapshot()
-//   })
+    expect(request.headers).toMatchSnapshot()
+  })
 
-//   it('all fields', async () => {
-//     const action = destination.actions[actionSlug]
-//     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-//     eventData.delimiter = ','
-//     eventData.s3_aws_access_key = '12345'
-//     eventData.s3_aws_secret_key = '12345'
-//     eventData.s3_aws_bucket_name = 'bucket'
-//     eventData.s3_aws_region = 'us-west'
-//     eventData.filename = 'myfile'
+  it('all fields', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    eventData.delimiter = ','
+    eventData.s3_aws_access_key = '12345'
+    eventData.s3_aws_secret_key = '12345'
+    eventData.s3_aws_bucket_name = 'bucket'
+    eventData.s3_aws_region = 'us-west'
+    eventData.filename = 'myfile'
 
-//     nock(/.*/).persist().get(/.*/).reply(200)
-//     nock(/.*/).persist().post(/.*/).reply(200)
-//     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
 
-//     const events = new Array(25).fill(0).map(() =>
-//       createTestEvent({
-//         properties: eventData
-//       })
-//     );
+    const events = new Array(25).fill(0).map(() =>
+      createTestEvent({
+        properties: eventData
+      })
+    )
 
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      mapping: events[0].properties,
+      settings: settingsData,
+      auth: undefined,
+      features: {
+        [DELIVRAI_LEGACY_FLOW_FLAG_NAME]: true
+      }
+    })
+    const request = responses[0].request
+    const rawBody = await request.text()
 
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+  })
 
-//     const responses = await testDestination.testBatchAction(actionSlug, {
-//       events,
-//       mapping: events[0].properties,
-//       settings: settingsData,
-//       auth: undefined,
-//       features: {
-//         [DELIVRAI_LEGACY_FLOW_FLAG_NAME]: true
-//       }
-//     })
+  it('missing minimum payload size', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    eventData.delimiter = ','
 
-//     console.log(responses);
-//     const request = responses[0].request
-//     const rawBody = await request.text()
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
 
-//     try {
-//       const json = JSON.parse(rawBody)
-//       expect(json).toMatchSnapshot()
-//       return
-//     } catch (err) {
-//       expect(rawBody).toMatchSnapshot()
-//     }
-//   })
+    const event = createTestEvent({
+      properties: eventData
+    })
 
-//   // it('missing minimum payload size', async () => {
-//   //   const action = destination.actions[actionSlug]
-//   //   const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-//   //   eventData.delimiter = ','
-
-//   //   nock(/.*/).persist().get(/.*/).reply(200)
-//   //   nock(/.*/).persist().post(/.*/).reply(200)
-//   //   nock(/.*/).persist().put(/.*/).reply(200)
-
-//   //   const event = createTestEvent({
-//   //     properties: eventData
-//   //   })
-
-//   //   try {
-//   //     await testDestination.testBatchAction(actionSlug, {
-//   //       events: [event],
-//   //       mapping: event.properties,
-//   //       settings: settingsData,
-//   //       auth: undefined,
-//   //       features: {
-//   //         [DELIVRAI_LEGACY_FLOW_FLAG_NAME]: true
-//   //       }
-//   //     })
-//   //     throw new Error('expected action to throw')
-//   //   } catch (err) {
-//   //     expect(err).toMatchSnapshot()
-//   //   }
-//   // })
-// })
+    try {
+      await testDestination.testBatchAction(actionSlug, {
+        events: [event],
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined,
+        features: {
+          [DELIVRAI_LEGACY_FLOW_FLAG_NAME]: true
+        }
+      })
+      throw new Error('expected action to throw')
+    } catch (err) {
+      expect(err).toMatchSnapshot()
+    }
+  })
+})
 
 describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destination action:`, () => {
   const actionSlug = 'audienceEnteredSFTP'
@@ -249,44 +245,44 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
   })
 })
 
-// describe(`Testing snapshot for ${destinationSlug}'s generic functions:`, () => {
-//   it('enquotated indentifier data', async () => {
-//     const identifiers = [`LCD TV,50"`, `"early-bird" special`, `5'8"`]
-//     const enquotedIdentifiers = identifiers.map(enquoteIdentifier)
+describe(`Testing snapshot for ${destinationSlug}'s generic functions:`, () => {
+  it('enquotated indentifier data', async () => {
+    const identifiers = [`LCD TV,50"`, `"early-bird" special`, `5'8"`]
+    const enquotedIdentifiers = identifiers.map(enquoteIdentifier)
 
-//     expect(enquotedIdentifiers).toMatchSnapshot()
-//   })
+    expect(enquotedIdentifiers).toMatchSnapshot()
+  })
 
-//   it('normalizes identifiers correctly', async () => {
-//     /*
-//       allowed formats listed below:
+  it('normalizes identifiers correctly', async () => {
+    /*
+      allowed formats listed below:
 
-//       +1XXXXXXXXXX
-//       +1 (XXX) XXX-XXXX
-//       (XXX) XXX-XXXX
-//       XXX-XXX-XXXX
-//       XXX XXX XXXX
-//       XXXXXXXXXX
-//     */
-//     const phoneNumbers = [
-//       '+15551234567',
-//       '+1 (555) 123-4567',
-//       '(555) 123-4567',
-//       '555-123-4567',
-//       '555 123 4567',
-//       '5551234567'
-//     ]
-//     const normalizedNumbers = phoneNumbers.map((value) => normalize('phone_number', value))
-//     expect(normalizedNumbers).toMatchSnapshot()
+      +1XXXXXXXXXX
+      +1 (XXX) XXX-XXXX
+      (XXX) XXX-XXXX
+      XXX-XXX-XXXX
+      XXX XXX XXXX
+      XXXXXXXXXX
+    */
+    const phoneNumbers = [
+      '+15551234567',
+      '+1 (555) 123-4567',
+      '(555) 123-4567',
+      '555-123-4567',
+      '555 123 4567',
+      '5551234567'
+    ]
+    const normalizedNumbers = phoneNumbers.map((value) => normalize('phone_number', value))
+    expect(normalizedNumbers).toMatchSnapshot()
 
-//     const emails = [
-//       'TestEmail@domain.com',
-//       'test@test.com ',
-//       'valid@domain.com',
-//       'first+last@names.com',
-//       'first.last@names.com'
-//     ]
-//     const normalizedEmails = emails.map((value) => normalize('email', value))
-//     expect(normalizedEmails).toMatchSnapshot()
-//   })
-// })
+    const emails = [
+      'TestEmail@domain.com',
+      'test@test.com ',
+      'valid@domain.com',
+      'first+last@names.com',
+      'first.last@names.com'
+    ]
+    const normalizedEmails = emails.map((value) => normalize('email', value))
+    expect(normalizedEmails).toMatchSnapshot()
+  })
+})

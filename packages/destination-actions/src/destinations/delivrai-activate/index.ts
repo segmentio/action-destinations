@@ -5,7 +5,7 @@ import audienceEnteredS3 from './audienceEnteredS3'
 import audienceEnteredSFTP from './audienceEnteredSftp'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Delivr AI Audiences',
+  name: 'delivrai Audiences',
   slug: 'actions-delivrai-activate',
   mode: 'cloud',
 
