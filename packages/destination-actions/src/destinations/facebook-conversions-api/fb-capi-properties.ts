@@ -115,9 +115,7 @@ export const data_processing_options_state: InputField = {
   type: 'number',
   choices: [
     { label: 'Use Facebook’s Geolocation Logic', value: 0 },
-    { label: 'California', value: 1000 },
-    { label: 'Colorado', value: 1001 },
-    { label: 'Connecticut', value: 1002 }
+    { label: 'California', value: 1000 }
   ]
 }
 

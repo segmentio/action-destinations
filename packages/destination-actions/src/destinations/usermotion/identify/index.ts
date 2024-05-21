@@ -46,10 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         id: payload.userId,
-        anonymousId: payload.anonymousId,
         properties: {
           ...payload.traits,
-          email: payload.email
+          email: payload.email,
+          anonymousId: payload.anonymousId
         }
       }
     })

@@ -18,14 +18,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData,
-      context: {
-        page: {
-          path: '/academy/',
-          title: 'Analytics Academy',
-          url: 'https://segment.com/academy/'
-        }
-      }
+      properties: eventData
     })
 
     const responses = await testDestination.testAction(actionSlug, {

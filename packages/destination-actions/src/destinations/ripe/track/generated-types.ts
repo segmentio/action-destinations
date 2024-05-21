@@ -10,15 +10,13 @@ export interface Payload {
    */
   userId?: string
   /**
+   * The group id
+   */
+  groupId?: string
+  /**
    * The event name
    */
   event: string
-  /**
-   * Device context
-   */
-  context?: {
-    [k: string]: unknown
-  }
   /**
    * Properties to send with the event
    */

@@ -12,7 +12,7 @@ import {
   recordMatcherOperator,
   batch_size
 } from '../sf-properties'
-import Salesforce, { generateSalesforceRequest } from '../sf-operations'
+import Salesforce from '../sf-operations'
 
 const OBJECT_NAME = 'Case'
 
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
   perform: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     if (payload.operation === 'create') {
       return await sf.createRecord(payload, OBJECT_NAME)
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
 
     return sf.bulkHandler(payload, OBJECT_NAME)
   }

@@ -2,17 +2,13 @@
 
 export interface Payload {
   /**
-   * A identifier for a known user.
-   */
-  userId?: string
-  /**
-   * An identifier for an anonymous user
-   */
-  anonymousId?: string
-  /**
    * A identifier for a known company.
    */
   groupId: string
+  /**
+   * The website address of the identified company
+   */
+  website?: string
   /**
    * Traits to associate with the company
    */

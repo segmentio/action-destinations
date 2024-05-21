@@ -21,19 +21,19 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
+    groupId: {
+      type: 'string',
+      required: false,
+      description: 'The group id',
+      label: 'Group ID',
+      default: { '@path': '$.context.groupId' }
+    },
     event: {
       type: 'string',
       required: true,
       description: 'The event name',
       label: 'Event Name',
       default: { '@path': '$.event' }
-    },
-    context: {
-      type: 'object',
-      label: 'Context',
-      description: 'Device context',
-      required: false,
-      default: { '@path': '$.context' }
     },
     properties: {
       type: 'object',
@@ -65,7 +65,9 @@ const action: ActionDefinition<Settings, Payload> = {
         name: payload.event,
         anonymousId: payload.anonymousId,
         userId: payload.userId,
-        context: payload.context,
+        context: {
+          groupId: payload.groupId
+        },
         properties: payload.properties,
         event: payload.event,
         messageId: payload.messageId,

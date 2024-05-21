@@ -21,12 +21,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
-    context: {
-      type: 'object',
-      label: 'Context',
-      description: 'Device context',
-      required: false,
-      default: { '@path': '$.context' }
+    groupId: {
+      type: 'string',
+      allowNull: true,
+      description: 'The group id',
+      label: 'Group ID',
+      default: { '@path': '$.context.groupId' }
     },
     properties: {
       type: 'object',
@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
         anonymousId: payload.anonymousId,
         userId: payload.userId,
         context: {
-          ...payload.context,
+          groupId: payload.groupId,
           page: {
             url: payload.url,
             path: payload.path,
