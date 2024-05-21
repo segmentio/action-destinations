@@ -6,7 +6,7 @@ Object {
   "properties": Object {
     "testType": "a8sh%]V89rmzO",
   },
-  "timestamp": "2024-07-26T04:06:53.998Z",
+  "timestamp": "2024-07-26T05:06:53.998Z",
   "traits": Object {
     "testType": "a8sh%]V89rmzO",
   },
@@ -18,7 +18,7 @@ exports[`Testing snapshot for Trubrics's track destination action: required fiel
 Object {
   "event": "a8sh%]V89rmzO",
   "properties": Object {},
-  "timestamp": "2024-07-26T04:06:53.998Z",
+  "timestamp": "2024-07-26T05:06:53.998Z",
   "user_id": "a8sh%]V89rmzO",
 }
 `;

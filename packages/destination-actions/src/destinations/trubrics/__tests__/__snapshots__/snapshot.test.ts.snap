@@ -6,7 +6,7 @@ Object {
   "properties": Object {
     "testType": "In9syz",
   },
-  "timestamp": "2070-02-06T19:15:19.338Z",
+  "timestamp": "2070-02-06T20:15:19.338Z",
   "traits": Object {
     "testType": "In9syz",
   },
@@ -18,7 +18,7 @@ exports[`Testing snapshot for actions-trubrics destination: track action - requi
 Object {
   "event": "In9syz",
   "properties": Object {},
-  "timestamp": "2070-02-06T19:15:19.338Z",
+  "timestamp": "2070-02-06T20:15:19.338Z",
   "user_id": "In9syz",
 }
 `;
