@@ -11,7 +11,8 @@ import {
   SubscribeProfile,
   SubscribeEventData,
   UnsubscribeProfile,
-  UnsubscribeEventData
+  UnsubscribeEventData,
+  GroupedProfiles
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -291,4 +292,29 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
     profileToSubscribe.attributes.phone_number = phone_number
   }
   return profileToSubscribe
+}
+
+export function groupByListId(profiles: Payload[]) {
+  const grouped: GroupedProfiles = {}
+
+  for (const profile of profiles) {
+    const listId: string = profile.override_list_id || (profile.list_id as string)
+    if (!grouped[listId]) {
+      grouped[listId] = []
+    }
+    grouped[listId].push(profile)
+  }
+
+  return grouped
+}
+
+export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
+  const importResponses = await Promise.all(
+    Object.keys(groupedProfiles).map(async (listId) => {
+      const profiles = groupedProfiles[listId]
+      const importJobPayload = createImportJobPayload(profiles, listId)
+      return await sendImportJobRequest(request, importJobPayload)
+    })
+  )
+  return importResponses
 }
