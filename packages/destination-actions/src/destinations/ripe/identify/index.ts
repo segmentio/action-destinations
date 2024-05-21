@@ -21,12 +21,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
-    groupId: {
-      type: 'string',
-      allowNull: true,
-      description: 'The group id',
-      label: 'Group ID',
-      default: { '@path': '$.context.groupId' }
+    context: {
+      type: 'object',
+      label: 'Context',
+      description: 'Device context',
+      required: false,
+      default: { '@path': '$.context' }
     },
     traits: {
       type: 'object',
@@ -57,9 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         anonymousId: payload.anonymousId,
         userId: payload.userId,
-        context: {
-          groupId: payload.groupId
-        },
+        context: payload.context,
         traits: payload.traits,
         messageId: payload.messageId,
         timestamp: payload.timestamp ?? new Date()

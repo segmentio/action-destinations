@@ -45,9 +45,10 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
   ],
 
   settings: {
+    // kept as the legacy `trackingKey` here to avoid needing to migrate installed plugins
     trackingKey: {
-      description: 'Your Bucket App tracking key, found on the tracking page.',
-      label: 'Tracking Key',
+      description: 'The publishable key for your Bucket environment, found on the tracking page on app.bucket.co.',
+      label: 'Publishable Key',
       type: 'string',
       required: true
     }
