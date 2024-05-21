@@ -49,6 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
+    appVersion: {
+      label: 'App Version',
+      description: 'The app version',
+      type: 'string',
+      default: {
+        '@path': '$.context.app.version'
+      }
+    },
     deviceId: {
       label: 'Device ID',
       description: 'The device ID of the user',
@@ -65,12 +73,44 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.device.type'
       }
     },
+    deviceManufacturer: {
+      label: 'Device Manufacturer',
+      description: 'The device manufacturer',
+      type: 'string',
+      default: {
+        '@path': '$.context.device.manufacturer'
+      }
+    },
+    deviceModel: {
+      label: 'Device Model',
+      description: 'The device model',
+      type: 'string',
+      default: {
+        '@path': '$.context.device.model'
+      }
+    },
+    ipAddress: {
+      label: 'IP Address',
+      description: 'The IP address of the client',
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
     osName: {
       label: 'OS Name',
       description: 'The name of the operating system',
       type: 'string',
       default: {
         '@path': '$.context.os.name'
+      }
+    },
+    osVersion: {
+      label: 'OS Version',
+      description: 'The version of the operating system',
+      type: 'string',
+      default: {
+        '@path': '$.context.os.version'
       }
     },
     eventId: {
@@ -99,7 +139,12 @@ const action: ActionDefinition<Settings, Payload> = {
           properties: payload.properties,
           deviceId: payload.deviceId,
           deviceType: payload.deviceType,
-          osName: payload.osName
+          deviceManufacturer: payload.deviceManufacturer,
+          deviceModel: payload.deviceModel,
+          osName: payload.osName,
+          osVersion: payload.osVersion,
+          appVersion: payload.appVersion,
+          ipAddress: payload.ipAddress
         }
       }
     })
