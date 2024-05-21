@@ -15,6 +15,7 @@ describe('amplitude - custom user agent parsing', () => {
     const result = parseUserAgentProperties(userAgent, userAgentData)
 
     expect(result).toEqual({
+      device_manufacturer: undefined,
       os_name: 'Android',
       os_version: '5.0.1',
       device_model: 'TAB 2 A7',
@@ -27,6 +28,7 @@ describe('amplitude - custom user agent parsing', () => {
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
     const result = parseUserAgentProperties(userAgent)
     expect(result).toEqual({
+      device_manufacturer: undefined,
       device_model: 'Mac OS',
       device_type: undefined,
       os_name: 'Mac OS',
@@ -51,10 +53,24 @@ describe('amplitude - custom user agent parsing', () => {
     const result = parseUserAgentProperties(userAgent, userAgentData)
 
     expect(result).toEqual({
+      device_manufacturer: undefined,
       device_model: 'SM-J710FN',
       device_type: undefined,
       os_name: 'Mac OS',
       os_version: '12.6.1'
+    })
+  })
+
+  it('should parse custom user for iphone strings', () => {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
+    const result = parseUserAgentProperties(userAgent)
+    expect(result).toEqual({
+      device_manufacturer: 'Apple',
+      device_model: 'iPhone',
+      device_type: 'mobile',
+      os_name: 'iOS',
+      os_version: '16'
     })
   })
 })

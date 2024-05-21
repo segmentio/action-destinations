@@ -10,7 +10,7 @@ export type Properties = {
 }
 
 type FlattenProperties = object & {
-  [k: string]: string
+  [k: string]: string | null
 }
 
 export function flat(data?: Properties, prefix = ''): FlattenProperties | undefined {
@@ -24,9 +24,7 @@ export function flat(data?: Properties, prefix = ''): FlattenProperties | undefi
       result = { ...result, ...flatten }
     } else {
       const stringifiedValue = stringify(data[key])
-      // replaces the first . or .word.
-      const identifier = (prefix + '.' + key).replace(/^\.(\w+\.)?/, '')
-      result[identifier] = stringifiedValue
+      result[(prefix + '.' + key).replace(/^\./, '')] = stringifiedValue
     }
   }
   return result
@@ -39,14 +37,15 @@ export const flattenProperties = (arrayPropertyValue: any) => {
     if (typeof value == 'object' && value !== null) {
       arrayProperties = { ...arrayProperties, ...flat({ [key]: value as Properties }) }
     } else {
-      arrayProperties = Object.assign(arrayProperties, { [key]: value })
+      const stringifiedValue = stringify(value)
+      arrayProperties = Object.assign(arrayProperties, { [key]: stringifiedValue })
     }
   }
   return arrayProperties
 }
 
-function stringify(value: unknown): string {
-  if (typeof value === 'string') {
+function stringify(value: unknown): string | null {
+  if (typeof value === 'string' || value === null) {
     return value
   }
   if (typeof value === 'number' || typeof value === 'boolean') {
