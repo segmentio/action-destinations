@@ -131,6 +131,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         eventSource: 'segment',
         occurredAt: payload.occurredAt,
+        ipAddress: payload.ipAddress,
         payload: {
           eventId: payload.eventId,
           userId: payload.userId,
@@ -143,8 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
           deviceModel: payload.deviceModel,
           osName: payload.osName,
           osVersion: payload.osVersion,
-          appVersion: payload.appVersion,
-          ipAddress: payload.ipAddress
+          appVersion: payload.appVersion
         }
       }
     })

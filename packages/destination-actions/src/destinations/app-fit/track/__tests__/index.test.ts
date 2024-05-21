@@ -33,7 +33,7 @@ describe('AppFit.track', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.body).toBe(
-      `{"eventSource":"segment","occurredAt":"${timestamp}","payload":{"eventId":"12345","userId":"userId1","anonymousId":"anonId1234","name":"Test Event","properties":{"foo":"bar"},"deviceId":"device1234","deviceType":"ios","deviceManufacturer":"Apple","deviceModel":"iPhone7,2","osName":"iPhone OS","osVersion":"10.1","appVersion":"1.0.0","ipAddress":"8.8.8.8"}}`
+      `{"eventSource":"segment","occurredAt":"${timestamp}","ipAddress":"8.8.8.8","payload":{"eventId":"12345","userId":"userId1","anonymousId":"anonId1234","name":"Test Event","properties":{"foo":"bar"},"deviceId":"device1234","deviceType":"ios","deviceManufacturer":"Apple","deviceModel":"iPhone7,2","osName":"iPhone OS","osVersion":"10.1","appVersion":"1.0.0"}}`
     )
   })
 })
