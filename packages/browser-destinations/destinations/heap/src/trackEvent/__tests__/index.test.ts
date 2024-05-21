@@ -45,26 +45,22 @@ describe('#trackEvent', () => {
           products: [
             {
               name: 'Test Product 1',
-              properties: {
-                color: 'red',
-                qty: 2,
-                custom_vars: {
-                  position: 0,
-                  something_else: 'test',
-                  another_one: ['one', 'two', 'three']
-                }
+              color: 'red',
+              qty: 2,
+              custom_vars: {
+                position: 0,
+                something_else: 'test',
+                another_one: ['one', 'two', 'three']
               }
             },
             {
               name: 'Test Product 2',
-              properties: {
-                color: 'blue',
-                qty: 1,
-                custom_vars: {
-                  position: 1,
-                  something_else: 'blah',
-                  another_one: ['four', 'five', 'six']
-                }
+              color: 'blue',
+              qty: 1,
+              custom_vars: {
+                position: 1,
+                something_else: 'blah',
+                another_one: ['four', 'five', 'six']
               }
             }
           ]
@@ -92,7 +88,7 @@ describe('#trackEvent', () => {
     })
     expect(heapTrackSpy).toHaveBeenNthCalledWith(3, 'hello!', {
       products:
-        '[{"name":"Test Product 1","properties":{"color":"red","qty":2,"custom_vars":{"position":0,"something_else":"test","another_one":["one","two","three"]}}},{"name":"Test Product 2","properties":{"color":"blue","qty":1,"custom_vars":{"position":1,"something_else":"blah","another_one":["four","five","six"]}}}]',
+        '[{"name":"Test Product 1","color":"red","qty":2,"custom_vars":{"position":0,"something_else":"test","another_one":["one","two","three"]}},{"name":"Test Product 2","color":"blue","qty":1,"custom_vars":{"position":1,"something_else":"blah","another_one":["four","five","six"]}}]',
       segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
     })
     expect(addUserPropertiesSpy).toHaveBeenCalledTimes(0)
@@ -114,13 +110,13 @@ describe('#trackEvent', () => {
 
     for (let i = 1; i <= 3; i++) {
       expect(heapTrackSpy).toHaveBeenNthCalledWith(i, 'hello! testArray1 item', {
-        val: i,
+        val: i.toString(),
         segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
       })
     }
     for (let i = 4; i <= 5; i++) {
       expect(heapTrackSpy).toHaveBeenNthCalledWith(i, 'hello! testArray2 item', {
-        val: i,
+        val: i.toString(),
         segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
       })
     }
@@ -191,13 +187,37 @@ describe('#trackEvent', () => {
     )
     expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
       segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME,
-      isAutomated: true,
-      isClickable: true,
-      bodyText: 'Testing text',
-      ctaText: 'Click me',
-      position: '0',
-      'testNestedValues.count': '5',
-      'testNestedValues.color': 'green'
+      isAutomated: 'true',
+      isClickable: 'true',
+      'custom_vars.bodyText': 'Testing text',
+      'custom_vars.ctaText': 'Click me',
+      'custom_vars.position': '0',
+      'custom_vars.testNestedValues.count': '5',
+      'custom_vars.testNestedValues.color': 'green'
+    })
+  })
+
+  it('should flatten properties on parent when browserArrayLimit is set', async () => {
+    await eventWithUnrolling.track?.(
+      new Context({
+        type: 'track',
+        name: 'hello!',
+        properties: {
+          boolean_test: false,
+          string_test: 'react',
+          number_test: 0,
+          custom_vars: {
+            property: 1
+          }
+        }
+      })
+    )
+    expect(heapTrackSpy).toHaveBeenCalledWith('hello!', {
+      segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME,
+      boolean_test: 'false',
+      string_test: 'react',
+      number_test: '0',
+      'custom_vars.property': '1'
     })
   })
 
@@ -316,27 +336,27 @@ describe('#trackEvent', () => {
         sku: 'PT2252152-0001-00',
         url: '/products/THE-ONE-JOGGER-PT2252152-0001-2',
         variant: 'Black',
-        vip_price: 59.95,
-        membership_brand_id: 1,
-        quantity: 1,
+        vip_price: '59.95',
+        membership_brand_id: '1',
+        quantity: '1',
         segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
       })
       expect(heapTrackSpy).toHaveBeenNthCalledWith(2, 'Product List Viewed products item', {
         sku: 'PT2252152-4846-00',
         url: '/products/THE-ONE-JOGGER-PT2252152-4846',
         variant: 'Deep Navy',
-        vip_price: 59.95,
-        membership_brand_id: 1,
-        quantity: 1,
+        vip_price: '59.95',
+        membership_brand_id: '1',
+        quantity: '1',
         segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
       })
       expect(heapTrackSpy).toHaveBeenNthCalledWith(3, 'Product List Viewed products item', {
         sku: 'PT2458220-0001-00',
         url: '/products/THE-YEAR-ROUND-TERRY-JOGGER-PT2458220-0001',
         variant: 'Black',
-        vip_price: 59.95,
-        membership_brand_id: 1,
-        quantity: 1,
+        vip_price: '59.95',
+        membership_brand_id: '1',
+        quantity: '1',
         segment_library: HEAP_SEGMENT_BROWSER_LIBRARY_NAME
       })
       expect(heapTrackSpy).toHaveBeenNthCalledWith(4, 'Product List Viewed', {
