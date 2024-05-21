@@ -3,16 +3,16 @@ import type { BrowserDestinationDefinition } from '@segment/browser-destination-
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import trackEvent from './trackEvent'
 import { initScript } from './1flow'
-import { _1Flow } from './api'
+import { _1flow } from './api'
 import identifyUser from './identifyUser'
 import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
-    _1Flow: _1Flow
+    _1flow: _1flow
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
+export const destination: BrowserDestinationDefinition<Settings, _1flow> = {
   name: '1Flow Web (Actions)',
   slug: 'actions-1flow',
   mode: 'device',
@@ -46,8 +46,8 @@ export const destination: BrowserDestinationDefinition<Settings, _1Flow> = {
   initialize: async ({ settings }, deps) => {
     const projectApiKey = settings.projectApiKey
     initScript({ projectApiKey })
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, '_1Flow'), 100)
-    return window._1Flow
+    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, '_1flow'), 100)
+    return window._1flow
   },
   actions: {
     trackEvent,
