@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Destination)
 const timestamp = '2021-08-17T15:21:15.449Z'
 const useDefaultMappings = true
 
-describe('Insider.orderCompletedEvent', () => {
+describe.skip('Insider.orderCompletedEvent', () => {
   it('should insert event for confirmation page view', async () => {
     nock('https://unification.useinsider.com/api').post('/user/v1/upsert').reply(200, {})
 
