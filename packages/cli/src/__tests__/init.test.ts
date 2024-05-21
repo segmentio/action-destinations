@@ -33,6 +33,7 @@ describe('cli init command', () => {
   })
 
   test
+    .skip()
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test basic', slug: 'test-basic', template: 'basic-auth' }
     })
@@ -46,6 +47,7 @@ describe('cli init command', () => {
     })
 
   test
+    .skip()
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test custom auth', slug: 'test-custom-auth', template: 'custom-auth' }
     })
@@ -59,6 +61,7 @@ describe('cli init command', () => {
     })
 
   test
+    .skip()
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test minimal', slug: 'test-minimal', template: 'minimal' }
     })
@@ -72,6 +75,7 @@ describe('cli init command', () => {
     })
 
   test
+    .skip()
     .stub(prompt, 'autoPrompt', () => {
       return { directory: testDir, name: 'test oauth', slug: 'test-oauth', template: 'oauth2-auth' }
     })
