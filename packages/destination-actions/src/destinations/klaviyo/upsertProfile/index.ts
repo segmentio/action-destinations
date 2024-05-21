@@ -1,4 +1,4 @@
-import type { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -10,8 +10,8 @@ import {
   createImportJobPayload,
   getListIdDynamicData,
   sendImportJobRequest,
-  getList,
-  createList,
+  // getList,
+  // createList,
   groupByListId,
   processProfilesByGroup
 } from '../functions'
@@ -142,8 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
       dynamic: true,
-      default: '',
-      unsafe_hidden: true
+      default: ''
     },
     batch_size: { ...batch_size },
     override_list_id: {
@@ -152,75 +151,75 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.',
       type: 'string',
-      default: { '@path': '$.integrations.Klaviyo.listId' }
+      default: { '@path': '$.traits.integrations.Klaviyo.listId' }
     }
   },
-  hooks: {
-    retlOnMappingSave: {
-      label: 'Connect to a static list in Klaviyo',
-      description: 'When saving this mapping, we will connect to a list in Klaviyo.',
-      inputFields: {
-        list_identifier: {
-          type: 'string',
-          label: 'Existing List ID',
-          description:
-            'The ID of the Klaviyo List that users will be synced to. If defined, we will not create a new list.',
-          required: false,
-          dynamic: async (request) => {
-            return getListIdDynamicData(request)
-          }
-        },
-        list_name: {
-          type: 'string',
-          label: 'List Name',
-          description: 'The name of the Klaviyo List that you would like to create.',
-          required: false
-        }
-      },
-      outputTypes: {
-        id: {
-          type: 'string',
-          label: 'ID',
-          description: 'The ID of the created Klaviyo List that users will be synced to.',
-          required: false
-        },
-        name: {
-          type: 'string',
-          label: 'List Name',
-          description: 'The name of the created Klaviyo List that users will be synced to.',
-          required: false
-        }
-      },
-      performHook: async (request, { settings, hookInputs }) => {
-        if (hookInputs.list_identifier) {
-          try {
-            return getList(request, settings, hookInputs.list_identifier)
-          } catch (e) {
-            const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
-            const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
-            return {
-              error: {
-                message,
-                code
-              }
-            }
-          }
-        }
-        try {
-          return createList(request, settings, hookInputs.list_name)
-        } catch (e) {
-          const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
-          const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
-          return {
-            error: {
-              message,
-              code
-            }
-          }
-        }
-      }
-    }
-  },
+  // hooks: {
+  //   retlOnMappingSave: {
+  //     label: 'Connect to a static list in Klaviyo',
+  //     description: 'When saving this mapping, we will connect to a list in Klaviyo.',
+  //     inputFields: {
+  //       list_identifier: {
+  //         type: 'string',
+  //         label: 'Existing List ID',
+  //         description:
+  //           'The ID of the Klaviyo List that users will be synced to. If defined, we will not create a new list.',
+  //         required: false,
+  //         dynamic: async (request) => {
+  //           return getListIdDynamicData(request)
+  //         }
+  //       },
+  //       list_name: {
+  //         type: 'string',
+  //         label: 'List Name',
+  //         description: 'The name of the Klaviyo List that you would like to create.',
+  //         required: false
+  //       }
+  //     },
+  //     outputTypes: {
+  //       id: {
+  //         type: 'string',
+  //         label: 'ID',
+  //         description: 'The ID of the created Klaviyo List that users will be synced to.',
+  //         required: false
+  //       },
+  //       name: {
+  //         type: 'string',
+  //         label: 'List Name',
+  //         description: 'The name of the created Klaviyo List that users will be synced to.',
+  //         required: false
+  //       }
+  //     },
+  //     performHook: async (request, { settings, hookInputs }) => {
+  //       if (hookInputs.list_identifier) {
+  //         try {
+  //           return getList(request, settings, hookInputs.list_identifier)
+  //         } catch (e) {
+  //           const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
+  //           const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
+  //           return {
+  //             error: {
+  //               message,
+  //               code
+  //             }
+  //           }
+  //         }
+  //       }
+  //       try {
+  //         return createList(request, settings, hookInputs.list_name)
+  //       } catch (e) {
+  //         const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
+  //         const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
+  //         return {
+  //           error: {
+  //             message,
+  //             code
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // },
   dynamicFields: {
     list_id: async (request): Promise<DynamicFieldResponse> => {
       return getListIdDynamicData(request)
