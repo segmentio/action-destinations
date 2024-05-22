@@ -14,27 +14,27 @@ export interface Payload {
    */
   email?: string
   /**
-   * User first name. Vaue will be hashed before sending to Amazon.
+   * User first name. Value will be hashed before sending to Amazon.
    */
   firstName?: string
   /**
-   * User Last name. Vaue will be hashed before sending to Amazon.
+   * User Last name. Value will be hashed before sending to Amazon.
    */
   lastName?: string
   /**
-   * Phone Number. Vaue will be hashed before sending to Amazon.
+   * Phone Number. Value will be hashed before sending to Amazon.
    */
   phone?: string
   /**
-   * POstal Code. Vaue will be hashed before sending to Amazon.
+   * POstal Code. Value will be hashed before sending to Amazon.
    */
   postal?: string
   /**
-   * State Code. Vaue will be hashed before sending to Amazon.
+   * State Code. Value will be hashed before sending to Amazon.
    */
   state?: string
   /**
-   * City name. Vaue will be hashed before sending to Amazon.
+   * City name. Value will be hashed before sending to Amazon.
    */
   city?: string
   /**
@@ -42,7 +42,7 @@ export interface Payload {
    */
   address?: string
   /**
-   * An number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.
+   * A number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.
    */
   audienceId: string
   /**

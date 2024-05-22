@@ -1,8 +1,7 @@
 import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
-import { IntegrationError, APIError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { AmazonAdsError, CONSTANTS } from '../utils'
+import { CONSTANTS, RecordsResponseType } from '../utils'
 import { createHash } from 'crypto'
 import { AudienceRecord, HashedPIIObject } from '../types'
 
@@ -36,42 +35,42 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     firstName: {
       label: 'First name',
-      description: 'User first name. Vaue will be hashed before sending to Amazon.',
+      description: 'User first name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.first_name' }
     },
     lastName: {
       label: 'Last name',
-      description: 'User Last name. Vaue will be hashed before sending to Amazon.',
+      description: 'User Last name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.last_name' }
     },
     phone: {
       label: 'Phone',
-      description: 'Phone Number. Vaue will be hashed before sending to Amazon.',
+      description: 'Phone Number. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.phone' }
     },
     postal: {
       label: 'Postal',
-      description: 'POstal Code. Vaue will be hashed before sending to Amazon.',
+      description: 'POstal Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.postal' }
     },
     state: {
       label: 'Postal',
-      description: 'State Code. Vaue will be hashed before sending to Amazon.',
+      description: 'State Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.state' }
     },
     city: {
       label: 'City',
-      description: 'City name. Vaue will be hashed before sending to Amazon.',
+      description: 'City name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.city' }
@@ -89,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       unsafe_hidden: true,
       description:
-        'An number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.',
+        'A number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.',
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
@@ -129,46 +128,21 @@ async function processPayload(
   const statsName = 'syncAmazonAdsAudience'
   statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
-  try {
-    const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
-    // Replace the string with an unquoted number
-    const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
+  // Replace the string with an unquoted number
+  const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
-    const response = await request(`${settings.region}/amc/audiences/records`, {
-      method: 'POST',
-      body: payloadString,
-      headers: {
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
-      }
-    })
-
-    const result = await response.json()
-    const jobRequestId = result?.jobRequestId
-
-    statsTags?.push(`jobRequestId:${jobRequestId}`)
-    statsClient?.incr(`${statsName}.success`, 1, statsTags)
-
-    if (!jobRequestId) {
-      throw new IntegrationError('Invalid response from upload audinece record call', 'INVALID_RESPONSE', 400)
+  const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
+    method: 'POST',
+    body: payloadString,
+    headers: {
+      'Content-Type': 'application/vnd.amcaudiences.v1+json'
     }
-    return {
-      result
-    }
-  } catch (e) {
-    if (e instanceof AmazonAdsError) {
-      const message = JSON.parse(e.response?.data?.message || '')
-      statsTags?.push(`error:${message}`)
-      statsClient?.incr(`${statsName}.error`, 1, statsTags)
-      throw new APIError(message, e.response?.status)
-    } else if (e instanceof IntegrationError) {
-      statsTags?.push(`error:${e.message}`)
-      statsClient?.incr(`${statsName}.error`, 1, statsTags)
-      throw new APIError(e.message, 400)
-    } else {
-      statsTags?.push(`error:${e}`)
-      statsClient?.incr(`${statsName}.error`, 1, statsTags)
-      throw e
-    }
+  })
+
+  const result = response.data
+  return {
+    result
   }
 }
 
