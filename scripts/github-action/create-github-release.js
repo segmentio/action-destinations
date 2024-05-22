@@ -200,7 +200,7 @@ function formatChangeLog(prs, tagsContext, context) {
 
   const changelog = `
     # What's New
-    
+
     https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${releaseDiff}
 
     ## Packages Published
@@ -208,7 +208,7 @@ function formatChangeLog(prs, tagsContext, context) {
     ${formattedPackageTags || 'No packages published'}
 
     ${internalPRS.length > 0 ? formatTable(internalPRS, tableConfig, '## Internal PRs') : ''}
-        
+
     ${externalPRs.length > 0 ? formatTable(externalPRs, tableConfig, '## External PRs') : ''}
     `
   // trim double spaces and return the changelog
@@ -222,8 +222,12 @@ function formatTable(prs, tableConfig, title = '') {
 
     |${tableConfig.map((config) => config.label).join('|')}|
     |${tableConfig.map(() => '---').join('|')}|
-    ${prs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
+    ${prs.map((pr) => `|${tableConfig.map((config) => formatValue(pr[config.value])).join('|')}|`).join('\n')}
     `
+}
+
+function formatValue(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 // Map PRs with affected destinations based on the files changed
