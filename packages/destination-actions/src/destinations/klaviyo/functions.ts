@@ -337,11 +337,11 @@ export async function getList(request: RequestClient, settings: Settings, listId
 export async function createList(request: RequestClient, settings: Settings, listName: string) {
   const apiKey = settings.api_key
   if (!listName) {
-    throw new PayloadValidationError('Missing audience name value')
+    throw new PayloadValidationError('Missing audience name value.')
   }
 
   if (!apiKey) {
-    throw new PayloadValidationError('Missing Api Key value')
+    throw new PayloadValidationError('Missing API Key value.')
   }
 
   const response = await request(`${API_URL}/lists`, {
