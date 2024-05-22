@@ -2,7 +2,14 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
-import { AudiencePayload, AUTHORIZATION_URL, CURRENCY } from './utils'
+import {
+  AudiencePayload,
+  AUTHORIZATION_URL,
+  CURRENCY,
+  extractNumberAndSubstituteWithStringValue,
+  REGEX_ADVERTISERID,
+  REGEX_AUDIENCEID
+} from './utils'
 
 import syncAudiences from './syncAudiences'
 
@@ -39,7 +46,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
         if (error.message === 'Unauthorized') {
-          throw new Error(
+          throw new InvalidAuthenticationError(
             'Invalid Amazon Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
           )
         }
@@ -67,17 +74,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       } catch (e: any) {
         const error = e as AmazonRefreshTokenError
         if (error.response?.data?.error === 'invalid_grant') {
-          throw new IntegrationError(
+          throw new InvalidAuthenticationError(
             `Invalid Authentication: Your refresh token is invalid or expired. Please re-authenticate to fetch a new refresh token.`,
-            ErrorCodes.REFRESH_TOKEN_EXPIRED,
-            401
+            ErrorCodes.REFRESH_TOKEN_EXPIRED
           )
         }
 
-        throw new IntegrationError(
+        throw new InvalidAuthenticationError(
           `Failed to fetch a new access token. Reason: ${error.response?.data?.error}`,
-          ErrorCodes.OAUTH_REFRESH_FAILED,
-          401
+          ErrorCodes.OAUTH_REFRESH_FAILED
         )
       }
     }
@@ -115,7 +120,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     cpmCents: {
       label: 'CPM Cents',
-      type: 'string',
+      type: 'number',
       description: `Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.`
     },
     currency: {
@@ -124,7 +129,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency`
     },
     ttl: {
-      type: 'string',
+      type: 'number',
       label: 'Time-to-live',
       required: false,
       description: 'Time-to-live in seconds. The amount of time the record is associated with the audience.'
@@ -209,11 +214,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       let payloadString = JSON.stringify(payload)
-
-      // Regular expression to find a numeric string that should be a number
-      const regex = /"advertiserId":"(\d+)"/
-      // Replace the string with an unquoted number
-      payloadString = payloadString.replace(regex, '"advertiserId":$1')
+      // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
+      // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
+      payloadString = payloadString.replace(REGEX_ADVERTISERID, '"advertiserId":$1')
 
       const response = await request(`${endpoint}/amc/audiences/metadata`, {
         method: 'POST',
@@ -224,14 +227,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       })
 
       const res = await response.text()
-      //Replace the Big Int number with quoted String
-      const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
-
-      const externalId = JSON.parse(resString)['audienceId']
+      // Regular expression to find a audienceId number and replace the audienceId with quoted string
+      const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
       return {
-        externalId
+        externalId: resp.audienceId
       }
     },
+
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
@@ -244,11 +246,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'GET'
       })
       const res = await response.text()
-      //Replace the Big Int number with quoted String
-      const resString = res.replace(/"audienceId":(\d+)/, '"audienceId":"$1"')
-      const externalId = JSON.parse(resString)['audienceId']
+      // Regular expression to find a audienceId number and replace the audienceId with quoted string
+      const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
       return {
-        externalId
+        externalId: resp.audienceId
       }
     }
   },
