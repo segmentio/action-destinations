@@ -1,4 +1,5 @@
 import { HTTPError } from '@segment/actions-core'
+import { Payload } from './upsertProfile/generated-types'
 export class KlaviyoAPIError extends HTTPError {
   response: Response & {
     data: {
@@ -204,4 +205,8 @@ export interface UnsubscribeEventData {
       }
     }
   }
+}
+
+export interface GroupedProfiles {
+  [listId: string]: Payload[]
 }
