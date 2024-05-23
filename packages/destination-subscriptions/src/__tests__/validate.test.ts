@@ -137,7 +137,7 @@ test('operators - equals (numbers)', () => {
   }
 })
 
-test('operators -  is equals to (==) (numbers)', () => {
+test('operators -  number_equals (numbers)', () => {
   for (const value of ['123', 123]) {
     const ast = {
       type: 'group',
