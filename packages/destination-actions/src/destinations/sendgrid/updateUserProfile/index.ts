@@ -219,9 +219,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.phone_number_id' },
-          then: { '@path': '$.traits.phone_number_id' },
-          else: { '@path': '$.properties.phone_number_id' }
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
         }
       }
     },
@@ -247,8 +247,8 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.traits.anonymous_id' },
-          then: { '@path': '$.traits.anonymous_id' },
+          exists: { '@path': '$.anonymous_id' },
+          then: { '@path': '$.anonymous_id' },
           else: { '@path': '$.properties.anonymous_id' }
         }
       }
