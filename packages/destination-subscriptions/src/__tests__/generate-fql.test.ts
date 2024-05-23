@@ -29,7 +29,7 @@ test('should handle valid ast', () => {
   expect(generateFql(ast)).toEqual('properties.value = "x"')
 })
 
-test('should numeric equal (==) ast', () => {
+test('should number_equals ast', () => {
   const ast: Subscription = {
     type: 'group',
     operator: 'and',
