@@ -227,7 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
 
     const profilesWithList = payload.filter((profile) => profile.list_id || profile.override_list_id)
-    const profilesWithoutList = payload.filter((profile) => !profile.list_id)
+    const profilesWithoutList = payload.filter((profile) => !profile.list_id && !profile.override_list_id)
 
     let importResponseWithList
     let importResponseWithoutList
