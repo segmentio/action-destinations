@@ -73,6 +73,7 @@ export type Operator =
   | '<='
   | '>'
   | '>='
+  | 'number_equals'
   | 'contains'
   | 'not_contains'
   | 'starts_with'
