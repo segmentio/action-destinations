@@ -167,7 +167,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsTags?.push(`ttl_type:${typeof ttl}_${ttl}`)
       statsTags?.push(`cpmcents_type:${typeof cpm_cents}_${cpm_cents}`)
       statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
+      console.log(ttl, cpm_cents)
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
