@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AmazonAds.syncAudiences Normalise and Hash personally-identifiable input provided with SHA-256 1`] = `
+exports[`AmazonAds.syncAudiencesToDSP Normalise and Hash personally-identifiable input provided with SHA-256 1`] = `
 Object {
   "afterResponse": Array [
     [Function],
@@ -35,7 +35,7 @@ Object {
 }
 `;
 
-exports[`AmazonAds.syncAudiences Should add user to audience when Event is Audience Entered 1`] = `
+exports[`AmazonAds.syncAudiencesToDSP Should add user to audience when Event is Audience Entered 1`] = `
 Object {
   "afterResponse": Array [
     [Function],
@@ -70,7 +70,7 @@ Object {
 }
 `;
 
-exports[`AmazonAds.syncAudiences Should delete user from audience when Event is Audience Exited 1`] = `
+exports[`AmazonAds.syncAudiencesToDSP Should delete user from audience when Event is Audience Exited 1`] = `
 Object {
   "afterResponse": Array [
     [Function],
@@ -105,7 +105,7 @@ Object {
 }
 `;
 
-exports[`AmazonAds.syncAudiences should work with batch events 1`] = `
+exports[`AmazonAds.syncAudiencesToDSP should work with batch events 1`] = `
 Object {
   "afterResponse": Array [
     [Function],

@@ -42,14 +42,14 @@ const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
-describe('AmazonAds.syncAudiences', () => {
+describe('AmazonAds.syncAudiencesToDSP', () => {
   it('Should add user to audience when Event is Audience Entered', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
       .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
 
-    const response = await testDestination.testAction('syncAudiences', {
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
       event,
       settings,
       useDefaultMappings: true
@@ -70,7 +70,7 @@ describe('AmazonAds.syncAudiences', () => {
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
       .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
 
-    const response = await testDestination.testAction('syncAudiences', {
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
       event: {
         ...event,
         properties: {
@@ -101,7 +101,7 @@ describe('AmazonAds.syncAudiences', () => {
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
       .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
 
-    const response = await testDestination.testAction('syncAudiences', {
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
       event: {
         ...event,
         event: 'Audience Exited'
@@ -155,7 +155,7 @@ describe('AmazonAds.syncAudiences', () => {
       }
     ]
 
-    const response = await testDestination.testBatchAction('syncAudiences', {
+    const response = await testDestination.testBatchAction('syncAudiencesToDSP', {
       events,
       settings,
       useDefaultMappings: true
@@ -177,7 +177,7 @@ describe('AmazonAds.syncAudiences', () => {
       .reply(400, { Message: 'STRING_VALUE can not be converted to a Long' })
 
     await expect(
-      testDestination.testAction('syncAudiences', {
+      testDestination.testAction('syncAudiencesToDSP', {
         event,
         settings,
         useDefaultMappings: true

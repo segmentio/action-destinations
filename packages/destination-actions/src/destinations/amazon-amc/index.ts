@@ -11,11 +11,11 @@ import {
   REGEX_AUDIENCEID
 } from './utils'
 
-import syncAudiences from './syncAudiences'
+import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Amazon Ads',
-  slug: 'actions-amazon-ads',
+  name: 'Amazon AMC (Actions)',
+  slug: 'actions-amazon-amc',
   mode: 'cloud',
 
   authentication: {
@@ -254,7 +254,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
-    syncAudiences
+    syncAudiencesToDSP
   }
 }
 
