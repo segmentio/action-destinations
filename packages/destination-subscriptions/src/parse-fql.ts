@@ -166,7 +166,7 @@ const parseFqlFunction = (
 }
 
 const parseOperator = (valueToken: Token, operatorToken: Token) =>
-  valueToken.type === 'number' && operatorToken.value === '=' ? '==' : (operatorToken.value as Operator)
+  valueToken.type === 'number' && operatorToken.value === '=' ? 'number_equals' : (operatorToken.value as Operator)
 
 const parse = (tokens: Token[]): Condition => {
   const nodes: Condition[] = []

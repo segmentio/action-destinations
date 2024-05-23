@@ -37,7 +37,7 @@ test('should numeric equal (==) ast', () => {
       {
         type: 'event-property',
         name: 'value',
-        operator: '==',
+        operator: 'number_equals',
         value: '123'
       }
     ]
@@ -54,7 +54,7 @@ test('should string equal (=) ast', () => {
       {
         type: 'event-property',
         name: 'value',
-        operator: '==',
+        operator: 'number_equals',
         value: '123'
       },
       {
@@ -135,7 +135,7 @@ test('should handle field paths with non-regular values and escape properly', ()
       {
         type: 'event-trait',
         name: 'property dos',
-        operator: '==',
+        operator: 'number_equals',
         value: 2
       }
     ]

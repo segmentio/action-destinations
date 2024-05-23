@@ -146,7 +146,7 @@ test('operators -  is equals to (==) (numbers)', () => {
         {
           type: 'event-property',
           name: 'value',
-          operator: '==',
+          operator: 'number_equals',
           value
         }
       ]
