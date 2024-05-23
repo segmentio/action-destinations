@@ -245,13 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.anonymous_id' },
-          then: { '@path': '$.anonymous_id' },
-          else: { '@path': '$.properties.anonymous_id' }
-        }
-      }
+      default: { '@path': '$.anonymous_id' }
     },
     customFields: customFields
   },
