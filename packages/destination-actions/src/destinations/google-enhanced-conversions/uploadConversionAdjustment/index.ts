@@ -278,7 +278,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) } as UserIdentifierInterface)
+      request_object.userIdentifiers.push({
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+      } as UserIdentifierInterface)
     }
 
     const containsAddressInfo =
