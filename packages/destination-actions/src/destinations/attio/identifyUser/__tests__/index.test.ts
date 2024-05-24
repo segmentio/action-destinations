@@ -12,7 +12,8 @@ const event = createTestEvent({
   traits: {
     name: 'George Oscar Bluth',
     email
-  }
+  },
+  receivedAt: '2024-05-24T10:00:00.000Z'
 })
 
 const mapping = {
@@ -22,6 +23,9 @@ const mapping = {
     name: {
       '@path': '$.traits.name'
     }
+  },
+  received_at: {
+    '@path': '$.receivedAt'
   }
 }
 
@@ -79,5 +83,46 @@ describe('Attio.identifyUser', () => {
         settings: {}
       })
     ).rejects.toThrowError()
+  })
+
+  it('uses the batch assertion endpoint', async () => {
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', {
+        assertions: [
+          {
+            object: 'users',
+            mode: 'create-or-update',
+            matching_attribute: 'user_id',
+            multiselect_values: 'append',
+            values: {
+              primary_email_address: email,
+              user_id: event.userId,
+              name: event.traits?.name,
+
+              person: {
+                object: 'people',
+                mode: 'create-or-update',
+                matching_attribute: 'email_addresses',
+                multiselect_values: 'append',
+                values: {
+                  email_addresses: email
+                },
+                received_at: '2024-05-24T10:00:00.000Z'
+              }
+            },
+            received_at: '2024-05-24T10:00:00.000Z'
+          }
+        ]
+      })
+      .reply(202, '')
+
+    const responses = await testDestination.testBatchAction('identifyUser', {
+      events: [event],
+      mapping,
+      settings: {}
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
   })
 })

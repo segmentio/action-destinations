@@ -12,13 +12,17 @@ const event = createTestEvent({
   traits: {
     id: '42',
     domain
-  }
+  },
+  receivedAt: '2024-05-24T10:00:00.000Z'
 })
 
 const mapping = {
   domain: { '@path': '$.traits.domain' },
   workspace_id: { '@path': '$.traits.id' },
-  user_id: { '@path': '$.userId' }
+  user_id: { '@path': '$.userId' },
+  received_at: {
+    '@path': '$.receivedAt'
+  }
 }
 
 describe('Attio.groupWorkspace', () => {
@@ -179,5 +183,45 @@ describe('Attio.groupWorkspace', () => {
         settings: {}
       })
     ).rejects.toThrowError()
+  })
+
+  it('uses the batch assertion endpoint', async () => {
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', {
+        assertions: [
+          {
+            object: 'workspaces',
+            mode: 'create-or-update',
+            matching_attribute: 'workspace_id',
+            multiselect_values: 'append',
+            values: {
+              workspace_id: '42',
+              users: ['user1234'],
+
+              company: {
+                object: 'companies',
+                mode: 'create-or-update',
+                matching_attribute: 'domains',
+                multiselect_values: 'append',
+                values: {
+                  domains: domain
+                },
+                received_at: '2024-05-24T10:00:00.000Z'
+              }
+            },
+            received_at: '2024-05-24T10:00:00.000Z'
+          }
+        ]
+      })
+      .reply(202, '')
+
+    const responses = await testDestination.testBatchAction('groupWorkspace', {
+      events: [event],
+      mapping,
+      settings: {}
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
   })
 })
