@@ -226,8 +226,16 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
 
-    const profilesWithList = payload.filter((profile) => profile.list_id || profile.override_list_id)
-    const profilesWithoutList = payload.filter((profile) => !profile.list_id && !profile.override_list_id)
+    const profilesWithList: Payload[] = []
+    const profilesWithoutList: Payload[] = []
+
+    payload.forEach((profile) => {
+      if (profile.list_id || profile.override_list_id) {
+        profilesWithList.push(profile)
+      } else {
+        profilesWithoutList.push(profile)
+      }
+    })
 
     let importResponseWithList
     let importResponseWithoutList
