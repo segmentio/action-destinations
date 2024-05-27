@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   fields: {
     external_audience_id: {
       label: 'External Audience ID',
-      description: "The Audience ID in Google's DB.",
+      description: "The Audience ID from Taboola.",
       type: 'string',
       required: true,
       unsafe_hidden: true,
