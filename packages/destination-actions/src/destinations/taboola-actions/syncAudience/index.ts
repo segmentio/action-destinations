@@ -119,7 +119,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const action = payload.traits_or_props[payload.segment_computation_key] as boolean
 
-    const email = payload.user_email // TODO: hash the email?
+    const email = payload.user_email // TODO EDEN: hash the email?
 
     const cluster = []
     if (email) {
@@ -148,12 +148,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       ]
     }
 
-    return request(`https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.accountId}/audience_onboarding`, {
+    return request(`https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`, {
       method: 'post',
       json: requestBody
     })
   },
 
+  // TODO EDEN
   // performBatch: (request, { payload: payloads, audienceSettings }) => {
   
   // }
