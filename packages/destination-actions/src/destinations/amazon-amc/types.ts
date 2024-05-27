@@ -7,10 +7,6 @@ export interface RefreshTokenResponse {
   token_type: string
 }
 
-// export interface ProfileAPIResponse {
-//   id: string
-// }
-
 export class AmazonTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
