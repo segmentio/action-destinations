@@ -4,61 +4,15 @@ import { IntegrationError } from '@segment/actions-core'
 
 import syncAudience from './syncAudience'
 
+interface RefreshTokenResponse {
+  access_token: string
+}
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Taboola (actions)',
   slug: 'actions-taboola-actions',
   mode: 'cloud',
-  audienceFields: {
-    accountId: {
-      type: 'string',
-      label: 'Account ID',
-      required: true,
-      description: 'The ID for the Taboola Account to sync to.'
-    }
-  },
-  audienceConfig: {
-    mode: {
-      type: 'synced',
-      full_audience_sync: false
-    },
-    async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
-      const accountId = createAudienceInput.audienceSettings?.accountId
 
-      if (!audienceName) {
-        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!accountId) {
-        throw new IntegrationError('Missing Account ID value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      // TODO @Eden add code to create the Audience. It needs to return Taboola's ID for the Audience. 
-      // This ID will be used when sending payloads to Taboola when adding or removing a user from an Audience.  
-      // @Eden, do you need the access_token to be able to make this request? If so, I will need to make a platform change for this to work.
-      
-      const response = await request('https://example.com', {
-        method: 'post',
-        json: {
-          name: audienceName,
-          accountId: accountId
-        },
-         headers: {
-           'Content-Type': 'application/json'
-         }
-      })
-
-       return {
-         externalId: response.audienceIDFromTaboola
-       }
-
-    },
-    async getAudience(_, getAudienceInput) {
-      return {
-        externalId: getAudienceInput.externalId
-      }
-    }
-  },
   authentication: {
     scheme: 'oauth-managed',
     fields: {
@@ -75,15 +29,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: true
       }
     },
-    refreshAccessToken: async (request, { auth, settings }) => {
-      // Return a request that refreshes the access_token if the API supports it
-      const res = await request('https://www.example.com/oauth/refresh', {
+    refreshAccessToken: async (request, { settings }) => {
+      const res = await request<RefreshTokenResponse>('https://backstage.taboola.com/backstage/oauth/token', {
         method: 'POST',
         body: new URLSearchParams({
-          refresh_token: auth.refreshToken,
           client_id: settings.client_id,
           client_secret: settings.client_secret,
-          grant_type: 'refresh_token'
+          grant_type: 'client_credentials'
         })
       })
 
@@ -93,8 +45,86 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        'Content-Type': 'application/json'
       }
+    }
+  },
+  audienceFields: {
+    account_id: {
+      type: 'string',
+      label: 'Account ID',
+      required: true,
+      description: 'The ID for the Taboola Account to sync to.'
+    }, 
+    ttl_in_hours: {
+      type: 'number',
+      label: 'TTL in Hours',
+      required: false,
+      description: 'The time to live for the audience in hours.',
+      default: 36  // TODO EDEN
+    },
+    exclude_from_campaigns: {
+      type: 'boolean',
+      label: 'Exclude from Campaigns',
+      required: false,
+      description: 'Whether to exclude the audience from campaigns.',
+      default: false
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced',
+      full_audience_sync: false
+    },
+    async createAudience(request, createAudienceInput) {
+      const audienceName = createAudienceInput.audienceName
+      const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
+      const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
+      const accountId = createAudienceInput.audienceSettings?.account_id 
+
+      if (!audienceName) {
+        throw new IntegrationError("Missing 'Audience Name' value", 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!accountId) {
+        throw new IntegrationError("Missing 'Account ID' value", 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!ttlInHours) {
+        throw new IntegrationError("Missing 'TTL in Hours' value'", 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      try{
+        const response = await request(`https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`, {
+            method: 'post',
+            json: {
+              audience_name: audienceName,
+              ttl_in_hours: ttlInHours,
+              exclude_from_campaigns: excludeFromCampaigns
+            }
+          }
+        )
+        const json = await response.json()
+
+        return {
+          externalId: json?.data?.audience_id
+        }
+      }
+      catch(error){
+        throw new IntegrationError(
+          'Failed to create Audience in Dynamic Yield',
+          'AUDIENCE_CREATION_FAILED',
+          400
+        )
+      }
+    },
+    async getAudience(_, getAudienceInput) {
+      const audience_id = getAudienceInput.externalId
+      if (!audience_id) {
+        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      return { externalId: audience_id }
     }
   },
   actions: {

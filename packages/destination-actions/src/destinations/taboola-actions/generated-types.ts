@@ -14,7 +14,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The name of the audience you want to create in Taboola.
+   * The ID for the Taboola Account to sync to.
    */
-  audienceName: string
+  account_id: string
+  /**
+   * The time to live for the audience in hours.
+   */
+  ttl_in_hours: number
+  /**
+   * Whether to exclude the audience from campaigns.
+   */
+  exclude_from_campaigns: boolean
 }

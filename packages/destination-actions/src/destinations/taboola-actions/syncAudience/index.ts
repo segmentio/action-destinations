@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload, AudienceSettings } from './generated-types'
+import type { Settings, AudienceSettings } from '../generated-types'
+import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core/'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
@@ -82,59 +82,81 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Batch events',
       description:
         'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
-      required: false,
+      required: true,
       default: true
     },
-    advertisingId: {
-      label: 'Advertising ID',
-      description: "Advertising ID.",
+    device_id: {
+      label: 'Mobile Device ID',
+      description: 'Mobile Device ID.',
       type: 'string',
       required: false,
-      unsafe_hidden: true, 
+      unsafe_hidden: true,
       default: {
-        '@path': '$.context.device.advertisingId'
+        '@path': '$.context.device.id'
       }
     },
     batch_size: {
       label: 'Batch Size',
       description: 'Max Batch size to send to Taboola.',
       type: 'integer',
-      default: 300,
+      default: 300, // TODO EDEN TO CHECK MAX BATCH SIZE
       required: true,
       unsafe_hidden: true
     }
   },
-  perform: (request, {payload, audienceFields, auth, settings}) => {
-    
-    if(!payload.user_email && !payload.advertisingId) {
-      throw new IntegrationError('Either user_email or advertisingId must be provided in the payload')
+  perform: (request, { payload, audienceSettings }) => {
+    if (!payload.user_email && !payload.device_id) {
+      throw new IntegrationError(
+        "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
+        'MISSING_REQUIRED_FIELD',
+        400
+      )
     }
-   
+
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+
     const action = payload.traits_or_props[payload.segment_computation_key] as boolean
-    
-    const audienceName = audienceFields.audienceName
 
-    const email = payload.user_email
+    const email = payload.user_email // TODO: hash the email?
 
-    const advertisingId = payload.advertisingId
-    
-    const access_token = auth?.accessToken
+    const cluster = []
+    if (email) {
+      cluster.push({
+        user_id: email,
+        type: 'EMAIL_ID',
+        is_hashed: true
+      })
+    }
 
-    const client_id = settings.client_id
+    if (payload.device_id) {
+      cluster.push({
+        user_id: payload.device_id,
+        type: 'DEVICE_ID',
+        is_hashed: false
+      })
+    }
 
-    const client_secret = settings.client_secret
+    const requestBody = {
+      operation: action ? 'ADD' : 'REMOVE',
+      audience_id: payload.external_audience_id,
+      identities: [
+        {
+          cluster: cluster
+        }
+      ]
+    }
 
-    const accountId = audienceFields.accountId
-
-    return request('https://example.com', {
+    return request(`https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.accountId}/audience_onboarding`, {
       method: 'post',
-      json: data.payload,
-       headers: {
-         'Content-Type': 'application,
-         'Authorization': `Bearer ${access_token}`
-       }
+      json: requestBody
     })
-  }
+  },
+
+  // performBatch: (request, { payload: payloads, audienceSettings }) => {
+  
+  // }
 }
 
 export default action
