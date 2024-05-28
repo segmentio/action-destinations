@@ -24,7 +24,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Received at',
     description: 'When the event was received.',
     type: 'datetime',
-    required: true,
+    required: false,
     default: {
       '@path': '$.receivedAt'
     }

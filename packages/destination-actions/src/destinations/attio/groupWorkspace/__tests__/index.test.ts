@@ -224,4 +224,28 @@ describe('Attio.groupWorkspace', () => {
     expect(responses.length).toBe(2)
     expect(responses[1].status).toBe(202)
   })
+
+  it('handles the case where receivedAt is not provided', async () => {
+    const lackingReceivedAtEvent = createTestEvent({
+      type: 'group' as const,
+      traits: {
+        id: '42',
+        domain
+      },
+      receivedAt: undefined
+    })
+
+    // Can't control the exact timestamp, so only check it starts on the same year-month-day and is ISO8601 formatted
+    const datePrefix = new Date().toISOString().split('T')[0]
+
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', new RegExp(`"received_at":"${datePrefix}T`))
+      .reply(202, '')
+
+    await testDestination.testBatchAction('groupWorkspace', {
+      events: [lackingReceivedAtEvent],
+      mapping,
+      settings: {}
+    })
+  })
 })

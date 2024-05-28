@@ -97,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
         matching_attribute: item.matching_attribute,
         multiselect_values: 'append',
         values: (item.attributes as Record<string, SimpleValue>) ?? {},
-        received_at: item.received_at.toString()
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
       }))
     })
   }

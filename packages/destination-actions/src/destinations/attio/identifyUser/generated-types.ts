@@ -32,5 +32,5 @@ export interface Payload {
   /**
    * When the event was received.
    */
-  received_at: string | number
+  received_at?: string | number
 }

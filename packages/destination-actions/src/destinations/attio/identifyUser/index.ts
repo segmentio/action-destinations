@@ -112,10 +112,10 @@ const action: ActionDefinition<Settings, Payload> = {
               email_addresses: item.email_address,
               ...(item.person_attributes ?? {})
             },
-            received_at: item.received_at.toString()
+            received_at: item.received_at?.toString() ?? new Date().toISOString()
           }
         },
-        received_at: item.received_at.toString()
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
       }))
     })
   }

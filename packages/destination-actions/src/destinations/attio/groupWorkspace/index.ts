@@ -128,10 +128,10 @@ const action: ActionDefinition<Settings, Payload> = {
               domains: item.domain,
               ...(item.company_attributes ?? {})
             },
-            received_at: item.received_at.toString()
+            received_at: item.received_at?.toString() ?? new Date().toISOString()
           }
         },
-        received_at: item.received_at.toString()
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
       }))
     })
   }
