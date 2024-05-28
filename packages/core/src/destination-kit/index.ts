@@ -428,7 +428,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
-    validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
       audienceSettings: createAudienceInput.audienceSettings,
       settings: destinationSettings,
