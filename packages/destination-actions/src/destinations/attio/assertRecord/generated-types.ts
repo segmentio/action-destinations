@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Send data to Attio in batches for much better performance.
+   * Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.
    */
   enable_batching?: boolean
   /**
