@@ -11,11 +11,11 @@ import {
   REGEX_AUDIENCEID
 } from './utils'
 
-import syncAudiences from './syncAudiences'
+import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Amazon Ads',
-  slug: 'actions-amazon-ads',
+  name: 'Amazon AMC (Actions)',
+  slug: 'actions-amazon-amc',
   mode: 'cloud',
 
   authentication: {
@@ -54,11 +54,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
-      const endpoint: string = AUTHORIZATION_URL[`${settings.region}`]
-      let res
-      console.log(settings.region, auth, endpoint)
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
       try {
-        res = await request<RefreshTokenResponse>('https://api.amazon.com/auth/o2/token', {
+        const res = await request<RefreshTokenResponse>(endpoint, {
           method: 'POST',
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
@@ -71,9 +69,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             authorization: ''
           }
         })
+
         return { accessToken: res.data.access_token }
       } catch (e: any) {
-        console.log(e)
         const error = e as AmazonRefreshTokenError
         if (error.response?.data?.error === 'invalid_grant') {
           throw new InvalidAuthenticationError(
@@ -94,7 +92,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || ''
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || '',
+        'Content-Type': 'application/vnd.amcaudiences.v1+json'
       }
     }
   },
@@ -150,9 +149,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, statsContext, audienceSettings } = createAudienceInput
-      const { statsClient, tags: statsTags } = statsContext || {}
-
+      const { audienceName, audienceSettings } = createAudienceInput
       const endpoint = createAudienceInput.settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
@@ -162,12 +159,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const currency = audienceSettings?.currency
       const cpm_cents = audienceSettings?.cpmCents
 
-      const statsName = 'createAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsTags?.push(`ttl_type:${typeof ttl}_${ttl}`)
-      statsTags?.push(`cpmcents_type:${typeof cpm_cents}_${cpm_cents}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-      console.log(ttl, cpm_cents)
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -221,8 +212,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           cpmCents: cpmCents
         })
       }
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
@@ -247,14 +236,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
-      const { statsContext } = getAudienceInput
       const audience_id = getAudienceInput.externalId
       const endpoint = getAudienceInput.settings.region
-      const { statsClient, tags: statsTags } = statsContext || {}
-
-      const statsName = 'getAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
@@ -271,7 +254,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
-    syncAudiences
+    syncAudiencesToDSP
   }
 }
 

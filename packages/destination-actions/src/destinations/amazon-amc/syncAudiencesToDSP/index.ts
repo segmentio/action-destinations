@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CONSTANTS, RecordsResponseType } from '../utils'
@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 import { AudienceRecord, HashedPIIObject } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync Audience',
+  title: 'Sync Audiences to DSP',
   description: 'Sync audiences from Segment to Amazon Ads Audience.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields: {
@@ -109,11 +109,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 10000
     }
   },
-  perform: (request, { settings, payload, statsContext, audienceSettings }) => {
-    return processPayload(request, settings, [payload], statsContext, audienceSettings)
+  perform: (request, { settings, payload, audienceSettings }) => {
+    return processPayload(request, settings, [payload], audienceSettings)
   },
-  performBatch: (request, { settings, payload: payloads, statsContext, audienceSettings }) => {
-    return processPayload(request, settings, payloads, statsContext, audienceSettings)
+  performBatch: (request, { settings, payload: payloads, audienceSettings }) => {
+    return processPayload(request, settings, payloads, audienceSettings)
   }
 }
 
@@ -121,15 +121,10 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
-  statsContext: StatsContext | undefined,
   audienceSettings: AudienceSettings
 ) {
-  const { statsClient, tags: statsTags } = statsContext || {}
-  const statsName = 'syncAmazonAdsAudience'
-  statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
-  // Replace the string with an unquoted number
+  // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {

@@ -7,10 +7,6 @@ export interface RefreshTokenResponse {
   token_type: string
 }
 
-// export interface ProfileAPIResponse {
-//   id: string
-// }
-
 export class AmazonTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
@@ -39,7 +35,7 @@ export interface HashedPIIObject {
   address?: string
 }
 export interface AudienceRecord {
-  hashedPII?: HashedPIIObject[]
+  hashedPII: HashedPIIObject[]
   externalUserId: string
   countryCode: string
   action: string
