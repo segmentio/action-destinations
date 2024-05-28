@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { testEndpoint, privacyEndpoint, baseURL } from './routes'
 import { presets } from './presets'
@@ -16,7 +16,7 @@ export type AuthResponseType = {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Angler Ai',
+  name: 'Angler AI',
   slug: 'actions-angler-ai',
   mode: 'cloud',
 
@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Authentication Token',
         description: 'Your Angler AI API Authentication Token',
-        type: 'string',
+        type: 'password',
         required: true
       },
       workspaceId: {
@@ -42,11 +42,16 @@ const destination: DestinationDefinition<Settings> = {
       })
 
       if (me.data.sub !== options.settings.workspaceId) {
-        throw new Error('Authentication Invalid. Please Check Workspace Id & Token.')
+        throw new IntegrationError (
+          'Authentication Invalid. Please Check Workspace Id & Token.',
+          ErrorCodes.INVALID_AUTHENTICATION,
+          400)
       }
 
       if (!me.data.scopes.split(',').includes('DATA_ADMIN')) {
-        throw new Error('The token provided must have admin privileges.')
+        throw new IntegrationError('The token provided must have admin privileges.',          
+        ErrorCodes.INVALID_AUTHENTICATION,
+        400)
       }
     }
   },
@@ -64,10 +69,7 @@ const destination: DestinationDefinition<Settings> = {
         customer: {
           id: payload.userId
         },
-        source: 'segment',
-        additional_properties: {
-          anonymousId: payload.anonymousId
-        }
+        source: 'segment'
       }
     })
   },

@@ -10,11 +10,6 @@ export const cart: InputField = {
       type: 'string',
       description: 'A globally unique identifier for the cart.'
     },
-    totalQuantity: {
-      label: 'Total Quantity',
-      type: 'number',
-      description: 'The total number of items in the cart.'
-    },
     totalAmount: {
       label: 'Total Amount',
       type: 'number',
@@ -29,8 +24,7 @@ export const cart: InputField = {
 }
 
 export const cartDefault = {
-  id: { '@path': '$.properties.cart.id' },
-  totalQuantity: { '@path': '$.properties.cart.totalQuantity' },
-  totalAmount: { '@path': '$.properties.cart.totalAmount' },
-  currencyCode: { '@path': '$.properties.cart.currencyCode' }
+  id: { '@path': '$.properties.cart_id' },
+  totalAmount: { '@path': '$.properties.total' },
+  currencyCode: { '@path': '$.properties.currency' }
 }
