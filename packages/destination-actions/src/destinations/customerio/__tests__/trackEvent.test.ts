@@ -172,7 +172,7 @@ describe('CustomerIO', () => {
             ...attributes,
             anonymous_id: event.anonymousId
           },
-          timestamp,
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -208,7 +208,7 @@ describe('CustomerIO', () => {
         })
       })
 
-      it.only('should succeed with mapping of preset and Journeys Step Transition event(presets)', async () => {
+      it('should succeed with mapping of preset and Journeys Step Transition event(presets)', async () => {
         const userId = 'abc123'
         const name = 'testEvent'
         const data = {
@@ -268,7 +268,7 @@ describe('CustomerIO', () => {
             ...data,
             anonymous_id: event.anonymousId
           },
-          timestamp,
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
