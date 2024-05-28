@@ -25,4 +25,16 @@ export interface Payload {
   workspace_attributes?: {
     [k: string]: unknown
   }
+  /**
+   * Send data to Attio in batches for much better performance.
+   */
+  enable_batching?: boolean
+  /**
+   * Max batch size to send to Attio (limit is 10,000)
+   */
+  batch_size?: number
+  /**
+   * When the event was received.
+   */
+  received_at?: string | number
 }

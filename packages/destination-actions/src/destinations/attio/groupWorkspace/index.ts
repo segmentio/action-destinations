@@ -3,6 +3,7 @@ import type { InputField } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AttioClient } from '../api'
+import { commonFields } from '../common-fields'
 
 const domain: InputField = {
   type: 'string',
@@ -76,7 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
     workspace_id,
     user_id,
     company_attributes,
-    workspace_attributes
+    workspace_attributes,
+    ...commonFields
   },
 
   perform: async (request, { payload }) => {
@@ -100,6 +102,37 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(payload.user_id ? { users: [payload.user_id] } : {}),
         ...(payload.workspace_attributes ?? {})
       }
+    })
+  },
+
+  performBatch: async (request, { payload }) => {
+    const client = new AttioClient(request)
+
+    return await client.batchAssert({
+      assertions: payload.map((item) => ({
+        object: 'workspaces',
+        mode: 'create-or-update',
+        matching_attribute: 'workspace_id',
+        multiselect_values: 'append',
+        values: {
+          workspace_id: item.workspace_id,
+          ...(item.user_id ? { users: [item.user_id] } : {}),
+          ...(item.workspace_attributes ?? {}),
+
+          company: {
+            object: 'companies',
+            mode: 'create-or-update',
+            matching_attribute: 'domains',
+            multiselect_values: 'append',
+            values: {
+              domains: item.domain,
+              ...(item.company_attributes ?? {})
+            },
+            received_at: item.received_at?.toString() ?? new Date().toISOString()
+          }
+        },
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
+      }))
     })
   }
 }
