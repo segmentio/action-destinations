@@ -245,7 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       required: false,
-      default: { '@path': '$.anonymous_id' }
+      default: { '@path': '$.anonymousId' }
     },
     customFields: customFields
   },
