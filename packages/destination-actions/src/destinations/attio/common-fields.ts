@@ -4,11 +4,11 @@ import { Settings } from './generated-types'
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   enable_batching: {
     label: 'Send data to Attio in batches',
-    description: 'Send data to Attio in batches for much better performance.',
+    description:
+      'Send batches of events to Attio, for improved performance, however invalid events are silently dropped.',
     type: 'boolean',
     required: false,
-    unsafe_hidden: true,
-    default: true
+    default: false
   },
 
   batch_size: {
