@@ -8,15 +8,42 @@ import { AudienceRecord, HashedPIIObject } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences to DSP',
   description: 'Sync audiences from Segment to Amazon Ads Audience.',
-  defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
+  defaultSubscription: 'type="identify" or type="track"',
   fields: {
-    event_name: {
-      label: 'Event Name',
-      description: 'The name of the current Segment event.',
+    segment_audience_key: {
+      label: 'Audience Key',
+      description: 'Segment Audience',
       type: 'string',
-      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+      unsafe_hidden: true,
+      required: true,
       default: {
-        '@path': '$.event'
+        '@path': '$.context.personas.computation_key'
+      }
+    },
+    segment_computation_class: {
+      label: 'Segment Computation Class',
+      description:
+        "Segment computation Class",
+      type: 'string',
+      unsafe_hidden: true,
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_class'
+      },
+      choices: [{ label: 'audience', value: 'audience' }]
+    },
+    traits_or_props: {
+      label: 'Traits or properties object',
+      description: 'A computed object for track and identify events. This field should not need to be edited.',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
       }
     },
     externalUserId: {
@@ -31,56 +58,104 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User email address. Vaule will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
     },
     firstName: {
       label: 'First name',
       description: 'User first name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.first_name' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
+        }
+      }
     },
     lastName: {
       label: 'Last name',
       description: 'User Last name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.last_name' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
+        }
+      }
     },
     phone: {
       label: 'Phone',
       description: 'Phone Number. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.phone' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        }
+      }
     },
     postal: {
       label: 'Postal',
       description: 'POstal Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.postal' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.postal_code' },
+          then: { '@path': '$.traits.postal_code' },
+          else: { '@path': '$.context.traits.postal_code' }
+        }
+      }
     },
     state: {
-      label: 'Postal',
+      label: 'Stage',
       description: 'State Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.state' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.state' },
+          then: { '@path': '$.traits.state' },
+          else: { '@path': '$.properties.state' }
+        }
+      }
     },
     city: {
       label: 'City',
       description: 'City name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.city' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.city' },
+          then: { '@path': '$.traits.city' },
+          else: { '@path': '$.properties.city' }
+        }
+      }
     },
     address: {
       label: 'Address',
       description: 'Address Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.address' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.address' },
+          then: { '@path': '$.traits.address' },
+          else: { '@path': '$.properties.address' }
+        }
+      }
     },
     audienceId: {
       label: 'Audience ID',
@@ -171,10 +246,12 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
       hashedPII.email = normalizeAndHash(payload.email)
     }
 
+    const action = payload.traits_or_props[payload.segment_audience_key] ? CONSTANTS.ADD : CONSTANTS.REMOVE
+
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: action ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII]
     }
     records.push(payloadRecord)
