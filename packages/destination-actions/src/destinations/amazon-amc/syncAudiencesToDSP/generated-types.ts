@@ -2,9 +2,19 @@
 
 export interface Payload {
   /**
-   * The name of the current Segment event.
+   * Segment Audience
    */
-  event_name?: string
+  segment_audience_key: string
+  /**
+   * Segment computation Class
+   */
+  segment_computation_class: string
+  /**
+   * A computed object for track and identify events. This field should not need to be edited.
+   */
+  traits_or_props: {
+    [k: string]: unknown
+  }
   /**
    * This is an external user identifier defined by data providers.
    */
