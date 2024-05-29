@@ -246,12 +246,12 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
       hashedPII.email = normalizeAndHash(payload.email)
     }
 
-    const action = payload.traits_or_props[payload.segment_audience_key] ? CONSTANTS.ADD : CONSTANTS.REMOVE
+    const action = payload.traits_or_props[payload.segment_audience_key] ? CONSTANTS.CREATE : CONSTANTS.DELETE
 
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: action ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action,
       hashedPII: [hashedPII]
     }
     records.push(payloadRecord)
