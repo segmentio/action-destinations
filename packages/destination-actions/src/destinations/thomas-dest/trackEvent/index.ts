@@ -6,8 +6,11 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: '',
   fields: {},
-  perform: (request, data) => {
-    return request('https://webhook.site/e726bd24-0022-41ca-9442-42813e6c05fe', { method: 'POST', json: data.payload })
+  perform: (request) => {
+    return request('https://webhook.site/e726bd24-0022-41ca-9442-42813e6c05fe', {
+      method: 'POST',
+      json: { name: 'thomassssss' }
+    })
   }
 }
 
