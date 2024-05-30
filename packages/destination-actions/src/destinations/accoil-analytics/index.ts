@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Track Calls',
       subscribe: 'type = "track"',
-      partnerAction: 'track',
+      partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
