@@ -40,28 +40,28 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Page Calls',
       subscribe: 'type = "page"',
-      partnerAction: 'page',
+      partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
     {
       name: 'Screen Calls',
       subscribe: 'type = "screen"',
-      partnerAction: 'screen',
+      partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
-      partnerAction: 'identify',
+      partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
     {
       name: 'Group Calls',
       subscribe: 'type = "group"',
-      partnerAction: 'group',
+      partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     }
