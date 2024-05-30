@@ -1,18 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
-import { cart, cartDefault } from './data-fields/cart'
-import { cartLine, cartLineDefault } from './data-fields/cart-line'
-import { cartLines, cartLinesDefault } from './data-fields/cart-lines'
-import { checkout, checkoutDefault } from './data-fields/checkout'
-import { checkoutAttributes, checkoutAttributesDefault } from './data-fields/checkout-attributes'
-import {
-  checkoutDiscountApplications,
-  checkoutDiscountApplicationsDefault
-} from './data-fields/checkout-discount-applications'
-import { checkoutLineItems, checkoutLineItemsDefault } from './data-fields/checkout-line-items'
-import { collection, collectionDefault } from './data-fields/collection'
-import { collectionProductVariantDefault, collectionProductVariants } from './data-fields/collection-product-variants'
 import { contacts, contactsDefault } from './data-fields/contacts'
 import { customData, customDataDefault } from './data-fields/custom-data'
 import { customer, customerDefault } from './data-fields/customer'
@@ -130,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
         url: { '@path': '$.context.page.url' },
         referrer: { '@path': '$.context.page.referrer' }
       }
-    }
+    },
 
 
 
@@ -166,21 +154,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: "Additional name for custom events if 'event_name' is 'custom_event'."
     },
-    cartLines: {
-      label: 'Cart Lines',
+
+    product: {
+      label: '',
       type: 'object',
-      multiple: true,
-      description: 'Cart item details',
+      description: '',
       properties: {
-        quantity: {
-          label: 'Quantity',
-          type: 'number',
-          description: 'Quantity of the item'
-        },
         id: {
-          label: 'Merchandise Id',
+          label: 'Product Id',
           type: 'string',
           description: 'A globally unique identifier for the item.'
+        },
+        variantId: {
+          label: 'Variant Id',
+          type: 'string',
+          description: 'Identifier for the variant of the product'
         },
         imageSrc: {
           label: 'Image Source URL',
@@ -206,76 +194,21 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Untranslated Title',
           type: 'string',
           description: "The product variant's untranslated title."
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            quantity: {
-              '@path': '$.quantity'
-            },
-            id: {
-              '@path': '$.product_id'
-            },
-            imageSrc: {
-              '@path': '$.image_url'
-            },
-            priceAmount: {
-              '@path': '$.price'
-            },
-            sku: {
-              '@path': '$.sku'
-            },
-            title: {
-              '@path': '$.name'
-            },
-            untranslatedTitle: {
-              '@path': '$.untranslated_name'
-            }
-          }
-        ]
-      }
-    },
-    cartLine: {
-      label: 'Cart Line',
-      type: 'object',
-      description: 'Single cart item details',
-      properties: {
-        quantity: {
-          label: 'Quantity',
-          type: 'number',
-          description: 'Quantity of the item'
         },
-        id: {
-          label: 'Merchandise Id',
+        vendor: {
+          label: 'Vendor',
           type: 'string',
-          description: 'A globally unique identifier for the item.'
+          description: "The product's vendor name."
         },
-        imageSrc: {
-          label: 'Image Source URL',
+        type: {
+          label: 'Type',
           type: 'string',
-          description: 'The location of the image as a URL.'
+          description: 'The product type specified by the merchant.'
         },
-        priceAmount: {
-          label: 'Price Amount',
-          type: 'number',
-          description: 'The price of the product variant.'
-        },
-        sku: {
-          label: 'SKU',
+        url: {
+          label: 'URL',
           type: 'string',
-          description: 'The SKU (stock keeping unit) associated with the variant.'
-        },
-        title: {
-          label: 'Title',
-          type: 'string',
-          description: "The product variant's title."
-        },
-        untranslatedTitle: {
-          label: 'Untranslated Title',
-          type: 'string',
-          description: "The product variant's untranslated title."
+          description: 'The relative URL of the product.'
         }
       },
       default: {
@@ -284,6 +217,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         id: {
           '@path': '$.properties.product_id'
+        },
+        variantId: {
+          '@path': '$.properties.variant'
         },
         imageSrc: {
           '@path': '$.properties.image_url'
@@ -299,9 +235,223 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         untranslatedTitle: {
           '@path': '$.properties.untranslated_name'
+        },
+        vendor: {
+          '@path': '$.properties.vendor'
+        },
+        type: {
+          '@path': '$.properties.category'
+        },
+        url: {
+          '@path': '$.properties.url'
         }
       }
     },
+
+    cartLine: {
+      ...product,
+      label: 'Cart Line',
+      description: 'Cart Line details',
+      properties: {
+        ...product.properties,
+        quantity: {
+          label: 'Quantity',
+          type: 'number',
+          description: 'Quantity of the item'
+        }
+      }
+    },
+
+    products: {
+      label: '',
+      type: 'object',
+      multiple: true,
+      description: '',
+      properties: {
+        id: {
+          label: 'Product Id',
+          type: 'string',
+          description: 'A globally unique identifier for the item.'
+        },
+        variantId: {
+          label: 'Variant Id',
+          type: 'string',
+          description: 'Identifier for the variant of the product'
+        },
+        imageSrc: {
+          label: 'Image Source URL',
+          type: 'string',
+          description: 'The location of the image as a URL.'
+        },
+        priceAmount: {
+          label: 'Price Amount',
+          type: 'number',
+          description: 'The price of the product variant.'
+        },
+        sku: {
+          label: 'SKU',
+          type: 'string',
+          description: 'The SKU (stock keeping unit) associated with the variant.'
+        },
+        title: {
+          label: 'Title',
+          type: 'string',
+          description: "The product variant's title."
+        },
+        untranslatedTitle: {
+          label: 'Untranslated Title',
+          type: 'string',
+          description: "The product variant's untranslated title."
+        },
+        vendor: {
+          label: 'Vendor',
+          type: 'string',
+          description: "The product's vendor name."
+        },
+        type: {
+          label: 'Type',
+          type: 'string',
+          description: 'The product type specified by the merchant.'
+        },
+        url: {
+          label: 'URL',
+          type: 'string',
+          description: 'The relative URL of the product.'
+        }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            quantity: {
+              '@path': '$.quantity'
+            },
+            id: {
+              '@path': '$.product_id'
+            },
+            variantId: {
+              '@path': '$.variant'
+            },
+            imageSrc: {
+              '@path': '$.image_url'
+            },
+            priceAmount: {
+              '@path': '$.price'
+            },
+            sku: {
+              '@path': '$.sku'
+            },
+            title: {
+              '@path': '$.name'
+            },
+            untranslatedTitle: {
+              '@path': '$.untranslated_name'
+            },
+            vendor: {
+              '@path': '$.vendor'
+            },
+            type: {
+              '@path': '$.category'
+            },
+            url: {
+              '@path': '$.url'
+            }
+          }
+        ]
+      }
+    },
+
+    checkoutLineItems: {
+      ...products,
+      label: 'Checkout Line Items',
+      description: 'Checkout Line Item details',
+      properties: {
+        ...products.properties, 
+        quantity: {
+          label: 'Quantity',
+          type: 'number',
+          description: 'Quantity of the item'
+        },
+        discountTitle: {
+          label: 'Discount Title',
+          type: 'string',
+          description: 'The Discount Code applied to the item.'
+        },
+        discountValue: {
+          label: 'Discount Value',
+          type: 'number',
+          description: 'The Discount value applied to the item.'
+        }
+      },
+      default: {
+        // ...products.default, 
+        // quantity: {
+        //   '@path': '$.quantity'
+        // },
+        // discountTitle: {
+        //   '@path': '$.coupon'
+        // },
+        // discountValue: {
+        //   '@path': '$.discount'
+        // }
+      }
+    },
+
+    cartLines: {
+      ...products,
+      label: 'Cart Line Items',
+      description: 'Cart Line Item details',
+      properties: {
+        ...products.properties, 
+        quantity: {
+          label: 'Quantity',
+          type: 'number',
+          description: 'Quantity of the item'
+        }
+      },
+      default: {
+        // ...products.default, 
+        // quantity: {
+        //   '@path': '$.quantity'
+        // }
+      }
+    },
+
+    collectionProductVariants: {
+      ...products,
+      label: 'Collection Product Variants',
+      description: 'A list of product variants associated with the collection.',
+    },
+
+    collection: {
+      label: 'Collection',
+      type: 'object',
+      description: 'Collection details',
+      additionalProperties: false,
+      properties: {
+        id: {
+          label: 'Collection Id',
+          type: 'string',
+          description: 'A globally unique identifier for the collection.'
+        },
+        title: {
+          label: 'Title',
+          type: 'string',
+          description: 'The collection title.'
+        }
+      },
+      default: {
+        id: {
+          '@path': '$.properties.list_id'
+        },
+        title: {
+          '@path': '$.properties.list_name'
+        }
+      }
+    },
+
+
+
     cart_id: {
       label: 'Cart ID',
       type: 'string',
@@ -366,88 +516,99 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.shipping'
       }
     },
-    discount: {
-      label: 'Discount',
+    customAttributes: {
+      label: 'Custom Attributes',
       type: 'object',
-      multiple: true,
-      description: 'Discount details.',
-      properties: {
-        title: {
-          label: 'Title',
-          type: 'string',
-          description:
-            'The customer-facing name of the discount. If the type of discount is a DISCOUNT_CODE, this title attribute represents the code of the discount.'
-        },
-        type: {
-          label: 'Type',
-          type: 'string',
-          description: 'The type of discount.'
-        },
-        amount: {
-          label: 'Amount',
-          type: 'number',
-          description: 'Decimal money amount.'
-        },
-        percentage: {
-          label: 'Percentage',
-          type: 'number',
-          description: 'The percentage value of the discount application.'
-        }
-      },
+      description: 'Custom attributes for the event. Data should be specified as key:value pairs',
+      additionalProperties: true,
       default: {
-        '@arrayPath': [
-          '$.properties.discount',
-          {
-            title: {
-              '@path': 'title'
-            },
-            amount: {
-              '@path': 'amount'
-            },
-            percentage: {
-              '@path': 'percentage'
-            }
-          }
-        ]
+        '@path': '$.properties.custom_attributes'
       }
-    }
+    },
 
-    checkoutLineItems: {
-      ...checkoutLineItems,
-      default: checkoutLineItemsDefault
-    },
-    checkoutAttributes: {
-      ...checkoutAttributes,
-      default: checkoutAttributesDefault
-    },
-    collection: {
-      ...collection,
-      default: collectionDefault
-    },
-    collectionProductVariants: {
-      ...collectionProductVariants,
-      default: collectionProductVariantDefault
-    },
-    productVariant: {
-      ...productVariant,
-      default: productVariantDefault
-    },
     searchQuery: {
       type: 'string',
       label: 'Search Query',
       description: 'The search query that was executed.',
       default: {
-        '@path': '$.properties.searchResult.query'
+        '@path': '$.properties.query'
       }
     },
-    searchResultProductVariants: {
-      ...searchResultProductVariants,
-      default: searchResultProductVariantsDefault
-    },
+
+
     customer: {
-      ...customer,
-      default: customerDefault
-    },
+      label: 'Customer',
+      type: 'object',
+      description: 'Customer details',
+      properties: {
+        email: {
+          type: 'string',
+          label: 'Email',
+          description: "The customer's email address."
+        },
+        firstName: {
+          type: 'string',
+          label: 'First Name',
+          description: "The customer's first name."
+        },
+        lastName: {
+          type: 'string',
+          label: 'Last Name',
+          description: "The customer's last name."
+        },
+        phone: {
+          type: 'string',
+          label: 'Phone',
+          description: 'The unique phone number (E.164 format) for this customer.'
+        },
+        dob: {
+          type: 'string',
+          label: 'Date of Birth',
+          description: "The customer's date of birth."
+        }
+      },
+      default: {
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        },
+        firstName: {
+          '@if': {
+            exists: { '@path': '$.traits.first_name' },
+            then: { '@path': '$.traits.first_name' },
+            else: { '@path': '$.context.traits.first_name' }
+          }
+        },
+        lastName: {
+          '@if': {
+            exists: { '@path': '$.traits.last_name' },
+            then: { '@path': '$.traits.last_name' },
+            else: { '@path': '$.context.traits.last_name' }
+          } 
+        },
+        phone: {
+          '@if': {
+            exists: { '@path': '$.traits.phone' },
+            then: { '@path': '$.traits.phone' },
+            else: { '@path': '$.context.traits.phone' }
+          }
+        },
+        dob: {
+          '@if': {
+            exists: { '@path': '$.traits.birthday' },
+            then: { '@path': '$.traits.birthday' },
+            else: { '@path': '$.context.traits.birthday' }
+          }
+        }
+      }
+    }
+
+
+
+
     form: {
       ...form,
       default: formDefault
@@ -456,14 +617,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...formElements,
       default: formElementsDefault
     },
-    contacts: {
-      ...contacts,
-      default: contactsDefault
-    },
-    customData: {
-      ...customData,
-      default: customDataDefault
-    }
+   
   },
   perform: (request, data) => {
     // we need to transform the payload to match the Angler API
