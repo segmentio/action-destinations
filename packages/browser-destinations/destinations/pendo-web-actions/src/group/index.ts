@@ -55,6 +55,10 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     }
   },
   perform: (pendo, { mapping, payload }) => {
+    if (!pendo) {
+      return
+    }
+
     // remove parentAccountData field data from the accountData if the paths overlap
 
     type pathMapping = {

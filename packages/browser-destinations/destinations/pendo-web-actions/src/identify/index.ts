@@ -30,6 +30,10 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     }
   },
   perform: (pendo, event) => {
+    if (!pendo) {
+      return
+    }
+
     const payload: PendoOptions = {
       visitor: {
         ...event.payload.visitorData,

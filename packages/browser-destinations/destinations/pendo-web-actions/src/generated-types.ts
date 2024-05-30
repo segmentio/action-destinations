@@ -14,6 +14,10 @@ export interface Settings {
    */
   cnameContentHost?: string
   /**
+   * Specify a Segment user trait, which, if exists and is set to true, will prevent Pendo initialization and actions for the Segment user.
+   */
+  exclusionUserTrait?: string
+  /**
    * Override sending Segment's user traits on load. This will prevent Pendo from initializing with the user traits from Segment (analytics.user().traits()). Allowing you to adjust the mapping of visitor metadata in Segment's identify event.
    */
   disableUserTraitsOnLoad?: boolean

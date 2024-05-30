@@ -30,6 +30,10 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     }
   },
   perform: (pendo, { payload }) => {
+    if (!pendo) {
+      return
+    }
+
     pendo.track(payload.event, payload.metadata)
   }
 }

@@ -50,6 +50,13 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
       type: 'string',
       required: false
     },
+    exclusionUserTrait: {
+      label: 'Optional Segment user trait to exclude Segment user(s) from Pendo',
+      description:
+        'Specify a Segment user trait, which, if exists and is set to true, will prevent Pendo initialization and actions for the Segment user.',
+      type: 'string',
+      required: false
+    },
     disableUserTraitsOnLoad: {
       label: "Disable passing Segment's user traits to Pendo on start up",
       description:
@@ -69,6 +76,15 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
   },
 
   initialize: async ({ settings, analytics }, deps) => {
+    if (settings.exclusionUserTrait) {
+      const trait = analytics.user().traits()[settings.exclusionUserTrait]
+      const isExcluded = trait === true || String(trait).toLowerCase() === 'true'
+
+      if (isExcluded) {
+        return
+      }
+    }
+
     if (settings.cnameContentHost && !/^https?:/.exec(settings.cnameContentHost) && settings.cnameContentHost.length) {
       settings.cnameContentHost = 'https://' + settings.cnameContentHost
     }
