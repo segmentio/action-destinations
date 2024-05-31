@@ -5,7 +5,16 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  SyncMode,
+  SyncModes
+} from './types'
+import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -93,6 +102,9 @@ export interface ActionDefinition<
       NonNullable<GeneratedActionHookBundle[K]>['inputs']
     >
   }
+
+  /** The sync modes setting definition. This enables subscription sync mode selection when subscribing to this action. */
+  syncModes?: SyncModes
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -169,6 +181,10 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   dataFeedCache?: DataFeedCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
+}
+
+const isSyncMode = (value: unknown): value is SyncMode => {
+  return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
 /**
@@ -264,6 +280,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
+    const syncMode = this.definition.syncModes ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -278,7 +296,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
-      hookOutputs
+      hookOutputs,
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined
     }
 
     // Construct the request client and perform the action
