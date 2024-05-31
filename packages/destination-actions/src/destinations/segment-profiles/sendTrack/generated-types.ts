@@ -35,4 +35,10 @@ export interface Payload {
    * The Segment messageId.
    */
   message_id?: string
+  /**
+   * Free-form dictionary of context of the event.
+   */
+  context?: {
+    [k: string]: unknown
+  }
 }

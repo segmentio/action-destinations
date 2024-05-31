@@ -9,7 +9,8 @@ import {
   group_id,
   properties,
   engage_space,
-  message_id
+  message_id,
+  context
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -24,7 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name,
     group_id,
     properties,
-    message_id
+    message_id,
+    context
   },
   perform: (_, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -47,6 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
           },
           properties: {
             ...payload?.properties
+          },
+          context: {
+            ...payload?.context
           },
           type: 'track'
         }
