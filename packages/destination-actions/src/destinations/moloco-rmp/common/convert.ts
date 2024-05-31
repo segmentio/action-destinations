@@ -15,7 +15,7 @@ import {
 
 // This function coverts the SegmentEventPayload to MolocoEventPayload
 // SegmentEventPayload is the payload that went through the mapping defined in the Segment UI
-// MolocoEventPayload is the payload that will be sent to the Moloco RMP API
+// MolocoEventPayload is the payload that will be sent to the Moloco MCM API
 export function convertEvent(args: { eventType: EventType, payload: SegmentEventPayload, settings: Settings }): MolocoEventPayload {
   const { eventType, payload, settings } = args;
 

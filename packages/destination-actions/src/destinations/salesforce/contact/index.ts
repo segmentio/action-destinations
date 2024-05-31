@@ -12,7 +12,7 @@ import {
   recordMatcherOperator,
   batch_size
 } from '../sf-properties'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
 const OBJECT_NAME = 'Contact'
 
@@ -132,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
   perform: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       if (!payload.last_name) {
@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
       if (!payload[0].last_name) {

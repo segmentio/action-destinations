@@ -3,12 +3,13 @@ import { IntegrationError, createTestEvent, createTestIntegration } from '@segme
 import Definition from '../../index'
 import { API_URL } from '../../config'
 import * as Functions from '../../functions'
+import { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 
 const apiKey = 'fake-api-key'
 
-export const settings = {
+export const settings: Settings = {
   api_key: apiKey
 }
 
@@ -262,6 +263,53 @@ describe('Upsert Profile', () => {
 
     expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
   })
+
+  it('should proritize using override_list_id if it is provided in event', async () => {
+    const profileId = '123'
+    const mapping = { list_id: 'abc123', override_list_id: '321bca' }
+
+    const requestBody = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'test@example.com',
+          first_name: 'John',
+          last_name: 'Doe',
+          location: {},
+          properties: {}
+        }
+      }
+    }
+
+    nock(`${API_URL}`)
+      .post('/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          data: {
+            id: profileId
+          }
+        })
+      )
+
+    nock(`${API_URL}`).post(`/lists/${mapping.override_list_id}/relationships/profiles/`).reply(200)
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      traits: {
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe'
+      }
+    })
+
+    await expect(
+      testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+
+    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, mapping.override_list_id)
+  })
 })
 
 describe('Upsert Profile Batch', () => {
@@ -366,5 +414,21 @@ describe('Upsert Profile Batch', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrow()
+  })
+
+  it('should group profiles by list_id correctly', () => {
+    const profiles = [
+      { email: 'profile1@example.com', list_id: 'listA', override_list_id: 'overridelistA' },
+      { email: 'profile2@example.com', list_id: 'listB' },
+      { email: 'profile3@example.com', list_id: 'listA' },
+      { email: 'profile4@example.com', override_list_id: 'overridelistA' }
+    ]
+
+    const grouped = Functions.groupByListId(profiles)
+
+    expect(Object.keys(grouped)).toEqual(['overridelistA', 'listB', 'listA'])
+    expect(grouped['listA']).toHaveLength(1)
+    expect(grouped['listB']).toHaveLength(1)
+    expect(grouped['overridelistA']).toHaveLength(2)
   })
 })

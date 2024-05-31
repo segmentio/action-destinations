@@ -10,9 +10,11 @@ export interface Payload {
    */
   userId?: string | null
   /**
-   * The group id
+   * Device context
    */
-  groupId?: string | null
+  context?: {
+    [k: string]: unknown
+  }
   /**
    * Page properties
    */

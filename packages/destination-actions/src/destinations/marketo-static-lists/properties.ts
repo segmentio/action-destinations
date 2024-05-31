@@ -7,8 +7,7 @@ export const external_id: InputField = {
   default: {
     '@path': '$.context.personas.external_audience_id'
   },
-  unsafe_hidden: true,
-  required: true
+  unsafe_hidden: true
 }
 
 export const field_value: InputField = {
@@ -27,7 +26,7 @@ export const field_value: InputField = {
 
 export const lookup_field: InputField = {
   label: 'Lookup Field',
-  description: `The lead field to use for deduplication and filtering. This field must be apart of the field(s) you are sending to Marketo.`,
+  description: `The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.`,
   type: 'string',
   choices: [
     { label: 'Email', value: 'email' },
@@ -56,21 +55,6 @@ export const data: InputField = {
       label: 'Email',
       description: `The user's email address to send to Marketo.`,
       type: 'string'
-    },
-    firstName: {
-      label: 'First Name',
-      description: `The user's first name.`,
-      type: 'string'
-    },
-    lastName: {
-      label: 'Last Name',
-      description: `The user's last name.`,
-      type: 'string'
-    },
-    phone: {
-      label: 'Phone Number',
-      description: `The user's phone number.`,
-      type: 'string'
     }
   },
   default: {
@@ -79,27 +63,6 @@ export const data: InputField = {
         exists: { '@path': '$.context.traits.email' },
         then: { '@path': '$.context.traits.email' },
         else: { '@path': '$.properties.email' }
-      }
-    },
-    firstName: {
-      '@if': {
-        exists: { '@path': '$.context.traits.firstName' },
-        then: { '@path': '$.context.traits.firstName' },
-        else: { '@path': '$.properties.firstName' }
-      }
-    },
-    lastName: {
-      '@if': {
-        exists: { '@path': '$.context.traits.lastName' },
-        then: { '@path': '$.context.traits.lastName' },
-        else: { '@path': '$.properties.lastName' }
-      }
-    },
-    phone: {
-      '@if': {
-        exists: { '@path': '$.context.traits.phoneNumber' },
-        then: { '@path': '$.context.traits.phoneNumber' },
-        else: { '@path': '$.properties.phoneNumber' }
       }
     }
   },

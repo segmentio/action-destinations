@@ -14,6 +14,7 @@
   "scripts": {
     "browser": "yarn workspace @segment/browser-destinations",
     "cloud": "yarn workspace @segment/action-destinations",
+    "shared": "yarn workspace @segment/actions-shared",
     "cli": "yarn workspace @segment/actions-cli",
     "cli-internal": "yarn workspace @segment/actions-cli-internal",
     "core": "yarn workspace @segment/actions-core",

@@ -12,7 +12,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment User ID',
       description: 'The ID of the user in Segment',
       type: 'string',
-      required: true,
       default: {
         // By default we want to use the permanent user id that's consistent across a customer's lifetime.
         // But if we don't have that we can fall back to the anonymous id
@@ -31,10 +30,19 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.type'
       }
     },
+    action: {
+      label: 'Event Name',
+      description: 'The event name (e.g. Order Completed)',
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      }
+    },
     ip_fwd: {
       description: 'IP address of the user',
       label: 'IP Address',
       type: 'string',
+      required: true,
       default: {
         '@path': '$.context.ip'
       }
@@ -68,6 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User-Agent of the user',
       label: 'User Agent',
       type: 'string',
+      required: true,
       default: {
         '@path': '$.context.userAgent'
       }
@@ -127,11 +136,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        action: {
-          label: 'Event Name',
-          description: 'The event name (e.g. Order Completed)',
-          type: 'string'
-        },
         revenue: {
           label: 'Revenue',
           type: 'number',
@@ -169,7 +173,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        action: { '@path': '$.event' },
         revenue: { '@path': '$.properties.revenue' },
         order_id: { '@path': '$.properties.order_id' },
         product_price: { '@path': '$.properties.price' },
@@ -255,6 +258,7 @@ function getAvailableData(payload: Payload, settings: Settings) {
   const conversionArgs = {
     ...payload.ecommerce_data,
     ...(!isEmpty(payload.ecommerce_products) && { products: payload.ecommerce_products }),
+    action: payload.action ?? '',
     utm_source: payload.utm_source ?? '',
     user_id: payload.user_id,
     first_name: payload.first_name,

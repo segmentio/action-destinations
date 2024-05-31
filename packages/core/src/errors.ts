@@ -1,7 +1,7 @@
 import { CustomError } from 'ts-custom-error'
 
 /**
- * Error due to generic misconfiguration of user settings.
+ * Error due to generic misconfiguration of user settings
  * Should include a user-friendly message, an error reason and status code.
  * - 4xx errors are not automatically retried, except for 408, 423, 429
  * - 5xx are automatically retried, except for 501

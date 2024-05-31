@@ -7,11 +7,18 @@ import {
   BULK_IMPORT_ENDPOINT,
   MarketoBulkImportResponse,
   GET_LEADS_ENDPOINT,
+  GET_FOLDER_ENDPOINT,
   MarketoGetLeadsResponse,
   MarketoLeads,
   MarketoDeleteLeadsResponse,
   REMOVE_USERS_ENDPOINT,
-  MarketoResponse
+  MarketoResponse,
+  CreateListInput,
+  OAUTH_ENDPOINT,
+  RefreshTokenResponse,
+  MarketoListResponse,
+  CREATE_LIST_ENDPOINT,
+  GET_LIST_ENDPOINT
 } from './constants'
 
 // Keep only the scheme and host from the endpoint
@@ -24,8 +31,16 @@ export async function addToList(
   request: RequestClient,
   settings: Settings,
   payloads: AddToListPayload[],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  hookOutputs?: { id: string; name: string }
 ) {
+  // If the list ID is provided in the hook outputs, use it
+  const list_id = hookOutputs?.id ?? payloads[0].external_id
+
+  if (!list_id) {
+    throw new IntegrationError('No list ID found in payload', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const api_endpoint = formatEndpoint(settings.api_endpoint)
 
   const csvData = formatData(payloads)
@@ -37,10 +52,7 @@ export async function addToList(
 
   const url =
     api_endpoint +
-    BULK_IMPORT_ENDPOINT.replace('externalId', payloads[0].external_id).replace(
-      'fieldToLookup',
-      payloads[0].lookup_field
-    )
+    BULK_IMPORT_ENDPOINT.replace('externalId', list_id).replace('fieldToLookup', payloads[0].lookup_field)
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
@@ -64,6 +76,10 @@ export async function removeFromList(
   payloads: RemoveFromListPayload[],
   statsContext?: StatsContext
 ) {
+  if (!payloads[0].external_id) {
+    throw new IntegrationError('No external_id found in payload', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const api_endpoint = formatEndpoint(settings.api_endpoint)
   const usersToRemove = extractFilterData(payloads)
 
@@ -151,4 +167,113 @@ function parseErrorResponse(response: MarketoResponse) {
     )
   }
   throw new IntegrationError(response.errors[0].message, 'INVALID_RESPONSE', 400)
+}
+
+export async function getAccessToken(request: RequestClient, settings: Settings) {
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+  const res = await request<RefreshTokenResponse>(`${api_endpoint}/${OAUTH_ENDPOINT}`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'client_credentials'
+    })
+  })
+
+  return res.data.access_token
+}
+
+export async function getList(request: RequestClient, settings: Settings, id: string) {
+  const accessToken = await getAccessToken(request, settings)
+  const endpoint = formatEndpoint(settings.api_endpoint)
+
+  const getListUrl = endpoint + GET_LIST_ENDPOINT.replace('listId', id)
+
+  const getListResponse = await request<MarketoListResponse>(getListUrl, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (!getListResponse.data.success && getListResponse.data.errors) {
+    throw new IntegrationError(`${getListResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
+  }
+
+  if (!getListResponse.data.result) {
+    throw new IntegrationError(`List with ID ${id} not found`, 'INVALID_REQUEST_DATA', 400)
+  }
+
+  return {
+    successMessage: `Using existing list '${getListResponse.data.result[0].name}' (id: ${id})`,
+    savedData: {
+      id: id,
+      name: getListResponse.data.result[0].name
+    }
+  }
+}
+
+export async function createList(request: RequestClient, input: CreateListInput, statsContext?: StatsContext) {
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  if (!input.audienceName) {
+    throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+  }
+
+  // Format Marketo base endpoint
+  const endpoint = formatEndpoint(input.settings.api_endpoint)
+
+  // Get access token
+  const accessToken = await getAccessToken(request, input.settings)
+
+  const getFolderUrl =
+    endpoint + GET_FOLDER_ENDPOINT.replace('folderName', encodeURIComponent(input.settings.folder_name))
+
+  // Get folder ID by name
+  const getFolderResponse = await request<MarketoListResponse>(getFolderUrl, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  // Since the API will return 200 we need to parse the response to see if it failed.
+  if (!getFolderResponse.data.success && getFolderResponse.data.errors) {
+    statsClient?.incr('createAudience.error', 1, statsTags)
+    throw new IntegrationError(`${getFolderResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
+  }
+
+  if (!getFolderResponse.data.result) {
+    statsClient?.incr('createAudience.error', 1, statsTags)
+    throw new IntegrationError(
+      `A folder with the name ${input.settings.folder_name} not found`,
+      'INVALID_REQUEST_DATA',
+      400
+    )
+  }
+
+  const folderId = getFolderResponse.data.result[0].id.toString()
+
+  const createListUrl =
+    endpoint +
+    CREATE_LIST_ENDPOINT.replace('folderId', folderId).replace('listName', encodeURIComponent(input.audienceName))
+
+  // Create list in given folder
+  const createListResponse = await request<MarketoListResponse>(createListUrl, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (!createListResponse.data.success && createListResponse.data.errors) {
+    statsClient?.incr('createAudience.error', 1, statsTags)
+    throw new IntegrationError(`${createListResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
+  }
+
+  const listId = createListResponse.data.result[0].id.toString()
+  statsClient?.incr('createAudience.success', 1, statsTags)
+
+  return listId
 }

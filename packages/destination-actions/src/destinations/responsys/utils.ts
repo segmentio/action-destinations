@@ -20,11 +20,11 @@ export const validateCustomTraits = ({
   profileExtensionTable?: string
   timestamp: string | number
   statsContext: StatsContext | undefined
-  retry?: boolean
+  retry?: number
 }): void => {
   const statsClient = statsContext?.statsClient
   const statsTag = statsContext?.tags
-  if (retry && shouldRetry(timestamp)) {
+  if (retry !== undefined && retry > 0 && shouldRetry(timestamp, retry)) {
     if (statsClient && statsTag) {
       statsClient?.incr('responsysShouldRetryTRUE', 1, statsTag)
     }
@@ -49,8 +49,8 @@ export const validateCustomTraits = ({
   }
 }
 
-export const shouldRetry = (timestamp: string | number): boolean => {
-  return (new Date().getTime() - new Date(timestamp).getTime()) / 1000 < 30
+export const shouldRetry = (timestamp: string | number, retry: number): boolean => {
+  return (new Date().getTime() - new Date(timestamp).getTime()) / 1000 < retry
 }
 
 export const validateListMemberPayload = ({
@@ -154,7 +154,13 @@ export const sendCustomTraits = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            properties: { body, responsysRequest: requestBody },
+            properties: {
+              body,
+              responsysRequest: {
+                ...requestBody,
+                recordCount: requestBody.recordData.records.length
+              }
+            },
             anonymousId: '__responsys__API__response__'
           })
         }
@@ -232,7 +238,17 @@ export const upsertListMembers = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            properties: { body, responsysRequest: requestBody },
+            requestBody: {
+              ...requestBody,
+              recordCount: requestBody.recordData.records.length
+            },
+            properties: {
+              body,
+              responsysRequest: {
+                ...requestBody,
+                recordCount: requestBody.recordData.records.length
+              }
+            },
             anonymousId: '__responsys__API__response__'
           })
         }
