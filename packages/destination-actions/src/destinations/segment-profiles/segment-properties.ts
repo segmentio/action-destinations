@@ -67,3 +67,11 @@ export const properties: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const context: InputField = {
+  label: 'Context',
+  description: 'Free-form dictionary of context of the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}
