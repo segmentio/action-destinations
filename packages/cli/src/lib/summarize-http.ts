@@ -36,10 +36,36 @@ async function summarizeRequest(response: Response): Promise<RequestToDestinatio
   const request = response.request.clone()
   const data = await request.text()
 
-  // Convert headers to plain JavaScript object
+  // List of headers that may contain sensitive information
+  const sensitiveHeaders = [
+    'authorization',
+    'proxy-authorization',
+    'cookie',
+    'set-cookie',
+    'www-authenticate',
+    'proxy-authenticate',
+    'x-csrf-token',
+    'x-xsrf-token',
+    'x-api-key',
+    'x-client-id',
+    'x-uid',
+    'x-requested-with',
+    'x-forwarded-for',
+    'x-real-ip',
+    'x-amz-security-token',
+    'x-amz-content-sha256',
+    'x-amz-date',
+    'x-amz-user-agent'
+  ]
+
+  // Convert headers to plain JavaScript object and redact sensitive headers
   const headersObject: { [key: string]: string } = {}
   request.headers.forEach((value, key) => {
-    headersObject[key] = value
+    if (sensitiveHeaders.includes(key.toLowerCase())) {
+      headersObject[key] = '<redacted>'
+    } else {
+      headersObject[key] = value
+    }
   })
 
   return {
