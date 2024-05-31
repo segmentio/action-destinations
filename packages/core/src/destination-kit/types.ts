@@ -295,7 +295,7 @@ export interface SyncModeOption {
 }
 
 /** An action sync mode definition */
-export interface SyncModes {
+export interface SyncModeDefinition {
   /** The default sync mode that will be selected */
   default: SyncMode
   /** The human-readable label for this setting  */

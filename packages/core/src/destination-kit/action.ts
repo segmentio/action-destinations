@@ -12,7 +12,7 @@ import type {
   ExecuteInput,
   Result,
   SyncMode,
-  SyncModes
+  SyncModeDefinition
 } from './types'
 import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
@@ -103,8 +103,8 @@ export interface ActionDefinition<
     >
   }
 
-  /** The sync modes setting definition. This enables subscription sync mode selection when subscribing to this action. */
-  syncModes?: SyncModes
+  /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
+  syncMode?: SyncModeDefinition
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -280,7 +280,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
-    const syncMode = this.definition.syncModes ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
 
     // Construct the data bundle to send to an action
     const dataBundle = {
