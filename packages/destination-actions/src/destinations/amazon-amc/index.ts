@@ -5,7 +5,6 @@ import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
   AUTHORIZATION_URL,
-  CURRENCY,
   extractNumberAndSubstituteWithStringValue,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
@@ -128,21 +127,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       description: `Currency code for the CPM value.`,
       choices: [
-        {value: 'USD', label: 'USD'},
-        {value: 'CAD', label: 'CAD'},
-        {value: 'JPY', label: 'JPY'},
-        {value: 'GBP', label: 'GBP'},
-        {value: 'EUR', label: 'EUR'},
-        {value: 'SAR', label: 'SAR'},
-        {value: 'AUD', label: 'AUD'},
-        {value: 'AED', label: 'AED'},
-        {value: 'CNY', label: 'CNY'},
-        {value: 'MXN', label: 'MXN'},
-        {value: 'INR', label: 'INR'},
-        {value: 'SEK', label: 'SEK'},
-        {value: 'TRY', label: 'TRY'}
+        { value: 'USD', label: 'USD' },
+        { value: 'CAD', label: 'CAD' },
+        { value: 'JPY', label: 'JPY' },
+        { value: 'GBP', label: 'GBP' },
+        { value: 'EUR', label: 'EUR' },
+        { value: 'SAR', label: 'SAR' },
+        { value: 'AUD', label: 'AUD' },
+        { value: 'AED', label: 'AED' },
+        { value: 'CNY', label: 'CNY' },
+        { value: 'MXN', label: 'MXN' },
+        { value: 'INR', label: 'INR' },
+        { value: 'SEK', label: 'SEK' },
+        { value: 'TRY', label: 'TRY' }
       ],
-      default: 'USD'
+      default: ''
     },
     ttl: {
       type: 'number',

@@ -22,8 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     segment_computation_class: {
       label: 'Segment Computation Class',
-      description:
-        "Segment computation Class",
+      description: 'Segment computation Class',
       type: 'string',
       unsafe_hidden: true,
       required: true,
