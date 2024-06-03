@@ -242,7 +242,7 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Free-form dictionary of consent category preferences.
+   * Segment event consent category preferences.
    */
   consent?: {
     [k: string]: unknown
