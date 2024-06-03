@@ -82,6 +82,53 @@ describe('Segment.sendTrack', () => {
     })
   })
 
+  test('Should return transformed event with consent', async () => {
+    const event = createTestEvent({
+      context: {
+        consent: {
+          categoryPreferences: {
+            analytics: true,
+            marketing: false
+          }
+        },
+        userId: 'test-user-ufi5bgkko5',
+        anonymousId: 'arky4h2sh7k',
+        event: 'Test Event'
+      }
+    })
+
+    const responses = await testDestination.testAction('sendTrack', {
+      event,
+      mapping: defaultTrackMapping,
+      settings: {
+        source_write_key: 'test-source-write-key'
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchObject({
+      batch: [
+        {
+          userId: event.userId,
+          anonymousId: event.anonymousId,
+          properties: {
+            ...event.properties
+          },
+          context: {
+            consent: {
+              categoryPreferences: {
+                analytics: true,
+                marketing: false
+              }
+            }
+          }
+        }
+      ]
+    })
+  })
+
   it('should work with batch events', async () => {
     const events: SegmentEvent[] = [
       createTestEvent({

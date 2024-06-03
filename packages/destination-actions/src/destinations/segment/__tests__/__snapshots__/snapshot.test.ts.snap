@@ -488,6 +488,9 @@ Object {
             "source": "CYyxkIddLM",
             "term": "CYyxkIddLM",
           },
+          "consent": Object {
+            "testType": "CYyxkIddLM",
+          },
           "device": Object {
             "adTracking_Enabled": true,
             "advertising_id": "CYyxkIddLM",
@@ -560,6 +563,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": undefined,
           "device": undefined,
           "groupId": "CYyxkIddLM",
           "ip": undefined,
