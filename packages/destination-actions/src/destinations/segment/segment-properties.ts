@@ -109,6 +109,14 @@ export const campaign_parameters: InputField = {
   }
 }
 
+export const consent: InputField = {
+  label: 'consent',
+  description: 'Free-form dictionary of consent category preferences.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}
+
 export const device: InputField = {
   label: 'Device',
   description: 'Dictionary of information about the device the API call originated from.',
