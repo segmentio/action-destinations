@@ -40,7 +40,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       try {
         await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-          method: 'GET'
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         })
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
