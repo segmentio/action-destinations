@@ -165,9 +165,6 @@ const parseFqlFunction = (
   }
 }
 
-const parseOperator = (valueToken: Token, operatorToken: Token) =>
-  valueToken.type === 'number' && operatorToken.value === '=' ? 'number_equals' : (operatorToken.value as Operator)
-
 const parse = (tokens: Token[]): Condition => {
   const nodes: Condition[] = []
   let operator = 'and'
@@ -195,6 +192,7 @@ const parse = (tokens: Token[]): Condition => {
         const isFalse = operatorToken.value === '=' && valueToken.value === 'false'
         const isExists = operatorToken.value === '!=' && valueToken.value === 'null'
         const isNotExists = operatorToken.value === '=' && valueToken.value === 'null'
+        const isNumberEquals = operatorToken.value === '=' && valueToken.type === 'number'
 
         if (conditionType === 'event') {
           nodes.push({
@@ -279,12 +277,18 @@ const parse = (tokens: Token[]): Condition => {
               name: token.value.replace(/^(properties)\./, ''),
               operator: 'is_false'
             })
-          } else {
-            const operator = parseOperator(valueToken, operatorToken)
+          } else if (isNumberEquals) {
             nodes.push({
               type: 'event-property',
               name: token.value.replace(/^(properties)\./, ''),
-              operator,
+              operator: 'number_equals',
+              value: getTokenValue(valueToken)
+            })
+          } else {
+            nodes.push({
+              type: 'event-property',
+              name: token.value.replace(/^(properties)\./, ''),
+              operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
@@ -313,12 +317,18 @@ const parse = (tokens: Token[]): Condition => {
               name: token.value.replace(/^(traits)\./, ''),
               operator: 'is_false'
             })
-          } else {
-            const operator = parseOperator(valueToken, operatorToken)
+          } else if (isNumberEquals) {
             nodes.push({
               type: 'event-trait',
               name: token.value.replace(/^(traits)\./, ''),
-              operator,
+              operator: 'number_equals',
+              value: getTokenValue(valueToken)
+            })
+          } else {
+            nodes.push({
+              type: 'event-trait',
+              name: token.value.replace(/^(traits)\./, ''),
+              operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
@@ -347,12 +357,18 @@ const parse = (tokens: Token[]): Condition => {
               name: token.value.replace(/^(context)\./, ''),
               operator: 'is_false'
             })
-          } else {
-            const operator = parseOperator(valueToken, operatorToken)
+          } else if (isNumberEquals) {
             nodes.push({
               type: 'event-context',
               name: token.value.replace(/^(context)\./, ''),
-              operator,
+              operator: 'number_equals',
+              value: getTokenValue(valueToken)
+            })
+          } else {
+            nodes.push({
+              type: 'event-context',
+              name: token.value.replace(/^(context)\./, ''),
+              operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
