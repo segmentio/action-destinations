@@ -108,15 +108,6 @@ export const campaign_parameters: InputField = {
     }
   }
 }
-
-export const consent: InputField = {
-  label: 'consent',
-  description: 'Free-form dictionary of consent category preferences.',
-  type: 'object',
-  defaultObjectUI: 'keyvalue',
-  additionalProperties: true
-}
-
 export const device: InputField = {
   label: 'Device',
   description: 'Dictionary of information about the device the API call originated from.',
@@ -366,5 +357,14 @@ export const message_id: InputField = {
   label: 'MessageId',
   description: 'The Segment messageId.',
   default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  additionalProperties: true,
   unsafe_hidden: true
 }
