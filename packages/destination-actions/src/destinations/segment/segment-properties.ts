@@ -109,7 +109,7 @@ export const campaign_parameters: InputField = {
   }
 }
 
-export const context: InputField = {
+export const consent: InputField = {
   label: 'consent',
   description: 'Free-form dictionary of consent category preferences.',
   type: 'object',
