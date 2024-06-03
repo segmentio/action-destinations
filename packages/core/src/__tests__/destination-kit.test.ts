@@ -306,6 +306,31 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
+
+    test('should inject the syncMode value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithSyncMode)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_sync_mode: 'add'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'add']
+        }
+      ])
+    })
   })
 
   describe('refresh token', () => {
@@ -400,31 +425,6 @@ describe('destination kit', () => {
           refreshToken: ''
         })
       ).resolves.not.toThrowError()
-    })
-
-    test.only('should inject the syncMode value in the perform handler', async () => {
-      const destinationTest = new Destination(destinationWithSyncMode)
-      const testEvent: SegmentEvent = { type: 'track' }
-      const testSettings = {
-        apiSecret: 'test_key',
-        subscription: {
-          subscribe: 'type = "track"',
-          partnerAction: 'customEvent',
-          mapping: {
-            __segment_internal_sync_mode: 'add'
-          }
-        }
-      }
-
-      const res = await destinationTest.onEvent(testEvent, testSettings)
-
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        {
-          output: 'Action Executed',
-          data: ['this is a test', 'add']
-        }
-      ])
     })
   })
 
