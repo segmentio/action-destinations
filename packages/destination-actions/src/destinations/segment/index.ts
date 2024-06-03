@@ -29,8 +29,8 @@ const destination: DestinationDefinition<Settings> = {
       const { source_write_key } = settings
       const ENV = process.env['NODE_ENV'] || DEFAULT_SEGMENT_ENVIRONMENT
       const AWS_REGION = process.env['AWS_REGION'] || DEFAULT_SEGMENT_ENDPOINT
-      if (ENV == 'production') {
-        return request(`${SEGMENT_ENDPOINTS[AWS_REGION].url}/projects/${source_write_key}/settings`)
+      if (ENV == 'staging') {
+        return request(`${STAGE_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
       }
       return request(`${STAGE_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
     }
