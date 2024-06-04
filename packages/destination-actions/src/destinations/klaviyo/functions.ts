@@ -71,7 +71,8 @@ export async function removeProfileFromList(request: RequestClient, ids: string[
 export async function createProfile(
   request: RequestClient,
   email: string | undefined,
-  external_id: string | undefined
+  external_id: string | undefined,
+  additionalAttributes: Record<string, string | object>
 ) {
   try {
     const profileData: ProfileData = {
@@ -79,7 +80,8 @@ export async function createProfile(
         type: 'profile',
         attributes: {
           email,
-          external_id
+          external_id,
+          ...additionalAttributes
         }
       }
     }

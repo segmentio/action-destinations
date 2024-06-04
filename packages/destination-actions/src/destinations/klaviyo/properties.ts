@@ -42,3 +42,100 @@ export const batch_size: InputField = {
   unsafe_hidden: true,
   default: 10000
 }
+
+export const first_name: InputField = {
+  label: 'First Name',
+  description: `Individual's first name.`,
+  type: 'string',
+  default: { '@path': '$.traits.firstName' }
+}
+
+export const last_name: InputField = {
+  label: 'Last Name',
+  description: `Individual's last name.`,
+  type: 'string',
+  default: { '@path': '$.traits.lastName' }
+}
+
+export const organization: InputField = {
+  label: 'Organization',
+  description: `Name of the company or organization within the company for whom the individual works.`,
+  type: 'string',
+  default: { '@path': '$.traits.company.name' }
+}
+
+export const title: InputField = {
+  label: 'Title',
+  description: `Individual's job title.`,
+  type: 'string',
+  default: { '@path': '$.traits.title' }
+}
+
+export const image: InputField = {
+  label: 'Image',
+  description: `URL pointing to the location of a profile image.`,
+  type: 'string',
+  default: { '@path': '$.traits.avatar' }
+}
+
+export const location: InputField = {
+  label: 'Location',
+  description: `Individual's address.`,
+  type: 'object',
+  properties: {
+    address1: {
+      label: 'Address 1',
+      type: 'string',
+      allowNull: true
+    },
+    address2: {
+      label: 'Address 2',
+      type: 'string',
+      allowNull: true
+    },
+    city: {
+      label: 'City',
+      type: 'string',
+      allowNull: true
+    },
+    region: {
+      label: 'Region',
+      type: 'string',
+      allowNull: true
+    },
+    zip: {
+      label: 'ZIP',
+      type: 'string',
+      allowNull: true
+    },
+    latitude: {
+      label: 'Latitude',
+      type: 'string',
+      allowNull: true
+    },
+    longitude: {
+      label: 'Longitide',
+      type: 'string',
+      allowNull: true
+    },
+    country: {
+      label: 'Country',
+      type: 'string',
+      allowNull: true
+    }
+  },
+  default: {
+    city: { '@path': '$.traits.address.city' },
+    region: { '@path': '$.traits.address.state' },
+    zip: { '@path': '$.traits.address.postal_code' },
+    address1: { '@path': '$.traits.address.street' },
+    country: { '@path': '$.traits.address.country' }
+  }
+}
+
+export const properties: InputField = {
+  description: 'An object containing key/value pairs for any custom properties assigned to this profile.',
+  label: 'Properties',
+  type: 'object',
+  default: { '@path': '$.properties' }
+}
