@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import omit from 'lodash/omit'
+import { omit } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -33,6 +33,18 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.project_id' }
         }
       }
+    },
+    createEventIfNotFound: {
+      label: 'Create Custom Event',
+      description: "Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.",
+      type: 'string',
+      choices: [
+        { label: 'DO_NOT_CREATE', value: 'Do not create' },
+        { label: 'CREATE', value: 'Create Custom Event' },
+        { label: 'CREATE_SNAKE_CASE', value: 'Create Custom Event - snake_case' },
+      ],
+      required: true,
+      default: 'CREATE'
     },
     eventName: {
       label: 'Event Name',
@@ -86,6 +98,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'number',
           required: false,
         },
+        quantity: {
+          label: 'Quantity', 
+          description: "The quantity of items associated with the event.",
+          type: 'integer',
+          required: false,
+        },
         currency: {
           label: 'Currency', 
           description: "Currency code for revenue. Defaults to USD.", 
@@ -94,10 +112,50 @@ const action: ActionDefinition<Settings, Payload> = {
           default: 'USD'
         },
       },
+      default: { 
+        revenue: {
+          '@path': '$.properties.revenue'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        },
+        currency: {
+          '@path': '$.properties.currency'
+        }
+      }
+    },
+    properties: {
+      label: 'Properties',
+      description: 'Additional properties to send with the event.',
+      type: 'object',
+      required: false,
       default: { '@path': '$.properties' }
     }
   },
   perform: (request, { payload, settings}) => {
+
+
+    /* 
+    logic: 
+
+    Look in cache for event with name = payload.eventName or snake cased payload.eventName
+
+    if event name not in cache 
+      fetch list of all event names from Optimizely and update cache
+      check cache again for event with name = payload.eventName or snake cased payload.eventName
+        if found, get id for event
+          send event to Optimzely 
+
+    if event name not in cache 
+      create new event with name = payload.eventName or snake cased payload.eventName
+        get id for event
+          send event to Optimzely
+        
+    */
+
 
     // check cache for Entity ID keyed off of event name
     // if not found, make api request to get entity id. Use the projectId to get the Entity ID
@@ -105,43 +163,109 @@ const action: ActionDefinition<Settings, Payload> = {
     // if found, use it
     // Otherwise throw error 
 
-    const { type, eventName, endUserId, projectId, timestamp, type, tags } = payload
+    const { type, endUserId, eventName, projectID, timestamp, properties, uuid, tags = {} } = payload;
+    const { value, revenue, quantity } = tags;
 
-    const { value, revenue } = tags
+    const entity_id = await getEntityIdFromCache(projectID)
 
-    const entity_id = getEntityIdFromCache()
 
-    const eventName = eventName ?? type === 'page' ? 'page_viewed' : undefined
-    const revenue = revenue ? revenue * 100 : undefined
-    const value = value ?? undefined
-    const properties = {...omit(tags, ['value', 'revenue'])} ?? {},
-    
-    const data = {
+    // payload to retrieve list of events
+    // https://docs.developers.optimizely.com/feature-experimentation/reference/list_events  
+
+    // const endpoint = 'https://logx.optimizely.com/v1/events?per_page=100&page=1&include_classic=false&project_id=12345678'
+
+    // response should look like this 
+    // [
+    //   {
+    //     "archived": true,
+    //     "category": "add_to_cart",
+    //     "config": {
+    //       "selector": ".menu-options"
+    //     },
+    //     "created": "2024-06-04T14:06:03.201Z",
+    //     "description": "Item added to cart",
+    //     "event_type": "custom",
+    //     "id": 0,
+    //     "is_classic": false,
+    //     "is_editable": true,
+    //     "key": "add_to_cart",
+    //     "last_modified": "2024-06-04T14:06:03.201Z",
+    //     "name": "Add to Cart",
+    //     "page_id": 5000,
+    //     "project_id": 1000
+    //   }
+    // ]
+
+    // key and id should be added to a cache 
+
+
+    // payload to create an event in Optimizely 
+    // https://docs.developers.optimizely.com/feature-experimentation/reference/create_custom_event 
+
+    // POST to https://api.optimizely.com/v2/projects/123456787654/custom_events
+    // header 'accept: application/json' \
+    // header 'content-type: application/json'
+
+    // 123456787654 is the project_id 
+
+    // response 
+    // {
+    //   "archived": true,
+    //   "category": "add_to_cart",
+    //   "created": "2024-06-04T14:06:03.201Z",
+    //   "description": "string",
+    //   "event_type": "custom",
+    //   "id": 0,
+    //   "is_classic": false,
+    //   "is_editable": true,
+    //   "key": "loaded_new_app",
+    //   "name": "Loaded New App",
+    //   "project_id": 1000
+    // }
+
+
+
+    const body = {
       account_id: settings.optimizelyAccountId,
       visitors: [
-        visitor_id: payload.endUserId,
-        attributes: [],  // user profile details 
-        snapshots: [
-          decisions: [], // leave as empty array
-          events: [
+        {
+          visitor_id: endUserId,
+          attributes: [], // should be empty array
+          snapshots: [
             {
-              entity_id: entity_id,
-              key: eventName,
-              tags, // TODO remove revenue from tags
-              revenue,
-              value,
-              timestamp: payload.timestamp,
-              uuid
+              decisions: [], // should be empty array
+              events: [
+                {
+                  entity_id,
+                  key: eventName ?? type === 'page' ? 'page_viewed' : undefined,
+                  timestamp,
+                  uuid,
+                  type: "other",
+                  tags: {
+                    revenue: revenue ? revenue * 100 : undefined,
+                    value,
+                    quantity
+                  },
+                  properties: {...omit(properties, ['value', 'revenue', 'quantity', 'currency'])} ?? {}
+                }
+              ]
             }
           ]
-        ]
-      ]
+        }
+      ],
+      anonymize_ip: true,
+      client_name: 'Optimizely/event-api-demo',
+      client_version: '1.0.0',
+      enrich_decisions: true
+      
     }
 
     // Make your partner api request here!
-    return request('https://logx.optimizely.com/v1/events', {
+    const endpoint = 'https://logx.optimizely.com/v1/events';
+
+    return request(endpoint, {
       method: 'post',
-      json: data,
+      json: body,
       headers: {
         'content-type': 'application/json'
       }
