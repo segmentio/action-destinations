@@ -171,7 +171,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const client = new OptimizelyWebClient(request, stateContext)
-    const { eventType, endUserId, eventName, category, projectID, timestamp, properties, uuid, tags = {} } = payload;
+    const { eventType, endUserId, eventName, category, type, projectID, timestamp, properties, uuid, tags = {} } = payload;
     const { value, revenue, quantity } = tags;
     const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
     

@@ -18,6 +18,10 @@ export interface Payload {
    */
   eventName: string
   /**
+   * Event Category
+   */
+  category: string
+  /**
    * Timestampt for when the event took place
    */
   timestamp: string | number
@@ -29,6 +33,10 @@ export interface Payload {
    * The type of Segment event
    */
   eventType: string
+  /**
+   * The type of event. For example, to indicate a 'decision_point' type should be 'campaign_activated'
+   */
+  type: string
   /**
    * Tags to send with the event
    */
