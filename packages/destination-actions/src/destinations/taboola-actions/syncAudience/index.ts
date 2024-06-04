@@ -149,7 +149,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    const action = payload.traits_or_props[payload.segment_computation_key] as boolean //todo action null?
+    const action = payload.traits_or_props[payload.segment_computation_key] as boolean //TODO action null?
     const cluster = createCluster(payload)
 
     if (!cluster) {
