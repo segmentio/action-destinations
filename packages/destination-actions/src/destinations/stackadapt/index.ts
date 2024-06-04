@@ -5,7 +5,7 @@ import { defaultValues } from '@segment/actions-core'
 import forwardEvent from './forwardEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'StackAdapt Cloud (Actions)',
+  name: 'StackAdapt (Actions)',
   slug: 'actions-stackadapt-cloud',
   mode: 'cloud',
   description:

@@ -67,6 +67,7 @@ Output:
   - [@replace](#replace)
   - [@merge](#merge)
   - [@transform](#transform)
+  - [@excludeWhenNull](#excludewhennull)
 
 <!-- tocstop -->
 
@@ -685,5 +686,37 @@ Mappings:
 =>
 {
   "newValue": 1
+}
+```
+
+### @excludeWhenNull
+
+The @excludeWhenNull directive will exclude the field from the output if the resolved value is `null`.
+
+```json
+Input:
+
+{
+  "a": null,
+  "b": "hello"
+}
+
+Mappings:
+
+{
+  "a": {
+    "@excludeWhenNull": {
+      "@path": "$.a"
+    }
+  },
+  "b": {
+    "@excludeWhenNull": {
+      "@path": "$.b"
+    }
+  }
+}
+=>
+{
+  "b": "hello"
 }
 ```

@@ -1,8 +1,9 @@
-import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
+import { Settings } from './generated-types'
 
 export const API_VERSION = 'v53.0'
 
@@ -25,6 +26,77 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
   }
 
   return operator
+}
+
+export const generateSalesforceRequest = async (settings: Settings, request: RequestClient) => {
+  if (!settings.auth_password || !settings.username) {
+    return request
+  }
+
+  const { accessToken } = await authenticateWithPassword(
+    settings.username,
+    settings.auth_password,
+    settings.security_token,
+    settings.isSandbox
+  )
+
+  const passwordRequestClient = createRequestClient({
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  return passwordRequestClient
+}
+
+/**
+ * Salesforce requires that the password provided for authentication be a concatenation of the
+ * user password + the user security token.
+ * For more info see: https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_username_password_flow.htm&type=5
+ */
+const constructPassword = (password: string, securityToken?: string): string => {
+  let combined = ''
+  if (password) {
+    combined = password
+  }
+
+  if (securityToken) {
+    combined = password + securityToken
+  }
+
+  return combined
+}
+
+export const authenticateWithPassword = async (
+  username: string,
+  auth_password: string,
+  security_token?: string,
+  isSandbox?: boolean
+): Promise<RefreshAccessTokenResult> => {
+  const clientId = process.env.SALESFORCE_CLIENT_ID
+  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new IntegrationError('Missing Salesforce client ID or client secret', 'Missing Credentials', 400)
+  }
+
+  const newRequest = createRequestClient()
+
+  const loginUrl = isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  const password = constructPassword(auth_password, security_token)
+
+  const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {
+    method: 'post',
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: clientId,
+      client_secret: clientSecret,
+      username: username,
+      password
+    })
+  })
+
+  return { accessToken: res.data.access_token }
 }
 
 interface Records {
@@ -61,6 +133,10 @@ interface SalesforceError {
       }
     ]
   }
+}
+
+interface SalesforceRefreshTokenResponse {
+  access_token: string
 }
 
 type SOQLOperator = 'OR' | 'AND'

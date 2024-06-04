@@ -1,8 +1,9 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
-import Salesforce from '../sf-operations'
+import Salesforce, { authenticateWithPassword } from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
 import type { GenericPayload } from '../sf-types'
+import { Settings } from '../generated-types'
 
 const settings = {
   instanceUrl: 'https://test.salesforce.com/'
@@ -769,6 +770,72 @@ describe('Salesforce', () => {
       await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
         'Bulk operation triggered where enable_batching is false.'
       )
+    })
+  })
+
+  describe('Username & Password flow', () => {
+    const usernamePasswordOnly: Settings = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false
+    }
+
+    const usernamePasswordAndToken: Settings = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false,
+      security_token: 'abc123'
+    }
+
+    process.env['SALESFORCE_CLIENT_ID'] = 'id'
+    process.env['SALESFORCE_CLIENT_SECRET'] = 'secret'
+
+    it('should authenticate using the username and password flow when only the username and password are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: usernamePasswordOnly.username,
+          password: usernamePasswordOnly.auth_password
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        usernamePasswordOnly.username as string, // tells typescript that these are defined
+        usernamePasswordOnly.auth_password as string,
+        usernamePasswordOnly.security_token,
+        usernamePasswordOnly.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
+    })
+
+    it('should authenticate using the username and password flow when the username, password and security token are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: usernamePasswordAndToken.username,
+          password: `${usernamePasswordAndToken.auth_password}${usernamePasswordAndToken.security_token}`
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        usernamePasswordAndToken.username as string, // tells typescript that these are defined
+        usernamePasswordAndToken.auth_password as string,
+        usernamePasswordAndToken.security_token,
+        usernamePasswordAndToken.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
     })
   })
 })

@@ -11,7 +11,9 @@ import {
   getListIdDynamicData,
   sendImportJobRequest,
   getList,
-  createList
+  createList,
+  groupByListId,
+  processProfilesByGroup
 } from '../functions'
 import { batch_size } from '../properties'
 
@@ -139,11 +141,17 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List',
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
-      dynamic: true,
-      default: '',
-      unsafe_hidden: true
+      dynamic: true
     },
-    batch_size: { ...batch_size }
+    batch_size: { ...batch_size },
+    override_list_id: {
+      unsafe_hidden: true,
+      label: 'List ID Override',
+      description:
+        'Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.',
+      type: 'string',
+      default: { '@path': '$.integrations.Klaviyo.listId' }
+    }
   },
   hooks: {
     retlOnMappingSave: {
@@ -154,7 +162,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'Existing List ID',
           description:
-            'The ID of the Klaviyo List that users will be synced to. If defined, we will not create a new list.',
+            'The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.',
           required: false,
           dynamic: async (request) => {
             return getListIdDynamicData(request)
@@ -163,7 +171,7 @@ const action: ActionDefinition<Settings, Payload> = {
         list_name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the Klaviyo List that you would like to create.',
+          description: 'The name of the Klaviyo list that you would like to create.',
           required: false
         }
       },
@@ -171,13 +179,13 @@ const action: ActionDefinition<Settings, Payload> = {
         id: {
           type: 'string',
           label: 'ID',
-          description: 'The ID of the created Klaviyo List that users will be synced to.',
+          description: 'The ID of the created Klaviyo list that users will be synced to.',
           required: false
         },
         name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the created Klaviyo List that users will be synced to.',
+          description: 'The name of the created Klaviyo list that users will be synced to.',
           required: false
         }
       },
@@ -217,9 +225,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
-    const { email, external_id, phone_number, enable_batching, batch_size, ...otherAttributes } = payload
+    const {
+      email,
+      external_id,
+      phone_number,
+      enable_batching,
+      batch_size,
+      list_id: otherListId,
+      override_list_id,
+      ...otherAttributes
+    } = payload
 
-    const list_id = hookOutputs?.retlOnMappingSave.outputs.id ?? payload.list_id
+    const list_id = hookOutputs?.retlOnMappingSave.outputs.id ?? override_list_id ?? otherListId
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
@@ -276,23 +293,28 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload, hookOutputs }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
-    payload = payload.map((profile) => {
-      if (!profile.list_id && hookOutputs?.retlOnMappingSave.outputs.id) {
-        return { ...profile, list_id: hookOutputs?.retlOnMappingSave.outputs.idd }
-      }
-      return profile
-    })
 
-    const profilesWithList = payload.filter((profile) => profile.list_id)
-    const profilesWithoutList = payload.filter((profile) => !profile.list_id)
+    const profilesWithList: Payload[] = []
+    const profilesWithoutList: Payload[] = []
+
+    payload.forEach((profile) => {
+      if (hookOutputs?.retlOnMappingSave?.outputs?.id) {
+        profile.list_id = hookOutputs.retlOnMappingSave.outputs.id
+      }
+      if (profile.list_id || profile.override_list_id) {
+        profilesWithList.push(profile)
+      } else {
+        profilesWithoutList.push(profile)
+      }
+    })
 
     let importResponseWithList
     let importResponseWithoutList
 
     if (profilesWithList.length > 0) {
-      const listId = profilesWithList[0].list_id
-      const importJobPayload = createImportJobPayload(profilesWithList, listId)
-      importResponseWithList = await sendImportJobRequest(request, importJobPayload)
+      // Group profiles based on list_id
+      const groupedByListId = groupByListId(profilesWithList)
+      importResponseWithList = await processProfilesByGroup(request, groupedByListId)
     }
 
     if (profilesWithoutList.length > 0) {

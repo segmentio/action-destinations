@@ -202,7 +202,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          timestamp
+          timestamp: dayjs.utc(timestamp).unix()
         })
       })
     })
