@@ -7,6 +7,39 @@ function snakeCase(str: string) {
   return result.split(' ').join('_').toLowerCase()
 }
 
+/*function handleEvent(str: EventType, object: EventBody, str: apiKey) {
+  const event: Event = {
+    api_key: apiKey,
+    body: eventBody,
+    type: eventType,
+  }
+
+  sendEvent(event);
+}
+
+function sendEvent(event: Event) {
+    const captureUrl = `https://c.schematichq.com/e`;
+    const payload = JSON.stringify(event);
+
+    fetch(captureUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      body: payload,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok: ${response.statusText}`,
+          )
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      })
+  }*/
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send track events to Schematic',
@@ -26,6 +59,13 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       additionalProperties: true,
       required: false
+    },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Time the event took place',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' }
     },
     user_keys: {
       label: 'User keys',
@@ -68,17 +108,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    return request('https://api.schematichq.com/events', {
+    return request('https://c.schematichq.com/e', {
       method: 'post',
-      headers: { 'X-Schematic-Api-Key': `${settings.apiKey}` },
+      headers: { 'Content-Type': 'application/json;charset=UTF-8' },
       json: {
+        api_key: `${settings.apiKey}`,
+        type: 'track',
+        sent_at: new Date(payload.timestamp).toISOString(),
         body: {
+          traits: payload.traits,
           company: payload.company_keys,
           user: payload.user_keys,
-          traits: payload.traits,
           event: snakeCase(payload.event_name)
-        },
-        event_type: 'track'
+        }
       }
     })
   }

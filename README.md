@@ -324,6 +324,31 @@ const destination = {
           description: "The person's email address",
           type: 'string',
           default: { '@path': '$.properties.email_address' }
+        },
+        // an object field example. Defaults should be specified on the top level.
+        value: {
+          label: 'Conversion Value',
+          description: 'The monetary value for a conversion. This is an object with shape: {"currencyCode": USD", "amount": "100"}'
+          type: 'object'
+          default: {
+            currencyCode: { '@path': '$.properties.currency' },
+            amount: { '@path': '$.properties.revenue' }
+          },
+          properties: {
+            currencyCode: {
+              label: 'Currency Code',
+              type: 'string',
+              required: true,
+              description: 'ISO format'
+            },
+            amount: {
+              label: 'Amount',
+              type: 'string',
+              required: true,
+              description: 'Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.'
+            }
+          }
+          }
         }
       }
     }

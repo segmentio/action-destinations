@@ -24,7 +24,16 @@ export interface Payload {
    */
   batch_size?: number
   /**
+   * If true, all Recipient data will be converted to strings before being sent to Responsys.
+   */
+  stringify: boolean
+  /**
    * The timestamp of when the event occurred.
    */
   timestamp: string | number
+  /**
+   * A delay of the selected seconds will be added before retrying a failed request.
+   *                     Max delay allowed is 600 secs (10 mins). The default is 0 seconds.
+   */
+  retry?: number
 }

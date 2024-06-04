@@ -1,8 +1,9 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
-import Salesforce from '../sf-operations'
+import Salesforce, { authenticateWithPassword } from '../sf-operations'
 import { API_VERSION } from '../sf-operations'
 import type { GenericPayload } from '../sf-types'
+import { Settings } from '../generated-types'
 
 const settings = {
   instanceUrl: 'https://test.salesforce.com/'
@@ -457,6 +458,23 @@ describe('Salesforce', () => {
   describe('Bulk Operations', () => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
 
+    const bulkInsertPayloads: GenericPayload[] = [
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
     const bulkUpsertPayloads: GenericPayload[] = [
       {
         operation: 'upsert',
@@ -531,6 +549,40 @@ describe('Salesforce', () => {
         description: 'Krusty Krab'
       }
     ]
+
+    it('should correctly insert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          operation: 'insert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandler(bulkInsertPayloads, 'Account')
+    })
 
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
@@ -681,6 +733,22 @@ describe('Salesforce', () => {
       await sf.bulkHandler([...bulkUpdatePayloads, missingRecordPayload], 'Account')
     })
 
+    it('should fail if a user selects a bulk delete operation', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'delete',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
+        'Unsupported operation: Bulk API does not support the delete operation'
+      )
+    })
+
     it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {
       const payloads: GenericPayload[] = [
         {
@@ -702,6 +770,72 @@ describe('Salesforce', () => {
       await expect(sf.bulkHandler(payloads, 'Account')).rejects.toThrow(
         'Bulk operation triggered where enable_batching is false.'
       )
+    })
+  })
+
+  describe('Username & Password flow', () => {
+    const usernamePasswordOnly: Settings = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false
+    }
+
+    const usernamePasswordAndToken: Settings = {
+      username: 'spongebob@seamail.com',
+      auth_password: 'gary1997',
+      instanceUrl: 'https://spongebob.salesforce.com/',
+      isSandbox: false,
+      security_token: 'abc123'
+    }
+
+    process.env['SALESFORCE_CLIENT_ID'] = 'id'
+    process.env['SALESFORCE_CLIENT_SECRET'] = 'secret'
+
+    it('should authenticate using the username and password flow when only the username and password are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: usernamePasswordOnly.username,
+          password: usernamePasswordOnly.auth_password
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        usernamePasswordOnly.username as string, // tells typescript that these are defined
+        usernamePasswordOnly.auth_password as string,
+        usernamePasswordOnly.security_token,
+        usernamePasswordOnly.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
+    })
+
+    it('should authenticate using the username and password flow when the username, password and security token are provided', async () => {
+      nock('https://login.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: usernamePasswordAndToken.username,
+          password: `${usernamePasswordAndToken.auth_password}${usernamePasswordAndToken.security_token}`
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        usernamePasswordAndToken.username as string, // tells typescript that these are defined
+        usernamePasswordAndToken.auth_password as string,
+        usernamePasswordAndToken.security_token,
+        usernamePasswordAndToken.isSandbox
+      )
+
+      expect(res.accessToken).toEqual('abc')
     })
   })
 })

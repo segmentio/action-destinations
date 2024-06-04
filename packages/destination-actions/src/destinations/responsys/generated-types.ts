@@ -35,10 +35,16 @@ export interface Settings {
   insertOnNoMatch: boolean
   /**
    * First match column for determining whether an insert or update should occur.
+   *                       A trailing underscore (_) is added to the match column name at the time of request
+   *                       to Responsys.
+   *                       This aligns with Responsys’ naming conventions for match columns.
    */
   matchColumnName1: string
   /**
    * Second match column for determining whether an insert or update should occur.
+   *                       A trailing underscore (_) is added to the match column name at the time of request
+   *                       to Responsys.
+   *                       This aligns with Responsys’ naming conventions for match columns.
    */
   matchColumnName2?: string
   /**

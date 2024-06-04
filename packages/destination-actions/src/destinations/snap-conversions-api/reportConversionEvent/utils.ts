@@ -11,21 +11,7 @@ export const hash = (value: string | undefined): string | undefined => {
   return hash.digest('hex')
 }
 
-export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const transformProperty = (
-  property: string,
-  items: Array<Record<string, string | number | undefined>>
-): string =>
-  items
-    .map((i) =>
-      i[property] === undefined || i[property] === null
-        ? ''
-        : typeof i[property] === 'number'
-        ? (i[property] as number).toString()
-        : (i[property] as string).toString().replace(/;/g, '')
-    )
-    .join(';')
+const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
 
 export const hashEmailSafe = (email: string | undefined): string | undefined =>
   isHashedEmail(String(email)) ? email : hash(email)
@@ -48,7 +34,7 @@ export const raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined: S['raiseMisc
 export const box = (v: string | undefined): readonly string[] | undefined =>
   (v ?? '').length > 0 ? [v as string] : undefined
 
-export const emptyObjectToUndefined = (v: { [k in string]?: unknown }) => {
+export const emptyObjectToUndefined = <T extends { [k in string]?: unknown }>(v: T) => {
   const properties = Object.getOwnPropertyNames(v)
 
   if (properties.length === 0) {
@@ -90,4 +76,9 @@ export const parseNumberSafe = (v: string | number | undefined): number | undefi
     return Number.isSafeInteger(parsed) ? parsed : undefined
   }
   return undefined
+}
+
+export const parseDateSafe = (v: string | undefined): number | undefined => {
+  const parsed = Date.parse(v ?? '')
+  return Number.isSafeInteger(parsed) ? parsed : undefined
 }

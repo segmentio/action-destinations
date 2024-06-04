@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -12,6 +13,7 @@ const createEventData = (payload: Payload) => ({
       properties: { ...payload.properties },
       time: payload.time,
       value: payload.value,
+      unique_id: payload.unique_id,
       metric: {
         data: {
           type: 'metric',
@@ -37,13 +39,14 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
     return
   }
 
+  delete orderEventData.data.attributes.properties?.products
   const productPromises = payload.products.map((product) => {
     const productEventData = {
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product.properties, ...orderEventData.data.attributes.properties },
-          value: product.value,
+          properties: { ...product, ...orderEventData.data.attributes.properties },
+          unique_id: uuidv4(),
           metric: {
             data: {
               type: 'metric',
@@ -133,19 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Products',
       description: 'List of products purchased in the order.',
       multiple: true,
-      type: 'object',
-      properties: {
-        value: {
-          label: 'Value',
-          description: 'A numeric value to associate with this event. For example, the dollar amount of a purchase.',
-          type: 'number'
-        },
-        properties: {
-          description: `Properties of this event.`,
-          label: 'Properties',
-          type: 'object'
-        }
-      }
+      type: 'object'
     }
   },
 

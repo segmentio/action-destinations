@@ -75,7 +75,10 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName1: {
         label: 'First Column Match',
-        description: 'First match column for determining whether an insert or update should occur.',
+        description: `First match column for determining whether an insert or update should occur.
+                      A trailing underscore (_) is added to the match column name at the time of request 
+                      to Responsys. 
+                      This aligns with Responsys’ naming conventions for match columns.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },
@@ -90,7 +93,10 @@ const destination: DestinationDefinition<Settings> = {
       },
       matchColumnName2: {
         label: 'Second Column Match',
-        description: 'Second match column for determining whether an insert or update should occur.',
+        description: `Second match column for determining whether an insert or update should occur.
+                      A trailing underscore (_) is added to the match column name at the time of request 
+                      to Responsys. 
+                      This aligns with Responsys’ naming conventions for match columns.`,
         type: 'string',
         choices: [
           { label: 'RIID', value: 'RIID' },
@@ -165,24 +171,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_, { settings }) => {
-      if (settings.profileListName.toUpperCase() !== settings.profileListName) {
-        throw new IntegrationError('List Name field must be in Uppercase', 'INVALID_PROFILE_LIST_NAME', 400)
-      }
-
-      if (settings.profileExtensionTable) {
-        if (settings.profileExtensionTable.toUpperCase() !== settings.profileExtensionTable) {
-          throw new IntegrationError('PET Name field must be in Uppercase', 'INVALID_PET_NAME', 400)
-        }
-        const regex = /^[A-Z0-9_]+$/
-        if (!regex.test(settings.profileExtensionTable)) {
-          throw new IntegrationError(
-            'The PET Name field must be capitalized and may only contain letters from A to Z, numbers from 0 to 9, and underscore characters.',
-            'INVALID_PET_NAME',
-            400
-          )
-        }
-      }
-
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
       } else {

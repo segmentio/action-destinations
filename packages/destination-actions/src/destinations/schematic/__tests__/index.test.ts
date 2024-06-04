@@ -6,14 +6,17 @@ const testDestination = createTestIntegration(Definition)
 
 const SCHEMATIC_API_KEY = 'test'
 
+const ts = '2023-01-01T00:00:00.000Z'
+
 const track_mapping = {
-  event_name: 'test'
+  event_name: 'test',
+  timestamp: { '@path': '$.timestamp' }
 }
 
 const identify_mapping = {
-  user_keys: {
-    email_address: 'example@example.com'
-  }
+  user_keys: { email: 'test@test.com' },
+  company_keys: { org_id: '1234' },
+  timestamp: { '@path': '$.timestamp' }
 }
 
 const auth = {
@@ -23,37 +26,19 @@ const auth = {
 }
 
 const settings = {
-  instanceUrl: 'https://api.schematichq.com',
+  instanceUrl: 'https://c.schematichq.com',
   apiKey: SCHEMATIC_API_KEY
 }
+
 describe('POST events', () => {
   it('should create an event', async () => {
-    nock(`${settings.instanceUrl}`)
-      .post('/events')
-      .reply(201, {
-        data: {
-          api_key: '<string>',
-          body: {},
-          captured_at: '2023-11-07T05:31:56Z',
-          company_id: '<string>',
-          enriched_at: '2023-11-07T05:31:56Z',
-          environment_id: '<string>',
-          feature_id: '<string>',
-          id: '<string>',
-          loaded_at: '2023-11-07T05:31:56Z',
-          processed_at: '2023-11-07T05:31:56Z',
-          processing_status: '<string>',
-          sent_at: '2023-11-07T05:31:56Z',
-          subtype: '<string>',
-          type: '<string>',
-          updated_at: '2023-11-07T05:31:56Z',
-          user_id: '<string>'
-        },
-        params: {}
-      })
+    nock(`${settings.instanceUrl}`).post('/e').reply(200, {
+      ok: true
+    })
 
     const event = createTestEvent({
       type: 'track',
+      timestamp: new Date(ts).toISOString(),
       event: 'Segment Test Event Name',
       properties: {
         email: 'silkpants@richer.com',
@@ -70,39 +55,18 @@ describe('POST events', () => {
 
     console.log(responses[0].status)
 
-    expect(responses[0].status).toBe(201)
+    expect(responses[0].status).toBe(200)
   })
 
   it('should update a user', async () => {
-    nock(`${settings.instanceUrl}`)
-      .post('/events')
-      .reply(201, {
-        data: {
-          api_key: '<string>',
-          body: {},
-          captured_at: '2023-11-07T05:31:56Z',
-          company_id: '<string>',
-          enriched_at: '2023-11-07T05:31:56Z',
-          environment_id: '<string>',
-          feature_id: '<string>',
-          id: '<string>',
-          loaded_at: '2023-11-07T05:31:56Z',
-          processed_at: '2023-11-07T05:31:56Z',
-          processing_status: '<string>',
-          sent_at: '2023-11-07T05:31:56Z',
-          subtype: '<string>',
-          type: '<string>',
-          updated_at: '2023-11-07T05:31:56Z',
-          user_id: '<string>'
-        },
-        params: {}
-      })
+    nock(`${settings.instanceUrl}`).post('/e').reply(200, {
+      ok: true
+    })
 
     const event = createTestEvent({
       type: 'identify',
-      userId: 'uid1',
+      timestamp: new Date(ts).toISOString(),
       traits: {
-        email: 'homer@simpsons.com',
         name: 'simpson',
         age: 42,
         source: 'facebook'
@@ -118,6 +82,6 @@ describe('POST events', () => {
 
     console.log(responses[0].status)
 
-    expect(responses[0].status).toBe(201)
+    expect(responses[0].status).toBe(200)
   })
 })

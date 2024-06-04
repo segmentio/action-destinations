@@ -40,6 +40,7 @@ Object {
         "testType": "PE*zlOgIPA]mVozMLBaL",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "PE*zlOgIPA]mVozMLBaL",
       "value": 83414764297912.31,
     },
     "type": "event",
@@ -47,7 +48,53 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-klaviyo destination: removeProfile action - all fields 1`] = `""`;
+
 exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-klaviyo destination: subscribeProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "custom_source": "TsKr#",
+      "profiles": Object {
+        "data": Array [
+          Object {
+            "attributes": Object {
+              "email": "ton@febmigi.bg",
+              "phone_number": "TsKr#",
+              "subscriptions": Object {
+                "email": Object {
+                  "marketing": Object {
+                    "consent": "SUBSCRIBED",
+                    "consented_at": "2021-02-01T00:00:00.000Z",
+                  },
+                },
+                "sms": Object {
+                  "marketing": Object {
+                    "consent": "SUBSCRIBED",
+                    "consented_at": "2021-02-01T00:00:00.000Z",
+                  },
+                },
+              },
+            },
+            "type": "profile",
+          },
+        ],
+      },
+    },
+    "relationships": Object {
+      "list": Object {
+        "data": Object {
+          "id": "TsKr#",
+          "type": "list",
+        },
+      },
+    },
+    "type": "profile-subscription-bulk-create-job",
+  },
+}
+`;
 
 exports[`Testing snapshot for actions-klaviyo destination: trackEvent action - all fields 1`] = `
 Object {
@@ -77,9 +124,39 @@ Object {
         "testType": "mTdOx(Nl)",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "mTdOx(Nl)",
       "value": -35080566000844.8,
     },
     "type": "event",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: unsubscribeProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "profiles": Object {
+        "data": Array [
+          Object {
+            "attributes": Object {
+              "email": "vej@ir.cz",
+              "phone_number": "H*yKX0vG1",
+            },
+            "type": "profile",
+          },
+        ],
+      },
+    },
+    "relationships": Object {
+      "list": Object {
+        "data": Object {
+          "id": "H*yKX0vG1",
+          "type": "list",
+        },
+      },
+    },
+    "type": "profile-subscription-bulk-delete-job",
   },
 }
 `;

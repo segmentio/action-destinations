@@ -1,13 +1,8 @@
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+
 export const LINKEDIN_API_VERSION = '202401'
 export const BASE_URL = 'https://api.linkedin.com/rest'
 export const LINKEDIN_SOURCE_PLATFORM = 'SEGMENT'
-
-export const SUPPORTED_ID_TYPE = [
-  'SHA256_EMAIL',
-  'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-  'ACXIOM_ID',
-  'ORACLE_MOAT_ID'
-]
 
 interface Choice {
   value: string | number
@@ -62,3 +57,14 @@ export const SUPPORTED_LOOKBACK_WINDOW_CHOICES: Choice[] = [
 
 export const DEFAULT_POST_CLICK_LOOKBACK_WINDOW = 30
 export const DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW = 7
+
+export const DEPENDS_ON_CONVERSION_RULE_ID: DependsOnConditions = {
+  match: 'all',
+  conditions: [
+    {
+      fieldKey: 'conversionRuleId',
+      operator: 'is_not',
+      value: undefined
+    }
+  ]
+}

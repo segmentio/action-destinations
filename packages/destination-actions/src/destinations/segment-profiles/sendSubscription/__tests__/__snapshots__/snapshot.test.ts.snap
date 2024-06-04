@@ -79,6 +79,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": undefined,
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",
@@ -128,6 +129,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": undefined,
         "timestamp": undefined,
         "traits": Object {},
         "type": "identify",

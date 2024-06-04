@@ -28,6 +28,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Group ID',
       default: { '@path': '$.groupId' }
     },
+    context: {
+      type: 'object',
+      label: 'Context',
+      description: 'Device context',
+      required: false,
+      default: { '@path': '$.context' }
+    },
     traits: {
       type: 'object',
       label: 'Traits',
@@ -60,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
         groupId: payload.groupId,
         traits: payload.traits,
         messageId: payload.messageId,
-        timestamp: payload.timestamp ?? new Date()
+        timestamp: payload.timestamp ?? new Date(),
+        context: payload.context
       }
     })
   }

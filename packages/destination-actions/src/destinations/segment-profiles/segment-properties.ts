@@ -44,3 +44,26 @@ export const timestamp: InputField = {
     '@path': '$.timestamp'
   }
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.',
+  default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}
+
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: 'Name of the action that a user has performed.',
+  type: 'string',
+  required: true
+}
+
+export const properties: InputField = {
+  label: 'Properties',
+  description: 'Free-form dictionary of properties that describe the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}

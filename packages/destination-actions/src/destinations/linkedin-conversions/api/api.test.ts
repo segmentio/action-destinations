@@ -11,6 +11,7 @@ describe('LinkedIn Conversions', () => {
     const linkedIn: LinkedInConversions = new LinkedInConversions(requestClient)
     const adAccountId = 'urn:li:sponsoredAccount:123456'
     const hookInputs: HookBundle['onMappingSave']['inputs'] = {
+      adAccountId,
       name: 'A different name that should trigger an update',
       conversionType: 'PURCHASE',
       attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
@@ -43,7 +44,7 @@ describe('LinkedIn Conversions', () => {
         })
         .reply(204)
 
-      const updateResult = await linkedIn.updateConversionRule(adAccountId, hookInputs, hookOutputs)
+      const updateResult = await linkedIn.updateConversionRule(hookInputs, hookOutputs)
 
       expect(updateResult).toEqual({
         successMessage: `Conversion rule ${hookOutputs.id} updated successfully!`,
@@ -79,7 +80,7 @@ describe('LinkedIn Conversions', () => {
           postClickAttributionWindowSize: hookInputs.post_click_attribution_window_size,
           viewThroughAttributionWindowSize: hookInputs.view_through_attribution_window_size
         })
-      const createResult = await linkedIn.createConversionRule(adAccountId, hookInputs)
+      const createResult = await linkedIn.createConversionRule(hookInputs)
 
       expect(createResult).toEqual({
         successMessage: `Conversion rule ${mockReturnedId} created successfully!`,
@@ -110,7 +111,6 @@ describe('LinkedIn Conversions', () => {
         .reply(200, existingRule)
 
       const updateResult = await linkedIn.updateConversionRule(
-        adAccountId,
         { ...hookInputs, conversionRuleId: existingRule.id },
         hookOutputs
       )
@@ -144,7 +144,7 @@ describe('LinkedIn Conversions', () => {
         })
         .reply(500)
 
-      const updateResult = await linkedIn.updateConversionRule(adAccountId, hookInputs, hookOutputs)
+      const updateResult = await linkedIn.updateConversionRule(hookInputs, hookOutputs)
 
       expect(updateResult).toEqual({
         error: {

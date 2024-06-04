@@ -91,6 +91,7 @@ export interface GlobalSetting {
   default?: string | number | boolean
   properties?: InputField['properties']
   format?: InputField['format']
+  depends_on?: InputField['depends_on']
 }
 
 /** The supported field type names */

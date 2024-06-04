@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for actions-schematic destination: identifyUser action - all fields 1`] = `
 Object {
+  "api_key": "G10lVP",
   "body": Object {
     "company": Object {
       "keys": Object {
@@ -20,22 +21,30 @@ Object {
       "testType": "G10lVP",
     },
   },
-  "event_type": "identify",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: identifyUser action - required fields 1`] = `
 Object {
+  "api_key": "G10lVP",
   "body": Object {
-    "company": Object {},
+    "company": Object {
+      "keys": Object {
+        "testType": "G10lVP",
+      },
+    },
     "keys": Object {},
   },
-  "event_type": "identify",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: trackEvent action - all fields 1`] = `
 Object {
+  "api_key": "uvfeUI#M",
   "body": Object {
     "company": Object {
       "testType": "uvfeUI#M",
@@ -48,15 +57,18 @@ Object {
       "user_id": "uvfeUI#M",
     },
   },
-  "event_type": "track",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "track",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: trackEvent action - required fields 1`] = `
 Object {
+  "api_key": "uvfeUI#M",
   "body": Object {
     "event": "uvfeui#m",
   },
-  "event_type": "track",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "track",
 }
 `;
