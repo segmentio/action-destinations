@@ -197,6 +197,7 @@ async function processPayload(
   payload: Payload[],
   audienceSettings: AudienceSettings
 ) {
+  console.log('Test Log')
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
