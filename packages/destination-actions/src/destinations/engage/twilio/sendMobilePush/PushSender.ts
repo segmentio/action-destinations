@@ -83,6 +83,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
     }
 
     this.statsSet('message_body_size', body?.toString().length)
+    body.sort()
 
     const res = await this.request(`https://${this.twilioHostname}/v1/Services/${this.payload.from}/Notifications`, {
       method: 'POST',
@@ -146,7 +147,6 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
         Sound: this.payload.customizations?.sound,
         Priority: this.payload.customizations?.priority,
         TimeToLive: this.payload.customizations?.ttl,
-        FcmPayload: this.getFcmNotificationOverrides(badgeAmount),
         ApnPayload: {
           aps: {
             'mutable-content': 1,
@@ -157,36 +157,12 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
 
       const requestBody = new URLSearchParams({
         ...body,
-        FcmPayload: JSON.stringify(body.FcmPayload),
+        FcmPayload: '{}', // hardcoding empty FcmPayload to avoid V1 issues. We do not use FCM overrides anymore
         ApnPayload: JSON.stringify(body.ApnPayload)
       })
-
       return { requestBody, customData }
     } catch (error: unknown) {
       this.rethrowIntegrationError(error, () => new PayloadValidationError('Unable to construct Push API request body'))
-    }
-  }
-
-  private getFcmNotificationOverrides(badgeAmount: number) {
-    // FCM V1 format
-    if (this.payload.googleApiVersion === 'v1') {
-      return {
-        apns: {
-          payload: {
-            aps: {
-              'mutable-content': true,
-              badge: badgeAmount
-            }
-          }
-        }
-      }
-    }
-    // FCM legacy format
-    return {
-      mutable_content: true,
-      notification: {
-        badge: badgeAmount
-      }
     }
   }
 
