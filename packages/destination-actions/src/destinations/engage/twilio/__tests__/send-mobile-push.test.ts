@@ -90,7 +90,6 @@ describe('sendMobilePush action', () => {
         subscriptionStatus: 'subscribed'
       }
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
-      console.error(notifyReqBody.toString())
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
