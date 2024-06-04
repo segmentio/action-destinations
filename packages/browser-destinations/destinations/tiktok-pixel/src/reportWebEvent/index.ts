@@ -14,9 +14,9 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   fields: {
     ...commonFields
   },
-  perform: (ttq, { payload }) => {
+  perform: (ttq, { payload, settings }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
-      ttq.identify({
+      ttq.instance(settings.pixelCode).identify({
         email: handleArrayInput(payload.email),
         phone_number: formatPhone(handleArrayInput(payload.phone_number)),
         external_id: handleArrayInput(payload.external_id),
@@ -29,7 +29,7 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
       })
     }
 
-    ttq.track(
+    ttq.instance(settings.pixelCode).track(
       payload.event,
       {
         contents: payload.contents ? payload.contents : [],

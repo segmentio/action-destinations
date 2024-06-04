@@ -1,5 +1,6 @@
 export interface TikTokPixel {
   page: () => void
+  instance: (pixel_code: string) => TikTokPixel
   identify: ({
     email,
     phone_number,
