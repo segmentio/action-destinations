@@ -2,6 +2,46 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core/'
+import { createHash } from 'crypto'
+
+const sha256HashedRegex = /^[a-f0-9]{64}$/i
+
+function hashEmail(email: string): string {
+  const isSHA256Hash = sha256HashedRegex.test(email)
+  if (!isSHA256Hash) {
+    email = createHash('sha256').update(email).digest('hex')
+  }
+  return email
+}
+
+function createCluster(
+  payload: Payload
+): { cluster: Array<{ user_id: string; type: string; is_hashed: boolean }> } | null {
+  if (!payload.user_email && !payload.device_id) {
+    return null
+  }
+
+  let email = payload.user_email
+  const cluster = []
+
+  if (email) {
+    email = hashEmail(email)
+    cluster.push({
+      user_id: email,
+      type: 'EMAIL_ID',
+      is_hashed: true
+    })
+  }
+
+  if (payload.device_id) {
+    cluster.push({
+      user_id: payload.device_id,
+      type: 'DEVICE_ID',
+      is_hashed: false
+    })
+  }
+  return { cluster }
+}
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -9,7 +49,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   fields: {
     external_audience_id: {
       label: 'External Audience ID',
-      description: "The Audience ID from Taboola.",
+      description: 'The Audience ID from Taboola.',
       type: 'string',
       required: true,
       unsafe_hidden: true,
@@ -99,13 +139,20 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Batch Size',
       description: 'Max Batch size to send to Taboola.',
       type: 'integer',
-      default: 300, // TODO EDEN TO CHECK MAX BATCH SIZE
+      default: 1000,
       required: true,
       unsafe_hidden: true
     }
   },
   perform: (request, { payload, audienceSettings }) => {
-    if (!payload.user_email && !payload.device_id) {
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+
+    const action = payload.traits_or_props[payload.segment_computation_key] as boolean //todo action null?
+    const cluster = createCluster(payload)
+
+    if (!cluster) {
       throw new IntegrationError(
         "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
         'MISSING_REQUIRED_FIELD',
@@ -113,51 +160,55 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       )
     }
 
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    const action = payload.traits_or_props[payload.segment_computation_key] as boolean
-
-    const email = payload.user_email // TODO EDEN: hash the email?
-
-    const cluster = []
-    if (email) {
-      cluster.push({
-        user_id: email,
-        type: 'EMAIL_ID',
-        is_hashed: true
-      })
-    }
-
-    if (payload.device_id) {
-      cluster.push({
-        user_id: payload.device_id,
-        type: 'DEVICE_ID',
-        is_hashed: false
-      })
-    }
-
     const requestBody = {
       operation: action ? 'ADD' : 'REMOVE',
       audience_id: payload.external_audience_id,
       identities: [
         {
-          cluster: cluster
+          cluster: cluster.cluster
         }
       ]
     }
 
-    return request(`https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`, {
-      method: 'post',
-      json: requestBody
-    })
+    return request(
+      `https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`,
+      {
+        method: 'post',
+        json: requestBody
+      }
+    )
   },
+  performBatch: (request, { payload: payloads, audienceSettings }) => {
+    if (!audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
 
-  // TODO EDEN
-  // performBatch: (request, { payload: payloads, audienceSettings }) => {
-  
-  // }
+    const clusters = payloads.map((payload) => createCluster(payload)).filter((cluster) => cluster !== null)
+
+    if (clusters.length === 0) {
+      throw new IntegrationError(
+        "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
+        'MISSING_REQUIRED_FIELD',
+        400
+      )
+    }
+
+    const action = payloads[0].traits_or_props[payloads[0].segment_computation_key] as boolean
+
+    const requestBody = {
+      operation: action ? 'ADD' : 'REMOVE',
+      audience_id: payloads[0].external_audience_id,
+      identities: clusters
+    }
+
+    return request(
+      `https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`,
+      {
+        method: 'post',
+        json: requestBody
+      }
+    )
+  }
 }
 
 export default action
