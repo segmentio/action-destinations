@@ -28,7 +28,7 @@ export interface Payload {
   /**
    * The type of Segment event
    */
-  type: string
+  eventType: string
   /**
    * Tags to send with the event
    */

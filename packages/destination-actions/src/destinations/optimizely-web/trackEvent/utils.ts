@@ -1,6 +1,4 @@
-import { StateContext } from '@segment/actions-core'
-import { RequestClient } from '@segment/actions-core'
-
+import { StateContext, RequestClient } from '@segment/actions-core'
 export interface EventItem {
     id: number
     key: string
@@ -78,13 +76,13 @@ export class OptimizelyWebClient {
         return (this.stateContext?.getRequestContext?.('events') as EventItem[]).find((event: EventItem) => event.key === eventName)?.id
     }
 
-    async createEvent(projectID: string, eventName: string, friendlyEventName: string) {
+    async createEvent(projectID: string, eventName: string, friendlyEventName: string, category: string) {
         const response = await this.request<EventItem>(`https://api.optimizely.com/v2/projects/${projectID}/custom_events`, {
             method: 'POST',
             json: {
                 key: eventName,
                 name: friendlyEventName,
-                category: 'other',
+                category,
                 event_type: 'custom'
             } as CreateEventBody,
             headers: {

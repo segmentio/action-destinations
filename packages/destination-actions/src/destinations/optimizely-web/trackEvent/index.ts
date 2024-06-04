@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { omit } from '@segment/actions-core'
-import { snakeCase } from 'lodash';
+import  snakeCase from 'lodash/snakeCase' 
 import { OptimizelyWebClient, Body } from './utils'
 import { IntegrationError } from '@segment/actions-core/'
 
@@ -62,6 +62,24 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    category: {
+      label: 'Event Category',
+      description: 'Event Category',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'add_to_cart', value: 'add_to_cart' },
+        { label: 'save', value: 'save' },
+        { label: 'search', value: 'search' },
+        { label: 'share', value: 'share' },
+        { label: 'purchase', value: 'purchase' },
+        { label: 'convert', value: 'convert' },
+        { label: 'sign_up', value: 'sign_up' },
+        { label: 'subscribe', value: 'subscribe' },
+        { label: 'other', value: 'other' }
+      ],
+      default: 'other'
+    },
     timestamp:{
       label: 'Timestamp', 
       description: "Timestampt for when the event took place",
@@ -76,12 +94,20 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.messageId' }
     },
-    type:{
+    eventType:{
       label: 'Event Type', 
       description: "The type of Segment event",
       type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: { '@path': '$.type' }
+    },
+    type:{
+      label: 'Type of Event', 
+      description: "The type of event. For example, to indicate a 'decision_point' type should be 'campaign_activated'",
+      type: 'string',
+      required: true,
+      default: 'other'
     },
     tags:{
       label: 'Tags', 
@@ -140,29 +166,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload, settings, stateContext}) => {
 
-    /* 
-    logic: 
-
-    Look in cache for event with name = payload.eventName or snake cased payload.eventName
-
-    if event name not in cache 
-      fetch list of all event names from Optimizely and update cache
-      check cache again for event with name = payload.eventName or snake cased payload.eventName
-        if found, get id for event
-          send event to Optimzely 
-
-    if event name not in cache 
-      create new event with name = payload.eventName or snake cased payload.eventName
-        get id for event
-          send event to Optimzely
-        
-    */
     if(!stateContext) {
       throw new IntegrationError('State Context is not available', 'MISSING_STATE_CONTEXT', 400)
     }
 
     const client = new OptimizelyWebClient(request, stateContext)
-    const { type, endUserId, eventName, projectID, timestamp, properties, uuid, tags = {} } = payload;
+    const { eventType, endUserId, eventName, category, projectID, timestamp, properties, uuid, tags = {} } = payload;
     const { value, revenue, quantity } = tags;
     const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
     
@@ -172,7 +181,7 @@ const action: ActionDefinition<Settings, Payload> = {
         await client.updateCachedEventNames(projectID)
         entity_id = client.getEventIdFromCache(event_name)
         if(!entity_id) { 
-          await client.createEvent(projectID, event_name, eventName)
+          await client.createEvent(projectID, event_name, eventName, category)
           await client.updateCachedEventNames(projectID)
           entity_id = client.getEventIdFromCache(event_name)
         }
@@ -194,10 +203,10 @@ const action: ActionDefinition<Settings, Payload> = {
               events: [
                 {
                   entity_id,
-                  key: eventName ?? type === 'page' ? 'page_viewed' : undefined,
+                  key: eventName ?? eventType === 'page' ? 'page_viewed' : undefined,
                   timestamp,
                   uuid,
-                  type: "other",
+                  type,
                   tags: {
                     revenue: revenue ? revenue * 100 : undefined,
                     value,
