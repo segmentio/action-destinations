@@ -298,7 +298,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+      const phoneNumber = payload.phone_number.split('+').join('')
+      request_object.userIdentifiers.push({ hashedPhoneNumber: hash('+' + phoneNumber) })
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
