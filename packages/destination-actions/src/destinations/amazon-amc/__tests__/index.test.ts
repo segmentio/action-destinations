@@ -137,7 +137,7 @@ describe('Amazon-Ads (actions)', () => {
       }
 
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        'CPM_CENTS:-String can not be converted to Number'
+        'CPM Cents must be a number but it was a string.'
       )
     })
 
