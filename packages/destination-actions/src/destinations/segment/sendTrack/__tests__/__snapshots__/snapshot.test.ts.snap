@@ -95,7 +95,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "ET^Xg5cIGF]2ok",
           "ip": undefined,
