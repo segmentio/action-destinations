@@ -56,13 +56,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Account ID',
       required: true,
       description: 'The ID for the Taboola Account to sync to.'
-    }, 
+    },
     ttl_in_hours: {
       type: 'number',
       label: 'TTL in Hours',
       required: false,
-      description: 'The time to live for the audience in hours.',
-      default: 36  // TODO EDEN
+      description: 'The time for which a given user will belong to this audience in hours.',
+      default: 8760
     },
     exclude_from_campaigns: {
       type: 'boolean',
@@ -81,7 +81,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceName = createAudienceInput.audienceName
       const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
       const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
-      const accountId = createAudienceInput.audienceSettings?.account_id 
+      const accountId = createAudienceInput.audienceSettings?.account_id
 
       if (!audienceName) {
         throw new IntegrationError("Missing 'Audience Name' value", 'MISSING_REQUIRED_FIELD', 400)
@@ -91,12 +91,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError("Missing 'Account ID' value", 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (!ttlInHours) {
-        throw new IntegrationError("Missing 'TTL in Hours' value'", 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      try{
-        const response = await request(`https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`, {
+      try {
+        const response = await request(
+          `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
+          {
             method: 'post',
             json: {
               audience_name: audienceName,
@@ -108,15 +106,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const json = await response.json()
 
         return {
-          externalId: json?.data?.audience_id
+          externalId: json?.audience_id
         }
-      }
-      catch(error){
-        throw new IntegrationError(
-          'Failed to create Audience in Dynamic Yield',
-          'AUDIENCE_CREATION_FAILED',
-          400
-        )
+      } catch (error) {
+        throw new IntegrationError('Failed to create Audience in Taboola', 'AUDIENCE_CREATION_FAILED', 400)
       }
     },
     async getAudience(_, getAudienceInput) {
