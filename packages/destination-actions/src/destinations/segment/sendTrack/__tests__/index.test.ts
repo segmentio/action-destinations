@@ -23,6 +23,9 @@ const defaultTrackMapping = {
   },
   traits: {
     '@path': '$.traits'
+  },
+  consent: {
+    '@path': '$.context.consent'
   }
 }
 
@@ -54,7 +57,14 @@ describe('Segment.sendTrack', () => {
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
-      event: 'Test Event'
+      event: 'Test Event',
+      context: {
+        consent: {
+          categoryPreferences: {
+            analytics: true
+          }
+        }
+      }
     })
 
     const responses = await testDestination.testAction('sendTrack', {

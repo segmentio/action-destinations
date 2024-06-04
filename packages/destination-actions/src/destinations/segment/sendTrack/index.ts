@@ -22,7 +22,8 @@ import {
   properties,
   traits,
   message_id,
-  enable_batching
+  enable_batching,
+  consent
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -51,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
     properties,
     traits,
     message_id,
-    enable_batching
+    enable_batching,
+    consent
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -86,6 +88,9 @@ function convertPayload(data: Payload) {
     context: {
       traits: {
         ...data?.traits
+      },
+      consent: {
+        ...data?.consent
       },
       app: data?.application,
       campaign: data?.campaign_parameters,
