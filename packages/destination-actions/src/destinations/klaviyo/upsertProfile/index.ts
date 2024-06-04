@@ -236,7 +236,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...otherAttributes
     } = payload
 
-    const list_id = hookOutputs?.retlOnMappingSave.outputs.id ?? override_list_id ?? otherListId
+    const list_id = hookOutputs?.retlOnMappingSave?.outputs?.id ?? override_list_id ?? otherListId
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
