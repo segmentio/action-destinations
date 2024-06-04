@@ -91,7 +91,9 @@ function convertPayload(data: Payload) {
       },
       app: data?.application,
       campaign: data?.campaign_parameters,
-      consent: data?.consent,
+      consent: {
+        ...data?.consent
+      },
       device: data?.device,
       ip: data?.ip_address,
       locale: data?.locale,

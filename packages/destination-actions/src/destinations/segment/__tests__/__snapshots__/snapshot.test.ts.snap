@@ -563,7 +563,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "CYyxkIddLM",
           "ip": undefined,
