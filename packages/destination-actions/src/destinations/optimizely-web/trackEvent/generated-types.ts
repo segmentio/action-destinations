@@ -10,6 +10,10 @@ export interface Payload {
    */
   projectID: string
   /**
+   * Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.
+   */
+  createEventIfNotFound: string
+  /**
    * Event Name.
    */
   eventName: string
@@ -38,12 +42,18 @@ export interface Payload {
      */
     value?: number
     /**
-     * Quantity.
+     * The quantity of items associated with the event.
      */
     quantity?: number
     /**
      * Currency code for revenue. Defaults to USD.
      */
     currency?: string
+  }
+  /**
+   * Additional properties to send with the event.
+   */
+  properties?: {
+    [k: string]: unknown
   }
 }

@@ -2,6 +2,9 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { omit } from '@segment/actions-core'
+import { snakeCase } from 'lodash';
+import { OptimizelyWebClient, Body } from './utils'
+import { IntegrationError } from '@segment/actions-core/'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -135,8 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties' }
     }
   },
-  perform: (request, { payload, settings}) => {
-
+  perform: async (request, { payload, settings, stateContext}) => {
 
     /* 
     logic: 
@@ -155,77 +157,32 @@ const action: ActionDefinition<Settings, Payload> = {
           send event to Optimzely
         
     */
+    if(!stateContext) {
+      throw new IntegrationError('State Context is not available', 'MISSING_STATE_CONTEXT', 400)
+    }
 
-
-    // check cache for Entity ID keyed off of event name
-    // if not found, make api request to get entity id. Use the projectId to get the Entity ID
-    // TBC: if still not found, make api request to create entity id
-    // if found, use it
-    // Otherwise throw error 
-
+    const client = new OptimizelyWebClient(request, stateContext)
     const { type, endUserId, eventName, projectID, timestamp, properties, uuid, tags = {} } = payload;
     const { value, revenue, quantity } = tags;
+    const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
+    
+    let entity_id = client.getEventIdFromCache(event_name)
 
-    const entity_id = await getEntityIdFromCache(projectID)
+    if(!entity_id && payload.createEventIfNotFound !== 'DO_NOT_CREATE') {
+        await client.updateCachedEventNames(projectID)
+        entity_id = client.getEventIdFromCache(event_name)
+        if(!entity_id) { 
+          await client.createEvent(projectID, event_name, eventName)
+          await client.updateCachedEventNames(projectID)
+          entity_id = client.getEventIdFromCache(event_name)
+        }
+    }
 
+    if(!entity_id) {
+      throw new IntegrationError(`Event with name ${eventName} not found`, 'EVENT_NOT_FOUND', 400)
+    }
 
-    // payload to retrieve list of events
-    // https://docs.developers.optimizely.com/feature-experimentation/reference/list_events  
-
-    // const endpoint = 'https://logx.optimizely.com/v1/events?per_page=100&page=1&include_classic=false&project_id=12345678'
-
-    // response should look like this 
-    // [
-    //   {
-    //     "archived": true,
-    //     "category": "add_to_cart",
-    //     "config": {
-    //       "selector": ".menu-options"
-    //     },
-    //     "created": "2024-06-04T14:06:03.201Z",
-    //     "description": "Item added to cart",
-    //     "event_type": "custom",
-    //     "id": 0,
-    //     "is_classic": false,
-    //     "is_editable": true,
-    //     "key": "add_to_cart",
-    //     "last_modified": "2024-06-04T14:06:03.201Z",
-    //     "name": "Add to Cart",
-    //     "page_id": 5000,
-    //     "project_id": 1000
-    //   }
-    // ]
-
-    // key and id should be added to a cache 
-
-
-    // payload to create an event in Optimizely 
-    // https://docs.developers.optimizely.com/feature-experimentation/reference/create_custom_event 
-
-    // POST to https://api.optimizely.com/v2/projects/123456787654/custom_events
-    // header 'accept: application/json' \
-    // header 'content-type: application/json'
-
-    // 123456787654 is the project_id 
-
-    // response 
-    // {
-    //   "archived": true,
-    //   "category": "add_to_cart",
-    //   "created": "2024-06-04T14:06:03.201Z",
-    //   "description": "string",
-    //   "event_type": "custom",
-    //   "id": 0,
-    //   "is_classic": false,
-    //   "is_editable": true,
-    //   "key": "loaded_new_app",
-    //   "name": "Loaded New App",
-    //   "project_id": 1000
-    // }
-
-
-
-    const body = {
+    const body: Body = {
       account_id: settings.optimizelyAccountId,
       visitors: [
         {
@@ -257,19 +214,9 @@ const action: ActionDefinition<Settings, Payload> = {
       client_name: 'Optimizely/event-api-demo',
       client_version: '1.0.0',
       enrich_decisions: true
-      
     }
 
-    // Make your partner api request here!
-    const endpoint = 'https://logx.optimizely.com/v1/events';
-
-    return request(endpoint, {
-      method: 'post',
-      json: body,
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
+    await client.sendEvent(body)
 
   }
 }
