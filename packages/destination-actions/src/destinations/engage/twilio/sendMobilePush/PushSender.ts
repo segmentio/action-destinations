@@ -171,10 +171,12 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
     // FCM V1 format
     if (this.payload.googleApiVersion === 'v1') {
       return {
-        android: {
-          mutable_content: true,
-          notification: {
-            badge: badgeAmount
+        apns: {
+          payload: {
+            aps: {
+              'mutable-content': true,
+              badge: badgeAmount
+            }
           }
         }
       }

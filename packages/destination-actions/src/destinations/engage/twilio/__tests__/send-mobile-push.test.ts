@@ -798,10 +798,12 @@ describe('sendMobilePush action', () => {
       Body: defaultTemplate.types['twilio/text'].body,
       Title: customizationTitle,
       FcmPayload: JSON.stringify({
-        android: {
-          mutable_content: true,
-          notification: {
-            badge: 1
+        apns: {
+          payload: {
+            aps: {
+              'mutable-content': true,
+              badge: 1
+            }
           }
         }
       }),
