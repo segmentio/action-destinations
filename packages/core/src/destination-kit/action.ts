@@ -262,6 +262,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
 
+    // Remove internal hidden field
+    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
+      delete payload['__segment_internal_sync_mode']
+    }
+
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
@@ -316,6 +321,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
 
+    // Remove internal hidden field
+    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
+      for (const payload of payloads) {
+        if (payload) {
+          delete payload['__segment_internal_sync_mode']
+        }
+      }
+    }
+
     // Validate the resolved payloads against the schema
     if (this.schema) {
       const schema = this.schema
@@ -348,6 +362,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
+      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
@@ -361,7 +376,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
-        hookOutputs
+        hookOutputs,
+        syncMode: isSyncMode(syncMode) ? syncMode : undefined
       }
       const output = await this.performRequest(this.definition.performBatch, data)
       results[0].data = output as JSONObject
