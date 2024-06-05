@@ -5,7 +5,16 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  SyncMode,
+  SyncModeDefinition
+} from './types'
+import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -93,6 +102,9 @@ export interface ActionDefinition<
       NonNullable<GeneratedActionHookBundle[K]>['inputs']
     >
   }
+
+  /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
+  syncMode?: SyncModeDefinition
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -171,6 +183,10 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   stateContext?: StateContext
 }
 
+const isSyncMode = (value: unknown): value is SyncMode => {
+  return syncModeTypes.find((validValue) => value === validValue) !== undefined
+}
+
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -246,6 +262,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
 
+    // Remove internal hidden field
+    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
+      delete payload['__segment_internal_sync_mode']
+    }
+
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
@@ -264,6 +285,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
+    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -278,7 +301,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
-      hookOutputs
+      hookOutputs,
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined
     }
 
     // Construct the request client and perform the action
@@ -296,6 +320,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+
+    // Remove internal hidden field
+    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
+      for (const payload of payloads) {
+        if (payload) {
+          delete payload['__segment_internal_sync_mode']
+        }
+      }
+    }
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -329,6 +362,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
+      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
@@ -342,7 +376,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
-        hookOutputs
+        hookOutputs,
+        syncMode: isSyncMode(syncMode) ? syncMode : undefined
       }
       const output = await this.performRequest(this.definition.performBatch, data)
       results[0].data = output as JSONObject

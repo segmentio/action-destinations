@@ -1,6 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { ACCESS_TOKEN_URL } from './constants'
 import customAttributesSync from './customAttributesSync'
 import { RefreshTokenResponse } from './types'
 
@@ -23,10 +22,22 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
         description: "Your Personalize project ID to which Segment's data should be synced."
+      },
+      personalizeApiBaseUrl: {
+        label: 'Personalize API base URL',
+        type: 'string',
+        required: true,
+        description: 'Your region-based personalize API base URL.'
+      },
+      personalizeEdgeApiBaseUrl: {
+        label: 'Personalize Edge API base URL',
+        type: 'string',
+        required: true,
+        description: 'Your region-based personalize-edge API base URL.'
       }
     },
     refreshAccessToken: async (request, { auth }) => {
-      const res = await request<RefreshTokenResponse>(ACCESS_TOKEN_URL, {
+      const res = await request<RefreshTokenResponse>(auth.refreshTokenUrl || '', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

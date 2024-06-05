@@ -37,6 +37,8 @@ export interface ExecuteInput<
   hookOutputs?: Partial<Record<ActionHookType, ActionHookOutputs>>
   /** The page used in dynamic field requests */
   page?: string
+  /** The subscription sync mode */
+  syncMode?: SyncMode
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
   /**
@@ -191,17 +193,34 @@ export interface InputField extends InputFieldJSONSchema {
   depends_on?: DependsOnConditions
 }
 
+/** Base interface for conditions  */
+interface BaseCondition {
+  operator: 'is' | 'is_not'
+}
+
 /**
- * A single condition defining whether a field should be shown.
+ * A single condition defining whether a field should be shown based on the value of the field specified by `fieldKey`.
  * fieldKey: The field key in the fields object to look at
  * operator: The operator to use when comparing the field value
  * value: The value we expect that field to have, if undefined, we will match based on whether the field contains a value or not
  */
-export interface Condition {
+export interface FieldCondition extends BaseCondition {
   fieldKey: string
-  operator: 'is' | 'is_not'
+  type?: 'field' // optional for backwards compatibility
   value: Omit<FieldValue, 'Directive'> | Array<Omit<FieldValue, 'Directive'>> | undefined
 }
+
+/**
+ * A single condition defining whether a field should be shown based on the current sync mode.
+ * operator: The operator to use when comparing the sync mode
+ * value: The value to compare against, if undefined, we will match based on whether a sync mode is set or not
+ */
+export interface SyncModeCondition extends BaseCondition {
+  type: 'syncMode'
+  value: SyncMode
+}
+
+export type Condition = FieldCondition | SyncModeCondition
 
 /**
  * If match is not set, it will default to 'all'
@@ -263,3 +282,26 @@ export type Deletion<Settings, Return = any> = (
   request: RequestClient,
   data: ExecuteInput<Settings, DeletionPayload>
 ) => MaybePromise<Return>
+
+/** The supported sync mode values  */
+export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const
+export type SyncMode = typeof syncModeTypes[number]
+
+export interface SyncModeOption {
+  /** The human-readable label for this option */
+  label: string
+  /** The value of this option */
+  value: SyncMode
+}
+
+/** An action sync mode definition */
+export interface SyncModeDefinition {
+  /** The default sync mode that will be selected */
+  default: SyncMode
+  /** The human-readable label for this setting  */
+  label: string
+  /** The human-friendly description of the setting */
+  description: string
+  /** The available sync mode choices */
+  choices: SyncModeOption[]
+}
