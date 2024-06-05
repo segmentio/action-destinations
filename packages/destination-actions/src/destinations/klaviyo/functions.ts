@@ -12,7 +12,8 @@ import {
   SubscribeEventData,
   UnsubscribeProfile,
   UnsubscribeEventData,
-  GroupedProfiles
+  GroupedProfiles,
+  AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -72,7 +73,7 @@ export async function createProfile(
   request: RequestClient,
   email: string | undefined,
   external_id: string | undefined,
-  additionalAttributes: Record<string, string | object>
+  additionalAttributes: AdditionalAttributes
 ) {
   try {
     const profileData: ProfileData = {
