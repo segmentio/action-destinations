@@ -365,5 +365,6 @@ export const consent: InputField = {
   description: 'Segment event consent category preferences.',
   type: 'object',
   default: { '@path': '$.context.consent' },
-  additionalProperties: true
+  additionalProperties: true,
+  unsafe_hidden: true
 }
