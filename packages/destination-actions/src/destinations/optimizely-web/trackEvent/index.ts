@@ -167,28 +167,42 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings, stateContext}) => {
 
     if(!stateContext) {
-      throw new IntegrationError('State Context is not available', 'MISSING_STATE_CONTEXT', 400)
+      throw new IntegrationError('stateContext is not available', 'MISSING_STATE_CONTEXT', 400)
     }
 
-    const client = new OptimizelyWebClient(request, stateContext)
-    const { eventType, endUserId, eventName, category, type, projectID, timestamp, properties, uuid, tags = {} } = payload;
-    const { value, revenue, quantity } = tags;
-    const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
-    
-    let entity_id = client.getEventIdFromCache(event_name)
+    const { 
+      eventType, 
+      endUserId, 
+      eventName: friendlyEventName, 
+      category, 
+      type, 
+      projectID, 
+      timestamp, 
+      properties, 
+      uuid, 
+      tags: { value, revenue, quantity } = {} 
+    } = payload;
 
-    if(!entity_id && payload.createEventIfNotFound !== 'DO_NOT_CREATE') {
-        await client.updateCachedEventNames(projectID)
-        entity_id = client.getEventIdFromCache(event_name)
-        if(!entity_id) { 
-          await client.createEvent(projectID, event_name, eventName, category)
-          await client.updateCachedEventNames(projectID)
-          entity_id = client.getEventIdFromCache(event_name)
+    const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(friendlyEventName) : friendlyEventName
+    
+    const client = new OptimizelyWebClient(request, projectID, stateContext)
+
+    let event = client.getEventFromCache(event_name)
+
+    if(typeof event === 'undefined' && payload.createEventIfNotFound !== 'DO_NOT_CREATE') {
+        event = await client.getEventFromOptimzely(event_name)
+        
+        if(typeof event === 'undefined') { 
+          event = await client.createEvent(event_name, friendlyEventName, category)
+          if(!event) {
+            throw new IntegrationError(`Enable to create event with name ${event_name} in Optimizely`, 'EVENT_CREATION_ERROR', 400)
+          }
+          await client.updateCache(event)
         }
     }
 
-    if(!entity_id) {
-      throw new IntegrationError(`Event with name ${eventName} not found`, 'EVENT_NOT_FOUND', 400)
+    if(typeof event === 'undefined') {
+      throw new IntegrationError(`Event with name ${event_name} not found`, 'EVENT_NOT_FOUND', 400)
     }
 
     const body: Body = {
@@ -202,8 +216,8 @@ const action: ActionDefinition<Settings, Payload> = {
               decisions: [], // should be empty array
               events: [
                 {
-                  entity_id,
-                  key: eventName ?? eventType === 'page' ? 'page_viewed' : undefined,
+                  entity_id: event.id,
+                  key: event_name ?? eventType === 'page' ? 'page_viewed' : undefined,
                   timestamp,
                   uuid,
                   type,
@@ -212,7 +226,7 @@ const action: ActionDefinition<Settings, Payload> = {
                     value,
                     quantity
                   },
-                  properties: {...omit(properties, ['value', 'revenue', 'quantity', 'currency'])} ?? {}
+                  properties: {...omit(properties, ['value', 'revenue', 'quantity', 'currency'])}
                 }
               ]
             }
