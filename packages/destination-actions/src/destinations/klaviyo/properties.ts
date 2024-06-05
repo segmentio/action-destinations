@@ -47,35 +47,35 @@ export const first_name: InputField = {
   label: 'First Name',
   description: `Individual's first name.`,
   type: 'string',
-  default: { '@path': '$.traits.firstName' }
+  default: { '@path': '$.context.traits.firstName' }
 }
 
 export const last_name: InputField = {
   label: 'Last Name',
   description: `Individual's last name.`,
   type: 'string',
-  default: { '@path': '$.traits.lastName' }
+  default: { '@path': '$.context.traits.lastName' }
 }
 
 export const organization: InputField = {
   label: 'Organization',
   description: `Name of the company or organization within the company for whom the individual works.`,
   type: 'string',
-  default: { '@path': '$.traits.company.name' }
+  default: { '@path': '$.context.traits.company.name' }
 }
 
 export const title: InputField = {
   label: 'Title',
   description: `Individual's job title.`,
   type: 'string',
-  default: { '@path': '$.traits.title' }
+  default: { '@path': '$.context.traits.title' }
 }
 
 export const image: InputField = {
   label: 'Image',
   description: `URL pointing to the location of a profile image.`,
   type: 'string',
-  default: { '@path': '$.traits.avatar' }
+  default: { '@path': '$.context.traits.avatar' }
 }
 
 export const location: InputField = {
@@ -125,11 +125,11 @@ export const location: InputField = {
     }
   },
   default: {
-    city: { '@path': '$.traits.address.city' },
-    region: { '@path': '$.traits.address.state' },
-    zip: { '@path': '$.traits.address.postal_code' },
-    address1: { '@path': '$.traits.address.street' },
-    country: { '@path': '$.traits.address.country' }
+    city: { '@path': '$.context.traits.address.city' },
+    region: { '@path': '$.context.traits.address.state' },
+    zip: { '@path': '$.context.traits.address.postal_code' },
+    address1: { '@path': '$.context.traits.address.street' },
+    country: { '@path': '$.context.traits.address.country' }
   }
 }
 
@@ -137,5 +137,5 @@ export const properties: InputField = {
   description: 'An object containing key/value pairs for any custom properties assigned to this profile.',
   label: 'Properties',
   type: 'object',
-  default: { '@path': '$.properties' }
+  default: { '@path': '$.context.properties' }
 }

@@ -94,7 +94,7 @@ export async function createProfile(
     return rs.data.id
   } catch (error) {
     const { response } = error as KlaviyoAPIError
-    if (response.status == 409) {
+    if (response?.status == 409) {
       const rs = await response.json()
       return rs.errors[0].meta.duplicate_profile_id
     }
