@@ -6,6 +6,11 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {
+            "testType": "cZE8HyAL0!BF#)WQb^",
+          },
+        },
         "groupId": "cZE8HyAL0!BF#)WQb^",
         "integrations": Object {
           "All": false,
@@ -30,6 +35,9 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {},
+        },
         "groupId": "cZE8HyAL0!BF#)WQb^",
         "integrations": Object {
           "All": false,
@@ -52,6 +60,9 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "consent": Object {
+          "testType": "hIC1OAmWa[Q!&d%o",
+        },
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
           "All": false,
@@ -76,6 +87,7 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "consent": Object {},
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
           "All": false,
@@ -99,6 +111,7 @@ Object {
       Object {
         "anonymousId": undefined,
         "context": Object {
+          "consent": Object {},
           "externalIds": Array [
             Object {
               "collection": "users",
@@ -149,6 +162,7 @@ Object {
       Object {
         "anonymousId": undefined,
         "context": Object {
+          "consent": Object {},
           "externalIds": Array [
             Object {
               "collection": "users",

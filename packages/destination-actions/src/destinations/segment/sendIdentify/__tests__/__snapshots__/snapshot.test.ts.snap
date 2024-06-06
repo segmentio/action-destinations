@@ -20,6 +20,9 @@ Object {
             "source": "l1ibvt$6IJOK*&*ZgReE",
             "term": "l1ibvt$6IJOK*&*ZgReE",
           },
+          "consent": Object {
+            "testType": "l1ibvt$6IJOK*&*ZgReE",
+          },
           "device": Object {
             "adTracking_Enabled": false,
             "advertising_id": "l1ibvt$6IJOK*&*ZgReE",
@@ -88,6 +91,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "l1ibvt$6IJOK*&*ZgReE",
           "ip": undefined,
