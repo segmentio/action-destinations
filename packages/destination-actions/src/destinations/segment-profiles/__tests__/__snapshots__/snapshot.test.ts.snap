@@ -198,6 +198,11 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {
+            "testType": "[2uovRzxThJj",
+          },
+        },
         "event": "[2uovRzxThJj",
         "integrations": Object {
           "All": false,
@@ -222,6 +227,9 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {},
+        },
         "event": "[2uovRzxThJj",
         "integrations": Object {
           "All": false,
