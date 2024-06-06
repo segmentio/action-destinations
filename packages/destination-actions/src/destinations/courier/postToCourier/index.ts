@@ -1,6 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { getDomain } from '..'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward to Courier',
@@ -35,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Event type must be either track, group or identify')
     }
 
-    const domain = `https://api.${settings.region === 'EU' ? 'eu.' : ''}courier.com`
+    const domain = getDomain(settings.region)
 
     return request(`${domain}/inbound/segment`, {
       method: 'POST',
