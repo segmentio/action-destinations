@@ -17,8 +17,7 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  },
-  readOnly: true
+  }
 }
 
 export const external_id: InputField = {
