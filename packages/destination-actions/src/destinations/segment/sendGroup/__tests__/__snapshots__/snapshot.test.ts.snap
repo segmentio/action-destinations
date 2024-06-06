@@ -27,6 +27,9 @@ Array [
               "source": "92N!&JfP",
               "term": "92N!&JfP",
             },
+            "consent": Object {
+              "testType": "92N!&JfP",
+            },
             "device": Object {
               "adTracking_Enabled": true,
               "advertising_id": "92N!&JfP",
@@ -96,6 +99,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "ip": undefined,
           "locale": undefined,

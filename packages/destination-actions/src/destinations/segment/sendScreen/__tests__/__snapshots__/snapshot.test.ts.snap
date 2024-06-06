@@ -20,6 +20,9 @@ Object {
             "source": "O3*7wUzuzQ",
             "term": "O3*7wUzuzQ",
           },
+          "consent": Object {
+            "testType": "O3*7wUzuzQ",
+          },
           "device": Object {
             "adTracking_Enabled": true,
             "advertising_id": "O3*7wUzuzQ",
@@ -89,6 +92,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "O3*7wUzuzQ",
           "ip": undefined,

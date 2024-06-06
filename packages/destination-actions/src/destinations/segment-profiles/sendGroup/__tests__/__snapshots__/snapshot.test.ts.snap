@@ -6,6 +6,11 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "tKaa(2A",
+        "context": Object {
+          "consent": Object {
+            "testType": "tKaa(2A",
+          },
+        },
         "groupId": "tKaa(2A",
         "integrations": Object {
           "All": false,
@@ -30,6 +35,9 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "tKaa(2A",
+        "context": Object {
+          "consent": Object {},
+        },
         "groupId": "tKaa(2A",
         "integrations": Object {
           "All": false,
