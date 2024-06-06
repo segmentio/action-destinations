@@ -22,14 +22,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const domain = `https://api.${settings.region === 'EU' ? 'eu.' : ''}courier.com`
-    const headers = {
-      Authorization: `Bearer ${settings.apiKey}`,
-      'Content-Type': 'application/json'
-    }
 
     return request(`${domain}/inbound/segment`, {
       method: 'POST',
-      headers,
       json: payload.data
     })
   }
