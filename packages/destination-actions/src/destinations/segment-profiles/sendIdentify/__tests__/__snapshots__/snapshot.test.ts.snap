@@ -6,6 +6,9 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
+        "consent": Object {
+          "testType": "mV[ZQcEVgZO$MX",
+        },
         "groupId": "mV[ZQcEVgZO$MX",
         "integrations": Object {
           "All": false,
@@ -30,6 +33,7 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
+        "consent": Object {},
         "groupId": "mV[ZQcEVgZO$MX",
         "integrations": Object {
           "All": false,

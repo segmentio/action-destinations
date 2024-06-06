@@ -16,7 +16,8 @@ import {
   android_push_subscription_status,
   ios_push_subscription_status,
   ios_push_token,
-  message_id
+  message_id,
+  consent
 } from './subscription-properties'
 import {
   InvalidSubscriptionStatusError,
@@ -280,7 +281,8 @@ const action: ActionDefinition<Settings, Payload> = {
     ios_push_subscription_status,
     traits,
     timestamp,
-    message_id
+    message_id,
+    consent
   },
   perform: (_request, { payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
@@ -302,7 +304,10 @@ const action: ActionDefinition<Settings, Payload> = {
       context: {
         messaging_subscriptions: messagingSubscriptions,
         externalIds,
-        messaging_subscriptions_retl: true
+        messaging_subscriptions_retl: true,
+        consent: {
+          ...payload?.consent
+        }
       },
       timestamp: payload?.timestamp,
       integrations: {

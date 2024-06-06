@@ -20,6 +20,9 @@ Object {
             "source": "(m6Ifxh1N4",
             "term": "(m6Ifxh1N4",
           },
+          "consent": Object {
+            "testType": "(m6Ifxh1N4",
+          },
           "device": Object {
             "adTracking_Enabled": true,
             "advertising_id": "(m6Ifxh1N4",
@@ -88,6 +91,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "ip": undefined,
           "locale": undefined,
@@ -131,6 +135,9 @@ Object {
             "name": ")#1JCeQHYVLgzRan",
             "source": ")#1JCeQHYVLgzRan",
             "term": ")#1JCeQHYVLgzRan",
+          },
+          "consent": Object {
+            "testType": ")#1JCeQHYVLgzRan",
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -200,6 +207,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": ")#1JCeQHYVLgzRan",
           "ip": undefined,
@@ -243,6 +251,9 @@ Object {
             "name": "qB3uqzs44u!@O",
             "source": "qB3uqzs44u!@O",
             "term": "qB3uqzs44u!@O",
+          },
+          "consent": Object {
+            "testType": "qB3uqzs44u!@O",
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -320,6 +331,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "qB3uqzs44u!@O",
           "ip": undefined,
@@ -372,6 +384,9 @@ Object {
             "name": "s62Sv8d1C1w",
             "source": "s62Sv8d1C1w",
             "term": "s62Sv8d1C1w",
+          },
+          "consent": Object {
+            "testType": "s62Sv8d1C1w",
           },
           "device": Object {
             "adTracking_Enabled": true,
@@ -442,6 +457,7 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {},
           "device": undefined,
           "groupId": "s62Sv8d1C1w",
           "ip": undefined,

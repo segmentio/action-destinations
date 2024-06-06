@@ -1,7 +1,16 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, group_id, traits, engage_space, timestamp, message_id } from '../segment-properties'
+import {
+  user_id,
+  anonymous_id,
+  group_id,
+  traits,
+  engage_space,
+  timestamp,
+  message_id,
+  consent
+} from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -15,7 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id: { ...group_id, required: true },
     traits,
     timestamp,
-    message_id
+    message_id,
+    consent
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -35,7 +45,12 @@ const action: ActionDefinition<Settings, Payload> = {
         // to any destinations which is connected to the Segment Profiles space.
         All: false
       },
-      type: 'group'
+      type: 'group',
+      context: {
+        consent: {
+          ...payload?.consent
+        }
+      }
     }
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendGroup`])
