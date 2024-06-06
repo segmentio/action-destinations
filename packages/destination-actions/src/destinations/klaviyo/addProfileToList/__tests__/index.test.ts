@@ -331,9 +331,7 @@ describe('Add Profile To List Batch', () => {
           batch_size: 10000,
           list_id: listId,
           email: 'valid@example.com',
-          enable_batching: true,
-          location: {},
-          properties: {}
+          enable_batching: true
         }
       ],
       listId
