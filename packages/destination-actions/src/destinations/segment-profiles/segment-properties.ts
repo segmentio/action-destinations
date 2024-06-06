@@ -67,3 +67,12 @@ export const properties: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  additionalProperties: true,
+  unsafe_hidden: true
+}
