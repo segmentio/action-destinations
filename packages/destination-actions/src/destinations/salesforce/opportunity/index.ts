@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import {
   bulkUpsertExternalId,
   bulkUpdateRecordId,
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     customFields: customFields
   },
   perform: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
       if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {

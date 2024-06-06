@@ -131,10 +131,30 @@ test('operators - equals (numbers)', () => {
       ]
     }
 
-    // Since action tester UI only supports string type input, we assume the value in the ast is a string for now (i.e. 123 !== "123")
     expect(validate(ast, { properties: { value: 123 } })).toEqual(false)
-
     expect(validate(ast, { properties: { value: '123' } })).toEqual(true)
+    expect(validate(ast, { properties: { value: 0 } })).toEqual(false)
+  }
+})
+
+test('operators -  number_equals (numbers)', () => {
+  for (const value of ['123', 123]) {
+    const ast = {
+      type: 'group',
+      operator: 'and',
+      children: [
+        {
+          type: 'event-property',
+          name: 'value',
+          operator: 'number_equals',
+          value
+        }
+      ]
+    }
+
+    expect(validate(ast, { properties: { value: 123 } })).toEqual(true)
+
+    expect(validate(ast, { properties: { value: '123' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 0 } })).toEqual(false)
   }
 })

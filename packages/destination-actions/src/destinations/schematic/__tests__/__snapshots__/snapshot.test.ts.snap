@@ -2,11 +2,11 @@
 
 exports[`Testing snapshot for actions-schematic destination: identifyUser action - all fields 1`] = `
 Object {
+  "api_key": "G10lVP",
   "body": Object {
     "company": Object {
       "keys": Object {
-        "groupId": "G10lVP",
-        "organization_id": "G10lVP",
+        "testType": "G10lVP",
       },
       "name": "G10lVP",
       "traits": Object {
@@ -14,52 +14,61 @@ Object {
       },
     },
     "keys": Object {
-      "email_address": "G10lVP",
-      "userId": "G10lVP",
+      "user_id": "G10lVP",
     },
     "name": "G10lVP",
     "traits": Object {
       "testType": "G10lVP",
     },
   },
-  "event_type": "identify",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: identifyUser action - required fields 1`] = `
 Object {
+  "api_key": "G10lVP",
   "body": Object {
-    "company": Object {},
+    "company": Object {
+      "keys": Object {
+        "testType": "G10lVP",
+      },
+    },
     "keys": Object {},
   },
-  "event_type": "identify",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "identify",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: trackEvent action - all fields 1`] = `
 Object {
+  "api_key": "uvfeUI#M",
   "body": Object {
     "company": Object {
-      "groupId": "uvfeUI#M",
-      "organization_id": "uvfeUI#M",
-    },
-    "event": "uvfeUI#M",
-    "traits": Object {
       "testType": "uvfeUI#M",
     },
+    "event": "uvfeui#m",
+    "traits": Object {
+      "raw_event_name": "uvfeUI#M",
+    },
     "user": Object {
-      "userId": "uvfeUI#M",
+      "user_id": "uvfeUI#M",
     },
   },
-  "event_type": "track",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "track",
 }
 `;
 
 exports[`Testing snapshot for actions-schematic destination: trackEvent action - required fields 1`] = `
 Object {
+  "api_key": "uvfeUI#M",
   "body": Object {
-    "event": "uvfeUI#M",
+    "event": "uvfeui#m",
   },
-  "event_type": "track",
+  "sent_at": "2023-01-01T00:00:00.000Z",
+  "type": "track",
 }
 `;

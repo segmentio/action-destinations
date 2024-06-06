@@ -103,7 +103,8 @@ describe('shared', () => {
       expect(result).toEqual({
         Authorization: 'Bearer real-token',
         'Content-Type': 'application/json',
-        'Login-Customer-Id': 'products/DISPLAY_VIDEO_ADVERTISER/customers/123'
+        'Login-Customer-Id': 'products/DATA_PARTNER/customers/1663649500',
+        'Linked-Customer-Id': 'products/DISPLAY_VIDEO_ADVERTISER/customers/123'
       })
     })
   })

@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -12,6 +13,7 @@ const createEventData = (payload: Payload) => ({
       properties: { ...payload.properties },
       time: payload.time,
       value: payload.value,
+      unique_id: payload.unique_id,
       metric: {
         data: {
           type: 'metric',
@@ -32,21 +34,40 @@ const createEventData = (payload: Payload) => ({
   }
 })
 
-const sendProductRequests = async (payload: Payload, eventData: EventData, request: RequestClient) => {
-  if (payload.products && Array.isArray(payload.products)) {
-    const productPromises = payload?.products?.map((product) => {
-      eventData.data.attributes.properties = product.properties
-      eventData.data.attributes.value = product.value
-      eventData.data.attributes.metric.data.attributes.name = 'Ordered Product'
-
-      return request(`${API_URL}/events/`, {
-        method: 'POST',
-        json: eventData
-      })
-    })
-
-    await Promise.all(productPromises)
+const sendProductRequests = async (payload: Payload, orderEventData: EventData, request: RequestClient) => {
+  if (!payload.products || !Array.isArray(payload.products)) {
+    return
   }
+
+  delete orderEventData.data.attributes.properties?.products
+  const productPromises = payload.products.map((product) => {
+    const productEventData = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { ...product, ...orderEventData.data.attributes.properties },
+          unique_id: uuidv4(),
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'Ordered Product'
+              }
+            }
+          },
+          time: orderEventData.data.attributes.time,
+          profile: orderEventData.data.attributes.profile
+        }
+      }
+    }
+
+    return request(`${API_URL}/events/`, {
+      method: 'POST',
+      json: productEventData
+    })
+  })
+
+  await Promise.all(productPromises)
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -115,19 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Products',
       description: 'List of products purchased in the order.',
       multiple: true,
-      type: 'object',
-      properties: {
-        value: {
-          label: 'Value',
-          description: 'A numeric value to associate with this event. For example, the dollar amount of a purchase.',
-          type: 'number'
-        },
-        properties: {
-          description: `Properties of this event.`,
-          label: 'Properties',
-          type: 'object'
-        }
-      }
+      type: 'object'
     }
   },
 

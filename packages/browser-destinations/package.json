@@ -34,7 +34,7 @@
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
     "@size-limit/preset-big-lib": "^11.0.1",
-    "@types/gtag.js": "^0.0.13",
+    "@types/gtag.js": "^0.0.19",
     "@types/jest": "^27.0.0",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.3.0",
@@ -84,7 +84,7 @@
   "size-limit": [
     {
       "path": "dist/web/*/*.js",
-      "limit": "150 KB"
+      "limit": "152 KB"
     }
   ]
 }

@@ -233,4 +233,12 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId.
+   */
+  message_id?: string
+  /**
+   * This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   */
+  enable_batching?: boolean
 }

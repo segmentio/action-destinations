@@ -76,7 +76,7 @@ describe('Kevel.syncAudience', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should not throw an error if the audience creation succeed - track', async () => {
+  it('should not throw an error if the audience creation succeed - identify', async () => {
     const userId = 'uid1'
     const networkId1 = 'networkId1'
     const baseUrl = `https://e-${networkId1}.adzerk.net/udb/${networkId1}`

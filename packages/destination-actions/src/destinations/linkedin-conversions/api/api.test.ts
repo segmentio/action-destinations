@@ -2,10 +2,166 @@ import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import { LinkedInConversions } from '../api'
 import { BASE_URL } from '../constants'
+import { HookBundle } from '../streamConversion/generated-types'
 
 const requestClient = createRequestClient()
 
 describe('LinkedIn Conversions', () => {
+  describe('conversionRule methods', () => {
+    const linkedIn: LinkedInConversions = new LinkedInConversions(requestClient)
+    const adAccountId = 'urn:li:sponsoredAccount:123456'
+    const hookInputs: HookBundle['onMappingSave']['inputs'] = {
+      adAccountId,
+      name: 'A different name that should trigger an update',
+      conversionType: 'PURCHASE',
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
+    }
+
+    const hookOutputs: HookBundle['onMappingSave']['outputs'] = {
+      id: '56789',
+      name: 'The original name',
+      conversionType: 'LEAD',
+      attribution_type: 'LAST_TOUCH_BY_CONVERSION',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
+    }
+
+    it('should update a conversion rule', async () => {
+      nock(`${BASE_URL}`)
+        .post(`/conversions/${hookOutputs.id}`, {
+          patch: {
+            $set: {
+              name: hookInputs.name,
+              type: hookInputs.conversionType,
+              attributionType: hookInputs.attribution_type
+            }
+          }
+        })
+        .query({
+          account: adAccountId
+        })
+        .reply(204)
+
+      const updateResult = await linkedIn.updateConversionRule(hookInputs, hookOutputs)
+
+      expect(updateResult).toEqual({
+        successMessage: `Conversion rule ${hookOutputs.id} updated successfully!`,
+        savedData: {
+          id: hookOutputs.id,
+          name: hookInputs.name,
+          conversionType: hookInputs.conversionType,
+          attribution_type: hookInputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
+        }
+      })
+    })
+
+    it('should create a conversion rule', async () => {
+      const mockReturnedId = '12345'
+
+      nock(`${BASE_URL}`)
+        .post(`/conversions`, {
+          name: hookInputs.name,
+          account: adAccountId,
+          conversionMethod: 'CONVERSIONS_API',
+          postClickAttributionWindowSize: hookInputs.post_click_attribution_window_size,
+          viewThroughAttributionWindowSize: hookInputs.view_through_attribution_window_size,
+          attributionType: hookInputs.attribution_type,
+          type: hookInputs.conversionType
+        })
+        .reply(201, {
+          id: mockReturnedId,
+          name: hookInputs.name,
+          type: hookInputs.conversionType,
+          attributionType: hookInputs.attribution_type,
+          postClickAttributionWindowSize: hookInputs.post_click_attribution_window_size,
+          viewThroughAttributionWindowSize: hookInputs.view_through_attribution_window_size
+        })
+      const createResult = await linkedIn.createConversionRule(hookInputs)
+
+      expect(createResult).toEqual({
+        successMessage: `Conversion rule ${mockReturnedId} created successfully!`,
+        savedData: {
+          id: mockReturnedId,
+          name: hookInputs.name,
+          conversionType: hookInputs.conversionType,
+          attribution_type: hookInputs.attribution_type,
+          post_click_attribution_window_size: hookInputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookInputs.view_through_attribution_window_size
+        }
+      })
+    })
+
+    it('should use the existing conversionRuleId if passed in and not update anything', async () => {
+      const existingRule = {
+        id: '5678',
+        name: 'Exists already',
+        type: 'PURCHASE',
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 1,
+        viewThroughAttributionWindowSize: 1
+      }
+
+      nock(`${BASE_URL}`)
+        .get(`/conversions/${existingRule.id}`)
+        .query({ account: adAccountId })
+        .reply(200, existingRule)
+
+      const updateResult = await linkedIn.updateConversionRule(
+        { ...hookInputs, conversionRuleId: existingRule.id },
+        hookOutputs
+      )
+
+      expect(updateResult).toEqual({
+        successMessage: `Using existing Conversion Rule: ${existingRule.id} `,
+        savedData: {
+          id: existingRule.id,
+          name: existingRule.name,
+          conversionType: existingRule.type,
+          attribution_type: existingRule.attributionType,
+          post_click_attribution_window_size: existingRule.postClickAttributionWindowSize,
+          view_through_attribution_window_size: existingRule.viewThroughAttributionWindowSize
+        }
+      })
+    })
+
+    it('should pass back an error and the existing savedData if the update request fails', async () => {
+      nock(`${BASE_URL}`)
+        .post(`/conversions/${hookOutputs.id}`, {
+          patch: {
+            $set: {
+              name: hookInputs.name,
+              type: hookInputs.conversionType,
+              attributionType: hookInputs.attribution_type
+            }
+          }
+        })
+        .query({
+          account: adAccountId
+        })
+        .reply(500)
+
+      const updateResult = await linkedIn.updateConversionRule(hookInputs, hookOutputs)
+
+      expect(updateResult).toEqual({
+        error: {
+          message: `Failed to update conversion rule: Internal Server Error`,
+          code: 'CONVERSION_RULE_UPDATE_FAILURE'
+        },
+        savedData: {
+          id: hookOutputs.id,
+          name: hookOutputs.name,
+          conversionType: hookOutputs.conversionType,
+          attribution_type: hookOutputs.attribution_type,
+          post_click_attribution_window_size: hookOutputs.post_click_attribution_window_size,
+          view_through_attribution_window_size: hookOutputs.view_through_attribution_window_size
+        }
+      })
+    })
+  })
   describe('dynamicFields', () => {
     const linkedIn: LinkedInConversions = new LinkedInConversions(requestClient)
 

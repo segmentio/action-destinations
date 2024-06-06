@@ -7,6 +7,7 @@ const spaceId = 'spaceid'
 const contentSid = 'HX1234'
 const pushServiceSid = 'ISXXX'
 const devices = ['android', 'ios']
+const FcmPayload = '{}'
 
 const defaultTemplate = {
   types: {
@@ -49,15 +50,10 @@ const testAction = createTestAction({
 })
 
 const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds']>[number]) => {
-  return new URLSearchParams({
+  const params = new URLSearchParams({
     Body: defaultTemplate.types['twilio/text'].body,
     Title: customizationTitle,
-    FcmPayload: JSON.stringify({
-      mutable_content: true,
-      notification: {
-        badge: 1
-      }
-    }),
+    FcmPayload: JSON.stringify({}),
     ApnPayload: JSON.stringify({
       aps: {
         'mutable-content': 1,
@@ -80,6 +76,8 @@ const getDefaultExpectedNotifyApiReq = (extId: NonNullable<Payload['externalIds'
       __segment_internal_external_id_value__: extId.id
     })
   })
+  params.sort()
+  return params
 }
 
 describe('sendMobilePush action', () => {
@@ -114,6 +112,7 @@ describe('sendMobilePush action', () => {
         'DeliveryCallbackUrl',
         `http://localhost.com/?space_id=spaceid&__segment_internal_external_id_key__=${externalId.type}&__segment_internal_external_id_value__=${externalId.id}#rp=all&rc=600`
       )
+      notifyReqBody.sort()
 
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
       nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalId)
@@ -259,12 +258,7 @@ describe('sendMobilePush action', () => {
       const notifyReqBody = new URLSearchParams({
         Body: 'Welcome to Wadiya General Aladeen!',
         Title: 'Aladeen',
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: 1
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -283,6 +277,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notifyReqBody.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalIds[0])
@@ -310,12 +305,7 @@ describe('sendMobilePush action', () => {
       const notifyReqBody = new URLSearchParams({
         Body: 'I have Aladeeen news',
         Title: 'General',
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: 1
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -334,6 +324,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notifyReqBody.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).post('', notifyReqBody.toString()).reply(201, externalIds[0])
@@ -390,12 +381,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -428,6 +414,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).persist().post('', notificationReq.toString()).reply(201, externalIds[0])
@@ -488,12 +475,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -510,6 +492,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
@@ -533,12 +516,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -565,6 +543,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
@@ -606,12 +585,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -628,6 +602,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(notifyReqUrl).post('', notificationReq.toString()).reply(201, externalIds[0])
@@ -660,12 +635,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -683,6 +653,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, template)
@@ -719,12 +690,7 @@ describe('sendMobilePush action', () => {
         Sound: sound,
         Priority: priority,
         TimeToLive: ttl.toString(),
-        FcmPayload: JSON.stringify({
-          mutable_content: true,
-          notification: {
-            badge: customizations.badgeAmount
-          }
-        }),
+        FcmPayload,
         ApnPayload: JSON.stringify({
           aps: {
             'mutable-content': 1,
@@ -742,6 +708,7 @@ describe('sendMobilePush action', () => {
           __segment_internal_external_id_value__: 'ios-token-1'
         })
       })
+      notificationReq.sort()
 
       const notifyReqUrl = `https://push.ashburn.us1.twilio.com/v1/Services/${pushServiceSid}/Notifications`
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, template)

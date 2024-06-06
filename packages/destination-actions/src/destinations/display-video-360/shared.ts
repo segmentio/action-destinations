@@ -1,7 +1,6 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { OAUTH_URL, USER_UPLOAD_ENDPOINT } from './constants'
+import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
-import type { OAuth2ClientCredentials } from '@segment/actions-core/destination-kit/oauth2'
 
 import {
   UserIdType,
@@ -12,25 +11,32 @@ import {
 } from './proto/protofile'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
-import type { AudienceSettings, Settings } from './generated-types'
+import type { AudienceSettings } from './generated-types'
 
-type SettingsWithOauth = Settings & { oauth: OAuth2ClientCredentials }
+type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
-export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCredentials => {
-  const { oauth } = settings
+export const getAuthSettings = (): DV360AuthCredentials => {
   return {
-    clientId: oauth.clientId,
-    clientSecret: oauth.clientSecret
-  } as OAuth2ClientCredentials
+    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
+    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
+    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+  } as DV360AuthCredentials
 }
 
-export const getAuthToken = async (request: RequestClient, settings: OAuth2ClientCredentials) => {
+// Use the refresh token to get a new access token.
+// Refresh tokens, Client_id and secret are long-lived and belong to the DMP.
+// Given the short expiration time of access tokens, we need to refresh them periodically.
+export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
+  if (!settings.refresh_token) {
+    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
+  }
+
   const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
     method: 'POST',
     body: new URLSearchParams({
-      refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN as string,
-      client_id: settings.clientId,
-      client_secret: settings.clientSecret,
+      refresh_token: settings.refresh_token,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
       grant_type: 'refresh_token'
     })
   })
@@ -47,7 +53,8 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, acc
     // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
-    'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
+    'Login-Customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`,
+    'Linked-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
 }
 

@@ -91,6 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
           properties: { ...payload.properties },
           time: payload.time,
           value: payload.value,
+          unique_id: payload.unique_id,
           metric: {
             data: {
               type: 'metric',

@@ -12,12 +12,7 @@ const expectedExternalID = `products/DISPLAY_VIDEO_ADVERTISER/customers/${advert
 const accountType = 'DISPLAY_VIDEO_ADVERTISER'
 
 const createAudienceInput = {
-  settings: {
-    oauth: {
-      clientId: '123',
-      clientSecret: '123'
-    }
-  },
+  settings: {},
   audienceName: '',
   audienceSettings: {
     advertiserId: advertiserId,
@@ -26,12 +21,7 @@ const createAudienceInput = {
 }
 
 const getAudienceInput = {
-  settings: {
-    oauth: {
-      clientId: '123',
-      clientSecret: '123'
-    }
-  },
+  settings: {},
   audienceSettings: {
     advertiserId: advertiserId,
     accountType: accountType
@@ -58,6 +48,12 @@ const getAudienceResponse = [
 ]
 
 describe('Display Video 360', () => {
+  beforeEach(() => {
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID = 'Clientz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET = 'Scretz'
+    process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN = 'Freshy'
+  })
+
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
@@ -87,6 +83,26 @@ describe('Display Video 360', () => {
       const r = await testDestination.createAudience(createAudienceInput)
       expect(r).toEqual({
         externalId: `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}/userLists/8460733279`
+      })
+    })
+
+    it('should work when advertiserId starts or ends with a space', async () => {
+      createAudienceInput.audienceName = audienceName
+      createAudienceInput.audienceSettings.advertiserId = '                424242'
+
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
+      nock(advertiserCreateAudienceUrl)
+        .post(/.*/)
+        .reply(200, {
+          results: [
+            {
+              resourceName: `products/DISPLAY_VIDEO_ADVERTISER/customers/${advertiserId}/userLists/8460733279`
+            }
+          ]
+        })
+      const r = await testDestination.createAudience(createAudienceInput)
+      expect(r).toEqual({
+        externalId: `products/DISPLAY_VIDEO_ADVERTISER/customers/424242/userLists/8460733279`
       })
     })
 
@@ -156,6 +172,35 @@ describe('Display Video 360', () => {
       nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
 
       const r = await testDestination.getAudience(getAudienceInput)
+      expect(r).toEqual({
+        externalId: expectedExternalID
+      })
+    })
+
+    it('should work when advertiserId starts or ends with a space', async () => {
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      getAudienceInput.audienceSettings.advertiserId = '                424242  '
+      const r = await testDestination.getAudience(getAudienceInput)
+      expect(r).toEqual({
+        externalId: expectedExternalID
+      })
+    })
+
+    it('should succeed when the destination instance is flagged as a migration instance', async () => {
+      // Migrations are now using the OAUTH flow since the credentials belong to Segment and are kept in chamber.
+      // This test is pretty much the same as the previous one, but I'm leaving it here for clarity.
+
+      const migrationGetAudienceInput = {
+        ...getAudienceInput,
+        externalId: expectedExternalID
+      }
+
+      nock(OAUTH_URL).post(/.*/).reply(200, { access_token: 'tok3n' })
+      nock(advertiserGetAudienceUrl).post(/.*/).reply(200, getAudienceResponse)
+
+      const r = await testDestination.getAudience(migrationGetAudienceInput)
       expect(r).toEqual({
         externalId: expectedExternalID
       })

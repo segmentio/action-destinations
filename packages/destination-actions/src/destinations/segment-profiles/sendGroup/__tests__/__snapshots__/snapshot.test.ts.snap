@@ -10,6 +10,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "tKaa(2A",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
           "testType": "tKaa(2A",
@@ -33,6 +34,7 @@ Object {
         "integrations": Object {
           "All": false,
         },
+        "messageId": "tKaa(2A",
         "timestamp": undefined,
         "traits": Object {},
         "type": "group",

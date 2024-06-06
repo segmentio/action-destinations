@@ -119,6 +119,38 @@ describe('FacebookConversionsApi', () => {
         expect(hashed_data.ge).toEqual('62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a')
         expect(hashed_data.db).toEqual(undefined)
       })
+
+      it('if values are already hashed, should not hash again', async () => {
+        const test_payload = {
+          user_data: {
+            email: '2d2fb2388f17f86affee71d632978425a3037fa8eed5b3f2baaa458c80d495ed',
+            phone: '92b5be0b4bcd88dbe1c5f7de1cc3f479fa8a702bd02b9905a5bc14bf66243c05',
+            dateOfBirth: '4f8a154810062809cdb724b8254c2b9886e6ad3bc8b3fdfad4eb97f5b1916efd',
+            gender: '62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a',
+            lastName: '3b67f1c91f4f245f6e219b364782ac53e912420f2284bf6a700e9cf71fbeafac',
+            firstName: 'a628aa64f14c8196c8c82c7ffb6482b2db7431e4cb5b28cd313004ce7ba4eb66',
+            city: 'b37d49779ef2040ccbb357b127d615c75a77ff74645071dbd6ec27ae54cbd912',
+            state: '4b650e5c4785025dee7bd65e3c5c527356717d7a1c0bfef5b4ada8ca1e9cbe17',
+            zip: '860d1f692a318f7ba200f47ab16bcae57e651d51bea0f56d7cef36569c198006',
+            country: '9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d',
+            externalId: ['2221aa193aea3b3fdee120c146c302fdb6ea606dbf4dfc5e1d587ec4b1aedf74']
+          }
+        }
+
+        const hashed_data = hash_user_data(test_payload) as Record<string, string>
+
+        expect(hashed_data.em).toEqual('2d2fb2388f17f86affee71d632978425a3037fa8eed5b3f2baaa458c80d495ed')
+        expect(hashed_data.ph).toEqual('92b5be0b4bcd88dbe1c5f7de1cc3f479fa8a702bd02b9905a5bc14bf66243c05')
+        expect(hashed_data.ge).toEqual('62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a')
+        expect(hashed_data.db).toEqual('4f8a154810062809cdb724b8254c2b9886e6ad3bc8b3fdfad4eb97f5b1916efd')
+        expect(hashed_data.ln).toEqual('3b67f1c91f4f245f6e219b364782ac53e912420f2284bf6a700e9cf71fbeafac')
+        expect(hashed_data.fn).toEqual('a628aa64f14c8196c8c82c7ffb6482b2db7431e4cb5b28cd313004ce7ba4eb66')
+        expect(hashed_data.ct).toEqual('b37d49779ef2040ccbb357b127d615c75a77ff74645071dbd6ec27ae54cbd912')
+        expect(hashed_data.st).toEqual('4b650e5c4785025dee7bd65e3c5c527356717d7a1c0bfef5b4ada8ca1e9cbe17')
+        expect(hashed_data.zp).toEqual('860d1f692a318f7ba200f47ab16bcae57e651d51bea0f56d7cef36569c198006')
+        expect(hashed_data.country).toEqual('9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d')
+        expect(hashed_data.external_id).toEqual(['2221aa193aea3b3fdee120c146c302fdb6ea606dbf4dfc5e1d587ec4b1aedf74'])
+      })
     })
   })
 })

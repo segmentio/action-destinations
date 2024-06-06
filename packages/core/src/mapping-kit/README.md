@@ -65,6 +65,9 @@ Output:
   - [@arrayPath](#array-path)
   - [@case](#case)
   - [@replace](#replace)
+  - [@merge](#merge)
+  - [@transform](#transform)
+  - [@excludeWhenNull](#excludewhennull)
 
 <!-- tocstop -->
 
@@ -208,78 +211,6 @@ Mapping configurations can be validated using JSON Schema. The [test
 suite][schema.test.js] is a good source-of-truth for current implementation behavior.
 
 [schema.test.js]: https://github.com/segmentio/fab-5-engine/blob/master/packages/destination-actions/src/lib/mapping-kit/__tests__
-
-## Options
-
-Options can be passed to the `transform()` function as the third parameter:
-
-```js
-const output = transform(mapping, input, options)
-```
-
-Available options:
-
-```js
-{
-  merge: true // default false
-}
-```
-
-### merge
-
-If true, `merge` will cause the mapped value to be merged onto the input payload. This is useful
-when you only want to map/transform a small number of fields:
-
-```json
-Input:
-
-{
-  "a": {
-    "b": 1
-  },
-  "c": 2
-}
-
-Options:
-
-{
-  "merge": true
-}
-
-Mappings:
-
-{}
-=>
-{
-  "a": {
-    "b": 1
-  },
-  "c": 2
-}
-
-{
-  "a": 3
-}
-=>
-{
-  "a": 3,
-  "c": 2
-}
-
-{
-  "a": {
-    "c": 3
-  }
-}
-=>
-{
-  "a": {
-    "b": 1,
-    "c": 3
-  },
-  "c": 2
-}
-```
 
 ## Removing values from object
 
@@ -637,4 +568,155 @@ Mappings:
 }
 =>
 "just@the-first"
+```
+
+### @merge
+
+The @merge directive resolves a list of objects to a single object. It accepts a list of one or more objects (either raw objects or directives that resolve to objects), and a direction that determines how overwrites will be applied for duplicate keys. The resolved object is built by combining each object in turn, moving in the specified direction, overwriting any duplicate keys.
+
+```json
+Input:
+
+{
+  "traits": {
+    "name": "Mr. Rogers",
+    "greeting": "Neighbor",
+    "neighborhood": "Latrobe"
+
+  },
+  "properties": {
+    "neighborhood": "Make Believe"
+  }
+}
+
+Mappings:
+
+{
+  "@merge": {
+    "objects": [
+      { "@path": "traits" },
+      { "@path": "properties" }
+    ],
+    "direction": "right"
+  }
+}
+=>
+{
+  "name": "Mr. Rogers",
+  "greeting": "Neighbor",
+  "neighborhood": "Make Believe"
+}
+
+{
+  "@merge": {
+    "objects": [
+      { "@path": "properties" },
+      { "@path": "traits" }
+    ],
+    "direction": "right"
+  }
+}
+=>
+{
+  "name": "Mr. Rogers",
+  "greeting": "Neighbor",
+  "neighborhood": "Latrobe"
+}
+```
+
+The @merge directive is especially useful for providing default values:
+
+```json
+Input:
+
+{
+  "traits": {
+    "name": "Mr. Rogers"
+  }
+}
+
+Mapping:
+
+{
+  "@merge": {
+    "objects": [
+      {
+        "name": "Missing name",
+        "neighborhood": "Missing neighborhood"
+      },
+      { "@path": "traits" }
+    ],
+    "direction": "right"
+  }
+}
+
+Output:
+
+{
+  "name": "Mr. Rogers",
+  "neighborhood": "Missing neighborhood"
+}
+```
+
+### @transform
+
+The @transform directive allows you to operate on the result of a mapping-kit transformation. It accepts an `apply` parameter, which is the mapping to apply to the original payload, and a `mapping` parameter, which will be run on the resulting payload. The @transform directive is useful when you need to run mappings in sequence.
+
+```json
+Input:
+
+{
+  "a": 1,
+  "b": 2
+}
+
+Mappings:
+{
+  "@transform": {
+    "apply": {
+      "foo": {
+        "@path": "$.a"
+      }
+    },
+    "mapping": {
+      "newValue": { "@path": "$.foo" }
+    }
+  }
+}
+=>
+{
+  "newValue": 1
+}
+```
+
+### @excludeWhenNull
+
+The @excludeWhenNull directive will exclude the field from the output if the resolved value is `null`.
+
+```json
+Input:
+
+{
+  "a": null,
+  "b": "hello"
+}
+
+Mappings:
+
+{
+  "a": {
+    "@excludeWhenNull": {
+      "@path": "$.a"
+    }
+  },
+  "b": {
+    "@excludeWhenNull": {
+      "@path": "$.b"
+    }
+  }
+}
+=>
+{
+  "b": "hello"
+}
 ```

@@ -6,10 +6,10 @@ import syncAudience from './syncAudience'
 import syncTraits from './syncTraits'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Kevel (Actions)',
+  name: 'Kevel UserDB (Actions)',
   slug: 'actions-kevel',
   description:
-    'Send Segment user profiles and Segment Audiences to Kevel. Only users with a Segment userId will be synced.',
+    'Send Segment user profiles and Audiences to Kevel UserDB for campaign targeting. Only users with a Segment userId will be synced.',
   mode: 'cloud',
 
   authentication: {
