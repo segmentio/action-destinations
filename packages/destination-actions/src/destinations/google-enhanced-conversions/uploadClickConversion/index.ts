@@ -304,12 +304,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.phone_number) {
-      
-      // remove '+' from phone number if received in payload duplicacy and add '+' 
-      payload.phone_number = '+' + payload.phone_number.split('+').join('')
-      
+      // remove '+' from phone number if received in payload duplicacy and add '+'
+      const phoneNumber = '+' + payload.phone_number.split('+').join('')
+
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
       } as UserIdentifierInterface)
     }
 
