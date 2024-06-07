@@ -136,5 +136,5 @@ export const properties: InputField = {
   description: 'An object containing key/value pairs for any custom properties assigned to this profile.',
   label: 'Properties',
   type: 'object',
-  default: { '@path': '$.context.properties' }
+  default: { '@path': '$.properties.properties' }
 }
