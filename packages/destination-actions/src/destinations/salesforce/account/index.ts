@@ -34,6 +34,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.traits.name'
+      },
+      depends_on: {
+        match: 'any',
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          },
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'upsert'
+          }
+        ]
       }
     },
     account_number: {

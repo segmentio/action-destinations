@@ -31,17 +31,62 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Close Date',
       description:
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        match: 'any',
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          },
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'upsert'
+          }
+        ]
+      }
     },
     name: {
       label: 'Name',
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        match: 'any',
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          },
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'upsert'
+          }
+        ]
+      }
     },
     stage_name: {
       label: 'Stage Name',
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        match: 'any',
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          },
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'upsert'
+          }
+        ]
+      }
     },
     amount: {
       label: 'Amount',
