@@ -1,11 +1,12 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
-import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
+import { InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
-  AUTHORIZATION_URL,
   extractNumberAndSubstituteWithStringValue,
+  getAuthSettings,
+  getAuthToken,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
 } from './utils'
@@ -56,37 +57,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
-      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-      try {
-        const res = await request<RefreshTokenResponse>(`${endpoint}/auth/o2/token`, {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
-            grant_type: 'refresh_token'
-          }),
-          headers: {
-            // Amazon ads refresh token API throws error with authorization header so explicity overriding Authorization header here.
-            authorization: ''
-          }
-        })
-
-        return { accessToken: res.data.access_token }
-      } catch (e: any) {
-        const error = e as AmazonRefreshTokenError
-        if (error.response?.data?.error === 'invalid_grant') {
-          throw new InvalidAuthenticationError(
-            `Invalid Authentication: Your refresh token is invalid or expired. Please re-authenticate to fetch a new refresh token.`,
-            ErrorCodes.REFRESH_TOKEN_EXPIRED
-          )
-        }
-
-        throw new InvalidAuthenticationError(
-          `Failed to fetch a new access token. Reason: ${error.response?.data?.error}`,
-          ErrorCodes.OAUTH_REFRESH_FAILED
-        )
-      }
+      const authToken = await getAuthToken(request, settings, auth)
+      return { accessToken: authToken }
     }
   },
 
@@ -166,8 +138,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings } = createAudienceInput
-      const endpoint = createAudienceInput.settings.region
+      const { audienceName, statsContext, audienceSettings, settings } = createAudienceInput
+      const { statsClient, tags: statsTags } = statsContext || {}
+      const endpoint = settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
       const external_audience_id = audienceSettings?.externalAudienceId
@@ -175,6 +148,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const ttl = audienceSettings?.ttl
       const currency = audienceSettings?.currency
       const cpm_cents = audienceSettings?.cpmCents
+
+      const statsName = 'createAmazonAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      statsTags?.push(`ttl_type:${typeof ttl}_${ttl}`)
+      statsTags?.push(`cpmcents_type:${typeof cpm_cents}_${cpm_cents}`)
+      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
@@ -227,6 +206,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
+      statsTags?.push(`slug:${destination.slug}`)
+      // @ts-ignore - TS doesn't know about the oauth property
+      statsTags?.push(`Oauth_refresh:${settings.oauth?.refresh_token}`)
+      // @ts-ignore - TS doesn't know about the oauth property
+      statsTags?.push(`Oauth_access:${settings.oauth?.access_token}`)
+      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
+      const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
+
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
@@ -236,7 +226,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         body: payloadString,
         headers: {
-          'Content-Type': 'application/vnd.amcaudiences.v1+json'
+          'Content-Type': 'application/vnd.amcaudiences.v1+json',
+          authorization: `Bearer ${authToken}`
         }
       })
 
@@ -251,13 +242,29 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
-      const endpoint = getAudienceInput.settings.region
+      const { settings, statsContext } = getAudienceInput
+      const endpoint = settings.region
+      const { statsClient, tags: statsTags } = statsContext || {}
+
+      const statsName = 'getAudience'
+      statsTags?.push(`slug:${destination.slug}`)
+      // @ts-ignore - TS doesn't know about the oauth property
+      statsTags?.push(`Oauth_refresh:${settings.oauth?.refresh_token}`)
+      // @ts-ignore - TS doesn't know about the oauth property
+      statsTags?.push(`Oauth_access:${settings.oauth?.access_token}`)
+      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
+      const authToken = await getAuthToken(request, settings, authSettings)
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          authorization: `Bearer ${authToken}`
+        }
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
