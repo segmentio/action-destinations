@@ -43,7 +43,7 @@ const settings = {
 }
 
 describe('AmazonAds.syncAudiencesToDSP', () => {
-  it('Should add user to audience when event traits_or_props is set to true', async () => {
+  it('Should add user to audience when Event is Audience Entered', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -54,11 +54,12 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       settings,
       useDefaultMappings: true
     })
+
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
@@ -73,8 +74,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       event: {
         ...event,
         properties: {
-          audience_key: 'amazon_ads_audience_6_may_24',
-          amazon_ads_audience_6_may_24: true,
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
           email: 'gaurav.kochar@gmail.com',
           phone: '21321312313',
           first_name: 'gaurav',
@@ -89,12 +90,12 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"15b436489faf367dadf946cfe311d44b6621814e1aacc4f8acfdf0c29a068b11"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
 
-  it('Should delete user from audience when event traits_or_props is set to false', async () => {
+  it('Should delete user from audience when Event is Audience Exited', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -103,15 +104,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.testAction('syncAudiencesToDSP', {
       event: {
         ...event,
-        event: 'Audience Exited',
-        properties: {
-          audience_key: 'example_event_once_30_4_24_1',
-          example_event_once_30_4_24_1: false,
-          email: 'gaurav.kochar@gmail.com',
-          phone: '21321312313',
-          first_name: 'gaurav',
-          state: 'Haryana'
-        }
+        event: 'Audience Exited'
       },
       settings,
       useDefaultMappings: true
@@ -121,7 +114,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
@@ -135,10 +128,10 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const events: SegmentEvent[] = [
       {
         ...event,
-        event: 'Audience Exited',
+        event: 'Audience Entered',
         properties: {
-          audience_key: 'amazon_ads_audience_6_may_24',
-          amazon_ads_audience_6_may_24: false,
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
           email: 'test@gmail.com',
           first_name: 'gaurav',
           city: 'Gurgaon',
@@ -148,11 +141,12 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       {
         ...event,
         userId: 'test-kochar-02',
-        traits: {
-          audience_key: 'amazon_ads_audience_6_may_24',
-          amazon_ads_audience_6_may_24: true,
+        event: 'Audience Exited',
+        properties: {
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
           email: 'test.kochar@gmail.com',
-          postal_code: 'test',
+          postal: 'test',
           address: '#501/2, Test Address',
           first_name: 'gaurav',
           last_name: 'kochar',
@@ -171,7 +165,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","city":"b4c0372af033c406857a420644e46c806280a0bab8246bd0c62c7807f66f794f","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]},{"externalUserId":"test-kochar-02","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"45cfec5f1df1af649d49fc74314d7c9272e2f63ae9119bd3ef4b22a040d98cbc","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","city":"b4c0372af033c406857a420644e46c806280a0bab8246bd0c62c7807f66f794f","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674"}]},{"externalUserId":"test-kochar-02","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"45cfec5f1df1af649d49fc74314d7c9272e2f63ae9119bd3ef4b22a040d98cbc","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })

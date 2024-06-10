@@ -13,7 +13,7 @@ import {
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Amazon AMC (Actions)',
+  name: 'Amazon Ads DSP and AMC',
   slug: 'actions-amazon-amc',
   mode: 'cloud',
 
@@ -58,7 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     refreshAccessToken: async (request, { auth, settings }) => {
       const endpoint = AUTHORIZATION_URL[`${settings.region}`]
       try {
-        const res = await request<RefreshTokenResponse>(endpoint, {
+        const res = await request<RefreshTokenResponse>(`${endpoint}/auth/o2/token`, {
           method: 'POST',
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
@@ -94,8 +94,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || '',
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || ''
       }
     }
   },

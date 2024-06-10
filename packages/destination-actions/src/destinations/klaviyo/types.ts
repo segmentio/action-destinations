@@ -53,9 +53,8 @@ export interface EventData {
         data: {
           type: string
           attributes: {
-            email?: string
-            phone_number?: string
-            other_properties?: object
+            external_id?: string
+            anonymous_id?: string
           }
         }
       }

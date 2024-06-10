@@ -12,7 +12,7 @@ export const settings = {
 }
 
 describe('Track Event', () => {
-  it('should throw error if no email or phone_number is provided', async () => {
+  it('should throw error if no profile identifiers are provided', async () => {
     const event = createTestEvent({
       type: 'track'
     })
@@ -21,6 +21,104 @@ describe('Track Event', () => {
     await expect(testDestination.testAction('trackEvent', { event, mapping, settings })).rejects.toThrowError(
       IntegrationError
     )
+  })
+
+  it('should successfully track event with external Id', async () => {
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2022-01-01T00:00:00.000Z',
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                external_id: '3xt3rnal1d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = {
+      profile: { external_id: '3xt3rnal1d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    await expect(
+      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully track event with anonymous Id', async () => {
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2022-01-01T00:00:00.000Z',
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                anonymous_id: 'an0nym0u51d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = {
+      profile: { anonymous_id: 'an0nym0u51d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    await expect(
+      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
   })
 
   it('should successfully track event if proper parameters are provided', async () => {
