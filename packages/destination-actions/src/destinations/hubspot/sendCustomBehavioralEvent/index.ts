@@ -1,9 +1,10 @@
-import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
 import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
 import { HubSpotError } from '../errors'
+import { HubspotEventClient } from './utils'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -93,7 +94,37 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: async (request, { payload, settings, stateContext }) => {
+
+    if(!stateContext) {
+      throw new IntegrationError('State context is required', "STATE_CONTEXT_REQUIRED", 400)
+    }
+
+    const client = new HubspotEventClient(request, stateContext)
+    
+    const properties = payload.properties ? Object.entries(payload.properties).map(([key, value]) => ({
+      name: key,
+      type: typeof value,
+    })) : [];
+
+    let eventSchema = client.getSchemaFromCache(payload.eventName)
+    
+    if(!eventSchema){
+      eventSchema = await client.ensureHubspotSchema(properties, payload.eventName)
+      return await client.sendCustomEvent(payload) 
+    }
+
+    const missingPropertiesFromCache = client.findMissingPropertiesInSchema(properties, eventSchema.properties)
+    
+    if(missingPropertiesFromCache.length === 0){
+      return await client.sendCustomEvent(payload) 
+    } else {
+      await client.ensureHubspotSchema(properties, payload.eventName)
+    }
+    
+
+    return await client.sendCustomEvent(payload)
+
     const eventName = transformEventName(payload.eventName)
 
     const event: CustomBehavioralEvent = {
