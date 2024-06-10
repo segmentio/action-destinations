@@ -36,11 +36,11 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: { ...properties }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id, external_id, enable_batching, batch_size, ...additionalAttributes } = payload
+    const { email, list_id, external_id } = payload
     if (!email && !external_id) {
       throw new PayloadValidationError('One of Email or External Id is required')
     }
-    const profileId = await createProfile(request, email, external_id, additionalAttributes)
+    const profileId = await createProfile(request, email, external_id)
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
