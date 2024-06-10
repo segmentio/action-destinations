@@ -53,6 +53,8 @@ export interface EventData {
         data: {
           type: string
           attributes: {
+            email?: string
+            phone_number?: string
             external_id?: string
             anonymous_id?: string
           }
