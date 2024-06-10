@@ -5,6 +5,8 @@ export interface Payload {
    * Properties of the profile that triggered this event.
    */
   profile: {
+    email?: string
+    phone_number?: string
     /**
      * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
      */
