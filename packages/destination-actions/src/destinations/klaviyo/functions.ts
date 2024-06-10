@@ -12,8 +12,7 @@ import {
   SubscribeEventData,
   UnsubscribeProfile,
   UnsubscribeEventData,
-  GroupedProfiles,
-  AdditionalAttributes
+  GroupedProfiles
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -72,8 +71,7 @@ export async function removeProfileFromList(request: RequestClient, ids: string[
 export async function createProfile(
   request: RequestClient,
   email: string | undefined,
-  external_id: string | undefined,
-  additionalAttributes: AdditionalAttributes
+  external_id: string | undefined
 ) {
   try {
     const profileData: ProfileData = {
@@ -81,8 +79,7 @@ export async function createProfile(
         type: 'profile',
         attributes: {
           email,
-          external_id,
-          ...additionalAttributes
+          external_id
         }
       }
     }
@@ -95,7 +92,7 @@ export async function createProfile(
     return rs.data.id
   } catch (error) {
     const { response } = error as KlaviyoAPIError
-    if (response?.status == 409) {
+    if (response.status == 409) {
       const rs = await response.json()
       return rs.errors[0].meta.duplicate_profile_id
     }

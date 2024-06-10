@@ -78,6 +78,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Properties of the profile that triggered this event.`,
       type: 'object',
       properties: {
+        email: {
+          label: 'Email',
+          type: 'string'
+        },
+        phone_number: {
+          label: 'Phone Number',
+          type: 'string'
+        },
         external_id: {
           label: 'External Id',
           description:

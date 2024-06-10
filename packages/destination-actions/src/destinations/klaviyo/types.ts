@@ -209,11 +209,3 @@ export interface UnsubscribeEventData {
 export interface GroupedProfiles {
   [listId: string]: Payload[]
 }
-
-export interface AdditionalAttributes {
-  first_name?: string
-  last_name?: string
-  organization?: string
-  title?: string
-  image?: string
-}
