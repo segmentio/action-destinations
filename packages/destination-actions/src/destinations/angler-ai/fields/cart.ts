@@ -5,26 +5,17 @@ export const cart: Record<string, InputField> = {
   cartId: {
     label: 'Cart ID',
     type: 'string',
-    description: 'A globally unique identifier for the cart.',
-    default: {
-      '@path': '$.properties.cart_id'
-    }
+    description: 'A globally unique identifier for the cart.'
   },
   totalAmount: {
     label: 'Total Amount',
     type: 'number',
-    description: 'Decimal money amount.',
-    default: {
-      '@path': '$.properties.total'
-    }
+    description: 'Decimal money amount.'
   },
   currencyCode: {
     label: 'Currency Code',
     type: 'string',
-    description: 'The currency code of the money.',
-    default: {
-      '@path': '$.properties.currency'
-    }
+    description: 'The currency code of the money.'
   },
   cartLines: {
     ...products,
@@ -37,7 +28,6 @@ export const cart: Record<string, InputField> = {
         type: 'number',
         description: 'Quantity of the item'
       }
-    },
-    default: products.default
+    }
   }
 }
