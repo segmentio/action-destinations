@@ -21,22 +21,15 @@ interface TaboolaPayload {
 export class TaboolaClient {
   request: RequestClient
   payloads: Payload[]
-  audienceSettings?: AudienceSettings
+  audienceSettings: AudienceSettings
 
-  constructor(request: RequestClient, payloads: Payload[], audienceSettings?: AudienceSettings) {
+  constructor(request: RequestClient, payloads: Payload[], audienceSettings: AudienceSettings) {
     this.request = request
     this.payloads = payloads
     this.audienceSettings = audienceSettings
   }
 
   async sendToTaboola() {
-    if (!this.audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    if (!this.audienceSettings.account_id) {
-      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
-    }
 
     this.payloads.forEach((payload) => {
       payload.action = payload.traits_or_props[payload.segment_computation_key] ? 'ADD' : 'REMOVE'
