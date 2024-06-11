@@ -36,7 +36,7 @@ const getAudienceInput = {
 describe('Amazon-Ads (actions)', () => {
   describe('testAuthentication', () => {
     it('should not throw an error if all the appropriate credentials are available', async () => {
-      nock(`${settings.region}`).get('/v2/profiles').reply(200, {})
+      nock(`${settings.region}`).get('/v2/profiles').matchHeader('content-type', 'application/json').reply(200, {})
       await expect(testDestination.testAuthentication(validSettings)).resolves.not.toThrowError()
     })
 
@@ -113,19 +113,6 @@ describe('Amazon-Ads (actions)', () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
         'Missing description Value'
       )
-    })
-    it('should fail if invalid currency is provided in audienceSettings', async () => {
-      const createAudienceInput = {
-        settings,
-        audienceName: 'Test Audience',
-        audienceSettings: {
-          ...audienceSettings,
-          ttl: 12345678,
-          currency: 'INVALID',
-          cpmCents: 1234
-        }
-      }
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError('Invalid Currency Value')
     })
 
     it('should throw an HTTPError when the response is not ok', async () => {

@@ -64,7 +64,19 @@ export interface Payload {
   /**
    * The contact's email address.
    */
-  primary_email: string
+  primary_email?: string | null
+  /**
+   * The contact's Phone Number ID. This must be a valid phone number.
+   */
+  phone_number_id?: string | null
+  /**
+   * The contact's External ID.
+   */
+  external_id?: string | null
+  /**
+   * The contact's Anonymous ID.
+   */
+  anonymous_id?: string | null
   /**
    *
    *   Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.
