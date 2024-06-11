@@ -7,3 +7,7 @@ export const MissingUserOrAnonymousIdThrowableError = new PayloadValidationError
 export const InvalidEndpointSelectedThrowableError = new PayloadValidationError(
   'A valid endpoint must be selected. Please check your Segment settings.'
 )
+
+export const InvalidConsentObject = new PayloadValidationError(
+  'Consent object must be an object with `categoryPreferences`, a map of strings to booleans.'
+)

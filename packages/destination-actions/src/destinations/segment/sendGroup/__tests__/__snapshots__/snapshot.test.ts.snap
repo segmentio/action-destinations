@@ -28,7 +28,10 @@ Array [
               "term": "92N!&JfP",
             },
             "consent": Object {
-              "testType": "92N!&JfP",
+              "categoryPreferences": Object {
+                "analytics": true,
+                "marketing": false,
+              },
             },
             "device": Object {
               "adTracking_Enabled": true,
@@ -99,7 +102,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "ip": undefined,
           "locale": undefined,

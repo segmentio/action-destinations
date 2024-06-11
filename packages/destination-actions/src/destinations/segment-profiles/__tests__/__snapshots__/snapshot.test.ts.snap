@@ -8,7 +8,10 @@ Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
         "context": Object {
           "consent": Object {
-            "testType": "cZE8HyAL0!BF#)WQb^",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "cZE8HyAL0!BF#)WQb^",
@@ -36,7 +39,12 @@ Object {
       Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
         "context": Object {
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
         },
         "groupId": "cZE8HyAL0!BF#)WQb^",
         "integrations": Object {
@@ -61,7 +69,10 @@ Object {
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
         "consent": Object {
-          "testType": "hIC1OAmWa[Q!&d%o",
+          "categoryPreferences": Object {
+            "analytics": true,
+            "marketing": false,
+          },
         },
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
@@ -87,7 +98,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
-        "consent": Object {},
+        "consent": Object {
+          "categoryPreferences": Object {
+            "analytics": true,
+            "marketing": false,
+          },
+        },
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
           "All": false,
@@ -214,7 +230,10 @@ Object {
         "anonymousId": "[2uovRzxThJj",
         "context": Object {
           "consent": Object {
-            "testType": "[2uovRzxThJj",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "event": "[2uovRzxThJj",
@@ -242,7 +261,12 @@ Object {
       Object {
         "anonymousId": "[2uovRzxThJj",
         "context": Object {
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
         },
         "event": "[2uovRzxThJj",
         "integrations": Object {

@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InvalidConsentObject } from '../segment/errors'
 
 export const user_id: InputField = {
   label: 'User ID',
@@ -75,4 +76,25 @@ export const consent: InputField = {
   default: { '@path': '$.context.consent' },
   additionalProperties: true,
   unsafe_hidden: true
+}
+
+function isCategoryPreferences(obj: unknown): boolean {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  return Object.values(obj).every((value) => typeof value === 'boolean')
+}
+export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): void => {
+  if (obj == undefined) {
+    return
+  }
+
+  if (typeof obj !== 'object' || obj === null) {
+    throw InvalidConsentObject
+  }
+
+  if (!('categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences']))) {
+    throw InvalidConsentObject
+  }
 }

@@ -9,7 +9,8 @@ import {
   engage_space,
   timestamp,
   message_id,
-  consent
+  consent,
+  validateConsentObject
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -32,6 +33,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+
+    validateConsentObject(payload?.consent)
+
     const identityPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,

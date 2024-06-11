@@ -21,7 +21,8 @@ import {
   traits,
   message_id,
   enable_batching,
-  consent
+  consent,
+  validateConsentObject
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -56,6 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
+    validateConsentObject(payload?.consent)
     const groupPayload: Object = convertPayload(payload)
 
     // Returns transformed payload without snding it to TAPI endpoint.
@@ -68,6 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!data.anonymous_id && !data.user_id) {
         throw MissingUserOrAnonymousIdThrowableError
       }
+      validateConsentObject(data?.consent)
       return convertPayload(data)
     })
 

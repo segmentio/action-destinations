@@ -21,7 +21,10 @@ Object {
             "term": "ET^Xg5cIGF]2ok",
           },
           "consent": Object {
-            "testType": "ET^Xg5cIGF]2ok",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -95,7 +98,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "ET^Xg5cIGF]2ok",
           "ip": undefined,

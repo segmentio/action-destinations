@@ -21,7 +21,10 @@ Object {
             "term": "!jvXo22kjE9u2QlY4S",
           },
           "consent": Object {
-            "testType": "!jvXo22kjE9u2QlY4S",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -99,7 +102,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "!jvXo22kjE9u2QlY4S",
           "ip": undefined,
