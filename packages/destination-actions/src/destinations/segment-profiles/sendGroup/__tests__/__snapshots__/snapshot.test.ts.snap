@@ -8,7 +8,10 @@ Object {
         "anonymousId": "tKaa(2A",
         "context": Object {
           "consent": Object {
-            "testType": "tKaa(2A",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "tKaa(2A",
@@ -36,7 +39,12 @@ Object {
       Object {
         "anonymousId": "tKaa(2A",
         "context": Object {
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
         },
         "groupId": "tKaa(2A",
         "integrations": Object {
