@@ -2,13 +2,9 @@
 
 export interface Payload {
   /**
-   * The Audience ID in Google's DB.
+   * The Audience ID from Taboola.
    */
   external_audience_id: string
-  /**
-   * Segment Audience ID to which user identifier should be added or removed
-   */
-  segment_audience_id: string
   /**
    * Segment Audience key to which user identifier should be added or removed
    */
@@ -28,7 +24,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.
+   * When enabled, events will be batched before being sent to Taboola. In most cases, batching should be enabled.
    */
   enable_batching: boolean
   /**
@@ -39,4 +35,8 @@ export interface Payload {
    * Max Batch size to send to Taboola.
    */
   batch_size: number
+  /**
+   * Action to perform on the audience.
+   */
+  action?: string
 }

@@ -18,11 +18,11 @@ export interface AudienceSettings {
    */
   account_id: string
   /**
-   * The time to live for the audience in hours.
+   * The time for which a given user will belong to this audience in hours.
    */
-  ttl_in_hours: number
+  ttl_in_hours?: number
   /**
    * Whether to exclude the audience from campaigns.
    */
-  exclude_from_campaigns: boolean
+  exclude_from_campaigns?: boolean
 }

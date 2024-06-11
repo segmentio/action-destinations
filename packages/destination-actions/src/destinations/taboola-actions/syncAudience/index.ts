@@ -1,47 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core/'
-import { createHash } from 'crypto'
-
-const sha256HashedRegex = /^[a-f0-9]{64}$/i
-
-function hashEmail(email: string): string {
-  const isSHA256Hash = sha256HashedRegex.test(email)
-  if (!isSHA256Hash) {
-    email = createHash('sha256').update(email).digest('hex')
-  }
-  return email
-}
-
-function createCluster(
-  payload: Payload
-): { cluster: Array<{ user_id: string; type: string; is_hashed: boolean }> } | null {
-  if (!payload.user_email && !payload.device_id) {
-    return null
-  }
-
-  let email = payload.user_email
-  const cluster = []
-
-  if (email) {
-    email = hashEmail(email)
-    cluster.push({
-      user_id: email,
-      type: 'EMAIL_ID',
-      is_hashed: true
-    })
-  }
-
-  if (payload.device_id) {
-    cluster.push({
-      user_id: payload.device_id,
-      type: 'DEVICE_ID',
-      is_hashed: false
-    })
-  }
-  return { cluster }
-}
+import { IntegrationError } from '@segment/actions-core'
+import { TaboolaClient } from './client'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -55,16 +16,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       unsafe_hidden: true,
       default: {
         '@path': '$.context.personas.external_audience_id'
-      }
-    },
-    segment_audience_id: {
-      label: 'Audience ID',
-      description: 'Segment Audience ID to which user identifier should be added or removed',
-      type: 'string',
-      unsafe_hidden: true,
-      required: true,
-      default: {
-        '@path': '$.context.personas.computation_id'
       }
     },
     segment_computation_key: {
@@ -121,7 +72,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'boolean',
       label: 'Batch events',
       description:
-        'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
+        'When enabled, events will be batched before being sent to Taboola. In most cases, batching should be enabled.',
       required: true,
       default: true
     },
@@ -142,6 +93,17 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: 1000,
       required: true,
       unsafe_hidden: true
+    },
+    action: {
+      label: 'Action',
+      description: 'Action to perform on the audience.',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      choices: [
+        { label: 'Add', value: 'ADD' },
+        { label: 'Remove', value: 'REMOVE' }
+      ]
     }
   },
   perform: (request, { payload, audienceSettings }) => {
@@ -149,65 +111,36 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    const action = payload.traits_or_props[payload.segment_computation_key] as boolean //TODO action null?
-    const cluster = createCluster(payload)
+    if (!audienceSettings.account_id) {
+      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
+    }
 
-    if (!cluster) {
+    if (!payload.external_audience_id) {
+      throw new IntegrationError('Bad Request: payload.external_audience_id missing.', 'INVALID_REQUEST_DATA', 400)
+    }
+
+    if (!payload.user_email && !payload.device_id) {
       throw new IntegrationError(
-        "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
-        'MISSING_REQUIRED_FIELD',
+        "Bad Request: Either 'Email address' or 'Mobile Device ID' must be provided in the payload.",
+        'INVALID_REQUEST_DATA',
         400
       )
     }
 
-    const requestBody = {
-      operation: action ? 'ADD' : 'REMOVE',
-      audience_id: payload.external_audience_id,
-      identities: [
-        {
-          cluster: cluster.cluster
-        }
-      ]
-    }
-
-    return request(
-      `https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`,
-      {
-        method: 'post',
-        json: requestBody
-      }
-    )
+    const taboolaClient = new TaboolaClient(request, [payload], audienceSettings)
+    return taboolaClient.sendToTaboola()
   },
-  performBatch: (request, { payload: payloads, audienceSettings }) => {
+  performBatch: async (request, { payload: payloads, audienceSettings }) => {
     if (!audienceSettings) {
       throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    const clusters = payloads.map((payload) => createCluster(payload)).filter((cluster) => cluster !== null)
-
-    if (clusters.length === 0) {
-      throw new IntegrationError(
-        "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
-        'MISSING_REQUIRED_FIELD',
-        400
-      )
+    if (!audienceSettings.account_id) {
+      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
     }
 
-    const action = payloads[0].traits_or_props[payloads[0].segment_computation_key] as boolean
-
-    const requestBody = {
-      operation: action ? 'ADD' : 'REMOVE',
-      audience_id: payloads[0].external_audience_id,
-      identities: clusters
-    }
-
-    return request(
-      `https://backstage.taboola.com/backstage/api/1.0/${audienceSettings.account_id}/audience_onboarding`,
-      {
-        method: 'post',
-        json: requestBody
-      }
-    )
+    const taboolaClient = new TaboolaClient(request, payloads, audienceSettings)
+    return taboolaClient.sendToTaboola()
   }
 }
 
