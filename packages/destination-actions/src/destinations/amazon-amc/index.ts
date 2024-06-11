@@ -5,7 +5,6 @@ import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
   AUTHORIZATION_URL,
-  CURRENCY,
   extractNumberAndSubstituteWithStringValue,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
@@ -14,7 +13,7 @@ import {
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Amazon AMC (Actions)',
+  name: 'Amazon Ads DSP and AMC',
   slug: 'actions-amazon-amc',
   mode: 'cloud',
 
@@ -59,7 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     refreshAccessToken: async (request, { auth, settings }) => {
       const endpoint = AUTHORIZATION_URL[`${settings.region}`]
       try {
-        const res = await request<RefreshTokenResponse>(endpoint, {
+        const res = await request<RefreshTokenResponse>(`${endpoint}/auth/o2/token`, {
           method: 'POST',
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
@@ -95,8 +94,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || '',
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || ''
       }
     }
   },
@@ -129,7 +127,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     currency: {
       label: 'Currency',
       type: 'string',
-      description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency`
+      description: `Currency code for the CPM value.`,
+      choices: [
+        { value: 'USD', label: 'USD' },
+        { value: 'CAD', label: 'CAD' },
+        { value: 'JPY', label: 'JPY' },
+        { value: 'GBP', label: 'GBP' },
+        { value: 'EUR', label: 'EUR' },
+        { value: 'SAR', label: 'SAR' },
+        { value: 'AUD', label: 'AUD' },
+        { value: 'AED', label: 'AED' },
+        { value: 'CNY', label: 'CNY' },
+        { value: 'MXN', label: 'MXN' },
+        { value: 'INR', label: 'INR' },
+        { value: 'SEK', label: 'SEK' },
+        { value: 'TRY', label: 'TRY' }
+      ],
+      default: ''
     },
     ttl: {
       type: 'number',
@@ -202,9 +216,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (cpm_cents && currency) {
-        if (!CURRENCY.includes(currency)) {
-          throw new IntegrationError('Invalid Currency Value', 'INVALID_CURRENCY_VALUE', 400)
-        }
         const cpmCents = Number(cpm_cents)
         if (!cpmCents) {
           throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)

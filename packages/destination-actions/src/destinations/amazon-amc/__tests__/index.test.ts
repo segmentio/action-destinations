@@ -114,19 +114,6 @@ describe('Amazon-Ads (actions)', () => {
         'Missing description Value'
       )
     })
-    it('should fail if invalid currency is provided in audienceSettings', async () => {
-      const createAudienceInput = {
-        settings,
-        audienceName: 'Test Audience',
-        audienceSettings: {
-          ...audienceSettings,
-          ttl: 12345678,
-          currency: 'INVALID',
-          cpmCents: 1234
-        }
-      }
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError('Invalid Currency Value')
-    })
 
     it('should throw an HTTPError when the response is not ok', async () => {
       nock(`${settings.region}`)
