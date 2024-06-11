@@ -10,12 +10,13 @@ export const settings = {
   api_key: apiKey
 }
 
-const createProfile = (email: string, phoneNumber: string) => ({
+const createProfile = (email: string, phoneNumber: string, external_id: string) => ({
   data: {
     type: 'profile',
     attributes: {
       email,
-      phone_number: phoneNumber
+      phone_number: phoneNumber,
+      external_id
     }
   }
 })
@@ -33,7 +34,7 @@ const createRequestBody = (
   properties: Record<string, any>,
   value: number,
   metricName: string,
-  profile: { email: string; phone_number: string }
+  profile: { email: string; phone_number: string; external_id: string }
 ) => ({
   data: {
     type: 'event',
@@ -41,7 +42,7 @@ const createRequestBody = (
       properties,
       value,
       metric: createMetric(metricName),
-      profile: createProfile(profile.email, profile.phone_number)
+      profile: createProfile(profile.email, profile.phone_number, profile.external_id)
     }
   }
 })
@@ -57,7 +58,7 @@ describe('Order Completed', () => {
   })
 
   it('should successfully track event if proper parameters are provided', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '1234567890', external_id: 'klaviyo_123' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
@@ -77,7 +78,7 @@ describe('Order Completed', () => {
   })
 
   it('should throw an error if the API request fails', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '1234567890', external_id: 'klaviyo_123' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
@@ -106,7 +107,7 @@ describe('Order Completed', () => {
       }
     ]
 
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '1234567890', external_id: 'klaviyo_123' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
