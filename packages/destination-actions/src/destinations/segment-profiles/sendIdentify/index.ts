@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    validateConsentObject(payload?.consent)
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     const identityPayload: Object = {
       userId: payload?.user_id,
@@ -51,9 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
         All: false
       },
       type: 'identify',
-      consent: {
-        ...payload?.consent
-      }
+      consent: isValidConsentObject ? { ...payload?.consent } : {}
     }
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])

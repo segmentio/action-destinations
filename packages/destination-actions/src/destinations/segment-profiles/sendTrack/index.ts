@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    validateConsentObject(payload?.consent)
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendTrack`])
 
@@ -55,9 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
             ...payload?.properties
           },
           context: {
-            consent: {
-              ...payload?.consent
-            }
+            consent: isValidConsentObject ? { ...payload?.consent } : {}
           },
           type: 'track'
         }

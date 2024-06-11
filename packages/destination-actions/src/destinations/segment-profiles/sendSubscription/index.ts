@@ -291,7 +291,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload, statsClient, tags)
-    validateConsentObject(payload?.consent)
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     // Enriches ExternalId's
     const externalIds: ExtenalId[] = enrichExternalIds(payload, [])
@@ -307,9 +307,7 @@ const action: ActionDefinition<Settings, Payload> = {
         messaging_subscriptions: messagingSubscriptions,
         externalIds,
         messaging_subscriptions_retl: true,
-        consent: {
-          ...payload?.consent
-        }
+        consent: isValidConsentObject ? { ...payload?.consent } : {}
       },
       timestamp: payload?.timestamp,
       integrations: {

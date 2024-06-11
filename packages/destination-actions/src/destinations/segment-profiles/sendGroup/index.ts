@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
-    validateConsentObject(payload?.consent)
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     const groupPayload: Object = {
       userId: payload?.user_id,
@@ -50,9 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       type: 'group',
       context: {
-        consent: {
-          ...payload?.consent
-        }
+        consent: isValidConsentObject ? { ...payload?.consent } : {}
       }
     }
 
