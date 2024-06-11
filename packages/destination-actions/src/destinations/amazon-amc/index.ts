@@ -1,5 +1,4 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -138,8 +137,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, statsContext, audienceSettings, settings } = createAudienceInput
-      const { statsClient, tags: statsTags } = statsContext || {}
+      const { audienceName, audienceSettings, settings } = createAudienceInput
       const endpoint = settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
@@ -148,12 +146,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const ttl = audienceSettings?.ttl
       const currency = audienceSettings?.currency
       const cpm_cents = audienceSettings?.cpmCents
-
-      const statsName = 'createAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsTags?.push(`ttl_type:${typeof ttl}_${ttl}`)
-      statsTags?.push(`cpmcents_type:${typeof cpm_cents}_${cpm_cents}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
@@ -206,13 +198,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
-      statsTags?.push(`slug:${destination.slug}`)
-      // @ts-ignore - TS doesn't know about the oauth property
-      statsTags?.push(`Oauth_refresh:${settings.oauth?.refresh_token}`)
-      // @ts-ignore - TS doesn't know about the oauth property
-      statsTags?.push(`Oauth_access:${settings.oauth?.access_token}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
-
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
       const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
@@ -242,17 +227,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
-      const { settings, statsContext } = getAudienceInput
+      const { settings } = getAudienceInput
       const endpoint = settings.region
-      const { statsClient, tags: statsTags } = statsContext || {}
-
-      const statsName = 'getAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      // @ts-ignore - TS doesn't know about the oauth property
-      statsTags?.push(`Oauth_refresh:${settings.oauth?.refresh_token}`)
-      // @ts-ignore - TS doesn't know about the oauth property
-      statsTags?.push(`Oauth_access:${settings.oauth?.access_token}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)

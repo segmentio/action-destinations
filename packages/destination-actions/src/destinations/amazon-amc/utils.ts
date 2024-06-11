@@ -1,6 +1,10 @@
-import { ErrorCodes, HTTPError, OAuth2ClientCredentials } from '@segment/actions-core'
-import { RequestClient } from '@segment/actions-core'
-import { InvalidAuthenticationError } from '@segment/actions-core/*'
+import {
+  ErrorCodes,
+  HTTPError,
+  OAuth2ClientCredentials,
+  InvalidAuthenticationError,
+  RequestClient
+} from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { AmazonRefreshTokenError, RefreshTokenResponse } from './types'
 
