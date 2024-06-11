@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { baseURL, ordersEndpoint } from '../routes'
-import { addressProperties, addressDefaultFields } from '../properties/address'
+import { addressProperties, addressDefaultFields } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Order',
