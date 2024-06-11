@@ -67,3 +67,11 @@ export const properties: InputField = {
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
 }
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Free-form dictionary of consent that describe the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false
+}

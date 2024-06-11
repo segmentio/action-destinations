@@ -360,3 +360,11 @@ export const message_id: InputField = {
   default: { '@path': '$.messageId' },
   unsafe_hidden: true
 }
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Free-form dictionary of traits that describe the user or group of users.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false
+}
