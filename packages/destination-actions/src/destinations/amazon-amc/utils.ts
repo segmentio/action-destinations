@@ -97,7 +97,7 @@ export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCreden
   return {
     refreshToken: settings.oauth?.refresh_token,
     accessToken: settings.oauth?.access_token,
-    clientId: process.env.ACTIONS_AMAZON_ADS_CLIENT_ID,
-    clientSecret: process.env.ACTIONS_AMAZON_ADS_CLIENT_SECRET
+    clientId: process.env.ACTIONS_AMAZON_AMC_CLIENT_ID,
+    clientSecret: process.env.ACTIONS_AMAZON_AMC_CLIENT_SECRET
   } as OAuth2ClientCredentials
 }
