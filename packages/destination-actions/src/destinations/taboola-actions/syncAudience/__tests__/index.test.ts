@@ -116,7 +116,7 @@ describe('Taboola.syncAudience', () => {
       })
     ).rejects.toThrowError(
       new IntegrationError(
-        "Either 'Email address' or 'Mobile Device ID' must be provided in the payload",
+        "Bad Request: Either 'Email address' or 'Mobile Device ID' must be provided in the payload.",
         'MISSING_REQUIRED_FIELD',
         400
       )
