@@ -21,7 +21,10 @@ Object {
             "term": "O3*7wUzuzQ",
           },
           "consent": Object {
-            "testType": "O3*7wUzuzQ",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": true,
@@ -92,7 +95,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "O3*7wUzuzQ",
           "ip": undefined,

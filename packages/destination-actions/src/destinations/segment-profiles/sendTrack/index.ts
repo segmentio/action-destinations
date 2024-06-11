@@ -10,7 +10,8 @@ import {
   properties,
   engage_space,
   message_id,
-  consent
+  consent,
+  validateConsentObject
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -32,6 +33,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+
+    validateConsentObject(payload?.consent)
+
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendTrack`])
 
     return {

@@ -23,7 +23,8 @@ import {
   properties,
   message_id,
   enable_batching,
-  consent
+  consent,
+  validateConsentObject
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -60,6 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
+    validateConsentObject(payload?.consent)
     const pagePayload: Object = convertPayload(payload)
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
@@ -68,6 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: (_request, { payload, statsContext }) => {
     const pagePayload = payload.map((data) => {
       if (!data.anonymous_id && !data.user_id) {
+        validateConsentObject(data?.consent)
         throw MissingUserOrAnonymousIdThrowableError
       }
       return convertPayload(data)

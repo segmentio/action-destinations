@@ -21,7 +21,10 @@ Object {
             "term": "(m6Ifxh1N4",
           },
           "consent": Object {
-            "testType": "(m6Ifxh1N4",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": true,
@@ -91,7 +94,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "ip": undefined,
           "locale": undefined,
@@ -137,7 +145,10 @@ Object {
             "term": ")#1JCeQHYVLgzRan",
           },
           "consent": Object {
-            "testType": ")#1JCeQHYVLgzRan",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -207,7 +218,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": ")#1JCeQHYVLgzRan",
           "ip": undefined,
@@ -253,7 +269,10 @@ Object {
             "term": "qB3uqzs44u!@O",
           },
           "consent": Object {
-            "testType": "qB3uqzs44u!@O",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": false,
@@ -331,7 +350,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "qB3uqzs44u!@O",
           "ip": undefined,
@@ -386,7 +410,10 @@ Object {
             "term": "s62Sv8d1C1w",
           },
           "consent": Object {
-            "testType": "s62Sv8d1C1w",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": true,
@@ -457,7 +484,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "s62Sv8d1C1w",
           "ip": undefined,
@@ -505,7 +537,10 @@ Object {
             "term": "CYyxkIddLM",
           },
           "consent": Object {
-            "testType": "CYyxkIddLM",
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
           "device": Object {
             "adTracking_Enabled": true,
@@ -579,7 +614,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
-          "consent": Object {},
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "CYyxkIddLM",
           "ip": undefined,

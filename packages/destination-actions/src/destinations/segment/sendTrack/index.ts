@@ -23,7 +23,8 @@ import {
   traits,
   message_id,
   enable_batching,
-  consent
+  consent,
+  validateConsentObject
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -60,6 +61,8 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
+    validateConsentObject(payload?.consent)
+
     const trackPayload: Object = convertPayload(payload)
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendTrack'])
@@ -70,6 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!data.anonymous_id && !data.user_id) {
         throw MissingUserOrAnonymousIdThrowableError
       }
+      validateConsentObject(data?.consent)
       return convertPayload(data)
     })
 

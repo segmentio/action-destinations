@@ -7,7 +7,10 @@ Object {
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
         "consent": Object {
-          "testType": "mV[ZQcEVgZO$MX",
+          "categoryPreferences": Object {
+            "analytics": true,
+            "marketing": false,
+          },
         },
         "groupId": "mV[ZQcEVgZO$MX",
         "integrations": Object {
@@ -33,7 +36,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
-        "consent": Object {},
+        "consent": Object {
+          "categoryPreferences": Object {
+            "analytics": true,
+            "marketing": false,
+          },
+        },
         "groupId": "mV[ZQcEVgZO$MX",
         "integrations": Object {
           "All": false,

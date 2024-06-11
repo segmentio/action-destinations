@@ -29,7 +29,7 @@ import {
   MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
   MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
 } from '../errors'
-import { timestamp } from '../segment-properties'
+import { timestamp, validateConsentObject } from '../segment-properties'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
 interface SubscriptionStatusConfig {
@@ -291,6 +291,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload, statsClient, tags)
+    validateConsentObject(payload?.consent)
+
     // Enriches ExternalId's
     const externalIds: ExtenalId[] = enrichExternalIds(payload, [])
     // Enrich Messaging Subscriptions
