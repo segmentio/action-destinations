@@ -1,9 +1,16 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, ErrorCodes, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { testEndpoint, privacyEndpoint, baseURL } from './routes'
 import { presets } from './presets'
-import saveEvent from './saveEvent'
+import { baseURL, privacyEndpoint, testEndpoint } from './routes'
+import saveBaseEvent from './saveBaseEvent'
+import saveCartEvent from './saveCartEvent'
+import saveCheckoutEvent from './saveCheckoutEvent'
+import saveCollectionEvent from './saveCollectionEvent'
+import saveCustomEvent from './saveCustomEvent'
+import saveFormEvent from './saveFormEvent'
 import saveOrder from './saveOrder'
+import saveProductEvent from './saveProductEvent'
+import saveSearchEvent from './saveSearchEvent'
 import saveUser from './saveUser'
 
 export type AuthResponseType = {
@@ -16,7 +23,7 @@ export type AuthResponseType = {
 }
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Angler Ai',
+  name: 'Angler AI',
   slug: 'actions-angler-ai',
   mode: 'cloud',
 
@@ -26,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
       accessToken: {
         label: 'Authentication Token',
         description: 'Your Angler AI API Authentication Token',
-        type: 'string',
+        type: 'password',
         required: true
       },
       workspaceId: {
@@ -42,11 +49,19 @@ const destination: DestinationDefinition<Settings> = {
       })
 
       if (me.data.sub !== options.settings.workspaceId) {
-        throw new Error('Authentication Invalid. Please Check Workspace Id & Token.')
+        throw new IntegrationError(
+          'Authentication Invalid. Please Check Workspace Id & Token.',
+          ErrorCodes.INVALID_AUTHENTICATION,
+          400
+        )
       }
 
       if (!me.data.scopes.split(',').includes('DATA_ADMIN')) {
-        throw new Error('The token provided must have admin privileges.')
+        throw new IntegrationError(
+          'The token provided must have admin privileges.',
+          ErrorCodes.INVALID_AUTHENTICATION,
+          400
+        )
       }
     }
   },
@@ -64,10 +79,7 @@ const destination: DestinationDefinition<Settings> = {
         customer: {
           id: payload.userId
         },
-        source: 'segment',
-        additional_properties: {
-          anonymousId: payload.anonymousId
-        }
+        source: 'segment'
       }
     })
   },
@@ -75,9 +87,16 @@ const destination: DestinationDefinition<Settings> = {
   presets,
 
   actions: {
-    saveEvent,
     saveOrder,
-    saveUser
+    saveUser,
+    saveBaseEvent,
+    saveCartEvent,
+    saveCheckoutEvent,
+    saveCollectionEvent,
+    saveCustomEvent,
+    saveFormEvent,
+    saveProductEvent,
+    saveSearchEvent
   }
 }
 
