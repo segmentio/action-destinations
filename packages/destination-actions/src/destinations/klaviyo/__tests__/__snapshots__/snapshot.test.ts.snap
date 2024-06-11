@@ -27,10 +27,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "PE*zlOgIPA]mVozMLBaL",
             "email": "rafebezuv@micfeoz.zm",
-            "other_properties": Object {
-              "testType": "PE*zlOgIPA]mVozMLBaL",
-            },
+            "external_id": "PE*zlOgIPA]mVozMLBaL",
             "phone_number": "PE*zlOgIPA]mVozMLBaL",
           },
           "type": "profile",
@@ -111,10 +110,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "mTdOx(Nl)",
             "email": "ujoeri@ifosi.kp",
-            "other_properties": Object {
-              "testType": "mTdOx(Nl)",
-            },
+            "external_id": "mTdOx(Nl)",
             "phone_number": "mTdOx(Nl)",
           },
           "type": "profile",

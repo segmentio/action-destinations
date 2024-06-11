@@ -15,10 +15,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "923^%f]tQn]lN2o",
             "email": "tobul@dij.uz",
-            "other_properties": Object {
-              "testType": "923^%f]tQn]lN2o",
-            },
+            "external_id": "923^%f]tQn]lN2o",
             "phone_number": "923^%f]tQn]lN2o",
           },
           "type": "profile",
