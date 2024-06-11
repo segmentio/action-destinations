@@ -23,7 +23,11 @@ export const productDefaultProperties = {
     '@path': '$.properties.name'
   },
   untranslatedTitle: {
-    '@path': '$.properties.untranslated_name'
+    '@if': {
+      exists: [{ '@path': '$.properties.variant' }],
+      then: { '@path': '$.properties.variant' },
+      else: { '@path': '$.properties.title' }
+    }
   },
   vendor: {
     '@path': '$.properties.vendor'
