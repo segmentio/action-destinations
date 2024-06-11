@@ -107,13 +107,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
   perform: (request, { payload, audienceSettings }) => {
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    if (!audienceSettings.account_id) {
-      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
-    }
 
     if (!payload.external_audience_id) {
       throw new IntegrationError('Bad Request: payload.external_audience_id missing.', 'INVALID_REQUEST_DATA', 400)
@@ -131,13 +124,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return taboolaClient.sendToTaboola()
   },
   performBatch: async (request, { payload: payloads, audienceSettings }) => {
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    if (!audienceSettings.account_id) {
-      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
-    }
 
     const taboolaClient = new TaboolaClient(request, payloads, audienceSettings)
     return taboolaClient.sendToTaboola()

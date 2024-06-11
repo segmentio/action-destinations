@@ -21,9 +21,9 @@ interface TaboolaPayload {
 export class TaboolaClient {
   request: RequestClient
   payloads: Payload[]
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
 
-  constructor(request: RequestClient, payloads: Payload[], audienceSettings: AudienceSettings) {
+  constructor(request: RequestClient, payloads: Payload[], audienceSettings?: AudienceSettings) {
     this.request = request
     this.payloads = payloads
     this.audienceSettings = audienceSettings
@@ -64,18 +64,6 @@ export class TaboolaClient {
       audienceMap.forEach((payloads, external_audience_id) => {
         const identities = payloads.map((payload) => this.createCluster(payload)).filter((cluster) => cluster !== null)
         if (identities.length > 0) {
-          console.log(
-            JSON.stringify(
-              {
-                operation: action as 'ADD' | 'REMOVE',
-                audience_id: external_audience_id,
-                identities
-              },
-              null,
-              2
-            )
-          )
-
           taboolaRequests.push(
             this.request(
               `https://backstage.taboola.com/backstage/api/1.0/${this.audienceSettings.account_id}/audience_onboarding`,
