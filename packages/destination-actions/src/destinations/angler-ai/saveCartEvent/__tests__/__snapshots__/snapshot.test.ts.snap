@@ -1,0 +1,132 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveCartEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "cartLine": Object {
+        "cost": Object {
+          "totalAmount": Object {
+            "amount": 57986244453335.04,
+          },
+        },
+        "merchandise": Object {
+          "id": "C)6#KZenr)fGyu%KjQ",
+          "image": Object {
+            "src": "C)6#KZenr)fGyu%KjQ",
+          },
+          "price": Object {
+            "amount": 57986244453335.04,
+          },
+          "product": Object {
+            "title": "C)6#KZenr)fGyu%KjQ",
+            "type": "C)6#KZenr)fGyu%KjQ",
+            "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+            "url": "C)6#KZenr)fGyu%KjQ",
+            "vendor": "C)6#KZenr)fGyu%KjQ",
+          },
+          "sku": "C)6#KZenr)fGyu%KjQ",
+          "title": "C)6#KZenr)fGyu%KjQ",
+          "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+        },
+        "quantity": 57986244453335.04,
+      },
+      "client_id": "C)6#KZenr)fGyu%KjQ",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 57986244453335.04,
+              "currencyCode": "C)6#KZenr)fGyu%KjQ",
+            },
+          },
+          "id": "C)6#KZenr)fGyu%KjQ",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": 57986244453335.04,
+                },
+              },
+              "merchandise": Object {
+                "id": "C)6#KZenr)fGyu%KjQ",
+                "image": Object {
+                  "src": "C)6#KZenr)fGyu%KjQ",
+                },
+                "price": Object {
+                  "amount": 57986244453335.04,
+                },
+                "product": Object {
+                  "title": "C)6#KZenr)fGyu%KjQ",
+                  "type": "C)6#KZenr)fGyu%KjQ",
+                  "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+                  "url": "C)6#KZenr)fGyu%KjQ",
+                  "vendor": "C)6#KZenr)fGyu%KjQ",
+                },
+                "sku": "C)6#KZenr)fGyu%KjQ",
+                "title": "C)6#KZenr)fGyu%KjQ",
+                "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+              },
+              "quantity": 57986244453335.04,
+            },
+          ],
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "C)6#KZenr)fGyu%KjQ",
+          },
+        ],
+        "customer": Object {
+          "dob": "C)6#KZenr)fGyu%KjQ",
+          "email": "gacan@pe.ss",
+          "firstName": "C)6#KZenr)fGyu%KjQ",
+          "id": "C)6#KZenr)fGyu%KjQ",
+          "lastName": "C)6#KZenr)fGyu%KjQ",
+          "phone": "C)6#KZenr)fGyu%KjQ",
+        },
+      },
+      "event_id": "C)6#KZenr)fGyu%KjQ",
+      "event_name": "C)6#KZenr)fGyu%KjQ",
+      "fbc": "C)6#KZenr)fGyu%KjQ",
+      "fpb": "C)6#KZenr)fGyu%KjQ",
+      "ga": "C)6#KZenr)fGyu%KjQ",
+      "ip_address": "C)6#KZenr)fGyu%KjQ",
+      "referrer": "C)6#KZenr)fGyu%KjQ",
+      "timestamp": "C)6#KZenr)fGyu%KjQ",
+      "url": "C)6#KZenr)fGyu%KjQ",
+      "user_agent": "C)6#KZenr)fGyu%KjQ",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveCartEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "cartLine": Object {
+        "cost": Object {
+          "totalAmount": Object {},
+        },
+        "merchandise": Object {
+          "image": Object {},
+          "price": Object {},
+          "product": Object {},
+        },
+      },
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "customData": Array [],
+        "customer": Object {},
+      },
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
