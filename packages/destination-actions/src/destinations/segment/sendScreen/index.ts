@@ -59,7 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    validateConsentObject(payload?.consent)
     const screenPayload: Object = convertPayload(payload)
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
@@ -70,7 +69,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!data.anonymous_id && !data.user_id) {
         throw MissingUserOrAnonymousIdThrowableError
       }
-      validateConsentObject(data?.consent)
       return convertPayload(data)
     })
 
@@ -80,6 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function convertPayload(data: Payload) {
+  const isValidConsentObject = validateConsentObject(data?.consent)
+
   return {
     userId: data?.user_id,
     anonymousId: data?.anonymous_id,
@@ -89,9 +89,7 @@ function convertPayload(data: Payload) {
     context: {
       app: data?.application,
       campaign: data?.campaign_parameters,
-      consent: {
-        ...data?.consent
-      },
+      consent: isValidConsentObject ? { ...data?.consent } : {},
       device: data?.device,
       ip: data?.ip_address,
       locale: data?.locale,

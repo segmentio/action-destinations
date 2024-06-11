@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { InvalidConsentObject } from './errors'
 
 export const user_id: InputField = {
   label: 'User ID',
@@ -376,16 +375,14 @@ function isCategoryPreferences(obj: unknown): boolean {
 
   return Object.values(obj).every((value) => typeof value === 'boolean')
 }
-export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): void => {
+export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): boolean => {
   if (obj == undefined) {
-    return
+    return true
   }
 
   if (typeof obj !== 'object' || obj === null) {
-    throw InvalidConsentObject
+    throw false
   }
 
-  if (!('categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences']))) {
-    throw InvalidConsentObject
-  }
+  return 'categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences'])
 }
