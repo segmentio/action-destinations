@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -65,7 +65,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
-      json: userUpdateRequest
+      json: userUpdateRequest,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   }
 }

@@ -7,9 +7,15 @@ export interface Payload {
   profile: {
     email?: string
     phone_number?: string
-    other_properties?: {
-      [k: string]: unknown
-    }
+    /**
+     * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
+     */
+    external_id?: string
+    /**
+     * Anonymous user identifier for the user.
+     */
+    anonymous_id?: string
+    [k: string]: unknown
   }
   /**
    * Name of the event. Must be less than 128 characters.

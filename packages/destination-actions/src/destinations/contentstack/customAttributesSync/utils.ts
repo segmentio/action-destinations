@@ -1,9 +1,8 @@
 import type { RequestClient } from '@segment/actions-core'
 import { PersonalizeAttributes } from './types'
-import { PERSONALIZE_API_BASE_URL } from '../constants'
 
-export const createCustomAttrbute = async (request: RequestClient, name: string) =>
-  request(`${PERSONALIZE_API_BASE_URL}/attributes`, {
+export const createCustomAttrbute = async (request: RequestClient, name: string, url: string) =>
+  request(`${url}/attributes`, {
     method: 'post',
     json: {
       name,
@@ -12,8 +11,8 @@ export const createCustomAttrbute = async (request: RequestClient, name: string)
     }
   })
 
-export const fetchAllAttributes = async (request: RequestClient) => {
-  const res = await request(`${PERSONALIZE_API_BASE_URL}/attributes`, {
+export const fetchAllAttributes = async (request: RequestClient, url: string) => {
+  const res = await request(`${url}/attributes`, {
     method: 'get'
   })
 
