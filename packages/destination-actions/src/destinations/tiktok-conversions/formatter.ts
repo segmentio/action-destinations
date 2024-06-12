@@ -1,5 +1,7 @@
 import { createHash } from 'crypto'
 
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
@@ -7,7 +9,14 @@ export const formatEmails = (email_addresses: string[] | undefined): string[] =>
   const result: string[] = []
   if (email_addresses) {
     email_addresses.forEach((email: string) => {
-      result.push(hashAndEncode(email.toLowerCase()))
+      let resolvedEmail
+      if (isHashedInformation(email)) {
+        resolvedEmail = email
+      } else {
+        resolvedEmail = hashAndEncode(email.toLowerCase())
+      }
+
+      result.push(resolvedEmail)
     })
   }
   return result
@@ -23,6 +32,11 @@ export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
   if (!phone_numbers) return result
 
   phone_numbers.forEach((phone: string) => {
+    if (isHashedInformation(phone)) {
+      result.push(phone)
+      return
+    }
+
     const validatedPhone = phone.match(/[0-9]{0,14}/g)
     if (validatedPhone === null) {
       throw new Error(`${phone} is not a valid E.164 phone number.`)

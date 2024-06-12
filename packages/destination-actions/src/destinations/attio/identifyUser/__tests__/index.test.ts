@@ -12,7 +12,8 @@ const event = createTestEvent({
   traits: {
     name: 'George Oscar Bluth',
     email
-  }
+  },
+  receivedAt: '2024-05-24T10:00:00.000Z'
 })
 
 const mapping = {
@@ -22,6 +23,9 @@ const mapping = {
     name: {
       '@path': '$.traits.name'
     }
+  },
+  received_at: {
+    '@path': '$.receivedAt'
   }
 }
 
@@ -79,5 +83,71 @@ describe('Attio.identifyUser', () => {
         settings: {}
       })
     ).rejects.toThrowError()
+  })
+
+  it('uses the batch assertion endpoint', async () => {
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', {
+        assertions: [
+          {
+            object: 'users',
+            mode: 'create-or-update',
+            matching_attribute: 'user_id',
+            multiselect_values: 'append',
+            values: {
+              primary_email_address: email,
+              user_id: event.userId,
+              name: event.traits?.name,
+
+              person: {
+                object: 'people',
+                mode: 'create-or-update',
+                matching_attribute: 'email_addresses',
+                multiselect_values: 'append',
+                values: {
+                  email_addresses: email
+                },
+                received_at: '2024-05-24T10:00:00.000Z'
+              }
+            },
+            received_at: '2024-05-24T10:00:00.000Z'
+          }
+        ]
+      })
+      .reply(202, '')
+
+    const responses = await testDestination.testBatchAction('identifyUser', {
+      events: [event],
+      mapping,
+      settings: {}
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(202)
+  })
+
+  it('handles the case where receivedAt is not provided', async () => {
+    const lackingReceivedAtEvent = createTestEvent({
+      type: 'identify' as const,
+      userId: '9',
+      traits: {
+        name: 'George Oscar Bluth',
+        email
+      },
+      receivedAt: undefined
+    })
+
+    // Can't control the exact timestamp, so only check it starts on the same year-month-day and is ISO8601 formatted
+    const datePrefix = new Date().toISOString().split('T')[0]
+
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', new RegExp(`"received_at":"${datePrefix}T`))
+      .reply(202, '')
+
+    await testDestination.testBatchAction('identifyUser', {
+      events: [lackingReceivedAtEvent],
+      mapping,
+      settings: {}
+    })
   })
 })

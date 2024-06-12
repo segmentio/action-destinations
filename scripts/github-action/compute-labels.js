@@ -8,7 +8,7 @@ module.exports = async ({ github, context, core }) => {
 }
 
 async function computeAuthorLabels(github, context, core) {
-  const teamSlugs = ['build-experience-team', 'libraries-web-team', 'strategic-connections-team']
+  const teamSlugs = ['libraries-web-team', 'strategic-connections-team']
   const username = context.payload.sender.login
   const organization = context.repo.owner
   const SEGMENT_CORE_LABEL = 'team:segment-core'

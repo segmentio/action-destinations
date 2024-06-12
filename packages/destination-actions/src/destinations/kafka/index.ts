@@ -35,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'Plain', value: 'plain' },
           { label: 'SCRAM-SHA-256', value: 'scram-sha-256' },
           { label: 'SCRAM-SHA-512', value: 'scram-sha-512' },
-          { label: 'AWS IAM', value: 'aws' },
+          //  { label: 'AWS IAM', value: 'aws' },
           { label: 'Client Certificate', value: 'client-cert-auth' }
         ],
         default: 'plain'
