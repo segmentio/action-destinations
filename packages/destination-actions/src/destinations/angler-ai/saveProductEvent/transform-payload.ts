@@ -1,4 +1,3 @@
-import { transform } from '@segment/actions-core/mapping-kit'
 import { Payload } from './generated-types'
 import { transformPayload as transformBasePayload } from '../saveBaseEvent/transform-payload'
 
