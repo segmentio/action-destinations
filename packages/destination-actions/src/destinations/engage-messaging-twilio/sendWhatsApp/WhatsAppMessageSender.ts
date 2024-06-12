@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { PhoneMessageSender } from '../utils'
-import { track } from '@segment/actions-shared'
+import { track } from '@segment/actions-shared/dist/engage/utils'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 const Liquid = new LiquidJs()

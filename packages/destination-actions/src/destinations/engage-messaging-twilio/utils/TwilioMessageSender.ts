@@ -4,7 +4,7 @@ import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
-import { track, MessageSendPerformer, MessagePayloadBase } from '@segment/actions-shared'
+import { track, MessageSendPerformer, MessagePayloadBase } from '@segment/actions-shared/dist/engage/utils'
 
 const Liquid = new LiquidJs()
 
