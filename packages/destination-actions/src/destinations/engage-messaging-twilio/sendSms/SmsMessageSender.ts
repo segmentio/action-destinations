@@ -2,7 +2,7 @@
 import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessageSender } from '../utils'
-import { ExtId, track } from '@segment/actions-shared/dist/engage/utils'
+import { ExtId, track } from '@segment/actions-shared'
 
 export class SmsMessageSender extends PhoneMessageSender<Payload> {
   supportedTemplateTypes: string[] = ['twilio/text', 'twilio/media']

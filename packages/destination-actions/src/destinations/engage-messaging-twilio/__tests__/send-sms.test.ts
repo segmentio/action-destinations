@@ -1,10 +1,6 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
-import {
-  FLAGON_NAME_LOG_ERROR,
-  FLAGON_NAME_LOG_INFO,
-  SendabilityStatus
-} from '@segment/actions-shared/dist/engage/utils'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '@segment/actions-shared'
 
 const phoneNumber = '+1234567891'
 const defaultTags = JSON.stringify({

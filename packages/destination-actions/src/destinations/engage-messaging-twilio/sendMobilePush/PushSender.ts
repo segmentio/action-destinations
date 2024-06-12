@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { TwilioMessageSender } from '../utils'
-import { ExtId, track } from '@segment/actions-shared/dist/engage/utils'
+import { ExtId, track } from '@segment/actions-shared'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
