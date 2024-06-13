@@ -13,4 +13,10 @@ export interface Payload {
    * User ID for the contact.
    */
   userId: string
+  /**
+   * Properties tied to this event, which can be included in emails triggered by this event.
+   */
+  eventProperties?: {
+    [k: string]: unknown
+  }
 }
