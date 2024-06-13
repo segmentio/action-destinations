@@ -15,10 +15,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "923^%f]tQn]lN2o",
             "email": "tobul@dij.uz",
-            "other_properties": Object {
-              "testType": "923^%f]tQn]lN2o",
-            },
+            "external_id": "923^%f]tQn]lN2o",
             "phone_number": "923^%f]tQn]lN2o",
           },
           "type": "profile",
@@ -28,6 +27,7 @@ Object {
         "testType": "923^%f]tQn]lN2o",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "923^%f]tQn]lN2o",
       "value": 28946631197982.72,
     },
     "type": "event",

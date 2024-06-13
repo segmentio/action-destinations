@@ -15,10 +15,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "]DD4LgSzT#hw(U]@J$a",
             "email": "so@uzwumiz.wf",
-            "other_properties": Object {
-              "testType": "]DD4LgSzT#hw(U]@J$a",
-            },
+            "external_id": "]DD4LgSzT#hw(U]@J$a",
             "phone_number": "]DD4LgSzT#hw(U]@J$a",
           },
           "type": "profile",
@@ -28,6 +27,7 @@ Object {
         "testType": "]DD4LgSzT#hw(U]@J$a",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "]DD4LgSzT#hw(U]@J$a",
       "value": 71505359625256.95,
     },
     "type": "event",

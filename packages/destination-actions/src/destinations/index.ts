@@ -144,7 +144,7 @@ register('656f2474a919b7e6e4900265', './gleap')
 register('659eb79c1141e58effa2153e', './kevel')
 register('659eb601f8f615dac18db564', './aggregations-io')
 register('659eb6903c4d201ebd9e2f5c', './equals')
-register('65ae435952ce3b2244f99e22', './amazon-ads')
+register('66543798b2fb3cb3e9ff992c', './amazon-amc')
 register('65b8e9eca1b5903a031c6378', './schematic')
 register('65b8e9ae4bc3eee909e05c73', './courier')
 register('65b8e9531fc2c458f50fd55d', './tiktok-offline-conversions-sandbox')
@@ -160,7 +160,13 @@ register('6578a19fbd1201d21f035156', './responsys')
 register('65f9885371de48a7a3f6b4bf', './yotpo')
 register('65f98869b73d65a27152e088', './mantle')
 register('65f9888628c310646331738a', './chartmogul')
-
+register('661e9787658d112ba31b59a7', './xtremepush')
+register('661e97a161b54c61eb22ead5', './spiffy')
+register('6627b0208bbe1699ca06eef8', './inleads-ai')
+register('663235c8575a8ec65ccadf42', './magellan-ai')
+register('664ce7bdc820c71f7e3ff031', './contentstack')
+register('664ce847b3e6f19ea96b3611', './trubrics')
+register('66684ba89c0523461d8bb7f3', './taboola-actions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

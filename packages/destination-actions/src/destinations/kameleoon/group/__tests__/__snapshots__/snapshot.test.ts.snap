@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Kameleoon's group destination action: all fields 1`] = `
+Object {
+  "anonymousId": "rdEr9f6(H52BC0%(",
+  "groupId": "rdEr9f6(H52BC0%(",
+  "messageId": "rdEr9f6(H52BC0%(",
+  "properties": Object {
+    "kameleoonVisitorCode": "rdEr9f6(H52BC0%(",
+    "testType": "rdEr9f6(H52BC0%(",
+  },
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
+  "userId": "rdEr9f6(H52BC0%(",
+}
+`;
+
+exports[`Testing snapshot for Kameleoon's group destination action: required fields 1`] = `
+Object {
+  "groupId": "rdEr9f6(H52BC0%(",
+  "messageId": "rdEr9f6(H52BC0%(",
+  "properties": Object {},
+  "timestamp": "2024-01-03T00:00:00.000Z",
+  "type": "rdEr9f6(H52BC0%(",
+}
+`;

@@ -23,11 +23,21 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
-        other_properties: {
-          label: 'Other Properties',
-          type: 'object'
+        external_id: {
+          label: 'External Id',
+          description:
+            'A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.',
+          type: 'string',
+          default: { '@path': '$.userId' }
+        },
+        anonymous_id: {
+          label: 'Anonymous Id',
+          description: 'Anonymous user identifier for the user.',
+          type: 'string',
+          default: { '@path': '$.anonymousId' }
         }
       },
+      additionalProperties: true,
       required: true
     },
     metric_name: {
@@ -78,10 +88,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { email, phone_number } = payload.profile
+    const { email, phone_number, external_id, anonymous_id } = payload.profile
 
-    if (!email && !phone_number) {
-      throw new PayloadValidationError('One of Phone Number or Email is required.')
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
 
     const eventData = {
@@ -91,6 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
           properties: { ...payload.properties },
           time: payload.time,
           value: payload.value,
+          unique_id: payload.unique_id,
           metric: {
             data: {
               type: 'metric',
@@ -102,9 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
           profile: {
             data: {
               type: 'profile',
-              attributes: {
-                ...payload.profile
-              }
+              attributes: payload.profile
             }
           }
         }

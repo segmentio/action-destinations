@@ -4,30 +4,38 @@ import {
   PartialErrorResponse,
   QueryResponse,
   ConversionActionId,
-  ConversionActionResponse
+  ConversionActionResponse,
+  CustomVariableInterface
 } from './types'
 import {
   ModifiedResponse,
   RequestClient,
   IntegrationError,
   PayloadValidationError,
-  DynamicFieldResponse,
-  APIError
+  DynamicFieldResponse
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { HTTPError } from '@segment/actions-core'
 
 export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
+export class GoogleAdsError extends HTTPError {
+  response: Response & {
+    status: string
+    statusText: string
+  }
+}
+
 export function formatCustomVariables(
   customVariables: object,
   customVariableIdsResults: Array<ConversionCustomVariable>
-): object {
+): CustomVariableInterface[] {
   // Maps custom variable keys to their resource names
-  const resourceNames: { [key: string]: any } = {}
+  const resourceNames: { [key: string]: string } = {}
   Object.entries(customVariableIdsResults).forEach(([_, customVariablesIds]) => {
     resourceNames[customVariablesIds.conversionCustomVariable.name] =
       customVariablesIds.conversionCustomVariable.resourceName
@@ -131,8 +139,8 @@ export async function getConversionActionDynamicData(
       choices: [],
       nextPage: '',
       error: {
-        message: (err as APIError).message ?? 'Unknown error',
-        code: (err as APIError).status + '' ?? 'Unknown error'
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
       }
     }
   }
@@ -164,9 +172,9 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   return version
 }
 
-export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 export const commonHashedEmailValidation = (email: string): string => {
-  if (isHashedEmail(email)) {
+  if (isHashedInformation(email)) {
     return email
   }
 

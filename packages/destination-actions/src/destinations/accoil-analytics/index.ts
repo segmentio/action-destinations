@@ -31,22 +31,36 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Track Event',
+      name: 'Track Calls',
       subscribe: 'type = "track"',
       partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
     {
-      name: 'Group',
-      subscribe: 'type = "group"',
+      name: 'Page Calls',
+      subscribe: 'type = "page"',
       partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'
     },
     {
-      name: 'Identify User',
+      name: 'Screen Calls',
+      subscribe: 'type = "screen"',
+      partnerAction: 'postToAccoil',
+      mapping: defaultValues(postToAccoil.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify Calls',
       subscribe: 'type = "identify"',
+      partnerAction: 'postToAccoil',
+      mapping: defaultValues(postToAccoil.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Group Calls',
+      subscribe: 'type = "group"',
       partnerAction: 'postToAccoil',
       mapping: defaultValues(postToAccoil.fields),
       type: 'automatic'

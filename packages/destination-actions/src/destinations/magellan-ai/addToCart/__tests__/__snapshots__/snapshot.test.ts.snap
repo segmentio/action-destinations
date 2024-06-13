@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MagellanAI's addToCart destination action: all fields 1`] = `
+Object {
+  "currency": "NOK",
+  "productId": "R2syV$j)mpbUuxE",
+  "productName": "R2syV$j)mpbUuxE",
+  "productType": "R2syV$j)mpbUuxE",
+  "productVendor": "R2syV$j)mpbUuxE",
+  "quantity": 33176727416995.84,
+  "token": "R2syV$j)mpbUuxE",
+  "value": 33176727416995.84,
+  "variantId": "R2syV$j)mpbUuxE",
+  "variantName": "R2syV$j)mpbUuxE",
+}
+`;
+
+exports[`Testing snapshot for MagellanAI's addToCart destination action: required fields 1`] = `
+Object {
+  "currency": "NOK",
+  "quantity": 33176727416995.84,
+  "token": "R2syV$j)mpbUuxE",
+  "value": 33176727416995.84,
+}
+`;

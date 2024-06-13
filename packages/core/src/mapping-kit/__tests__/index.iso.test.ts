@@ -546,6 +546,14 @@ describe('@flatten', () => {
     )
     expect(output).toStrictEqual({ result: { '0.fazz': 'bar', '0.fizz': 'baz' } })
   })
+
+  test('omitArrays passed', () => {
+    const output = transform(
+      { neat: { '@flatten': { value: { '@path': '$.foo' }, separator: '.', omitArrays: true } } },
+      { foo: { bar: 'baz', aces: [1, 2] } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: 'baz', aces: [1, 2] } })
+  })
 })
 
 describe('@path', () => {
@@ -627,6 +635,22 @@ describe('@replace', () => {
   test('replace on empty string', () => {
     const payload = {
       a: ''
+    }
+    const output = transform(
+      {
+        '@replace': {
+          pattern: '_',
+          replacement: 'rrrrr',
+          value: { '@path': '$.a' }
+        }
+      },
+      payload
+    )
+    expect(output).toStrictEqual('')
+  })
+  test('replace on null string', () => {
+    const payload = {
+      a: null
     }
     const output = transform(
       {
@@ -876,6 +900,313 @@ describe('remove undefined values in objects', () => {
     expect(transform({ x: { y: { z: undefined } }, foo: 1 }, {})).toEqual({
       x: { y: {} },
       foo: 1
+    })
+  })
+})
+
+describe('@merge', () => {
+  // simple test cases that have the same output regardless of direction
+  ;['left', 'right'].forEach((direction) => {
+    test('empty', () => {
+      const output = transform({ '@merge': { direction, objects: [] } }, {})
+      expect(output).toStrictEqual({})
+    })
+
+    test('one object', () => {
+      const output = transform({ '@merge': { direction, objects: [{ cool: true }] } }, {})
+      expect(output).toStrictEqual({ cool: true })
+    })
+
+    test('invalid type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: { oops: true } } })
+      }).toThrowError()
+    })
+
+    test('invalid nested type', () => {
+      expect(() => {
+        transform({ '@merge': { direction, objects: [{}, 1] } })
+      }).toThrowError()
+    })
+  })
+
+  test('invalid direction specified', () => {
+    expect(() => {
+      transform({ '@merge': { direction: 'up', objects: [{ oh: 'yeah' }, {}] } })
+    }).toThrowError()
+  })
+
+  // expect a different output based on direction
+  test('simple overwrite default direction', () => {
+    const output = transform({ '@merge': { direction: 'right', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: 'you bet' })
+  })
+
+  test('nested directive default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite default direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'right', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'you' })
+  })
+
+  test('simple overwrite left direction', () => {
+    const output = transform({ '@merge': { direction: 'left', objects: [{ cool: true }, { cool: 'you bet' }] } }, {})
+    expect(output).toStrictEqual({ cool: true })
+  })
+
+  test('nested directive left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz' })
+  })
+
+  test('nested directive with overwrite left direction', () => {
+    const output = transform(
+      { '@merge': { direction: 'left', objects: [{ cool: true, hey: 'there' }, { '@path': 'foo' }] } },
+      { foo: { bar: 'baz', hey: 'you' } }
+    )
+    expect(output).toStrictEqual({ cool: true, bar: 'baz', hey: 'there' })
+  })
+})
+
+describe('@transform', () => {
+  test('invalid key type', () => {
+    expect(() => {
+      transform({ '@transform': { '@path': {} } }, { foo: 'bar' })
+    }).toThrowError()
+  })
+  test('simple', () => {
+    const output = transform(
+      {
+        '@transform': {
+          apply: {
+            foo: {
+              '@path': '$.a'
+            }
+          },
+          mapping: {
+            cool: { '@path': '$.foo' }
+          }
+        }
+      },
+      {
+        a: 1,
+        b: 2
+      }
+    )
+
+    expect(output).toStrictEqual({ cool: 1 })
+  })
+
+  test('composed with other directives', () => {
+    const output = transform(
+      {
+        '@transform': {
+          apply: {
+            properties: {
+              '@flatten': {
+                value: { '@path': '$.properties' },
+                separator: '_'
+              }
+            }
+          },
+          mapping: {
+            properties: { '@path': '$.properties' },
+            topLevel: { '@path': '$.properties.nested_a' }
+          }
+        }
+      },
+      {
+        properties: {
+          test: 'value',
+          another: 'thing',
+          nested: {
+            a: 'special',
+            b: 2
+          }
+        },
+        otherStuff: 'foo',
+        more: 'bar'
+      }
+    )
+
+    expect(output).toStrictEqual({
+      properties: {
+        test: 'value',
+        another: 'thing',
+        nested_a: 'special',
+        nested_b: 2
+      },
+      topLevel: 'special'
+    })
+  })
+})
+
+describe('@excludeWhenNull', () => {
+  test('simple', () => {
+    const output = transform(
+      { someFieldToExclude: { '@excludeWhenNull': { '@path': '$.foo.bar' } } },
+      { foo: { bar: null, aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({})
+  })
+
+  test('simple with multiple mappings', () => {
+    const output = transform(
+      {
+        someFieldToExclude: { '@excludeWhenNull': { '@path': '$.foo.bar' } },
+        anotherField: { '@path': '$.foo.aces.a' }
+      },
+      { foo: { bar: null, aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ anotherField: 1 })
+  })
+
+  test('dont exclude individual null fields in object when applied at object level', () => {
+    const output = transform(
+      { neat: { '@excludeWhenNull': { '@path': '$.foo' } } },
+      { foo: { bar: null, aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ neat: { bar: null, aces: { a: 1, b: 2 } } })
+  })
+
+  test('exclude when resolved value is null using transform', () => {
+    const output = transform(
+      {
+        empty: {
+          '@transform': {
+            apply: {
+              properties: {
+                '@excludeWhenNull': { '@path': '$.properties' }
+              }
+            },
+            mapping: {
+              properties: { '@path': '$.properties' },
+              topLevel: { '@path': '$.properties.nested_a' }
+            }
+          }
+        }
+      },
+      { foo: { bar: null, aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({ empty: {} })
+  })
+
+  test('composed with other directives', () => {
+    // Note: doesnt make sense to test with
+    // - transform: always returns non-null json object
+    // - merge: always returns non-null json object
+    // - flatten: always returns non-null json object
+    // - arrayPath: always returns non-null json array
+    const output = transform(
+      {
+        massive: {
+          pathNull: { '@excludeWhenNull': { '@path': '$.foo.bar' } },
+          templateEmpty: { '@excludeWhenNull': { '@template': '{{foo.bar}}' } },
+          literalNull: { '@excludeWhenNull': { '@literal': null } },
+          ifNull: { '@excludeWhenNull': { '@if': { exists: { '@path': '$.foo.foobar' }, then: 1, else: null } } },
+          caseNull: { '@excludeWhenNull': { '@case': { operator: 'upper', value: { '@path': '$.foo.bar' } } } },
+          replaceNull: {
+            '@excludeWhenNull': { '@replace': { pattern: '-', replacement: 'nice', value: { '@path': '$.foo.bar' } } }
+          },
+          jsonNull: { '@excludeWhenNull': { '@json': { mode: 'decode', value: { '@path': '$.foo.bar' } } } },
+          transformNull: {
+            '@excludeWhenNull': {
+              '@transform': {
+                apply: { properties: { '@path': '$.foo.bar' } },
+                mapping: { properties: { '@excludeWhenNull': { '@path': '$.properties' } } }
+              }
+            }
+          },
+          transformNull2: {
+            '@excludeWhenNull': {
+              '@transform': {
+                apply: { properties: { '@excludeWhenNull': { '@path': '$.foo.bar' } } },
+                mapping: { properties: { '@path': '$.properties' } }
+              }
+            }
+          },
+          // These are essentially no-ops bcos they always return non-null objects but good to exercise explicitly
+          jsonNullEncode: { '@excludeWhenNull': { '@json': { mode: 'encode', value: { '@path': '$.foo.bar' } } } },
+          transformValue: {
+            '@excludeWhenNull': {
+              '@transform': {
+                apply: { properties: { '@path': '$.foo.bar' } },
+                mapping: { properties: { '@path': '$.properties' } }
+              }
+            }
+          }
+        }
+      },
+      { foo: { bar: null, aces: { a: 1, b: 2 } } }
+    )
+    expect(output).toStrictEqual({
+      massive: {
+        templateEmpty: '',
+        jsonNullEncode: 'null',
+        replaceNull: '', // TODO possible that this is a bug in the replace directive and should return null and get excluded instead
+        transformNull: {},
+        transformNull2: {},
+        transformValue: {
+          properties: null
+        }
+      }
+    })
+  })
+})
+
+describe('when a root level directive is used', () => {
+  test('correctly handles the segment internal directive key', () => {
+    const output = transform(
+      {
+        __segment_internal_directive: {
+          '@transform': {
+            apply: {
+              properties: {
+                '@flatten': {
+                  value: { '@path': '$.properties' },
+                  separator: '_'
+                }
+              }
+            }
+          }
+        },
+        properties: { '@path': '$.properties' },
+        topLevel: { '@path': '$.properties.nested_a' }
+      },
+      {
+        properties: {
+          test: 'value',
+          another: 'thing',
+          nested: {
+            a: 'special',
+            b: 2
+          }
+        },
+        otherStuff: 'foo',
+        more: 'bar'
+      }
+    )
+
+    expect(output).toStrictEqual({
+      properties: {
+        test: 'value',
+        another: 'thing',
+        nested_a: 'special',
+        nested_b: 2
+      },
+      topLevel: 'special'
     })
   })
 })

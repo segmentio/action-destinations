@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -12,6 +13,7 @@ const createEventData = (payload: Payload) => ({
       properties: { ...payload.properties },
       time: payload.time,
       value: payload.value,
+      unique_id: payload.unique_id,
       metric: {
         data: {
           type: 'metric',
@@ -23,9 +25,7 @@ const createEventData = (payload: Payload) => ({
       profile: {
         data: {
           type: 'profile',
-          attributes: {
-            ...payload.profile
-          }
+          attributes: payload.profile
         }
       }
     }
@@ -37,13 +37,14 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
     return
   }
 
+  delete orderEventData.data.attributes.properties?.products
   const productPromises = payload.products.map((product) => {
     const productEventData = {
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product.properties, ...orderEventData.data.attributes.properties },
-          value: product.value,
+          properties: { ...product, ...orderEventData.data.attributes.properties },
+          unique_id: uuidv4(),
           metric: {
             data: {
               type: 'metric',
@@ -85,11 +86,21 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
-        other_properties: {
-          label: 'Other Properties',
-          type: 'object'
+        external_id: {
+          label: 'External Id',
+          description:
+            'A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.',
+          type: 'string',
+          default: { '@path': '$.userId' }
+        },
+        anonymous_id: {
+          label: 'Anonymous Id',
+          description: 'Anonymous user identifier for the user.',
+          type: 'string',
+          default: { '@path': '$.anonymousId' }
         }
       },
+      additionalProperties: true,
       required: true
     },
     properties: {
@@ -133,27 +144,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Products',
       description: 'List of products purchased in the order.',
       multiple: true,
-      type: 'object',
-      properties: {
-        value: {
-          label: 'Value',
-          description: 'A numeric value to associate with this event. For example, the dollar amount of a purchase.',
-          type: 'number'
-        },
-        properties: {
-          description: `Properties of this event.`,
-          label: 'Properties',
-          type: 'object'
-        }
-      }
+      type: 'object'
     }
   },
 
   perform: async (request, { payload }) => {
-    const { email, phone_number } = payload.profile
+    const { email, phone_number, external_id, anonymous_id } = payload.profile
 
-    if (!email && !phone_number) {
-      throw new PayloadValidationError('One of Phone Number or Email is required.')
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
 
     const eventData = createEventData(payload)
