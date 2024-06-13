@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: postMessage action - all fields 1`] = `
+Object {
+  "query": "SwvXw&[MtMsswfq8J6",
+  "variables": Object {
+    "testType": "SwvXw&[MtMsswfq8J6",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: postMessage action - required fields 1`] = `Object {}`;
