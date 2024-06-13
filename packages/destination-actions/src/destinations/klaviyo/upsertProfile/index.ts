@@ -1,4 +1,4 @@
-import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -292,7 +292,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, hookOutputs }) => {
     payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
 
     const profilesWithList: Payload[] = []
