@@ -9,9 +9,11 @@ import {
   addProfileToList,
   createImportJobPayload,
   getListIdDynamicData,
+  sendImportJobRequest,
+  getList,
+  createList,
   groupByListId,
-  processProfilesByGroup,
-  sendImportJobRequest
+  processProfilesByGroup
 } from '../functions'
 import { batch_size } from '../properties'
 
@@ -152,12 +154,78 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.integrations.Klaviyo.listId' }
     }
   },
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Connect to a static list in Klaviyo',
+      description: 'When saving this mapping, we will connect to a list in Klaviyo.',
+      inputFields: {
+        list_identifier: {
+          type: 'string',
+          label: 'Existing List ID',
+          description:
+            'The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.',
+          required: false,
+          dynamic: async (request) => {
+            return getListIdDynamicData(request)
+          }
+        },
+        list_name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the Klaviyo list that you would like to create.',
+          required: false
+        }
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the created Klaviyo list that users will be synced to.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the created Klaviyo list that users will be synced to.',
+          required: false
+        }
+      },
+      performHook: async (request, { settings, hookInputs }) => {
+        if (hookInputs.list_identifier) {
+          try {
+            return getList(request, settings, hookInputs.list_identifier)
+          } catch (e) {
+            const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
+            const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
+            return {
+              error: {
+                message,
+                code
+              }
+            }
+          }
+        }
+        try {
+          return createList(request, settings, hookInputs.list_name)
+        } catch (e) {
+          const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
+          const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
+          return {
+            error: {
+              message,
+              code
+            }
+          }
+        }
+      }
+    }
+  },
   dynamicFields: {
     list_id: async (request): Promise<DynamicFieldResponse> => {
       return getListIdDynamicData(request)
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, hookOutputs }) => {
     const {
       email,
       external_id,
@@ -169,7 +237,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...otherAttributes
     } = payload
 
-    const list_id = override_list_id || otherListId
+    const list_id = hookOutputs?.retlOnMappingSave?.outputs?.id ?? override_list_id ?? otherListId
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
@@ -231,6 +299,9 @@ const action: ActionDefinition<Settings, Payload> = {
     const profilesWithoutList: Payload[] = []
 
     payload.forEach((profile) => {
+      if (hookOutputs?.retlOnMappingSave?.outputs?.id) {
+        profile.list_id = hookOutputs.retlOnMappingSave.outputs.id
+      }
       if (profile.list_id || profile.override_list_id) {
         profilesWithList.push(profile)
       } else {

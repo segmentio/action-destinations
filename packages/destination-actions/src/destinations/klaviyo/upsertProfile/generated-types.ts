@@ -69,3 +69,29 @@ export interface Payload {
    */
   override_list_id?: string
 }
+// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+
+export interface HookBundle {
+  retlOnMappingSave: {
+    inputs?: {
+      /**
+       * The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.
+       */
+      list_identifier?: string
+      /**
+       * The name of the Klaviyo list that you would like to create.
+       */
+      list_name?: string
+    }
+    outputs?: {
+      /**
+       * The ID of the created Klaviyo list that users will be synced to.
+       */
+      id?: string
+      /**
+       * The name of the created Klaviyo list that users will be synced to.
+       */
+      name?: string
+    }
+  }
+}

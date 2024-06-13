@@ -297,6 +297,68 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
   return profileToSubscribe
 }
 
+export async function getList(request: RequestClient, settings: Settings, listId: string) {
+  const apiKey = settings.api_key
+  const response = await request(`${API_URL}/lists/${listId}`, {
+    method: 'GET',
+    headers: buildHeaders(apiKey),
+    throwHttpErrors: false
+  })
+
+  if (!response.ok) {
+    const errorResponse = await response.json()
+    const klaviyoErrorDetail = errorResponse.errors[0].detail
+    throw new APIError(klaviyoErrorDetail, response.status)
+  }
+
+  const r = await response.json()
+  const externalId = r.data.id
+
+  if (externalId !== listId) {
+    throw new IntegrationError(
+      "Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.",
+      'INVALID_REQUEST_DATA',
+      400
+    )
+  }
+
+  return {
+    successMessage: `Using existing list '${r.data.attributes.name}' (id: ${listId})`,
+    savedData: {
+      id: listId,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export async function createList(request: RequestClient, settings: Settings, listName: string) {
+  const apiKey = settings.api_key
+  if (!listName) {
+    throw new PayloadValidationError('Missing audience name value')
+  }
+
+  if (!apiKey) {
+    throw new PayloadValidationError('Missing Api Key value')
+  }
+
+  const response = await request(`${API_URL}/lists`, {
+    method: 'POST',
+    headers: buildHeaders(apiKey),
+    json: {
+      data: { type: 'list', attributes: { name: listName } }
+    }
+  })
+  const r = await response.json()
+
+  return {
+    successMessage: `List '${r.data.attributes.name}' (id: ${r.data.id}) created successfully!`,
+    savedData: {
+      id: r.data.id,
+      name: r.data.attributes.name
+    }
+  }
+}
+
 export function groupByListId(profiles: Payload[]) {
   const grouped: GroupedProfiles = {}
 
