@@ -55,11 +55,11 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.form.elements',
           {
-            id: { '@path': 'id' },
-            name: { '@path': 'name' },
-            tagName: { '@path': 'tagName' },
-            type: { '@path': 'type' },
-            value: { '@path': 'value' }
+            id: { '@path': '$.id' },
+            name: { '@path': '$.name' },
+            tagName: { '@path': '$.tagName' },
+            type: { '@path': '$.type' },
+            value: { '@path': '$.value' }
           }
         ]
       }

@@ -256,13 +256,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.discount_applications',
           {
-            target_type: { '@path': 'target_type' },
-            type: { '@path': 'type' },
-            value: { '@path': 'value' },
-            value_type: { '@path': 'value_type' },
-            allocation_method: { '@path': 'allocation_method' },
-            target_selection: { '@path': 'target_selection' },
-            code: { '@path': 'code' }
+            target_type: { '@path': '$.target_type' },
+            type: { '@path': '$.type' },
+            value: { '@path': '$.value' },
+            value_type: { '@path': '$.value_type' },
+            allocation_method: { '@path': '$.allocation_method' },
+            target_selection: { '@path': '$.target_selection' },
+            code: { '@path': '$.code' }
           }
         ]
       }
@@ -295,9 +295,9 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.discount_codes',
           {
-            code: { '@path': 'code' },
-            amount: { '@path': 'amount' },
-            type: { '@path': 'type' }
+            code: { '@path': '$.code' },
+            amount: { '@path': '$.amount' },
+            type: { '@path': '$.type' }
           }
         ]
       }
@@ -385,13 +385,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.fulfillments',
           {
-            id: { '@path': 'id' },
-            created_at: { '@path': 'created_at' },
-            order_id: { '@path': 'order_id' },
-            shipment_status: { '@path': 'shipment_status' },
-            status: { '@path': 'status' },
-            tracking_company: { '@path': 'tracking_company' },
-            updated_at: { '@path': 'updated_at' }
+            id: { '@path': '$.id' },
+            created_at: { '@path': '$.created_at' },
+            order_id: { '@path': '$.order_id' },
+            shipment_status: { '@path': '$.shipment_status' },
+            status: { '@path': '$.status' },
+            tracking_company: { '@path': '$.tracking_company' },
+            updated_at: { '@path': '$.updated_at' }
           }
         ]
       }
@@ -474,8 +474,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.note_attributes',
           {
-            name: { '@path': 'name' },
-            value: { '@path': 'value' }
+            name: { '@path': '$.name' },
+            value: { '@path': '$.value' }
           }
         ]
       }
@@ -756,8 +756,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.additional_fields',
           {
-            name: { '@path': 'name' },
-            value: { '@path': 'value' }
+            name: { '@path': '$.name' },
+            value: { '@path': '$.value' }
           }
         ]
       }

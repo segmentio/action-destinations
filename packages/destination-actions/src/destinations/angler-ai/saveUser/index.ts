@@ -129,9 +129,9 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.traits.email_marketing_consent',
           {
-            state: { '@path': 'state' },
-            opt_in_level: { '@path': 'opt_in_level' },
-            consent_updated_at: { '@path': 'consent_updated_at' }
+            state: { '@path': '$.state' },
+            opt_in_level: { '@path': '$.opt_in_level' },
+            consent_updated_at: { '@path': '$.consent_updated_at' }
           }
         ]
       }
@@ -211,10 +211,10 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.traits.metafield',
           {
-            key: { '@path': 'key' },
-            namespace: { '@path': 'namespace' },
-            value: { '@path': 'value' },
-            type: { '@path': 'type' }
+            key: { '@path': '$.key' },
+            namespace: { '@path': '$.namespace' },
+            value: { '@path': '$.value' },
+            type: { '@path': '$.type' }
           }
         ]
       }
@@ -285,10 +285,10 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.traits.sms_marketing_consent',
           {
-            state: { '@path': 'state' },
-            opt_in_level: { '@path': 'opt_in_level' },
-            consent_updated_at: { '@path': 'consent_updated_at' },
-            consent_collected_from: { '@path': 'consent_collected_from' }
+            state: { '@path': '$.state' },
+            opt_in_level: { '@path': '$.opt_in_level' },
+            consent_updated_at: { '@path': '$.consent_updated_at' },
+            consent_collected_from: { '@path': '$.consent_collected_from' }
           }
         ]
       }
