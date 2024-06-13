@@ -17,8 +17,7 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  },
-  readOnly: true
+  }
 }
 
 export const external_id: InputField = {
@@ -47,35 +46,35 @@ export const first_name: InputField = {
   label: 'First Name',
   description: `Individual's first name.`,
   type: 'string',
-  default: { '@path': '$.context.traits.firstName' }
+  default: { '@path': '$.properties.firstName' }
 }
 
 export const last_name: InputField = {
   label: 'Last Name',
   description: `Individual's last name.`,
   type: 'string',
-  default: { '@path': '$.context.traits.lastName' }
+  default: { '@path': '$.properties.lastName' }
 }
 
 export const organization: InputField = {
   label: 'Organization',
   description: `Name of the company or organization within the company for whom the individual works.`,
   type: 'string',
-  default: { '@path': '$.context.traits.company.name' }
+  default: { '@path': '$.properties.company.name' }
 }
 
 export const title: InputField = {
   label: 'Title',
   description: `Individual's job title.`,
   type: 'string',
-  default: { '@path': '$.context.traits.title' }
+  default: { '@path': '$.properties.title' }
 }
 
 export const image: InputField = {
   label: 'Image',
   description: `URL pointing to the location of a profile image.`,
   type: 'string',
-  default: { '@path': '$.context.traits.avatar' }
+  default: { '@path': '$.properties.avatar' }
 }
 
 export const location: InputField = {
@@ -125,11 +124,11 @@ export const location: InputField = {
     }
   },
   default: {
-    city: { '@path': '$.context.traits.address.city' },
-    region: { '@path': '$.context.traits.address.state' },
-    zip: { '@path': '$.context.traits.address.postal_code' },
-    address1: { '@path': '$.context.traits.address.street' },
-    country: { '@path': '$.context.traits.address.country' }
+    city: { '@path': '$.properties.address.city' },
+    region: { '@path': '$.properties.address.state' },
+    zip: { '@path': '$.properties.address.postal_code' },
+    address1: { '@path': '$.properties.address.street' },
+    country: { '@path': '$.properties.address.country' }
   }
 }
 
@@ -137,5 +136,5 @@ export const properties: InputField = {
   description: 'An object containing key/value pairs for any custom properties assigned to this profile.',
   label: 'Properties',
   type: 'object',
-  default: { '@path': '$.context.properties' }
+  default: { '@path': '$.properties.properties' }
 }

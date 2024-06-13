@@ -14,7 +14,7 @@ declare global {
 }
 
 export const destination: BrowserDestinationDefinition<Settings, StackAdaptSDK> = {
-  name: 'StackAdapt Pixel (Actions)',
+  name: 'StackAdapt Pixel',
   slug: 'actions-stackadapt',
   mode: 'device',
   presets: [

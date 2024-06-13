@@ -99,6 +99,9 @@ export interface GlobalSetting {
 /** The supported field type names */
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
+/** The supported field categories */
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config'
+
 /** Properties of an InputField which are involved in creating the generated-types.ts file */
 export interface InputFieldJSONSchema {
   /** A short, human-friendly label for the field */
@@ -191,6 +194,16 @@ export interface InputField extends InputFieldJSONSchema {
    * the value of another field.
    */
   depends_on?: DependsOnConditions
+
+  /**
+   * Determines how the field should be categorized in the UI. This is useful for grouping fields together in the UI.
+   */
+  category?: FieldCategory
+}
+
+/** Base interface for conditions  */
+interface BaseCondition {
+  operator: 'is' | 'is_not'
 }
 
 /** Base interface for conditions  */
