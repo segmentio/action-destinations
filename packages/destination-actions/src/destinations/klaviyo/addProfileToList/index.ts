@@ -35,6 +35,9 @@ const action: ActionDefinition<Settings, Payload> = {
     location: { ...location },
     properties: { ...properties }
   },
+  validSchema: {
+    anyOf: [{ required: ['email'] }, { required: ['external_id'] }]
+  },
   perform: async (request, { payload }) => {
     const { email, list_id, external_id, enable_batching, batch_size, ...additionalAttributes } = payload
     if (!email && !external_id) {

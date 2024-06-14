@@ -61,6 +61,40 @@ const schema = fieldsToJsonSchema({
   }
 })
 
+const schemaWithAdditionalSchema = fieldsToJsonSchema(
+  {
+    a: {
+      label: 'a',
+      type: 'string'
+    },
+    b: {
+      label: 'b',
+      type: 'object'
+    }
+  },
+  undefined,
+  {
+    anyOf: [{ required: ['a'] }, { required: ['b'] }]
+  }
+)
+
+describe.only('validateSchema with additional schemas defined', () => {
+  it('should handle an additional anyOf schema correctly', () => {
+    const validPayload = {
+      a: 'a'
+    }
+
+    const invalidPayload = {
+      c: 'c'
+    }
+
+    expect(validateSchema(validPayload, schemaWithAdditionalSchema, { schemaKey: `testSchema` })).toBe(true)
+
+    expect(
+      validateSchema(invalidPayload, schemaWithAdditionalSchema, { schemaKey: `testSchema`, throwIfInvalid: false })
+    ).toBe(false)
+  })
+})
 describe('validateSchema', () => {
   it('should remove any keys that are not specified', () => {
     const payload = {

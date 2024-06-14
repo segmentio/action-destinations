@@ -56,6 +56,12 @@ export interface BaseActionDefinition {
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
   fields: Record<string, InputField>
+
+  /**
+   * Additional JSON Schemas directly defined by the builder
+   */
+
+  validSchema?: JSONSchema4
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
@@ -217,7 +223,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
-      this.schema = fieldsToJsonSchema(definition.fields)
+      this.schema = fieldsToJsonSchema(definition.fields, undefined, definition.validSchema)
     }
     // Generate a json schema for each defined hook based on the field definitions
     if (definition.hooks) {

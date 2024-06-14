@@ -25,7 +25,11 @@ interface SchemaOptions {
   additionalProperties?: boolean
 }
 
-export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
+export function fieldsToJsonSchema(
+  fields: MinimalFields = {},
+  options?: SchemaOptions,
+  additionalSchema?: JSONSchema4
+): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
 
@@ -113,6 +117,7 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     type: 'object',
     additionalProperties: options?.additionalProperties || false,
     properties,
-    required
+    required,
+    ...additionalSchema
   }
 }
