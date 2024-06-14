@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     eventProperties: {
       label: 'Event Properties',
-      description: 'Properties tied to this event, which can be included in emails triggered by this event.',
+      description: 'Event-specific properties that can be included in emails activated by this event.',
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
