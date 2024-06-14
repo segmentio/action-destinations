@@ -5,7 +5,9 @@ Object {
   "batch": Array [
     Object {
       "anonymousId": "arky4h2sh7k",
-      "consent": Object {},
+      "context": Object {
+        "consent": Object {},
+      },
       "groupId": undefined,
       "integrations": Object {
         "All": false,
