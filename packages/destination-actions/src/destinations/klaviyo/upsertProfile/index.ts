@@ -165,7 +165,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.',
           required: false,
-          dynamic: async (request) => {
+          dynamic: async (request): Promise<DynamicFieldResponse> => {
             return getListIdDynamicData(request)
           }
         },
