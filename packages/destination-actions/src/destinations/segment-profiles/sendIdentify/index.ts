@@ -51,7 +51,9 @@ const action: ActionDefinition<Settings, Payload> = {
         All: false
       },
       type: 'identify',
-      consent: isValidConsentObject ? { ...payload?.consent } : {}
+      context: {
+        consent: isValidConsentObject ? { ...payload?.consent } : {}
+      }
     }
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])

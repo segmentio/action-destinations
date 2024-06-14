@@ -6,10 +6,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
-        "consent": Object {
-          "categoryPreferences": Object {
-            "analytics": true,
-            "marketing": false,
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "mV[ZQcEVgZO$MX",
@@ -36,10 +38,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "mV[ZQcEVgZO$MX",
-        "consent": Object {
-          "categoryPreferences": Object {
-            "analytics": true,
-            "marketing": false,
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "mV[ZQcEVgZO$MX",
