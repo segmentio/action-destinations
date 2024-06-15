@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 import createRequestClient from '../create-request-client'
 import { JSONLikeObject, JSONObject } from '../json-object'
 import { InputData, Features, transform, transformBatch } from '../mapping-kit'
-import { fieldsToJsonSchema } from './fields-to-jsonschema'
+import { fieldsToJsonSchema, groupConditionsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
 import type {
@@ -58,10 +58,16 @@ export interface BaseActionDefinition {
   fields: Record<string, InputField>
 
   /**
-   * Additional JSON Schemas directly defined by the builder
+   * Groupings of fields.
+   * oneOf: Exactly one of the listed fields should be present.
+   * allOf: All of the listed fields should be present.
+   * anyOf: At least one of the listed fields should be present.
    */
-
-  validSchema?: JSONSchema4
+  groupConditions?: {
+    oneOf?: string[]
+    allOf?: string[]
+    anyOf?: string[]
+  }
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
@@ -223,7 +229,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
-      this.schema = fieldsToJsonSchema(definition.fields, undefined, definition.validSchema)
+      this.schema = fieldsToJsonSchema(
+        definition.fields,
+        undefined,
+        groupConditionsToJsonSchema(definition.groupConditions)
+      )
     }
     // Generate a json schema for each defined hook based on the field definitions
     if (definition.hooks) {
