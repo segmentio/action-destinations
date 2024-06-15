@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, GlobalSetting, FieldTypeName, Optional } from './types'
+import type { InputField, GlobalSetting, FieldTypeName, Optional, DependsOnConditions } from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -54,6 +54,10 @@ export function groupConditionsToJsonSchema(
   return schema
 }
 
+export function conditionsToJsonSchema(conditions: Record<string, DependsOnConditions>): JSONSchema4 {
+  return {}
+}
+
 export function fieldsToJsonSchema(
   fields: MinimalFields = {},
   options?: SchemaOptions,
@@ -61,6 +65,7 @@ export function fieldsToJsonSchema(
 ): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
+  const conditions: Record<string, DependsOnConditions> = {}
 
   for (const [key, field] of Object.entries(fields)) {
     const schemaType = toJsonSchemaType(field.type)
@@ -147,6 +152,7 @@ export function fieldsToJsonSchema(
     additionalProperties: options?.additionalProperties || false,
     properties,
     required,
+    ...conditionsToJsonSchema(conditions),
     ...additionalSchema
   }
 }

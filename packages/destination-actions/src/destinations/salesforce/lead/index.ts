@@ -50,6 +50,15 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.last_name' },
           else: { '@path': '$.properties.last_name' }
         }
+      },
+      required: {
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          }
+        ]
       }
     },
     first_name: {
