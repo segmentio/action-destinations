@@ -34,6 +34,7 @@ import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './p
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
+import isEmpty from 'lodash/isEmpty'
 
 export type {
   BaseActionDefinition,
@@ -426,7 +427,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
-    validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
+    //validate audienceField Input
+    if (!isEmpty(createAudienceInput.audienceSettings)) {
+      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
+    }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
@@ -437,7 +441,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
     const options = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
-
     return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
   }
 
