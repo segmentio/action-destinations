@@ -12,7 +12,8 @@ const createAudienceInput = {
   audienceName: '',
   audienceSettings: {
     ttl_in_hours: 1024,
-    exclude_from_campaigns: false
+    exclude_from_campaigns: false,
+    account_id: '1234546'
   }
 }
 const getAudienceInput = {
@@ -42,6 +43,7 @@ describe('Taboola (actions)', () => {
 
     it('should fail if no account ID is set', async () => {
       createAudienceInput.audienceName = 'Test Audience'
+      createAudienceInput.audienceSettings.account_id = ''
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
         new IntegrationError("Missing 'Account ID' value", 'MISSING_REQUIRED_FIELD', 400)
       )
