@@ -15,10 +15,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "]DD4LgSzT#hw(U]@J$a",
             "email": "so@uzwumiz.wf",
-            "other_properties": Object {
-              "testType": "]DD4LgSzT#hw(U]@J$a",
-            },
+            "external_id": "]DD4LgSzT#hw(U]@J$a",
             "phone_number": "]DD4LgSzT#hw(U]@J$a",
           },
           "type": "profile",

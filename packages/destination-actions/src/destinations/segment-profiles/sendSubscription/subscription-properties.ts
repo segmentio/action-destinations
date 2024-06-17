@@ -110,3 +110,11 @@ export const message_id: InputField = {
   default: { '@path': '$.messageId' },
   unsafe_hidden: true
 }
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  unsafe_hidden: true
+}

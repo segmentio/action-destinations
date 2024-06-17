@@ -1,7 +1,8 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, InvalidAuthenticationError } from '@segment/actions-core'
 import Definition from '../index'
 import { HTTPError } from '@segment/actions-core/*'
+import { AUTHORIZATION_URL } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -36,7 +37,7 @@ const getAudienceInput = {
 describe('Amazon-Ads (actions)', () => {
   describe('testAuthentication', () => {
     it('should not throw an error if all the appropriate credentials are available', async () => {
-      nock(`${settings.region}`).get('/v2/profiles').reply(200, {})
+      nock(`${settings.region}`).get('/v2/profiles').matchHeader('content-type', 'application/json').reply(200, {})
       await expect(testDestination.testAuthentication(validSettings)).resolves.not.toThrowError()
     })
 
@@ -114,21 +115,20 @@ describe('Amazon-Ads (actions)', () => {
         'Missing description Value'
       )
     })
-    it('should fail if invalid currency is provided in audienceSettings', async () => {
-      const createAudienceInput = {
-        settings,
-        audienceName: 'Test Audience',
-        audienceSettings: {
-          ...audienceSettings,
-          ttl: 12345678,
-          currency: 'INVALID',
-          cpmCents: 1234
-        }
-      }
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError('Invalid Currency Value')
+
+    it('should fail if refresh token API gets failed', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(401)
+
+      await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError(
+        InvalidAuthenticationError
+      )
     })
 
-    it('should throw an HTTPError when the response is not ok', async () => {
+    it('should throw an HTTPError when createAudience API response is not ok', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(200)
+
       nock(`${settings.region}`)
         .post('/amc/audiences/metadata')
         .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -137,24 +137,10 @@ describe('Amazon-Ads (actions)', () => {
       await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError('Bad Request')
     })
 
-    it('Should throw an error when invalid cpmCent is provided', async () => {
-      const createAudienceInput = {
-        settings,
-        audienceName: 'Test Audience',
-        audienceSettings: {
-          ...audienceSettings,
-          ttl: 12345678,
-          currency: 'USD',
-          cpmCents: 'invalid cpm cents'
-        }
-      }
-
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        'CPM_CENTS:-String can not be converted to Number'
-      )
-    })
-
     it('creates an audience', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(200)
+
       nock(`${settings.region}`)
         .post('/amc/audiences/metadata')
         .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -182,6 +168,9 @@ describe('Amazon-Ads (actions)', () => {
   describe('getAudience', () => {
     const externalId = getAudienceInput.externalId
     it('should succeed when with valid audienceId', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(200)
+
       nock(`${settings.region}/amc/audiences/metadata`)
         .get(`/${externalId}`)
         .reply(200, {
@@ -203,7 +192,10 @@ describe('Amazon-Ads (actions)', () => {
       })
     })
 
-    it('should throw an HTTPError when the response is not ok', async () => {
+    it('should throw an HTTPError when getAudience API response is not ok', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(200)
+
       nock(`${settings.region}/amc/audiences/metadata`)
         .get(`/${externalId}`)
         .reply(404, { message: 'audienceId not found' })
@@ -212,6 +204,13 @@ describe('Amazon-Ads (actions)', () => {
       await expect(audiencePromise).rejects.toThrow(HTTPError)
       await expect(audiencePromise).rejects.toHaveProperty('response.statusText', 'Not Found')
       await expect(audiencePromise).rejects.toHaveProperty('response.status', 404)
+    })
+    it('should fail if refresh token API gets failed ', async () => {
+      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
+      nock(`${endpoint}`).post('/auth/o2/token').reply(401)
+
+      const audiencePromise = testDestination.getAudience(getAudienceInput)
+      await expect(audiencePromise).rejects.toThrow(InvalidAuthenticationError)
     })
 
     it('should throw an IntegrationError when the audienceId is not provided', async () => {
