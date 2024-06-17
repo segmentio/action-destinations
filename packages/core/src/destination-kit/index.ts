@@ -426,6 +426,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
+    validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
     validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))

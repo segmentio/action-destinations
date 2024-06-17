@@ -136,6 +136,22 @@ describe('Amazon-Ads (actions)', () => {
 
       await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError('Bad Request')
     })
+    it('Should throw an error when invalid cpmCent is provided', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: '12345678',
+          currency: 'USD',
+          cpmCents: 'invalid cpm cents'
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'CPM Cents must be a number but it was a string.'
+      )
+    })
 
     it('creates an audience', async () => {
       const endpoint = AUTHORIZATION_URL[`${settings.region}`]
@@ -151,9 +167,9 @@ describe('Amazon-Ads (actions)', () => {
         audienceName: 'Test Audience',
         audienceSettings: {
           ...audienceSettings,
-          ttl: 12345678,
+          ttl: '12345678',
           currency: 'USD',
-          cpmCents: 1234
+          cpmCents: '1234'
         }
       }
 
