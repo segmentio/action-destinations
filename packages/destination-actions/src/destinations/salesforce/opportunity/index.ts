@@ -33,17 +33,11 @@ const action: ActionDefinition<Settings, Payload> = {
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
       type: 'string',
       depends_on: {
-        match: 'any',
         conditions: [
           {
             fieldKey: 'operation',
-            operator: 'is',
-            value: 'create'
-          },
-          {
-            fieldKey: 'operation',
-            operator: 'is',
-            value: 'upsert'
+            operator: 'is_not',
+            value: 'delete'
           }
         ]
       }
@@ -53,17 +47,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
       type: 'string',
       depends_on: {
-        match: 'any',
         conditions: [
           {
             fieldKey: 'operation',
-            operator: 'is',
-            value: 'create'
-          },
-          {
-            fieldKey: 'operation',
-            operator: 'is',
-            value: 'upsert'
+            operator: 'is_not',
+            value: 'delete'
           }
         ]
       }
@@ -73,17 +61,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
       type: 'string',
       depends_on: {
-        match: 'any',
         conditions: [
           {
             fieldKey: 'operation',
-            operator: 'is',
-            value: 'create'
-          },
-          {
-            fieldKey: 'operation',
-            operator: 'is',
-            value: 'upsert'
+            operator: 'is_not',
+            value: 'delete'
           }
         ]
       }

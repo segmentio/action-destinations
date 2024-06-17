@@ -52,17 +52,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       depends_on: {
-        match: 'any',
         conditions: [
           {
             fieldKey: 'operation',
-            operator: 'is',
-            value: 'create'
-          },
-          {
-            fieldKey: 'operation',
-            operator: 'is',
-            value: 'upsert'
+            operator: 'is_not',
+            value: 'delete'
           }
         ]
       }
