@@ -10,3 +10,5 @@ export interface RefreshTokenResponse {
   user_uid?: string
   stack_api_key?: string
 }
+
+export type StringkeyedObj = { [key: string]: string }

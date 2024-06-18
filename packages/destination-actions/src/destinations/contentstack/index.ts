@@ -2,6 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customAttributesSync from './customAttributesSync'
 import { RefreshTokenResponse } from './types'
+import { getNewAuth, setNewAuth } from './utils'
+import { CS_REGIONS } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Contentstack',
@@ -11,33 +13,17 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth-managed',
     fields: {
-      orgId: {
-        label: 'Organization ID',
-        type: 'string',
-        required: true,
-        description: "Your organization ID to which Segment's data should be synced."
-      },
       personalizeProjectId: {
         label: 'Personalize project ID',
         type: 'string',
         required: true,
         description: "Your Personalize project ID to which Segment's data should be synced."
-      },
-      personalizeApiBaseUrl: {
-        label: 'Personalize API base URL',
-        type: 'string',
-        required: true,
-        description: 'Your region-based personalize API base URL.'
-      },
-      personalizeEdgeApiBaseUrl: {
-        label: 'Personalize Edge API base URL',
-        type: 'string',
-        required: true,
-        description: 'Your region-based personalize-edge API base URL.'
       }
     },
     refreshAccessToken: async (request, { auth }) => {
-      const res = await request<RefreshTokenResponse>(auth.refreshTokenUrl || '', {
+      const newAuth = getNewAuth(auth?.accessToken)
+
+      const res = await request<RefreshTokenResponse>(CS_REGIONS[newAuth.location] || '', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -50,14 +36,15 @@ const destination: DestinationDefinition<Settings> = {
         })
       })
 
-      return { accessToken: res?.data?.access_token, refreshToken: res?.data?.refresh_token }
+      return { accessToken: setNewAuth(res?.data), refreshToken: res?.data?.refresh_token }
     }
   },
   extendRequest({ auth, settings }) {
+    const newAuth = getNewAuth(auth?.accessToken as string)
     return {
       headers: {
-        Authorization: `Bearer ${auth?.accessToken}`,
-        organization_uid: settings.orgId,
+        Authorization: `Bearer ${newAuth?.accessToken}`,
+        organization_uid: newAuth.organization_uid,
         'x-project-uid': settings.personalizeProjectId
       }
     }

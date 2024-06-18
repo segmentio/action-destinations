@@ -3,6 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createCustomAttrbute, fetchAllAttributes } from './utils'
 import { PersonalizeAttributes } from './types'
+import { getNewAuth } from '../utils'
+import { PERSONALIZE_APIS, PERSONALIZE_EDGE_APIS } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Attributes Sync',
@@ -24,8 +26,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { payload, settings }) => {
-    const personalizeAttributesData = (await fetchAllAttributes(request, settings.personalizeApiBaseUrl)).map(
+  perform: async (request, { payload, auth }) => {
+    const newAuth = getNewAuth(auth?.accessToken as string)
+    const personalizeAttributesData = (await fetchAllAttributes(request, PERSONALIZE_APIS[newAuth.location])).map(
       (attribute: PersonalizeAttributes) => attribute?.key
     )
 
@@ -37,17 +40,17 @@ const action: ActionDefinition<Settings, Payload> = {
       const firstAttributeRes = await createCustomAttrbute(
         request,
         attributesToCreate[0],
-        settings.personalizeApiBaseUrl
+        PERSONALIZE_APIS[newAuth.location]
       )
       if (firstAttributeRes.status === 401) return firstAttributeRes
 
       const otherAttributes = attributesToCreate.slice(1)
 
       await Promise.allSettled(
-        otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, settings.personalizeApiBaseUrl))
+        otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, PERSONALIZE_APIS[newAuth.location]))
       )
 
-      return request(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
+      return request(`${PERSONALIZE_EDGE_APIS[newAuth.location]}/user-attributes`, {
         method: 'patch',
         json: payload.traits,
         headers: {
