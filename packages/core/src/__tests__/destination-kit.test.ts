@@ -111,6 +111,40 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {},
+      syncMode: {
+        default: 'add',
+        description: 'Select the sync mode for the subscription',
+        label: 'Sync Mode',
+        choices: [
+          {
+            label: 'Insert',
+            value: 'add'
+          },
+          {
+            label: 'Delete',
+            value: 'delete'
+          }
+        ]
+      },
+      perform: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      },
+      performBatch: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      }
+    }
+  }
+}
+
 describe('destination kit', () => {
   describe('event validations', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
@@ -273,6 +307,55 @@ describe('destination kit', () => {
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
         { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
+    })
+
+    test('should inject the syncMode value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithSyncMode)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_sync_mode: 'add'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'add']
+        }
+      ])
+    })
+
+    test('should inject the syncMode value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithSyncMode)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_sync_mode: 'add'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'add']
+        }
       ])
     })
   })

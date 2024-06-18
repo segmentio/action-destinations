@@ -7,7 +7,12 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, PartialErrorResponse } from '../types'
+import {
+  CartItemInterface,
+  PartialErrorResponse,
+  ClickConversionRequestObjectInterface,
+  UserIdentifierInterface
+} from '../types'
 import {
   formatCustomVariables,
   hash,
@@ -16,7 +21,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  isHashedInformation
 } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -233,18 +239,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    let cartItems: CartItem[] = []
+    let cartItems: CartItemInterface[] = []
     if (payload.items) {
       cartItems = payload.items.map((product) => {
         return {
           productId: product.product_id,
           quantity: product.quantity,
           unitPrice: product.price
-        } as CartItem
+        } as CartItemInterface
       })
     }
 
-    const request_object: { [key: string]: any } = {
+    const request_object: ClickConversionRequestObjectInterface = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       gclid: payload.gclid,
@@ -294,11 +300,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
-      })
+      } as UserIdentifierInterface)
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+      // remove '+' from phone number if received in payload duplicacy and add '+'
+      const phoneNumber = '+' + payload.phone_number.split('+').join('')
+
+      request_object.userIdentifiers.push({
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+      } as UserIdentifierInterface)
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
