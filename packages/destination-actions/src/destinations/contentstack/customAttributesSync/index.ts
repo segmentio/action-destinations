@@ -1,8 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createCustomAttrbute, fetchAllAttributes } from './utils'
-import { PersonalizeAttributes } from './types'
+import { createCustomAttrbute, fetchAllAttributes, audienceSync } from './utils'
+import { AttributesResponse, PersonalizeAttributes } from './types'
 import { getNewAuth } from '../utils'
 import { PERSONALIZE_APIS, PERSONALIZE_EDGE_APIS } from '../constants'
 
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { payload, auth }) => {
+  perform: async (request, { payload, auth, settings }) => {
     const newAuth = getNewAuth(auth?.accessToken as string)
     const personalizeAttributesData = (await fetchAllAttributes(request, PERSONALIZE_APIS[newAuth.location])).map(
       (attribute: PersonalizeAttributes) => attribute?.key
@@ -46,9 +46,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
       const otherAttributes = attributesToCreate.slice(1)
 
-      await Promise.allSettled(
+      const attributesRes = await Promise.all(
         otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, PERSONALIZE_APIS[newAuth.location]))
       )
+
+      const allAttributes = [
+        firstAttributeRes.data,
+        ...attributesRes.map((attrs) => attrs.data)
+      ] as AttributesResponse[]
+
+      if (settings.isAudience) await audienceSync(request, allAttributes, PERSONALIZE_APIS[newAuth.location])
 
       return request(`${PERSONALIZE_EDGE_APIS[newAuth.location]}/user-attributes`, {
         method: 'patch',
