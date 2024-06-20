@@ -15,7 +15,7 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   },
   perform: (ttq, { payload, settings }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
-      ttq.instance(settings.pixelCode).identify({
+      ttq.identify({
         email: handleArrayInput(payload.email),
         phone_number: formatPhone(handleArrayInput(payload.phone_number)),
         external_id: handleArrayInput(payload.external_id),
