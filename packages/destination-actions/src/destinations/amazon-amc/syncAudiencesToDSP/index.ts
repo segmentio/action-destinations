@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CONSTANTS, RecordsResponseType } from '../utils'
@@ -109,11 +109,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 10000
     }
   },
-  perform: (request, { settings, payload, audienceSettings }) => {
-    return processPayload(request, settings, [payload], audienceSettings)
+  perform: (request, { settings, payload, audienceSettings, statsContext }) => {
+    return processPayload(request, settings, [payload], audienceSettings, statsContext)
   },
-  performBatch: (request, { settings, payload: payloads, audienceSettings }) => {
-    return processPayload(request, settings, payloads, audienceSettings)
+  performBatch: (request, { settings, payload: payloads, audienceSettings, statsContext }) => {
+    return processPayload(request, settings, payloads, audienceSettings, statsContext)
   }
 }
 
@@ -121,11 +121,13 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  statsContext: StatsContext | undefined
 ) {
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:uploadAudienceRecords`])
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',

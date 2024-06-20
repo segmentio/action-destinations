@@ -108,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return getAssociationLabel(request, payload)
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, statsContext }) => {
     // Attempt to search Custom Object record with Custom Search Fields
     // If Custom Search Fields doesn't have any defined property, skip the search and assume record was not found
     let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
@@ -122,7 +122,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { ...payload.customObjectSearchFields },
         payload.objectType,
         [],
-        []
+        [],
+        statsContext
       )
     } catch (e) {
       // HubSpot throws a generic 400 error if an undefined property is used in search
@@ -140,7 +141,8 @@ const action: ActionDefinition<Settings, Payload> = {
     // Get Custom object response on the basis of provided search fields to associate
     searchCustomResponseToAssociate = await hubspotApiClient.getObjectResponseToAssociate(
       payload.searchFieldsToAssociateCustomObjects,
-      parsedAssociationType
+      parsedAssociationType,
+      statsContext
     )
     // if it gives single unique record then associate else skip it for now
     const toCustomObjectId =
@@ -162,22 +164,36 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!createNewCustomRecord) {
         return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
-      upsertCustomRecordResponse = await hubspotApiClient.create(properties, association ? [association] : [])
+      upsertCustomRecordResponse = await hubspotApiClient.create(
+        properties,
+        association ? [association] : [],
+        statsContext
+      )
     } else {
       // Throw error if more than one custom object record were found with search criteria
       if (searchCustomResponse?.data?.total > 1) {
         throw MultipleCustomRecordsInSearchResultThrowableError
       }
       // An existing Custom object record was identified, attempt to update the same record
-      upsertCustomRecordResponse = await hubspotApiClient.update(searchCustomResponse.data.results[0].id, properties)
+      upsertCustomRecordResponse = await hubspotApiClient.update(
+        searchCustomResponse.data.results[0].id,
+        properties,
+        undefined,
+        statsContext
+      )
       // If we have custom object record id to associate then associate it else don't associate
       if (toCustomObjectId && parsedAssociationType) {
-        await hubspotApiClient.associate(searchCustomResponse.data.results[0].id, toCustomObjectId, [
-          {
-            associationCategory: parsedAssociationType.associationCategory,
-            associationTypeId: parsedAssociationType.associationTypeId
-          }
-        ])
+        await hubspotApiClient.associate(
+          searchCustomResponse.data.results[0].id,
+          toCustomObjectId,
+          [
+            {
+              associationCategory: parsedAssociationType.associationCategory,
+              associationTypeId: parsedAssociationType.associationTypeId
+            }
+          ],
+          statsContext
+        )
       }
     }
     // If Provided Custom Search Fields to associate gives a multiple record , then throw an error!

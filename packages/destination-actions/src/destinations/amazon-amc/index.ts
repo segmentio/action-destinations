@@ -137,7 +137,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, settings } = createAudienceInput
+      const { audienceName, audienceSettings, settings, statsContext } = createAudienceInput
       const endpoint = settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
@@ -206,7 +206,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
       payloadString = payloadString.replace(REGEX_ADVERTISERID, '"advertiserId":$1')
-
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:createAudience`])
       const response = await request(`${endpoint}/amc/audiences/metadata`, {
         method: 'POST',
         body: payloadString,
@@ -227,7 +227,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
-      const { settings } = getAudienceInput
+      const { settings, statsContext } = getAudienceInput
       const endpoint = settings.region
 
       if (!audience_id) {
@@ -236,6 +236,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
       const authToken = await getAuthToken(request, settings, authSettings)
+      statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:getAudience`])
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
         method: 'GET',
         headers: {
