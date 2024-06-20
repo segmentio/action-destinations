@@ -22,10 +22,10 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
         external_id: handleArrayInput(payload.external_id),
         first_name: formatString(payload.first_name),
         last_name: formatString(payload.last_name),
-        city: payload.address ? formatAddress(payload.address.city) : '',
-        state: payload.address ? formatAddress(payload.address.state) : '',
-        country: payload.address ? formatAddress(payload.address.country) : '',
-        zip_code: payload.address ? formatString(payload.address.zip_code) : ''
+        city: formatAddress(payload.address?.city),
+        state: formatAddress(payload.address?.state),
+        country: formatAddress(payload.address?.country),
+        zip_code: formatString(payload.address?.zip_code)
       })
     }
 

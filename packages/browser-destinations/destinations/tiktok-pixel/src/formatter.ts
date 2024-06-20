@@ -18,20 +18,20 @@ export function formatPhone(phone: string | undefined): string | undefined {
 }
 
 export function handleArrayInput(mightBeArray: string[] | string | undefined): string {
-  if(typeof mightBeArray === 'string') return mightBeArray
-  if(typeof mightBeArray === 'undefined') return ''
-  if(Array.isArray(mightBeArray)){
-    return mightBeArray.length>0 ? mightBeArray[0]: ''
+  if (typeof mightBeArray === 'string') return mightBeArray
+  if (typeof mightBeArray === 'undefined') return ''
+  if (Array.isArray(mightBeArray)) {
+    return mightBeArray.length > 0 ? mightBeArray[0] : ''
   }
   return ''
 }
 
-export function formatString(str: string | undefined): string {
+export function formatString(str: string | undefined | null): string {
   if (!str) return ''
   return str.replace(/\s/g, '').toLowerCase()
 }
 
-export function formatAddress(address: string | undefined): string {
+export function formatAddress(address: string | undefined | null): string {
   if (!address) return ''
   return address.replace(/[^A-Za-z0-9]/g, '').toLowerCase()
 }

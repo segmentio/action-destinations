@@ -82,23 +82,27 @@ export const commonFields: Record<string, InputField> = {
     label: 'Address',
     type: 'object',
     description: 'The address of the customer.',
+    additionalProperties: false,
     properties: {
       city: {
         label: 'City',
         type: 'string',
-        description: 'The last name of the customer.'
+        description: "The customer's city."
       },
       country: {
         label: 'Country',
-        type: 'string'
+        type: 'string',
+        description: "The customer's country."
       },
       zip_code: {
-        label: 'Postal Code',
-        type: 'string'
+        label: 'Zip Code',
+        type: 'string',
+        description: "The customer's Zip Code."
       },
       state: {
         label: 'State',
-        type: 'string'
+        type: 'string',
+        description: "The customer's State."
       }
     },
     default: {
@@ -279,7 +283,10 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
     type: 'string',
-    choices: [ { label: 'product', value: 'product' }, { label: 'product_group', value: 'product_group' }],
+    choices: [
+      { label: 'product', value: 'product' },
+      { label: 'product_group', value: 'product_group' }
+    ],
     default: 'product'
   },
   currency: {

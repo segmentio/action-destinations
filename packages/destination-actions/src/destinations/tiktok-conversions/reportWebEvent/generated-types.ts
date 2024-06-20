@@ -34,11 +34,20 @@ export interface Payload {
    */
   address?: {
     /**
-     * The last name of the customer.
+     * The customer's city.
      */
     city?: string
+    /**
+     * The customer's country.
+     */
     country?: string
+    /**
+     * The customer's Zip Code.
+     */
     zip_code?: string
+    /**
+     * The customer's State.
+     */
     state?: string
   }
   /**

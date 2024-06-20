@@ -44,10 +44,10 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
             locale: payload.locale ? payload.locale : undefined,
             first_name: formatString(payload.first_name),
             last_name: formatString(payload.last_name),
-            city: payload.address ? formatAddress(payload.address.city) : undefined,
-            state: payload.address ? formatAddress(payload.address.state) : undefined,
-            country: payload.address ? formatAddress(payload.address.country) : undefined,
-            zip_code: payload.address ? formatString(payload.address.zip_code) : undefined
+            city: formatAddress(payload.address?.city),
+            state: formatAddress(payload.address?.state),
+            country: formatAddress(payload.address?.country),
+            zip_code: formatString(payload.address?.zip_code)
           },
           properties: {
             contents: payload.contents ? payload.contents : [],

@@ -8,12 +8,39 @@ import { commonFields } from '../common_fields'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   title: 'Identify',
-  description: '',
+  description:
+    'Use a Segment identify() call to sent PII data to TikTok Pixel. Note that the PII information will be sent with the next track() call.',
+  defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
-    ...commonFields
+    ...commonFields,
+    phone_number: {
+      ...commonFields.phone_number,
+      default: { '@path': '$.traits.phone' }
+    },
+    email: {
+      ...commonFields.email,
+      default: { '@path': '$.traits.email' }
+    },
+    first_name: {
+      ...commonFields.first_name,
+      default: { '@path': '$.traits.first_name' }
+    },
+    last_name: {
+      ...commonFields.last_name,
+      default: { '@path': '$.traits.last_name' }
+    },
+    address: {
+      ...commonFields.address,
+      default: {
+        city: { '@path': '$.traits.address.city' },
+        country: { '@path': '$.traits.address.country' },
+        zip_code: { '@path': '$.traits.address.postal_code' },
+        state: { '@path': '$.traits.address.state' }
+      }
+    }
   },
-  perform: (ttq, { payload, settings }) => {
+  perform: (ttq, { payload }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
       ttq.identify({
         email: handleArrayInput(payload.email),
@@ -21,10 +48,10 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
         external_id: handleArrayInput(payload.external_id),
         first_name: formatString(payload.first_name),
         last_name: formatString(payload.last_name),
-        city: payload.address ? formatAddress(payload.address.city) : '',
-        state: payload.address ? formatAddress(payload.address.state) : '',
-        country: payload.address ? formatAddress(payload.address.country) : '',
-        zip_code: payload.address ? formatString(payload.address.zip_code) : ''
+        city: formatAddress(payload.address?.city),
+        state: formatAddress(payload.address?.state),
+        country: formatAddress(payload.address?.country),
+        zip_code: formatString(payload.address?.zip_code)
       })
     }
   }

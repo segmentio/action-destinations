@@ -65,16 +65,15 @@ export function formatUserIds(userIds: string[] | undefined): string[] {
   return result
 }
 
-export function formatString(str: string | undefined): string | undefined {
-  let result = str
-  if (!result) return ''
-  if (!isHashedInformation(result)) {
-    result = hashAndEncode(result.replace(/\s/g, '').toLowerCase())
+export function formatString(str: string | undefined | null): string | undefined {
+  if (!str) return ''
+  if (!isHashedInformation(str)) {
+    str = hashAndEncode(str.replace(/\s/g, '').toLowerCase())
   }
-  return result
+  return str
 }
 
-export function formatAddress(address: string | undefined): string | undefined {
+export function formatAddress(address: string | undefined | null): string | undefined {
   if (!address) return ''
   return address.replace(/[^A-Za-z0-9]/g, '').toLowerCase()
 }
