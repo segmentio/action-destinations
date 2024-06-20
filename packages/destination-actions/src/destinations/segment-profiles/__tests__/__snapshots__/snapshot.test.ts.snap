@@ -68,10 +68,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
-        "consent": Object {
-          "categoryPreferences": Object {
-            "analytics": true,
-            "marketing": false,
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "hIC1OAmWa[Q!&d%o",
@@ -98,10 +100,12 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
-        "consent": Object {
-          "categoryPreferences": Object {
-            "analytics": true,
-            "marketing": false,
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
           },
         },
         "groupId": "hIC1OAmWa[Q!&d%o",
