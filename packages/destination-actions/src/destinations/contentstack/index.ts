@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import customAttributesSync from './customAttributesSync'
 import { RefreshTokenResponse } from './types'
 import { getNewAuth, setNewAuth } from './utils'
-import { CS_REGIONS } from './constants'
+import { CS_ACCESSTOKEN_APIS } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Contentstack',
@@ -19,10 +19,10 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         description: "Your Personalize project ID to which Segment's data should be synced."
       },
-      isAudience: {
-        label: 'Audience Sync',
+      createBackupAudience: {
+        label: 'Backup Audiences for Traits',
         description:
-          'Enable to sync the custom attributes as audiences to the Personalize project. If disabled, only the custom attributes will be synced.',
+          'When enabled, creates a Backup Audience for each trait that are synced with Personalize from Segment.',
         type: 'boolean',
         default: false
       }
@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { auth }) => {
       const newAuth = getNewAuth(auth?.accessToken)
 
-      const res = await request<RefreshTokenResponse>(CS_REGIONS[newAuth.location] || '', {
+      const res = await request<RefreshTokenResponse>(CS_ACCESSTOKEN_APIS[newAuth.location] || '', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

@@ -19,7 +19,11 @@ export const fetchAllAttributes = async (request: RequestClient, url: string) =>
   return res.data as PersonalizeAttributes[]
 }
 
-export const audienceSync = async (request: RequestClient, allAttributes: AttributesResponse[], url: string) =>
+export const createBackupAudiencesForTraits = async (
+  request: RequestClient,
+  allAttributes: AttributesResponse[],
+  url: string
+) =>
   Promise.all(
     allAttributes.map((attribute) =>
       request(`${url}/audiences`, {

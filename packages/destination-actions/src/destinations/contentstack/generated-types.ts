@@ -6,7 +6,7 @@ export interface Settings {
    */
   personalizeProjectId: string
   /**
-   * Enable to sync the custom attributes as audiences to the Personalize project. If disabled, only the custom attributes will be synced.
+   * When enabled, creates a Backup Audience for each trait that are synced with Personalize from Segment.
    */
-  isAudience?: boolean
+  createBackupAudience?: boolean
 }

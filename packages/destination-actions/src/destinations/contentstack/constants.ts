@@ -1,8 +1,8 @@
 import { StringkeyedObj } from './types'
 
-export const CS_DELIM = '___cs-segment-delim___'
+export const CS_DELIM = '_auth-params_'
 
-export const CS_REGIONS: StringkeyedObj = {
+export const CS_ACCESSTOKEN_APIS: StringkeyedObj = {
   NA: 'https://developerhub-api.contentstack.com/apps/token',
   EU: 'https://eu-developerhub-api.contentstack.com/apps/token',
   AZURE_NA: 'https://azure-na-developerhub-api.contentstack.com/apps/token',

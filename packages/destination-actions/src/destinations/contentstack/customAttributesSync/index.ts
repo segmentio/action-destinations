@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createCustomAttrbute, fetchAllAttributes, audienceSync } from './utils'
+import { createCustomAttrbute, fetchAllAttributes, createBackupAudiencesForTraits } from './utils'
 import { AttributesResponse, PersonalizeAttributes } from './types'
 import { getNewAuth } from '../utils'
 import { PERSONALIZE_APIS, PERSONALIZE_EDGE_APIS } from '../constants'
@@ -55,7 +55,8 @@ const action: ActionDefinition<Settings, Payload> = {
         ...attributesRes.map((attrs) => attrs.data)
       ] as AttributesResponse[]
 
-      if (settings.isAudience) await audienceSync(request, allAttributes, PERSONALIZE_APIS[newAuth.location])
+      if (settings.createBackupAudience)
+        await createBackupAudiencesForTraits(request, allAttributes, PERSONALIZE_APIS[newAuth.location])
 
       return request(`${PERSONALIZE_EDGE_APIS[newAuth.location]}/user-attributes`, {
         method: 'patch',
