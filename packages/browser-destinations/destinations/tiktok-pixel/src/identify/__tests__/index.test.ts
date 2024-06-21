@@ -10,7 +10,6 @@ const settings = {
 describe('Src.identify', () => {
   // TODO: Test your action
   let mockTtp: TikTokPixel
-  let identifyEvent: any
 
   beforeEach(async () => {
     jest.restoreAllMocks()
