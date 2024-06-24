@@ -1,11 +1,9 @@
-import { PayloadValidationError, type ActionDefinition, type ModifiedResponse, type RequestOptions } from '@segment/actions-core'
+import { ActionDefinition, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getDomain } from '..'
 
 export const CONSTANTS = {
-
-  LD_API_CUSTOM_AUDIENCE_ENDPOINT: '/segment-targets/segment-audiences',
   ADD: 'ADD',
   REMOVE: 'REMOVE'
 }
@@ -78,15 +76,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    enable_batching: {
-      type: 'boolean',
-      label: 'Batch events',
-      description:
-        'When enabled, the action will batch events before sending them to Courier. In most cases, batching should be enabled.',
-      required: false,
-      default: false,
-      unsafe_hidden: true,
-    },
     audience_action: {
       label: 'Audience Action',
       description: 'Indicates if the user will be added or removed from the Audience',
@@ -98,38 +87,29 @@ const action: ActionDefinition<Settings, Payload> = {
       ]
     }
   },
-
   perform: (request, { payload, settings }) => {
     return processPayload(request, payload, settings)
-  },
-
-  performBatch: (request, { payload, settings }) => {
-    const promises = payload.map((event) => {
-        return processPayload(request, event, settings)
-    })
-    
-    return Promise.all(promises)
   }
 }
 
 const processPayload = (request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>, payload: Payload, settings: Settings) => {
   payload.audience_action = payload.traits_or_props[payload.segment_audience_key] ? CONSTANTS.ADD : CONSTANTS.REMOVE
+
   const domain = getDomain(settings.region)
-  const list_id = payload.segment_audience_id
+
+  const list_id = `${payload.segment_audience_key}-${payload.segment_audience_id}`
   const user_id = payload.segment_user_id ?? payload.segment_anonymous_id
-  if (!user_id) {
-    throw new PayloadValidationError('userId or anonymousId must be provided in the payload')
+
+  if (payload.audience_action === CONSTANTS.ADD) {
+    return request(`${domain}/lists/${list_id}/subscriptions/${user_id}`, {
+      method: 'PUT'
+    })
   } else {
-    if (payload.audience_action === CONSTANTS.ADD) {
-      return request(`${domain}/lists/${list_id}/subscriptions/${user_id}`, {
-        method: 'PUT'
-      })
-    } else {
-      return request(`${domain}/lists/${list_id}/subscriptions/${user_id}`, {
-        method: 'DELETE'
-      })
-    }
+    return request(`${domain}/lists/${list_id}/subscriptions/${user_id}`, {
+      method: 'DELETE'
+    })
   }
+  
 }
 
 export default action

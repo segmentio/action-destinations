@@ -14,9 +14,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.' },
       unsafe_hidden: true
+    },
+    segment_computation_action: {
+      label: 'Segment Computation Action',
+      description:
+        "Segment computation class used to determine if input event is from an Engage Audience'",
+      type: 'string',
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.computation_class'
+      }
     }
   },
   perform: (request, { settings, payload }) => {
+    if(payload?.segment_computation_action === 'audience') {
+      throw new PayloadValidationError('This Action does not support sending Enage Audiences. Please use the Sync Audience Action.')
+    }
+    
     if (!['track', 'group', 'identify'].includes(payload.data.type as string)) {
       throw new PayloadValidationError('Event type must be either track, group or identify')
     }
