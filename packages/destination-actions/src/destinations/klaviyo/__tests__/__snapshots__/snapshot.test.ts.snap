@@ -6,6 +6,24 @@ Object {
     "attributes": Object {
       "email": "mudwoz@zo.ad",
       "external_id": "E3nNk",
+      "first_name": "E3nNk",
+      "image": "E3nNk",
+      "last_name": "E3nNk",
+      "location": Object {
+        "address1": "E3nNk",
+        "address2": "E3nNk",
+        "city": "E3nNk",
+        "country": "E3nNk",
+        "latitude": "E3nNk",
+        "longitude": "E3nNk",
+        "region": "E3nNk",
+        "zip": "E3nNk",
+      },
+      "organization": "E3nNk",
+      "properties": Object {
+        "testType": "E3nNk",
+      },
+      "title": "E3nNk",
     },
     "type": "profile",
   },
@@ -27,10 +45,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "PE*zlOgIPA]mVozMLBaL",
             "email": "rafebezuv@micfeoz.zm",
-            "other_properties": Object {
-              "testType": "PE*zlOgIPA]mVozMLBaL",
-            },
+            "external_id": "PE*zlOgIPA]mVozMLBaL",
             "phone_number": "PE*zlOgIPA]mVozMLBaL",
           },
           "type": "profile",
@@ -111,10 +128,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "mTdOx(Nl)",
             "email": "ujoeri@ifosi.kp",
-            "other_properties": Object {
-              "testType": "mTdOx(Nl)",
-            },
+            "external_id": "mTdOx(Nl)",
             "phone_number": "mTdOx(Nl)",
           },
           "type": "profile",

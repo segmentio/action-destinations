@@ -58,7 +58,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: undefined
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     },
     adPersonalizationConsentState: {
       description:
@@ -69,7 +78,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: undefined
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     },
     defaultAdsStorageConsentState: {
       description:
@@ -80,7 +98,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: undefined
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     },
     defaultAnalyticsStorageConsentState: {
       description:
@@ -91,7 +118,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: undefined
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     }
   },
 
