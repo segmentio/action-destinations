@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -32,53 +33,31 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'operation',
-            operator: 'is_not',
-            value: 'delete'
-          }
-        ]
-      }
+      depends_on: hideIfDeleteOperation
     },
     name: {
       label: 'Name',
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'operation',
-            operator: 'is_not',
-            value: 'delete'
-          }
-        ]
-      }
+      depends_on: hideIfDeleteOperation
     },
     stage_name: {
       label: 'Stage Name',
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'operation',
-            operator: 'is_not',
-            value: 'delete'
-          }
-        ]
-      }
+      depends_on: hideIfDeleteOperation
     },
     amount: {
       label: 'Amount',
       description: 'Estimated total sale amount.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
