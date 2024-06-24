@@ -108,7 +108,6 @@ export const campaign_parameters: InputField = {
     }
   }
 }
-
 export const device: InputField = {
   label: 'Device',
   description: 'Dictionary of information about the device the API call originated from.',
@@ -359,4 +358,30 @@ export const message_id: InputField = {
   description: 'The Segment messageId.',
   default: { '@path': '$.messageId' },
   unsafe_hidden: true
+}
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  unsafe_hidden: true
+}
+function isCategoryPreferences(obj: unknown): boolean {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  return Object.values(obj).every((value) => typeof value === 'boolean')
+}
+export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): boolean => {
+  if (obj == undefined) {
+    return true
+  }
+
+  if (typeof obj !== 'object' || obj === null) {
+    throw false
+  }
+
+  return 'categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences'])
 }

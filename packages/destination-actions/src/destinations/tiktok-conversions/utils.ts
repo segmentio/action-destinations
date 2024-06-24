@@ -47,7 +47,7 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
             contents: payload.contents ? payload.contents : [],
             content_type: payload.content_type ? payload.content_type : undefined,
             currency: payload.currency ? payload.currency : undefined,
-            value: payload.value ? payload.value : undefined,
+            value: payload.value || payload.value === 0 ? payload.value : undefined,
             query: payload.query ? payload.query : undefined,
             description: payload.description ? payload.description : undefined,
             order_id: payload.order_id ? payload.order_id : undefined,

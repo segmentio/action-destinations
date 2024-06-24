@@ -64,6 +64,16 @@ const importJobPayload = {
   }
 }
 
+const profileProperties = {
+  first_name: 'John',
+  last_name: 'Doe',
+  image: 'http://example.com/image.jpg',
+  title: 'Developer',
+  organization: 'Segment',
+  location: { city: 'San Francisco' },
+  properties: { key: 'value' }
+}
+
 describe('Add List To Profile', () => {
   it('should throw error if no email or External Id is provided', async () => {
     const event = createTestEvent({
@@ -189,6 +199,55 @@ describe('Add List To Profile', () => {
       testDestination.testAction('addProfileToList', { event, mapping, settings })
     ).resolves.not.toThrowError()
   })
+
+  it('should add profile to list if successful with email, external id and profile properties', async () => {
+    nock(`${API_URL}`)
+      .post('/profiles/', {
+        data: {
+          type: 'profile',
+          attributes: { email: 'demo@segment.com', external_id: 'testing_123', ...profileProperties }
+        }
+      })
+      .reply(200, {
+        data: {
+          id: 'XYZABC'
+        }
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {
+        external_id: 'testing_123'
+      },
+      context: {
+        traits: {
+          email: 'demo@segment.com',
+          ...profileProperties
+        }
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      email: 'demo@segment.com',
+      external_id: 'testing_123',
+      ...profileProperties
+    }
+
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
   it('should add to list if profile is already created', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
@@ -272,7 +331,8 @@ describe('Add Profile To List Batch', () => {
           batch_size: 10000,
           list_id: listId,
           email: 'valid@example.com',
-          enable_batching: true
+          enable_batching: true,
+          location: {}
         }
       ],
       listId
@@ -310,6 +370,44 @@ describe('Add Profile To List Batch', () => {
           list_id: listId
         })
       ]),
+      listId
+    )
+  })
+
+  it('should send an import job request with the generated payload and profile properties', async () => {
+    const events = [
+      createTestEvent({
+        context: { personas: { list_id: listId }, traits: { email: 'valid@example.com' } }
+      })
+    ]
+    const mapping = {
+      list_id: listId,
+      external_id: 'fake-external-id',
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      ...profileProperties
+    }
+
+    nock(API_URL).post('/profile-bulk-import-jobs/', importJobPayload).reply(200, { success: true })
+
+    await testDestination.testBatchAction('addProfileToList', {
+      events,
+      settings,
+      mapping,
+      useDefaultMappings: true
+    })
+    expect(Functions.createImportJobPayload).toBeCalledWith(
+      [
+        {
+          batch_size: 10000,
+          email: 'valid@example.com',
+          enable_batching: true,
+          external_id: 'fake-external-id',
+          list_id: listId,
+          ...profileProperties
+        }
+      ],
       listId
     )
   })
