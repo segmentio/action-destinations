@@ -222,15 +222,20 @@ function formatTable(prs, tableConfig, title = '') {
 
     |${tableConfig.map((config) => config.label).join('|')}|
     |${tableConfig.map(() => '---').join('|')}|
-    ${prs.map((pr) => `|${tableConfig.map((config) => formatValue(pr[config.value])).join('|')}|`).join('\n')}
+    ${prs.map((pr) => `|${tableConfig.map((config) => escapeMarkdownCharacters(pr[config.value])).join('|')}|`).join('\n')}
     `
 }
 
-function formatValue(string) {
+/*
+  * Escape markdown characters in the string
+ */
+function escapeMarkdownCharacters(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-// Map PRs with affected destinations based on the files changed
+/*
+  * Map PR with affected destinations
+ */
 function mapPRWithAffectedDestinations(pr) {
   let affectedDestinations = []
   if (pr.labels.includes('mode:cloud')) {
