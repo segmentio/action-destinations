@@ -1,16 +1,16 @@
-import { Subscription } from '@segment/browser-destination-runtime'
 import { Analytics, Context } from '@segment/analytics-next'
-import TikTokPixelDestination, { destination } from '../../index'
+import { Subscription } from '@segment/browser-destination-runtime'
+import TikTokDestination, { destination } from '../../index'
 import { TikTokPixel } from '../../types'
 
-const settings = {
-  pixelCode: '1234'
-}
+describe('TikTokPixel.reportWebEvent', () => {
+  const settings = {
+    pixelCode: '1234',
+    useExistingPixel: false
+  }
 
-describe('Src.identify', () => {
-  // TODO: Test your action
   let mockTtp: TikTokPixel
-
+  let reportWebEvent: any
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
@@ -18,86 +18,93 @@ describe('Src.identify', () => {
         page: jest.fn(),
         identify: jest.fn(),
         track: jest.fn(),
-        instance: jest.fn()
+        instance: jest.fn(() => mockTtp)
       }
       return Promise.resolve(mockTtp)
     })
   })
 
-  test('map PII data for ttq.identify()', async () => {
+  test('fires identify with PII', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'identify',
-        name: 'Identify user',
+        name: 'Identify',
         enabled: true,
         subscribe: 'type = "identify"',
         mapping: {
-          messageId: {
+          event_id: {
             '@path': '$.messageId'
           },
           anonymousId: {
             '@path': '$.anonymousId'
           },
-          userId: {
+          external_id: {
             '@path': '$.userId'
           },
-          groupId: {
-            '@path': '$.groupId'
+          phone_number: {
+            '@path': '$.traits.phone'
           },
-          traits: {
-            '@path': '$.traits'
+          email: {
+            '@path': '$.traits.email'
           },
-          context: {
-            '@path': '$.context'
+          last_name: {
+            '@path': '$.traits.last_name'
+          },
+          first_name: {
+            '@path': '$.traits.first_name'
+          },
+          address: {
+            city: {
+              '@path': '$.traits.address.city'
+            },
+            state: {
+              '@path': '$.traits.address.state'
+            },
+            country: {
+              '@path': '$.traits.address.country'
+            }
           }
         }
       }
     ]
 
-    const [event] = await TikTokPixelDestination({
+    const context = new Context({
+      messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      type: 'identify',
+      anonymousId: 'anonymousId',
+      userId: 'userId',
+      traits: {
+        last_name: 'lastName',
+        first_name: 'firstName',
+        email: 'aaa@aaa.com',
+        phone: '+12345678900',
+        address: {
+          city: 'city',
+          state: 'state',
+          country: 'country'
+        }
+      }
+    })
+
+    const [identifyEvent] = await TikTokDestination({
       ...settings,
       subscriptions
     })
+    reportWebEvent = identifyEvent
 
-    const ajs = new Analytics({ writeKey: '123' })
-    await event.load(Context.system(), ajs)
-    jest.spyOn(destination.actions.identify, 'perform')
-
-    await event.identify?.(
-      new Context({
-        type: 'identify',
-        messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
-        anonymousId: 'anonymousId',
-        userId: 'userId',
-        traits: {
-          phone: '+12345678900',
-          email: 'test@test.com',
-          first_name: 'First Name',
-          last_name: 'Last Name',
-          address: {
-            city: 'New York',
-            country: 'U.S.A.',
-            postalCode: '11111',
-            state: 'NY'
-          }
-        },
-        context: {
-          ip: '1.2.3.4'
-        }
-      })
-    )
+    await reportWebEvent.load(Context.system(), {} as Analytics)
+    await reportWebEvent.identify?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
-      email: 'test@test.com',
+      city: 'city',
+      country: 'country',
+      email: 'aaa@aaa.com',
       phone_number: '+12345678900',
       external_id: 'userId',
       first_name: 'firstname',
       last_name: 'lastname',
-      city: 'newyork',
-      state: 'ny',
-      country: 'usa',
-      zip_code: '11111'
+      state: 'state',
+      zip_code: ''
     })
   })
-
 })
