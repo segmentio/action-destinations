@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     if(payload?.segment_computation_action === 'audience') {
-      throw new PayloadValidationError('This Action does not support sending Enage Audiences. Please use the Sync Audience Action.')
+      throw new PayloadValidationError('This Action does not support sending Engage Audiences. Please use the Sync Audience Action.')
     }
     
     if (!['track', 'group', 'identify'].includes(payload.data.type as string)) {
