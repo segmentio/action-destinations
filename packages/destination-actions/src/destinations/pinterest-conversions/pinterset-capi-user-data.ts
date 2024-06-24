@@ -11,6 +11,7 @@ export const user_data_field: InputField = {
   description:
     'Object containing customer information data. Note, It is required at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent..',
   type: 'object',
+  additionalProperties: true,
   properties: {
     email: {
       label: 'Email',

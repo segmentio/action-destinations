@@ -4,6 +4,7 @@ export const custom_data_field: InputField = {
   label: 'Custom Data',
   description: 'Object containing customer information data.',
   type: 'object',
+  additionalProperties: true,
   properties: {
     currency: {
       label: 'Currency',
