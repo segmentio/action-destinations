@@ -143,7 +143,8 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
 
     return prsMerged.search.nodes.map((pr) => ({
       number: `[#${pr.number}](${pr.url})`,
-      title: pr.title,
+      // escape the pipe character in the title to avoid table formatting issues
+      title: pr.title.replace('|', '\\|'),
       url: pr.url,
       files: pr.files.nodes.map((file) => file.path),
       author: `@${pr.author.login}`,
@@ -222,17 +223,9 @@ function formatTable(prs, tableConfig, title = '') {
 
     |${tableConfig.map((config) => config.label).join('|')}|
     |${tableConfig.map(() => '---').join('|')}|
-    ${prs.map((pr) => `|${tableConfig.map((config) => escapeMarkdownCharacters(pr[config.value])).join('|')}|`).join('\n')}
+    ${prs.map((pr) => `|${tableConfig.map((config) => pr[config.value]).join('|')}|`).join('\n')}
     `
 }
-
-/*
-  * Escape markdown characters in the string
- */
-function escapeMarkdownCharacters(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
 /*
   * Map PR with affected destinations
  */
