@@ -145,6 +145,80 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
+  name: 'Actions Dynamic Fields',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        testDynamicField: {
+          label: 'Dynamic Field',
+          description: 'A dynamic field',
+          type: 'string',
+          required: true,
+          dynamic: true
+        },
+        testUnstructuredObject: {
+          label: 'Unstructured Object',
+          description: 'An unstructured object',
+          type: 'object',
+          dynamic: true
+        },
+        testStructuredObject: {
+          label: 'Structured Object',
+          description: 'A structured object',
+          type: 'object',
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
+        }
+      },
+      dynamicFields: {
+        testDynamicField: async () => {
+          return {
+            choices: [{ label: 'test', value: 'test' }],
+            nextPage: ''
+          }
+        },
+        testUnstructuredObject: {
+          __keys__: async () => {
+            return {
+              choices: [{ label: 'Im a key', value: '🔑' }],
+              nextPage: ''
+            }
+          },
+          __values__: async () => {
+            return {
+              choices: [{ label: 'Im a value', value: '2️⃣' }],
+              nextPage: ''
+            }
+          }
+        },
+        testStructuredObject: {
+          testDynamicSubfield: async () => {
+            return {
+              choices: [{ label: 'Im a subfield', value: 'nah' }],
+              nextPage: ''
+            }
+          }
+        }
+      },
+      perform: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      }
+    }
+  }
+}
+
 describe('destination kit', () => {
   describe('event validations', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
@@ -674,6 +748,79 @@ describe('destination kit', () => {
           }
         }
       ])
+    })
+  })
+
+  describe('dynamicFields', () => {
+    test('should return empty array if action is not part of definition', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('ghostAction', 'testDynamicField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual([])
+    })
+
+    test('should return 404 if handler for dynamic field does not exist', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'randomField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({
+        choices: [],
+        error: { code: '404', message: 'No dynamic field named randomField found.' },
+        nextPage: ''
+      })
+    })
+
+    test('should return a response with choices for string fields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testDynamicField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'test', value: 'test' }], nextPage: '' })
+    })
+
+    test('fetches keys for unstructured objects', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__keys__', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a key', value: '🔑' }], nextPage: '' })
+    })
+
+    test('fetches values for unstructured objects', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__values__', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a value', value: '2️⃣' }], nextPage: '' })
+    })
+
+    test('fetches values for structured object subfields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testStructuredObject.testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield', value: 'nah' }], nextPage: '' })
+    })
+
+    test('returns 404 for invalid subfields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testStructuredObject.ghostSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({
+        choices: [],
+        error: { code: '404', message: 'No dynamic field named testStructuredObject.ghostSubfield found.' },
+        nextPage: ''
+      })
     })
   })
 })

@@ -20,6 +20,12 @@ Object {
             "source": "!jvXo22kjE9u2QlY4S",
             "term": "!jvXo22kjE9u2QlY4S",
           },
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": Object {
             "adTracking_Enabled": false,
             "advertising_id": "!jvXo22kjE9u2QlY4S",
@@ -96,6 +102,12 @@ Object {
         "context": Object {
           "app": undefined,
           "campaign": undefined,
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
           "device": undefined,
           "groupId": "!jvXo22kjE9u2QlY4S",
           "ip": undefined,
