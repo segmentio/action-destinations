@@ -76,7 +76,7 @@ export interface GlobalSetting {
   /** A human-friendly description of the field */
   description: string
   /** A subset of the available DestinationMetadataOption types */
-  type: 'boolean' | 'string' | 'password' | 'number'
+  type: 'boolean' | 'string' | 'password' | 'number' | 'object'
   /** Whether or not the field accepts more than one of its `type` */
   multiple?: boolean
   /**
@@ -94,6 +94,7 @@ export interface GlobalSetting {
   properties?: InputField['properties']
   format?: InputField['format']
   depends_on?: InputField['depends_on']
+  unsafe_hidden?: boolean
 }
 
 /** The supported field type names */

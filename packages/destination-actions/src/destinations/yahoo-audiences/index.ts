@@ -104,7 +104,30 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Placeholder Setting',
       description: 'Placeholder field to allow the audience to be created. Do not change this',
       default: true
+    },
+    personas: {
+      label: 'Persona',
+      description:
+        'The monetary value for a conversion. This is an object with shape: {"currencyCode": USD", "amount": "100"}',
+      type: 'object',
+      required: true,
+      properties: {
+        computation_id: {
+          label: 'Segment Computation ID',
+          type: 'string',
+          required: true,
+          description: 'ISO format'
+        },
+        computation_key: {
+          label: 'Segment Computation Key',
+          type: 'string',
+          required: true,
+          description: 'Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.'
+        }
+      },
+      unsafe_hidden: true
     }
+
     // This is a required object, but we don't need to define any fields
     // Placeholder setting will be removed once we make AudienceSettings optional
   },
