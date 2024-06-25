@@ -22,6 +22,35 @@ export interface Payload {
    */
   email?: string[]
   /**
+   * The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.
+   */
+  first_name?: string
+  /**
+   * The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.
+   */
+  last_name?: string
+  /**
+   * The address of the customer.
+   */
+  address?: {
+    /**
+     * The customer's city.
+     */
+    city?: string
+    /**
+     * The customer's country.
+     */
+    country?: string
+    /**
+     * The customer's Zip Code.
+     */
+    zip_code?: string
+    /**
+     * The customer's State.
+     */
+    state?: string
+  }
+  /**
    * Order ID of the transaction.
    */
   order_id?: string
