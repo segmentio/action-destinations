@@ -4,6 +4,7 @@ import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '
 
 const phoneNumber = '+1234567891'
 const defaultTags = JSON.stringify({
+  event_occurred_ts: '2024-03-23T23:02:40.563Z',
   external_id_type: 'phone',
   external_id_value: phoneNumber
 })
@@ -25,7 +26,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
         { type: 'phone', id: phoneNumber, subscriptionStatus: 'true', channelType: 'sms' }
       ],
-      sendBasedOnOptOut: false
+      sendBasedOnOptOut: false,
+      eventOccurredTS: '2024-03-23T23:02:40.563Z'
     })
   })
 
@@ -370,6 +372,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         To: '+1 (505) 555-4555',
         ShortenUrls: 'true',
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: '+1 (505) 555-4555'
         })
@@ -401,7 +404,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         ShortenUrls: 'true',
         Tags: defaultTags,
         StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
+          'http://localhost/?foo=bar&space_id=d&event_occurred_ts=2024-03-23T23%3A02%3A40.563Z&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
@@ -765,7 +768,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       From: 'MG1111222233334444',
       To: phoneNumber,
       ShortenUrls: 'true',
-      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6","external_id_type":"phone","external_id_value":"+1234567891"}'
+      Tags: '{"audience_id":"1","correlation_id":"1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6","event_occurred_ts":"2024-03-23T23:02:40.563Z","external_id_type":"phone","external_id_value":"+1234567891"}'
     })
     const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
       .post('/Messages.json', expectedTwilioRequest.toString())
@@ -776,13 +779,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         customArgs: {
           audience_id: '1',
           correlation_id: '1',
-          journey_name: 'j-1',
           step_name: '2',
           campaign_name: 'c-3',
           campaign_key: '4',
           user_id: 'u-5',
           message_id: 'm-6'
-        }
+        },
+        eventOccurredTS: '2024-03-23T23:02:40.563Z'
       }
     })
 

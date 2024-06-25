@@ -5,6 +5,7 @@ const defaultTemplateSid = 'my_template'
 const phoneNumber = '+1234567891'
 const defaultTo = `whatsapp:${phoneNumber}`
 const defaultTags = JSON.stringify({
+  event_occurred_ts: '2024-03-23T23:02:40.563Z',
   external_id_type: 'phone',
   external_id_value: phoneNumber
 })
@@ -24,7 +25,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       externalIds: [
         { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
         { type: 'phone', id: phoneNumber, subscriptionStatus: 'subscribed', channelType: 'whatsapp' }
-      ]
+      ],
+      eventOccurredTS: '2024-03-23T23:02:40.563Z'
     })
   })
 
@@ -106,6 +108,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:+${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone // expect external id to stay the same.. without "+"
         })
@@ -137,6 +140,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -167,6 +171,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:+${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -194,6 +199,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -221,6 +227,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: 'MG1111222233334444',
         To: `whatsapp:${phone}`,
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: phone
         })
@@ -269,7 +276,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         To: defaultTo,
         Tags: defaultTags,
         StatusCallback:
-          'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
+          'http://localhost/?foo=bar&space_id=d&event_occurred_ts=2024-03-23T23%3A02%3A40.563Z&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
         .post('/Messages.json', expectedTwilioRequest.toString())
@@ -383,6 +390,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         From: from,
         To: 'whatsapp:+19195551234',
         Tags: JSON.stringify({
+          event_occurred_ts: '2024-03-23T23:02:40.563Z',
           external_id_type: 'phone',
           external_id_value: '(919) 555 1234'
         })

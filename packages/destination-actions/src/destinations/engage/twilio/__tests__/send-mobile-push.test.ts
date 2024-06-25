@@ -45,7 +45,8 @@ const testAction = createTestAction({
       badgeStrategy: null,
       ttl: null,
       tapActionButtons: null
-    }
+    },
+    eventOccurredTS: '2024-03-23T23:02:40.563Z'
   })
 })
 
@@ -110,7 +111,7 @@ describe('sendMobilePush action', () => {
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
       notifyReqBody.append(
         'DeliveryCallbackUrl',
-        `http://localhost.com/?space_id=spaceid&__segment_internal_external_id_key__=${externalId.type}&__segment_internal_external_id_value__=${externalId.id}#rp=all&rc=600`
+        `http://localhost.com/?space_id=spaceid&event_occurred_ts=2024-03-23T23%3A02%3A40.563Z&__segment_internal_external_id_key__=${externalId.type}&__segment_internal_external_id_value__=${externalId.id}#rp=all&rc=600`
       )
       notifyReqBody.sort()
 
