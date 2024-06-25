@@ -1,9 +1,8 @@
 import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
+import { domain } from '..'
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
-  // TODO: switch to production endpoint
-  const endpoint = 'https://sandbox.stackadapt.com/public/graphql'
   const profileUpdates = events.map((event) => {
     const profile: Record<string, string | number | undefined> = {
       user_id: event.user_id
@@ -30,7 +29,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         success
       }
     }`
-  return await request(endpoint, {
+  return await request(domain, {
     body: JSON.stringify({ query: mutation })
   })
 }
