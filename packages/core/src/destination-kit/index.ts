@@ -95,11 +95,14 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+export type Personas = { computation_id: string; computation_key: string }
 
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
   audienceSettings?: AudienceSettings
+
+  personas?: Personas
 
   audienceName: string
 
@@ -428,11 +431,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       throw new Error('Unexpected call to createAudience')
     }
     //validate audienceField Input
-    if (
-      !isEmpty(createAudienceInput.audienceSettings)
-      // &&
-      // !keys(createAudienceInput.audienceSettings).includes('personas')
-    ) {
+    if (!isEmpty(createAudienceInput.audienceSettings)) {
       validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
