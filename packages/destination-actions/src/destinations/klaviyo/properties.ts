@@ -58,7 +58,7 @@ export const last_name: InputField = {
 
 export const organization: InputField = {
   label: 'Organization',
-  description: `Name of the company or organization within the company for whom the individual works.`,
+  description: 'Name of the company or organization within the company for whom the individual works.',
   type: 'string',
   default: { '@path': '$.properties.company.name' }
 }
