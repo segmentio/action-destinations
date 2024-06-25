@@ -8,7 +8,6 @@ export const CONSTANTS = {
   REMOVE: 'REMOVE'
 }
 
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync Engage Audiences to Courier lists',
@@ -92,7 +91,11 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-const processPayload = (request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>, payload: Payload, settings: Settings) => {
+const processPayload = (
+  request: <Data = unknown>(url: string, options?: RequestOptions | undefined) => Promise<ModifiedResponse<Data>>,
+  payload: Payload,
+  settings: Settings
+) => {
   payload.audience_action = payload.traits_or_props[payload.segment_audience_key] ? CONSTANTS.ADD : CONSTANTS.REMOVE
 
   const domain = getDomain(settings.region)
@@ -109,7 +112,6 @@ const processPayload = (request: <Data = unknown>(url: string, options?: Request
       method: 'DELETE'
     })
   }
-  
 }
 
 export default action

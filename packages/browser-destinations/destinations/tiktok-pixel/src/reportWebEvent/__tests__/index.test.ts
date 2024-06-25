@@ -154,15 +154,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
-      city: "city",
-      country: "country",
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
       external_id: 'userId',
-      first_name: "firstname",
-      last_name: "lastname",
-      state: "state",
-      zip_code: ""
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'PlaceAnOrder',
@@ -300,15 +300,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
-      city: "city",
-      country: "country",
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
       external_id: 'userId',
-      first_name: "firstname",
-      last_name: "lastname",
-      state: "state",
-      zip_code: ""
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'AddToCart',
@@ -442,15 +442,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
-      city: "city",
-      country: "country",
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
       external_id: 'userId',
-      first_name: "firstname",
-      last_name: "lastname",
-      state: "state",
-      zip_code: ""
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'ViewContent',
@@ -595,15 +595,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
-      city: "city",
-      country: "country",
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
       external_id: 'userId',
-      first_name: "firstname",
-      last_name: "lastname",
-      state: "state",
-      zip_code: ""
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'PlaceAnOrder',

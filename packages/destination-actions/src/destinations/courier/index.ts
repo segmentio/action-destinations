@@ -39,8 +39,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       const domain = getDomain(settings.region)
       return request(`${domain}/debug`, { method: 'POST', headers: { Authorization: `Bearer ${settings.apiKey}` } })
-    },
-    
+    }
   },
   actions: {
     postToCourier,
@@ -54,7 +53,7 @@ const destination: DestinationDefinition<Settings> = {
         'User-Agent': 'SegmentCourier'
       }
     }
-  },
+  }
 }
 
 export const getDomain = (region: string) => `https://api.${region === 'EU' ? 'eu.' : ''}courier.com`
