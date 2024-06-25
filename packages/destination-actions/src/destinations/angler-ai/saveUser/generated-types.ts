@@ -2,13 +2,103 @@
 
 export interface Payload {
   /**
-   * Whether the customer has consented to receive marketing material by email.
+   * The user object.
    */
-  accepts_marketing?: boolean
-  /**
-   * The date and time (ISO 8601 format) when the customer consented or objected to receiving marketing material by email.
-   */
-  accepts_marketing_updated_at?: string
+  user?: {
+    /**
+     * Whether the customer has consented to receive marketing material by email.
+     */
+    accepts_marketing?: boolean
+    /**
+     * The date and time (ISO 8601 format) when the customer consented or objected to receiving marketing material by email.
+     */
+    accepts_marketing_updated_at?: string
+    /**
+     * The three-letter code (ISO 4217 format) for the currency that the customer used when they paid for their last order.
+     */
+    currency?: string
+    /**
+     * The date and time (ISO 8601 format) when the customer was created.
+     */
+    created_at?: string
+    /**
+     * The unique email address of the customer.
+     */
+    email?: string
+    /**
+     * Hashed customer's email in SHA256 (lower case).
+     */
+    hashed_email?: string
+    /**
+     * Hashed customer's first name in SHA256 (lower case).
+     */
+    hashed_first_name?: string
+    /**
+     * Hashed customer's last name in SHA256 (lower case).
+     */
+    hashed_last_name?: string
+    /**
+     * Hashed customer's phone in SHA256 (lower case).
+     */
+    hashed_phone?: string
+    /**
+     * The customer's first name.
+     */
+    first_name?: string
+    /**
+     * A unique identifier for the customer.
+     */
+    id?: string
+    /**
+     * The customer's last name.
+     */
+    last_name?: string
+    /**
+     * The ID of the customer's last order.
+     */
+    last_order_id?: string
+    /**
+     * The name of the customer's last order.
+     */
+    last_order_name?: string
+    /**
+     * The marketing subscription opt-in level, as described in the M3AAWG Sender Best Common Practices, that the customer gave when they consented to receive marketing material by email.
+     */
+    marketing_opt_in_level?: string
+    /**
+     * A note about the customer.
+     */
+    note?: string
+    /**
+     * The number of orders associated with this customer.
+     */
+    orders_count?: number
+    /**
+     * The unique phone number (E.164 format) for this customer.
+     */
+    phone?: string
+    /**
+     * The state of the customer's account with a shop.
+     */
+    state?: string
+    /**
+     * Whether the customer is exempt from paying taxes on their order.
+     */
+    tax_exempt?: boolean
+    /**
+     * The total amount of money that the customer has spent across their order history.
+     */
+    total_spent?: string
+    /**
+     * The date and time (ISO 8601 format) when the customer information was last updated.
+     */
+    updated_at?: string
+    /**
+     * Whether the customer has verified their email address.
+     */
+    verified_email?: boolean
+    [k: string]: unknown
+  }
   /**
    * A list of the ten most recently updated addresses for the customer.
    */
@@ -115,14 +205,6 @@ export interface Payload {
     hashed_country_code?: string
   }[]
   /**
-   * The three-letter code (ISO 4217 format) for the currency that the customer used when they paid for their last order.
-   */
-  currency?: string
-  /**
-   * The date and time (ISO 8601 format) when the customer was created.
-   */
-  created_at?: string
-  /**
    * The mailing address associated with the payment method.
    */
   default_address?: {
@@ -228,26 +310,6 @@ export interface Payload {
     hashed_country_code?: string
   }
   /**
-   * The unique email address of the customer.
-   */
-  email?: string
-  /**
-   * Hashed customer's email in SHA256 (lower case).
-   */
-  hashed_email?: string
-  /**
-   * Hashed customer's first name in SHA256 (lower case).
-   */
-  hashed_first_name?: string
-  /**
-   * Hashed customer's last name in SHA256 (lower case).
-   */
-  hashed_last_name?: string
-  /**
-   * Hashed customer's phone in SHA256 (lower case).
-   */
-  hashed_phone?: string
-  /**
    * The marketing consent information when the customer consented to receiving marketing material by email.
    */
   email_marketing_consent?: {
@@ -264,26 +326,6 @@ export interface Payload {
      */
     consent_updated_at?: string
   }
-  /**
-   * The customer's first name.
-   */
-  first_name?: string
-  /**
-   * A unique identifier for the customer.
-   */
-  id?: string
-  /**
-   * The customer's last name.
-   */
-  last_name?: string
-  /**
-   * The ID of the customer's last order.
-   */
-  last_order_id?: string
-  /**
-   * The name of the customer's last order.
-   */
-  last_order_name?: string
   /**
    * Attaches additional metadata to a shop's resources.
    */
@@ -306,22 +348,6 @@ export interface Payload {
     type?: string
   }
   /**
-   * The marketing subscription opt-in level, as described in the M3AAWG Sender Best Common Practices, that the customer gave when they consented to receive marketing material by email.
-   */
-  marketing_opt_in_level?: string
-  /**
-   * A note about the customer.
-   */
-  note?: string
-  /**
-   * The number of orders associated with this customer.
-   */
-  orders_count?: number
-  /**
-   * The unique phone number (E.164 format) for this customer.
-   */
-  phone?: string
-  /**
    * The marketing consent information when the customer consented to receiving marketing material by SMS.
    */
   sms_marketing_consent?: {
@@ -342,41 +368,4 @@ export interface Payload {
      */
     consent_collected_from?: string
   }
-  /**
-   * The state of the customer's account with a shop.
-   */
-  state?: string
-  /**
-   * Tags that the shop owner has attached to the customer, formatted as a string of comma-separated values.
-   */
-  tags?: string
-  /**
-   * Whether the customer is exempt from paying taxes on their order.
-   */
-  tax_exempt?: boolean
-  /**
-   * The total amount of money that the customer has spent across their order history.
-   */
-  total_spent?: string
-  /**
-   * The date and time (ISO 8601 format) when the customer information was last updated.
-   */
-  updated_at?: string
-  /**
-   * Whether the customer has verified their email address.
-   */
-  verified_email?: boolean
-  /**
-   * Extra properties.
-   */
-  additional_fields?: {
-    /**
-     * Extra property name.
-     */
-    name?: string
-    /**
-     * Extra property value.
-     */
-    value?: string
-  }[]
 }
