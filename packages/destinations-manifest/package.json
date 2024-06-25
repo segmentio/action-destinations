@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -25,7 +25,7 @@
     "@segment/analytics-browser-actions-friendbuy": "^1.47.0",
     "@segment/analytics-browser-actions-fullstory": "^1.48.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.53.0",
-    "@segment/analytics-browser-actions-google-campaign-manager": "^1.36.0",
+    "@segment/analytics-browser-actions-google-campaign-manager": "^1.37.0",
     "@segment/analytics-browser-actions-heap": "^1.46.0",
     "@segment/analytics-browser-actions-hubspot": "^1.46.0",
     "@segment/analytics-browser-actions-intercom": "^1.49.0",
