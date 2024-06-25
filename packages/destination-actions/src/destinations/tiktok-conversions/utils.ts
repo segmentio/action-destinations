@@ -1,7 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './reportWebEvent/generated-types'
-import { formatEmails, formatPhones, formatUserIds } from './formatter'
+import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
 
 export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
   const phone_numbers = formatPhones(payload.phone_number)
@@ -41,7 +41,13 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
             ttp: payload.ttp ? payload.ttp : undefined,
             ip: payload.ip ? payload.ip : undefined,
             user_agent: payload.user_agent ? payload.user_agent : undefined,
-            locale: payload.locale ? payload.locale : undefined
+            locale: payload.locale ? payload.locale : undefined,
+            first_name: formatString(payload.first_name),
+            last_name: formatString(payload.last_name),
+            city: formatAddress(payload.address?.city),
+            state: formatAddress(payload.address?.state),
+            country: formatAddress(payload.address?.country),
+            zip_code: formatString(payload.address?.zip_code)
           },
           properties: {
             contents: payload.contents ? payload.contents : [],
