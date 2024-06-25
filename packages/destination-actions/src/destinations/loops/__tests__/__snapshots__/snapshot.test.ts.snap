@@ -24,6 +24,9 @@ exports[`Testing snapshot for actions-loops destination: sendEvent action - all 
 Object {
   "email": "ep@tuhi.co",
   "eventName": "aeKHha#$d",
+  "eventProperties": Object {
+    "testType": "aeKHha#$d",
+  },
   "userId": "aeKHha#$d",
 }
 `;
