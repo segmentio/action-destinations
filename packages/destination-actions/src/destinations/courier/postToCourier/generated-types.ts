@@ -8,7 +8,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
+   * Segment computation class used to determine if input event is from an Engage Audience'
    */
   segment_computation_action?: string
 }
