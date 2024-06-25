@@ -14,7 +14,7 @@ export interface Payload {
    */
   userId: string
   /**
-   * Properties tied to this event, which can be included in emails triggered by this event.
+   * Event-specific properties that can be included in emails triggered by this event.
    */
   eventProperties?: {
     [k: string]: unknown
