@@ -21,4 +21,17 @@ export interface AudienceSettings {
    * Placeholder field to allow the audience to be created. Do not change this
    */
   placeholder?: boolean
+  /**
+   * Personas
+   */
+  personas: {
+    /**
+     * Segment Computation ID
+     */
+    computation_id: string
+    /**
+     * Segment Computation Key
+     */
+    computation_key: string
+  }
 }

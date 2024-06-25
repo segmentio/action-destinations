@@ -428,12 +428,15 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       throw new Error('Unexpected call to createAudience')
     }
     //validate audienceField Input
-    if (!isEmpty(createAudienceInput.audienceSettings)) {
+    if (
+      !isEmpty(createAudienceInput.audienceSettings)
+      // &&
+      // !keys(createAudienceInput.audienceSettings).includes('personas')
+    ) {
       validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
     const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
-    validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
       audienceSettings: createAudienceInput.audienceSettings,
       settings: destinationSettings,
