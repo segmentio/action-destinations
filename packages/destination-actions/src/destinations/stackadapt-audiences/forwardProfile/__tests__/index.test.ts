@@ -23,7 +23,8 @@ const defaultEventPayload: Partial<SegmentEvent> = {
   context: {
     personas: {
       computation_class: 'audience',
-      computation_key: 'first_time_buyer'
+      computation_key: 'first_time_buyer',
+      computation_id: 'aud_123'
     }
   }
 }
@@ -74,7 +75,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               subAdvertiserId: 1,
               externalProvider: \\"Segment\\",
-              profiles: [{userId:\\"user-id\\",listId:\\"first_time_buyer\\",action:\\"enter\\",email:\\"admin@stackadapt.com\\"}]
+              profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"}]
             ) {
               success
             }
@@ -105,7 +106,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               subAdvertiserId: 1,
               externalProvider: \\"Segment\\",
-              profiles: [{userId:\\"user-id\\",listId:\\"first_time_buyer\\",action:\\"enter\\",email:\\"admin@stackadapt.com\\"},{userId:\\"user-id2\\",email:\\"email2@stackadapt.com\\"}]
+              profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",user_id:\\"user-id2\\"}]
             ) {
               success
             }

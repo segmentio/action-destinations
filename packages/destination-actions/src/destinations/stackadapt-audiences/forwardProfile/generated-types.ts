@@ -20,6 +20,10 @@ export interface Payload {
    */
   segment_computation_class?: string
   /**
+   * For audience enter/exit events, this will be the audience ID.
+   */
+  segment_computation_id?: string
+  /**
    * For audience enter/exit events, this will be the audience key.
    */
   segment_computation_key?: string

@@ -6,7 +6,7 @@ Object {
       upsertProfiles(
         subAdvertiserId: 1,
         externalProvider: \\"Segment\\",
-        profiles: [{userId:\\"PsAwlRv%\\",testType:\\"PsAwlRv%\\"}]
+        profiles: [{testType:\\"PsAwlRv%\\",user_id:\\"PsAwlRv%\\"}]
       ) {
         success
       }
@@ -20,7 +20,7 @@ Object {
       upsertProfiles(
         subAdvertiserId: 1,
         externalProvider: \\"Segment\\",
-        profiles: [{userId:\\"PsAwlRv%\\"}]
+        profiles: [{user_id:\\"PsAwlRv%\\"}]
       ) {
         success
       }

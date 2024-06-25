@@ -48,6 +48,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       }
     },
+    segment_computation_id: {
+      label: 'Segment Computation ID',
+      description: 'For audience enter/exit events, this will be the audience ID.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     segment_computation_key: {
       label: 'Segment Computation Key',
       description: 'For audience enter/exit events, this will be the audience key.',
