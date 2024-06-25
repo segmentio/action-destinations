@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import postMessage from './postMessage'
+import forwardProfile from './forwardProfile'
 
 // TODO: change to production
 export const domain = 'https://sandbox.stackadapt.com/public/graphql'
@@ -62,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    postMessage
+    postMessage,
+    forwardProfile
   }
 }
 
