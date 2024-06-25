@@ -14,7 +14,7 @@ type Cluster = { cluster: ClusterItem[] } | null
 
 interface TaboolaPayload {
   operation: 'ADD' | 'REMOVE'
-  audience_id: string
+  audience_id: number
   identities: Cluster[]
 }
 
@@ -92,7 +92,7 @@ export class TaboolaClient {
                 method: 'POST',
                 json: {
                   operation: action as 'ADD' | 'REMOVE',
-                  audience_id: external_audience_id,
+                  audience_id: Number(external_audience_id),
                   identities
                 } as TaboolaPayload
               }
