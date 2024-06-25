@@ -5,6 +5,8 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 
+import userList from './userList'
+
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -75,7 +77,8 @@ const destination: DestinationDefinition<Settings> = {
     postConversion,
     uploadClickConversion,
     uploadCallConversion,
-    uploadConversionAdjustment
+    uploadConversionAdjustment,
+    userList
   }
 }
 
