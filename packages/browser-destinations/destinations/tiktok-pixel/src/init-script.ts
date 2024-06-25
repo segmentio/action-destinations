@@ -48,6 +48,6 @@ export function initScript(settings) {
     ttq.load(settings.pixelCode, {
       limited_data_use: settings.ldu ? settings.ldu : false
     })
-    ttq.page()
+    ttq.instance(settings.pixelCode).page()
   })(window, document, 'ttq')
 }
