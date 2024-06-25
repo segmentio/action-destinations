@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
     and event != "User Deleted"
     and event != "User Suppressed"
     and event != "User Unsuppressed"
-    and event != "Group Deleted"
+    and event != "Object Deleted"
     and event != "Report Delivery Event"
   `,
   fields: {

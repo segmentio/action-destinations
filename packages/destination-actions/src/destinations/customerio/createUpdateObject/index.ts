@@ -145,6 +145,9 @@ function mapPayload(payload: Payload) {
     object_id: id
   }
 
+  delete (custom_attributes as { traits?: { object_type_id?: unknown } })?.traits?.object_type_id
+  delete (custom_attributes as { traits?: { relationshipAttributes?: unknown } })?.traits?.relationshipAttributes
+
   let rel_attrs = relationship_attributes as Record<string, unknown>
 
   if ('convert_timestamp' in payload && convert_timestamp !== false) {

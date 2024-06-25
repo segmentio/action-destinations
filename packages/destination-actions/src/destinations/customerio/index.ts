@@ -85,7 +85,11 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Create or Update Device',
-      subscribe: 'event = "Application Installed" or event = "Application Opened"',
+      subscribe: `  
+        event = "Application Installed"  
+        or event = "Application Opened"  
+        or event = "Device Created or Updated"
+      `,
       partnerAction: 'createUpdateDevice',
       mapping: defaultValues(createUpdateDevice.fields),
       type: 'automatic'

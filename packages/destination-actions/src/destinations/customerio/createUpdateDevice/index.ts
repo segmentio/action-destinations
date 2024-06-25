@@ -6,7 +6,7 @@ import { sendBatch, sendSingle } from '../utils'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Device',
   description: `Create or update a person's device.`,
-  defaultSubscription: 'type = "track" and event = "Application Installed"',
+  defaultSubscription: 'event = "Application Installed" or event = "Device Created or Updated" or event = "Application Opened"',
   fields: {
     person_id: {
       label: 'Person ID',

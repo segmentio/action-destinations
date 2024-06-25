@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).',
       type: 'string',
       default: {
-        '@path': '$.context.groupId'
+        '@path': '$.traits.objectId'
       }
     },
     custom_attributes: {
@@ -118,6 +118,9 @@ function mapPayload(payload: Payload) {
   delete custom_attributes.created_at
   delete custom_attributes?.object_type_id
   delete custom_attributes?.relationshipAttributes
+  delete custom_attributes?.objectId
+  delete (custom_attributes as { traits?: { object_type_id?: unknown } })?.traits?.object_type_id
+  delete (custom_attributes as { traits?: { relationshipAttributes?: unknown } })?.traits?.relationshipAttributes
 
   if (created_at) {
     custom_attributes.created_at = created_at
