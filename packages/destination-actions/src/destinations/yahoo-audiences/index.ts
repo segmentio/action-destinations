@@ -139,6 +139,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     async createAudience(request, createAudienceInput) {
       const audienceSettings = createAudienceInput.audienceSettings
+      // Dummy COmment
       const personas = audienceSettings?.personas as PersonasSettings
       if (!personas) {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
