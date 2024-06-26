@@ -1,104 +1,34 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { products, productsDefaultProperties } from '../fields'
-import saveBaseEvent from '../saveBaseEvent'
 import { transformPayload } from './transform-payload'
 import { baseURL, eventsEndpoint } from '../routes'
+import { commonFields } from '../fields/commonFields'
+import { checkoutFields } from '../fields/checkoutFields'
+import { cart } from '../fields/cartFields'
+import { customer } from '../fields/customerFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Checkout Event',
   description: 'Save a checkout event.',
   fields: {
-    checkoutLineItems: {
-      ...products,
-      label: 'Checkout Line Items',
-      description: 'Checkout Line Item details',
-      properties: {
-        ...products.properties,
-        quantity: {
-          label: 'Quantity',
-          type: 'number',
-          description: 'Quantity of the item'
-        },
-        discountTitle: {
-          label: 'Discount Title',
-          type: 'string',
-          description: 'The Discount Code applied to the item.'
-        },
-        discountValue: {
-          label: 'Discount Value',
-          type: 'number',
-          description: 'The Discount value applied to the item.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            ...productsDefaultProperties,
-            quantity: {
-              '@path': '$.quantity'
-            },
-            discountTitle: {
-              '@path': '$.coupon'
-            },
-            discountValue: {
-              '@path': '$.discount'
-            }
-          }
-        ]
-      }
-    },
-    totalAmount: {
-      label: 'Total Amount',
-      type: 'number',
-      description: 'Decimal money amount.',
-      default: {
-        '@path': '$.properties.total'
-      }
-    },
-    currencyCode: {
-      label: 'Currency Code',
+    ...checkoutFields,
+    ...commonFields,
+    eventName: {
+      label: 'Cart Event Name',
       type: 'string',
-      description: 'The currency code of the money.',
-      default: {
-        '@path': '$.properties.currency'
-      }
+      description: 'The name of the Cart Event to track.',
+      required: true,
+      choices: [
+        { label: 'checkout_address_info_submitted', value: 'checkout_address_info_submitted' },
+        { label: 'checkout_completed', value: 'checkout_completed' },
+        { label: 'checkout_contact_info_submitted', value: 'checkout_contact_info_submitted' },
+        { label: 'checkout_shipping_info_submitted', value: 'checkout_shipping_info_submitted' },
+        { label: 'checkout_started', value: 'checkout_started' }
+      ]
     },
-    orderId: {
-      label: 'Order ID',
-      type: 'string',
-      description: 'The ID of the order associated with this checkout.',
-      default: {
-        '@path': '$.properties.order_id'
-      }
-    },
-    subtotalPriceAmount: {
-      label: 'Subtotal Price Amount',
-      type: 'number',
-      description: 'A monetary value.',
-      default: {
-        '@path': '$.properties.subtotal'
-      }
-    },
-    totalTaxAmount: {
-      label: 'Total Tax Amount',
-      type: 'number',
-      description: 'A monetary value with currency.',
-      default: {
-        '@path': '$.properties.tax'
-      }
-    },
-    shippingLinePriceAmount: {
-      label: 'Shipping Line Price Amount',
-      type: 'number',
-      description: 'A monetary value.',
-      default: {
-        '@path': '$.properties.shipping'
-      }
-    },
-    ...saveBaseEvent.fields
+    ...cart,
+    customer
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

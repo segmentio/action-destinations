@@ -1,4 +1,4 @@
-import { products } from './products'
+import { products } from './productsFields'
 import { InputField } from '@segment/actions-core/index'
 
 export const cart: Record<string, InputField> = {
