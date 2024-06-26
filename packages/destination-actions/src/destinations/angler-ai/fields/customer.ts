@@ -30,5 +30,42 @@ export const customer: InputField = {
       label: 'Date of Birth',
       description: "The customer's date of birth."
     }
+  },
+  default: {
+    email: {
+      '@if': {
+        exists: { '@path': '$.traits.email' },
+        then: { '@path': '$.traits.email' },
+        else: { '@path': '$.context.traits.email' }
+      }
+    },
+    firstName: {
+      '@if': {
+        exists: { '@path': '$.traits.first_name' },
+        then: { '@path': '$.traits.first_name' },
+        else: { '@path': '$.context.traits.first_name' }
+      }
+    },
+    lastName: {
+      '@if': {
+        exists: { '@path': '$.traits.last_name' },
+        then: { '@path': '$.traits.last_name' },
+        else: { '@path': '$.context.traits.last_name' }
+      }
+    },
+    phone: {
+      '@if': {
+        exists: { '@path': '$.traits.phone' },
+        then: { '@path': '$.traits.phone' },
+        else: { '@path': '$.context.traits.phone' }
+      }
+    },
+    dob: {
+      '@if': {
+        exists: { '@path': '$.traits.birthday' },
+        then: { '@path': '$.traits.birthday' },
+        else: { '@path': '$.context.traits.birthday' }
+      }
+    }
   }
 }
