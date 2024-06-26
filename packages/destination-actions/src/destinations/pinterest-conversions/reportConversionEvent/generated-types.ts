@@ -85,7 +85,14 @@ export interface Payload {
      * A two-letter country code in lowercase.
      */
     country?: string[]
-    [k: string]: unknown
+    /**
+     * The unique identifier stored in _epik cookie on your domain or &epik= query parameter in the URL.
+     */
+    click_id?: string | null
+    /**
+     * A unique identifier of visitors' information defined by third party partners.
+     */
+    partner_id?: string | null
   }
   /**
    * Object containing customer information data.
@@ -136,7 +143,6 @@ export interface Payload {
      * opt_out_type is the field where we accept opt outs for your users’ privacy preference.  It can handle multiple values with commas separated.
      */
     opt_out_type?: string
-    [k: string]: unknown
   }
   /**
    * The app store app ID.
