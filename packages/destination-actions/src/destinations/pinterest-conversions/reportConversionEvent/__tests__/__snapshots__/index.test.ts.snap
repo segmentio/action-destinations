@@ -71,6 +71,9 @@ Object {
         ],
       },
       "wifi": undefined,
+      "wifi": undefined,
+      "click_id": "click-id1",
+      "partner_id": "partner-id1"
     },
   ],
 }
@@ -147,6 +150,8 @@ Object {
         ],
       },
       "wifi": undefined,
+      "click_id": "click-id1",
+      "partner_id": "partner-id1"
     },
   ],
 }
