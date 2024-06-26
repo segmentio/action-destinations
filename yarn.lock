@@ -2466,25 +2466,6 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-"@segment/actions-core@3.115.0-staging-9c7763f66":
-  version "3.115.0-staging-9c7763f66"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.115.0-staging-9c7763f66.tgz#46862a64574e2ac05eb1cb9499e806f8c19b3792"
-  integrity sha512-0im8eKe5b5T5fbEFzFE/pnIe1UUTZIqPemsMuuS7OIxcO3ZaLWP29p4uL6fuhHrbkcNwHBO8zxcfopoo5Eiq4g==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/action-emitters" "^1.3.6"
-    "@segment/ajv-human-errors" "^2.12.0"
-    "@segment/destination-subscriptions" "^3.34.0"
-    "@types/node" "^18.11.15"
-    abort-controller "^3.0.0"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
 "@segment/actions-core@^3.115.0", "@segment/actions-core@^3.76.0":
   version "3.115.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.115.0.tgz#503b599bf0bc395ad8092b71a7475f86ebd02278"
