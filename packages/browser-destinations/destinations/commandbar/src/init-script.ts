@@ -79,8 +79,5 @@ export function initScript(orgId) {
         t(''.concat(u, '/latest/').concat(o, '?').concat(d.join('&')), !0)
     }
   }
-  void 0 === Object.assign || 'undefined' == typeof Symbol || void 0 === Symbol.for
-    ? ((a.__CommandBarBootstrap__ = r),
-      t('https://polyfill.io/v3/polyfill.min.js?version=3.101.0&callback=__CommandBarBootstrap__&features=' + n))
-    : r()
+  r()
 }
