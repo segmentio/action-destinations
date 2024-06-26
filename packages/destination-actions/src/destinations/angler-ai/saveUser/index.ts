@@ -187,9 +187,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       description: 'The mailing address associated with the payment method.',
       properties: addressProperties,
-      default: {
-        '@arrayPath': ['$.traits.default_address', addressDefaultFields('$')]
-      }
+      default: addressDefaultFields('$.traits.default_address.')
     },
     email_marketing_consent: {
       label: 'Email Marketing Consent',
