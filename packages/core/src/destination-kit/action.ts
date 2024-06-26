@@ -22,6 +22,7 @@ import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, EngageDestinationCache } from './index'
+import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -82,7 +83,16 @@ export interface ActionDefinition<
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+    [K in keyof Payload]?:
+      | RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      | {
+          [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+            Settings,
+            Payload[K],
+            DynamicFieldResponse,
+            AudienceSettings
+          >
+        }
   }
 
   /** The operation to perform when this action is triggered */
@@ -402,7 +412,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     if (dynamicFn && typeof dynamicFn === 'function') {
       fn = dynamicFn
     } else {
-      fn = this.definition.dynamicFields?.[field]
+      fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+        this.definition.dynamicFields,
+        field
+      )
     }
 
     if (typeof fn !== 'function') {

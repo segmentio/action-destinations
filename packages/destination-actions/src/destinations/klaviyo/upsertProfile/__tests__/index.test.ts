@@ -13,6 +13,22 @@ export const settings: Settings = {
   api_key: apiKey
 }
 
+const hookInputNew = {
+  settings: settings,
+  hookInputs: {
+    list_name: 'Test Audience'
+  },
+  payload: {}
+}
+
+const hookInputExisting = {
+  settings: settings,
+  hookInputs: {
+    list_identifier: 'XYZABC'
+  },
+  payload: {}
+}
+
 jest.mock('../../functions', () => ({
   ...jest.requireActual('../../functions'),
   addProfileToList: jest.fn(() => Promise.resolve())
@@ -430,5 +446,69 @@ describe('Upsert Profile Batch', () => {
     expect(grouped['listA']).toHaveLength(1)
     expect(grouped['listB']).toHaveLength(1)
     expect(grouped['overridelistA']).toHaveLength(2)
+  })
+})
+
+describe('retlOnMappingSave hook', () => {
+  it('create a new list with hook', async () => {
+    nock(`${API_URL}`)
+      .post('/lists', { data: { type: 'list', attributes: { name: 'Test Audience' } } })
+      .matchHeader('Authorization', `Klaviyo-API-Key ${apiKey}`)
+      .reply(200, {
+        success: true,
+        data: {
+          id: 'XYZABC',
+          attributes: {
+            name: 'Test Audience'
+          }
+        }
+      })
+
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputNew)
+
+    expect(r.savedData).toMatchObject({
+      id: 'XYZABC',
+      name: 'Test Audience'
+    })
+    expect(r.successMessage).toMatchInlineSnapshot(`"List 'Test Audience' (id: XYZABC) created successfully!"`)
+  })
+
+  it('verify the existing list', async () => {
+    nock(`${API_URL}/lists`)
+      .get(`/XYZABC`)
+      .reply(200, {
+        success: true,
+        data: {
+          id: 'XYZABC',
+          attributes: {
+            name: 'Test Audience'
+          }
+        }
+      })
+
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
+
+    expect(r.savedData).toMatchObject({
+      id: 'XYZABC',
+      name: 'Test Audience'
+    })
+    expect(r.successMessage).toMatchInlineSnapshot(`"Using existing list 'Test Audience' (id: XYZABC)"`)
+  })
+
+  it('fail if list id does not exist', async () => {
+    nock(`${API_URL}/lists`)
+      .get(`/XYZABC`)
+      .reply(404, {
+        success: false,
+        errors: [
+          {
+            detail: 'List not found'
+          }
+        ]
+      })
+
+    await expect(
+      testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
+    ).rejects.toThrow('List not found')
   })
 })
