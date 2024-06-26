@@ -245,6 +245,6 @@ export const hash_user_data = (payload: UserData): Object => {
     client_user_agent: payload.user_data?.client_user_agent,
     hashed_maids: payload.user_data?.hashed_maids,
     click_id: payload.user_data?.click_id,
-    partner_id: payload.user_data?.click_id
+    partner_id: payload.user_data?.partner_id
   }
 }
