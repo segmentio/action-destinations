@@ -10,6 +10,10 @@ export interface Payload {
    */
   s3_aws_bucket_name?: string
   /**
+   * Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.
+   */
+  s3_aws_folder_name?: string
+  /**
    * Region where the S3 bucket is hosted.
    */
   s3_aws_region?: string

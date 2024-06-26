@@ -54,6 +54,12 @@ function validateS3(payload: Payload) {
     throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS S3 bucket name')
   }
 
+  if (payload.s3_aws_folder_name) {
+    if (!payload.s3_aws_folder_name.endsWith('/')) {
+      throw new InvalidAuthenticationError('Selected S3 upload mode, but the folder name must end with "/"')
+    }
+  }
+
   if (!payload.s3_aws_region) {
     throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Region')
   }
@@ -64,7 +70,7 @@ function validateS3(payload: Payload) {
 // const key = "abcd.json"; // replace with your desired key in S3
 
 // Function to upload a CSV content to S3
-const uploadCSV = async (credentials, fileContent, bucketName, key, region) => {
+const uploadCSV = async (credentials, fileContent, bucketName, folderName, key, region) => {
   const s3Client = new S3Client({
     region,
     credentials: {
@@ -74,9 +80,11 @@ const uploadCSV = async (credentials, fileContent, bucketName, key, region) => {
     }
   })
 
+  const objectKey = `${folderName}${key}`
+
   const uploadParams = {
     Bucket: bucketName,
-    Key: key,
+    Key: objectKey,
     Body: fileContent,
     ContentType: 'text/csv'
   }
@@ -121,7 +129,7 @@ async function uploadS3(
       filename = filename + '_' + new Date().toISOString()
     }
 
-    await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, filename, region)
+    await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, payload.s3_aws_folder_name, filename, region)
     return { statusCode: 200, message: 'Upload successful' }
   } catch (err) {
     console.error('Error', err)

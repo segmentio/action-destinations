@@ -32,6 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Name of the S3 bucket where the files will be uploaded to.',
       type: 'string'
     },
+    s3_aws_folder_name: {
+      label: 'AWS Subfolder Name',
+      description:
+        'Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.',
+      type: 'string'
+    },
     s3_aws_region: {
       label: 'AWS Region (S3 only)',
       description: 'Region where the S3 bucket is hosted.',
@@ -79,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       A timestamp will be appended to the filename to ensure uniqueness.`,
       type: 'string',
       required: true,
-      default: { '@template': '{{properties.audience_key}}.csv' }
+      default: { '@template': 'audience_{{context.personas.computation_key}}.csv' }
     },
     computation_key: {
       label: 'Segment Audience Key',
