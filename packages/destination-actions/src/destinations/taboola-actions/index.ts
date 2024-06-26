@@ -103,7 +103,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const json = await response.json()
 
         return {
-          externalId: json?.audience_id
+          externalId: json?.audience_id as string
         }
       } catch (error) {
         throw new IntegrationError('Failed to create Audience in Taboola', 'AUDIENCE_CREATION_FAILED', 400)

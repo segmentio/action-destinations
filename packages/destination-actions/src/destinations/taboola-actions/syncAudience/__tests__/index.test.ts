@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 const testDestination = createTestIntegration(Destination)
 
 const ACCOUNT_ID = '12345'
-const EXTERNAL_AUDIENCE_ID = '12345'
+const EXTERNAL_AUDIENCE_ID = 12345
 const DEVICE_ID = '123'
 
 describe('Taboola.syncAudience', () => {
