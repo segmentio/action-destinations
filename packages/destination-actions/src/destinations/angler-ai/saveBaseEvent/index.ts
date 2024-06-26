@@ -39,14 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'search_submitted', value: 'search_submitted' },
         { label: 'form_submitted', value: 'form_submitted' },
         { label: 'custom_event', value: 'custom_event' }
-      ],
-      default: {
-        '@if': {
-          exists: { '@path': '$.event' },
-          then: { '@path': '$.event' },
-          else: { '@path': '$.name' }
-        }
-      }
+      ]
     },
     customEventName: {
       label: 'Custom Event Name',
