@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "HJmV*",
-      "event_name": "HJmV*",
+      "event_name": "page_viewed",
       "fbc": "HJmV*",
       "fpb": "HJmV*",
       "ga": "HJmV*",
@@ -79,6 +79,7 @@ exports[`Testing snapshot for actions-angler-ai destination: saveBaseEvent actio
 Object {
   "data": Array [
     Object {
+      "client_id": "HJmV*",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -88,6 +89,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "HJmV*",
+      "event_name": "page_viewed",
     },
   ],
   "src": "SEGMENT",
@@ -181,7 +184,7 @@ Object {
         },
       },
       "event_id": "HI!s%",
-      "event_name": "HI!s%",
+      "event_name": "page_viewed",
       "fbc": "HI!s%",
       "fpb": "HI!s%",
       "ga": "HI!s%",
@@ -210,6 +213,7 @@ Object {
           "product": Object {},
         },
       },
+      "client_id": "HI!s%",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -219,6 +223,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "HI!s%",
+      "event_name": "page_viewed",
     },
   ],
   "src": "SEGMENT",
@@ -345,7 +351,7 @@ Object {
         },
       },
       "event_id": "ThtPtJ2v(7[yo[",
-      "event_name": "ThtPtJ2v(7[yo[",
+      "event_name": "payment_info_submitted",
       "fbc": "ThtPtJ2v(7[yo[",
       "fpb": "ThtPtJ2v(7[yo[",
       "ga": "ThtPtJ2v(7[yo[",
@@ -373,6 +379,7 @@ Object {
         "totalPrice": Object {},
         "totalTax": Object {},
       },
+      "client_id": "ThtPtJ2v(7[yo[",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -382,6 +389,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "ThtPtJ2v(7[yo[",
+      "event_name": "payment_info_submitted",
     },
   ],
   "src": "SEGMENT",
@@ -474,7 +483,7 @@ Object {
         },
       },
       "event_id": "3@hKatc0uie7SW8j",
-      "event_name": "3@hKatc0uie7SW8j",
+      "event_name": "product_removed_from_cart",
       "fbc": "3@hKatc0uie7SW8j",
       "fpb": "3@hKatc0uie7SW8j",
       "ga": "3@hKatc0uie7SW8j",
@@ -493,6 +502,7 @@ exports[`Testing snapshot for actions-angler-ai destination: saveCollectionEvent
 Object {
   "data": Array [
     Object {
+      "client_id": "3@hKatc0uie7SW8j",
       "collection": Object {},
       "data": Object {
         "cart": Object {
@@ -503,6 +513,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "3@hKatc0uie7SW8j",
+      "event_name": "product_removed_from_cart",
     },
   ],
   "src": "SEGMENT",
@@ -682,7 +694,7 @@ Object {
         },
       },
       "event_id": "#p#iS",
-      "event_name": "#p#iS",
+      "event_name": "page_viewed",
       "fbc": "#p#iS",
       "form": Object {
         "action": "#p#iS",
@@ -778,6 +790,7 @@ Object {
         "totalPrice": Object {},
         "totalTax": Object {},
       },
+      "client_id": "#p#iS",
       "collection": Object {},
       "data": Object {
         "cart": Object {
@@ -788,6 +801,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "#p#iS",
+      "event_name": "page_viewed",
       "form": Object {
         "id": "#p#iS",
       },
@@ -863,7 +878,7 @@ Object {
         },
       },
       "event_id": "MzABQb$ZztnY3",
-      "event_name": "MzABQb$ZztnY3",
+      "event_name": "collection_viewed",
       "fbc": "MzABQb$ZztnY3",
       "form": Object {
         "action": "MzABQb$ZztnY3",
@@ -895,6 +910,7 @@ exports[`Testing snapshot for actions-angler-ai destination: saveFormEvent actio
 Object {
   "data": Array [
     Object {
+      "client_id": "MzABQb$ZztnY3",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -904,6 +920,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "MzABQb$ZztnY3",
+      "event_name": "collection_viewed",
       "form": Object {
         "id": "MzABQb$ZztnY3",
       },
@@ -1163,7 +1181,7 @@ Object {
         },
       },
       "event_id": "Gzg!*To",
-      "event_name": "Gzg!*To",
+      "event_name": "checkout_address_info_submitted",
       "fbc": "Gzg!*To",
       "fpb": "Gzg!*To",
       "ga": "Gzg!*To",
@@ -1202,6 +1220,7 @@ exports[`Testing snapshot for actions-angler-ai destination: saveProductEvent ac
 Object {
   "data": Array [
     Object {
+      "client_id": "Gzg!*To",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -1211,6 +1230,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "Gzg!*To",
+      "event_name": "checkout_address_info_submitted",
       "productVariant": Object {
         "image": Object {},
         "price": Object {},
@@ -1282,7 +1303,7 @@ Object {
         },
       },
       "event_id": "zjYJOkMXvxa&fnXrdj",
-      "event_name": "zjYJOkMXvxa&fnXrdj",
+      "event_name": "form_submitted",
       "fbc": "zjYJOkMXvxa&fnXrdj",
       "fpb": "zjYJOkMXvxa&fnXrdj",
       "ga": "zjYJOkMXvxa&fnXrdj",
@@ -1326,6 +1347,7 @@ exports[`Testing snapshot for actions-angler-ai destination: saveSearchEvent act
 Object {
   "data": Array [
     Object {
+      "client_id": "zjYJOkMXvxa&fnXrdj",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -1335,6 +1357,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "zjYJOkMXvxa&fnXrdj",
+      "event_name": "form_submitted",
       "searchResult": Object {},
     },
   ],
@@ -1346,14 +1370,6 @@ exports[`Testing snapshot for actions-angler-ai destination: saveUser action - a
 Object {
   "data": Array [
     Object {
-      "accepts_marketing": false,
-      "accepts_marketing_updated_at": "g[^FhJnb(lsNz",
-      "additional_fields": Array [
-        Object {
-          "name": "g[^FhJnb(lsNz",
-          "value": "g[^FhJnb(lsNz",
-        },
-      ],
       "addresses": Array [
         Object {
           "address1": "g[^FhJnb(lsNz",
@@ -1383,8 +1399,6 @@ Object {
           "zip": "g[^FhJnb(lsNz",
         },
       ],
-      "created_at": "g[^FhJnb(lsNz",
-      "currency": "DZD",
       "default_address": Object {
         "address1": "g[^FhJnb(lsNz",
         "address2": "g[^FhJnb(lsNz",
@@ -1412,43 +1426,48 @@ Object {
         "province_code": "g[^FhJnb(lsNz",
         "zip": "g[^FhJnb(lsNz",
       },
-      "email": "zav@eja.hm",
       "email_marketing_consent": Object {
         "consent_updated_at": "g[^FhJnb(lsNz",
         "opt_in_level": "g[^FhJnb(lsNz",
         "state": "g[^FhJnb(lsNz",
       },
-      "first_name": "g[^FhJnb(lsNz",
-      "hashed_email": "g[^FhJnb(lsNz",
-      "hashed_first_name": "g[^FhJnb(lsNz",
-      "hashed_last_name": "g[^FhJnb(lsNz",
-      "hashed_phone": "g[^FhJnb(lsNz",
-      "id": "g[^FhJnb(lsNz",
-      "last_name": "g[^FhJnb(lsNz",
-      "last_order_id": "g[^FhJnb(lsNz",
-      "last_order_name": "g[^FhJnb(lsNz",
-      "marketing_opt_in_level": "g[^FhJnb(lsNz",
       "metafield": Object {
         "key": "g[^FhJnb(lsNz",
         "namespace": "g[^FhJnb(lsNz",
         "type": "g[^FhJnb(lsNz",
         "value": "g[^FhJnb(lsNz",
       },
-      "note": "g[^FhJnb(lsNz",
-      "orders_count": 9227457181777.92,
-      "phone": "g[^FhJnb(lsNz",
       "sms_marketing_consent": Object {
         "consent_collected_from": "g[^FhJnb(lsNz",
         "consent_updated_at": "g[^FhJnb(lsNz",
         "opt_in_level": "g[^FhJnb(lsNz",
         "state": "g[^FhJnb(lsNz",
       },
-      "state": "INVITED",
-      "tags": "g[^FhJnb(lsNz",
-      "tax_exempt": false,
-      "total_spent": "g[^FhJnb(lsNz",
-      "updated_at": "g[^FhJnb(lsNz",
-      "verified_email": false,
+      "user": Object {
+        "accepts_marketing": false,
+        "accepts_marketing_updated_at": "g[^FhJnb(lsNz",
+        "created_at": "g[^FhJnb(lsNz",
+        "currency": "DZD",
+        "email": "zav@eja.hm",
+        "first_name": "g[^FhJnb(lsNz",
+        "hashed_email": "g[^FhJnb(lsNz",
+        "hashed_first_name": "g[^FhJnb(lsNz",
+        "hashed_last_name": "g[^FhJnb(lsNz",
+        "hashed_phone": "g[^FhJnb(lsNz",
+        "id": "g[^FhJnb(lsNz",
+        "last_name": "g[^FhJnb(lsNz",
+        "last_order_id": "g[^FhJnb(lsNz",
+        "last_order_name": "g[^FhJnb(lsNz",
+        "marketing_opt_in_level": "g[^FhJnb(lsNz",
+        "note": "g[^FhJnb(lsNz",
+        "orders_count": 9227457181777.92,
+        "phone": "g[^FhJnb(lsNz",
+        "state": "INVITED",
+        "tax_exempt": false,
+        "total_spent": "g[^FhJnb(lsNz",
+        "updated_at": "g[^FhJnb(lsNz",
+        "verified_email": false,
+      },
     },
   ],
   "src": "SEGMENT",
@@ -1458,10 +1477,7 @@ Object {
 exports[`Testing snapshot for actions-angler-ai destination: saveUser action - required fields 1`] = `
 Object {
   "data": Array [
-    Object {
-      "id": "g[^FhJnb(lsNz",
-      "last_order_id": "g[^FhJnb(lsNz",
-    },
+    Object {},
   ],
   "src": "SEGMENT",
 }

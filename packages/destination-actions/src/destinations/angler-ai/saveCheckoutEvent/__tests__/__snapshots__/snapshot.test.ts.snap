@@ -120,7 +120,7 @@ Object {
         },
       },
       "event_id": "&yVQWLT2[LyiR]Lnd6^",
-      "event_name": "&yVQWLT2[LyiR]Lnd6^",
+      "event_name": "form_submitted",
       "fbc": "&yVQWLT2[LyiR]Lnd6^",
       "fpb": "&yVQWLT2[LyiR]Lnd6^",
       "ga": "&yVQWLT2[LyiR]Lnd6^",
@@ -148,6 +148,7 @@ Object {
         "totalPrice": Object {},
         "totalTax": Object {},
       },
+      "client_id": "&yVQWLT2[LyiR]Lnd6^",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -157,6 +158,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "&yVQWLT2[LyiR]Lnd6^",
+      "event_name": "form_submitted",
     },
   ],
   "src": "SEGMENT",

@@ -173,7 +173,7 @@ Object {
         },
       },
       "event_id": "VjtX1zqO^*9PrF@2",
-      "event_name": "VjtX1zqO^*9PrF@2",
+      "event_name": "product_removed_from_cart",
       "fbc": "VjtX1zqO^*9PrF@2",
       "form": Object {
         "action": "VjtX1zqO^*9PrF@2",
@@ -269,6 +269,7 @@ Object {
         "totalPrice": Object {},
         "totalTax": Object {},
       },
+      "client_id": "VjtX1zqO^*9PrF@2",
       "collection": Object {},
       "data": Object {
         "cart": Object {
@@ -279,6 +280,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "VjtX1zqO^*9PrF@2",
+      "event_name": "product_removed_from_cart",
       "form": Object {
         "id": "VjtX1zqO^*9PrF@2",
       },

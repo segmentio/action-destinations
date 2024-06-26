@@ -87,7 +87,7 @@ Object {
         },
       },
       "event_id": "C)6#KZenr)fGyu%KjQ",
-      "event_name": "C)6#KZenr)fGyu%KjQ",
+      "event_name": "search_submitted",
       "fbc": "C)6#KZenr)fGyu%KjQ",
       "fpb": "C)6#KZenr)fGyu%KjQ",
       "ga": "C)6#KZenr)fGyu%KjQ",
@@ -116,6 +116,7 @@ Object {
           "product": Object {},
         },
       },
+      "client_id": "C)6#KZenr)fGyu%KjQ",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -125,6 +126,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "C)6#KZenr)fGyu%KjQ",
+      "event_name": "search_submitted",
     },
   ],
   "src": "SEGMENT",

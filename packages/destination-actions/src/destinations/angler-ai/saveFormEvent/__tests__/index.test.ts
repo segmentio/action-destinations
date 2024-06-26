@@ -16,7 +16,10 @@ describe('AnglerAi.saveFormEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveFormEvent', {
-      event,
+      event: {
+        ...event,
+        event: 'form_submitted'
+      },
       useDefaultMappings: true,
       settings: {
         workspaceId,

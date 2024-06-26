@@ -16,7 +16,10 @@ describe('AnglerAi.saveProductEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveProductEvent', {
-      event,
+      event: {
+        ...event,
+        event: 'product_viewed'
+      },
       useDefaultMappings: true,
       settings: {
         workspaceId,

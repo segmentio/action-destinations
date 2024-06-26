@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "CFQcvY4UNbVp*xK",
-      "event_name": "CFQcvY4UNbVp*xK",
+      "event_name": "product_added_to_cart",
       "fbc": "CFQcvY4UNbVp*xK",
       "fpb": "CFQcvY4UNbVp*xK",
       "ga": "CFQcvY4UNbVp*xK",
@@ -99,6 +99,7 @@ exports[`Testing snapshot for AnglerAi's saveProductEvent destination action: re
 Object {
   "data": Array [
     Object {
+      "client_id": "CFQcvY4UNbVp*xK",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -108,6 +109,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "CFQcvY4UNbVp*xK",
+      "event_name": "product_added_to_cart",
       "productVariant": Object {
         "image": Object {},
         "price": Object {},

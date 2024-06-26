@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "WmPxjqg1oQsz%",
-      "event_name": "WmPxjqg1oQsz%",
+      "event_name": "collection_viewed",
       "fbc": "WmPxjqg1oQsz%",
       "fpb": "WmPxjqg1oQsz%",
       "ga": "WmPxjqg1oQsz%",
@@ -104,6 +104,7 @@ exports[`Testing snapshot for AnglerAi's saveSearchEvent destination action: req
 Object {
   "data": Array [
     Object {
+      "client_id": "WmPxjqg1oQsz%",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -113,6 +114,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "WmPxjqg1oQsz%",
+      "event_name": "collection_viewed",
       "searchResult": Object {},
     },
   ],

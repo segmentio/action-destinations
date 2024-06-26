@@ -86,7 +86,7 @@ Object {
         },
       },
       "event_id": "!rMDy$ShoCe*^$(%J2H",
-      "event_name": "!rMDy$ShoCe*^$(%J2H",
+      "event_name": "form_submitted",
       "fbc": "!rMDy$ShoCe*^$(%J2H",
       "fpb": "!rMDy$ShoCe*^$(%J2H",
       "ga": "!rMDy$ShoCe*^$(%J2H",
@@ -105,6 +105,7 @@ exports[`Testing snapshot for AnglerAi's saveCollectionEvent destination action:
 Object {
   "data": Array [
     Object {
+      "client_id": "!rMDy$ShoCe*^$(%J2H",
       "collection": Object {},
       "data": Object {
         "cart": Object {
@@ -115,6 +116,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "!rMDy$ShoCe*^$(%J2H",
+      "event_name": "form_submitted",
     },
   ],
   "src": "SEGMENT",

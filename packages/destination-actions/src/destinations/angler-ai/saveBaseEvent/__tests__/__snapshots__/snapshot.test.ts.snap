@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "bq$C8Z$A",
-      "event_name": "bq$C8Z$A",
+      "event_name": "checkout_address_info_submitted",
       "fbc": "bq$C8Z$A",
       "fpb": "bq$C8Z$A",
       "ga": "bq$C8Z$A",
@@ -79,6 +79,7 @@ exports[`Testing snapshot for AnglerAi's saveBaseEvent destination action: requi
 Object {
   "data": Array [
     Object {
+      "client_id": "bq$C8Z$A",
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -88,6 +89,8 @@ Object {
         "customData": Array [],
         "customer": Object {},
       },
+      "event_id": "bq$C8Z$A",
+      "event_name": "checkout_address_info_submitted",
     },
   ],
   "src": "SEGMENT",

@@ -16,7 +16,10 @@ describe('AnglerAi.saveCollectionEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveCollectionEvent', {
-      event,
+      event: {
+        ...event,
+        event: 'collection_viewed'
+      },
       useDefaultMappings: true,
       settings: {
         workspaceId,

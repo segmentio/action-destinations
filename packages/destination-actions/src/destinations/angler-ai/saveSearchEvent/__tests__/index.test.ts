@@ -16,7 +16,10 @@ describe('AnglerAi.saveSearchEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveSearchEvent', {
-      event,
+      event: {
+        ...event,
+        event: 'search_submitted'
+      },
       useDefaultMappings: true,
       settings: {
         workspaceId,
