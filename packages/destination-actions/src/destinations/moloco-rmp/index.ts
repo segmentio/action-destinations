@@ -32,6 +32,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
+      platformName: {
+        label: 'Platform Name',
+        description: 'Name of the platform',
+        type: 'string',
+        required: true
+      },
       apiKey: {
         label: 'API Key',
         description: 'The API key for the platform',

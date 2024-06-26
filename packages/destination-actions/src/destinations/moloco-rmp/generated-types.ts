@@ -6,6 +6,10 @@ export interface Settings {
    */
   platformId: string
   /**
+   * Name of the platform
+   */
+  platformName: string
+  /**
    * The API key for the platform
    */
   apiKey: string
