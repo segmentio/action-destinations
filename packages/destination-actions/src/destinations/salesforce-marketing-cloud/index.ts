@@ -13,9 +13,9 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Salesforce Marketing Cloud (Actions)',
   slug: 'actions-salesforce-marketing-cloud',
   mode: 'cloud',
-
   authentication: {
     scheme: 'oauth2',
+    grantType: 'client_credentials',
     fields: {
       subdomain: {
         label: 'Subdomain',
