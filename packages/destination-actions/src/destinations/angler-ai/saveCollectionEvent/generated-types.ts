@@ -68,6 +68,10 @@ export interface Payload {
    */
   eventName: string
   /**
+   * Additional name for custom events if 'event_name' is 'custom_event'.
+   */
+  customEventName?: string
+  /**
    * The IP address of the user.
    */
   ipAddress?: string

@@ -22,11 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Custom Event',
   description: 'Save a custom event that may have any fields.',
   fields: {
-    custom_event_name: {
-      label: 'Custom Event Name',
-      type: 'string',
-      description: "Additional name for custom events if 'event_name' is 'custom_event'."
-    },
     ...removeDefaults(saveCartEvent.fields),
     ...removeDefaults(saveCheckoutEvent.fields),
     ...removeDefaults(saveCollectionEvent.fields),

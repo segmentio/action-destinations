@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * Additional name for custom events if 'event_name' is 'custom_event'.
-   */
-  custom_event_name?: string
-  /**
    * Cart Line details
    */
   cartLine?: {
@@ -62,6 +58,10 @@ export interface Payload {
    * The name of the event to track.
    */
   eventName: string
+  /**
+   * Additional name for custom events if 'event_name' is 'custom_event'.
+   */
+  customEventName?: string
   /**
    * The IP address of the user.
    */
