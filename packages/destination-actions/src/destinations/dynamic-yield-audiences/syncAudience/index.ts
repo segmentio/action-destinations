@@ -108,9 +108,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
 
   perform: async (request, { audienceSettings, payload, settings }) => {
-    const audienceName = audienceSettings?.audience_name
     const { external_audience_id } = payload
-    
+
+    if (!audienceSettings?.audience_name) {
+      throw new IntegrationError('Audience Name is required', 'MISSING_REQUIRED_FIELD', 400)
+    }
+
     if (!audienceSettings?.identifier_type) {
       throw new IntegrationError('Identifier Type is required', 'MISSING_REQUIRED_FIELD', 400)
     }
@@ -119,9 +122,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       throw new IntegrationError('External Audience ID is required', 'MISSING_REQUIRED_FIELD', 400)
     }
 
-    const identifierType = (audienceSettings?.identifier_type as string).toLowerCase().replace(/_/g, '')
+    const audienceName = audienceSettings?.audience_name
+    const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
-
 
     let primaryIdentifier: string | undefined
 
