@@ -13,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event ID',
       type: 'string',
       description: 'A unique event identifier.',
+      required: true,
       default: {
         '@path': '$.messageId'
       }
@@ -20,7 +21,15 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Event Name',
       type: 'string',
-      description: 'The name of the event to track.'
+      description: 'The name of the event to track.',
+      required: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
+      }
     },
     ipAddress: {
       label: 'IP Address',
@@ -50,6 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Identifiers',
       type: 'object',
       description: 'Identifiers for the user',
+      required: true,
       additionalProperties: true,
       properties: {
         userId: {
@@ -65,7 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
         clientId: {
           label: 'Client ID',
           type: 'string',
-          description: 'Client ID.'
+          description: 'Client ID.',
+          required: true
         },
         fbp: {
           label: 'Facebook Pixel ID',

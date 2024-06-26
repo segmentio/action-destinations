@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * A unique event identifier.
    */
-  eventId?: string
+  eventId: string
   /**
    * The name of the event to track.
    */
-  eventName?: string
+  eventName: string
   /**
    * The IP address of the user.
    */
@@ -24,7 +24,7 @@ export interface Payload {
   /**
    * Identifiers for the user
    */
-  identifiers?: {
+  identifiers: {
     /**
      * Segment User ID.
      */
@@ -36,7 +36,7 @@ export interface Payload {
     /**
      * Client ID.
      */
-    clientId?: string
+    clientId: string
     /**
      * Facebook Pixel ID. This is a cookie which is unique to each user.
      */
