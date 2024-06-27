@@ -118,6 +118,8 @@ function mapPayload(payload: Payload) {
   delete custom_attributes.created_at
   delete custom_attributes?.object_type_id
   delete custom_attributes?.relationshipAttributes
+
+  // Removes `object_type_id` and `relationshipAttributes` from the `custom_attributes` object because our API does not use these values.
   delete (custom_attributes as { traits?: { object_type_id?: unknown } })?.traits?.object_type_id
   delete (custom_attributes as { traits?: { relationshipAttributes?: unknown } })?.traits?.relationshipAttributes
 
