@@ -3,47 +3,95 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
-const createEventData = (payload: Payload) => ({
-  data: {
-    type: 'event',
-    attributes: {
-      properties: { ...payload.properties },
-      time: payload.time,
-      value: payload.value,
-      unique_id: payload.unique_id,
-      metric: {
-        data: {
-          type: 'metric',
-          attributes: {
-            name: 'Order Completed'
+function createOrderCompleteEvent(payload: Payload) {
+  // Categories, Item Names, Items
+  const properties = { ...payload.properties }
+  delete properties.products
+  const categories = payload.products?.filter((product) => product.category).map((product) => product.category)
+  const itemNames = payload.products?.filter((product) => product.name).map((product) => product.name)
+  const specialProps = [
+    'sku',
+    'name',
+    'quantity',
+    'item price',
+    'price',
+    'row total',
+    'categories',
+    'category',
+    'image url',
+    'image_url',
+    'imageUrl',
+    'product url',
+    'product_url',
+    'productUrl'
+  ]
+
+  const items = payload.products?.map((product) => {
+    const customProps = { ...product }
+    for (const prop of specialProps) {
+      delete customProps[prop]
+    }
+
+    const { sku, name, quantity, price, category } = product
+    return {
+      SKU: sku,
+      Name: name,
+      Quantity: quantity,
+      ItemPrice: price,
+      RowTotal: price,
+      Categories: [category],
+      ProductURL: product['product_url'] ?? product['productURL'],
+      ImageURL: product['image_url'] ?? product['imageUrl'],
+      ...customProps
+    }
+  })
+
+  return {
+    data: {
+      type: 'event',
+      attributes: {
+        properties: {
+          ...properties,
+          Categories: categories,
+          'Item Names': itemNames,
+          Items: items
+        },
+        time: payload.time,
+        value: payload.value,
+        unique_id: payload.unique_id,
+        metric: {
+          data: {
+            type: 'metric',
+            attributes: {
+              name: 'Order Completed'
+            }
           }
-        }
-      },
-      profile: {
-        data: {
-          type: 'profile',
-          attributes: payload.profile
+        },
+        profile: {
+          data: {
+            type: 'profile',
+            attributes: payload.profile
+          }
         }
       }
     }
   }
-})
+}
 
-const sendProductRequests = async (payload: Payload, orderEventData: EventData, request: RequestClient) => {
+const sendProductRequests = async (payload: Payload, request: RequestClient) => {
   if (!payload.products || !Array.isArray(payload.products)) {
     return
   }
 
-  delete orderEventData.data.attributes.properties?.products
+  delete payload.properties?.products
   const productPromises = payload.products.map((product) => {
     const productEventData = {
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product, ...orderEventData.data.attributes.properties },
+          properties: { ...product, ...payload.properties },
           unique_id: uuidv4(),
           metric: {
             data: {
@@ -53,8 +101,8 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
               }
             }
           },
-          time: orderEventData.data.attributes.time,
-          profile: orderEventData.data.attributes.profile
+          time: payload.properties.time,
+          profile: payload.properties.profile
         }
       }
     }
@@ -144,7 +192,77 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Products',
       description: 'List of products purchased in the order.',
       multiple: true,
-      type: 'object'
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        order_id: {
+          label: 'Order ID',
+          type: 'string'
+        },
+        category: {
+          label: 'Category',
+          type: 'string'
+        },
+        name: {
+          label: 'Name',
+          type: 'string'
+        },
+        sku: {
+          label: 'SKU',
+          type: 'string'
+        },
+        price: {
+          label: 'Price',
+          type: 'number'
+        },
+        image_url: {
+          label: 'Image URL',
+          type: 'string'
+        },
+        product_url: {
+          label: 'Product URL',
+          type: 'string'
+        },
+        quantity: {
+          label: 'Quantity',
+          type: 'number'
+        }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            order_id: {
+              '@if': {
+                exists: { '@path': '$.properties.order_id' },
+                then: { '@path': '$.properties.order_id' },
+                else: {
+                  '@path': '$.properties.orderId'
+                }
+              }
+            },
+            category: { '@path': '$.properties.category' },
+            name: { '@path': '$.properties.name' },
+            sku: { '@path': '$.properties.sku' },
+            price: { '@path': '$.properties.price' },
+            imageUrl: {
+              '@if': {
+                exists: { '@path': '$.properties.imageUrl' },
+                then: { '@path': '$.properties.imageUrl' },
+                else: { '@path': '$.properties.image_url' }
+              }
+            },
+            productUrl: {
+              '@if': {
+                exists: { '@path': '$.properties.productUrl' },
+                then: { '@path': '$.properties.productUrl' },
+                else: { '@path': '$.properties.product_url' }
+              }
+            },
+            quantity: { '@path': '$.properties.quantity' }
+          }
+        ]
+      }
     }
   },
 
@@ -155,7 +273,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
 
-    const eventData = createEventData(payload)
+    const eventData = createOrderCompleteEvent(payload)
 
     const event = await request(`${API_URL}/events/`, {
       method: 'POST',
@@ -163,7 +281,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     if (event.status == 202 && Array.isArray(payload.products)) {
-      await sendProductRequests(payload, eventData, request)
+      await sendProductRequests(payload, request)
     }
     return event
   }
