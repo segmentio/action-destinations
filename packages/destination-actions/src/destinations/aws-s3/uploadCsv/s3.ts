@@ -1,4 +1,3 @@
-// import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 // import AWS from 'aws-sdk';
@@ -11,8 +10,6 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 let roleArn: string,
   roleSessionName: string,
   region = ''
-//'arn:aws:iam::058449100246:role/mp-s3-anthony-hung-2', roleSessionName = 'your-session-name2'
-//const region = "us-west-2"; // Change to your AWS region
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 // import { FeatureSetDefaults_FeatureSetEditionDefault } from '@bufbuild/protobuf';
@@ -40,13 +37,6 @@ const assumeRole = async (roleArn: string, roleSessionName: string) => {
 }
 
 function validateS3(payload: Payload) {
-  // if (!payload.s3_aws_access_key) {
-  //   throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Access Key')
-  // }
-
-  // if (!payload.s3_aws_secret_key) {
-  //   throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Secret Key')
-  // }
   if (!payload.iam_role_arn) {
     throw new InvalidAuthenticationError('Selected S3 upload mode, but missing IAM Role ARN')
   }
@@ -64,10 +54,6 @@ function validateS3(payload: Payload) {
     throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Region')
   }
 }
-
-// const jsonPayload = { audienceKey: true };
-// const bucketName = "anthony-hung"; // replace with your bucket name
-// const key = "abcd.json"; // replace with your desired key in S3
 
 // Function to upload a CSV content to S3
 const uploadCSV = async (credentials, fileContent, bucketName, folderName, key, region) => {
@@ -136,34 +122,5 @@ async function uploadS3(
     return { statusCode: 500, message: 'Upload failed' }
   }
 }
-
-// async function uploadS3(
-//   payload: Payload,
-//   filename: string,
-//   fileContent: Buffer,
-//   request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
-// ) {
-//   (async () => {
-//     try {
-//       roleArn = payload.iam_role_arn as string;
-//       roleSessionName = uuidv4();
-//       region = payload.s3_aws_region as string;
-//       const credentials = await getCredentials(roleArn, roleSessionName);
-//       // Now you can access credentials outside of the asynchronous operation
-//       console.log("Credentials outside async block:", credentials);
-
-//       // Proceed with CSV upload or other operations
-//       if (!filename.endsWith('.csv')) {
-//         filename = filename + '_' + new Date().toISOString() + '.csv';
-//       } else {
-//         filename = filename + '_' + new Date().toISOString();
-//       }
-//       await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, filename, region);
-//       return 'Upload successful';
-//     } catch (err) {
-//       console.error("Error", err);
-//       return 'Upload successful';
-//     }
-//   })();
 
 export { validateS3, uploadS3 }

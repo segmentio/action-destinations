@@ -1,25 +1,14 @@
-import type { ActionDefinition } from '@segment/actions-core' //,PayloadValidationError } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
 import { generateFile } from '../operations'
-// import { sendEventToAWS } from '../awsClient'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload CSV',
   description: 'Uploads audience membership data to a CSV file in S3.',
   fields: {
-    // s3_aws_access_key: {
-    //   label: 'AWS Access Key ID',
-    //   description: 'IAM user credentials with write permissions to the S3 bucket.',
-    //   type: 'string'
-    // },
-    // s3_aws_secret_key: {
-    //   label: 'AWS Secret Access Key',
-    //   description: 'IAM user credentials with write permissions to the S3 bucket.',
-    //   type: 'password'
-    // },
     iam_role_arn: {
       label: 'IAM Role ARN',
       description:
@@ -50,14 +39,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: false
     },
-    // audience_key: {
-    //   label: 'LiveRamp Audience Key',
-    //   description:
-    //     'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key) ',
-    //   type: 'string',
-    //   required: true,
-    //   default: { '@path': '$.userId' }
-    // },
     identifier_data: {
       label: 'Identifier Data',
       description: `Additional data pertaining to the user to be written to the file.`,
@@ -157,27 +138,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function processData(input: ProcessDataInput<Payload>) {
   validateS3(input.payloads[0])
-
   const { filename, fileContents } = generateFile(input.payloads)
-
-  // if (input.features) {
   console.log('Uploading to S3', input)
+
   return uploadS3(input.payloads[0], filename, fileContents, input.request)
-  // }
-  // else {
-  //   return sendEventToAWS(input.request, {
-  //     audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
-  //     uploadType: 's3',
-  //     filename,
-  //     fileContents,
-  //     s3Info: {
-  //       s3BucketName: input.payloads[0].s3_aws_bucket_name,
-  //       s3Region: input.payloads[0].s3_aws_region,
-  //       s3AccessKeyId: input.payloads[0].s3_aws_access_key,
-  //       s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
-  //     }
-  //   })
-  // }
 }
 
 export default action
