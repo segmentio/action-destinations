@@ -3,7 +3,11 @@ import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getCreateAudienceURL, hashAndEncode } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { IDENTIFIER_TYPES } from './constants'
+
+type PersonasSettings = {
+  computation_id: string
+  computation_key: string
+}
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Dynamic Yield Audiences',
@@ -15,7 +19,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Audience Name',
       required: true,
-      description: 'Required: Provide a name for your Audience to be displayed in Dynamic Yield.'
+      description: 'Provide a name for your Audience to be displayed in Dynamic Yield.'
+    },
+    identifier_type: {
+      type: 'string',
+      label: 'Identifier Type',
+      required: true,
+      description:
+        'The type of Identifier to send to Dynamic Yield. E.g. `email`, `anonymous_id`, `user_id`, or any other custom identifier. Make sure you configure the `Customized Setup` below so that your chosen include identifier is sent to Dynamic Yield.'
     }
   },
   authentication: {
@@ -44,19 +55,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: 'Description to be added',
         type: 'password',
         required: true
-      },
-      identifier_type: {
-        label: 'Identifier Type',
-        description:
-          'The type of identifier being used to identify the user in Dynamic Yield. Segment hashes the identifier before sending to Dynamic Yield.',
-        type: 'string',
-        required: true,
-        choices: [
-          { label: IDENTIFIER_TYPES.EMAIL, value: IDENTIFIER_TYPES.EMAIL },
-          { label: IDENTIFIER_TYPES.SEGMENT_USER_ID, value: IDENTIFIER_TYPES.SEGMENT_USER_ID },
-          { label: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID, value: IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID }
-        ],
-        default: 'Email'
       }
     }
   },
@@ -93,9 +91,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const { settings, audienceName } = createAudienceInput
-      const audienceSettings = createAudienceInput.audienceSettings as AudienceSettings
-      const { audience_name } = audienceSettings
+      const {
+        settings,
+        audienceSettings: { audience_name, personas } = {}
+      }: {
+        settings: Settings
+        audienceSettings?: {
+          audience_name?: string
+          personas?: PersonasSettings | undefined
+        }
+      } = createAudienceInput
+
+      if (!audience_name) {
+        throw new IntegrationError('Missing Audience Name', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!personas) {
+        throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const audience_id = personas.computation_id
 
       try {
         const response = await request(getCreateAudienceURL(settings.dataCenter), {
@@ -110,8 +125,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
                 api_key: settings.accessKey
               }
             },
-            audience_id: hashAndEncode(audience_name),
-            audience_name: audience_name ?? audienceName,
+            audience_id: hashAndEncode(audience_id),
+            audience_name: audience_name,
             action: 'add'
           }
         })
@@ -120,8 +135,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId: responseData.id
         }
       } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error'
         throw new IntegrationError(
-          'Failed to create Audience in Dynamic Yield',
+          `Failed to create Audience in Dynamic Yield - ${errorMessage}`,
           'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
           400
         )

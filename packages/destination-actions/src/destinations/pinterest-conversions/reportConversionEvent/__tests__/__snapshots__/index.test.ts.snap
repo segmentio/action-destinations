@@ -31,6 +31,7 @@ Object {
       "os_version": "8.1.3",
       "partner_name": "ss-segment",
       "user_data": Object {
+        "click_id": "click-id1",
         "client_ip_address": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         "client_user_agent": "5.5.5.5",
         "country": Array [
@@ -60,6 +61,7 @@ Object {
         "ln": Array [
           "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
         ],
+        "partner_id": "partner-id1",
         "ph": Array [
           "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
         ],
@@ -107,6 +109,7 @@ Object {
       "os_version": "8.1.3",
       "partner_name": "ss-segment",
       "user_data": Object {
+        "click_id": "click-id1",
         "client_ip_address": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
         "client_user_agent": "5.5.5.5",
         "country": Array [
@@ -136,6 +139,7 @@ Object {
         "ln": Array [
           "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
         ],
+        "partner_id": "partner-id1",
         "ph": Array [
           "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
         ],
