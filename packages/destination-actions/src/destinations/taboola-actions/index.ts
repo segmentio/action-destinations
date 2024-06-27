@@ -106,7 +106,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           externalId: json?.audience_id as string
         }
       } catch (error) {
-        throw new IntegrationError('Failed to create Audience in Taboola', 'AUDIENCE_CREATION_FAILED', 400)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(`Failed to create Audience in Taboola ${errorMessage}`, 'AUDIENCE_CREATION_FAILED', 400)
       }
     },
     async getAudience(_, getAudienceInput) {
