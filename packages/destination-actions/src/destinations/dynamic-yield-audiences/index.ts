@@ -1,7 +1,7 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getCreateAudienceURL, hashAndEncode } from './helpers'
+import { getCreateAudienceURL, hashAndEncodeToInt } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 type PersonasSettings = {
@@ -125,14 +125,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
                 api_key: settings.accessKey
               }
             },
-            audience_id: hashAndEncode(audience_id),
+            audience_id: hashAndEncodeToInt(audience_id),
             audience_name: audience_name,
             action: 'add'
           }
         })
         const responseData = await response.json()
 
-        if(!responseData.id){
+        if (!responseData.id) {
           throw new IntegrationError(
             `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
             'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
