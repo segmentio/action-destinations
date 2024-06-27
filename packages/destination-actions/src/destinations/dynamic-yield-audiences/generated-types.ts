@@ -18,7 +18,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Required: Provide a name for your Audience to be displayed in Dynamic Yield.
+   * Provide a name for your Audience to be displayed in Dynamic Yield.
    */
   audience_name: string
   /**

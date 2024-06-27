@@ -19,7 +19,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Audience Name',
       required: true,
-      description: 'Required: Provide a name for your Audience to be displayed in Dynamic Yield.'
+      description: 'Provide a name for your Audience to be displayed in Dynamic Yield.'
     },
     identifier_type: {
       type: 'string',
