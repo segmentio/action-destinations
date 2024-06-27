@@ -197,6 +197,13 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
+  return Object.keys(mapping).reduce((acc, key) => {
+    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
+  }, {})
+}
+
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -265,17 +272,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
-
-    // Remove internal hidden field
-    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
-      delete payload['__segment_internal_sync_mode']
-    }
 
     // Validate the resolved payload against the schema
     if (this.schema) {
@@ -297,6 +302,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
 
+    const matchingKey = Object.values(this.definition.fields).find((field) => field.category === 'identifier')
+      ? bundle.mapping?.['__segment_internal_matching_key']
+      : undefined
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -312,7 +321,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      matchingKey: matchingKey ? String(matchingKey) : undefined
     }
 
     // Construct the request client and perform the action
@@ -329,16 +339,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
-    // Remove internal hidden field
-    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
-      for (const payload of payloads) {
-        if (payload) {
-          delete payload['__segment_internal_sync_mode']
-        }
-      }
-    }
+    let payloads = transformBatch(mapping, bundle.data) as Payload[]
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -373,6 +377,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     if (this.definition.performBatch) {
       const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const matchingKey = Object.values(this.definition.fields).find((field) => field.category === 'identifier')
+        ? bundle.mapping?.['__segment_internal_matching_key']
+        : undefined
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
@@ -387,7 +394,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         hookOutputs,
-        syncMode: isSyncMode(syncMode) ? syncMode : undefined
+        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+        matchingKey: matchingKey ? String(matchingKey) : undefined
       }
       const output = await this.performRequest(this.definition.performBatch, data)
       results[0].data = output as JSONObject
