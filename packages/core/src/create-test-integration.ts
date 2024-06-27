@@ -67,7 +67,9 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     return await super.executeDynamicField(action, fieldKey, data, dynamicFn)
   }
 
-  /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
+  /**
+   * Testing method that runs an action e2e while allowing slightly more flexible inputs
+   */
   async testAction(
     action: string,
     {
