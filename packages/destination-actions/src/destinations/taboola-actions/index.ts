@@ -84,8 +84,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           await TaboolaClient.refreshAccessToken(request, { settings: createAudienceInput.settings })
         ).accessToken
 
-        console.log(accessToken)
-
         const response = await request(
           `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
           {
