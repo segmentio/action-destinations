@@ -84,6 +84,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           await TaboolaClient.refreshAccessToken(request, { settings: createAudienceInput.settings })
         ).accessToken
 
+        console.log(accessToken)
+
         const response = await request(
           `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
           {
@@ -102,8 +104,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
         const json = await response.json()
 
+        if(!json?.audience_id){
+          throw new IntegrationError(
+            `Failed to create Audience in Taboola - responseData.audience_id null or undefined`,
+            'AUDIENCE_CREATION_FAILED',
+            400
+          )
+        }
+
         return {
-          externalId: json?.audience_id as string
+          externalId: String(json?.audience_id) 
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'

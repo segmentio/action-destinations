@@ -131,8 +131,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         })
         const responseData = await response.json()
+
+        if(!responseData.id){
+          throw new IntegrationError(
+            `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
+            'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
+            400
+          )
+        }
+
         return {
-          externalId: responseData.id
+          externalId: String(responseData.id)
         }
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : 'Unknown error'
