@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -34,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.traits.name'
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     account_number: {
       label: 'Account Number',
@@ -43,7 +45,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@path': '$.groupId'
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     number_of_employees: {
       label: 'Number of employees',
@@ -55,7 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.employees' },
           else: { '@path': '$.properties.employees' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     billing_city: {
       label: 'Billing City',
@@ -67,7 +71,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.city' },
           else: { '@path': '$.properties.address.city' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     billing_postal_code: {
       label: 'Billing Postal Code',
@@ -79,7 +84,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.postal_code' },
           else: { '@path': '$.properties.address.postal_code' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     billing_country: {
       label: 'Billing Country',
@@ -91,7 +97,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.country' },
           else: { '@path': '$.properties.address.country' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     billing_street: {
       label: 'Billing Street',
@@ -103,7 +110,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.street' },
           else: { '@path': '$.properties.address.street' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     billing_state: {
       label: 'Billing State',
@@ -115,32 +123,38 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.state' },
           else: { '@path': '$.properties.address.state' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     shipping_city: {
       label: 'Shipping City',
       description: 'City for the shipping address of the account.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     shipping_postal_code: {
       label: 'Shipping Postal Code',
       description: 'Postal code for the shipping address of the account.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     shipping_country: {
       label: 'Shipping Country',
       description: 'Country for the shipping address of the account.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     shipping_street: {
       label: 'Shipping Street',
       description: 'Street address for the shipping address of the account.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     shipping_state: {
       label: 'Shipping State',
       description: 'State for the shipping address of the account.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     phone: {
       label: 'Phone',
@@ -152,7 +166,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.phone' },
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     description: {
       label: 'Description',
@@ -164,7 +179,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.description' },
           else: { '@path': '$.properties.description' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     website: {
       label: 'Website',
@@ -176,7 +192,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.website' },
           else: { '@path': '$.properties.website' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
