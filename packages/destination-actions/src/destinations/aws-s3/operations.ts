@@ -27,10 +27,6 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   AudienceSettings
 > & { rawData?: RawData }
 
-/*
-Generates the LiveRamp ingestion file. Expected format:
-liveramp_audience_key[1],identifier_data[0..n]
-*/
 function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   // Using a Set to keep track of headers
   // const headers = new Set<string>()
@@ -89,14 +85,6 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   return { filename, fileContents: rows }
 }
 
-/*
-  To avoid collision with delimeters, we should surround identifiers with quotation marks.
-  https://docs.liveramp.com/connect/en/formatting-file-data.html#idm45998667347936
-
-  Examples:
-  LCD TV -> "LCD TV"
-  LCD TV,50" -> "LCD TV,50"""
-*/
 function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
 }
@@ -107,10 +95,6 @@ const hash = (value: string): string => {
   return hash.digest('hex')
 }
 
-/*
-  Identifiers need to be hashed according to LiveRamp spec's:
-  https://docs.liveramp.com/connect/en/formatting-identifiers.html
-*/
 const normalize = (key: string, value: string): string => {
   switch (key) {
     case 'phone_number': {
