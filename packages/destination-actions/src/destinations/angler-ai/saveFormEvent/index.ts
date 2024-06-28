@@ -1,11 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
-import { transformPayload } from './transform-payload'
+import { customerFields } from '../fields/customerFields'
+import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
+import type { Payload } from './generated-types'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Form Event',
@@ -73,13 +73,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the Cart Event to track.',
       required: true,
       readOnly: true,
-      choices: [
-        { label: 'form_submitted', value: 'form_submitted' }
-      ], 
-      default: 'form_submitted' 
+      choices: [{ label: 'form_submitted', value: 'form_submitted' }],
+      default: 'form_submitted'
     },
-    ...cart,
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

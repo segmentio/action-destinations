@@ -1,11 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
+import { cartFields } from '../fields/cartFields'
+import { commonFields } from '../fields/commonFields'
+import { customerFields } from '../fields/customerFields'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
-import { transformPayload } from './transform-payload'
 import type { Payload } from './generated-types'
-import { commonFields } from '../fields/commonFields'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Base Event',
@@ -22,8 +22,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'cart_viewed', value: 'cart_viewed' }
       ]
     },
-    ...cart,
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

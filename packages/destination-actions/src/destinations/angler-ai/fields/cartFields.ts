@@ -1,7 +1,7 @@
-import { products } from './productsFields'
 import { InputField } from '@segment/actions-core/index'
+import { productsFields } from './productsFields'
 
-export const cart: Record<string, InputField> = {
+export const cartFields: Record<string, InputField> = {
   cartId: {
     label: 'Cart ID',
     type: 'string',
@@ -18,11 +18,11 @@ export const cart: Record<string, InputField> = {
     description: 'The currency code of the money.'
   },
   cartLines: {
-    ...products,
+    ...productsFields,
     label: 'Cart Line Items',
     description: 'Cart Line Item details',
     properties: {
-      ...products.properties,
+      ...productsFields.properties,
       quantity: {
         label: 'Quantity',
         type: 'number',

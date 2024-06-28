@@ -1,23 +1,23 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { product, productDefaultProperties } from '../fields/productFields'
-import { transformPayload } from './transform-payload'
-import { baseURL, eventsEndpoint } from '../routes'
+import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
+import { customerFields } from '../fields/customerFields'
+import { productDefaultProperties, productFields } from '../fields/productFields'
+import type { Settings } from '../generated-types'
+import { baseURL, eventsEndpoint } from '../routes'
+import type { Payload } from './generated-types'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Cart Event',
   description: 'Save a cart event.',
   fields: {
     cartLine: {
-      ...product,
+      ...productFields,
       label: 'Cart Line',
       description: 'Cart Line details',
       properties: {
-        ...product.properties,
+        ...productFields.properties,
         quantity: {
           label: 'Quantity',
           type: 'number',
@@ -47,8 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'product_removed_from_cart', value: 'product_removed_from_cart' }
       ]
     },
-    ...cart, // TODO: do we really need this field if the cartLine is already defined above?
-    customer
+    ...cartFields, // TODO: do we really need this field if the cartLine is already defined above?
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

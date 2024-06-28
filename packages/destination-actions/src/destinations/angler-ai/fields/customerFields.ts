@@ -1,6 +1,6 @@
 import { InputField } from '@segment/actions-core/index'
 
-export const customer: InputField = {
+export const customerFields: InputField = {
   label: 'Customer',
   type: 'object',
   description: 'Customer details',

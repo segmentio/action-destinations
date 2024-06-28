@@ -22,8 +22,8 @@ export const productsDefaultProperties = {
   title: {
     '@path': '$.name'
   },
-  untranslatedTitle: { 
-    '@path': '$.untranslated_title' 
+  untranslatedTitle: {
+    '@path': '$.untranslated_title'
   },
   vendor: {
     '@path': '$.vendor'
@@ -36,7 +36,7 @@ export const productsDefaultProperties = {
   }
 }
 
-export const products: InputField = {
+export const productsFields: InputField = {
   label: '',
   type: 'object',
   multiple: true,

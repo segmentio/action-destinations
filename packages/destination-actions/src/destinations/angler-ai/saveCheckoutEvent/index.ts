@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { cartFields } from '../fields/cartFields'
+import { checkoutFields } from '../fields/checkoutFields'
+import { commonFields } from '../fields/commonFields'
+import { customerFields } from '../fields/customerFields'
 import type { Settings } from '../generated-types'
+import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
 import { transformPayload } from './transform-payload'
-import { baseURL, eventsEndpoint } from '../routes'
-import { commonFields } from '../fields/commonFields'
-import { checkoutFields } from '../fields/checkoutFields'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Checkout Event',
@@ -27,8 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'checkout_started', value: 'checkout_started' }
       ]
     },
-    ...cart,
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

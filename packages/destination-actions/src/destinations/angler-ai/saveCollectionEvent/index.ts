@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { products } from '../fields/productsFields'
-import { transformPayload } from './transform-payload'
-import { baseURL, eventsEndpoint } from '../routes'
+import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
+import { customerFields } from '../fields/customerFields'
+import { productsFields } from '../fields/productsFields'
+import type { Settings } from '../generated-types'
+import { baseURL, eventsEndpoint } from '../routes'
+import type { Payload } from './generated-types'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Collection Event',
@@ -39,13 +39,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     collectionProductVariants: {
-      ...products,
+      ...productsFields,
       label: 'Collection Product Variants',
       description: 'A list of product variants associated with the collection.'
     },
     ...commonFields,
-    ...cart, 
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

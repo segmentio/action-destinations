@@ -1,19 +1,19 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { products } from '../fields/productsFields'
+import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
-import { transformPayload } from './transform-payload'
+import { customerFields } from '../fields/customerFields'
+import { productsFields } from '../fields/productsFields'
+import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
-import { cart } from '../fields/cartFields'
-import { customer } from '../fields/customerFields'
+import type { Payload } from './generated-types'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Search Event',
   description: 'Save a search event.',
   fields: {
     searchResults: {
-      ...products,
+      ...productsFields,
       label: 'Search Results',
       description: 'Search results details'
     },
@@ -32,13 +32,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the event to track.',
       required: true,
       readOnly: true,
-      choices: [
-        { label: 'search_submitted', value: 'search_submitted' }
-      ],
+      choices: [{ label: 'search_submitted', value: 'search_submitted' }],
       default: 'search_submitted'
     },
-    ...cart,
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

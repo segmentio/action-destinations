@@ -1,18 +1,19 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { product } from '../fields'
+import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
-import { transformPayload } from './transform-payload'
+import { customerFields } from '../fields/customerFields'
+import { productFields } from '../fields/productFields'
+import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
-import { cart, customer } from '../fields'
+import type { Payload } from './generated-types'
+import { transformPayload } from './transform-payload'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Product Event',
   description: 'Save a product event.',
   fields: {
     productVariant: {
-      ...product,
+      ...productFields,
       label: 'Product Variant',
       description: 'Product Variant details'
     },
@@ -23,13 +24,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the event to track.',
       required: true,
       readOnly: true,
-      choices: [
-        { label: 'product_viewed', value: 'product_viewed' }
-      ],
+      choices: [{ label: 'product_viewed', value: 'product_viewed' }],
       default: 'product_viewed'
     },
-    ...cart,
-    customer
+    ...cartFields,
+    customerFields
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

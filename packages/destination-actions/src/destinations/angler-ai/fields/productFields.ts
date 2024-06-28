@@ -40,7 +40,7 @@ export const productDefaultProperties = {
   }
 }
 
-export const product: InputField = {
+export const productFields: InputField = {
   label: '',
   type: 'object',
   description: '',
