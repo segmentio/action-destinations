@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
 import { productDefaultProperties, productFields } from '../fields/productFields'
@@ -47,7 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'product_removed_from_cart', value: 'product_removed_from_cart' }
       ]
     },
-    ...cartFields, // TODO: do we really need this field if the cartLine is already defined above?
     customerFields
   },
   perform: (request, data) => {

@@ -114,7 +114,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     default: {
       userId: { '@path': '$.userId' },
       anonymousId: { '@path': '$.anonymousId' },
-      clientId: { '@path': '$.anonymousId' }, // TODO: discuss if this default is the right approach
+      clientId: { '@path': '$.anonymousId' },
       fbp: { '@path': '$.properties.fbp' },
       fbc: { '@path': '$.properties.fbc' },
       ga: { '@path': '$.properties.ga' }
