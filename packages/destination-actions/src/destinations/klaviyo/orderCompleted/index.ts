@@ -4,156 +4,9 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { v4 as uuidv4 } from '@lukeed/uuid'
+import { capitalizeKeys } from './formatters'
 
-function createOrderCompleteEvent(payload: Payload) {
-  // Categories, Item Names, Items
-  const properties = { ...payload.properties }
-  delete properties.products
-  const categories = payload.products?.filter((product) => product.category).map((product) => product.category)
-  const itemNames = payload.products?.filter((product) => product.name).map((product) => product.name)
-  const specialProps = [
-    'sku',
-    'name',
-    'quantity',
-    'item price',
-    'price',
-    'row total',
-    'categories',
-    'category',
-    'image url',
-    'image_url',
-    'imageUrl',
-    'product url',
-    'product_url',
-    'productUrl'
-  ]
-
-  const items = payload.products?.map((product) => {
-    const customProps = { ...product }
-    for (const prop of specialProps) {
-      delete customProps[prop]
-    }
-
-    const { sku, name, quantity, price, category } = product
-    return {
-      SKU: sku,
-      Name: name,
-      Quantity: quantity,
-      'Item Price': price,
-      'Row Total': price,
-      Categories: [category],
-      'Product URL': product['product_url'] ?? product['productURL'],
-      'Image URL': product['image_url'] ?? product['imageUrl'],
-      ...customProps
-    }
-  })
-
-  return {
-    data: {
-      type: 'event',
-      attributes: {
-        properties: {
-          ...properties,
-          Categories: categories,
-          'Item Names': itemNames,
-          Items: items
-        },
-        time: payload.time,
-        value: payload.value,
-        unique_id: payload.unique_id,
-        metric: {
-          data: {
-            type: 'metric',
-            attributes: {
-              name: 'Order Completed'
-            }
-          }
-        },
-        profile: {
-          data: {
-            type: 'profile',
-            attributes: payload.profile
-          }
-        }
-      }
-    }
-  }
-}
-
-const sendProductRequests = async (payload: Payload, request: RequestClient) => {
-  if (!payload.products || !Array.isArray(payload.products)) {
-    return
-  }
-
-  const specialProps = [
-    'name',
-    'product categories',
-    'category',
-    'categories',
-    'id',
-    'productId',
-    'product_id',
-    'sku',
-    'quantity',
-    'price',
-    'product url',
-    'productUrl',
-    'image url',
-    'imageUrl'
-  ]
-
-  delete payload.properties?.products
-
-  const productPromises = payload.products.map((product) => {
-    const customProps = { ...product }
-    for (const prop of specialProps) {
-      delete customProps[prop]
-    }
-
-    const productPayload = {
-      SKU: product.sku,
-      Name: product.name,
-      Quantity: product.quantity,
-      Price: product.price,
-      'Product Categories': [product.category],
-      'Product URL': product['product_url'] ?? product['productUrl'],
-      'Image URL': product['image_url'] ?? product['imageUrl'],
-      ...customProps
-    }
-
-    const productEventData = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: {
-            ...productPayload,
-            ...payload.properties
-          },
-          unique_id: uuidv4(),
-          value: product.price,
-          metric: {
-            data: {
-              type: 'metric',
-              attributes: {
-                name: 'Ordered Product'
-              }
-            }
-          },
-          time: payload.properties.time,
-          profile: payload.properties.profile
-        }
-      }
-    }
-
-    return request(`${API_URL}/events/`, {
-      method: 'POST',
-      json: productEventData
-    })
-  })
-
-  await Promise.all(productPromises)
-}
-
+type Product = NonNullable<Payload['products']>[number]
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Order Completed',
   description: 'Order Completed Event action tracks users Order Completed events and associate it with their profile.',
@@ -193,8 +46,76 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Properties of this event.`,
       label: 'Properties',
       type: 'object',
+      additionalProperties: true,
+      properties: {
+        checkout_id: {
+          label: 'Checkout ID',
+          description: 'Unique identifier for the checkout.',
+          type: 'string'
+        },
+        order_id: {
+          label: 'Order ID',
+          description: 'Unique identifier for the order.',
+          type: 'string'
+        },
+        affiliation: {
+          label: 'Affiliation',
+          description: 'Affiliation of the order.',
+          type: 'string'
+        },
+        subtotal: {
+          label: 'Subtotal',
+          description: 'Subtotal of the order.',
+          type: 'number'
+        },
+        tax: {
+          label: 'Tax',
+          description: 'Tax of the order.',
+          type: 'number'
+        },
+        revenue: {
+          label: 'Revenue',
+          description:
+            'Revenue ($) associated with the transaction (including discounts, but excluding shipping and taxes)',
+          type: 'number'
+        },
+        shipping: {
+          label: 'Shipping',
+          description: 'Shipping cost associated with the transaction.',
+          type: 'number'
+        },
+        discount: {
+          label: 'Discount',
+          description: 'Discount of the order.',
+          type: 'number'
+        },
+        coupon: {
+          label: 'Coupon',
+          description: 'Coupon code used for the order.',
+          type: 'string'
+        },
+        currency: {
+          label: 'Currency',
+          description: 'Currency of the order.',
+          type: 'string'
+        }
+      },
       default: {
-        '@path': '$.properties'
+        '@arrayPath': [
+          '$.properties',
+          {
+            checkout_id: { '@path': '$.properties.checkout_id' },
+            order_id: { '@path': '$.properties.order_id' },
+            affiliation: { '@path': '$.properties.affiliation' },
+            subtotal: { '@path': '$.properties.subtotal' },
+            tax: { '@path': '$.properties.tax' },
+            revenue: { '@path': '$.properties.revenue' },
+            shipping: { '@path': '$.properties.shipping' },
+            discount: { '@path': '$.properties.discount' },
+            coupon: { '@path': '$.properties.coupon' },
+            currency: { '@path': '$.properties.currency' }
+          }
+        ]
       },
       required: true
     },
@@ -233,8 +154,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        order_id: {
-          label: 'Order ID',
+        product_id: {
+          label: 'Product ID',
           type: 'string'
         },
         category: {
@@ -254,11 +175,11 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'number'
         },
         image_url: {
-          label: 'Image URL',
+          label: 'Image URL of the product',
           type: 'string'
         },
-        product_url: {
-          label: 'Product URL',
+        url: {
+          label: 'URL of the product page',
           type: 'string'
         },
         quantity: {
@@ -270,33 +191,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.products',
           {
-            order_id: {
-              '@if': {
-                exists: { '@path': '$.properties.order_id' },
-                then: { '@path': '$.properties.order_id' },
-                else: {
-                  '@path': '$.properties.orderId'
-                }
-              }
-            },
+            product_id: { '@path': '$.properties.product_id' },
             category: { '@path': '$.properties.category' },
             name: { '@path': '$.properties.name' },
             sku: { '@path': '$.properties.sku' },
             price: { '@path': '$.properties.price' },
-            imageUrl: {
-              '@if': {
-                exists: { '@path': '$.properties.imageUrl' },
-                then: { '@path': '$.properties.imageUrl' },
-                else: { '@path': '$.properties.image_url' }
-              }
-            },
-            productUrl: {
-              '@if': {
-                exists: { '@path': '$.properties.productUrl' },
-                then: { '@path': '$.properties.productUrl' },
-                else: { '@path': '$.properties.product_url' }
-              }
-            },
+            image_url: { '@path': '$.properties.image_url' },
+            url: { '@path': '$.properties.url' },
             quantity: { '@path': '$.properties.quantity' }
           }
         ]
@@ -323,6 +224,139 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     return event
   }
+}
+
+function formatProductItems(product: Product) {
+  const { sku, name, quantity, price, category, categories, url, image_url, ...otherProperties } = product
+  const formattedProduct = {
+    ProductId: product.product_id ?? product.id,
+    SKU: sku,
+    Name: name,
+    Quantity: quantity,
+    ItemPrice: price,
+    RowTotal: price,
+    Categories: category ? [category] : [],
+    ProductURL: url,
+    ImageURL: image_url,
+    // copy other properties as is. If other properties have properties with same name
+    // as the above, they will be overwritten which is the expected behavior
+    ...otherProperties
+  }
+  return capitalizeKeys(formattedProduct)
+}
+
+function createOrderCompleteEvent(payload: Payload) {
+  // products is generally an array part of the properties object.
+  // so we get rid of it as we already map it to payload.products
+  delete payload.properties?.products
+  const categories = payload.products?.filter((product) => Boolean(product.category)).map((product) => product.category)
+  const itemNames = payload.products?.filter((product) => Boolean(product.name)).map((product) => product.name)
+
+  const items = payload.products?.map(formatProductItems)
+
+  return {
+    data: {
+      type: 'event',
+      attributes: {
+        properties: {
+          Categories: categories,
+          ItemNames: itemNames,
+          // products array is reformatted and sent as items
+          Items: items,
+          ...capitalizeKeys(payload.properties)
+        },
+        time: payload.time,
+        value: payload.value,
+        unique_id: payload.unique_id,
+        metric: {
+          data: {
+            type: 'metric',
+            attributes: {
+              name: 'Order Completed'
+            }
+          }
+        },
+        profile: {
+          data: {
+            type: 'profile',
+            attributes: payload.profile
+          }
+        }
+      }
+    }
+  }
+}
+
+function formatOrderedProduct(product: Product, payload: Payload) {
+  // unique_id should ensure retries don't result in duplicate event. hence we use product_id or sku + order_id as unique_id
+  const id = product.product_id || product.sku || product?.id
+  const order_id = payload.properties.order_id
+  const unique_id = order_id && id ? `${order_id}_${id}` : uuidv4()
+
+  const { name, quantity, sku, price, url, image_url, category, ...otherProperties } = product
+  const productProperties = {
+    OrderId: order_id,
+    ProductId: product.product_id ?? product.id,
+    SKU: product.sku,
+    ProductName: product.name,
+    Quantity: product.quantity,
+    Categories: product.category ? [product.category] : [],
+    ProductURL: url,
+    ImageURL: image_url,
+    // copy other properties as is. If other properties have properties with same name
+    // as the above, they will be overwritten which is the expected behavior
+    ...capitalizeKeys(otherProperties)
+  }
+  return { unique_id, productProperties }
+}
+
+function sendOrderedProduct(request: RequestClient, payload: Payload, product: Product) {
+  const { unique_id, productProperties } = formatOrderedProduct(product, payload)
+
+  const productEventData = {
+    data: {
+      type: 'event',
+      attributes: {
+        properties: capitalizeKeys(productProperties),
+        unique_id: unique_id,
+        // for ordered product, we use price as value
+        value: product.price,
+        metric: {
+          data: {
+            type: 'metric',
+            attributes: {
+              name: 'Ordered Product'
+            }
+          }
+        },
+        time: payload.time,
+        profile: {
+          data: {
+            type: 'profile',
+            attributes: payload.profile
+          }
+        }
+      }
+    }
+  }
+
+  return request(`${API_URL}/events/`, {
+    method: 'POST',
+    json: productEventData
+  })
+}
+
+const sendProductRequests = async (payload: Payload, request: RequestClient) => {
+  if (!Array.isArray(payload.products)) {
+    return
+  }
+
+  // products is generally an array part of the properties object.
+  // so we get rid of it as we already map it to payload.products
+  delete payload.properties?.products
+
+  const productPromises = payload.products.map((product) => sendOrderedProduct(request, payload, product))
+  await Promise.all(productPromises)
 }
 
 export default action
