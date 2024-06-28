@@ -50,13 +50,37 @@ export interface Payload {
    * List of products purchased in the order.
    */
   products?: {
+    /**
+     * Id of the product.
+     */
     product_id?: string
+    /**
+     * Category of the product
+     */
     category?: string
+    /**
+     * Name of the product
+     */
     name?: string
+    /**
+     * Stock Keeping Unit of the product
+     */
     sku?: string
+    /**
+     * Price of the product
+     */
     price?: number
+    /**
+     * URL of the image of the product
+     */
     image_url?: string
+    /**
+     * URL of the product page
+     */
     url?: string
+    /**
+     * Quantity of the product
+     */
     quantity?: number
     [k: string]: unknown
   }[]

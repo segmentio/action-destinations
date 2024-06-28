@@ -100,35 +100,43 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         product_id: {
           label: 'Product ID',
+          description: 'Id of the product.',
           type: 'string'
         },
         category: {
           label: 'Category',
+          description: 'Category of the product',
           type: 'string'
         },
         name: {
           label: 'Name',
-          type: 'string'
+          type: 'string',
+          description: 'Name of the product'
         },
         sku: {
           label: 'SKU',
-          type: 'string'
+          type: 'string',
+          description: 'Stock Keeping Unit of the product'
         },
         price: {
           label: 'Price',
-          type: 'number'
+          type: 'number',
+          description: 'Price of the product'
         },
         image_url: {
           label: 'Image URL of the product',
-          type: 'string'
+          type: 'string',
+          description: 'URL of the image of the product'
         },
         url: {
-          label: 'URL of the product page',
-          type: 'string'
+          label: 'Product URL',
+          type: 'string',
+          description: 'URL of the product page'
         },
         quantity: {
           label: 'Quantity',
-          type: 'number'
+          type: 'number',
+          description: 'Quantity of the product'
         }
       },
       default: {
