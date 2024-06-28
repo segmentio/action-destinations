@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Product Event Name',
       type: 'string',
-      description: 'The name of the event to track.',
+      description: 'The name of the Product event to track.',
       required: true,
       readOnly: true,
       choices: [{ label: 'product_viewed', value: 'product_viewed' }],

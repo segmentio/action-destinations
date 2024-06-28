@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Form Event Name',
       type: 'string',
-      description: 'The name of the Cart Event to track.',
+      description: 'The name of the Form Event to track.',
       required: true,
       readOnly: true,
       choices: [{ label: 'form_submitted', value: 'form_submitted' }],

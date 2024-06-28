@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     eventName: {
       label: 'Search Event Name',
       type: 'string',
-      description: 'The name of the event to track.',
+      description: 'The name of the Search event to track.',
       required: true,
       readOnly: true,
       choices: [{ label: 'search_submitted', value: 'search_submitted' }],

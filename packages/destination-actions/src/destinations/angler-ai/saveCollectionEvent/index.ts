@@ -43,6 +43,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Collection Product Variants',
       description: 'A list of product variants associated with the collection.'
     },
+    eventName: {
+      label: 'Collection Event Name',
+      type: 'string',
+      description: 'The name of the Collection Event to track.',
+      required: true,
+      readOnly: true,
+      choices: [{ label: 'collection_viewed', value: 'collection_viewed' }],
+      default: 'collection_viewed'
+    },
     ...commonFields,
     ...cartFields,
     customerFields

@@ -15,9 +15,9 @@ const action: ActionDefinition<Settings, Payload> = {
     ...checkoutFields,
     ...commonFields,
     eventName: {
-      label: 'Cart Event Name',
+      label: 'Checkout Event Name',
       type: 'string',
-      description: 'The name of the Cart Event to track.',
+      description: 'The name of the Checkout Event to track.',
       required: true,
       choices: [
         { label: 'checkout_address_info_submitted', value: 'checkout_address_info_submitted' },
