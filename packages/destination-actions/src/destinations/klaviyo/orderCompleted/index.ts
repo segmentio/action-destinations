@@ -39,11 +39,11 @@ function createOrderCompleteEvent(payload: Payload) {
       SKU: sku,
       Name: name,
       Quantity: quantity,
-      ItemPrice: price,
-      RowTotal: price,
+      'Item Price': price,
+      'Row Total': price,
       Categories: [category],
-      ProductURL: product['product_url'] ?? product['productURL'],
-      ImageURL: product['image_url'] ?? product['imageUrl'],
+      'Product URL': product['product_url'] ?? product['productURL'],
+      'Image URL': product['image_url'] ?? product['imageUrl'],
       ...customProps
     }
   })
@@ -85,14 +85,52 @@ const sendProductRequests = async (payload: Payload, request: RequestClient) => 
     return
   }
 
+  const specialProps = [
+    'name',
+    'product categories',
+    'category',
+    'categories',
+    'id',
+    'productId',
+    'product_id',
+    'sku',
+    'quantity',
+    'price',
+    'product url',
+    'productUrl',
+    'image url',
+    'imageUrl'
+  ]
+
   delete payload.properties?.products
+
   const productPromises = payload.products.map((product) => {
+    const customProps = { ...product }
+    for (const prop of specialProps) {
+      delete customProps[prop]
+    }
+
+    const productPayload = {
+      SKU: product.sku,
+      Name: product.name,
+      Quantity: product.quantity,
+      Price: product.price,
+      'Product Categories': [product.category],
+      'Product URL': product['product_url'] ?? product['productUrl'],
+      'Image URL': product['image_url'] ?? product['imageUrl'],
+      ...customProps
+    }
+
     const productEventData = {
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product, ...payload.properties },
+          properties: {
+            ...productPayload,
+            ...payload.properties
+          },
           unique_id: uuidv4(),
+          value: product.price,
           metric: {
             data: {
               type: 'metric',
