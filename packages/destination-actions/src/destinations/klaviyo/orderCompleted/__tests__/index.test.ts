@@ -2,6 +2,7 @@ import nock from 'nock'
 import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
 import { API_URL } from '../../config'
+import { convertKeysToTitleCase } from '../formatters'
 
 const testDestination = createTestIntegration(Definition)
 const apiKey = 'fake-api-key'
@@ -41,6 +42,41 @@ const createRequestBody = (
   }
 })
 
+function generateOrderedProductEvent(
+  value: number,
+  profile: { phone_number: string; email: string },
+  properties: Record<string, any>
+) {
+  const productProps = {
+    OrderId: '1123',
+    ProductId: '507f1f77bcf86cd799439011',
+    SKU: '45790-32',
+    ProductName: 'Monopoly: 3rd Edition',
+    Categories: ['Board Games'],
+    Quantity: 1,
+    ProductURL: 'https://www.example.com/product/path',
+    ImageURL: 'https:///www.example.com/product/path.jpg',
+    ...properties
+  }
+  return {
+    data: {
+      type: 'event',
+      attributes: {
+        properties: productProps,
+        unique_id: `${productProps.OrderId}_${productProps.ProductId}`,
+        value: value,
+        metric: createMetric('Ordered Product'),
+        profile: {
+          data: {
+            type: 'profile',
+            attributes: profile
+          }
+        }
+      }
+    }
+  }
+}
+
 describe('Order Completed', () => {
   it('should throw error if no profile identifiers are provided', async () => {
     const event = createTestEvent({ type: 'track' })
@@ -57,7 +93,7 @@ describe('Order Completed', () => {
     const metricName = 'Order Completed'
     const value = 10
 
-    const requestBody = createRequestBody(properties, value, metricName, profile)
+    const requestBody = createRequestBody(convertKeysToTitleCase(properties), value, metricName, profile)
 
     nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
 
@@ -77,7 +113,7 @@ describe('Order Completed', () => {
     const metricName = 'Order Completed'
     const value = 10
 
-    const requestBody = createRequestBody(properties, value, metricName, profile)
+    const requestBody = createRequestBody(convertKeysToTitleCase(properties), value, metricName, profile)
 
     nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
 
@@ -97,7 +133,7 @@ describe('Order Completed', () => {
     const metricName = 'Order Completed'
     const value = 10
 
-    const requestBody = createRequestBody(properties, value, metricName, profile)
+    const requestBody = createRequestBody(convertKeysToTitleCase(properties), value, metricName, profile)
 
     nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
 
@@ -117,7 +153,7 @@ describe('Order Completed', () => {
     const metricName = 'Order Completed'
     const value = 10
 
-    const requestBody = createRequestBody(properties, value, metricName, profile)
+    const requestBody = createRequestBody(convertKeysToTitleCase(properties), value, metricName, profile)
 
     nock(`${API_URL}`).post('/events/', requestBody).reply(500, {})
 
@@ -154,7 +190,8 @@ describe('Order Completed', () => {
       ItemNames: ['Monopoly: 3rd Edition'],
       Items: [
         {
-          Name: 'Monopoly: 3rd Edition',
+          ProductName: 'Monopoly: 3rd Edition',
+          Categories: [],
           SKU: '45790-32',
           ItemPrice: 19,
           RowTotal: 19,
@@ -185,31 +222,9 @@ describe('Order Completed', () => {
 
     nock(`${API_URL}`).post(`/events/`, orderCompletedEvent).reply(202, {})
 
-    const orderedProductEvent = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: {
-            OrderId: '1123',
-            ProductId: '507f1f77bcf86cd799439011',
-            SKU: '45790-32',
-            ProductName: 'Monopoly: 3rd Edition',
-            Quantity: 1,
-            ProductURL: 'https://www.example.com/product/path',
-            ImageURL: 'https:///www.example.com/product/path.jpg'
-          },
-          unique_id: `1123_507f1f77bcf86cd799439011`,
-          value: value,
-          metric: createMetric('Ordered Product'),
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: profile
-            }
-          }
-        }
-      }
-    }
+    const orderedProductEvent = generateOrderedProductEvent(value, profile, {
+      Categories: []
+    })
 
     nock(`${API_URL}`).post(`/events/`, orderedProductEvent).reply(200, {})
 
@@ -222,7 +237,6 @@ describe('Order Completed', () => {
         image_url: 'https:///www.example.com/product/path.jpg',
         price: 19,
         name: 'Monopoly: 3rd Edition',
-        Categories: [],
         quantity: 1,
         sku: '45790-32',
         product_id: '507f1f77bcf86cd799439011',
@@ -233,7 +247,6 @@ describe('Order Completed', () => {
         image_url: 'https:///www.example.com/product/path.jpg',
         price: 19,
         name: 'Uno: 3rd Edition',
-        Categories: [],
         quantity: 1,
         sku: '45790-32',
         product_id: '1507f1f77bcf86cd799439011',
@@ -250,7 +263,7 @@ describe('Order Completed', () => {
       ItemNames: ['Monopoly: 3rd Edition', 'Uno: 3rd Edition'],
       Items: [
         {
-          Name: 'Monopoly: 3rd Edition',
+          ProductName: 'Monopoly: 3rd Edition',
           Categories: ['Board Games'],
           SKU: '45790-32',
           ItemPrice: 19,
@@ -261,7 +274,7 @@ describe('Order Completed', () => {
           ProductId: '507f1f77bcf86cd799439011'
         },
         {
-          Name: 'Uno: 3rd Edition',
+          ProductName: 'Uno: 3rd Edition',
           SKU: '45790-32',
           Categories: ['Card Games'],
           ItemPrice: 19,
@@ -293,59 +306,18 @@ describe('Order Completed', () => {
 
     nock(`${API_URL}`).post(`/events/`, orderCompletedEvent).reply(202, {})
 
-    const orderedProductEvent1 = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: {
-            OrderId: '1123',
-            ProductId: '507f1f77bcf86cd799439011',
-            SKU: '45790-32',
-            ProductName: 'Monopoly: 3rd Edition',
-            Categories: ['Board Games'],
-            Quantity: 1,
-            ProductURL: 'https://www.example.com/product/path',
-            ImageURL: 'https:///www.example.com/product/path.jpg'
-          },
-          unique_id: `1123_507f1f77bcf86cd799439011`,
-          value: value,
-          metric: createMetric('Ordered Product'),
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: profile
-            }
-          }
-        }
-      }
-    }
+    const orderedProductEvent1 = generateOrderedProductEvent(value, profile, {
+      ProductName: 'Monopoly: 3rd Edition',
+      Categories: ['Board Games'],
+      ProductId: '507f1f77bcf86cd799439011'
+    })
 
-    const orderedProductEvent2 = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: {
-            OrderId: '1123',
-            ProductId: '1507f1f77bcf86cd799439011',
-            SKU: '45790-32',
-            ProductName: 'Uno: 3rd Edition',
-            Categories: ['Card Games'],
-            Quantity: 1,
-            ProductURL: 'https://www.example.com/product/path',
-            ImageURL: 'https:///www.example.com/product/path.jpg'
-          },
-          unique_id: `1123_1507f1f77bcf86cd799439011`,
-          value: value,
-          metric: createMetric('Ordered Product'),
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: profile
-            }
-          }
-        }
-      }
-    }
+    const orderedProductEvent2 = generateOrderedProductEvent(value, profile, {
+      ProductName: 'Uno: 3rd Edition',
+      Categories: ['Card Games'],
+      ProductId: '1507f1f77bcf86cd799439011'
+    })
+
     nock(`${API_URL}`).post(`/events/`, orderedProductEvent1).reply(202, {})
     nock(`${API_URL}`).post(`/events/`, orderedProductEvent2).reply(202, {})
 

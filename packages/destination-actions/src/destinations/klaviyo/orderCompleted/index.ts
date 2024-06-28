@@ -3,10 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { v4 as uuidv4 } from '@lukeed/uuid'
-import { capitalizeKeys } from './formatters'
+import { convertKeysToTitleCase, formatOrderedProduct, formatProductItems } from './formatters'
+import { Product } from './types'
 
-type Product = NonNullable<Payload['products']>[number]
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Order Completed',
   description: 'Order Completed Event action tracks users Order Completed events and associate it with their profile.',
@@ -213,7 +212,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const eventData = createOrderCompleteEvent(payload)
-
     const event = await request(`${API_URL}/events/`, {
       method: 'POST',
       json: eventData
@@ -224,25 +222,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     return event
   }
-}
-
-function formatProductItems(product: Product) {
-  const { sku, name, quantity, price, category, categories, url, image_url, ...otherProperties } = product
-  const formattedProduct = {
-    ProductId: product.product_id ?? product.id,
-    SKU: sku,
-    Name: name,
-    Quantity: quantity,
-    ItemPrice: price,
-    RowTotal: price,
-    Categories: category ? [category] : [],
-    ProductURL: url,
-    ImageURL: image_url,
-    // copy other properties as is. If other properties have properties with same name
-    // as the above, they will be overwritten which is the expected behavior
-    ...otherProperties
-  }
-  return capitalizeKeys(formattedProduct)
 }
 
 function createOrderCompleteEvent(payload: Payload) {
@@ -263,7 +242,7 @@ function createOrderCompleteEvent(payload: Payload) {
           ItemNames: itemNames,
           // products array is reformatted and sent as items
           Items: items,
-          ...capitalizeKeys(payload.properties)
+          ...convertKeysToTitleCase(payload.properties)
         },
         time: payload.time,
         value: payload.value,
@@ -287,37 +266,14 @@ function createOrderCompleteEvent(payload: Payload) {
   }
 }
 
-function formatOrderedProduct(product: Product, payload: Payload) {
-  // unique_id should ensure retries don't result in duplicate event. hence we use product_id or sku + order_id as unique_id
-  const id = product.product_id || product.sku || product?.id
-  const order_id = payload.properties.order_id
-  const unique_id = order_id && id ? `${order_id}_${id}` : uuidv4()
-
-  const { name, quantity, sku, price, url, image_url, category, ...otherProperties } = product
-  const productProperties = {
-    OrderId: order_id,
-    ProductId: product.product_id ?? product.id,
-    SKU: product.sku,
-    ProductName: product.name,
-    Quantity: product.quantity,
-    Categories: product.category ? [product.category] : [],
-    ProductURL: url,
-    ImageURL: image_url,
-    // copy other properties as is. If other properties have properties with same name
-    // as the above, they will be overwritten which is the expected behavior
-    ...capitalizeKeys(otherProperties)
-  }
-  return { unique_id, productProperties }
-}
-
 function sendOrderedProduct(request: RequestClient, payload: Payload, product: Product) {
-  const { unique_id, productProperties } = formatOrderedProduct(product, payload)
+  const { unique_id, productProperties } = formatOrderedProduct(product, payload.properties.order_id)
 
   const productEventData = {
     data: {
       type: 'event',
       attributes: {
-        properties: capitalizeKeys(productProperties),
+        properties: convertKeysToTitleCase(productProperties),
         unique_id: unique_id,
         // for ordered product, we use price as value
         value: product.price,
