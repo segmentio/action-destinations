@@ -302,9 +302,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
 
-    const matchingKey = Object.values(this.definition.fields).find((field) => field.category === 'identifier')
-      ? bundle.mapping?.['__segment_internal_matching_key']
-      : undefined
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -377,9 +375,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     if (this.definition.performBatch) {
       const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-      const matchingKey = Object.values(this.definition.fields).find((field) => field.category === 'identifier')
-        ? bundle.mapping?.['__segment_internal_matching_key']
-        : undefined
+      const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
