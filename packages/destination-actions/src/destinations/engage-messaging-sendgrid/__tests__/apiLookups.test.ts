@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { ApiLookupConfig, getRequestId, performApiLookup } from '../previewApiLookup/apiLookups'
-import { EngageDestinationCache } from '../../../../../../core/src/destination-kit/index'
 import createRequestClient from '../../../../../core/src/create-request-client'
+import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
 
 const profile = {
   traits: {
@@ -47,7 +47,7 @@ const createMockRequestStore = (overrides?: Partial<EngageDestinationCache>) => 
       return mockStore[requestId]
     }),
     maxExpirySeconds: 600000,
-    maxResponseSizeBytes: 1000000,
+    maxValueSizeBytes: 1000000,
     ...overrides
   }
   return mockEngageDestinationCache
@@ -155,7 +155,7 @@ describe('api lookups', () => {
     })
 
     it('throws error if response size is too big', async () => {
-      const mockEngageDestinationCache = createMockRequestStore({ maxResponseSizeBytes: 1 })
+      const mockEngageDestinationCache = createMockRequestStore({ maxValueSizeBytes: 1 })
       const apiLookupRequest = nock(`https://fakeweather.com`)
         .get(`/api/current`)
         .reply(200, {
