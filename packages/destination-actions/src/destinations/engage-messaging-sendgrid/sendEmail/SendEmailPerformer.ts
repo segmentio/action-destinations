@@ -365,7 +365,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.tags,
           this.settings,
           this.logger.loggerClient,
-          this.dataFeedCache
+          this.engageDestinationCache
         )
         return { name: apiLookup.name, data }
       })

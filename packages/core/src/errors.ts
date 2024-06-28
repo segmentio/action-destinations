@@ -9,6 +9,7 @@ import { CustomError } from 'ts-custom-error'
 export class IntegrationError extends CustomError {
   code: string | undefined
   status: number | undefined
+  retry?: boolean
 
   /**
    * @param message - a human-friendly message to display to users

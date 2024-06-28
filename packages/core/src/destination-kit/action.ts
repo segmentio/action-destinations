@@ -21,7 +21,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext, EngageDestinationCache } from './index'
 import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
@@ -56,7 +56,7 @@ export interface BaseActionDefinition {
   /**
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
-  fields: Record<string, InputField>
+  fields: { [x: string]: InputField }
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
@@ -69,11 +69,13 @@ type GenericActionHookBundle = {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Payload = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookBundle extends GenericActionHookBundle = any
 > extends BaseActionDefinition {
   /**
@@ -188,7 +190,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
-  dataFeedCache?: DataFeedCache | undefined
+  engageDestinationCache?: EngageDestinationCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
 }
@@ -307,7 +309,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      dataFeedCache: bundle.dataFeedCache,
+      engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
@@ -383,7 +385,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        dataFeedCache: bundle.dataFeedCache,
+        engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         hookOutputs,

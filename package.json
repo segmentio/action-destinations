@@ -33,7 +33,8 @@
     "release": "bash scripts/release.sh",
     "prepare": "husky install",
     "postversion": "bash scripts/postversion.sh",
-    "clean": "sh scripts/clean.sh"
+    "clean": "sh scripts/clean.sh",
+    "canary": "./scripts/canary.sh"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
