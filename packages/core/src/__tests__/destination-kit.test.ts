@@ -180,6 +180,21 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               dynamic: true
             }
           }
+        },
+        testObjectArrays: {
+          label: 'Structured Array of Object',
+          description: 'A structured array of object',
+          type: 'object',
+          multiple: true,
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
         }
       },
       dynamicFields: {
@@ -196,9 +211,11 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               nextPage: ''
             }
           },
-          __values__: async () => {
+          __values__: async (_, input) => {
+            const { dynamicFieldContext } = input
+
             return {
-              choices: [{ label: 'Im a value', value: '2️⃣' }],
+              choices: [{ label: `Im a value for ${dynamicFieldContext?.selectedKey}`, value: '2️⃣' }],
               nextPage: ''
             }
           }
@@ -207,6 +224,18 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
           testDynamicSubfield: async () => {
             return {
               choices: [{ label: 'Im a subfield', value: 'nah' }],
+              nextPage: ''
+            }
+          }
+        },
+        testObjectArrays: {
+          testDynamicSubfield: async (_, input) => {
+            const { dynamicFieldContext } = input
+
+            return {
+              choices: [
+                { label: `Im a subfield for element ${dynamicFieldContext?.selectedArrayIndex}`, value: 'nah' }
+              ],
               nextPage: ''
             }
           }
@@ -794,11 +823,19 @@ describe('destination kit', () => {
 
     test('fetches values for unstructured objects', async () => {
       const destinationTest = new Destination(destinationWithDynamicFields)
-      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__values__', {
+      ;('testUnstructuredObject.__values__')
+      let res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyOne', {
         settings: {},
         payload: {}
       })
-      expect(res).toEqual({ choices: [{ label: 'Im a value', value: '2️⃣' }], nextPage: '' })
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyOne', value: '2️⃣' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyTwo', {
+        settings: {},
+        payload: {}
+      })
+
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyTwo', value: '2️⃣' }], nextPage: '' })
     })
 
     test('fetches values for structured object subfields', async () => {
@@ -808,6 +845,21 @@ describe('destination kit', () => {
         payload: {}
       })
       expect(res).toEqual({ choices: [{ label: 'Im a subfield', value: 'nah' }], nextPage: '' })
+    })
+
+    test('fetches values for structured array of object', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      let res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[0].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 0', value: 'nah' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[113].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 113', value: 'nah' }], nextPage: '' })
     })
 
     test('returns 404 for invalid subfields', async () => {
