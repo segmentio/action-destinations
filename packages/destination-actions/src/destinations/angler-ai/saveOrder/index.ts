@@ -8,14 +8,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Order',
   description: 'Send an order to Angler.',
   fields: {
-    app_id: {
-      type: 'string',
-      label: 'App ID',
-      description: 'The ID of the app that created the order.',
-      default: {
-        '@path': '$.properties.app_id'
-      }
-    },
     billing_address: {
       type: 'object',
       label: 'Billing Address',
@@ -44,22 +36,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    cancel_reason: {
-      type: 'string',
-      label: 'Cancel Reason',
-      description: 'The reason why the order was canceled.',
-      default: {
-        '@path': '$.properties.cancel_reason'
-      }
-    },
-    cancelled_at: {
-      type: 'string',
-      label: 'Cancelled At',
-      description: "The date and time when the order was canceled. Returns null if the order isn't canceled.",
-      default: {
-        '@path': '$.properties.cancelled_at'
-      }
-    },
     checkout_id: {
       type: 'string',
       label: 'Checkout ID',
@@ -73,30 +49,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Client Details',
       description: 'Information about the browser that the customer used when they placed their order.',
       properties: {
-        accept_language: {
-          type: 'string',
-          label: 'Accept Language',
-          description: 'The languages and locales that the browser understands.'
-        },
-        browser_height: {
-          type: 'number',
-          label: 'Browser Height',
-          description: 'The browser screen height in pixels, if available.'
-        },
         browser_ip: {
           type: 'string',
           label: 'Browser IP',
           description: 'The browser IP address.'
-        },
-        browser_width: {
-          type: 'number',
-          label: 'Browser Width',
-          description: 'The browser screen width in pixels, if available.'
-        },
-        session_hash: {
-          type: 'string',
-          label: 'Session Hash',
-          description: 'A hash of the session.'
         },
         user_agent: {
           type: 'string',
@@ -111,14 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
         browser_width: { '@path': '$.context.screen.width' },
         session_hash: { '@path': '$.properties.session_hash' },
         user_agent: { '@path': '$.context.userAgent' }
-      }
-    },
-    closed_at: {
-      type: 'string',
-      label: 'Closed At',
-      description: 'The date and time (ISO 8601 format) when the order was closed.',
-      default: {
-        '@path': '$.properties.closed_at'
       }
     },
     confirmed: {
@@ -339,63 +287,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.fulfillment_status'
       }
     },
-    fulfillments: {
-      type: 'object',
-      multiple: true,
-      label: 'Fulfillments',
-      description: 'An array of fulfillments associated with the order.',
-      properties: {
-        id: {
-          type: 'string',
-          label: 'ID',
-          description: 'The ID for the fulfillment.'
-        },
-        created_at: {
-          type: 'string',
-          label: 'Created At',
-          description: 'The date and time (ISO 8601 format) when the fulfillment was created.'
-        },
-        order_id: {
-          type: 'string',
-          label: 'Order ID',
-          description: 'The unique numeric identifier for the order.'
-        },
-        shipment_status: {
-          type: 'string',
-          label: 'Shipment Status',
-          description: 'The current shipment status of the fulfillment.'
-        },
-        status: {
-          type: 'string',
-          label: 'Status',
-          description: 'The status of the fulfillment.'
-        },
-        tracking_company: {
-          type: 'string',
-          label: 'Tracking Company',
-          description: 'The name of the tracking company.'
-        },
-        updated_at: {
-          type: 'string',
-          label: 'Updated At',
-          description: 'The date and time (ISO 8601 format) when the fulfillment was last modified.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.fulfillments',
-          {
-            id: { '@path': '$.id' },
-            created_at: { '@path': '$.created_at' },
-            order_id: { '@path': '$.order_id' },
-            shipment_status: { '@path': '$.shipment_status' },
-            status: { '@path': '$.status' },
-            tracking_company: { '@path': '$.tracking_company' },
-            updated_at: { '@path': '$.updated_at' }
-          }
-        ]
-      }
-    },
     gateway: {
       type: 'string',
       label: 'Gateway',
@@ -429,63 +320,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.landing_site_ref'
       }
     },
-    location_id: {
-      type: 'string',
-      label: 'Location ID',
-      description: 'The ID of one of the locations that was assigned to fulfill the order when the order was created.',
-      default: {
-        '@path': '$.properties.location_id'
-      }
-    },
     name: {
       type: 'string',
       label: 'Name',
       description: 'The order name.',
       default: {
         '@path': '$.properties.name'
-      }
-    },
-    note: {
-      type: 'string',
-      label: 'Note',
-      description: 'An optional note that a shop owner can attach to the order.',
-      default: {
-        '@path': '$.properties.note'
-      }
-    },
-    note_attributes: {
-      type: 'object',
-      multiple: true,
-      label: 'Note Attributes',
-      description: 'Extra information that is added to the order.',
-      properties: {
-        name: {
-          type: 'string',
-          label: 'Name',
-          description: 'Extra property name.'
-        },
-        value: {
-          type: 'string',
-          label: 'Value',
-          description: 'Extra property value.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.note_attributes',
-          {
-            name: { '@path': '$.name' },
-            value: { '@path': '$.value' }
-          }
-        ]
-      }
-    },
-    number: {
-      type: 'integer',
-      label: 'Number',
-      description: "The order's position in the shop's count of orders. Numbers are sequential and start at 1.",
-      default: {
-        '@path': '$.properties.number'
       }
     },
     order_number: {
@@ -497,80 +337,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.order_number'
       }
     },
-    payment_details: {
-      type: 'object',
-      label: 'Payment Details',
-      description: 'An object containing information about the payment.',
-      properties: {
-        credit_card_bin: {
-          type: 'string',
-          label: 'Credit Card Bin',
-          description:
-            "The issuer identification number (IIN), formerly known as the bank identification number (BIN), of the customer's credit card. This is made up of the first few digits of the credit card number."
-        },
-        avs_result_code: {
-          type: 'string',
-          label: 'AVS Result Code',
-          description:
-            'The response code from the address verification system (AVS). The code is a single letter. See this chart for the codes and their definitions.'
-        },
-        cvv_result_code: {
-          type: 'string',
-          label: 'CVV Result Code',
-          description:
-            'The response code from the credit card company indicating whether the customer entered the card security code (card verification value) correctly. The code is a single letter or empty string. See this chart for the codes and their definitions.'
-        },
-        credit_card_number: {
-          type: 'string',
-          label: 'Credit Card Number',
-          description: "The customer's credit card number, with most of the leading digits redacted."
-        },
-        credit_card_name: {
-          type: 'string',
-          label: 'Credit Card Name',
-          description: "The customer's credit card name."
-        },
-        credit_card_wallet: {
-          type: 'string',
-          label: 'Credit Card Wallet',
-          description: "The customer's credit card wallet."
-        },
-        credit_card_expiration_month: {
-          type: 'string',
-          label: 'Credit Card Expiration Month',
-          description: "The customer's credit card expiration month."
-        },
-        credit_card_expiration_year: {
-          type: 'string',
-          label: 'Credit Card Expiration Year',
-          description: "The customer's credit card expiration year."
-        }
-      },
-      default: {
-        credit_card_bin: { '@path': '$.properties.payment_details.credit_card_bin' },
-        avs_result_code: { '@path': '$.properties.payment_details.avs_result_code' },
-        cvv_result_code: { '@path': '$.properties.payment_details.cvv_result_code' },
-        credit_card_number: { '@path': '$.properties.payment_details.credit_card_number' },
-        credit_card_name: { '@path': '$.properties.payment_details.credit_card_name' },
-        credit_card_wallet: { '@path': '$.properties.payment_details.credit_card_wallet' },
-        credit_card_expiration_month: { '@path': '$.properties.payment_details.credit_card_expiration_month' },
-        credit_card_expiration_year: { '@path': '$.properties.payment_details.credit_card_expiration_year' }
-      }
-    },
     phone: {
       type: 'string',
       label: 'Phone',
       description: "The customer's phone number for receiving SMS notifications.",
       default: {
         '@path': '$.properties.phone'
-      }
-    },
-    presentment_currency: {
-      type: 'string',
-      label: 'Presentment Currency',
-      description: 'The presentment currency that was used to display prices to the customer.',
-      default: {
-        '@path': '$.properties.presentment_currency'
       }
     },
     processed_at: {
@@ -709,14 +481,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The sum of all the taxes applied to the order in the shop currency. Must be positive.',
       default: {
         '@path': '$.properties.total_tax'
-      }
-    },
-    total_tip_received: {
-      type: 'string',
-      label: 'Total Tip Received',
-      description: 'The sum of all the tips in the order in the shop currency.',
-      default: {
-        '@path': '$.properties.total_tip_received'
       }
     },
     user_id: {
