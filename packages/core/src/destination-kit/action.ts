@@ -410,20 +410,20 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     dynamicHandlerPath: string
     dynamicFieldContext?: DynamicFieldContext
   } {
-    const bracketRegex = /(.*)\.\[(\d+)\]\.(.*)/
-    const dotRegex = /(.*)\.(.*)/
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
     let dynamicHandlerPath = field
     let dynamicFieldContext: DynamicFieldContext | undefined
 
-    const match = bracketRegex.exec(field) || dotRegex.exec(field)
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
     if (match) {
       const [, parent, indexOrChild, child] = match
       if (child) {
-        // Bracket notation was used
+        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
         dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
         dynamicHandlerPath = `${parent}.${child}`
       } else {
-        // Dot notation
+        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
         const parentFetcher = this.definition.dynamicFields?.[parent]
         if (parentFetcher && !(indexOrChild in parentFetcher)) {
           dynamicHandlerPath = `${parent}.__values__`
