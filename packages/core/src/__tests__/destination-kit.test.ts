@@ -145,6 +145,33 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        userId: {
+          label: 'User ID',
+          description: 'The user ID',
+          type: 'string',
+          required: true,
+          category: 'identifier'
+        }
+      },
+      perform: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      },
+      performBatch: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      }
+    }
+  }
+}
+
 const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
   name: 'Actions Dynamic Fields',
   mode: 'cloud',
@@ -429,6 +456,57 @@ describe('destination kit', () => {
         {
           output: 'Action Executed',
           data: ['this is a test', 'add']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
         }
       ])
     })
