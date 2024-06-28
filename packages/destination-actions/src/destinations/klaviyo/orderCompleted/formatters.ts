@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from '@lukeed/uuid'
 import { Product } from './types'
 
 function toTitleCase(str: string) {
@@ -35,18 +34,20 @@ export function convertKeysToTitleCase(obj: Record<string, unknown>, level = 0):
   )
 }
 
-export function formatOrderedProduct(product: Product, order_id?: String) {
+export function formatOrderedProduct(product: Product, order_id?: string, unique_event_id?: String) {
   // unique_id should ensure retries don't result in duplicate event. hence we use product_id or sku + order_id as unique_id
+  const event_id = unique_event_id ?? order_id
   const unique_product_id = product.product_id || product.sku || product?.id
-  const unique_id = order_id && unique_product_id ? `${order_id}_${unique_product_id}` : uuidv4()
+  // if unique_id is not provided, klaviyo will use timestamp for deduplication
+  const unique_id = event_id && unique_product_id ? `${event_id}_${unique_product_id}` : undefined
 
   const { name, quantity, sku, price, url, image_url, category, product_id, id, ...otherProperties } = product
   const productProperties = {
     OrderId: order_id,
     ProductId: product_id ?? id,
-    SKU: product.sku,
-    ProductName: product.name,
-    Quantity: product.quantity,
+    SKU: sku,
+    ProductName: name,
+    Quantity: quantity,
     Categories: category ? [category] : [],
     ProductURL: url,
     ImageURL: image_url,

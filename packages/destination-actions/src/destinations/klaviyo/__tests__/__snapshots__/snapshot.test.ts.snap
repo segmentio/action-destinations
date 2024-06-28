@@ -54,14 +54,9 @@ Object {
         },
       },
       "properties": Object {
-        "Affiliation": "PE*zlOgIPA]mVozMLBaL",
         "Categories": Array [
           "PE*zlOgIPA]mVozMLBaL",
         ],
-        "CheckoutId": "PE*zlOgIPA]mVozMLBaL",
-        "Coupon": "PE*zlOgIPA]mVozMLBaL",
-        "Currency": "SAR",
-        "Discount": 83414764297912.31,
         "ItemNames": Array [
           "PE*zlOgIPA]mVozMLBaL",
         ],
@@ -81,10 +76,6 @@ Object {
           },
         ],
         "OrderId": "PE*zlOgIPA]mVozMLBaL",
-        "Revenue": 83414764297912.31,
-        "Shipping": 83414764297912.31,
-        "Subtotal": 83414764297912.31,
-        "Tax": 83414764297912.31,
       },
       "time": "2021-02-01T00:00:00.000Z",
       "unique_id": "PE*zlOgIPA]mVozMLBaL",

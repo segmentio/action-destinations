@@ -22,45 +22,9 @@ export interface Payload {
    */
   properties: {
     /**
-     * Unique identifier for the checkout.
-     */
-    checkout_id?: string
-    /**
      * Unique identifier for the order.
      */
     order_id?: string
-    /**
-     * Affiliation of the order.
-     */
-    affiliation?: string
-    /**
-     * Subtotal of the order.
-     */
-    subtotal?: number
-    /**
-     * Tax of the order.
-     */
-    tax?: number
-    /**
-     * Revenue ($) associated with the transaction (including discounts, but excluding shipping and taxes)
-     */
-    revenue?: number
-    /**
-     * Shipping cost associated with the transaction.
-     */
-    shipping?: number
-    /**
-     * Discount of the order.
-     */
-    discount?: number
-    /**
-     * Coupon code used for the order.
-     */
-    coupon?: string
-    /**
-     * Currency of the order.
-     */
-    currency?: string
     [k: string]: unknown
   }
   /**

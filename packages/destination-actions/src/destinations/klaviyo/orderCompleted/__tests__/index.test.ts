@@ -24,13 +24,15 @@ const createRequestBody = (
   properties: Record<string, any>,
   value: number,
   metricName: string,
-  profile: Record<string, any>
+  profile: Record<string, any>,
+  unique_id?: string
 ) => ({
   data: {
     type: 'event',
     attributes: {
       properties,
       value,
+      unique_id,
       metric: createMetric(metricName),
       profile: {
         data: {
@@ -45,7 +47,8 @@ const createRequestBody = (
 function generateOrderedProductEvent(
   value: number,
   profile: { phone_number: string; email: string },
-  properties: Record<string, any>
+  properties: Record<string, any>,
+  uniqueId?: string
 ) {
   const productProps = {
     OrderId: '1123',
@@ -63,7 +66,7 @@ function generateOrderedProductEvent(
       type: 'event',
       attributes: {
         properties: productProps,
-        unique_id: `${productProps.OrderId}_${productProps.ProductId}`,
+        unique_id: `${uniqueId ?? productProps.OrderId}_${productProps.ProductId}`,
         value: value,
         metric: createMetric('Ordered Product'),
         profile: {
@@ -294,29 +297,41 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
+    const uniqueId = 'unique_id'
     const mapping = {
       profile,
       metric_name: metricName,
       properties,
+      unique_id: uniqueId,
       value,
       products: products
     }
 
-    const orderCompletedEvent = createRequestBody(expectedEventProperties, value, metricName, profile)
+    const orderCompletedEvent = createRequestBody(expectedEventProperties, value, metricName, profile, uniqueId)
 
     nock(`${API_URL}`).post(`/events/`, orderCompletedEvent).reply(202, {})
 
-    const orderedProductEvent1 = generateOrderedProductEvent(value, profile, {
-      ProductName: 'Monopoly: 3rd Edition',
-      Categories: ['Board Games'],
-      ProductId: '507f1f77bcf86cd799439011'
-    })
+    const orderedProductEvent1 = generateOrderedProductEvent(
+      value,
+      profile,
+      {
+        ProductName: 'Monopoly: 3rd Edition',
+        Categories: ['Board Games'],
+        ProductId: '507f1f77bcf86cd799439011'
+      },
+      uniqueId
+    )
 
-    const orderedProductEvent2 = generateOrderedProductEvent(value, profile, {
-      ProductName: 'Uno: 3rd Edition',
-      Categories: ['Card Games'],
-      ProductId: '1507f1f77bcf86cd799439011'
-    })
+    const orderedProductEvent2 = generateOrderedProductEvent(
+      value,
+      profile,
+      {
+        ProductName: 'Uno: 3rd Edition',
+        Categories: ['Card Games'],
+        ProductId: '1507f1f77bcf86cd799439011'
+      },
+      uniqueId
+    )
 
     nock(`${API_URL}`).post(`/events/`, orderedProductEvent1).reply(202, {})
     nock(`${API_URL}`).post(`/events/`, orderedProductEvent2).reply(202, {})

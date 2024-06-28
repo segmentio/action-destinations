@@ -120,7 +120,7 @@ describe('formatOrderedProduct', () => {
     expect(result.unique_id).toEqual('order_id_sku')
   })
 
-  it('should use sku for  unique_id if product_id is not present', () => {
+  it('should use sku for unique_id if product_id is not present', () => {
     const product: Product = {
       sku: 'sku',
       name: 'name',
@@ -154,7 +154,7 @@ describe('formatOrderedProduct', () => {
     expect(result.unique_id).toEqual('order_id_random_id')
   })
 
-  it('should use random uuid for unique_id if product_id, sku and id are not present', () => {
+  it('should not set unique_id if product_id, sku and id are not present', () => {
     const product: Product = {
       name: 'name',
       quantity: 1,
@@ -167,7 +167,7 @@ describe('formatOrderedProduct', () => {
     }
 
     const result = formatOrderedProduct(product, 'order_id')
-    expect(result.unique_id).not.toContain('order_id')
+    expect(result.unique_id).not.toBeDefined()
   })
 })
 

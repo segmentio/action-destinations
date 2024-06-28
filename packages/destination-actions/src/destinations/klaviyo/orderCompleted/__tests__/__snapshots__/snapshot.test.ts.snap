@@ -24,14 +24,9 @@ Object {
         },
       },
       "properties": Object {
-        "Affiliation": "923^%f]tQn]lN2o",
         "Categories": Array [
           "923^%f]tQn]lN2o",
         ],
-        "CheckoutId": "923^%f]tQn]lN2o",
-        "Coupon": "923^%f]tQn]lN2o",
-        "Currency": "KRW",
-        "Discount": 28946631197982.72,
         "ItemNames": Array [
           "923^%f]tQn]lN2o",
         ],
@@ -51,10 +46,6 @@ Object {
           },
         ],
         "OrderId": "923^%f]tQn]lN2o",
-        "Revenue": 28946631197982.72,
-        "Shipping": 28946631197982.72,
-        "Subtotal": 28946631197982.72,
-        "Tax": 28946631197982.72,
       },
       "time": "2021-02-01T00:00:00.000Z",
       "unique_id": "923^%f]tQn]lN2o",

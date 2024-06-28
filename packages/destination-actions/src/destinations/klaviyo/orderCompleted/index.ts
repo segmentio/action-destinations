@@ -47,55 +47,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       properties: {
-        checkout_id: {
-          label: 'Checkout ID',
-          description: 'Unique identifier for the checkout.',
-          type: 'string'
-        },
         order_id: {
           label: 'Order ID',
           description: 'Unique identifier for the order.',
-          type: 'string'
-        },
-        affiliation: {
-          label: 'Affiliation',
-          description: 'Affiliation of the order.',
-          type: 'string'
-        },
-        subtotal: {
-          label: 'Subtotal',
-          description: 'Subtotal of the order.',
-          type: 'number'
-        },
-        tax: {
-          label: 'Tax',
-          description: 'Tax of the order.',
-          type: 'number'
-        },
-        revenue: {
-          label: 'Revenue',
-          description:
-            'Revenue ($) associated with the transaction (including discounts, but excluding shipping and taxes)',
-          type: 'number'
-        },
-        shipping: {
-          label: 'Shipping',
-          description: 'Shipping cost associated with the transaction.',
-          type: 'number'
-        },
-        discount: {
-          label: 'Discount',
-          description: 'Discount of the order.',
-          type: 'number'
-        },
-        coupon: {
-          label: 'Coupon',
-          description: 'Coupon code used for the order.',
-          type: 'string'
-        },
-        currency: {
-          label: 'Currency',
-          description: 'Currency of the order.',
           type: 'string'
         }
       },
@@ -103,16 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties',
           {
-            checkout_id: { '@path': '$.properties.checkout_id' },
-            order_id: { '@path': '$.properties.order_id' },
-            affiliation: { '@path': '$.properties.affiliation' },
-            subtotal: { '@path': '$.properties.subtotal' },
-            tax: { '@path': '$.properties.tax' },
-            revenue: { '@path': '$.properties.revenue' },
-            shipping: { '@path': '$.properties.shipping' },
-            discount: { '@path': '$.properties.discount' },
-            coupon: { '@path': '$.properties.coupon' },
-            currency: { '@path': '$.properties.currency' }
+            order_id: { '@path': '$.properties.order_id' }
           }
         ]
       },
@@ -267,7 +212,7 @@ function createOrderCompleteEvent(payload: Payload) {
 }
 
 function sendOrderedProduct(request: RequestClient, payload: Payload, product: Product) {
-  const { unique_id, productProperties } = formatOrderedProduct(product, payload.properties.order_id)
+  const { unique_id, productProperties } = formatOrderedProduct(product, payload.properties.order_id, payload.unique_id)
 
   const productEventData = {
     data: {
