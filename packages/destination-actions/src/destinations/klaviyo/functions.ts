@@ -23,7 +23,6 @@ import {
   AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
-import { Settings } from './generated-types'
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
