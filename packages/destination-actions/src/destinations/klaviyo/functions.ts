@@ -6,6 +6,7 @@ import {
   PayloadValidationError
 } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
+import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
   ListIdResponse,

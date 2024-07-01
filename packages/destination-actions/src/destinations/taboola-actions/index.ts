@@ -1,12 +1,9 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
+import { TaboolaClient } from './syncAudience/client'
 
 import syncAudience from './syncAudience'
-
-interface RefreshTokenResponse {
-  access_token: string
-}
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Taboola (actions)',
@@ -14,7 +11,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'oauth-managed',
+    scheme: 'oauth2',
     fields: {
       client_id: {
         label: 'Client ID',
@@ -30,16 +27,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      const res = await request<RefreshTokenResponse>('https://backstage.taboola.com/backstage/oauth/token', {
-        method: 'POST',
-        body: new URLSearchParams({
-          client_id: settings.client_id,
-          client_secret: settings.client_secret,
-          grant_type: 'client_credentials'
-        })
-      })
-
-      return { accessToken: res.data.access_token }
+      return await TaboolaClient.refreshAccessToken(request, { settings })
     }
   },
   extendRequest({ auth }) {
@@ -92,6 +80,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       try {
+        const accessToken = (
+          await TaboolaClient.refreshAccessToken(request, { settings: createAudienceInput.settings })
+        ).accessToken
+
         const response = await request(
           `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
           {
@@ -100,13 +92,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
               audience_name: audienceName,
               ttl_in_hours: ttlInHours,
               exclude_from_campaigns: excludeFromCampaigns
+            },
+            headers: {
+              authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
             }
           }
         )
+
         const json = await response.json()
 
         return {
-          externalId: json?.audience_id
+          externalId: json?.audience_id as string
         }
       } catch (error) {
         throw new IntegrationError('Failed to create Audience in Taboola', 'AUDIENCE_CREATION_FAILED', 400)

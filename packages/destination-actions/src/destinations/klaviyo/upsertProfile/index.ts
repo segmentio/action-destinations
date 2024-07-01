@@ -141,8 +141,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List',
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
-      dynamic: true,
-      default: ''
+      dynamic: true
     },
     batch_size: { ...batch_size },
     override_list_id: {
@@ -163,16 +162,16 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'Existing List ID',
           description:
-            'The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.',
+            'The ID of the list in Klaviyo that users will be synced to. If defined, we will not create a new list.',
           required: false,
-          dynamic: async (request): Promise<DynamicFieldResponse> => {
+          dynamic: async (request) => {
             return getListIdDynamicData(request)
           }
         },
         list_name: {
           type: 'string',
-          label: 'List Name',
-          description: 'The name of the Klaviyo list that you would like to create.',
+          label: 'Name of list to create',
+          description: 'The name of the list that you would like to create in Klaviyo.',
           required: false
         }
       },
