@@ -2,19 +2,11 @@
 
 export interface Settings {
   /**
-   * Your organization ID to which Segment's data should be synced.
-   */
-  orgId: string
-  /**
    * Your Personalize project ID to which Segment's data should be synced.
    */
   personalizeProjectId: string
   /**
-   * Your region-based personalize API base URL.
+   * When enabled, creates a Backup Audience for each trait that are synced with Personalize from Segment.
    */
-  personalizeApiBaseUrl: string
-  /**
-   * Your region-based personalize-edge API base URL.
-   */
-  personalizeEdgeApiBaseUrl: string
+  createBackupAudience?: boolean
 }
