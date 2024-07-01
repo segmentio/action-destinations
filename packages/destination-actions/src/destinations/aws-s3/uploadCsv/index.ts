@@ -141,7 +141,7 @@ async function processData(input: ProcessDataInput<Payload>) {
   const { filename, fileContents } = generateFile(input.payloads)
   console.log('Uploading to S3', input)
 
-  return uploadS3(input.payloads[0], filename, fileContents, input.request)
+  return uploadS3(input.payloads[0], filename, fileContents)
 }
 
 export default action
