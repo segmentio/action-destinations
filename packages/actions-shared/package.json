@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-shared",
   "description": "Shared destination action methods and definitions.",
-  "version": "1.98.0",
+  "version": "1.98.0-staging-a0e9309e3",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
