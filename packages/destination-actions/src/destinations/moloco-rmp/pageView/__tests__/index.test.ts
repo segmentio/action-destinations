@@ -40,14 +40,14 @@ describe('MolocoMCM.pageView', () => {
       event,
       settings: {
         platformId: 'foo',
+        platformName: 'foo',
         apiKey: 'bar',
         channel_type: 'SITE'
       },
       mapping: {
-
         // page_id is default to context.page.path
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)

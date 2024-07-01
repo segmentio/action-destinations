@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { AggregateAjvError } from '@segment/ajv-human-errors'
-import { createTestEvent, createTestIntegration,  } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -13,24 +13,25 @@ describe('MolocoMCM.search', () => {
       properties: {
         context: {
           page: {
-            query: "Test Query"
+            query: 'Test Query'
           }
         }
       }
     })
-  
+
     const responses = await testDestination.testAction('search', {
       event,
       settings: {
         platformId: 'foo',
+        platformName: 'foo',
         apiKey: 'bar',
         channel_type: 'SITE'
       },
       mapping: {
         timestamp: { '@path': '$.timestamp' },
-        search_query: { '@path': '$.properties.context.page.query'}
+        search_query: { '@path': '$.properties.context.page.query' }
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
@@ -44,25 +45,28 @@ describe('MolocoMCM.search', () => {
       properties: {
         context: {
           page: {
-            query: "Test Query"
+            query: 'Test Query'
           }
         }
       }
     })
 
-    await expect(testDestination.testAction('search', {
-      event,
-      settings: {
-        platformId: 'foo',
-        apiKey: 'bar',
-        channel_type: 'SITE'
-      },
-      mapping: {
-        // searchQuery: {
-        //   '@path': '$.properties.context.page.query'
-        // } -- missing required field
-      },
-      useDefaultMappings: true,
-    })).rejects.toThrowError(AggregateAjvError)
+    await expect(
+      testDestination.testAction('search', {
+        event,
+        settings: {
+          platformId: 'foo',
+          platformName: 'foo',
+          apiKey: 'bar',
+          channel_type: 'SITE'
+        },
+        mapping: {
+          // searchQuery: {
+          //   '@path': '$.properties.context.page.query'
+          // } -- missing required field
+        },
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 })

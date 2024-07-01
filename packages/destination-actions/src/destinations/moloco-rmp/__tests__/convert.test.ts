@@ -31,26 +31,26 @@ describe('Moloco MCM', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          price: 69.12,
+          price: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          price: 5.00
+          price: 5.0
         }
       }
 
@@ -79,7 +79,7 @@ describe('Moloco MCM', () => {
               amount: 12.34
             },
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
@@ -88,23 +88,32 @@ describe('Moloco MCM', () => {
               amount: 56.78
             },
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          amount: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          amount: 5.00
+          amount: 5.0
         }
       }
-        
-      const output: MolocoEventPayload = convertEvent({ eventType: TEST_EVENT_TYPE, payload: input, settings: { channel_type: 'APP', platformId: 'any_plat_id', apiKey: 'any_api_key'}})
+
+      const output: MolocoEventPayload = convertEvent({
+        eventType: TEST_EVENT_TYPE,
+        payload: input,
+        settings: {
+          channel_type: 'APP',
+          platformId: 'any_plat_id',
+          platformName: 'any_plat_name',
+          apiKey: 'any_api_key'
+        }
+      })
       expect(output).toEqual(expectedOutput)
     })
 
@@ -130,26 +139,26 @@ describe('Moloco MCM', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          price: 69.12,
+          price: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          price: 5.00
+          price: 5.0
         }
       }
 
@@ -178,7 +187,7 @@ describe('Moloco MCM', () => {
               amount: 12.34
             },
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
@@ -187,23 +196,32 @@ describe('Moloco MCM', () => {
               amount: 56.78
             },
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          amount: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          amount: 5.00
+          amount: 5.0
         }
       }
-        
-      const output: MolocoEventPayload = convertEvent({ eventType: TEST_EVENT_TYPE, payload: input, settings: { channel_type: 'APP', platformId: 'any_plat_id', apiKey: 'any_api_key'}})
+
+      const output: MolocoEventPayload = convertEvent({
+        eventType: TEST_EVENT_TYPE,
+        payload: input,
+        settings: {
+          channel_type: 'APP',
+          platformId: 'any_plat_id',
+          platformName: 'any_plat_name',
+          apiKey: 'any_api_key'
+        }
+      })
       expect(output).toEqual(expectedOutput)
     })
 
@@ -229,26 +247,26 @@ describe('Moloco MCM', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          price: 69.12,
+          price: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          price: 5.00
+          price: 5.0
         }
       }
 
@@ -277,7 +295,7 @@ describe('Moloco MCM', () => {
               amount: 12.34
             },
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
@@ -286,26 +304,34 @@ describe('Moloco MCM', () => {
               amount: 56.78
             },
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          amount: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          amount: 5.00
+          amount: 5.0
         }
       }
-        
-      const output: MolocoEventPayload = convertEvent({ eventType: TEST_EVENT_TYPE, payload: input, settings: { channel_type: 'APP', platformId: 'any_plat_id', apiKey: 'any_api_key'}})
+
+      const output: MolocoEventPayload = convertEvent({
+        eventType: TEST_EVENT_TYPE,
+        payload: input,
+        settings: {
+          channel_type: 'APP',
+          platformId: 'any_plat_id',
+          platformName: 'any_plat_name',
+          apiKey: 'any_api_key'
+        }
+      })
       expect(output).toEqual(expectedOutput)
     })
-
 
     it('tests an event payload with a missing field (session_id)', async () => {
       const input: SegmentEventPayload = {
@@ -328,26 +354,26 @@ describe('Moloco MCM', () => {
             currency: 'USD',
             price: 12.34,
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          price: 69.12,
+          price: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          price: 5.00
+          price: 5.0
         }
       }
 
@@ -375,7 +401,7 @@ describe('Moloco MCM', () => {
               amount: 12.34
             },
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
@@ -384,23 +410,32 @@ describe('Moloco MCM', () => {
               amount: 56.78
             },
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ],
         revenue: {
           currency: 'USD',
-          amount: 69.12,
+          amount: 69.12
         },
         search_query: 'iphone',
         page_id: '/home',
         referrer_page_id: 'google.com',
         shipping_charge: {
           currency: 'USD',
-          amount: 5.00
+          amount: 5.0
         }
       }
-        
-      const output: MolocoEventPayload = convertEvent({ eventType: TEST_EVENT_TYPE, payload: input, settings: { channel_type: 'APP', platformId: 'any_plat_id', apiKey: 'any_api_key'}})
+
+      const output: MolocoEventPayload = convertEvent({
+        eventType: TEST_EVENT_TYPE,
+        payload: input,
+        settings: {
+          channel_type: 'APP',
+          platformId: 'any_plat_id',
+          platformName: 'any_plat_name',
+          apiKey: 'any_api_key'
+        }
+      })
       expect(output).toEqual(expectedOutput)
     })
 
@@ -425,19 +460,30 @@ describe('Moloco MCM', () => {
             id: '123',
             price: 12.34,
             quantity: 1,
-            seller_id: 'cs032b-11ee-9a73-0n5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-0n5e570313ef'
           },
           {
             id: '456',
             currency: 'USD',
             price: 56.78,
             quantity: 2,
-            seller_id: 'cs032b-11ee-9a73-w5e570313ef',
+            seller_id: 'cs032b-11ee-9a73-w5e570313ef'
           }
         ]
       }
 
-      expect(() => convertEvent({ eventType: TEST_EVENT_TYPE, payload: input,  settings: { channel_type: 'APP', platformId: 'any_plat_id', apiKey: 'any_api_key'} })).toThrowError(PayloadValidationError)
+      expect(() =>
+        convertEvent({
+          eventType: TEST_EVENT_TYPE,
+          payload: input,
+          settings: {
+            channel_type: 'APP',
+            platformId: 'any_plat_id',
+            platformName: 'any_plat_name',
+            apiKey: 'any_api_key'
+          }
+        })
+      ).toThrowError(PayloadValidationError)
     })
   })
 })

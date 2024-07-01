@@ -16,7 +16,7 @@ describe('MolocoMCM.addToCart', () => {
           price: 100,
           currency: 'USD',
           quantity: 1,
-          sellerId: 'seller123',
+          sellerId: 'seller123'
         }
       }
     })
@@ -25,7 +25,8 @@ describe('MolocoMCM.addToCart', () => {
       event,
       settings: {
         platformId: 'foo',
-        apiKey: 'bar', 
+        platformName: 'foo',
+        apiKey: 'bar',
         channel_type: 'SITE'
       },
       mapping: {
@@ -46,11 +47,11 @@ describe('MolocoMCM.addToCart', () => {
             },
             sellerId: {
               '@path': '$.properties.item.sellerId'
-            },
+            }
           }
         ]
       },
-      useDefaultMappings: true,
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
@@ -67,40 +68,43 @@ describe('MolocoMCM.addToCart', () => {
           price: 100,
           currency: 'USD',
           quantity: 1,
-          sellerId: 'seller123',
+          sellerId: 'seller123'
         }
       }
     })
 
-    await expect(testDestination.testAction('addToCart', {
-      event,
-      settings: {
-        platformId: 'foo',
-        apiKey: 'bar',
-        channel_type: 'SITE'
-      },
-      mapping: {
-        // items: [
-        //   {
-        //     id: {
-        //       '@path': '$.properties.item.id'
-        //     },
-        //     price: {
-        //       '@path': '$.properties.item.price'
-        //     },
-        //     currency: {
-        //       '@path': '$.properties.item.currency'
-        //     },
-        //     quantity: {
-        //       '@path': '$.properties.item.quantity'
-        //     },
-        //     sellerId: {
-        //       '@path': '$.properties.item.sellerId'
-        //     },
-        //   }
-        // ] -- missing required field
-      },
-      useDefaultMappings: true,
-    })).rejects.toThrowError(AggregateAjvError)
+    await expect(
+      testDestination.testAction('addToCart', {
+        event,
+        settings: {
+          platformId: 'foo',
+          platformName: 'foo',
+          apiKey: 'bar',
+          channel_type: 'SITE'
+        },
+        mapping: {
+          // items: [
+          //   {
+          //     id: {
+          //       '@path': '$.properties.item.id'
+          //     },
+          //     price: {
+          //       '@path': '$.properties.item.price'
+          //     },
+          //     currency: {
+          //       '@path': '$.properties.item.currency'
+          //     },
+          //     quantity: {
+          //       '@path': '$.properties.item.quantity'
+          //     },
+          //     sellerId: {
+          //       '@path': '$.properties.item.sellerId'
+          //     },
+          //   }
+          // ] -- missing required field
+        },
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 })
