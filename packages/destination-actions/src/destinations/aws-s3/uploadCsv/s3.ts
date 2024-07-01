@@ -56,7 +56,14 @@ function validateS3(payload: Payload) {
 }
 
 // Function to upload a CSV content to S3
-const uploadCSV = async (credentials, fileContent, bucketName, folderName, key, region) => {
+const uploadCSV = async (
+  credentials: Credentials,
+  fileContent: Buffer | string,
+  bucketName: string,
+  folderName: string,
+  key: string,
+  region: string
+) => {
   const s3Client = new S3Client({
     region,
     credentials: {
