@@ -107,8 +107,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, { audienceSettings, payload, settings }) => {
+  perform: async (request, { audienceSettings, payload, settings, logger }) => {
     const { external_audience_id } = payload
+
+    logger?.info(`actions-dynamic-yield-audiences:perform: payload ${JSON.stringify(payload, null, 2)}`)
+
+    logger?.info(`actions-dynamic-yield-audiences:perform: external_audience_id ${external_audience_id}`)
 
     if (!audienceSettings?.audience_name) {
       throw new IntegrationError('Audience Name is required', 'MISSING_REQUIRED_FIELD', 400)
@@ -126,6 +130,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
 
+    logger?.info(
+      `actions-dynamic-yield-audiences:perform: audienceValue ${audienceValue}, identifierType ${identifierType}, audienceName ${audienceName}`
+    )
+
     let primaryIdentifier: string | undefined
 
     switch (identifierType) {
@@ -142,44 +150,50 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
     }
 
+    logger?.info(`actions-dynamic-yield-audiences:perform: primaryIdentifier ${primaryIdentifier}`)
+
     if (!primaryIdentifier) {
       throw new IntegrationError('Primary Identifier not found', 'MISSING_REQUIRED_FIELD', 400)
     }
 
     const URL = getUpsertURL(settings.dataCenter)
 
+    const json = {
+      type: 'audience_membership_change_request',
+      id: payload.message_id,
+      timestamp_ms: new Date(payload.timestamp).getTime(),
+      account: {
+        account_settings: {
+          section_id: settings.sectionId,
+          identifier_type: identifierType,
+          accessKey: settings.accessKey
+        }
+      },
+      user_profiles: [
+        {
+          user_identities: [
+            {
+              type: identifierType,
+              encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
+              value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+            }
+          ],
+          audiences: [
+            {
+              audience_id: Number(external_audience_id), // must be sent as an integer
+              audience_name: audienceName,
+              action: audienceValue ? 'add' : 'delete'
+            }
+          ]
+        }
+      ]
+    }
+
+    logger?.info(`actions-dynamic-yield-audiences:perform: json ${JSON.stringify(json, null, 2)}, URL ${URL}`)
+
     return request(URL, {
       method: 'post',
-      json: {
-        type: 'audience_membership_change_request',
-        id: payload.message_id,
-        timestamp_ms: new Date(payload.timestamp).getTime(),
-        account: {
-          account_settings: {
-            section_id: settings.sectionId,
-            identifier_type: identifierType,
-            accessKey: settings.accessKey
-          }
-        },
-        user_profiles: [
-          {
-            user_identities: [
-              {
-                type: identifierType,
-                encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
-                value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
-              }
-            ],
-            audiences: [
-              {
-                audience_id: external_audience_id,
-                audience_name: audienceName,
-                action: audienceValue ? 'add' : 'delete'
-              }
-            ]
-          }
-        ]
-      }
+      json
     })
   }
 }
