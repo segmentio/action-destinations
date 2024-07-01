@@ -19,7 +19,8 @@ export class MolocoAPIClient {
   }
 
   private getEndpoint() {
-    return `https://${this.platformName.replace(/_/g, '-')}-evt.rmp-api.moloco.com/cdp/SEGMENT`
+    const nameOrId = this.platformName ? this.platformName : this.platformId
+    return `https://${nameOrId.replace(/_/g, '-')}-evt.rmp-api.moloco.com/cdp/SEGMENT`
   }
 
   async sendEvent(body: Record<string, any>): Promise<ModifiedResponse> {
