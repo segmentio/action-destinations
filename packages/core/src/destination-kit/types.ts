@@ -67,6 +67,8 @@ export interface DynamicFieldError {
 export interface DynamicFieldItem {
   label: string
   value: string
+  description?: string
+  type?: FieldTypeName
 }
 
 /** The shape of authentication and top-level settings */

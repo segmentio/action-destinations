@@ -24,7 +24,28 @@ Object {
         },
       },
       "properties": Object {
-        "testType": "923^%f]tQn]lN2o",
+        "Categories": Array [
+          "923^%f]tQn]lN2o",
+        ],
+        "ItemNames": Array [
+          "923^%f]tQn]lN2o",
+        ],
+        "Items": Array [
+          Object {
+            "Categories": Array [
+              "923^%f]tQn]lN2o",
+            ],
+            "ImageURL": "923^%f]tQn]lN2o",
+            "ItemPrice": 28946631197982.72,
+            "ProductId": "923^%f]tQn]lN2o",
+            "ProductName": "923^%f]tQn]lN2o",
+            "ProductURL": "923^%f]tQn]lN2o",
+            "Quantity": 28946631197982.72,
+            "RowTotal": 28946631197982.72,
+            "SKU": "923^%f]tQn]lN2o",
+          },
+        ],
+        "OrderId": "923^%f]tQn]lN2o",
       },
       "time": "2021-02-01T00:00:00.000Z",
       "unique_id": "923^%f]tQn]lN2o",

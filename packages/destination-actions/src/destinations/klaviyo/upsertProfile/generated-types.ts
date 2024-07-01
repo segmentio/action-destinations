@@ -75,11 +75,11 @@ export interface HookBundle {
   retlOnMappingSave: {
     inputs?: {
       /**
-       * The ID of the Klaviyo list that users will be synced to. If defined, we will not create a new list.
+       * The ID of the list in Klaviyo that users will be synced to. If defined, we will not create a new list.
        */
       list_identifier?: string
       /**
-       * The name of the Klaviyo list that you would like to create.
+       * The name of the list that you would like to create in Klaviyo.
        */
       list_name?: string
     }

@@ -85,7 +85,22 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Revenue',
           type: 'number',
           description:
-            'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.'
+            'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.',
+          depends_on: {
+            match: 'any',
+            conditions: [
+              {
+                fieldKey: 'price',
+                operator: 'is',
+                value: ''
+              },
+              {
+                fieldKey: 'quantity',
+                operator: 'is',
+                value: ''
+              }
+            ]
+          }
         },
         productId: {
           label: 'Product ID',
