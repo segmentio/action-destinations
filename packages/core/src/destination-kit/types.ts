@@ -39,6 +39,8 @@ export interface ExecuteInput<
   page?: string
   /** The subscription sync mode */
   syncMode?: SyncMode
+  /** The key for the action's field used to match data between Segment and the Destination */
+  matchingKey?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
   /**
