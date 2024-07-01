@@ -34,6 +34,7 @@ import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './p
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
+import isEmpty from 'lodash/isEmpty'
 
 export type {
   BaseActionDefinition,
@@ -95,12 +96,20 @@ export type AudienceResult = {
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
 
+// interface OnEventOptions {
+//   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
+//   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
+//    * all events across multiple instances of the destination using the same account for a given source*/
+//   synchronizeRefreshAccessToken?: () => Promise<void>
+// }
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
   audienceSettings?: AudienceSettings
 
   audienceName: string
+
+  options?: OnEventOptions
 
   statsContext?: StatsContext
 }
@@ -111,6 +120,8 @@ export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   audienceSettings?: AudienceSettings
 
   externalId: string
+
+  options?: OnEventOptions
 
   statsContext?: StatsContext
 }
@@ -140,9 +151,8 @@ const instanceOfAudienceDestinationSettingsWithCreateGet = (
 
 export interface AudienceDestinationDefinition<Settings = unknown, AudienceSettings = unknown>
   extends DestinationDefinition<Settings> {
-  audienceConfig:
-    | AudienceDestinationConfiguration
-    | AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
+  audienceConfig: AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
+  // | AudienceDestinationConfiguration
 
   audienceFields: Record<string, GlobalSetting>
 
@@ -422,41 +432,119 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   }
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
+    let settings: JSONObject = createAudienceInput.settings as unknown as JSONObject
+    const options: OnEventOptions | undefined = createAudienceInput.options
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
-    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
-    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    //validate audienceField Input
+    if (!isEmpty(createAudienceInput.audienceSettings)) {
+      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
+    }
+    // const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    // const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const destinationSettings = this.getDestinationSettings(settings)
+    const auth = getAuthData(settings)
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
       audienceSettings: createAudienceInput.audienceSettings,
       settings: destinationSettings,
       payload: undefined,
       auth
     }
-    const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+    const opts = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
 
-    return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+    const run = async () => {
+      return await audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+    }
+
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+      console.log('COMING HERE 2', newTokens, settings)
+
+      await options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
+    // return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
+    let settings: JSONObject = getAudienceInput.settings as unknown as JSONObject
+    const options: OnEventOptions | undefined = getAudienceInput.options
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
     }
-    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
-    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const destinationSettings = this.getDestinationSettings(settings)
+    const auth = getAuthData(settings)
     const context: ExecuteInput<Settings, any, AudienceSettings> = {
       audienceSettings: getAudienceInput.audienceSettings,
       settings: destinationSettings,
       payload: undefined,
       auth
     }
-    const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+    const opts = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
+    const run = async () => {
+      return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+    }
 
-    return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
+      const statusCode = error?.status ?? error?.response?.status ?? 500
+      console.log('COMING HERE 1', statusCode)
+
+      // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
+      if (
+        !(
+          statusCode === 401 &&
+          (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+        )
+      ) {
+        throw error
+      }
+
+      const oauthSettings = getOAuth2Data(settings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
+      if (!newTokens) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
+
+      // Update `settings` with new tokens
+      settings = updateOAuthSettings(settings, newTokens)
+
+      await options?.onTokenRefresh?.(newTokens)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   async testAuthentication(settings: Settings): Promise<void> {
