@@ -487,7 +487,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      console.log('COMING HERE 2', newTokens, settings)
 
       await options?.onTokenRefresh?.(newTokens)
     }
@@ -519,7 +518,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
       const statusCode = error?.status ?? error?.response?.status ?? 500
-      console.log('COMING HERE 1', statusCode)
 
       // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
       if (

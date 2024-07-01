@@ -198,10 +198,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       // @ts-ignore - TS doesn't know about the oauth property
       // const authSettings = getAuthSettings(settings)
-      // console.log('createAudience>>>>>>>>>>>>>>>2', authSettings)
 
       // const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
-      // console.log('createAudience>>>>>>>>>>>>>>>3', authSettings)
 
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
