@@ -64,4 +64,34 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.
+   */
+  override_list_id?: string
+}
+// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+
+export interface HookBundle {
+  retlOnMappingSave: {
+    inputs?: {
+      /**
+       * The ID of the list in Klaviyo that users will be synced to. If defined, we will not create a new list.
+       */
+      list_identifier?: string
+      /**
+       * The name of the list that you would like to create in Klaviyo.
+       */
+      list_name?: string
+    }
+    outputs?: {
+      /**
+       * The ID of the created Klaviyo list that users will be synced to.
+       */
+      id?: string
+      /**
+       * The name of the created Klaviyo list that users will be synced to.
+       */
+      name?: string
+    }
+  }
 }

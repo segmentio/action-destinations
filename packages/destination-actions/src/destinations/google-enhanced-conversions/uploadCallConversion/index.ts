@@ -9,7 +9,7 @@ import {
   handleGoogleErrors,
   getConversionActionDynamicData
 } from '../functions'
-import { PartialErrorResponse } from '../types'
+import { CallConversionRequestObjectInterface, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    const request_object: { [key: string]: any } = {
+    const request_object: CallConversionRequestObjectInterface = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       callerId: payload.caller_id,
       callStartDateTime: convertTimestamp(payload.call_timestamp),

@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Unique Audience Identifier returned by the createAudience() function call.
    */
-  audience_id: string
+  external_audience_id: string
   /**
    * Segment Audience key / name
    */

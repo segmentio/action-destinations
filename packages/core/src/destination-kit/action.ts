@@ -5,7 +5,16 @@ import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
 import type { ModifiedResponse } from '../types'
-import type { DynamicFieldResponse, InputField, RequestExtension, ExecuteInput, Result } from './types'
+import type {
+  DynamicFieldResponse,
+  InputField,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  SyncMode,
+  SyncModeDefinition
+} from './types'
+import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -13,6 +22,7 @@ import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -71,7 +81,16 @@ export interface ActionDefinition<
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+    [K in keyof Payload]?:
+      | RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      | {
+          [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+            Settings,
+            Payload[K],
+            DynamicFieldResponse,
+            AudienceSettings
+          >
+        }
   }
 
   /** The operation to perform when this action is triggered */
@@ -93,6 +112,9 @@ export interface ActionDefinition<
       NonNullable<GeneratedActionHookBundle[K]>['inputs']
     >
   }
+
+  /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
+  syncMode?: SyncModeDefinition
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -171,6 +193,17 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   stateContext?: StateContext
 }
 
+const isSyncMode = (value: unknown): value is SyncMode => {
+  return syncModeTypes.find((validValue) => value === validValue) !== undefined
+}
+
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
+  return Object.keys(mapping).reduce((acc, key) => {
+    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
+  }, {})
+}
+
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -239,8 +272,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -264,6 +300,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
+    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -278,7 +318,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
-      hookOutputs
+      hookOutputs,
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      matchingKey: matchingKey ? String(matchingKey) : undefined
     }
 
     // Construct the request client and perform the action
@@ -295,7 +337,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+
+    let payloads = transformBatch(mapping, bundle.data) as Payload[]
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -329,6 +374,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
+      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
@@ -342,7 +390,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
-        hookOutputs
+        hookOutputs,
+        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+        matchingKey: matchingKey ? String(matchingKey) : undefined
       }
       const output = await this.performRequest(this.definition.performBatch, data)
       results[0].data = output as JSONObject
@@ -365,7 +415,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     if (dynamicFn && typeof dynamicFn === 'function') {
       fn = dynamicFn
     } else {
-      fn = this.definition.dynamicFields?.[field]
+      fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+        this.definition.dynamicFields,
+        field
+      )
     }
 
     if (typeof fn !== 'function') {

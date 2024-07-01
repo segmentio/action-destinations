@@ -1,5 +1,12 @@
-import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
+import {
+  APIError,
+  RequestClient,
+  DynamicFieldResponse,
+  IntegrationError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
+import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
   ListIdResponse,
@@ -11,7 +18,9 @@ import {
   SubscribeProfile,
   SubscribeEventData,
   UnsubscribeProfile,
-  UnsubscribeEventData
+  UnsubscribeEventData,
+  GroupedProfiles,
+  AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -70,7 +79,8 @@ export async function removeProfileFromList(request: RequestClient, ids: string[
 export async function createProfile(
   request: RequestClient,
   email: string | undefined,
-  external_id: string | undefined
+  external_id: string | undefined,
+  additionalAttributes: AdditionalAttributes
 ) {
   try {
     const profileData: ProfileData = {
@@ -78,7 +88,8 @@ export async function createProfile(
         type: 'profile',
         attributes: {
           email,
-          external_id
+          external_id,
+          ...additionalAttributes
         }
       }
     }
@@ -91,7 +102,7 @@ export async function createProfile(
     return rs.data.id
   } catch (error) {
     const { response } = error as KlaviyoAPIError
-    if (response.status == 409) {
+    if (response?.status == 409) {
       const rs = await response.json()
       return rs.errors[0].meta.duplicate_profile_id
     }
@@ -112,7 +123,7 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     type: 'profile-bulk-import-job',
     attributes: {
       profiles: {
-        data: profiles.map(({ list_id, enable_batching, batch_size, ...attributes }) => ({
+        data: profiles.map(({ list_id, enable_batching, batch_size, override_list_id, ...attributes }) => ({
           type: 'profile',
           attributes
         }))
@@ -291,4 +302,91 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
     profileToSubscribe.attributes.phone_number = phone_number
   }
   return profileToSubscribe
+}
+
+export async function getList(request: RequestClient, settings: Settings, listId: string) {
+  const apiKey = settings.api_key
+  const response = await request(`${API_URL}/lists/${listId}`, {
+    method: 'GET',
+    headers: buildHeaders(apiKey),
+    throwHttpErrors: false
+  })
+
+  if (!response.ok) {
+    const errorResponse = await response.json()
+    const klaviyoErrorDetail = errorResponse.errors[0].detail
+    throw new APIError(klaviyoErrorDetail, response.status)
+  }
+
+  const r = await response.json()
+  const externalId = r.data.id
+
+  if (externalId !== listId) {
+    throw new IntegrationError(
+      "Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.",
+      'INVALID_REQUEST_DATA',
+      400
+    )
+  }
+
+  return {
+    successMessage: `Using existing list '${r.data.attributes.name}' (id: ${listId})`,
+    savedData: {
+      id: listId,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export async function createList(request: RequestClient, settings: Settings, listName: string) {
+  const apiKey = settings.api_key
+  if (!listName) {
+    throw new PayloadValidationError('Missing audience name value')
+  }
+
+  if (!apiKey) {
+    throw new PayloadValidationError('Missing Api Key value')
+  }
+
+  const response = await request(`${API_URL}/lists`, {
+    method: 'POST',
+    headers: buildHeaders(apiKey),
+    json: {
+      data: { type: 'list', attributes: { name: listName } }
+    }
+  })
+  const r = await response.json()
+
+  return {
+    successMessage: `List '${r.data.attributes.name}' (id: ${r.data.id}) created successfully!`,
+    savedData: {
+      id: r.data.id,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export function groupByListId(profiles: Payload[]) {
+  const grouped: GroupedProfiles = {}
+
+  for (const profile of profiles) {
+    const listId: string = profile.override_list_id || (profile.list_id as string)
+    if (!grouped[listId]) {
+      grouped[listId] = []
+    }
+    grouped[listId].push(profile)
+  }
+
+  return grouped
+}
+
+export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
+  const importResponses = await Promise.all(
+    Object.keys(groupedProfiles).map(async (listId) => {
+      const profiles = groupedProfiles[listId]
+      const importJobPayload = createImportJobPayload(profiles, listId)
+      return await sendImportJobRequest(request, importJobPayload)
+    })
+  )
+  return importResponses
 }

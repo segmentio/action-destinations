@@ -10,16 +10,6 @@ export const settings = {
   api_key: apiKey
 }
 
-const createProfile = (email: string, phoneNumber: string) => ({
-  data: {
-    type: 'profile',
-    attributes: {
-      email,
-      phone_number: phoneNumber
-    }
-  }
-})
-
 const createMetric = (name: string) => ({
   data: {
     type: 'metric',
@@ -33,7 +23,7 @@ const createRequestBody = (
   properties: Record<string, any>,
   value: number,
   metricName: string,
-  profile: { email: string; phone_number: string }
+  profile: Record<string, any>
 ) => ({
   data: {
     type: 'event',
@@ -41,19 +31,64 @@ const createRequestBody = (
       properties,
       value,
       metric: createMetric(metricName),
-      profile: createProfile(profile.email, profile.phone_number)
+      profile: {
+        data: {
+          type: 'profile',
+          attributes: profile
+        }
+      }
     }
   }
 })
 
 describe('Order Completed', () => {
-  it('should throw error if no email or phone_number is provided', async () => {
+  it('should throw error if no profile identifiers are provided', async () => {
     const event = createTestEvent({ type: 'track' })
     const mapping = { profile: {}, metric_name: 'fake-name', properties: {} }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
       IntegrationError
     )
+  })
+
+  it('should successfully track event with external Id', async () => {
+    const profile = { external_id: '3xt3rnal1d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+
+    const requestBody = createRequestBody(properties, value, metricName, profile)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
+  })
+
+  it('should successfully track event with anonymous Id', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+
+    const requestBody = createRequestBody(properties, value, metricName, profile)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
 
   it('should successfully track event if proper parameters are provided', async () => {
