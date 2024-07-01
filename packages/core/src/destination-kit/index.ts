@@ -95,6 +95,7 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+export type Personas = { computation_id: 'string'; computation_key: 'string' }
 
 // interface OnEventOptions {
 //   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
@@ -106,6 +107,8 @@ export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> 
   settings: Settings
 
   audienceSettings?: AudienceSettings
+
+  personas?: Personas
 
   audienceName: string
 
