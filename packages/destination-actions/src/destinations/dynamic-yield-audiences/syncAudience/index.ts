@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'External Audience ID',
       description: 'Unique Audience Identifier returned by the createAudience() function call.',
       required: true,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Audience Key',
       description: 'Segment Audience key / name',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Traits or Properties',
       description: 'Traits or Properties object',
       type: 'object',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@if': {
