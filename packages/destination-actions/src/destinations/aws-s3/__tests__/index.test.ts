@@ -11,7 +11,10 @@ describe('Aws S3', () => {
       nock('https://your.destination.endpoint').get('*').reply(200, {})
 
       // This should match your authentication.fields
-      const authData = {}
+      const authData = {
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })

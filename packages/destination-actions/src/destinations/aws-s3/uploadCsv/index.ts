@@ -1,9 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
+import type { ExecuteInputRaw, ProcessDataInput, RawData } from '../operations'
+import { generateFile } from '../operations'
 import type { Payload } from './generated-types'
 import { uploadS3, validateS3 } from './s3'
-import { generateFile } from '../operations'
-import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload CSV',
