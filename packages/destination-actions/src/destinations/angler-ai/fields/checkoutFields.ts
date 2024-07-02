@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import { productsDefaultProperties, productsFields } from './productsFields'
 
 export const checkoutFields: ActionDefinition<Settings>['fields'] = {
-  CheckoutLineItems: {
+  checkoutLineItems: {
     ...productsFields,
     label: 'Checkout Line Items',
     description: 'Checkout Line Item details',
