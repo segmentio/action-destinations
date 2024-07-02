@@ -49,7 +49,6 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
       headers.add('audience_key')
     }
 
-    // const row: string[] = [enquoteIdentifier(payload.audience_key)]
     const row: string[] = payload.is_audience ? [enquoteIdentifier(payload.computation_key || '')] : []
 
     // Process unhashed_identifier_data first
