@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, GlobalSetting, FieldTypeName, Optional } from './types'
+import type { InputField, GlobalSetting, FieldTypeName, Optional, DependsOnConditions } from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -24,10 +24,48 @@ interface SchemaOptions {
   tsType?: boolean
   additionalProperties?: boolean
 }
+export function groupConditionsToJsonSchema(
+  groups: { anyOf?: string[]; oneOf?: string[]; allOf?: string[] } | undefined
+): JSONSchema4 {
+  if (!groups) {
+    return {}
+  }
 
-export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
+  const schema: JSONSchema4 = []
+
+  if (groups.anyOf) {
+    schema.anyOf = groups.anyOf.map((fieldKey) => {
+      return { required: [fieldKey] }
+    })
+  }
+
+  if (groups.oneOf) {
+    schema.oneOf = groups.oneOf.map((fieldKey) => {
+      return { required: [fieldKey] }
+    })
+  }
+
+  if (groups.allOf) {
+    schema.allOf = groups.allOf.map((fieldKey) => {
+      return { required: [fieldKey] }
+    })
+  }
+
+  return schema
+}
+
+export function conditionsToJsonSchema(conditions: Record<string, DependsOnConditions>): JSONSchema4 {
+  return {}
+}
+
+export function fieldsToJsonSchema(
+  fields: MinimalFields = {},
+  options?: SchemaOptions,
+  additionalSchema?: JSONSchema4
+): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
+  const conditions: Record<string, DependsOnConditions> = {}
 
   for (const [key, field] of Object.entries(fields)) {
     const schemaType = toJsonSchemaType(field.type)
@@ -113,6 +151,8 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     type: 'object',
     additionalProperties: options?.additionalProperties || false,
     properties,
-    required
+    required,
+    ...conditionsToJsonSchema(conditions),
+    ...additionalSchema
   }
 }
