@@ -9,7 +9,7 @@ import { Product } from './types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Order Completed',
   description: 'Order Completed Event action tracks users Order Completed events and associate it with their profile.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     profile: {
       label: 'Profile',
