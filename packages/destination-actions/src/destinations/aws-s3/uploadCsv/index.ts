@@ -126,7 +126,6 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[]>) => {
-    console.log('Batch payload', payload)
     return processData({
       request,
       payloads: payload,
