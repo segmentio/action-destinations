@@ -137,7 +137,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      // console.log('createAudience>>>>>>>>>>>>>>>')
       const { audienceName, audienceSettings, settings, statsContext } = createAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const endpoint = settings.region
@@ -206,10 +205,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       // @ts-ignore - TS doesn't know about the oauth property
       // const authSettings = getAuthSettings(settings)
-      // console.log('createAudience>>>>>>>>>>>>>>>2', authSettings)
 
       // const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
-      // console.log('createAudience>>>>>>>>>>>>>>>3', authSettings)
 
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
