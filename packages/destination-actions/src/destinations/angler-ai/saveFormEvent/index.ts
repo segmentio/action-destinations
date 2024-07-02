@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
+import { formFields } from '../fields/formFields'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
@@ -11,62 +12,10 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Form Event',
   description: 'Save a form event.',
   fields: {
-    id: {
-      type: 'string',
-      label: 'Form ID',
-      description: 'The id attribute of an element.'
-    },
-    action: {
-      type: 'string',
-      label: 'Action',
-      description: 'The action attribute of a form element.'
-    },
-    elements: {
-      type: 'object',
-      multiple: true,
-      label: 'Form Elements',
-      description: 'A list of elements associated with the form.',
-      properties: {
-        id: {
-          type: 'string',
-          label: 'Element ID',
-          description: 'The id attribute of an element.'
-        },
-        name: {
-          type: 'string',
-          label: 'Name',
-          description: 'The name attribute of an element.'
-        },
-        tagName: {
-          type: 'string',
-          label: 'Tag Name',
-          description: 'A string representation of the tag of an element.'
-        },
-        type: {
-          type: 'string',
-          label: 'Type',
-          description: 'The type attribute of an element. Often relevant for an input or button element.'
-        },
-        value: {
-          type: 'string',
-          label: 'Value',
-          description: 'The value attribute of an element. Often relevant for an input element.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.form.elements',
-          {
-            id: { '@path': '$.id' },
-            name: { '@path': '$.name' },
-            tagName: { '@path': '$.tagName' },
-            type: { '@path': '$.type' },
-            value: { '@path': '$.value' }
-          }
-        ]
-      }
-    },
     ...commonFields,
+    ...customerFields,
+    ...cartFields,
+    ...formFields,
     eventName: {
       label: 'Form Event Name',
       type: 'string',
@@ -75,9 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       readOnly: true,
       choices: [{ label: 'form_submitted', value: 'form_submitted' }],
       default: 'form_submitted'
-    },
-    ...cartFields,
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

@@ -12,6 +12,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a base event that has the basic fields applicable to all events.',
   fields: {
     ...commonFields,
+    ...customerFields,
+    ...cartFields,
     eventName: {
       label: 'Event Name',
       type: 'string',
@@ -21,9 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'page_viewed', value: 'page_viewed' },
         { label: 'cart_viewed', value: 'cart_viewed' }
       ]
-    },
-    ...cartFields,
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

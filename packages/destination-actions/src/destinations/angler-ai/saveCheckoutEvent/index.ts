@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { cartFields } from '../fields/cartFields'
 import { checkoutFields } from '../fields/checkoutFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
@@ -12,8 +11,9 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Checkout Event',
   description: 'Save a checkout event.',
   fields: {
-    ...checkoutFields,
     ...commonFields,
+    ...customerFields,
+    ...checkoutFields,
     eventName: {
       label: 'Checkout Event Name',
       type: 'string',
@@ -26,9 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'checkout_shipping_info_submitted', value: 'checkout_shipping_info_submitted' },
         { label: 'checkout_started', value: 'checkout_started' }
       ]
-    },
-    ...cartFields,
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

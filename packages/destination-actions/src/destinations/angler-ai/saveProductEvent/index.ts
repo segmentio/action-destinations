@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
-import { productFields } from '../fields/productFields'
+import { productVariantFields } from '../fields/productVariantFields'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
@@ -12,12 +12,10 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Product Event',
   description: 'Save a product event.',
   fields: {
-    productVariant: {
-      ...productFields,
-      label: 'Product Variant',
-      description: 'Product Variant details'
-    },
     ...commonFields,
+    ...customerFields,
+    ...cartFields,
+    ...productVariantFields,
     eventName: {
       label: 'Product Event Name',
       type: 'string',
@@ -26,9 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       readOnly: true,
       choices: [{ label: 'product_viewed', value: 'product_viewed' }],
       default: 'product_viewed'
-    },
-    ...cartFields,
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

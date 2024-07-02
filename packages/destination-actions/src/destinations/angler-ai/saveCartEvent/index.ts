@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { cartLineFields } from '../fields/cartLineFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
-import { productDefaultProperties, productFields } from '../fields/productFields'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
@@ -11,31 +11,9 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Cart Event',
   description: 'Save a cart event.',
   fields: {
-    cartLine: {
-      ...productFields,
-      label: 'Cart Line',
-      description: 'Cart Line details',
-      properties: {
-        ...productFields.properties,
-        quantity: {
-          label: 'Quantity',
-          type: 'number',
-          description: 'Quantity of the item'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            ...productDefaultProperties,
-            quantity: {
-              '@path': '$.quantity'
-            }
-          }
-        ]
-      }
-    },
     ...commonFields,
+    ...customerFields,
+    ...cartLineFields,
     eventName: {
       label: 'Cart Event Name',
       type: 'string',
@@ -45,8 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'product_added_to_cart', value: 'product_added_to_cart' },
         { label: 'product_removed_from_cart', value: 'product_removed_from_cart' }
       ]
-    },
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

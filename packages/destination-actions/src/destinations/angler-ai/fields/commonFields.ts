@@ -1,7 +1,6 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { InputField } from '@segment/actions-core'
 
-export const commonFields: ActionDefinition<Settings>['fields'] = {
+export const commonFields: Record<string, InputField> = {
   eventId: {
     label: 'Event ID',
     type: 'string',

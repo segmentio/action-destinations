@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { cartFields } from '../fields/cartFields'
 import { commonFields } from '../fields/commonFields'
 import { customerFields } from '../fields/customerFields'
-import { productsFields } from '../fields/productsFields'
+import { searchFields } from '../fields/searchFields'
 import type { Settings } from '../generated-types'
 import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
@@ -12,20 +12,10 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Search Event',
   description: 'Save a search event.',
   fields: {
-    searchResults: {
-      ...productsFields,
-      label: 'Search Results',
-      description: 'Search results details'
-    },
-    query: {
-      type: 'string',
-      label: 'Search Query',
-      description: 'The search query that was executed.',
-      default: {
-        '@path': '$.properties.query'
-      }
-    },
     ...commonFields,
+    ...customerFields,
+    ...cartFields,
+    ...searchFields,
     eventName: {
       label: 'Search Event Name',
       type: 'string',
@@ -34,9 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       readOnly: true,
       choices: [{ label: 'search_submitted', value: 'search_submitted' }],
       default: 'search_submitted'
-    },
-    ...cartFields,
-    customerFields
+    }
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)

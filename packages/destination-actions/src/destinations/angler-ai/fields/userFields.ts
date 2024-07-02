@@ -1,8 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { InputField } from '@segment/actions-core'
 import { addressDefaultFields, addressProperties } from './addressFields'
 
-export const userFields: ActionDefinition<Settings>['fields'] = {
+export const userFields: Record<string, InputField> = {
   user: {
     type: 'object',
     label: 'User',

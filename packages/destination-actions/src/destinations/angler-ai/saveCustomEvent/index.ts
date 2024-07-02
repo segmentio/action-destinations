@@ -1,20 +1,21 @@
 import type { ActionDefinition, InputField } from '@segment/actions-core'
+import { cartFields } from '../fields/cartFields'
+import { cartLineFields } from '../fields/cartLineFields'
+import { checkoutFields } from '../fields/checkoutFields'
+import { collectionFields } from '../fields/collectionFields'
+import { commonFields } from '../fields/commonFields'
+import { customerFields } from '../fields/customerFields'
+import { formFields } from '../fields/formFields'
+import { productVariantFields } from '../fields/productVariantFields'
+import { searchFields } from '../fields/searchFields'
 import type { Settings } from '../generated-types'
+import { baseURL, eventsEndpoint } from '../routes'
 import type { Payload } from './generated-types'
 import { transformPayload } from './transform-payload'
-import { baseURL, eventsEndpoint } from '../routes'
-
-import { commonFields } from '../fields/commonFields'
-import { cartFields } from '../fields/cartFields'
-import { customerFields } from '../fields/customerFields'
-import { commonFields } from '../fields/commonFields'
-import { commonFields } from '../fields/commonFields'
-import { commonFields } from '../fields/commonFields'
-import { commonFields } from '../fields/commonFields'
 
 function removeDefaults(fields: Record<string, InputField>) {
   return Object.entries(fields).reduce((acc, [key, field]) => {
-    const { depends_on, ...fieldWithoutDefault } = field
+    const { default: _, ...fieldWithoutDefault } = field
     return { ...acc, [key]: fieldWithoutDefault }
   }, {})
 }
@@ -23,9 +24,15 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Custom Event',
   description: 'Save a custom event that may have any fields.',
   fields: {
-    ...commonFields,
-    ...cartFields,
-    customerFields,
+    ...removeDefaults(commonFields),
+    ...removeDefaults(customerFields),
+    ...removeDefaults(cartFields),
+    ...removeDefaults(cartLineFields),
+    ...removeDefaults(checkoutFields),
+    ...removeDefaults(collectionFields),
+    ...removeDefaults(formFields),
+    ...removeDefaults(productVariantFields),
+    ...removeDefaults(searchFields),
     eventName: {
       label: 'Event Name',
       type: 'string',
@@ -63,14 +70,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     }
-
-    // ...removeDefaults(saveCartEvent.fields),
-    // ...removeDefaults(saveCheckoutEvent.fields),
-    // ...removeDefaults(saveCollectionEvent.fields),
-    // ...removeDefaults(saveFormEvent.fields),
-    // ...removeDefaults(saveProductEvent.fields),
-    // ...removeDefaults(saveSearchEvent.fields),
-    // ...removeDefaults(saveBaseEvent.fields)
   },
   perform: (request, data) => {
     const transformedPayload = transformPayload(data.payload)
