@@ -25,7 +25,44 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields,
     ...cartFields,
-    customerFields
+    customerFields,
+    eventName: {
+      label: 'Event Name',
+      type: 'string',
+      description: 'The name of the event to track.',
+      required: true,
+      choices: [
+        { label: 'page_viewed', value: 'page_viewed' },
+        { label: 'cart_viewed', value: 'cart_viewed' },
+        { label: 'checkout_address_info_submitted', value: 'checkout_address_info_submitted' },
+        { label: 'checkout_completed', value: 'checkout_completed' },
+        { label: 'checkout_contact_info_submitted', value: 'checkout_contact_info_submitted' },
+        { label: 'checkout_shipping_info_submitted', value: 'checkout_shipping_info_submitted' },
+        { label: 'checkout_started', value: 'checkout_started' },
+        { label: 'collection_viewed', value: 'collection_viewed' },
+        { label: 'payment_info_submitted', value: 'payment_info_submitted' },
+        { label: 'product_added_to_cart', value: 'product_added_to_cart' },
+        { label: 'product_removed_from_cart', value: 'product_removed_from_cart' },
+        { label: 'product_viewed', value: 'product_viewed' },
+        { label: 'search_submitted', value: 'search_submitted' },
+        { label: 'form_submitted', value: 'form_submitted' },
+        { label: 'custom_event', value: 'custom_event' }
+      ]
+    },
+    customEventName: {
+      label: 'Custom Event Name',
+      type: 'string',
+      description: "Additional name for custom events if 'event_name' is 'custom_event'.",
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'eventName',
+            value: 'custom_event',
+            operator: 'is'
+          }
+        ]
+      }
+    }
 
     // ...removeDefaults(saveCartEvent.fields),
     // ...removeDefaults(saveCheckoutEvent.fields),
