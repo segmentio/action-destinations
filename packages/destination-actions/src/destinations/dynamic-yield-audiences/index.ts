@@ -141,11 +141,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         )
       }
 
-      const externalId = {
+      return {
         externalId: String(audience_id) // must be returned as a string
       }
-
-      return externalId
     },
     async getAudience(_, getAudienceInput) {
       return {
