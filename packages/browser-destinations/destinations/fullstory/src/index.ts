@@ -53,9 +53,23 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       type: 'string',
       required: true
     },
-    debug: {
-      description: 'Enables FullStory debug mode.',
-      label: 'Debug mode',
+    host: {
+      description: 'The recording server host domain.',
+      label: 'Host',
+      type: 'string',
+      required: false,
+      default: 'fullstory.com'
+    },
+    script: {
+      description: 'FullStory script host domain.',
+      label: 'Script',
+      type: 'string',
+      required: false,
+      default: 'edge.fullstory.com'
+    },
+    recordCrossDomainIFrames: {
+      description: 'Allows recording cross-domain iFrames.',
+      label: 'Cookie Domain',
       type: 'boolean',
       required: false,
       default: false
@@ -63,6 +77,27 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     recordOnlyThisIFrame: {
       description: 'Enables FullStory inside an iframe.',
       label: 'Capture only this iFrame',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    startCaptureManually: {
+      description: "Allow starting Fullstory capture using FS('start').",
+      label: 'Start capture manually',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    appHost: {
+      description: "Use this to set the app host for displaying session urls.",
+      label: 'App Host',
+      type: 'string',
+      required: false,
+      default: 'app.fullstory.com'
+    },
+    debug: {
+      description: 'Enables FullStory debug mode.',
+      label: 'Debug mode',
       type: 'boolean',
       required: false,
       default: false
