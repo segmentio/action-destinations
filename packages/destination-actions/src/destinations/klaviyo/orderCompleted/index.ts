@@ -9,7 +9,7 @@ import { Product } from './types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Order Completed',
   description: 'Order Completed Event action tracks users Order Completed events and associate it with their profile.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     profile: {
       label: 'Profile',
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     properties: {
-      description: `Properties of this event.`,
+      description: `Properties of this event. Segment adds products array as Items, ItemNames and Categories properties in the properties object. Segment will title case the keys of this object before sending it to Klaviyo.`,
       label: 'Properties',
       type: 'object',
       additionalProperties: true,
@@ -57,7 +57,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties',
           {
-            order_id: { '@path': '$.properties.order_id' }
+            order_id: {
+              '@if': {
+                exists: { '@path': '$.properties.order_id' },
+                then: { '@path': '$.properties.order_id' },
+                else: { '@path': '$.properties.orderId' }
+              }
+            }
           }
         ]
       },
@@ -143,7 +149,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.products',
           {
-            product_id: { '@path': '$.properties.product_id' },
+            product_id: {
+              '@if': {
+                exists: { '@path': '$.properties.product_id' },
+                then: { '@path': '$.properties.product_id' },
+                else: { '@path': '$.properties.productId' }
+              }
+            },
             category: { '@path': '$.properties.category' },
             name: { '@path': '$.properties.name' },
             sku: { '@path': '$.properties.sku' },
@@ -226,7 +238,7 @@ function sendOrderedProduct(request: RequestClient, payload: Payload, product: P
     data: {
       type: 'event',
       attributes: {
-        properties: convertKeysToTitleCase(productProperties),
+        properties: productProperties,
         unique_id: unique_id,
         // for ordered product, we use price as value
         value: product.price,
