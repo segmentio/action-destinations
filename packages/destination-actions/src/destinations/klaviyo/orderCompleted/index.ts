@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     properties: {
-      description: `Properties of this event.`,
+      description: `Properties of this event. Segment will title case the keys of this object before sending it to Klaviyo.`,
       label: 'Properties',
       type: 'object',
       additionalProperties: true,
@@ -99,7 +99,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     products: {
       label: 'Products',
-      description: 'List of products purchased in the order.',
+      description:
+        'List of products purchased in the order. Segment will title case the keys of this object before sending it to Klaviyo.',
       multiple: true,
       type: 'object',
       additionalProperties: true,
@@ -238,7 +239,7 @@ function sendOrderedProduct(request: RequestClient, payload: Payload, product: P
     data: {
       type: 'event',
       attributes: {
-        properties: convertKeysToTitleCase(productProperties),
+        properties: productProperties,
         unique_id: unique_id,
         // for ordered product, we use price as value
         value: product.price,
