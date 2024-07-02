@@ -1,4 +1,4 @@
-import { ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ModifiedResponse, RequestClient, StatsContext } from '@segment/actions-core'
 import dayjs from '../../lib/dayjs'
 
 interface IntercomContact {
@@ -20,7 +20,11 @@ interface SearchPayload {
  *
  * Intercom's API Docs - https://developers.intercom.com/intercom-api-reference/reference/search-for-contacts
  */
-export async function getUniqueIntercomContact(request: RequestClient, payload: SearchPayload) {
+export async function getUniqueIntercomContact(
+  request: RequestClient,
+  payload: SearchPayload,
+  statsContext?: StatsContext
+) {
   const { external_id, email } = payload
   let query
   if (external_id) {
@@ -38,6 +42,7 @@ export async function getUniqueIntercomContact(request: RequestClient, payload: 
   } else {
     return
   }
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:search-intercom-contact`])
 
   const response: ModifiedResponse<IntercomSearchData> = await request('https://api.intercom.io/contacts/search', {
     method: 'POST',
