@@ -188,6 +188,7 @@ export interface InputField extends InputFieldJSONSchema {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+    | 'arrayeditor' // Users will see the array editor by default.
 
   /**
    * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
