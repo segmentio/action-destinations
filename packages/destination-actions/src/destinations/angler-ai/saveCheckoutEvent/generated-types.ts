@@ -2,98 +2,9 @@
 
 export interface Payload {
   /**
-   * Checkout Line Item details
-   */
-  checkoutLineItems?: {
-    /**
-     * A globally unique identifier for the item.
-     */
-    id?: string
-    /**
-     * Identifier for the variant of the product
-     */
-    variantId?: string
-    /**
-     * The location of the image as a URL.
-     */
-    imageSrc?: string
-    /**
-     * The price of the product variant.
-     */
-    priceAmount?: number
-    /**
-     * The SKU (stock keeping unit) associated with the variant.
-     */
-    sku?: string
-    /**
-     * The product variant's title.
-     */
-    title?: string
-    /**
-     * The product variant's untranslated title.
-     */
-    untranslatedTitle?: string
-    /**
-     * The product's vendor name.
-     */
-    vendor?: string
-    /**
-     * The product type specified by the merchant.
-     */
-    type?: string
-    /**
-     * The relative URL of the product.
-     */
-    url?: string
-    /**
-     * Quantity of the item
-     */
-    quantity?: number
-    /**
-     * The Discount Code applied to the item.
-     */
-    discountTitle?: string
-    /**
-     * The Discount value applied to the item.
-     */
-    discountValue?: number
-  }[]
-  /**
-   * Decimal money amount.
-   */
-  totalAmount?: number
-  /**
-   * The currency code of the money.
-   */
-  currencyCode?: string
-  /**
-   * The ID of the order associated with this checkout.
-   */
-  orderId?: string
-  /**
-   * A monetary value.
-   */
-  subtotalPriceAmount?: number
-  /**
-   * A monetary value with currency.
-   */
-  totalTaxAmount?: number
-  /**
-   * A monetary value.
-   */
-  shippingLinePriceAmount?: number
-  /**
    * A unique event identifier.
    */
   eventId: string
-  /**
-   * The name of the event to track.
-   */
-  eventName: string
-  /**
-   * Additional name for custom events if 'event_name' is 'custom_event'.
-   */
-  customEventName?: string
   /**
    * The IP address of the user.
    */
@@ -150,9 +61,48 @@ export interface Payload {
     referrer?: string
   }
   /**
+   * Custom attributes for the event. Data should be specified as key:value pairs
+   */
+  customAttributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Customer details
+   */
+  customer?: {
+    /**
+     * The customer's email address.
+     */
+    email?: string
+    /**
+     * The customer's first name.
+     */
+    firstName?: string
+    /**
+     * The customer's last name.
+     */
+    lastName?: string
+    /**
+     * The unique phone number (E.164 format) for this customer.
+     */
+    phone?: string
+    /**
+     * The customer's date of birth.
+     */
+    dob?: string
+  }
+  /**
    * A globally unique identifier for the cart.
    */
   cartId?: string
+  /**
+   * Decimal money amount.
+   */
+  totalAmount?: number
+  /**
+   * The currency code of the money.
+   */
+  currencyCode?: string
   /**
    * Cart Line Item details
    */
@@ -203,34 +153,7 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * Customer details
+   * The name of the Checkout Event to track.
    */
-  customer?: {
-    /**
-     * The customer's email address.
-     */
-    email?: string
-    /**
-     * The customer's first name.
-     */
-    firstName?: string
-    /**
-     * The customer's last name.
-     */
-    lastName?: string
-    /**
-     * The unique phone number (E.164 format) for this customer.
-     */
-    phone?: string
-    /**
-     * The customer's date of birth.
-     */
-    dob?: string
-  }
-  /**
-   * Custom attributes for the event. Data should be specified as key:value pairs
-   */
-  customAttributes?: {
-    [k: string]: unknown
-  }
+  eventName: string
 }

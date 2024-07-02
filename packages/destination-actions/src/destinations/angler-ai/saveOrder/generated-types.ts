@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The ID of the app that created the order.
-   */
-  app_id?: string
-  /**
    * The mailing address associated with the payment method.
    */
   billing_address?: {
@@ -119,14 +115,6 @@ export interface Payload {
    */
   buyer_accepts_marketing?: boolean
   /**
-   * The reason why the order was canceled.
-   */
-  cancel_reason?: string
-  /**
-   * The date and time when the order was canceled. Returns null if the order isn't canceled.
-   */
-  cancelled_at?: string
-  /**
    * The ID of the checkout.
    */
   checkout_id?: string
@@ -135,34 +123,14 @@ export interface Payload {
    */
   client_details?: {
     /**
-     * The languages and locales that the browser understands.
-     */
-    accept_language?: string
-    /**
-     * The browser screen height in pixels, if available.
-     */
-    browser_height?: number
-    /**
      * The browser IP address.
      */
     browser_ip?: string
-    /**
-     * The browser screen width in pixels, if available.
-     */
-    browser_width?: number
-    /**
-     * A hash of the session.
-     */
-    session_hash?: string
     /**
      * Details of the browsing client, including software and operating versions.
      */
     user_agent?: string
   }
-  /**
-   * The date and time (ISO 8601 format) when the order was closed.
-   */
-  closed_at?: string
   confirmed?: boolean
   contact_email?: string
   /**
@@ -260,39 +228,6 @@ export interface Payload {
    */
   fulfillment_status?: string
   /**
-   * An array of fulfillments associated with the order.
-   */
-  fulfillments?: {
-    /**
-     * The ID for the fulfillment.
-     */
-    id?: string
-    /**
-     * The date and time (ISO 8601 format) when the fulfillment was created.
-     */
-    created_at?: string
-    /**
-     * The unique numeric identifier for the order.
-     */
-    order_id?: string
-    /**
-     * The current shipment status of the fulfillment.
-     */
-    shipment_status?: string
-    /**
-     * The status of the fulfillment.
-     */
-    status?: string
-    /**
-     * The name of the tracking company.
-     */
-    tracking_company?: string
-    /**
-     * The date and time (ISO 8601 format) when the fulfillment was last modified.
-     */
-    updated_at?: string
-  }[]
-  /**
    * The payment gateway used.
    */
   gateway?: string
@@ -306,83 +241,17 @@ export interface Payload {
   landing_site?: string
   landing_site_ref?: string
   /**
-   * The ID of one of the locations that was assigned to fulfill the order when the order was created.
-   */
-  location_id?: string
-  /**
    * The order name.
    */
   name?: string
-  /**
-   * An optional note that a shop owner can attach to the order.
-   */
-  note?: string
-  /**
-   * Extra information that is added to the order.
-   */
-  note_attributes?: {
-    /**
-     * Extra property name.
-     */
-    name?: string
-    /**
-     * Extra property value.
-     */
-    value?: string
-  }[]
-  /**
-   * The order's position in the shop's count of orders. Numbers are sequential and start at 1.
-   */
-  number?: number
   /**
    * The order position in the shop count of orders starting at 1001. Order numbers are sequential and start at 1001.
    */
   order_number?: number
   /**
-   * An object containing information about the payment.
-   */
-  payment_details?: {
-    /**
-     * The issuer identification number (IIN), formerly known as the bank identification number (BIN), of the customer's credit card. This is made up of the first few digits of the credit card number.
-     */
-    credit_card_bin?: string
-    /**
-     * The response code from the address verification system (AVS). The code is a single letter. See this chart for the codes and their definitions.
-     */
-    avs_result_code?: string
-    /**
-     * The response code from the credit card company indicating whether the customer entered the card security code (card verification value) correctly. The code is a single letter or empty string. See this chart for the codes and their definitions.
-     */
-    cvv_result_code?: string
-    /**
-     * The customer's credit card number, with most of the leading digits redacted.
-     */
-    credit_card_number?: string
-    /**
-     * The customer's credit card name.
-     */
-    credit_card_name?: string
-    /**
-     * The customer's credit card wallet.
-     */
-    credit_card_wallet?: string
-    /**
-     * The customer's credit card expiration month.
-     */
-    credit_card_expiration_month?: string
-    /**
-     * The customer's credit card expiration year.
-     */
-    credit_card_expiration_year?: string
-  }
-  /**
    * The customer's phone number for receiving SMS notifications.
    */
   phone?: string
-  /**
-   * The presentment currency that was used to display prices to the customer.
-   */
-  presentment_currency?: string
   /**
    * The date and time (ISO 8601 format) when an order was processed.
    */
@@ -549,10 +418,6 @@ export interface Payload {
    * The sum of all the taxes applied to the order in the shop currency. Must be positive.
    */
   total_tax?: string
-  /**
-   * The sum of all the tips in the order in the shop currency.
-   */
-  total_tip_received?: string
   /**
    * The ID of the user logged into Shopify POS who processed the order, if applicable.
    */

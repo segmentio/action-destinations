@@ -2,62 +2,9 @@
 
 export interface Payload {
   /**
-   * Product Variant details
-   */
-  productVariant?: {
-    /**
-     * A globally unique identifier for the item.
-     */
-    id?: string
-    /**
-     * Identifier for the variant of the product
-     */
-    variantId?: string
-    /**
-     * The location of the image as a URL.
-     */
-    imageSrc?: string
-    /**
-     * The price of the product variant.
-     */
-    priceAmount?: number
-    /**
-     * The SKU (stock keeping unit) associated with the variant.
-     */
-    sku?: string
-    /**
-     * The product variant's title.
-     */
-    title?: string
-    /**
-     * The product variant's untranslated title.
-     */
-    untranslatedTitle?: string
-    /**
-     * The product's vendor name.
-     */
-    vendor?: string
-    /**
-     * The product type specified by the merchant.
-     */
-    type?: string
-    /**
-     * The relative URL of the product.
-     */
-    url?: string
-  }
-  /**
    * A unique event identifier.
    */
   eventId: string
-  /**
-   * The name of the event to track.
-   */
-  eventName: string
-  /**
-   * Additional name for custom events if 'event_name' is 'custom_event'.
-   */
-  customEventName?: string
   /**
    * The IP address of the user.
    */
@@ -112,6 +59,37 @@ export interface Payload {
      * The referring URL if applicable.
      */
     referrer?: string
+  }
+  /**
+   * Custom attributes for the event. Data should be specified as key:value pairs
+   */
+  customAttributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Customer details
+   */
+  customer?: {
+    /**
+     * The customer's email address.
+     */
+    email?: string
+    /**
+     * The customer's first name.
+     */
+    firstName?: string
+    /**
+     * The customer's last name.
+     */
+    lastName?: string
+    /**
+     * The unique phone number (E.164 format) for this customer.
+     */
+    phone?: string
+    /**
+     * The customer's date of birth.
+     */
+    dob?: string
   }
   /**
    * A globally unique identifier for the cart.
@@ -175,34 +153,52 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * Customer details
+   * Product Variant details
    */
-  customer?: {
+  productVariant?: {
     /**
-     * The customer's email address.
+     * A globally unique identifier for the item.
      */
-    email?: string
+    id?: string
     /**
-     * The customer's first name.
+     * Identifier for the variant of the product
      */
-    firstName?: string
+    variantId?: string
     /**
-     * The customer's last name.
+     * The location of the image as a URL.
      */
-    lastName?: string
+    imageSrc?: string
     /**
-     * The unique phone number (E.164 format) for this customer.
+     * The price of the product variant.
      */
-    phone?: string
+    priceAmount?: number
     /**
-     * The customer's date of birth.
+     * The SKU (stock keeping unit) associated with the variant.
      */
-    dob?: string
+    sku?: string
+    /**
+     * The product variant's title.
+     */
+    title?: string
+    /**
+     * The product variant's untranslated title.
+     */
+    untranslatedTitle?: string
+    /**
+     * The product's vendor name.
+     */
+    vendor?: string
+    /**
+     * The product type specified by the merchant.
+     */
+    type?: string
+    /**
+     * The relative URL of the product.
+     */
+    url?: string
   }
   /**
-   * Custom attributes for the event. Data should be specified as key:value pairs
+   * The name of the Product event to track.
    */
-  customAttributes?: {
-    [k: string]: unknown
-  }
+  eventName: string
 }

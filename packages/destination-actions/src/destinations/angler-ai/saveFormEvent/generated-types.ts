@@ -2,50 +2,9 @@
 
 export interface Payload {
   /**
-   * The id attribute of an element.
-   */
-  id?: string
-  /**
-   * The action attribute of a form element.
-   */
-  action?: string
-  /**
-   * A list of elements associated with the form.
-   */
-  elements?: {
-    /**
-     * The id attribute of an element.
-     */
-    id?: string
-    /**
-     * The name attribute of an element.
-     */
-    name?: string
-    /**
-     * A string representation of the tag of an element.
-     */
-    tagName?: string
-    /**
-     * The type attribute of an element. Often relevant for an input or button element.
-     */
-    type?: string
-    /**
-     * The value attribute of an element. Often relevant for an input element.
-     */
-    value?: string
-  }[]
-  /**
    * A unique event identifier.
    */
   eventId: string
-  /**
-   * The name of the event to track.
-   */
-  eventName: string
-  /**
-   * Additional name for custom events if 'event_name' is 'custom_event'.
-   */
-  customEventName?: string
   /**
    * The IP address of the user.
    */
@@ -100,6 +59,37 @@ export interface Payload {
      * The referring URL if applicable.
      */
     referrer?: string
+  }
+  /**
+   * Custom attributes for the event. Data should be specified as key:value pairs
+   */
+  customAttributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Customer details
+   */
+  customer?: {
+    /**
+     * The customer's email address.
+     */
+    email?: string
+    /**
+     * The customer's first name.
+     */
+    firstName?: string
+    /**
+     * The customer's last name.
+     */
+    lastName?: string
+    /**
+     * The unique phone number (E.164 format) for this customer.
+     */
+    phone?: string
+    /**
+     * The customer's date of birth.
+     */
+    dob?: string
   }
   /**
    * A globally unique identifier for the cart.
@@ -163,34 +153,40 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * Customer details
+   * The id attribute of an element.
    */
-  customer?: {
-    /**
-     * The customer's email address.
-     */
-    email?: string
-    /**
-     * The customer's first name.
-     */
-    firstName?: string
-    /**
-     * The customer's last name.
-     */
-    lastName?: string
-    /**
-     * The unique phone number (E.164 format) for this customer.
-     */
-    phone?: string
-    /**
-     * The customer's date of birth.
-     */
-    dob?: string
-  }
+  id?: string
   /**
-   * Custom attributes for the event. Data should be specified as key:value pairs
+   * The action attribute of a form element.
    */
-  customAttributes?: {
-    [k: string]: unknown
-  }
+  action?: string
+  /**
+   * A list of elements associated with the form.
+   */
+  elements?: {
+    /**
+     * The id attribute of an element.
+     */
+    id?: string
+    /**
+     * The name attribute of an element.
+     */
+    name?: string
+    /**
+     * A string representation of the tag of an element.
+     */
+    tagName?: string
+    /**
+     * The type attribute of an element. Often relevant for an input or button element.
+     */
+    type?: string
+    /**
+     * The value attribute of an element. Often relevant for an input element.
+     */
+    value?: string
+  }[]
+  /**
+   * The name of the Form Event to track.
+   */
+  eventName: string
 }

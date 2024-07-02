@@ -6,14 +6,6 @@ export interface Payload {
    */
   eventId: string
   /**
-   * The name of the event to track.
-   */
-  eventName: string
-  /**
-   * Additional name for custom events if 'event_name' is 'custom_event'.
-   */
-  customEventName?: string
-  /**
    * The IP address of the user.
    */
   ipAddress?: string
@@ -67,6 +59,37 @@ export interface Payload {
      * The referring URL if applicable.
      */
     referrer?: string
+  }
+  /**
+   * Custom attributes for the event. Data should be specified as key:value pairs
+   */
+  customAttributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Customer details
+   */
+  customer?: {
+    /**
+     * The customer's email address.
+     */
+    email?: string
+    /**
+     * The customer's first name.
+     */
+    firstName?: string
+    /**
+     * The customer's last name.
+     */
+    lastName?: string
+    /**
+     * The unique phone number (E.164 format) for this customer.
+     */
+    phone?: string
+    /**
+     * The customer's date of birth.
+     */
+    dob?: string
   }
   /**
    * A globally unique identifier for the cart.
@@ -130,34 +153,7 @@ export interface Payload {
     quantity?: number
   }[]
   /**
-   * Customer details
+   * The name of the event to track.
    */
-  customer?: {
-    /**
-     * The customer's email address.
-     */
-    email?: string
-    /**
-     * The customer's first name.
-     */
-    firstName?: string
-    /**
-     * The customer's last name.
-     */
-    lastName?: string
-    /**
-     * The unique phone number (E.164 format) for this customer.
-     */
-    phone?: string
-    /**
-     * The customer's date of birth.
-     */
-    dob?: string
-  }
-  /**
-   * Custom attributes for the event. Data should be specified as key:value pairs
-   */
-  customAttributes?: {
-    [k: string]: unknown
-  }
+  eventName: string
 }
